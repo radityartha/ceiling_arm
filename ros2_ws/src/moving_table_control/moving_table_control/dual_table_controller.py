@@ -2,10 +2,8 @@
 import rclpy
 from rclpy.node import Node
 from moving_table_control.srv import MovingTable
-from ros2_ws.src.moving_table_control.moving_table.moving_table import (
-    MovingTableController,
-)
-from moving_table.oml_mrtu import ModbusAZ, commPC
+from moving_table_control.moving_table.moving_table import MovingTableController
+from moving_table_control.moving_table.oml_mrtu import ModbusAZ, commPC
 import threading
 
 
