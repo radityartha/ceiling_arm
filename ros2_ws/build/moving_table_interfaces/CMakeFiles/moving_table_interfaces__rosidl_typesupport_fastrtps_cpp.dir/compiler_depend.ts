@@ -1,2 +1,0 @@
-# CMAKE generated file: DO NOT EDIT!
-# Timestamp file for compiler generated dependencies management for moving_table_interfaces__rosidl_typesupport_fastrtps_cpp.
