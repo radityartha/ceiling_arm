@@ -1,0 +1,22 @@
+<package format="3">
+  <name>moving_table_pkg</name>
+  <version>0.0.1</version>
+  <description>Moving table ROS2 package with Python nodes</description>
+
+  <maintainer email="you@example.com">Rama Setyawan</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+  <build_depend>rclpy</build_depend>
+  <exec_depend>rclpy</exec_depend>
+
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

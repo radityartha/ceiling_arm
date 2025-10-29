@@ -1,0 +1,359 @@
+[0.013s] Invoking command in '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/build/livox_ros_driver2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/moving_table_pkg:/opt/ros/humble /usr/bin/cmake /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/src/livox_ros_driver2 -DROS_EDITION=ROS2 -DHUMBLE_ROS=humble -DCMAKE_INSTALL_PREFIX=/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2
+[0.050s] -- The C compiler identification is GNU 11.4.0
+[0.087s] -- The CXX compiler identification is GNU 11.4.0
+[0.091s] -- Detecting C compiler ABI info
+[0.135s] -- Detecting C compiler ABI info - done
+[0.139s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.140s] -- Detecting C compile features
+[0.140s] -- Detecting C compile features - done
+[0.142s] -- Detecting CXX compiler ABI info
+[0.195s] -- Detecting CXX compiler ABI info - done
+[0.200s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.200s] -- Detecting CXX compile features
+[0.201s] -- Detecting CXX compile features - done
+[0.201s] -- livox_ros_driver2 version: 1.2.4
+[0.202s] -- Found ament_cmake_auto: 1.3.12 (/opt/ros/humble/share/ament_cmake_auto/cmake)
+[0.317s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.430s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.436s] -- Found rosidl_adapter: 3.1.7 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.465s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.541s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.543s] -- Found rmw_fastrtps_cpp: 6.2.9 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[0.607s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+[0.628s] -- Found FastRTPS: /opt/ros/humble/include  
+[0.661s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[0.667s] -- Looking for pthread.h
+[0.723s] -- Looking for pthread.h - found
+[0.723s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[0.774s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[0.775s] -- Found Threads: TRUE  
+[0.892s] -- Checking for module 'eigen3'
+[0.903s] --   Found eigen3, version 3.4.0
+[0.929s] -- Found Eigen: /usr/include/eigen3 (Required is at least version "3.1") 
+[0.929s] -- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+[0.956s] -- Checking for module 'flann'
+[0.967s] --   Found flann, version 1.9.1
+[0.993s] -- Found FLANN: /usr/lib/x86_64-linux-gnu/libflann_cpp.so  
+[0.993s] -- FLANN found (include: /usr/include, lib: /usr/lib/x86_64-linux-gnu/libflann_cpp.so)
+[1.791s] -- Checking for module 'libusb-1.0'
+[1.803s] --   Found libusb-1.0, version 1.0.25
+[1.830s] -- Found libusb: /usr/lib/x86_64-linux-gnu/libusb-1.0.so  
+[1.830s] -- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+[1.872s] -- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+[1.989s] -- Eigen found (include: /usr/include/eigen3, version: 3.4.0)
+[1.993s] -- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+[1.998s] -- OpenNI2 found (version: 2.2.0.33, include: /usr/include/openni2, lib: /usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb)
+[2.104s] -- Found Qhull version 8.0.2
+[2.213s] -- OpenNI found (version: 1.5.4.0, include: /usr/include/ni, lib: /usr/lib/libOpenNI.so;libusb::libusb)
+[2.324s] -- Found PCL_COMMON: /usr/lib/x86_64-linux-gnu/libpcl_common.so  
+[2.324s] -- Found PCL_KDTREE: /usr/lib/x86_64-linux-gnu/libpcl_kdtree.so  
+[2.325s] -- Found PCL_OCTREE: /usr/lib/x86_64-linux-gnu/libpcl_octree.so  
+[2.326s] -- Found PCL_SEARCH: /usr/lib/x86_64-linux-gnu/libpcl_search.so  
+[2.327s] -- Found PCL_SAMPLE_CONSENSUS: /usr/lib/x86_64-linux-gnu/libpcl_sample_consensus.so  
+[2.327s] -- Found PCL_FILTERS: /usr/lib/x86_64-linux-gnu/libpcl_filters.so  
+[2.327s] -- Found PCL_2D: /usr/include/pcl-1.12  
+[2.328s] -- Found PCL_GEOMETRY: /usr/include/pcl-1.12  
+[2.328s] -- Found PCL_IO: /usr/lib/x86_64-linux-gnu/libpcl_io.so  
+[2.329s] -- Found PCL_FEATURES: /usr/lib/x86_64-linux-gnu/libpcl_features.so  
+[2.330s] -- Found PCL_ML: /usr/lib/x86_64-linux-gnu/libpcl_ml.so  
+[2.330s] -- Found PCL_SEGMENTATION: /usr/lib/x86_64-linux-gnu/libpcl_segmentation.so  
+[2.331s] -- Found PCL_VISUALIZATION: /usr/lib/x86_64-linux-gnu/libpcl_visualization.so  
+[2.332s] -- Found PCL_SURFACE: /usr/lib/x86_64-linux-gnu/libpcl_surface.so  
+[2.332s] -- Found PCL_REGISTRATION: /usr/lib/x86_64-linux-gnu/libpcl_registration.so  
+[2.333s] -- Found PCL_KEYPOINTS: /usr/lib/x86_64-linux-gnu/libpcl_keypoints.so  
+[2.334s] -- Found PCL_TRACKING: /usr/lib/x86_64-linux-gnu/libpcl_tracking.so  
+[2.334s] -- Found PCL_RECOGNITION: /usr/lib/x86_64-linux-gnu/libpcl_recognition.so  
+[2.335s] -- Found PCL_STEREO: /usr/lib/x86_64-linux-gnu/libpcl_stereo.so  
+[2.336s] -- Found PCL_APPS: /usr/lib/x86_64-linux-gnu/libpcl_apps.so  
+[2.336s] -- Found PCL_IN_HAND_SCANNER: /usr/include/pcl-1.12  
+[2.337s] -- Found PCL_MODELER: /usr/include/pcl-1.12  
+[2.337s] -- Found PCL_POINT_CLOUD_EDITOR: /usr/include/pcl-1.12  
+[2.338s] -- Found PCL_OUTOFCORE: /usr/lib/x86_64-linux-gnu/libpcl_outofcore.so  
+[2.338s] -- Found PCL_PEOPLE: /usr/lib/x86_64-linux-gnu/libpcl_people.so  
+[2.372s] -- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.2") 
+[2.373s] -- Checking for module 'apr-1'
+[2.376s] --   No package 'apr-1' found
+[2.555s] -- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)
+[2.738s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[2.939s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[2.955s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "3.6") 
+[2.956s] -- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)
+[2.973s] -- Found PythonLibs: /usr/lib/x86_64-linux-gnu/libpython3.10.so (found suitable version "3.10.12", minimum required is "3.5") 
+[2.973s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[2.973s] -- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.10
+[2.974s] -- Using PYTHON_LIBRARIES: /usr/lib/x86_64-linux-gnu/libpython3.10.so
+[2.988s] -- Found PythonExtra: .so  
+[3.034s] -- Found ament_lint_auto: 0.12.14 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[3.049s] -- Added test 'copyright' to check source files copyright and LICENSE
+[3.053s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[3.054s] -- Configured cppcheck include dirs: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/src/livox_ros_driver2/3rdparty;/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/src/livox_ros_driver2/src
+[3.054s] -- Configured cppcheck exclude dirs and/or files: 
+[3.057s] -- Added test 'cpplint' to check C / C++ code against the Google style
+[3.057s] -- Configured cpplint exclude dirs and/or files: 
+[3.058s] -- Added test 'flake8' to check Python code syntax and style conventions
+[3.059s] -- Added test 'lint_cmake' to check CMake code style
+[3.060s] -- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+[3.063s] -- Added test 'uncrustify' to check C / C++ code style
+[3.063s] -- Configured uncrustify additional arguments: 
+[3.064s] -- Added test 'xmllint' to check XML markup files
+[3.066s] -- Configuring done
+[3.105s] -- Generating done
+[3.119s] -- Build files have been written to: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/build/livox_ros_driver2
+[3.134s] Invoked command in '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/build/livox_ros_driver2' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/moving_table_pkg:/opt/ros/humble /usr/bin/cmake /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/src/livox_ros_driver2 -DROS_EDITION=ROS2 -DHUMBLE_ROS=humble -DCMAKE_INSTALL_PREFIX=/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2
+[3.135s] Invoking command in '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/build/livox_ros_driver2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/moving_table_pkg:/opt/ros/humble /usr/bin/cmake --build /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/build/livox_ros_driver2 -- -j16 -l16
+[3.164s] [  1%] [34m[1mGenerating C code for ROS interfaces[0m
+[3.170s] [  3%] [34m[1mGenerating C++ code for ROS interfaces[0m
+[3.171s] [  5%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2_node.dir/rclcpp_components/node_main_livox_ros_driver2_node.cpp.o[0m
+[3.176s] [  5%] Built target ament_cmake_python_copy_livox_ros_driver2
+[3.344s] running egg_info
+[3.344s] creating livox_ros_driver2.egg-info
+[3.344s] writing livox_ros_driver2.egg-info/PKG-INFO
+[3.345s] writing dependency_links to livox_ros_driver2.egg-info/dependency_links.txt
+[3.345s] writing top-level names to livox_ros_driver2.egg-info/top_level.txt
+[3.345s] writing manifest file 'livox_ros_driver2.egg-info/SOURCES.txt'
+[3.346s] reading manifest file 'livox_ros_driver2.egg-info/SOURCES.txt'
+[3.347s] writing manifest file 'livox_ros_driver2.egg-info/SOURCES.txt'
+[3.371s] [  5%] Built target ament_cmake_python_build_livox_ros_driver2_egg
+[3.495s] [  5%] Built target livox_interfaces2__cpp
+[3.496s] [  8%] [32mBuilding C object CMakeFiles/livox_interfaces2__rosidl_generator_c.dir/rosidl_generator_c/livox_ros_driver2/msg/detail/custom_msg__functions.c.o[0m
+[3.496s] [  8%] [32mBuilding C object CMakeFiles/livox_interfaces2__rosidl_generator_c.dir/rosidl_generator_c/livox_ros_driver2/msg/detail/custom_point__functions.c.o[0m
+[3.503s] [ 12%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[3.504s] [ 14%] [34m[1mGenerating C++ introspection for ROS interfaces[0m
+[3.504s] [ 14%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
+[3.533s] [ 15%] [32m[1mLinking C shared library liblivox_ros_driver2__rosidl_generator_c.so[0m
+[3.562s] [ 15%] Built target livox_interfaces2__rosidl_generator_c
+[3.571s] [ 21%] [34m[1mGenerating C introspection for ROS interfaces[0m
+[3.571s] [ 21%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[3.571s] [ 21%] [34m[1mGenerating C type support dispatch for ROS interfaces[0m
+[3.853s] [ 26%] [32mBuilding CXX object CMakeFiles/livox_interfaces2__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/livox_ros_driver2/msg/detail/dds_fastrtps/custom_msg__type_support.cpp.o[0m
+[3.853s] [ 26%] [32mBuilding CXX object CMakeFiles/livox_interfaces2__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/livox_ros_driver2/msg/detail/dds_fastrtps/custom_point__type_support.cpp.o[0m
+[3.853s] [ 26%] [32mBuilding CXX object CMakeFiles/livox_interfaces2__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/livox_ros_driver2/msg/custom_msg__type_support.cpp.o[0m
+[3.855s] [ 28%] [32mBuilding CXX object CMakeFiles/livox_interfaces2__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/livox_ros_driver2/msg/custom_point__type_support.cpp.o[0m
+[3.867s] [ 31%] [32mBuilding CXX object CMakeFiles/livox_interfaces2__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/livox_ros_driver2/msg/detail/custom_msg__type_support.cpp.o[0m
+[3.868s] [ 31%] [32mBuilding CXX object CMakeFiles/livox_interfaces2__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/livox_ros_driver2/msg/detail/custom_point__type_support.cpp.o[0m
+[3.928s] [ 33%] [32mBuilding CXX object CMakeFiles/livox_interfaces2__rosidl_typesupport_c.dir/rosidl_typesupport_c/livox_ros_driver2/msg/custom_point__type_support.cpp.o[0m
+[3.928s] [ 35%] [32mBuilding CXX object CMakeFiles/livox_interfaces2__rosidl_typesupport_c.dir/rosidl_typesupport_c/livox_ros_driver2/msg/custom_msg__type_support.cpp.o[0m
+[3.965s] [ 36%] [32mBuilding C object CMakeFiles/livox_interfaces2__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/livox_ros_driver2/msg/detail/custom_point__type_support.c.o[0m
+[3.967s] [ 38%] [32mBuilding C object CMakeFiles/livox_interfaces2__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/livox_ros_driver2/msg/detail/custom_msg__type_support.c.o[0m
+[3.968s] [ 40%] [32m[1mLinking CXX shared library liblivox_ros_driver2__rosidl_typesupport_c.so[0m
+[3.978s] [ 43%] [32mBuilding CXX object CMakeFiles/livox_interfaces2__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/livox_ros_driver2/msg/detail/custom_msg__type_support_c.cpp.o[0m
+[3.978s] [ 43%] [32mBuilding CXX object CMakeFiles/livox_interfaces2__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/livox_ros_driver2/msg/detail/custom_point__type_support_c.cpp.o[0m
+[4.014s] [ 45%] [32m[1mLinking C shared library liblivox_ros_driver2__rosidl_typesupport_introspection_c.so[0m
+[4.018s] [ 45%] Built target livox_interfaces2__rosidl_typesupport_c
+[4.047s] [ 45%] Built target livox_interfaces2__rosidl_typesupport_introspection_c
+[4.163s] [ 47%] [32m[1mLinking CXX shared library liblivox_ros_driver2__rosidl_typesupport_cpp.so[0m
+[4.194s] [ 47%] Built target livox_interfaces2__rosidl_typesupport_cpp
+[4.216s] [ 56%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/comm/semaphore.cpp.o[0m
+[4.217s] [ 56%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/driver_node.cpp.o[0m
+[4.217s] [ 56%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/lddc.cpp.o[0m
+[4.217s] [ 56%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/lds.cpp.o[0m
+[4.217s] [ 56%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/comm/comm.cpp.o[0m
+[4.217s] [ 57%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/comm/ldq.cpp.o[0m
+[4.217s] [ 59%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/livox_ros_driver2.cpp.o[0m
+[4.218s] [ 61%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/comm/lidar_imu_data_queue.cpp.o[0m
+[4.218s] [ 63%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/lds_lidar.cpp.o[0m
+[4.241s] [ 64%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/comm/cache_index.cpp.o[0m
+[4.256s] [ 66%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/comm/pub_handler.cpp.o[0m
+[4.274s] [ 68%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/parse_cfg_file/parse_cfg_file.cpp.o[0m
+[4.344s] [ 70%] [32m[1mLinking CXX shared library liblivox_ros_driver2__rosidl_typesupport_fastrtps_cpp.so[0m
+[4.345s] [ 71%] [32m[1mLinking CXX shared library liblivox_ros_driver2__rosidl_typesupport_introspection_cpp.so[0m
+[4.350s] [ 73%] [32m[1mLinking CXX shared library liblivox_ros_driver2__rosidl_typesupport_fastrtps_c.so[0m
+[4.449s] [ 73%] Built target livox_interfaces2__rosidl_typesupport_fastrtps_cpp
+[4.460s] [ 75%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/parse_cfg_file/parse_livox_lidar_cfg.cpp.o[0m
+[4.532s] [ 75%] Built target livox_interfaces2__rosidl_typesupport_introspection_cpp
+[4.544s] [ 75%] Built target livox_interfaces2__rosidl_typesupport_fastrtps_c
+[4.544s] [ 77%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/call_back/lidar_common_callback.cpp.o[0m
+[4.575s] [ 77%] Built target livox_interfaces2
+[4.589s] [ 78%] [32mBuilding CXX object CMakeFiles/livox_ros_driver2.dir/src/call_back/livox_lidar_callback.cpp.o[0m
+[4.679s] [ 80%] [34m[1mGenerating Python code for ROS interfaces[0m
+[5.519s] [ 80%] Built target livox_interfaces2__py
+[5.537s] [ 84%] [32mBuilding C object CMakeFiles/livox_interfaces2__rosidl_generator_py.dir/rosidl_generator_py/livox_ros_driver2/msg/_custom_msg_s.c.o[0m
+[5.537s] [ 84%] [32mBuilding C object CMakeFiles/livox_interfaces2__rosidl_generator_py.dir/rosidl_generator_py/livox_ros_driver2/msg/_custom_point_s.c.o[0m
+[5.615s] [ 85%] [32m[1mLinking C shared library rosidl_generator_py/livox_ros_driver2/liblivox_interfaces2__rosidl_generator_py.so[0m
+[5.648s] [ 85%] Built target livox_interfaces2__rosidl_generator_py
+[5.664s] [ 89%] [32mBuilding C object CMakeFiles/livox_ros_driver2__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/livox_ros_driver2/_livox_ros_driver2_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[5.664s] [ 89%] [32mBuilding C object CMakeFiles/livox_ros_driver2__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/livox_ros_driver2/_livox_ros_driver2_s.ep.rosidl_typesupport_c.c.o[0m
+[5.664s] [ 91%] [32mBuilding C object CMakeFiles/livox_ros_driver2__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/livox_ros_driver2/_livox_ros_driver2_s.ep.rosidl_typesupport_introspection_c.c.o[0m
+[5.737s] [ 96%] [32m[1mLinking C shared library rosidl_generator_py/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so[0m
+[5.737s] [ 96%] [32m[1mLinking C shared library rosidl_generator_py/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so[0m
+[5.737s] [ 96%] [32m[1mLinking C shared library rosidl_generator_py/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so[0m
+[5.766s] [ 96%] Built target livox_ros_driver2__rosidl_typesupport_fastrtps_c__pyext
+[5.766s] [ 96%] Built target livox_ros_driver2__rosidl_typesupport_introspection_c__pyext
+[5.766s] [ 96%] Built target livox_ros_driver2__rosidl_typesupport_c__pyext
+[6.168s] [ 98%] [32m[1mLinking CXX executable livox_ros_driver2_node[0m
+[6.251s] [ 98%] Built target livox_ros_driver2_node
+[10.040s] [100%] [32m[1mLinking CXX shared library liblivox_ros_driver2.so[0m
+[10.478s] [100%] Built target livox_ros_driver2
+[10.486s] Invoked command in '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/build/livox_ros_driver2' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/moving_table_pkg:/opt/ros/humble /usr/bin/cmake --build /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/build/livox_ros_driver2 -- -j16 -l16
+[10.487s] Invoking command in '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/build/livox_ros_driver2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/moving_table_pkg:/opt/ros/humble /usr/bin/cmake --install /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/build/livox_ros_driver2
+[10.492s] -- Install configuration: ""
+[10.492s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/ament_index/resource_index/rosidl_interfaces/livox_ros_driver2
+[10.492s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2
+[10.492s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg
+[10.492s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/rosidl_generator_c__visibility_control.h
+[10.492s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail
+[10.492s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__functions.c
+[10.492s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__type_support.h
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__functions.h
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__functions.c
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__struct.h
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__type_support.h
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__struct.h
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__functions.h
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/custom_point.h
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/custom_msg.h
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/environment/library_path.sh
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/environment/library_path.dsv
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_generator_c.so
+[10.493s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_generator_c.so" to ""
+[10.493s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2
+[10.493s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg
+[10.493s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[10.493s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail
+[10.494s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__rosidl_typesupport_fastrtps_c.h
+[10.494s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__rosidl_typesupport_fastrtps_c.h
+[10.494s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_fastrtps_c.so
+[10.494s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_fastrtps_c.so" to ""
+[10.494s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2
+[10.494s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg
+[10.494s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[10.494s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail
+[10.494s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__rosidl_typesupport_introspection_c.h
+[10.494s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__type_support.c
+[10.494s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__rosidl_typesupport_introspection_c.h
+[10.494s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__type_support.c
+[10.494s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_introspection_c.so
+[10.494s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_introspection_c.so" to ""
+[10.494s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_c.so
+[10.494s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_c.so" to ""
+[10.494s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2
+[10.494s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg
+[10.495s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__struct.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__builder.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__type_support.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__struct.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__traits.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__type_support.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__traits.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__builder.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/custom_point.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/rosidl_generator_cpp__visibility_control.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/custom_msg.hpp
+[10.495s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2
+[10.495s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[10.495s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__rosidl_typesupport_fastrtps_cpp.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/dds_fastrtps
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__rosidl_typesupport_fastrtps_cpp.hpp
+[10.495s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_fastrtps_cpp.so
+[10.495s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_fastrtps_cpp.so" to ""
+[10.496s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2
+[10.496s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg
+[10.496s] -- Up-to-date: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail
+[10.496s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__type_support.cpp
+[10.496s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__rosidl_typesupport_introspection_cpp.hpp
+[10.496s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_msg__rosidl_typesupport_introspection_cpp.hpp
+[10.496s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/include/livox_ros_driver2/livox_ros_driver2/msg/detail/custom_point__type_support.cpp
+[10.496s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_introspection_cpp.so
+[10.496s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_introspection_cpp.so" to ""
+[10.496s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_cpp.so
+[10.496s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2__rosidl_typesupport_cpp.so" to ""
+[10.496s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/environment/pythonpath.sh
+[10.496s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/environment/pythonpath.dsv
+[10.496s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2-1.0.0-py3.10.egg-info
+[10.496s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2-1.0.0-py3.10.egg-info/dependency_links.txt
+[10.496s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2-1.0.0-py3.10.egg-info/SOURCES.txt
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2-1.0.0-py3.10.egg-info/top_level.txt
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2-1.0.0-py3.10.egg-info/PKG-INFO
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/_livox_ros_driver2_s.ep.rosidl_typesupport_c.c
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/_livox_ros_driver2_s.ep.rosidl_typesupport_fastrtps_c.c
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/msg
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/msg/_custom_point_s.c
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/msg/_custom_point.py
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/msg/_custom_msg.py
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/msg/__init__.py
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/msg/_custom_msg_s.c
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/__init__.py
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/liblivox_interfaces2__rosidl_generator_py.so
+[10.497s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/_livox_ros_driver2_s.ep.rosidl_typesupport_introspection_c.c
+[10.522s] Listing '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2'...
+[10.522s] Compiling '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/__init__.py'...
+[10.522s] Listing '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/msg'...
+[10.522s] Compiling '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/msg/__init__.py'...
+[10.522s] Compiling '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/msg/_custom_msg.py'...
+[10.522s] Compiling '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/msg/_custom_point.py'...
+[10.525s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[10.525s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so" to ""
+[10.525s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[10.525s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so" to ""
+[10.525s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[10.525s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/local/lib/python3.10/dist-packages/livox_ros_driver2/livox_ros_driver2_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so" to ""
+[10.525s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_interfaces2__rosidl_generator_py.so
+[10.525s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_interfaces2__rosidl_generator_py.so" to ""
+[10.525s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/msg/CustomPoint.idl
+[10.526s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/msg/CustomMsg.idl
+[10.526s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/msg/CustomPoint.msg
+[10.526s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/msg/CustomMsg.msg
+[10.526s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/livox_ros_driver2/livox_ros_driver2_node
+[10.526s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/livox_ros_driver2/livox_ros_driver2_node" to ""
+[10.526s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2.so
+[10.528s] -- Set runtime path of "/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/lib/liblivox_ros_driver2.so" to ""
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/config
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/config/MID360_config.json
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/config/display_point_cloud_ROS2.rviz
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/config/mixed_HAP_MID360_config.json
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/config/HAP_config.json
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/config/display_point_cloud_ROS1.rviz
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/launch_ROS2
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/launch_ROS2/rviz_HAP_launch.py
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/launch_ROS2/msg_MID360_launch.py
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/launch_ROS2/rviz_mixed.py
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/launch_ROS2/rviz_MID360_launch.py
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/launch_ROS2/msg_HAP_launch.py
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/ament_index/resource_index/package_run_dependencies/livox_ros_driver2
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/ament_index/resource_index/parent_prefix_path/livox_ros_driver2
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/environment/ament_prefix_path.sh
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/environment/ament_prefix_path.dsv
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/environment/path.sh
+[10.529s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/environment/path.dsv
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/local_setup.bash
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/local_setup.sh
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/local_setup.zsh
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/local_setup.dsv
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/package.dsv
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/ament_index/resource_index/packages/livox_ros_driver2
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/export_livox_interfaces2__rosidl_generator_cExport.cmake
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/export_livox_interfaces2__rosidl_generator_cExport-noconfig.cmake
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/export_livox_interfaces2__rosidl_typesupport_fastrtps_cExport.cmake
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/export_livox_interfaces2__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/livox_interfaces2__rosidl_typesupport_introspection_cExport.cmake
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/livox_interfaces2__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/livox_interfaces2__rosidl_typesupport_cExport.cmake
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/livox_interfaces2__rosidl_typesupport_cExport-noconfig.cmake
+[10.530s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/export_livox_interfaces2__rosidl_generator_cppExport.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/export_livox_interfaces2__rosidl_typesupport_fastrtps_cppExport.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/export_livox_interfaces2__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/livox_interfaces2__rosidl_typesupport_introspection_cppExport.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/livox_interfaces2__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/livox_interfaces2__rosidl_typesupport_cppExport.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/livox_interfaces2__rosidl_typesupport_cppExport-noconfig.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/export_livox_interfaces2__rosidl_generator_pyExport.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/export_livox_interfaces2__rosidl_generator_pyExport-noconfig.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/ament_index/resource_index/rclcpp_components/livox_ros_driver2
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/rosidl_cmake-extras.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/ament_cmake_export_dependencies-extras.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/ament_cmake_export_include_directories-extras.cmake
+[10.531s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/ament_cmake_export_libraries-extras.cmake
+[10.532s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/ament_cmake_export_targets-extras.cmake
+[10.532s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[10.532s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[10.532s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/livox_ros_driver2Config.cmake
+[10.532s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/cmake/livox_ros_driver2Config-version.cmake
+[10.532s] -- Installing: /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/livox_ros_driver2/share/livox_ros_driver2/package.xml
+[10.534s] Invoked command in '/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/build/livox_ros_driver2' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/rama/Documents/code/Docker/moonshot_project/ros2_ws/install/moving_table_pkg:/opt/ros/humble /usr/bin/cmake --install /home/rama/Documents/code/Docker/moonshot_project/ros2_ws/build/livox_ros_driver2

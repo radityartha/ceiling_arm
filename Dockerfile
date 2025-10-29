@@ -39,13 +39,14 @@ RUN apt-get update && apt-get install -y \
     ros-${ROS_DISTRO}-ros-gz-bridge \
     ros-${ROS_DISTRO}-ros-gz-sim \
     ros-${ROS_DISTRO}-gz-ros2-control \
+    ros-${ROS_DISTRO}-ament-cmake \
+    ros-${ROS_DISTRO}-ament-cmake-python \
     && rm -rf /var/lib/apt/lists/*
 
 # ----------------------------------------------------
 # 🧩 Python dependencies
 # ----------------------------------------------------
-# Install Python dependencies
-RUN pip3 install --no-cache-dir wheel numpy pymodbus
+RUN pip3 install --no-cache-dir wheel numpy pymodbus pyserial
 
 # ----------------------------------------------------
 # 🧩 Initialize rosdep
@@ -54,41 +55,36 @@ RUN [ -f /etc/ros/rosdep/sources.list.d/20-default.list ] || rosdep init && \
     rosdep update || echo "rosdep already initialized"
 
 # ----------------------------------------------------
-# 📂 Create workspace and copy sources
+# 📂 Create workspace
 # ----------------------------------------------------
-WORKDIR /moonshot_project
-RUN mkdir -p ${WORKSPACE}/src
+WORKDIR ${WORKSPACE}
+RUN mkdir -p src
 
-# Copy your workspace sources
+# ----------------------------------------------------
+# 🧩 Copy project sources
+# ----------------------------------------------------
 COPY ros2_ws/src ${WORKSPACE}/src
 COPY config ${WORKSPACE}/../config
 COPY scripts ${WORKSPACE}/../scripts
 COPY dependencies/kortex_api-2.6.0.post3-py3-none-any.whl ${WORKSPACE}/../dependencies/
 
 # ----------------------------------------------------
-# 🧩 Install Kinova Kortex API
+# 🧩 Install Kinova Kortex API (if needed)
 # ----------------------------------------------------
-RUN pip3 install ${WORKSPACE}/../dependencies/kortex_api-2.6.0.post3-py3-none-any.whl
+RUN pip3 install ${WORKSPACE}/../dependencies/kortex_api-2.6.0.post3-py3-none-any.whl || echo "Optional Kortex API"
 
 # ----------------------------------------------------
-# 🧩 Clone dependencies from source
+# 🧩 Clone additional dependencies
 # ----------------------------------------------------
 WORKDIR ${WORKSPACE}/src
-
-# Kinova ROS2 driver (for arm control)
-RUN git clone -b humble https://github.com/Kinovarobotics/ros2_kortex.git dependencies/kinova_ros2_driver \
-    || echo "Warning: kinova_ros2_driver clone failed"
-
-# Robotiq grippers (provides robotiq_description)
 RUN git clone -b humble https://github.com/PickNikRobotics/ros2_robotiq_grippers.git dependencies/ros2_robotiq_grippers \
     || echo "Warning: robotiq_grippers clone failed"
 
-# PickNik controllers (provides twist/reset fault controllers)
 RUN git clone -b humble https://github.com/PickNikRobotics/picknik_controllers.git dependencies/picknik_controllers \
     || echo "Warning: picknik_controllers clone failed"
 
 # ----------------------------------------------------
-# 🧩 Install ROS dependencies (skip missing packages)
+# 🧩 Install ROS dependencies (skip missing)
 # ----------------------------------------------------
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     rosdep install --from-paths ${WORKSPACE}/src --ignore-src -r -y \
@@ -96,11 +92,21 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     || echo 'rosdep install completed with skipped keys'
 
 # ----------------------------------------------------
+# 🧩 Clean build artifacts before build
+# ----------------------------------------------------
+RUN rm -rf ${WORKSPACE}/build ${WORKSPACE}/install ${WORKSPACE}/log
+
+# ----------------------------------------------------
 # 🧩 Build the workspace
 # ----------------------------------------------------
 WORKDIR ${WORKSPACE}
+
+# Remove any previous build/install/log folders to avoid duplicate targets
+RUN rm -rf build install log
+
+# Then build the workspace
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
-    colcon build --symlink-install" || { echo 'colcon build failed'; exit 1; }
+                  colcon build --symlink-install --cmake-clean-cache"
 
 # ----------------------------------------------------
 # 🧩 Source setup for interactive shells
