@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<robot name="table_viewer" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Include the table macro definition -->
+  <!-- Make sure $(find workcell_description) resolves correctly -->
+  <xacro:include filename="$(find workcell_description)/urdf/table.urdf.xacro" />
+
+  <!-- Define a world link to attach the table to -->
+  <link name="world"/>
+
+  <!-- Instantiate the moving_table macro -->
+  <!-- Give it a prefix and attach it to the world frame -->
+  <xacro:moving_table prefix="test_table_" parent="world">
+    <!-- Define the origin (position and orientation) relative to the parent ('world') -->
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:moving_table>
+
+</robot>
