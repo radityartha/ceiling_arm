@@ -61,18 +61,18 @@
        <visual>
          <geometry>
            <!-- 8cm wide (X), 80cm long (Y), 8cm thick (Z) -->
-           <box size="0.08 0.8 0.008"/>
+           <box size="0.08 0.8 0.015"/>
          </geometry>
          <material name="dark_grey"/>
          <!-- Positioned at the center, vertically on top of the platform -->
-         <origin xyz="0 0 ${0.065/2 + 0.08/2}" rpy="0 0 0"/>
+         <origin xyz="0 0 -${0.065/2 + 0.08/2}" rpy="0 0 0"/>
        </visual>
        <collision>
           <geometry>
-           <box size="0.08 0.8 0.08"/>
+           <box size="0.08 0.8 0.015"/>
           </geometry>
           <!-- Positioned at the center, vertically on top of the platform -->
-          <origin xyz="0 0 ${0.065/2 + 0.08/2}" rpy="0 0 0"/>
+          <origin xyz="0 0 -${0.065/2 + 0.08/2}" rpy="0 0 0"/>
        </collision>
         <inertial>
          <mass value="3.0"/> <!-- Example mass: 3 kg -->
@@ -97,9 +97,9 @@
 
     <!-- === Arm Mounting Plates === -->
     <xacro:property name="mount_plate_radius" value="${11.0 / 2 / 100.0}"/> <!-- 5.5cm radius -->
-    <xacro:property name="mount_plate_length" value="0.01"/> <!-- 1cm thick plate -->
+    <xacro:property name="mount_plate_length" value="0.05"/> <!-- 5cm thick plate -->
     <!-- Z center of plate, relative to the Z center of the rotation_link -->
-    <xacro:property name="mount_plate_z_offset_on_link" value="${0.08/2 + 0.01/2}"/> <!-- Z origin = LinkHalfHeight + PlateHalfHeight -->
+    <xacro:property name="mount_plate_z_offset_on_link" value="-${0.08/2 + 0.01/2}"/> <!-- Z origin = LinkHalfHeight + PlateHalfHeight -->
     <xacro:property name="mount_plate_y_offset" value="0.4"/> <!-- 40cm left/right (at the tips) -->
     <xacro:property name="mount_plate_mass" value="0.2"/> <!-- Example mass 200g -->
 
