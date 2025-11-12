@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot name="two_table_viewer" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- 
+    This file is for testing the tables only.
+    It includes the table macro, but does NOT include the kinova arms.
+  -->
+
+  <!-- Moving table definition -->
+  <xacro:include filename="$(find workcell_description)/urdf/moving_table.urdf.xacro" />
+
+  <!-- Base frame -->
+  <link name="world"/>
+
+  <!-- === Table 1 === -->
+  <!-- Table center at +0.36m (17cm half-table + 19cm half-gap) -->
+  <xacro:moving_table prefix="t1_" parent="world">
+    <origin xyz="0 0.36 0" rpy="0 0 0"/>
+  </xacro:moving_table>
+
+  <!-- === Table 2 === -->
+  <!-- Table center at -0.36m (17cm half-table + 19cm half-gap) -->
+  <xacro:moving_table prefix="t2_" parent="world">
+    <origin xyz="0 -0.36 0" rpy="0 0 0"/>
+  </xacro:moving_table>
+
+</robot>

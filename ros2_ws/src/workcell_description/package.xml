@@ -10,9 +10,15 @@
   <!-- This package uses CMake to build the service files -->
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>kortex_description</depend>
+
   <!-- These are required to generate code from .srv files -->
   <buildtool_depend>rosidl_default_generators</buildtool_depend>
   <exec_depend>rosidl_default_runtime</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>xacro</exec_depend>
   <member_of_group>rosidl_interface_packages</member_of_group>
 
   <export>

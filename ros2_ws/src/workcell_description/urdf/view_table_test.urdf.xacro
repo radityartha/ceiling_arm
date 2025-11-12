@@ -3,7 +3,7 @@
 
   <!-- Include the table macro definition -->
   <!-- Make sure $(find workcell_description) resolves correctly -->
-  <xacro:include filename="$(find workcell_description)/urdf/table.urdf.xacro" />
+  <xacro:include filename="$(find workcell_description)/urdf/moving_table.urdf.xacro" />
 
   <!-- Define a world link to attach the table to -->
   <link name="world"/>

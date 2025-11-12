@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="trailer_workcell">
+    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+
+    <!-- Import trailer_workcell urdf file -->
+    <xacro:include filename="$(find workcell_description)/urdf/workcell.urdf.xacro" />
+
+    <!-- Import control_xacro -->
+    <xacro:include filename="trailer_workcell.ros2_control.xacro" />
+
+
+    <xacro:trailer_workcell_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
+
+</robot>

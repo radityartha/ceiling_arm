@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="gen3_lite">
+  <!-- Include the macro definition -->
+  <xacro:include filename="$(find kortex_description)/arms/gen3_lite/6dof/urdf/gen3_lite_macro.xacro"/>
+
+  <!-- Call the actual macro name -->
+  <xacro:gen3_lite_robot
+    prefix=""
+    robot_ip="0.0.0.0"
+    use_fake_hardware="true"
+    robot_type="gen3_lite"
+  />
+</robot>

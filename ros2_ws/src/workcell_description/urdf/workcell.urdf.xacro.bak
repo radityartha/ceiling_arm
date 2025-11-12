@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<robot name="trailer_workcell" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ============================ -->
+  <!-- Include table and Kinova URDF -->
+  <!-- ============================ -->
+
+  <!-- Moving table definition -->
+  <xacro:include filename="$(find workcell_description)/urdf/moving_table.urdf.xacro"/>
+
+  <!-- Kinova Gen3 Lite (6DOF) arm and control macros -->
+  <xacro:include filename="$(find kortex_description)/arms/gen3_lite/6dof/urdf/gen3_lite_macro.xacro"/>
+  <xacro:include filename="$(find kortex_description)/arms/gen3_lite/6dof/urdf/gen3_lite_transmission_macro.xacro"/>
+  <xacro:include filename="$(find kortex_description)/arms/gen3_lite/6dof/urdf/kortex.ros2_control.xacro"/>
+
+  <!-- *** FIX: ADDED THIS LINE TO LOAD THE GRIPPER *** -->
+  <xacro:include filename="$(find kortex_description)/grippers/gen3_lite_2f/urdf/gen3_lite_2f_macro.xacro"/>
+
+
+  <!-- ==================================== -->
+  <!-- Base frame -->
+  <!-- ==================================== -->
+  <link name="world"/>
+
+  <!-- ==================================== -->
+  <!-- Moving Tables -->
+  <!-- ==================================== -->
+
+  <!-- Table 1 -->
+  <xacro:moving_table prefix="t1_" parent="world">
+    <origin xyz="0 0.36 0" rpy="0 0 0"/>
+  </xacro:moving_table>
+
+  <!-- Table 2 -->
+  <xacro:moving_table prefix="t2_" parent="world">
+    <origin xyz="0 -0.36 0" rpy="0 0 0"/>
+  </xacro:moving_table>
+
+  <!-- ==================================== -->
+  <!-- Arms Mounted on Table 1 -->
+  <!-- ==================================== -->
+
+  <!-- Arm 1 -->
+  <xacro:load_arm
+    prefix="t1_a1_"
+    parent="t1_mount_plate_left"
+    dof="6"
+    vision="false"
+    gripper_joint_name="right_outer_knuckle_joint"
+    robot_ip="0.0.0.0"
+    use_fake_hardware="true">
+    <origin xyz="0 0 -${0.05/2}" rpy="3.14159 0 3.14159"/>
+  </xacro:load_arm>
+
+  <!-- Arm 2 -->
+  <xacro:load_arm
+    prefix="t1_a2_"
+    parent="t1_mount_plate_right"
+    dof="6"
+    vision="false"
+    gripper_joint_name="right_outer_knuckle_joint"
+    robot_ip="0.0.0.0"
+    use_fake_hardware="true">
+    <origin xyz="0 0 -${0.05/2}" rpy="3.14159 0 0"/>
+  </xacro:load_arm>
+
+  <!-- ==================================== -->
+  <!-- Arms Mounted on Table 2 -->
+  <!-- ==================================== -->
+
+  <!-- Arm 3 -->
+  <xacro:load_arm
+    prefix="t2_a1_"
+    parent="t2_mount_plate_left"
+    dof="6"
+    vision="false"
+    gripper_joint_name="right_outer_knuckle_joint"
+    robot_ip="0.0.0.0"
+    use_fake_hardware="true">
+    <origin xyz="0 0 -${0.05/2}" rpy="3.14159 0 3.14159"/>
+  </xacro:load_arm>
+
+  <!-- Arm 4 -->
+  <xacro:load_arm
+    prefix="t2_a2_"
+    parent="t2_mount_plate_right"
+    dof="6"
+    vision="false"
+    gripper_joint_name="right_outer_knuckle_joint"
+    robot_ip="0.0.0.0"
+    use_fake_hardware="true">
+    <origin xyz="0 0 -${0.05/2}" rpy="3.14159 0 0"/> 
+  </xacro:load_arm>
+
+</robot>

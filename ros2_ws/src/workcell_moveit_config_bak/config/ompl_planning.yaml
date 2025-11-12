@@ -1,0 +1,16 @@
+planner_configs:
+  RRTConnectkConfigDefault:
+    type: geometric::RRTConnect
+    range: 0.1
+
+t1_a1_arm:
+  planner_configs: [RRTConnectkConfigDefault]
+
+t1_a2_arm:
+  planner_configs: [RRTConnectkConfigDefault]
+
+t2_a1_arm:
+  planner_configs: [RRTConnectkConfigDefault]
+
+t2_a2_arm:
+  planner_configs: [RRTConnectkConfigDefault]

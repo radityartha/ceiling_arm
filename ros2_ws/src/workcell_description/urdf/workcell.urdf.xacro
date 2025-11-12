@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<robot name="trailer_workcell"
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ============================ -->
+  <!-- Include table and Kinova URDF -->
+  <!-- ============================ -->
+
+  <!-- Moving table definition -->
+  <xacro:include filename="$(find workcell_description)/urdf/moving_table.urdf.xacro"/>
+
+  <!-- Kinova Gen3 Lite (6DOF) arm and control macros -->
+  <!-- <xacro:include filename="$(find kortex_description)/arms/gen3_lite/6dof/urdf/gen3_lite_macro.xacro"/> -->
+  <!-- <xacro:include filename="$(find kortex_description)/arms/gen3_lite/6dof/urdf/gen3_lite_transmission_macro.xacro"/> -->
+  <xacro:include filename="$(find kortex_description)/robots/kortex_robot.xacro"/>
+  <xacro:include filename="$(find kortex_description)/arms/gen3_lite/6dof/urdf/kortex.ros2_control.xacro"/>
+
+  <!-- *** FIX: ADDED THIS LINE TO LOAD THE GRIPPER *** -->
+  <!-- Kinova Gen3 Lite gripper (2F) -->
+  <xacro:include filename="$(find kortex_description)/grippers/gen3_lite_2f/urdf/gen3_lite_2f_macro.xacro"/>
+  <xacro:include filename="$(find kortex_description)/grippers/gen3_lite_2f/urdf/gen3_lite_2f_transmission_macro.xacro"/>
+
+  <!-- ==================================== -->
+  <!-- Base frame -->
+  <!-- ==================================== -->
+  <link name="world"/>
+
+  <!-- ==================================== -->
+  <!-- Moving Tables -->
+  <!-- ==================================== -->
+
+  <!-- Table 1 -->
+  <xacro:moving_table prefix="t1_" parent="world">
+    <origin xyz="0 0.36 0" rpy="0 0 0"/>
+  </xacro:moving_table>
+
+  <!-- Table 2 -->
+  <xacro:moving_table prefix="t2_" parent="world">
+    <origin xyz="0 -0.36 0" rpy="0 0 0"/>
+  </xacro:moving_table>
+
+  <!-- ==================================== -->
+  <!-- Moving Tables Fake Hardware -->
+  <!-- ==================================== -->
+
+  <ros2_control name="TableFakeHardware" type="system">
+    <hardware>
+      <plugin>mock_components/MockSystem</plugin>
+    </hardware>
+
+    <joint name="t1_linear_joint">
+      <command_interface name="position" />
+      <state_interface name="position" />
+    </joint>
+    <joint name="t1_rotation_joint">
+      <command_interface name="position" />
+      <state_interface name="position" />
+    </joint>
+
+    <joint name="t2_linear_joint">
+      <command_interface name="position" />
+      <state_interface name="position" />
+    </joint>
+    <joint name="t2_rotation_joint">
+      <command_interface name="position" />
+      <state_interface name="position" />
+    </joint>
+  </ros2_control>
+
+  <!-- ==================================== -->
+  <!-- Arms Mounted on Table 1 -->
+  <!-- ==================================== -->
+
+  <!-- Arm 1 (Left mount on Table 1) -->
+  <xacro:load_robot prefix="t1_a1_" parent="t1_mount_plate_left" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="true" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="0.0.0.0" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 1.5707963267948966"/>
+  </xacro:load_robot>
+
+  <!-- Arm 2 (Right mount on Table 1) -->
+  <xacro:load_robot prefix="t1_a2_" parent="t1_mount_plate_right" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="true" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="0.0.0.0" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 -1.5707963267948966"/>
+  </xacro:load_robot>
+
+  <!-- ==================================== -->
+  <!-- Arms Mounted on Table 2 -->
+  <!-- ==================================== -->
+
+  <!-- Arm 3 (Left mount on Table 2) -->
+  <xacro:load_robot prefix="t2_a1_" parent="t2_mount_plate_left" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="true" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="0.0.0.0" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 1.5707963267948966"/>
+  </xacro:load_robot>
+
+  <!-- Arm 4 (Right mount on Table 2) -->
+  <xacro:load_robot prefix="t2_a2_" parent="t2_mount_plate_right" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="true" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="0.0.0.0" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 -1.5707963267948966"/>
+  </xacro:load_robot>
+
+</robot>

@@ -5,8 +5,10 @@ echo "--- Building Livox Driver ---"
 source /opt/ros/humble/setup.bash # Source ROS
 cd src/livox_ros_driver2
 ./build.sh humble
-source ./install/setup.bash # Source Livox build output
+source install/setup.bash # Source Livox build output
 cd ../.. # Back to workspace root (ros2_ws)
+
+source install/setup.bash 
 
 echo "--- Building Rest of Workspace ---"
 # Clean only main build/log, leave install
