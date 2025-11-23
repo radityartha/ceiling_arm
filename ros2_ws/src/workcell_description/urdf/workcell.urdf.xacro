@@ -31,12 +31,12 @@
 
   <!-- Table 1 -->
   <xacro:moving_table prefix="t1_" parent="world">
-    <origin xyz="0 0.36 0" rpy="0 0 0"/>
+    <origin xyz="0 0.36 2.05" rpy="0 0 0"/>
   </xacro:moving_table>
 
   <!-- Table 2 -->
   <xacro:moving_table prefix="t2_" parent="world">
-    <origin xyz="0 -0.36 0" rpy="0 0 0"/>
+    <origin xyz="0 -0.36 2.05" rpy="0 0 0"/>
   </xacro:moving_table>
 
   <!-- ==================================== -->
@@ -45,7 +45,7 @@
 
   <ros2_control name="TableFakeHardware" type="system">
     <hardware>
-      <plugin>mock_components/MockSystem</plugin>
+      <plugin>mock_components/GenericSystem</plugin>
     </hardware>
 
     <joint name="t1_linear_joint">

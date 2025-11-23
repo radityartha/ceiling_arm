@@ -61,6 +61,16 @@
         <joint name="t2_linear_joint"/>
         <joint name="t2_rotation_joint"/>
     </group>
+    <group name="table_1_with_arm">
+        <group name="table_1"/>
+        <group name="arm_1"/>
+        <group name="arm_2"/>
+    </group>
+    <group name="table_2_with_arm">
+        <group name="table_2"/>
+        <group name="arm_3"/>
+        <group name="arm_4"/>
+    </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
     <group_state name="arm_1_home" group="arm_1">
         <joint name="t1_a1_joint_1" value="0"/>

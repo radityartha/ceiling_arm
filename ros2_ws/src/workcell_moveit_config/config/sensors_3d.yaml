@@ -1,0 +1,45 @@
+# --- GLOBAL SETTINGS ---
+octomap_frame: world
+octomap_resolution: 0.01  # 1 cm resolution (The grid size)
+max_range: 5.0
+
+sensors:
+  - default_sensor
+  - kinect_depthimage
+  - livox_lidar
+default_sensor:
+  far_clipping_plane_distance: 5.0
+  filtered_cloud_topic: filtered_cloud
+  image_topic: /head_mount_kinect/depth_registered/image_raw
+  max_update_rate: 1.0
+  near_clipping_plane_distance: 0.3
+  padding_offset: 0.03
+  padding_scale: 4.0
+  queue_size: 5
+  sensor_plugin: occupancy_map_monitor/DepthImageOctomapUpdater
+  shadow_threshold: 0.2
+kinect_depthimage:
+  far_clipping_plane_distance: 5.0
+  filtered_cloud_topic: filtered_cloud
+  image_topic: /head_mount_kinect/depth_registered/image_raw
+  max_update_rate: 1.0
+  near_clipping_plane_distance: 0.3
+  padding_offset: 0.03
+  padding_scale: 4.0
+  queue_size: 5
+  sensor_plugin: occupancy_map_monitor/DepthImageOctomapUpdater
+  shadow_threshold: 0.2
+# --- SENSOR CONFIG ---
+livox_lidar:
+  sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
+  point_cloud_topic: /livox/lidar
+  max_range: 5.0
+  point_subsample: 1
+  max_update_rate: 10.0
+  filtered_cloud_topic: filtered_cloud
+  
+  # --- THE CRITICAL FIX ---
+  # Changed from 0.1 (10cm) to 0.01 (1cm)
+  # This stops MoveIt from inflating every point into a giant box.
+  padding_offset: 0.01
+  padding_scale: 1.0
