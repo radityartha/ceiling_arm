@@ -1,6 +1,6 @@
 # --- GLOBAL SETTINGS ---
 octomap_frame: world
-octomap_resolution: 0.01  # 1 cm resolution (The grid size)
+octomap_resolution: 0.02 # 1 cm resolution (The grid size)
 max_range: 5.0
 
 sensors:
@@ -33,13 +33,34 @@ kinect_depthimage:
 livox_lidar:
   sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
   point_cloud_topic: /livox/lidar
-  max_range: 5.0
-  point_subsample: 1
-  max_update_rate: 10.0
-  filtered_cloud_topic: filtered_cloud
+  filtered_cloud_topic: filtered_cloud_lidar
+
+  # --- RANGE SETTINGS ---
+  # Matches your room size. Ensure this hits the floor!
+  max_range: 5.0 
   
-  # --- THE CRITICAL FIX ---
-  # Changed from 0.1 (10cm) to 0.01 (1cm)
-  # This stops MoveIt from inflating every point into a giant box.
+  # Speed vs Accuracy: 1 is most accurate, but 2 or 4 is faster.
+  # If ghosting continues, try changing this to 2.
+  point_subsample: 4
+  
+  # --- CLEARING SETTINGS (The Ghost Killers) ---
+  # 1. Update speed: Increased to 10Hz for faster reaction
+  max_update_rate: 20.0
+  
+  # 2. Clipping: Start clearing immediately (5cm) out to the max range
+  near_clipping_plane_distance: 0.05
+  far_clipping_plane_distance: 5.0
+  
+  # 3. Shadow Threshold: 
+  # 0.2 is safer than 0.01. It essentially says:
+  # "If I see empty space with 20% confidence, CLEAR the obstacle."
+  shadow_threshold: 0.2
+
+  # --- SHAPE SETTINGS ---
   padding_offset: 0.01
   padding_scale: 1.0
+  
+  # (Optional) Standard parameters
+  skip_invalid_points: false
+
+

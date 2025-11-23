@@ -17,3 +17,24 @@ python3 /src/workcell_description/scripts/move_arm_commander.py
 
 ros2 launch livox_ros_driver2 rviz_MID360_launch.py 
 ros2 launch livox_ros_driver2 msg_MID360_launch.py 
+
+
+node_static_tf = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="livox_static_tf",
+        arguments=[
+            # X Y Z
+            "2.105",
+            "0.0",
+            "2.01",
+            # roll pitch yaw   (in THIS ORDER)
+            "3.14159",
+            "3.14159",
+            "0",
+            "world",  # parent
+            "livox_frame",  # child
+        ],
+        parameters=[{"use_sim_time": use_sim_time}],
+    )
+    ld.add_action(node_static_tf)
