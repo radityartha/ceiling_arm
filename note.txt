@@ -9,14 +9,17 @@ source ~/Documents/code/Docker/moonshot_project/ros2_ws/install/setup.bash
 
 ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false
 
-
-ros2 launch workcell_moveit_config demo.launch.py use_sim_time:=false
-
+ros2 launch workcell_moveit_config demo.launch.py use_sim_time:=fals
 
 python3 /src/workcell_description/scripts/move_arm_commander.py
 
 ros2 launch livox_ros_driver2 rviz_MID360_launch.py 
 ros2 launch livox_ros_driver2 msg_MID360_launch.py 
+
+cd src/
+git clone https://github.com/Livox-SDK/livox_ros_driver2.git src/livox_ros_driver2
+git clone https://github.com/Kinovarobotics/ros2_kortex.git src/ros2_kortex
+
 
 
 node_static_tf = Node(

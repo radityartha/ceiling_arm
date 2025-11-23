@@ -38,9 +38,9 @@ def generate_launch_description():
         name="livox_static_tf",
         arguments=[
             # X, Y, Z (Your specific coordinates)
-            "2.105",
+            "2.13",
             "0",
-            "2.015",
+            "2.1",
             # Yaw, Pitch, Roll (in Radians)
             # Pitch = 3.14159 (180 degrees) makes it look DOWN
             "3.14159",
