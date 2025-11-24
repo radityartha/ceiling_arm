@@ -13,6 +13,8 @@ ros2 launch workcell_moveit_config demo.launch.py use_sim_time:=fals
 
 python3 /src/workcell_description/scripts/move_arm_commander.py
 
+
+ros2 launch workcell_description lidar_filter.launch.py
 ros2 launch livox_ros_driver2 rviz_MID360_launch.py 
 ros2 launch livox_ros_driver2 msg_MID360_launch.py 
 

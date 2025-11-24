@@ -38,6 +38,11 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/meshes")
     DESTINATION share/${PROJECT_NAME}
   )
 endif()
+
+install(PROGRAMS
+  scripts/lidar_filter.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 # --- End Corrected Install Section ---
 
 ament_package()

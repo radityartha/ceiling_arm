@@ -32,20 +32,19 @@ kinect_depthimage:
 # --- SENSOR CONFIG ---
 livox_lidar:
   sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
-  point_cloud_topic: /livox/lidar
-  filtered_cloud_topic: filtered_cloud_lidar
+  point_cloud_topic: /livox/filtered
 
   # --- RANGE SETTINGS ---
   # Matches your room size. Ensure this hits the floor!
-  max_range: 5.0 
+  max_range: 5.0
   
   # Speed vs Accuracy: 1 is most accurate, but 2 or 4 is faster.
   # If ghosting continues, try changing this to 2.
-  point_subsample: 4
+  point_subsample: 1
   
   # --- CLEARING SETTINGS (The Ghost Killers) ---
   # 1. Update speed: Increased to 10Hz for faster reaction
-  max_update_rate: 20.0
+  max_update_rate: 50.0
   
   # 2. Clipping: Start clearing immediately (5cm) out to the max range
   near_clipping_plane_distance: 0.05
@@ -57,10 +56,26 @@ livox_lidar:
   shadow_threshold: 0.2
 
   # --- SHAPE SETTINGS ---
-  padding_offset: 0.01
+  padding_offset: 0.03
   padding_scale: 1.0
   
   # (Optional) Standard parameters
   skip_invalid_points: false
+
+  filtered_cloud_topic: filtered_cloud
+
+  # --- THE MAGIC PROBABILITY SETTINGS ---
+  # "Hit": How quickly an object appears (Default ~0.7)
+  # "Miss": How quickly it disappears (Default ~0.4)
+  
+  # Set Miss high to erase ghosts instantly
+  miss_probability: 0.45   # Increase this! (Standard is often lower)
+  
+  # Set Hit slightly higher to keep real objects solid
+  hit_probability: 0.7
+  
+  # Clamping limits (Keep the map dynamic)
+  clamping_min: 0.12
+  clamping_max: 0.95
 
 
