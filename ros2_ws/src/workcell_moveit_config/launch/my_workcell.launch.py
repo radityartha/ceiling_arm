@@ -11,12 +11,37 @@ from moveit_configs_utils.launches import generate_demo_launch
 
 def generate_launch_description():
 
+    # Arm IP arguments — set to real IPs when connecting to physical arms
+    # Example: ros2 launch workcell_moveit_config my_workcell.launch.py \
+    #            use_fake_hardware:=false \
+    #            arm1_ip:=192.168.1.10 arm2_ip:=192.168.1.11 \
+    #            arm3_ip:=192.168.1.12 arm4_ip:=192.168.1.13
+    declared_hw_args = [
+        DeclareLaunchArgument("use_fake_hardware", default_value="true",
+                              description="Use mock hardware interfaces (false = real arms)"),
+        DeclareLaunchArgument("arm1_ip", default_value="0.0.0.0",
+                              description="IP of Arm 1 (Table-1 Left)"),
+        DeclareLaunchArgument("arm2_ip", default_value="0.0.0.0",
+                              description="IP of Arm 2 (Table-1 Right)"),
+        DeclareLaunchArgument("arm3_ip", default_value="0.0.0.0",
+                              description="IP of Arm 3 (Table-2 Left)"),
+        DeclareLaunchArgument("arm4_ip", default_value="0.0.0.0",
+                              description="IP of Arm 4 (Table-2 Right)"),
+    ]
+
     # 1. MoveIt Config
     moveit_config = (
         MoveItConfigsBuilder("trailer_workcell", package_name="workcell_moveit_config")
         .robot_description(
             file_path="config/trailer_workcell.urdf.xacro",
-            mappings={"use_fake_hardware": "true", "use_sim_time": "false"},
+            mappings={
+                "use_fake_hardware": LaunchConfiguration("use_fake_hardware"),
+                "arm1_ip":           LaunchConfiguration("arm1_ip"),
+                "arm2_ip":           LaunchConfiguration("arm2_ip"),
+                "arm3_ip":           LaunchConfiguration("arm3_ip"),
+                "arm4_ip":           LaunchConfiguration("arm4_ip"),
+                "use_sim_time":      "false",
+            },
         )
         .sensors_3d(file_path="config/sensors_3d.yaml")
         .to_moveit_configs()
@@ -70,7 +95,7 @@ def generate_launch_description():
             name="livox_static_tf",
             arguments=[
                 # X, Y, Z (Your specific coordinates)
-                "2.13",
+                "2.3",
                 "0",
                 "1.9",
                 # Yaw, Pitch, Roll (in Radians)
@@ -124,5 +149,9 @@ def generate_launch_description():
             parameters=[{"use_sim_time": use_sim_time_config}],
         )
     )
+
+    # Prepend the hardware args so they appear in --show-args
+    for arg in reversed(declared_hw_args):
+        ld.entities.insert(0, arg)
 
     return ld

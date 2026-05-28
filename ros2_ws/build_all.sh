@@ -18,6 +18,6 @@ colcon build --symlink-install --packages-ignore livox_ros_driver2 livox_sdk2
 echo "--- Build Complete. Source install/setup.bash in your terminal ---"
 
 source /opt/ros/humble/setup.bash
-source ~/ros2_rviz_overlay/install/setup.bash
+source ~/rviz2_ws/install/setup.bash
 source ~/moveit2_ws/install/setup.bash
-source ~/Documents/code/Docker/moonshot_project/ros2_ws/install/setup.bash
+source ~/Documents/moonshot_project/ros2_ws/install/setup.bash

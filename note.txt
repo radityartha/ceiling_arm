@@ -3,9 +3,9 @@ arm_1_home 0.0000 -0.2792 1.3090 0.0000 -1.0471 0.0000
 
 ./build_all.sh
 source /opt/ros/humble/setup.bash
-source ~/ros2_rviz_overlay/install/setup.bash
+source ~/rviz2_ws/install/setup.bash
 source ~/moveit2_ws/install/setup.bash
-source ~/Documents/code/Docker/moonshot_project/ros2_ws/install/setup.bash
+source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
 
 ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false
 
