@@ -1,0 +1,45 @@
+arm_1_packaging 0.0000 2.5830 2.5830 1.5708 -2.4434 0.0000
+arm_1_home 0.0000 -0.2792 1.3090 0.0000 -1.0471 0.0000
+
+./build_all.sh
+source /opt/ros/humble/setup.bash
+source ~/rviz2_ws/install/setup.bash
+source ~/moveit2_ws/install/setup.bash
+source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
+
+ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false
+
+ros2 launch workcell_moveit_config demo.launch.py use_sim_time:=fals
+
+python3 /src/workcell_description/scripts/move_arm_commander.py
+
+
+ros2 launch workcell_description lidar_filter.launch.py
+ros2 launch livox_ros_driver2 rviz_MID360_launch.py 
+ros2 launch livox_ros_driver2 msg_MID360_launch.py 
+
+cd src/
+git clone https://github.com/Livox-SDK/livox_ros_driver2.git src/livox_ros_driver2
+git clone https://github.com/Kinovarobotics/ros2_kortex.git src/ros2_kortex
+
+
+
+node_static_tf = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="livox_static_tf",
+        arguments=[
+            # X Y Z
+            "2.105",
+            "0.0",
+            "2.01",
+            # roll pitch yaw   (in THIS ORDER)
+            "3.14159",
+            "3.14159",
+            "0",
+            "world",  # parent
+            "livox_frame",  # child
+        ],
+        parameters=[{"use_sim_time": use_sim_time}],
+    )
+    ld.add_action(node_static_tf)
