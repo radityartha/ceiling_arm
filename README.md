@@ -244,6 +244,78 @@ python3 ros2_ws/src/workcell_description/scripts/move_arm_commander.py
 
 ---
 
+## Hardware Check & Manual Control
+
+Helper scripts in [scripts/](scripts/) for bringing the system up safely.
+
+### 1. Pre-flight check — verify everything is wired and online
+
+```bash
+python3 scripts/hardware_check.py --preflight \
+    --arm-ips 192.168.2.10 192.168.2.11 192.168.2.12 192.168.2.13
+```
+
+Verifies USB serial ports (`/dev/ttyUSB0`, `/dev/ttyUSB1`) and pings all 4 Kinova arms.
+
+**Note on arm IPs:** The arms live on subnet `192.168.2.x`. If your PC's Ethernet is on a different subnet (e.g. `192.168.2.100`), they're directly reachable. If on `192.168.1.x`, add a secondary IP:
+```bash
+sudo ip addr add 192.168.1.100/24 dev enp1s0
+```
+
+### 2. Keyboard remote control — drive the tables by hand
+
+A terminal-based "remote control" for the two motorized tables. Used for manual positioning, homing, and verifying motor health.
+
+**Start the table controller** (one-time, in its own terminal):
+```bash
+source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
+ros2 run moving_table_pkg dual_table_controller --ros-args -p use_fake_hardware:=false
+```
+
+**Run the keyboard remote** (in a second terminal):
+```bash
+source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
+python3 scripts/table_keyboard.py
+```
+
+**Controls:**
+
+| Key | Action |
+|-----|--------|
+| **Hold W** | Linear forward (continuous, stops on release) |
+| **Hold S** | Linear backward |
+| **Hold D** | Rotate clockwise |
+| **Hold A** | Rotate counter-clockwise |
+| `1` / `2` | Switch active table (Table 1 / Table 2) |
+| `]` / `[` | Increase / decrease motor speed |
+| `Z` | Zero **display** for active table (visual offset only — encoder unchanged) |
+| `X` | Zero **display** for both tables |
+| **`H`** | **HOME — set hardware encoder origin to 0 at current physical position. Persists across power cycles.** |
+| `Q` | Quit (sends stop) |
+
+**How it works:**
+- Motors run in continuous-velocity mode while a key is held. The instant you release, the script sends `motor.stop()` over Modbus — the motor halts within ~5 ms.
+- The HUD shows live linear (mm) and rotation (°) position of the active table, read from `/joint_states`.
+- `H` calls Oriental Motor's `ppreset` command on all 3 motors of the active table — the AZ-series absolute encoder retains this origin even after powering down.
+
+**Typical homing workflow:**
+1. Drive Table 1 to your desired home position with W/S/A/D
+2. Press `1` then `H` → `🏠 table1 home set at current position`
+3. Press `2`, drive Table 2 to its home, press `H`
+4. Both tables now read `+0.0 mm / +0.0 °` and will keep this origin permanently.
+
+### 3. Full automated hardware check (tables + arms + grippers)
+
+```bash
+python3 scripts/hardware_check.py --tables    # move each table ±50 mm
+python3 scripts/hardware_check.py --arms      # move each arm to home via MoveIt
+python3 scripts/hardware_check.py --grippers  # open/close each gripper
+```
+
+(Arms and grippers tests require `my_workcell.launch.py` to be running with `use_fake_hardware:=false`.)
+
+---
+
 ## Named Joint Positions
 
 Defined in `workcell_moveit_config/config/trailer_workcell.srdf`:
