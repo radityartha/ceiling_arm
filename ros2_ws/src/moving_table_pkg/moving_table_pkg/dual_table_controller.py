@@ -19,6 +19,17 @@ from rclpy.qos import QoSProfile
 PULSES_PER_MM = 12000 / (40.0 * 3.14159265359)  # Pulses per mm (for fake hardware)
 PULSES_PER_RAD = (9000 / 90) * (180 / 3.14159265359)  # Pulses per degree * deg per rad
 
+# operation_type values for jog (continuous drive)
+JOG_DIRECTIONS = {
+    10: 'forward',
+    11: 'backward',
+    12: 'rotate_cw',
+    13: 'rotate_ccw',
+}
+
+# operation_type for home/preset
+OP_PRESET_HOME = 99
+
 
 class DualTableController(Node):
     def __init__(self):
@@ -76,7 +87,9 @@ class DualTableController(Node):
         # --- Thread management ---
         self.table1_thread = None
         self.table2_thread = None
-        self._shutdown_event = threading.Event()
+        self._shutdown_event  = threading.Event()
+        self.table1_stop_event = threading.Event()
+        self.table2_stop_event = threading.Event()
 
         # --- Initialize Tables using Parameters ---
         self._initialize_tables()
@@ -145,7 +158,7 @@ class DualTableController(Node):
                 f"Failed to initialize Table 1: {e}\n{traceback.format_exc()}"
             )
             if self.comm_table1:
-                self.comm_table1.closePort()
+                self.comm_table1.client.close()
                 self.comm_table1 = None
 
         # --- Initialize Table 2 (Real Hardware) ---
@@ -174,7 +187,7 @@ class DualTableController(Node):
                 f"Failed to initialize Table 2: {e}\n{traceback.format_exc()}"
             )
             if self.comm_table2:
-                self.comm_table2.closePort()
+                self.comm_table2.client.close()
                 self.comm_table2 = None
 
     def _configure_table_motors(self, table, table_name):
@@ -203,7 +216,7 @@ class DualTableController(Node):
     def _close_ports(self):
         if self.comm_table1:
             try:
-                self.comm_table1.closePort()
+                self.comm_table1.client.close()
                 self.get_logger().info("Closed port for Table 1.")
             except Exception as e:
                 self.get_logger().error(f"Error closing Table 1 port: {e}")
@@ -211,7 +224,7 @@ class DualTableController(Node):
                 self.comm_table1 = None
         if self.comm_table2:
             try:
-                self.comm_table2.closePort()
+                self.comm_table2.client.close()
                 self.get_logger().info("Closed port for Table 2.")
             except Exception as e:
                 self.get_logger().error(f"Error closing Table 2 port: {e}")
@@ -292,7 +305,7 @@ class DualTableController(Node):
             msg.position = list(self.joint_positions.values())
         self.joint_pub.publish(msg)
 
-    def _background_move_task(self, table_id, table_controller, request):
+    def _background_move_task(self, table_id, table_controller, request, stop_event):
         self.get_logger().info(f"Background thread started for {table_id}")
         success = False
         try:
@@ -316,6 +329,14 @@ class DualTableController(Node):
                             request.angle_deg * 3.14159 / 180.0
                         )
                 success = True
+            elif request.operation_type in JOG_DIRECTIONS:
+                direction = JOG_DIRECTIONS[request.operation_type]
+                success = table_controller.jog(
+                    direction=direction,
+                    linear_speed=request.linear_speed,
+                    rotate_speed=request.rotate_speed,
+                    stop_event=stop_event,
+                )
             else:
                 success = table_controller.go_to_table(
                     distance_mm=request.distance_mm,
@@ -323,6 +344,7 @@ class DualTableController(Node):
                     linear_speed=request.linear_speed,
                     rotate_speed=request.rotate_speed,
                     operation_type=request.operation_type,
+                    stop_event=stop_event,
                 )
             if success:
                 self.get_logger().info(
@@ -333,7 +355,6 @@ class DualTableController(Node):
                     f"Background thread: {table_id} movement failed (go_to_table returned False)."
                 )
         except Exception as e:
-            # --- FIX: Removed the buggy 'exc_info=True' ---
             self.get_logger().error(
                 f"Background thread: Exception during {table_id} movement: {e}\n{traceback.format_exc()}"
             )
@@ -366,6 +387,62 @@ class DualTableController(Node):
             )
             self.get_logger().error(response.message)
             return response
+
+        # ── JOG: fire-and-forget continuous drive, preempts any stale thread ──
+        if request.operation_type in JOG_DIRECTIONS:
+            direction = JOG_DIRECTIONS[request.operation_type]
+            # Preempt any stale position-move thread
+            stop_event = self.table1_stop_event if target_table_id == "table1" else self.table2_stop_event
+            stop_event.set()
+            try:
+                target_table.start_continuous(
+                    direction=direction,
+                    linear_speed=request.linear_speed,
+                    rotate_speed=request.rotate_speed,
+                )
+                response.success = True
+                response.message = f"🕹 Jog {direction} on {target_table_id}"
+            except Exception as e:
+                response.success = False
+                response.message = f"Jog error: {e}"
+            self.get_logger().info(response.message)
+            return response
+
+        # ── HOME: preset current physical position as encoder zero ──
+        if request.operation_type == OP_PRESET_HOME:
+            # Make sure motors are stopped first
+            stop_event = self.table1_stop_event if target_table_id == "table1" else self.table2_stop_event
+            stop_event.set()
+            try:
+                target_table.stop_all()
+                time.sleep(0.1)
+                ok = target_table.preset_home()
+                response.success = ok
+                response.message = (
+                    f"🏠 {target_table_id} home set at current position"
+                    if ok else
+                    f"⚠ {target_table_id} home preset had errors — check log"
+                )
+            except Exception as e:
+                response.success = False
+                response.message = f"Home error: {e}"
+            self.get_logger().info(response.message)
+            return response
+
+        # ── STOP: halt motors immediately, also cancel any running thread ──
+        if request.operation_type == 0:
+            stop_event = self.table1_stop_event if target_table_id == "table1" else self.table2_stop_event
+            stop_event.set()
+            try:
+                target_table.stop_all()
+            except Exception as e:
+                self.get_logger().error(f"Stop error: {e}")
+            response.success = True
+            response.message = f"🛑 Stopped {target_table_id}."
+            self.get_logger().info(response.message)
+            return response
+
+        # ── Position move (existing go_to_table path) ──
         if active_thread is not None and active_thread.is_alive():
             response.success = False
             response.message = (
@@ -373,15 +450,19 @@ class DualTableController(Node):
             )
             self.get_logger().warning(response.message)
             return response
+
+        stop_event = self.table1_stop_event if target_table_id == "table1" else self.table2_stop_event
+        stop_event.clear()
+
         try:
             new_thread = threading.Thread(
                 target=self._background_move_task,
-                args=(target_table_id, target_table, request),
+                args=(target_table_id, target_table, request, stop_event),
                 daemon=True,
             )
             if target_table_id == "table1":
                 self.table1_thread = new_thread
-            elif table_id == "table2":
+            elif target_table_id == "table2":
                 self.table2_thread = new_thread
             new_thread.start()
             response.success = True

@@ -10,7 +10,7 @@ PULSES_PER_DEGREE = 9000 / 90  # 9000 pulses = 90 degrees
 
 class MovingTableController:
     def __init__(
-        self, motor1, motor2, motor3, poll_interval=0.1, timeout=10.0, logger=None
+        self, motor1, motor2, motor3, poll_interval=0.1, timeout=30.0, logger=None
     ):
         self.motor1 = motor1
         self.motor2 = motor2
@@ -73,75 +73,166 @@ class MovingTableController:
         return True
 
     def go_to_table(
-        self, distance_mm, angle_degrees, linear_speed, rotate_speed, operation_type
+        self, distance_mm, angle_degrees, linear_speed, rotate_speed, operation_type=1, stop_event=None
     ):
         linear_pulses = int((distance_mm / WHEEL_CIRCUMFERENCE) * PULSES_PER_REVOLUTION)
         rotate_pulses = int(angle_degrees * PULSES_PER_DEGREE)
         motors = [self.motor1, self.motor2, self.motor3]
-        targets = [linear_pulses, linear_pulses, rotate_pulses]
+        increments = [linear_pulses, linear_pulses, rotate_pulses]
+        speeds = [linear_speed, linear_speed, rotate_speed]
 
-        # Check if motors are configured/available before starting
         for motor in motors:
-            if not motor:  # Or some other check if motor init failed
+            if not motor:
                 self._log(f"❌ Motor {motor} is not available.")
-                return False  # Indicate failure early
-
-        # Start motion
-        for motor, target, speed in zip(
-            motors, targets, [linear_speed, linear_speed, rotate_speed]
-        ):
-            # Add error checking for startPosition if it returns bool
-            if not motor.startPosition(
-                position=target, speed=speed, OpeType=operation_type
-            ):
-                self._log(f"❌ Failed to start motor {motor.serverAddress}")
-                # Optionally try to stop other motors here
                 return False
 
-        self._log(f"🎯 Moving to targets: Lin:{linear_pulses}, Rot:{rotate_pulses}")
+        # Read starting absolute positions
+        start_positions = []
+        for motor in motors:
+            motor.resetAlarm()
+            pos = motor.readPosition()
+            if not pos or not isinstance(pos, (list, tuple)) or len(pos) < 2:
+                self._log(f"❌ Cannot read initial position from motor {motor.serverAddress}")
+                return False
+            start_positions.append(pos[1])
+
+        # Always use absolute positioning (OpeType=1) — more reliable for both +/-
+        abs_targets = [s + d for s, d in zip(start_positions, increments)]
+        self._log(f"🎯 Start:{start_positions} → AbsTarget:{abs_targets} (Δ Lin:{linear_pulses}, Rot:{rotate_pulses})")
+
+        for motor, abs_target, speed in zip(motors, abs_targets, speeds):
+            result = motor.startPosition(position=abs_target, speed=speed, OpeType=1)
+            if result[0] != 0:
+                self._log(f"❌ Failed to start motor {motor.serverAddress}: {result}")
+                return False
+
         start_time = time.time()
         while True:
-            all_reached = True
-            try:  # Add error handling for communication
-                for motor, target in zip(motors, targets):
+            try:
+                # Check for external stop signal
+                if stop_event and stop_event.is_set():
+                    self._log("🛑 Stop signal received — halting motors.")
+                    for motor in motors:
+                        try:
+                            motor.stop()
+                        except Exception:
+                            pass
+                    return False
+
+                all_reached = True
+                for motor, target in zip(motors, abs_targets):
                     pos = motor.readPosition()
                     if not pos or not isinstance(pos, (list, tuple)) or len(pos) < 2:
-                        self._log(
-                            f"❌ Failed to read valid position from motor {motor.serverAddress}"
-                        )
+                        self._log(f"❌ Failed to read position from motor {motor.serverAddress}")
                         all_reached = False
-                        # Decide if you want to abort immediately or keep trying others
-                        # return False # Uncomment to fail immediately on read error
-                        break  # Break inner loop, will retry on next cycle or timeout
-
+                        break
                     current_pos = pos[1]
-                    # Check if position is within a small tolerance instead of exact match
-                    # Define tolerance based on your encoder resolution/needs
-                    tolerance = 10  # Example tolerance in pulses
-                    if abs(current_pos - target) > tolerance:
+                    if abs(current_pos - target) > 50:
                         all_reached = False
-                        # self._log(f"Motor {motor.serverAddress}: Current={current_pos}, Target={target}") # Debug logging
+                        self._log(f"Motor {motor.serverAddress}: pos={current_pos}, target={target}, diff={current_pos - target}")
 
-                if not all_reached and (time.time() - start_time) <= self.timeout:
-                    # If not all reached and not timed out, continue polling
-                    time.sleep(self.poll_interval)
-                    continue
-
-                # If loop finishes, check conditions
                 if all_reached:
                     self._log("✅ All motors reached target position.")
-                    return True  # <<< RETURN TRUE ON SUCCESS >>>
-                elif (time.time() - start_time) > self.timeout:
-                    self._log("⚠️ Timeout waiting for motors to reach target")
-                    # Optionally try to stop motors on timeout
-                    # for m in motors: m.stopMotor() # Check if stopMotor exists
-                    return False  # <<< RETURN FALSE ON TIMEOUT >>>
-                else:
-                    # Should not happen with the logic above, but handle defensively
-                    self._log("❌ Unknown state in go_to_table loop.")
+                    return True
+
+                if (time.time() - start_time) > self.timeout:
+                    self._log("⚠️ Timeout — stopping motors. Last positions: " +
+                              str([motor.readPosition()[1] if motor.readPosition() else '?' for motor in motors]))
+                    for motor in motors:
+                        try:
+                            motor.stop()
+                        except Exception:
+                            pass
                     return False
+
+                time.sleep(self.poll_interval)
 
             except Exception as e:
                 self._log(f"❌ Exception during position check: {e}")
-                # Optionally try to stop motors
-                return False  # <<< RETURN FALSE ON EXCEPTION >>>
+                return False
+
+    def start_continuous(self, direction: str, linear_speed: int, rotate_speed: int):
+        """Fire-and-forget: start continuous drive immediately (no blocking)."""
+        def _run(motor, speed, dir_code, label):
+            res = motor.startContinuous(speed, dir_code)
+            if res and res[0] != 0:
+                self._log(f"⚠ startContinuous {label} motor{motor.serverAddress} returned {res}")
+            else:
+                self._log(f"✅ startContinuous {label} motor{motor.serverAddress} speed={speed} OK")
+
+        if direction == 'forward':
+            self._log(f"▶ Jog forward speed={linear_speed}")
+            _run(self.motor1, linear_speed, 0, 'fwd')
+            _run(self.motor2, linear_speed, 0, 'fwd')
+        elif direction == 'backward':
+            self._log(f"◀ Jog backward speed={linear_speed}")
+            _run(self.motor1, linear_speed, 1, 'bwd')
+            _run(self.motor2, linear_speed, 1, 'bwd')
+        elif direction == 'rotate_cw':
+            self._log(f"↻ Jog rotate CW speed={rotate_speed}")
+            _run(self.motor3, rotate_speed, 0, 'cw')
+        elif direction == 'rotate_ccw':
+            self._log(f"↺ Jog rotate CCW speed={rotate_speed}")
+            _run(self.motor3, rotate_speed, 1, 'ccw')
+
+    def jog(self, direction: str, linear_speed: int, rotate_speed: int, stop_event) -> bool:
+        """Continuous drive until stop_event is set.
+        direction: 'forward' | 'backward' | 'rotate_cw' | 'rotate_ccw'
+        """
+        try:
+            if direction == 'forward':
+                self._log(f"▶ Jog linear forward  speed={linear_speed}")
+                self.motor1.startContinuous(linear_speed, 0)
+                self.motor2.startContinuous(linear_speed, 0)
+            elif direction == 'backward':
+                self._log(f"◀ Jog linear backward speed={linear_speed}")
+                self.motor1.startContinuous(linear_speed, 1)
+                self.motor2.startContinuous(linear_speed, 1)
+            elif direction == 'rotate_cw':
+                self._log(f"↻ Jog rotate CW       speed={rotate_speed}")
+                self.motor3.startContinuous(rotate_speed, 0)
+            elif direction == 'rotate_ccw':
+                self._log(f"↺ Jog rotate CCW      speed={rotate_speed}")
+                self.motor3.startContinuous(rotate_speed, 1)
+            else:
+                self._log(f"❌ Unknown jog direction: {direction}")
+                return False
+
+            # Block until stop signal arrives (max 120 s safety)
+            stop_event.wait(timeout=120.0)
+            stop_event.clear()
+
+        finally:
+            # Always stop all motors on exit
+            self._log("🛑 Jog stopping motors.")
+            for motor in [self.motor1, self.motor2, self.motor3]:
+                try:
+                    motor.stop()
+                except Exception:
+                    pass
+
+        return True
+
+    def stop_all(self):
+        for motor in [self.motor1, self.motor2, self.motor3]:
+            try:
+                motor.stop()
+            except Exception:
+                pass
+
+    def preset_home(self) -> bool:
+        """Preset the command position on all 3 motors to 0 at the current physical
+        location. The AZ-series absolute encoder retains this origin across power cycles."""
+        ok = True
+        for motor in [self.motor1, self.motor2, self.motor3]:
+            try:
+                res = motor.ppreset()
+                if res and res[0] == 0:
+                    self._log(f"✅ Motor {motor.serverAddress} home preset")
+                else:
+                    self._log(f"⚠ Motor {motor.serverAddress} ppreset returned {res}")
+                    ok = False
+            except Exception as e:
+                self._log(f"❌ Motor {motor.serverAddress} ppreset failed: {e}")
+                ok = False
+        return ok

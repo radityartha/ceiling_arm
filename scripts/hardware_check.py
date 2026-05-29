@@ -176,7 +176,7 @@ def _call_table_service(node, client, table_id, distance_mm, angle_deg, label):
     req.angle_deg      = float(angle_deg)
     req.linear_speed   = 30000
     req.rotate_speed   = 10000
-    req.operation_type = 0   # 0=move only
+    req.operation_type = 1   # 1=absolute (go_to_table always uses absolute internally)
 
     info(f"{label}: sending {distance_mm:+.0f} mm, {angle_deg:+.0f}°  …")
     future = client.call_async(req)
@@ -228,10 +228,10 @@ def run_tables_test():
             # Move forward 50 mm
             moved = _call_table_service(node, client, table_id, +50, 0, f"{label} forward")
             if moved:
-                time.sleep(3.0)  # wait for motion to complete
-                # Return to origin
-                _call_table_service(node, client, table_id, 0, 0, f"{label} return to zero")
-                time.sleep(3.0)
+                time.sleep(35.0)  # wait for motor to finish (30s timeout + buffer)
+                # Return: send -50mm incremental to go back
+                _call_table_service(node, client, table_id, -50, 0, f"{label} return -50mm")
+                time.sleep(35.0)
 
         section("Table joint states")
         from sensor_msgs.msg import JointState

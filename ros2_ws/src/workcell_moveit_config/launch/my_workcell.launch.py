@@ -11,21 +11,19 @@ from moveit_configs_utils.launches import generate_demo_launch
 
 def generate_launch_description():
 
-    # Arm IP arguments — set to real IPs when connecting to physical arms
-    # Example: ros2 launch workcell_moveit_config my_workcell.launch.py \
-    #            use_fake_hardware:=false \
-    #            arm1_ip:=192.168.1.10 arm2_ip:=192.168.1.11 \
-    #            arm3_ip:=192.168.1.12 arm4_ip:=192.168.1.13
+    # Arm IP arguments — confirmed IPs on 192.168.2.x subnet
+    # Override example: ros2 launch workcell_moveit_config my_workcell.launch.py \
+    #            use_fake_hardware:=false arm1_ip:=192.168.2.10
     declared_hw_args = [
         DeclareLaunchArgument("use_fake_hardware", default_value="true",
                               description="Use mock hardware interfaces (false = real arms)"),
-        DeclareLaunchArgument("arm1_ip", default_value="0.0.0.0",
+        DeclareLaunchArgument("arm1_ip", default_value="192.168.2.10",
                               description="IP of Arm 1 (Table-1 Left)"),
-        DeclareLaunchArgument("arm2_ip", default_value="0.0.0.0",
+        DeclareLaunchArgument("arm2_ip", default_value="192.168.2.11",
                               description="IP of Arm 2 (Table-1 Right)"),
-        DeclareLaunchArgument("arm3_ip", default_value="0.0.0.0",
+        DeclareLaunchArgument("arm3_ip", default_value="192.168.2.12",
                               description="IP of Arm 3 (Table-2 Left)"),
-        DeclareLaunchArgument("arm4_ip", default_value="0.0.0.0",
+        DeclareLaunchArgument("arm4_ip", default_value="192.168.2.13",
                               description="IP of Arm 4 (Table-2 Right)"),
     ]
 
