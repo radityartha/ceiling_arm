@@ -41,8 +41,8 @@ world
 │   ├── arm_1   (Kinova Gen3 Lite, Ethernet @ 192.168.2.10)
 │   └── arm_2   (Kinova Gen3 Lite, Ethernet @ 192.168.2.11)
 ├── table_2_base   (linear + rotation, Modbus RTU on /dev/ttyUSB1)
-│   ├── arm_3   (Kinova Gen3 Lite, Ethernet @ 192.168.2.12)
-│   └── arm_4   (Kinova Gen3 Lite, Ethernet @ 192.168.2.13)
+│   ├── arm_3   (Kinova Gen3 Lite, Ethernet @ 192.168.2.11)
+│   └── arm_4   (Kinova Gen3 Lite, Ethernet @ 192.168.2.10)
 └── livox_frame    (Mid360 LIDAR, overhead, x=2.3 z=1.9)
 ```
 
