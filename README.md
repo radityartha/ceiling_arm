@@ -13,8 +13,8 @@ Workcell
 │   └── Arm 2  — Kinova Gen3 Lite 6DOF + 2F gripper
 │
 ├── Table 2  (linear + rotational, ceiling-mounted)
-│   ├── Arm 3  — Kinova Gen3 Lite 6DOF + 2F gripper
-│   └── Arm 4  — Kinova Gen3 Lite 6DOF + 2F gripper
+│   ├── Arm 3  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.11  (left mount)
+│   └── Arm 4  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.10  (right mount)
 │
 └── Livox Mid360 LIDAR  (overhead, world frame: x=2.3 y=0 z=1.9)
     └── Object detection & MoveIt octomap collision avoidance
@@ -252,10 +252,12 @@ Helper scripts in [scripts/](scripts/) for bringing the system up safely.
 
 ```bash
 python3 scripts/hardware_check.py --preflight \
-    --arm-ips 192.168.2.10 192.168.2.11 192.168.2.12 192.168.2.13
+    --arm-ips <arm1-ip> <arm2-ip> 192.168.2.11 192.168.2.10
 ```
 
 Verifies USB serial ports (`/dev/ttyUSB0`, `/dev/ttyUSB1`) and pings all 4 Kinova arms.
+
+**Confirmed IPs (Table 2):** Arm 3 = `192.168.2.11`, Arm 4 = `192.168.2.10`. Table 1 arm IPs are not yet verified — replace `<arm1-ip>` and `<arm2-ip>` above once confirmed.
 
 **Note on arm IPs:** The arms live on subnet `192.168.2.x`. If your PC's Ethernet is on a different subnet (e.g. `192.168.2.100`), they're directly reachable. If on `192.168.1.x`, add a secondary IP:
 ```bash
