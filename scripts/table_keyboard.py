@@ -25,7 +25,7 @@ from moving_table_interfaces.srv import MovingTable
 from sensor_msgs.msg import JointState
 
 # ── speeds (pulses/s) ────────────────────────────────────
-DEFAULT_LIN_SPEED = 800
+DEFAULT_LIN_SPEED = 1600
 DEFAULT_ROT_SPEED = 400
 SPEED_STEP        = 200
 
@@ -72,7 +72,7 @@ class TableController(Node):
         self._origin = {k: 0.0 for k in self._positions}
 
         self.create_subscription(
-            JointState, "/joint_states", self._joint_cb, 10
+            JointState, "/table_joint_states", self._joint_cb, 10
         )
 
     def _joint_cb(self, msg: JointState):
@@ -143,6 +143,29 @@ class TableController(Node):
                 self._origin[k] = 0.0
                 self._positions[k] = 0.0
 
+    def send_goto_home(self):
+        """Move table to absolute encoder zero (0 mm, 0 deg)."""
+        with self._lock:
+            if self.active_table == "table1":
+                lin_m = self._positions["t1_linear_joint"]
+                rot_r = self._positions["t1_rotation_joint"]
+            else:
+                lin_m = self._positions["t2_linear_joint"]
+                rot_r = self._positions["t2_rotation_joint"]
+        req = MovingTable.Request()
+        req.table_id       = self.active_table
+        req.distance_mm    = -lin_m * 1000.0
+        req.angle_deg      = -math.degrees(rot_r)
+        req.linear_speed   = self.lin_speed
+        req.rotate_speed   = self.rot_speed
+        req.operation_type = 2  # both linear + rotation
+        future = self.client.call_async(req)
+        future.add_done_callback(self._cb)
+
+    def set_status(self, msg: str):
+        with self._lock:
+            self._status = msg
+
     @property
     def status(self):
         with self._lock:
@@ -198,6 +221,7 @@ def print_hud(node: TableController, moving: bool, direction: str):
     print(f"║  1 / 2      →  switch table                   ║")
     print(f"║  Z / X      →  zero display (active / both)   ║")
     print(f"║  H          →  HOME: set hardware origin here ║")
+    print(f"║  G          →  go to home position            ║")
     print(f"║  Q          →  quit                           ║")
     print(f"╚══════════════════════════════════════════════╝")
     sys.stdout.flush()
@@ -284,6 +308,18 @@ def main():
                     current_dir = None
                 node.send_home()
                 node.set_status(f"🏠 hardware home set for {node.active_table}")
+                print_hud(node, is_moving, "—")
+                last_redraw = time.time()
+                continue
+
+            # ── GO TO HOME: move table back to encoder zero position ──
+            if key == 'g':
+                if is_moving:
+                    node.send_stop()
+                    is_moving   = False
+                    current_dir = None
+                node.send_goto_home()
+                node.set_status(f"↩ going to home: {node.active_table}")
                 print_hud(node, is_moving, "—")
                 last_redraw = time.time()
                 continue

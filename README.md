@@ -9,8 +9,8 @@ A ROS 2 workspace for controlling an automated workcell consisting of two ceilin
 ```
 Workcell
 ├── Table 1  (linear + rotational, ceiling-mounted)
-│   ├── Arm 1  — Kinova Gen3 Lite 6DOF + 2F gripper
-│   └── Arm 2  — Kinova Gen3 Lite 6DOF + 2F gripper
+│   ├── Arm 1  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.13  (left mount)
+│   └── Arm 2  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.12  (right mount)
 │
 ├── Table 2  (linear + rotational, ceiling-mounted)
 │   ├── Arm 3  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.11  (left mount)
@@ -252,12 +252,12 @@ Helper scripts in [scripts/](scripts/) for bringing the system up safely.
 
 ```bash
 python3 scripts/hardware_check.py --preflight \
-    --arm-ips <arm1-ip> <arm2-ip> 192.168.2.11 192.168.2.10
+    --arm-ips 192.168.2.13 192.168.2.12 192.168.2.11 192.168.2.10
 ```
 
 Verifies USB serial ports (`/dev/ttyUSB0`, `/dev/ttyUSB1`) and pings all 4 Kinova arms.
 
-**Confirmed IPs (Table 2):** Arm 3 = `192.168.2.11`, Arm 4 = `192.168.2.10`. Table 1 arm IPs are not yet verified — replace `<arm1-ip>` and `<arm2-ip>` above once confirmed.
+**Confirmed arm IPs:** Arm 1 = `192.168.2.13`, Arm 2 = `192.168.2.12`, Arm 3 = `192.168.2.11`, Arm 4 = `192.168.2.10`.
 
 **Note on arm IPs:** The arms live on subnet `192.168.2.x`. If your PC's Ethernet is on a different subnet (e.g. `192.168.2.100`), they're directly reachable. If on `192.168.1.x`, add a secondary IP:
 ```bash
@@ -306,7 +306,57 @@ python3 scripts/table_keyboard.py
 3. Press `2`, drive Table 2 to its home, press `H`
 4. Both tables now read `+0.0 mm / +0.0 °` and will keep this origin permanently.
 
-### 3. Full automated hardware check (tables + arms + grippers)
+### 3. Single-arm MoveIt bringup (standalone test)
+
+Test one arm + the tables + MoveIt RViz in **one terminal** — does **not** require the
+full workcell launch.
+
+```bash
+./scripts/start_single_arm.sh 192.168.2.10     # arm 4 (table 2, right)
+./scripts/start_single_arm.sh 192.168.2.11     # arm 3 (table 2, left)
+```
+
+The script:
+1. Strips the broken `rviz2_ws` / `moveit2_ws` overlays so the **system** rviz2 is used
+   (prints `Using rviz2: /opt/ros/humble/bin/rviz2`).
+2. Runs `single_arm_tables.launch.py` (arm + tables + move_group) in the background.
+3. Polls until `/move_group` is up.
+4. Launches RViz in the foreground with the full MoveIt config (interactive marker works).
+
+`Ctrl+C` tears the whole thing down.
+
+In RViz: **MotionPlanning** panel → **Planning Group**: `arm` → drag the interactive
+marker to a goal → **Plan** → **Execute**.
+
+Drive the tables at the same time from a second terminal:
+```bash
+python3 scripts/table_keyboard.py
+```
+
+> **Why a script and not `ros2 launch ... launch_rviz:=true`?** RViz is on a `TimerAction`
+> inside the combined launch, but the included kortex/move_group sub-launches starve the
+> launch event loop so the timer never fires and no window appears. The script polls for
+> readiness instead, which is reliable. (`launch_rviz` defaults to `false` for this reason.)
+
+**Troubleshooting:**
+
+- **Arm not reachable** — `ping 192.168.2.10`. If it fails, check power/Ethernet; the arm
+  takes ~60 s to boot. PC must be on `192.168.2.x` (e.g. `192.168.2.100`).
+- **`plan & execute` silently aborts** —
+  `ros2 param set /move_group moveit_manage_controllers false`, then retry.
+- **Planning fails instantly** — a joint is out of bounds. Send the arm to a safe pose first
+  (clear the workspace!):
+  ```bash
+  ros2 action send_goal /joint_trajectory_controller/follow_joint_trajectory \
+      control_msgs/action/FollowJointTrajectory \
+      "{trajectory: {joint_names: [joint_1, joint_2, joint_3, joint_4, joint_5, joint_6], points: [{positions: [0.0, 0.28, -1.57, 0.0, -1.05, 0.0], time_from_start: {sec: 8, nanosec: 0}}]}}"
+  ```
+- **RViz won't open / wrong rviz2** — confirm `which rviz2` shows `/opt/ros/humble/bin/rviz2`.
+  A new terminal self-heals via `.bashrc`; if not, the script strips the overlay itself.
+
+---
+
+### 4. Full automated hardware check (tables + arms + grippers)
 
 ```bash
 python3 scripts/hardware_check.py --tables    # move each table ±50 mm
