@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moonshot Workcell — Operator Panel</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --code-bg: #1f2937;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; padding: 24px; }
+  h1 { font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+  .card h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .card h2 span { font-size: 16px; }
+  .cmd-block { background: var(--code-bg); border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; position: relative; cursor: pointer; transition: border-color 0.15s; border: 1px solid transparent; }
+  .cmd-block:hover { border-color: var(--accent); }
+  .cmd-block pre { font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 12px; white-space: pre-wrap; word-break: break-all; color: var(--text); line-height: 1.5; }
+  .cmd-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .copy-hint { position: absolute; right: 8px; top: 8px; font-size: 10px; color: var(--muted); opacity: 0; transition: opacity 0.15s; }
+  .cmd-block:hover .copy-hint { opacity: 1; }
+  .cmd-block.copied { border-color: var(--green); }
+  .cmd-block.copied .copy-hint { color: var(--green); opacity: 1; }
+  .key-table { width: 100%; border-collapse: collapse; }
+  .key-table tr { border-bottom: 1px solid var(--border); }
+  .key-table tr:last-child { border-bottom: none; }
+  .key-table td { padding: 7px 4px; vertical-align: top; }
+  .key-table td:first-child { width: 90px; }
+  kbd { background: #2d333b; border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; font-family: monospace; font-size: 12px; color: var(--text); white-space: nowrap; }
+  .desc { color: var(--muted); font-size: 12px; }
+  .badge { display: inline-block; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: #1a3a22; color: var(--green); }
+  .badge-yellow { background: #3a2a00; color: var(--yellow); }
+  .badge-red { background: #3a1a1a; color: var(--red); }
+  .ip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ip-entry { background: var(--code-bg); border-radius: 6px; padding: 10px; }
+  .ip-entry .label { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .ip-entry .value { font-family: monospace; font-size: 13px; color: var(--accent); font-weight: 600; }
+  .ip-entry .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .warn { background: #3a2a00; border: 1px solid #6a4800; border-radius: 6px; padding: 10px 12px; color: var(--yellow); font-size: 12px; margin-top: 8px; }
+  .step { display: flex; gap: 10px; margin-bottom: 6px; align-items: flex-start; }
+  .step-num { background: var(--accent); color: #000; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .step-content { flex: 1; }
+  .wide { grid-column: 1 / -1; }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<h1>Moonshot Workcell — Operator Panel</h1>
+<p class="subtitle">2 tables · 4 Kinova arms · Livox Mid360 LIDAR &nbsp;|&nbsp; ROS 2 Humble · MoveIt 2</p>
+
+<div class="grid">
+
+  <!-- STARTUP -->
+  <div class="card">
+    <h2><span>🚀</span> Startup — Full System</h2>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="cmd-label">Source workspaces</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>source /opt/ros/humble/setup.bash
+source ~/Documents/moonshot_project/ros2_ws/install/setup.bash</pre>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="cmd-label">Launch full workcell (real hardware)</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HARDWARE IPs -->
+  <div class="card">
+    <h2><span>🔌</span> Hardware Addresses</h2>
+    <div class="ip-grid">
+      <div class="ip-entry">
+        <div class="label">Table 1 — USB Serial</div>
+        <div class="value">/dev/ttyUSB0</div>
+        <div class="sub">Modbus RTU @ 115200</div>
+      </div>
+      <div class="ip-entry">
+        <div class="label">Table 2 — USB Serial</div>
+        <div class="value">/dev/ttyUSB1</div>
+        <div class="sub">Modbus RTU @ 115200</div>
+      </div>
+      <div class="ip-entry">
+        <div class="label">Arm 1 (Table 1, Left)</div>
+        <div class="value">192.168.2.13</div>
+        <div class="sub">Kinova Gen3 Lite</div>
+      </div>
+      <div class="ip-entry">
+        <div class="label">Arm 2 (Table 1, Right)</div>
+        <div class="value">192.168.2.12</div>
+        <div class="sub">Kinova Gen3 Lite</div>
+      </div>
+      <div class="ip-entry">
+        <div class="label">Arm 3 (Table 2, Left)</div>
+        <div class="value">192.168.2.11</div>
+        <div class="sub">Kinova Gen3 Lite</div>
+      </div>
+      <div class="ip-entry">
+        <div class="label">Arm 4 (Table 2, Right)</div>
+        <div class="value">192.168.2.10</div>
+        <div class="sub">Kinova Gen3 Lite</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREFLIGHT -->
+  <div class="card">
+    <h2><span>🔍</span> Pre-flight Check</h2>
+    <div class="cmd-label">Check USB ports + ping all arms</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>python3 scripts/hardware_check.py --preflight \
+  --arm-ips 192.168.2.13 192.168.2.12 192.168.2.11 192.168.2.10</pre>
+    </div>
+    <hr class="divider">
+    <div class="cmd-label">Tables — move each ±50 mm</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>python3 scripts/hardware_check.py --tables</pre>
+    </div>
+    <div class="cmd-label">Arms — send each to home via MoveIt</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>python3 scripts/hardware_check.py --arms</pre>
+    </div>
+    <div class="cmd-label">Grippers — open / close cycle</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>python3 scripts/hardware_check.py --grippers</pre>
+    </div>
+  </div>
+
+  <!-- SINGLE ARM MOVEIT -->
+  <div class="card">
+    <h2><span>🦾</span> Single-Arm MoveIt Bringup (standalone test)</h2>
+    <div style="color:var(--muted);font-size:0.9rem;margin-bottom:12px;">Test one arm + tables + MoveIt RViz in <strong>one terminal</strong>. Does not require the full workcell launch.</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="cmd-label">Run the bringup script (pick the arm IP)</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>./scripts/start_single_arm.sh 192.168.2.10   # arm 4 (table 2, right)</pre>
+        </div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>./scripts/start_single_arm.sh 192.168.2.11   # arm 3 (table 2, left)</pre>
+        </div>
+        <div style="color:var(--muted);font-size:0.85rem;margin-top:4px;">Strips the broken <code>rviz2_ws</code>/<code>moveit2_ws</code> overlays, starts arm + tables + move_group in the background, polls for <code>/move_group</code>, then opens RViz. <kbd>Ctrl+C</kbd> tears it all down.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="cmd-label">In RViz — plan &amp; execute</div>
+        <div style="color:var(--muted);font-size:0.85rem;">MotionPlanning panel → Planning Group: <code>arm</code> → drag the interactive marker → <strong>Plan</strong> → <strong>Execute</strong></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="cmd-label">Second terminal — drive the tables at the same time (optional)</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>python3 scripts/table_keyboard.py</pre>
+        </div>
+      </div>
+    </div>
+    <hr class="divider">
+    <div class="warn" style="margin-bottom:10px;">⚠ Why a script and not <code>ros2 launch ... launch_rviz:=true</code>? RViz is on a <code>TimerAction</code> inside the combined launch, but the included kortex/move_group sub-launches starve the launch event loop so the timer never fires and no window appears. The script polls for readiness instead. (<code>launch_rviz</code> defaults to <code>false</code>.)</div>
+    <div class="cmd-label">Troubleshooting</div>
+    <table class="key-table">
+      <tr><td>Arm not reachable</td><td class="desc"><code>ping 192.168.2.10</code> — check power/Ethernet, arm boots in ~60 s. PC on <code>192.168.2.x</code>.</td></tr>
+      <tr><td>Execute silently aborts</td><td class="desc"><code>ros2 param set /move_group moveit_manage_controllers false</code>, then retry</td></tr>
+      <tr><td>Planning fails instantly</td><td class="desc">A joint is out of bounds — send arm to a safe pose first (clear workspace!)</td></tr>
+      <tr><td>RViz won't open</td><td class="desc"><code>which rviz2</code> must be <code>/opt/ros/humble/bin/rviz2</code>; the script forces this</td></tr>
+    </table>
+    <hr class="divider">
+    <div class="cmd-label">Safe-pose command (out-of-bounds recovery)</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>ros2 action send_goal /joint_trajectory_controller/follow_joint_trajectory \
+    control_msgs/action/FollowJointTrajectory \
+    "{trajectory: {joint_names: [joint_1, joint_2, joint_3, joint_4, joint_5, joint_6], points: [{positions: [0.0, 0.28, -1.57, 0.0, -1.05, 0.0], time_from_start: {sec: 8, nanosec: 0}}]}}"</pre>
+    </div>
+    <hr class="divider">
+    <table class="key-table">
+      <tr><td><strong>Arm 1</strong> (table 1, left)</td><td class="desc"><code>192.168.2.13</code></td></tr>
+      <tr><td><strong>Arm 2</strong> (table 1, right)</td><td class="desc"><code>192.168.2.12</code></td></tr>
+      <tr><td><strong>Arm 3</strong> (table 2, left)</td><td class="desc"><code>192.168.2.11</code></td></tr>
+      <tr><td><strong>Arm 4</strong> (table 2, right)</td><td class="desc"><code>192.168.2.10</code></td></tr>
+    </table>
+  </div>
+
+  <!-- TABLE KEYBOARD -->
+  <div class="card">
+    <h2><span>🎮</span> Table Keyboard Control</h2>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="cmd-label">Terminal A — start controller</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
+ros2 run moving_table_pkg dual_table_controller \
+  --ros-args -p use_fake_hardware:=false</pre>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="cmd-label">Terminal B — keyboard remote</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
+python3 scripts/table_keyboard.py</pre>
+        </div>
+      </div>
+    </div>
+    <hr class="divider">
+    <table class="key-table">
+      <tr><td><kbd>Hold W</kbd></td><td class="desc">Linear forward</td></tr>
+      <tr><td><kbd>Hold S</kbd></td><td class="desc">Linear backward</td></tr>
+      <tr><td><kbd>Hold D</kbd></td><td class="desc">Rotate clockwise</td></tr>
+      <tr><td><kbd>Hold A</kbd></td><td class="desc">Rotate counter-clockwise</td></tr>
+      <tr><td><kbd>1</kbd> / <kbd>2</kbd></td><td class="desc">Switch active table</td></tr>
+      <tr><td><kbd>]</kbd> / <kbd>[</kbd></td><td class="desc">Speed up / down</td></tr>
+      <tr><td><kbd>Z</kbd></td><td class="desc">Zero display (active table)</td></tr>
+      <tr><td><kbd>X</kbd></td><td class="desc">Zero display (both tables)</td></tr>
+      <tr><td><kbd>H</kbd></td><td class="desc"><strong style="color:var(--yellow)">HOME</strong> — set encoder origin at current position (persists after power-off)</td></tr>
+      <tr><td><kbd>Q</kbd></td><td class="desc">Quit</td></tr>
+    </table>
+  </div>
+
+  <!-- HOMING WORKFLOW -->
+  <div class="card">
+    <h2><span>🏠</span> Homing Workflow</h2>
+    <div class="step"><div class="step-num">1</div><div class="step-content">Drive <strong>Table 1</strong> to desired home position using <kbd>W</kbd> / <kbd>S</kbd> / <kbd>A</kbd> / <kbd>D</kbd></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content">Press <kbd>1</kbd> (select Table 1), then <kbd>H</kbd> → encoder origin set</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content">Press <kbd>2</kbd> (switch to Table 2), drive to home</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content">Press <kbd>H</kbd> → both tables now read <strong>0.0 mm / 0.0°</strong></div></div>
+    <div class="warn" style="margin-top:12px;">⚠ <kbd>H</kbd> writes to the AZ-series absolute encoder — permanent until re-homed.</div>
+  </div>
+
+  <!-- OTHER LAUNCHES -->
+  <div class="card">
+    <h2><span>⚙️</span> Other Launch Modes</h2>
+    <div class="cmd-label">Visualization only (no hardware)</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>ros2 launch workcell_moveit_config demo.launch.py use_sim_time:=false</pre>
+    </div>
+    <div class="cmd-label">LIDAR driver only</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>ros2 launch livox_ros_driver2 msg_MID360_launch.py</pre>
+    </div>
+    <div class="cmd-label">LIDAR + RViz</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>ros2 launch livox_ros_driver2 rviz_MID360_launch.py</pre>
+    </div>
+    <div class="cmd-label">LIDAR filter (crop-box + object detection)</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>ros2 launch workcell_description lidar_filter.launch.py</pre>
+    </div>
+    <div class="cmd-label">Move arm (example script)</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>python3 ros2_ws/src/workcell_description/scripts/move_arm_commander.py</pre>
+    </div>
+  </div>
+
+  <!-- BUILD -->
+  <div class="card">
+    <h2><span>🔨</span> Build</h2>
+    <div class="cmd-label">Local build</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>source /opt/ros/humble/setup.bash
+cd ~/Documents/moonshot_project/ros2_ws
+./build_all.sh
+source install/setup.bash</pre>
+    </div>
+    <hr class="divider">
+    <div class="cmd-label">Docker build</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>cd ~/Documents/moonshot_project
+./scripts/build.sh    # build image
+./scripts/run.sh      # run container</pre>
+    </div>
+  </div>
+
+  <!-- SUBNET FIX -->
+  <div class="card">
+    <h2><span>🌐</span> Network — Subnet Fix</h2>
+    <p class="desc" style="margin-bottom:10px;">Arms are on <code style="color:var(--accent)">192.168.2.x</code>. If PC is on <code>192.168.1.x</code>, add a secondary IP:</p>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>sudo ip addr add 192.168.1.100/24 dev enp1s0</pre>
+    </div>
+    <p class="desc" style="margin-top:8px;">Replace <code>enp1s0</code> with your actual Ethernet interface name.</p>
+  </div>
+
+</div>
+
+<script>
+function copy(el) {
+  const text = el.querySelector('pre').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    el.classList.add('copied');
+    const hint = el.querySelector('.copy-hint');
+    hint.textContent = 'copied!';
+    setTimeout(() => {
+      el.classList.remove('copied');
+      hint.textContent = 'click to copy';
+    }, 1500);
+  });
+}
+</script>
+
+</body>
+</html>

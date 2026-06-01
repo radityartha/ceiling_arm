@@ -38,8 +38,8 @@ ROS 2 Humble workspace for an automated workcell: **2 ceiling-mounted motorized 
 ```
 world
 ├── table_1_base   (linear + rotation, Modbus RTU on /dev/ttyUSB0)
-│   ├── arm_1   (Kinova Gen3 Lite, Ethernet @ 192.168.2.10)
-│   └── arm_2   (Kinova Gen3 Lite, Ethernet @ 192.168.2.11)
+│   ├── arm_1   (Kinova Gen3 Lite, Ethernet @ 192.168.2.13)
+│   └── arm_2   (Kinova Gen3 Lite, Ethernet @ 192.168.2.12)
 ├── table_2_base   (linear + rotation, Modbus RTU on /dev/ttyUSB1)
 │   ├── arm_3   (Kinova Gen3 Lite, Ethernet @ 192.168.2.11)
 │   └── arm_4   (Kinova Gen3 Lite, Ethernet @ 192.168.2.10)
