@@ -1,0 +1,97 @@
+# MoveIt execution controllers for the single-RViz per-arm workflow.
+#
+# Sibling of moveit_controllers.yaml. That file routes execution through the
+# coupled table_N_with_arm_controller; this one exposes one FollowJointTrajectory
+# controller per arm (arm_1..arm_4) plus per-gripper controllers, so planning for
+# the arm_3 / arm_4 group executes on its own controller and you can switch groups
+# in RViz without relaunching. Used by single_rviz_workcell.launch.py.
+#
+# generate_spawn_controllers_launch derives the spawn list from these
+# controller_names (+ joint_state_broadcaster), so only what is listed here is
+# spawned. Tables are intentionally NOT listed: the table mock joints expose only
+# a position state interface (no velocity), which the JointTrajectoryController in
+# ros2_controllers.yaml would fail to activate; and tables are driven separately by
+# dual_table_controller over Modbus, not by MoveIt. The table joints still render in
+# RViz via the mock hardware + joint_state_broadcaster.
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - arm_1_controller
+    - arm_2_controller
+    - arm_3_controller
+    - arm_4_controller
+    - gripper_1_controller
+    - gripper_2_controller
+    - gripper_3_controller
+    - gripper_4_controller
+
+  arm_1_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - t1_a1_joint_1
+      - t1_a1_joint_2
+      - t1_a1_joint_3
+      - t1_a1_joint_4
+      - t1_a1_joint_5
+      - t1_a1_joint_6
+  arm_2_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - t1_a2_joint_1
+      - t1_a2_joint_2
+      - t1_a2_joint_3
+      - t1_a2_joint_4
+      - t1_a2_joint_5
+      - t1_a2_joint_6
+  arm_3_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - t2_a1_joint_1
+      - t2_a1_joint_2
+      - t2_a1_joint_3
+      - t2_a1_joint_4
+      - t2_a1_joint_5
+      - t2_a1_joint_6
+  arm_4_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - t2_a2_joint_1
+      - t2_a2_joint_2
+      - t2_a2_joint_3
+      - t2_a2_joint_4
+      - t2_a2_joint_5
+      - t2_a2_joint_6
+  gripper_1_controller:
+    type: GripperCommand
+    action_ns: gripper_cmd
+    default: true
+    joints:
+      - t1_a1_right_finger_bottom_joint
+  gripper_2_controller:
+    type: GripperCommand
+    action_ns: gripper_cmd
+    default: true
+    joints:
+      - t1_a2_right_finger_bottom_joint
+  gripper_3_controller:
+    type: GripperCommand
+    action_ns: gripper_cmd
+    default: true
+    joints:
+      - t2_a1_right_finger_bottom_joint
+  gripper_4_controller:
+    type: GripperCommand
+    action_ns: gripper_cmd
+    default: true
+    joints:
+      - t2_a2_right_finger_bottom_joint

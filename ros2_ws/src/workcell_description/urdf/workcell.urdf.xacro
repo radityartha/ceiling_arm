@@ -11,6 +11,13 @@
   <xacro:arg name="arm2_ip"           default="0.0.0.0"/>
   <xacro:arg name="arm3_ip"           default="0.0.0.0"/>
   <xacro:arg name="arm4_ip"           default="0.0.0.0"/>
+  <!-- Per-arm mock override: default to the global flag, but each arm can be
+       mocked independently (e.g. mock an unreachable/powered-off arm so the
+       real ones still come up instead of the whole ros2_control_node aborting). -->
+  <xacro:arg name="arm1_fake"         default="$(arg use_fake_hardware)"/>
+  <xacro:arg name="arm2_fake"         default="$(arg use_fake_hardware)"/>
+  <xacro:arg name="arm3_fake"         default="$(arg use_fake_hardware)"/>
+  <xacro:arg name="arm4_fake"         default="$(arg use_fake_hardware)"/>
 
   <!-- ============================ -->
   <!-- Include table and Kinova URDF -->
@@ -81,28 +88,28 @@
   <!-- Arms Mounted on Table 1 -->
   <!-- ==================================== -->
 
-  <!-- Arm 1 (Left mount on Table 1) -->
-  <xacro:load_robot prefix="t1_a1_" parent="t1_mount_plate_left" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg use_fake_hardware)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm1_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
-    <origin xyz="0 0 -0.025" rpy="3.14159 0 1.5707963267948966"/>
+  <!-- Arm 1 (t1_a1) — on table-1 RIGHT plate (left/right swapped to match real cell) -->
+  <xacro:load_robot prefix="t1_a1_" parent="t1_mount_plate_right" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm1_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm1_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 -1.5707963267948966"/>
   </xacro:load_robot>
 
-  <!-- Arm 2 (Right mount on Table 1) -->
-  <xacro:load_robot prefix="t1_a2_" parent="t1_mount_plate_right" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg use_fake_hardware)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm2_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
-    <origin xyz="0 0 -0.025" rpy="3.14159 0 -1.5707963267948966"/>
+  <!-- Arm 2 (t1_a2) — on table-1 LEFT plate (left/right swapped to match real cell) -->
+  <xacro:load_robot prefix="t1_a2_" parent="t1_mount_plate_left" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm2_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm2_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 1.5707963267948966"/>
   </xacro:load_robot>
 
   <!-- ==================================== -->
   <!-- Arms Mounted on Table 2 -->
   <!-- ==================================== -->
 
-  <!-- Arm 3 (Left mount on Table 2) -->
-  <xacro:load_robot prefix="t2_a1_" parent="t2_mount_plate_left" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg use_fake_hardware)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm3_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
-    <origin xyz="0 0 -0.025" rpy="3.14159 0 1.5707963267948966"/>
+  <!-- Arm 3 (t2_a1) — on table-2 RIGHT plate (left/right swapped to match real cell) -->
+  <xacro:load_robot prefix="t2_a1_" parent="t2_mount_plate_right" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm3_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm3_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 -1.5707963267948966"/>
   </xacro:load_robot>
 
-  <!-- Arm 4 (Right mount on Table 2) -->
-  <xacro:load_robot prefix="t2_a2_" parent="t2_mount_plate_right" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg use_fake_hardware)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm4_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
-    <origin xyz="0 0 -0.025" rpy="3.14159 0 -1.5707963267948966"/>
+  <!-- Arm 4 (t2_a2) — on table-2 LEFT plate (left/right swapped to match real cell) -->
+  <xacro:load_robot prefix="t2_a2_" parent="t2_mount_plate_left" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm4_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm4_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 1.5707963267948966"/>
   </xacro:load_robot>
 
 </robot>

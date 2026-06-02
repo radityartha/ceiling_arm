@@ -29,6 +29,7 @@ JOG_DIRECTIONS = {
 
 # operation_type for home/preset
 OP_PRESET_HOME = 99
+OP_GOTO_HOME   = 98   # move to absolute encoder 0 (server-side, no client position needed)
 
 
 class DualTableController(Node):
@@ -329,6 +330,12 @@ class DualTableController(Node):
                             request.angle_deg * 3.14159 / 180.0
                         )
                 success = True
+            elif request.operation_type == OP_GOTO_HOME:
+                success = table_controller.go_to_absolute_zero(
+                    linear_speed=request.linear_speed,
+                    rotate_speed=request.rotate_speed,
+                    stop_event=stop_event,
+                )
             elif request.operation_type in JOG_DIRECTIONS:
                 direction = JOG_DIRECTIONS[request.operation_type]
                 success = table_controller.jog(
