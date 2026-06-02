@@ -36,6 +36,7 @@ OP_JOG_BACK    = 11
 OP_JOG_ROT_CW  = 12
 OP_JOG_ROT_CCW = 13
 OP_HOME        = 99
+OP_GOTO_HOME   = 98
 
 MOVE_KEYS = {
     'w': (OP_JOG_FORWARD,  "▶ linear forward"),
@@ -72,7 +73,7 @@ class TableController(Node):
         self._origin = {k: 0.0 for k in self._positions}
 
         self.create_subscription(
-            JointState, "/table_joint_states", self._joint_cb, 10
+            JointState, "/joint_states", self._joint_cb, 10
         )
 
     def _joint_cb(self, msg: JointState):
@@ -144,21 +145,16 @@ class TableController(Node):
                 self._positions[k] = 0.0
 
     def send_goto_home(self):
-        """Move table to absolute encoder zero (0 mm, 0 deg)."""
-        with self._lock:
-            if self.active_table == "table1":
-                lin_m = self._positions["t1_linear_joint"]
-                rot_r = self._positions["t1_rotation_joint"]
-            else:
-                lin_m = self._positions["t2_linear_joint"]
-                rot_r = self._positions["t2_rotation_joint"]
+        """Move table to absolute encoder zero (0 mm, 0 deg).
+        Uses OP_GOTO_HOME so the server reads motor position directly — avoids
+        the stale /joint_states round-trip that caused the wrong-position bug."""
         req = MovingTable.Request()
         req.table_id       = self.active_table
-        req.distance_mm    = -lin_m * 1000.0
-        req.angle_deg      = -math.degrees(rot_r)
+        req.distance_mm    = 0.0
+        req.angle_deg      = 0.0
         req.linear_speed   = self.lin_speed
         req.rotate_speed   = self.rot_speed
-        req.operation_type = 2  # both linear + rotation
+        req.operation_type = OP_GOTO_HOME
         future = self.client.call_async(req)
         future.add_done_callback(self._cb)
 

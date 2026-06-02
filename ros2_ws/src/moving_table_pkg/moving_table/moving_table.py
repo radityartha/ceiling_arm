@@ -151,6 +151,84 @@ class MovingTableController:
                 self._log(f"❌ Exception during position check: {e}")
                 return False
 
+    def go_to_absolute_zero(self, linear_speed, rotate_speed, stop_event=None):
+        """Move each motor to encoder position 0 (set by H/ppreset).
+
+        Uses go_to_table logic: reads each motor's current position directly,
+        computes the delta needed to reach 0, then commands and polls until done.
+        This avoids relying on the ROS /joint_states topic (which can be stale).
+        """
+        motors = [self.motor1, self.motor2, self.motor3]
+        speeds = [linear_speed, linear_speed, rotate_speed]
+
+        for motor in motors:
+            if not motor:
+                self._log("❌ Motor is not available.")
+                return False
+
+        # Read current encoder positions (same as go_to_table start-position read)
+        start_positions = []
+        for motor in motors:
+            motor.resetAlarm()
+            pos = motor.readPosition()
+            if not pos or not isinstance(pos, (list, tuple)) or len(pos) < 2 or pos[0] != 0:
+                self._log(f"❌ Cannot read position from motor {motor.serverAddress}: {pos}")
+                return False
+            start_positions.append(pos[1])
+
+        abs_targets = [0, 0, 0]
+        self._log(f"🏠 Going home: start={start_positions} → target={abs_targets}")
+
+        # If already at home (within tolerance), skip movement
+        if all(abs(p) <= 100 for p in start_positions):
+            self._log("✅ Already at home position.")
+            return True
+
+        for motor, abs_target, speed in zip(motors, abs_targets, speeds):
+            result = motor.startPosition(position=abs_target, speed=speed, OpeType=1)
+            if result[0] != 0:
+                self._log(f"❌ Failed to start motor {motor.serverAddress}: {result}")
+                return False
+
+        start_time = time.time()
+        while True:
+            if stop_event and stop_event.is_set():
+                self._log("🛑 Stop signal — halting.")
+                for m in motors:
+                    try:
+                        m.stop()
+                    except Exception:
+                        pass
+                return False
+
+            all_reached = True
+            current = []
+            for motor, target in zip(motors, abs_targets):
+                pos = motor.readPosition()
+                # pos[0] != 0 means Modbus error — must not be treated as position 1
+                if not pos or not isinstance(pos, (list, tuple)) or len(pos) < 2 or pos[0] != 0:
+                    self._log(f"⚠ Read error motor {motor.serverAddress}: {pos}")
+                    all_reached = False
+                    break
+                current.append(pos[1])
+                if abs(pos[1] - target) > 50:
+                    all_reached = False
+
+            if all_reached:
+                self._log(f"✅ All motors at home. Positions: {current}")
+                return True
+
+            if time.time() - start_time > self.timeout:
+                self._log(f"⚠️ Timeout going home. Last positions: {current}")
+                for m in motors:
+                    try:
+                        m.stop()
+                    except Exception:
+                        pass
+                return False
+
+            time.sleep(self.poll_interval)
+
     def start_continuous(self, direction: str, linear_speed: int, rotate_speed: int):
         """Fire-and-forget: start continuous drive immediately (no blocking)."""
         def _run(motor, speed, dir_code, label):

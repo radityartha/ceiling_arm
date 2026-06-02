@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!--
+  Real-hardware top-level model for the single-RViz, switch-planning-group
+  workflow (arm_3 <-> arm_4 with no relaunch).
+
+  This is a sibling of trailer_workcell.urdf.xacro. The difference:
+
+    * It FORWARDS use_fake_hardware + armN_ip into workcell.urdf.xacro, so the
+      arms come up on the real Kinova driver (KortexMultiInterfaceHardware)
+      instead of silently defaulting to mock.
+    * It does NOT include the redundant trailer_workcell.ros2_control.xacro
+      "FakeSystem" block, which would otherwise double-define the arm joints.
+      workcell.urdf.xacro already emits a real ros2_control block per arm via
+      xacro:load_robot, and a TableFakeHardware block for the table joints.
+
+  trailer_workcell.urdf.xacro is left untouched so the existing mock-only
+  my_workcell.launch.py path keeps working.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="trailer_workcell">
+    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+
+    <xacro:arg name="use_fake_hardware" default="false" />
+    <xacro:arg name="arm1_ip" default="192.168.2.10" />
+    <xacro:arg name="arm2_ip" default="192.168.2.11" />
+    <xacro:arg name="arm3_ip" default="192.168.2.11" />
+    <xacro:arg name="arm4_ip" default="192.168.2.10" />
+
+    <!-- Full workcell model: 2 tables + 4 arms + 4 grippers + LIDAR frame.
+         Forward the hardware args so load_robot wires the real Kinova driver. -->
+    <xacro:include filename="$(find workcell_description)/urdf/workcell.urdf.xacro" />
+</robot>
