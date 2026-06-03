@@ -1,0 +1,29 @@
+# Parameters for gng_node.  All values are declared in gng_node.py with these
+# defaults; this file lets you override them at launch without editing code.
+#
+# RESEARCH NOTE: do NOT auto-tune these against the sim LiDAR cloud — it is a
+# raster approximation of the Mid360.  Tune on the real sensor.
+gng_node:
+  ros__parameters:
+    # Point the GNG at the sim LiDAR by default.  Change ONLY this line to run
+    # on the real Mid360 later (e.g. keep /livox/points if the driver matches).
+    input_cloud_topic: /livox/points
+    output_frame_override: ""      # "" = publish in the cloud's own frame
+
+    voxel_size: 0.10               # m; <=0 disables downsampling
+    samples_per_cloud: 300         # random points fed to GNG per callback
+    max_nodes: 200
+
+    # GNG-U learning parameters
+    eps_b: 0.05
+    eps_n: 0.0006
+    max_age: 50
+    lambda_insert: 100
+    alpha: 0.5
+    beta: 0.0005
+    utility_k: 3.0
+
+    # Region of interest in the cloud frame: [xmin,xmax,ymin,ymax,zmin,zmax]
+    roi_bounds: [-3.0, 3.0, -3.0, 3.0, -0.05, 2.5]
+
+    publish_rate_hz: 5.0

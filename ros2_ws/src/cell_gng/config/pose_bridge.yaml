@@ -1,0 +1,24 @@
+# ros_gz_bridge config for the SIM-ONLY ground-truth pose source.
+#
+# Gazebo Fortress publishes all model poses as gz.msgs.Pose_V on
+#   /world/<world_name>/pose/info
+# and moving-model poses on
+#   /world/<world_name>/dynamic_pose/info
+# The world name in cell_gazebo_sim/worlds/cell.sdf is "workcell".
+#
+# gz.msgs.Pose_V → geometry_msgs/msg/PoseArray mapping verified in
+#   /opt/ros/humble/include/ros_gz_bridge/ros_gz_bridge/convert/geometry_msgs.hpp
+#
+# This bridge is only used by the validation harness in simulation.  It is NOT
+# part of any real-hardware launch.
+- ros_topic_name: /gng/ground_truth_poses
+  gz_topic_name: /world/workcell/pose/info
+  ros_type_name: geometry_msgs/msg/PoseArray
+  gz_type_name: gz.msgs.Pose_V
+  direction: GZ_TO_ROS
+
+- ros_topic_name: /gng/ground_truth_dynamic_poses
+  gz_topic_name: /world/workcell/dynamic_pose/info
+  ros_type_name: geometry_msgs/msg/PoseArray
+  gz_type_name: gz.msgs.Pose_V
+  direction: GZ_TO_ROS
