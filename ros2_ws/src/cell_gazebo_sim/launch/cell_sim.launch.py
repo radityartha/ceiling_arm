@@ -32,6 +32,23 @@ if os.path.isdir(_KORTEX_FORTRESS_PREFIX):
     if _KORTEX_FORTRESS_PREFIX not in _ap:
         os.environ["AMENT_PREFIX_PATH"] = _KORTEX_FORTRESS_PREFIX + ":" + _ap
 
+# gz_ros2_control-system and other ROS 2 Gazebo plugins live in /opt/ros/humble/lib.
+# Gazebo Fortress uses GZ_SIM_SYSTEM_PLUGIN_PATH (Fortress still accepts the
+# IGN_GAZEBO_SYSTEM_PLUGIN_PATH alias too).
+_ROS_LIB = "/opt/ros/humble/lib"
+for _env in ("GZ_SIM_SYSTEM_PLUGIN_PATH", "IGN_GAZEBO_SYSTEM_PLUGIN_PATH"):
+    _cur = os.environ.get(_env, "")
+    if _ROS_LIB not in _cur:
+        os.environ[_env] = _ROS_LIB + (":" + _cur if _cur else "")
+
+# Gazebo Fortress needs the kortex_description share parent so it can resolve
+# model://kortex_description/... mesh URIs.
+_KORTEX_SHARE_PARENT = "/home/mobi/ros2_ws/install/kortex_description/share"
+for _env in ("IGN_GAZEBO_RESOURCE_PATH", "GZ_SIM_RESOURCE_PATH"):
+    _cur = os.environ.get(_env, "")
+    if _KORTEX_SHARE_PARENT not in _cur:
+        os.environ[_env] = _KORTEX_SHARE_PARENT + (":" + _cur if _cur else "")
+
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
@@ -66,11 +83,16 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration("use_sim_time")
 
     # ── 1. Robot description ───────────────────────────────────────────────────
+    # The kortex gripper ros2_control xacro (from /home/mobi/ros2_ws) uses
+    # gz_ros2_control/GzSimSystem, but the installed gz_ros2_control package
+    # only registers gz_ros2_control/GazeboSimSystem.  Substitute on the fly.
     robot_description_content = Command([
-        FindExecutable(name="xacro"), " ",
-        os.path.join(pkg_sim, "urdf", "cell_sim.urdf.xacro"),
-        " sim_controllers:=",
-        os.path.join(pkg_sim, "config", "sim_ros2_controllers.yaml"),
+        "bash", "-c",
+        "xacro "
+        + os.path.join(pkg_sim, "urdf", "cell_sim.urdf.xacro")
+        + " sim_controllers:="
+        + os.path.join(pkg_sim, "config", "sim_ros2_controllers.yaml")
+        + " | sed 's|gz_ros2_control/GzSimSystem|gz_ros2_control/GazeboSimSystem|g'",
     ])
     robot_description = {"robot_description": robot_description_content}
 
