@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>cell_gazebo_sim</name>
+  <version>0.1.0</version>
+  <description>Gazebo Fortress simulation for the ceiling-robot workcell (sim-only, real-hardware path untouched).</description>
+  <maintainer email="raditya.artha@gmail.com">radityartha</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- URDF/xacro description packages -->
+  <depend>workcell_description</depend>
+  <depend>kortex_description</depend>
+
+  <!-- Gazebo Fortress ROS integration -->
+  <depend>ros_gz_sim</depend>
+  <depend>ros_gz_bridge</depend>
+  <depend>gz_ros2_control</depend>
+
+  <!-- Controllers loaded at runtime -->
+  <exec_depend>joint_trajectory_controller</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>position_controllers</exec_depend>
+
+  <!-- Launch infrastructure -->
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

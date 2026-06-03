@@ -1,0 +1,334 @@
+<?xml version="1.0"?>
+<!--
+  Sim-only top-level xacro for the ceiling-robot workcell.
+
+  This file is NEW and ADDITIVE — it does NOT modify workcell.urdf.xacro or any
+  existing description file.  The real-hardware launch path is byte-for-byte
+  unchanged.
+
+  Key differences vs the real-hardware workcell:
+    * All four arms use sim_gazebo:=true, which switches their ros2_control
+      hardware plugin to gz_ros2_control/GazeboSimSystem.
+    * Table joints are declared in a separate ros2_control block that also uses
+      gz_ros2_control/GazeboSimSystem so a JointTrajectoryController can
+      command them from ROS 2.
+    * livox_frame is a real URDF link (static-TF in the real system).
+    * camera_link is added (does not exist in the real-hardware description).
+    * Gazebo sensor tags are added for the LiDAR and depth camera.
+    * The gz_ros2_control system plugin is loaded once at the robot root.
+-->
+<robot name="trailer_workcell" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ============================================================ -->
+  <!-- Configurable parameters                                       -->
+  <!-- ============================================================ -->
+  <xacro:arg name="sim_controllers"
+             default="$(find cell_gazebo_sim)/config/sim_ros2_controllers.yaml"/>
+  <xacro:arg name="gazebo_renderer" default="ogre"/>
+
+  <!-- Arm IP args kept for signature compatibility; unused in sim. -->
+  <xacro:arg name="arm1_ip" default="0.0.0.0"/>
+  <xacro:arg name="arm2_ip" default="0.0.0.0"/>
+  <xacro:arg name="arm3_ip" default="0.0.0.0"/>
+  <xacro:arg name="arm4_ip" default="0.0.0.0"/>
+
+  <!-- ============================================================ -->
+  <!-- Include macros                                                -->
+  <!-- ============================================================ -->
+
+  <!-- Table geometry (shared with real-hardware path, no changes needed) -->
+  <xacro:include filename="$(find workcell_description)/urdf/moving_table.urdf.xacro"/>
+
+  <!-- Kinova Gen3 Lite arm macro (from ros2_kortex submodule/sibling ws) -->
+  <xacro:include filename="$(find kortex_description)/robots/kortex_robot.xacro"/>
+  <xacro:include filename="$(find kortex_description)/arms/gen3_lite/6dof/urdf/kortex.ros2_control.xacro"/>
+  <xacro:include filename="$(find kortex_description)/grippers/gen3_lite_2f/urdf/gen3_lite_2f_macro.xacro"/>
+  <xacro:include filename="$(find kortex_description)/grippers/gen3_lite_2f/urdf/gen3_lite_2f_transmission_macro.xacro"/>
+
+  <!-- ============================================================ -->
+  <!-- World / root link                                             -->
+  <!-- ============================================================ -->
+  <link name="world"/>
+
+  <!-- ============================================================ -->
+  <!-- Moving tables (same topology as workcell.urdf.xacro)         -->
+  <!-- ============================================================ -->
+
+  <xacro:moving_table prefix="t1_" parent="world">
+    <origin xyz="0 0.36 2.05" rpy="0 0 0"/>
+  </xacro:moving_table>
+
+  <xacro:moving_table prefix="t2_" parent="world">
+    <origin xyz="0 -0.36 2.05" rpy="0 0 0"/>
+  </xacro:moving_table>
+
+  <!-- ============================================================ -->
+  <!-- Table joints in ros2_control (sim only)                      -->
+  <!--                                                              -->
+  <!-- In the real-hardware path the table joints are driven by     -->
+  <!-- dual_table_controller over Modbus RTU and are intentionally  -->
+  <!-- excluded from ros2_control.  In sim we need a command        -->
+  <!-- interface so a JointTrajectoryController can move them.      -->
+  <!-- ============================================================ -->
+  <ros2_control name="TableSimSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    <joint name="t1_linear_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="t1_rotation_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="t2_linear_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="t2_rotation_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+  <!-- ============================================================ -->
+  <!-- Arms on Table 1 (sim_gazebo:=true → gz_ros2_control plugin)  -->
+  <!-- ============================================================ -->
+
+  <!-- Arm 1 (t1_a1) — table-1 RIGHT mount plate -->
+  <xacro:load_robot prefix="t1_a1_" parent="t1_mount_plate_right"
+    arm="gen3_lite" dof="6" gripper="gen3_lite_2f"
+    gripper_joint_name="right_finger_bottom_joint"
+    sim_gazebo="true"
+    use_fake_hardware="false"
+    use_internal_bus_gripper_comm="true"
+    gripper_max_velocity="100.0" gripper_max_force="100.0"
+    vision="false"
+    robot_ip="$(arg arm1_ip)"
+    username="admin" password="admin"
+    port="10000" port_realtime="10001"
+    session_inactivity_timeout_ms="60000"
+    connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 -1.5707963267948966"/>
+  </xacro:load_robot>
+
+  <!-- Arm 2 (t1_a2) — table-1 LEFT mount plate -->
+  <xacro:load_robot prefix="t1_a2_" parent="t1_mount_plate_left"
+    arm="gen3_lite" dof="6" gripper="gen3_lite_2f"
+    gripper_joint_name="right_finger_bottom_joint"
+    sim_gazebo="true"
+    use_fake_hardware="false"
+    use_internal_bus_gripper_comm="true"
+    gripper_max_velocity="100.0" gripper_max_force="100.0"
+    vision="false"
+    robot_ip="$(arg arm2_ip)"
+    username="admin" password="admin"
+    port="10000" port_realtime="10001"
+    session_inactivity_timeout_ms="60000"
+    connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 1.5707963267948966"/>
+  </xacro:load_robot>
+
+  <!-- ============================================================ -->
+  <!-- Arms on Table 2                                               -->
+  <!-- ============================================================ -->
+
+  <!-- Arm 3 (t2_a1) — table-2 RIGHT mount plate -->
+  <xacro:load_robot prefix="t2_a1_" parent="t2_mount_plate_right"
+    arm="gen3_lite" dof="6" gripper="gen3_lite_2f"
+    gripper_joint_name="right_finger_bottom_joint"
+    sim_gazebo="true"
+    use_fake_hardware="false"
+    use_internal_bus_gripper_comm="true"
+    gripper_max_velocity="100.0" gripper_max_force="100.0"
+    vision="false"
+    robot_ip="$(arg arm3_ip)"
+    username="admin" password="admin"
+    port="10000" port_realtime="10001"
+    session_inactivity_timeout_ms="60000"
+    connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 -1.5707963267948966"/>
+  </xacro:load_robot>
+
+  <!-- Arm 4 (t2_a2) — table-2 LEFT mount plate -->
+  <xacro:load_robot prefix="t2_a2_" parent="t2_mount_plate_left"
+    arm="gen3_lite" dof="6" gripper="gen3_lite_2f"
+    gripper_joint_name="right_finger_bottom_joint"
+    sim_gazebo="true"
+    use_fake_hardware="false"
+    use_internal_bus_gripper_comm="true"
+    gripper_max_velocity="100.0" gripper_max_force="100.0"
+    vision="false"
+    robot_ip="$(arg arm4_ip)"
+    username="admin" password="admin"
+    port="10000" port_realtime="10001"
+    session_inactivity_timeout_ms="60000"
+    connection_inactivity_timeout_ms="2000">
+    <origin xyz="0 0 -0.025" rpy="3.14159 0 1.5707963267948966"/>
+  </xacro:load_robot>
+
+  <!-- ============================================================ -->
+  <!-- LiDAR link (sim stand-in for Livox Mid360)                   -->
+  <!--                                                              -->
+  <!-- In the real system livox_frame is a static TF published at   -->
+  <!-- runtime (world → livox_frame, x=2.3 z=1.9).  In sim it must -->
+  <!-- be a real URDF link so Gazebo can attach a sensor to it.     -->
+  <!-- ============================================================ -->
+  <link name="livox_frame">
+    <inertial>
+      <mass value="0.001"/>
+      <inertia ixx="1e-6" iyy="1e-6" izz="1e-6" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+  <joint name="livox_frame_joint" type="fixed">
+    <parent link="world"/>
+    <child link="livox_frame"/>
+    <!-- Matches the static TF published by the real-hardware launch. -->
+    <origin xyz="2.3 0 1.9" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- Camera link (sim only — does not exist in the real URDF)     -->
+  <!--                                                              -->
+  <!-- Mounted overhead, looking straight down at the workspace.    -->
+  <!-- pitch = -pi/2 orients the optical Z axis downward.          -->
+  <!-- ============================================================ -->
+  <link name="camera_link">
+    <inertial>
+      <mass value="0.001"/>
+      <inertia ixx="1e-6" iyy="1e-6" izz="1e-6" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+  <joint name="camera_link_joint" type="fixed">
+    <parent link="world"/>
+    <child link="camera_link"/>
+    <!-- Centre of workspace overhead at z=2.5 m, angled straight down. -->
+    <origin xyz="0 0 2.5" rpy="0 1.5707963 0"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- Gazebo sensor: GPU LiDAR on livox_frame                       -->
+  <!--                                                              -->
+  <!-- This is a RASTER approximation of the Livox Mid360.          -->
+  <!-- The Mid360 uses a non-repetitive scan pattern that cannot be -->
+  <!-- reproduced by Gazebo's gpu_lidar sensor type.  Parameters    -->
+  <!-- chosen to approximate the Mid360 datasheet:                  -->
+  <!--   Horizontal FOV: 360 deg                                    -->
+  <!--   Vertical FOV:  -7 deg to +52 deg (~59 deg total)          -->
+  <!--   Max range: 40 m                                            -->
+  <!-- DO NOT auto-tune GNG hyperparameters against this simulated  -->
+  <!-- cloud — the raster pattern differs from the real sensor.     -->
+  <!-- Tune on the real Mid360 hardware.                            -->
+  <!-- ============================================================ -->
+  <gazebo reference="livox_frame">
+    <sensor name="livox_lidar_sim" type="gpu_lidar">
+      <topic>/livox/points</topic>
+      <update_rate>10</update_rate>
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>1800</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159265</min_angle>
+            <max_angle>3.14159265</max_angle>
+          </horizontal>
+          <!-- Vertical: Mid360 approx -7 deg to +52 deg -->
+          <vertical>
+            <samples>32</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.1222</min_angle>  <!-- -7 deg -->
+            <max_angle>0.9076</max_angle>   <!-- +52 deg -->
+          </vertical>
+        </scan>
+        <range>
+          <min>0.1</min>
+          <max>40.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.02</stddev>
+        </noise>
+      </lidar>
+    </sensor>
+  </gazebo>
+
+  <!-- ============================================================ -->
+  <!-- Gazebo sensor: depth camera on camera_link                    -->
+  <!-- ============================================================ -->
+  <gazebo reference="camera_link">
+    <sensor name="workcell_depth_camera" type="depth_camera">
+      <topic>/camera/depth</topic>
+      <update_rate>15</update_rate>
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <camera>
+        <horizontal_fov>1.2217</horizontal_fov>  <!-- ~70 deg -->
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R_FLOAT32</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>10.0</far>
+        </clip>
+      </camera>
+    </sensor>
+    <!-- RGB camera alongside depth for CameraInfo bridging -->
+    <sensor name="workcell_rgb_camera" type="camera">
+      <topic>/camera/image</topic>
+      <update_rate>15</update_rate>
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <camera>
+        <horizontal_fov>1.2217</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>10.0</far>
+        </clip>
+      </camera>
+    </sensor>
+  </gazebo>
+
+  <!-- ============================================================ -->
+  <!-- Gazebo plugins                                                -->
+  <!-- ============================================================ -->
+
+  <!-- gz_ros2_control: loads all <ros2_control> blocks in this URDF.
+       Plugin string verified against the installed
+       /opt/ros/humble/lib/libgz_ros2_control-system.so. -->
+  <gazebo>
+    <plugin filename="gz_ros2_control-system"
+            name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(arg sim_controllers)</parameters>
+    </plugin>
+  </gazebo>
+
+  <!-- Sensors system: required for gpu_lidar and depth_camera to render. -->
+  <gazebo>
+    <plugin filename="gz-sim-sensors-system"
+            name="gz::sim::systems::Sensors">
+      <render_engine>$(arg gazebo_renderer)</render_engine>
+    </plugin>
+  </gazebo>
+
+  <!-- IMU system (required by Fortress even when no IMU is defined). -->
+  <gazebo>
+    <plugin filename="gz-sim-imu-system"
+            name="gz::sim::systems::Imu"/>
+  </gazebo>
+
+</robot>

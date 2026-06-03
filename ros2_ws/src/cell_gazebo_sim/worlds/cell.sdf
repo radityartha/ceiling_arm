@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<!--
+  Gazebo Fortress world for the ceiling-robot workcell sim.
+  Kept minimal: physics + lighting only.
+  The robot is spawned by the launch file, not declared here.
+-->
+<sdf version="1.8">
+  <world name="workcell">
+
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <!-- Required Fortress systems -->
+    <plugin filename="gz-sim-physics-system"
+            name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-sensors-system"
+            name="gz::sim::systems::Sensors">
+      <render_engine>ogre</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-scene-broadcaster-system"
+            name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-user-commands-system"
+            name="gz::sim::systems::UserCommands"/>
+
+    <!-- Sun light -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- Floor plane -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Example object for GNG mapping validation.
+         A simple box at a known pose so the GNG validation script
+         can report centroid-vs-truth distance.
+         Pose: x=1.0 y=0.0 z=0.25 (centred in workspace, 0.5m tall box). -->
+    <model name="validation_box_1">
+      <static>true</static>
+      <pose>1.0 0.0 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.3 0.3 0.5</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.3 0.3 0.5</size></box></geometry>
+          <material><ambient>0.2 0.6 0.2 1</ambient><diffuse>0.2 0.6 0.2 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="validation_box_2">
+      <static>true</static>
+      <pose>-1.0 0.5 0.2 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.4 0.2 0.4</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.4 0.2 0.4</size></box></geometry>
+          <material><ambient>0.6 0.2 0.2 1</ambient><diffuse>0.6 0.2 0.2 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>
