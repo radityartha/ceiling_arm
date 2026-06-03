@@ -68,6 +68,9 @@ def generate_launch_description():
                               description="Arm 3 (t2_a1) IP"),
         DeclareLaunchArgument("arm4_ip", default_value="192.168.2.10",
                               description="Arm 4 (t2_a2) IP"),
+        DeclareLaunchArgument("use_fake_tables", default_value="false",
+                              description="Use fake hardware for the table motors "
+                              "(true = no Modbus needed)"),
     ]
 
     moveit_config = (
@@ -158,6 +161,18 @@ def generate_launch_description():
             arguments=["2.3", "0", "1.9", "3.14159", "3.14159", "0",
                        "world", "livox_frame"],
             parameters=[{"use_sim_time": False}],
+        ),
+
+        # Moving tables — driver node. Publishes the four table joints directly
+        # on /joint_states (disjoint from joint_state_broadcaster's arm/gripper
+        # joints) so the tables animate in this single RViz when commanded via
+        # the move_dual_table service.
+        Node(
+            package="moving_table_pkg",
+            executable="dual_table_controller",
+            name="dual_table_controller",
+            output="screen",
+            parameters=[{"use_fake_hardware": LaunchConfiguration("use_fake_tables")}],
         ),
     ]
 

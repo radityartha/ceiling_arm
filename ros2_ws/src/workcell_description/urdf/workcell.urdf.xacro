@@ -57,32 +57,14 @@
   </xacro:moving_table>
 
   <!-- ==================================== -->
-  <!-- Moving Tables Fake Hardware -->
+  <!-- Moving Tables Joint States -->
   <!-- ==================================== -->
-
-  <ros2_control name="TableFakeHardware" type="system">
-    <hardware>
-      <plugin>mock_components/GenericSystem</plugin>
-    </hardware>
-
-    <joint name="t1_linear_joint">
-      <command_interface name="position" />
-      <state_interface name="position" />
-    </joint>
-    <joint name="t1_rotation_joint">
-      <command_interface name="position" />
-      <state_interface name="position" />
-    </joint>
-
-    <joint name="t2_linear_joint">
-      <command_interface name="position" />
-      <state_interface name="position" />
-    </joint>
-    <joint name="t2_rotation_joint">
-      <command_interface name="position" />
-      <state_interface name="position" />
-    </joint>
-  </ros2_control>
+  <!-- The table joints are NOT under ros2_control. They are driven by the
+       dual_table_controller node (Modbus / fake) which publishes their
+       JointState on /table_joint_states; a joint_state_publisher aggregator
+       merges that into /joint_states for RViz. Keeping them out of
+       ros2_control makes dual_table_controller the single source of truth and
+       avoids a double-publisher conflict with joint_state_broadcaster. -->
 
   <!-- ==================================== -->
   <!-- Arms Mounted on Table 1 -->

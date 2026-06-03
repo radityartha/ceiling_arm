@@ -60,6 +60,12 @@ class DualTableController(Node):
         self.declare_parameter("motor_config.speed", 100000)
         self.declare_parameter("motor_config.current", 1000)
         self.declare_parameter("publish_rate", 10.0)
+        # Topic for the table JointState. Default /joint_states: we publish ONLY
+        # the four table joints, a disjoint set from joint_state_broadcaster's
+        # arm/gripper joints, so robot_state_publisher merges both without
+        # conflict. Override (e.g. to table_joint_states) where the running
+        # move_group does not know the table joints, to avoid "joint not found".
+        self.declare_parameter("joint_states_topic", "joint_states")
 
         self.add_on_set_parameters_callback(self.parameters_callback)
 
@@ -103,7 +109,8 @@ class DualTableController(Node):
 
         # ------------------- Create Joint State Publisher ---------------
         qos_profile = QoSProfile(depth=10)
-        self.joint_pub = self.create_publisher(JointState, "joint_states", qos_profile)
+        joint_states_topic = self.get_parameter("joint_states_topic").value
+        self.joint_pub = self.create_publisher(JointState, joint_states_topic, qos_profile)
         self.publish_timer = self.create_timer(
             1.0 / self.get_parameter("publish_rate").value, self.publish_joint_states
         )

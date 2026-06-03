@@ -1,54 +1,69 @@
-# MoveIt uses this configuration for controller management
+# MoveIt uses this configuration for controller management.
+#
+# Arm execution is routed through per-arm FollowJointTrajectory controllers
+# (arm_1..arm_4), NOT the old coupled table_*_with_arm controllers. The table
+# joints are no longer under ros2_control — they are driven by
+# dual_table_controller and commanded via the move_dual_table service, so MoveIt
+# plans arms only. This file matches moveit_controllers_per_arm.yaml; the latter
+# is kept for single_rviz_workcell.launch.py, which loads it explicitly.
 
 moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
 
 moveit_simple_controller_manager:
   controller_names:
-    - table_1_with_arm_controller
-    - table_2_with_arm_controller
+    - arm_1_controller
+    - arm_2_controller
+    - arm_3_controller
+    - arm_4_controller
     - gripper_1_controller
     - gripper_2_controller
     - gripper_3_controller
     - gripper_4_controller
 
-  table_1_with_arm_controller:
+  arm_1_controller:
     type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
     joints:
-      - t1_linear_joint
-      - t1_rotation_joint
       - t1_a1_joint_1
       - t1_a1_joint_2
       - t1_a1_joint_3
       - t1_a1_joint_4
       - t1_a1_joint_5
       - t1_a1_joint_6
+  arm_2_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
       - t1_a2_joint_1
       - t1_a2_joint_2
       - t1_a2_joint_3
       - t1_a2_joint_4
       - t1_a2_joint_5
       - t1_a2_joint_6
+  arm_3_controller:
+    type: FollowJointTrajectory
     action_ns: follow_joint_trajectory
     default: true
-  table_2_with_arm_controller:
-    type: FollowJointTrajectory
     joints:
-      - t2_linear_joint
-      - t2_rotation_joint
       - t2_a1_joint_1
       - t2_a1_joint_2
       - t2_a1_joint_3
       - t2_a1_joint_4
       - t2_a1_joint_5
       - t2_a1_joint_6
+  arm_4_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
       - t2_a2_joint_1
       - t2_a2_joint_2
       - t2_a2_joint_3
       - t2_a2_joint_4
       - t2_a2_joint_5
       - t2_a2_joint_6
-    action_ns: follow_joint_trajectory
-    default: true
   gripper_1_controller:
     type: GripperCommand
     joints:

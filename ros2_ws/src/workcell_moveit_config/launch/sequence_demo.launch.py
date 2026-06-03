@@ -1,13 +1,16 @@
 """Launch the ceilingArm demo sequence runner.
 
-Assumes my_workcell.launch.py is already running (MoveIt, arm controllers).
-Starts the dual_table_controller and the one-shot sequence runner node.
+Assumes my_workcell.launch.py is already running (MoveIt, arm controllers, and
+— since the table-visualization change — the dual_table_controller). The table
+controller is therefore NOT started here by default; set start_table_controller
+:=true only when running against a launch that does not already provide one.
 
     ros2 launch workcell_moveit_config sequence_demo.launch.py
-    ros2 launch workcell_moveit_config sequence_demo.launch.py use_fake_tables:=true
+    ros2 launch workcell_moveit_config sequence_demo.launch.py start_table_controller:=true use_fake_tables:=true
 """
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -16,6 +19,9 @@ def generate_launch_description():
     args = [
         DeclareLaunchArgument("use_fake_tables", default_value="false",
                               description="Use fake hardware for table motors"),
+        DeclareLaunchArgument("start_table_controller", default_value="false",
+                              description="Start dual_table_controller here. Leave "
+                              "false when my_workcell.launch.py already provides it."),
         DeclareLaunchArgument("gripper_grip_deg", default_value="49.0",
                               description="Bottom-finger joint angle (deg) when gripping"),
         DeclareLaunchArgument("gripper_open_deg", default_value="0.0",
@@ -54,6 +60,7 @@ def generate_launch_description():
         parameters=[{
             "use_fake_hardware": LaunchConfiguration("use_fake_tables"),
         }],
+        condition=IfCondition(LaunchConfiguration("start_table_controller")),
     )
 
     runner = Node(

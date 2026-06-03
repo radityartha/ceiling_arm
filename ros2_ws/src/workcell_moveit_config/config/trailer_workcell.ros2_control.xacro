@@ -204,34 +204,10 @@
                 </state_interface>
                 <state_interface name="velocity"/>
             </joint>
-            <joint name="t1_linear_joint">
-                <command_interface name="position"/>
-                <state_interface name="position">
-                  <param name="initial_value">${initial_positions['t1_linear_joint']}</param>
-                </state_interface>
-                <state_interface name="velocity"/>
-            </joint>
-            <joint name="t1_rotation_joint">
-                <command_interface name="position"/>
-                <state_interface name="position">
-                  <param name="initial_value">${initial_positions['t1_rotation_joint']}</param>
-                </state_interface>
-                <state_interface name="velocity"/>
-            </joint>
-            <joint name="t2_linear_joint">
-                <command_interface name="position"/>
-                <state_interface name="position">
-                  <param name="initial_value">${initial_positions['t2_linear_joint']}</param>
-                </state_interface>
-                <state_interface name="velocity"/>
-            </joint>
-            <joint name="t2_rotation_joint">
-                <command_interface name="position"/>
-                <state_interface name="position">
-                  <param name="initial_value">${initial_positions['t2_rotation_joint']}</param>
-                </state_interface>
-                <state_interface name="velocity"/>
-            </joint>
+            <!-- Table joints (t1/t2 linear + rotation) are intentionally NOT
+                 declared here. They are driven by the dual_table_controller
+                 node and merged into /joint_states via a joint_state_publisher
+                 aggregator, so joint_state_broadcaster must not also own them. -->
 
         </ros2_control>
     </xacro:macro>
