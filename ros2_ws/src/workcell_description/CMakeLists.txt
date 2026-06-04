@@ -42,6 +42,7 @@ endif()
 install(PROGRAMS
   scripts/lidar_filter.py
   scripts/run_sequence_demo.py
+  scripts/run_take_bottle.py
   DESTINATION lib/${PROJECT_NAME}
 )
 # --- End Corrected Install Section ---
