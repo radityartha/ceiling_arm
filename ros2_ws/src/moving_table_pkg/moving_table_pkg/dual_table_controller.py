@@ -148,7 +148,7 @@ class DualTableController(Node):
             motor2_lin1 = ModbusAZ(comm=self.comm_table1, serverAddress=m2_addr1)
             motor3_rot1 = ModbusAZ(comm=self.comm_table1, serverAddress=m3_addr1)
             self.table1 = MovingTableController(
-                motor1_lin1, motor2_lin1, motor3_rot1, logger=self.get_logger()
+                motor1_lin1, motor2_lin1, motor3_rot1, logger=self.get_logger(), timeout=120.0
             )
             self.get_logger().info("Table 1 initialized.")
             self._configure_table_motors(self.table1, "Table 1")
@@ -177,7 +177,7 @@ class DualTableController(Node):
             motor2_lin2 = ModbusAZ(comm=self.comm_table2, serverAddress=m2_addr2)
             motor3_rot2 = ModbusAZ(comm=self.comm_table2, serverAddress=m3_addr2)
             self.table2 = MovingTableController(
-                motor1_lin2, motor2_lin2, motor3_rot2, logger=self.get_logger()
+                motor1_lin2, motor2_lin2, motor3_rot2, logger=self.get_logger(), timeout=120.0
             )
             self.get_logger().info("Table 2 initialized.")
             self._configure_table_motors(self.table2, "Table 2")

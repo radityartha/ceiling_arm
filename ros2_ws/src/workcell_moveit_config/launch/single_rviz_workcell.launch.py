@@ -68,6 +68,17 @@ def generate_launch_description():
                               description="Arm 3 (t2_a1) IP"),
         DeclareLaunchArgument("arm4_ip", default_value="192.168.2.10",
                               description="Arm 4 (t2_a2) IP"),
+        # Per-arm mock: default to the global use_fake_hardware, but any single
+        # arm can be mocked (e.g. armN_fake:=true) so an unreachable/powered-off
+        # arm doesn't abort the whole ros2_control_node.
+        DeclareLaunchArgument("arm1_fake", default_value=LaunchConfiguration("use_fake_hardware"),
+                              description="Mock arm 1 only"),
+        DeclareLaunchArgument("arm2_fake", default_value=LaunchConfiguration("use_fake_hardware"),
+                              description="Mock arm 2 only"),
+        DeclareLaunchArgument("arm3_fake", default_value=LaunchConfiguration("use_fake_hardware"),
+                              description="Mock arm 3 only"),
+        DeclareLaunchArgument("arm4_fake", default_value=LaunchConfiguration("use_fake_hardware"),
+                              description="Mock arm 4 only"),
     ]
 
     moveit_config = (
@@ -80,6 +91,10 @@ def generate_launch_description():
                 "arm2_ip":           LaunchConfiguration("arm2_ip"),
                 "arm3_ip":           LaunchConfiguration("arm3_ip"),
                 "arm4_ip":           LaunchConfiguration("arm4_ip"),
+                "arm1_fake":         LaunchConfiguration("arm1_fake"),
+                "arm2_fake":         LaunchConfiguration("arm2_fake"),
+                "arm3_fake":         LaunchConfiguration("arm3_fake"),
+                "arm4_fake":         LaunchConfiguration("arm4_fake"),
                 "use_sim_time":      "false",
             },
         )
@@ -126,6 +141,11 @@ def generate_launch_description():
                     "publish_state_updates": True,
                     "publish_transforms_updates": True,
                     "monitor_dynamics": False,
+                    # Give the Kortex arms more time to finish trajectories.
+                    # Default 1.2x is too tight at low vel_scale; 3.0x avoids
+                    # mid-trajectory cancellation that crashes the cyclic driver.
+                    "allowed_execution_duration_scaling": 3.0,
+                    "allowed_goal_duration_margin": 5.0,
                 },
             ],
         ),
