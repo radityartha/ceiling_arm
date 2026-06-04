@@ -49,15 +49,18 @@ Arm joint values are in **degrees**, order joint_1…joint_6. Grip = 49°, open 
 | 4 | arm4 reach | `[90, -75, -130, -90, 30, 2]` |
 | 6 | arm4 lift | `[0, -60, -115, -90, 30, 2]` |
 | 7 | arm4 carry | `[0, -15, -90, -90, 15, 0]` |
-| 8 | arm3 approach | `[0, -7, -62, 91, -35, 90]` |
+| 7b | arm3 pre-approach | `[90, -55, -95, 90, -44, 90]` |
+| 8 | arm3 approach | `[0, -4, -73, 89, -14, 91]` |
 | 8 | gripper3 | **grip** (49°) |
 | 9 | gripper4 | **release** (0°) |
 | 9 | arm4 retreat | `[0, -60, -115, -90, 30, 2]` |
-| 10 | arm3 move | `[90, 0, -57, 90, -27, 91]` |
+| 10 | arm3 move | `[97, 99, 80, 106, -78, -99]` |
 | 11 | table1 move | **home** (0 mm, 0°) |
-| 12 | arm2 approach | `[-90, -18, 5, 90, 55, -90]` |
+| 12a | arm2 approach 1 | `[28, -19, -120, 90, 9, -90]` |
+| 12b | arm2 approach 2 | `[28, 21, -86, 90, 16, -90]` |
 | 12 | gripper2 | **grip** (49°) |
-| 13 | table1 rotate | angle **−90°** |
+| 13 | gripper3 | **loosen** (0°) |
+| 13 | arm3 retreat | `[63, 93, 130, 148, -119, -63]` |
 | 14 | arm2 place | `[0, 0, 0, 90, 0, -90]` |
 | 14 | gripper2 | **release** (0°) |
 
