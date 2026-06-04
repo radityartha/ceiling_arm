@@ -174,7 +174,7 @@ class SequenceRunner(Node):
         start_pos = self._joint_state.get(joint)
 
         client = self._gripper_clients[gripper_group]
-        if not client.wait_for_server(timeout_sec=5.0):
+        if not client.wait_for_server(timeout_sec=15.0):
             self.get_logger().error(f"{gripper_group}: gripper action server not available.")
             return False
 
@@ -290,18 +290,18 @@ class SequenceRunner(Node):
             ("4  arm4 reach",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -75, -130, -90, 30, 2])),
             ("6  arm4 lift",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -60, -115, -90, 30, 2])),
             ("7  arm4 carry",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -15, -90, -90, 15, 0])),
-            ("7b arm3 pre-approach",       lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [90, -55, -95, 90, -44, 90])),
-            ("8  arm3 approach",           lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [0, -4, -73, 89, -14, 91])),
+            ("7b arm3 pre-approach",       lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [0, -55, -95, 90, -44, 90])),
+            ("8  arm3 approach",           lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [0, 0, -71, 89, -11, 90])),
             ("8  gripper3 grip",           lambda: self.move_gripper("gripper_3", grip)),
-            ("9  gripper4 release",        lambda: self.move_gripper("gripper_4", opn)),
+            ("9  gripper4 release",        lambda: self.move_gripper("gripper_4", 20.0)),
             ("9  arm4 retreat",            lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -60, -115, -90, 30, 2])),
-            ("10 arm3 move",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [97, 99, 80, 106, -78, -99])),
+            ("10 arm3 move",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [97, 99, 80, 106, -78, 90])),
             ("11 table1 -> home",          lambda: self.move_table("table1", 0.0, 0.0)),
             ("12a arm2 approach",          lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, -19, -120, 90, 9, -90])),
             ("12b arm2 approach",          lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, 21, -86, 90, 16, -90])),
             ("12  gripper2 grip",          lambda: self.move_gripper("gripper_2", grip)),
             ("13  gripper3 loosen",        lambda: self.move_gripper("gripper_3", opn)),
-            ("13  arm3 retreat",           lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [63, 93, 130, 148, -119, -63])),
+            ("13  arm3 retreat",           lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [63, 93, 130, 148, -119, 90])),
             ("14 arm2 place",              lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [0, 0, 0, 90, 0, -90])),
             ("14 gripper2 release",        lambda: self.move_gripper("gripper_2", opn)),
         ]

@@ -181,7 +181,9 @@
     <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_base_link" reason="Never"/>
     <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_forearm_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_left_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_shoulder_link" reason="Never"/>
@@ -214,6 +216,16 @@
     <disable_collisions link1="t1_a1_base_link" link2="t2_a2_shoulder_link" reason="Never"/>
     <disable_collisions link1="t1_a1_base_link" link2="t2_platform_link" reason="Never"/>
     <disable_collisions link1="t1_a1_base_link" link2="t2_rotation_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_dummy_link" link2="t1_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_dummy_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_dummy_link" link2="t1_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_dummy_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_dummy_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_end_effector_link" link2="t1_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_end_effector_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_end_effector_link" link2="t1_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_end_effector_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_end_effector_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_forearm_link" link2="t1_a1_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t1_a1_forearm_link" link2="t1_a1_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_forearm_link" link2="t1_a1_left_finger_prox_link" reason="Never"/>
@@ -225,7 +237,10 @@
     <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_base_link" reason="Never"/>
     <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_forearm_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_shoulder_link" reason="Never"/>
     <disable_collisions link1="t1_a1_forearm_link" link2="t1_mount_plate_right" reason="Never"/>
@@ -238,11 +253,20 @@
     <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a1_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a1_right_finger_prox_link" reason="Adjacent"/>
     <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a1_upper_wrist_link" reason="Adjacent"/>
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_dummy_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_end_effector_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_forearm_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_lower_wrist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_shoulder_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_tool_frame" reason="Never"/>
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t1_a1_gripper_base_link" link2="t2_a1_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_gripper_base_link" link2="t2_a1_right_finger_prox_link" reason="Never"/>
@@ -254,7 +278,10 @@
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a1_right_finger_dist_link" reason="Default"/>
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a1_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a1_upper_wrist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_dummy_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_end_effector_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_forearm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
@@ -263,6 +290,7 @@
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_shoulder_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_tool_frame" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t2_a1_arm_link" reason="Never"/>
@@ -282,7 +310,10 @@
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a1_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a1_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a1_upper_wrist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_dummy_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_end_effector_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_forearm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
@@ -291,6 +322,7 @@
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_shoulder_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_tool_frame" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t2_a1_arm_link" reason="Never"/>
@@ -310,6 +342,9 @@
     <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_base_link" reason="Never"/>
     <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_forearm_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_left_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_lower_wrist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
@@ -321,7 +356,10 @@
     <disable_collisions link1="t1_a1_lower_wrist_link" link2="t2_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a1_right_finger_prox_link" reason="Adjacent"/>
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a1_upper_wrist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_dummy_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_end_effector_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_forearm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
@@ -330,6 +368,8 @@
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_shoulder_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_tool_frame" reason="Never"/>
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t2_a1_forearm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t2_a1_gripper_base_link" reason="Never"/>
@@ -351,6 +391,9 @@
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a1_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_dummy_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_end_effector_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_forearm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_left_finger_prox_link" reason="Never"/>
@@ -358,6 +401,7 @@
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_shoulder_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_tool_frame" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t2_a1_forearm_link" reason="Never"/>
@@ -378,8 +422,10 @@
     <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_base_link" reason="Never"/>
     <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_forearm_link" reason="Never"/>
     <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_left_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_lower_wrist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_shoulder_link" reason="Never"/>
     <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_upper_wrist_link" reason="Never"/>
@@ -396,7 +442,15 @@
     <disable_collisions link1="t1_a1_shoulder_link" link2="t2_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t1_a1_shoulder_link" link2="t2_platform_link" reason="Never"/>
     <disable_collisions link1="t1_a1_shoulder_link" link2="t2_rotation_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_tool_frame" link2="t1_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_tool_frame" link2="t1_a2_left_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_tool_frame" link2="t1_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_tool_frame" link2="t1_a2_right_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_tool_frame" link2="t1_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_left_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_left_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_shoulder_link" reason="Never"/>
@@ -571,9 +625,12 @@
     <disable_collisions link1="t2_a1_arm_link" link2="t2_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_arm_link" link2="t2_a2_base_link" reason="Never"/>
     <disable_collisions link1="t2_a1_arm_link" link2="t2_a2_forearm_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_arm_link" link2="t2_a2_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t2_a1_arm_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_arm_link" link2="t2_a2_left_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_arm_link" link2="t2_a2_lower_wrist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_arm_link" link2="t2_a2_right_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_arm_link" link2="t2_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_arm_link" link2="t2_a2_shoulder_link" reason="Never"/>
     <disable_collisions link1="t2_a1_arm_link" link2="t2_mount_plate_left" reason="Never"/>
     <disable_collisions link1="t2_a1_arm_link" link2="t2_mount_plate_right" reason="Never"/>
@@ -595,6 +652,16 @@
     <disable_collisions link1="t2_a1_base_link" link2="t2_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t2_a1_base_link" link2="t2_platform_link" reason="Never"/>
     <disable_collisions link1="t2_a1_base_link" link2="t2_rotation_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_dummy_link" link2="t2_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_dummy_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_dummy_link" link2="t2_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_dummy_link" link2="t2_a2_right_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_dummy_link" link2="t2_a2_right_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_end_effector_link" link2="t2_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_end_effector_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_end_effector_link" link2="t2_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_end_effector_link" link2="t2_a2_right_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_end_effector_link" link2="t2_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_forearm_link" link2="t2_a1_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t2_a1_forearm_link" link2="t2_a1_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_forearm_link" link2="t2_a1_left_finger_prox_link" reason="Never"/>
@@ -606,9 +673,12 @@
     <disable_collisions link1="t2_a1_forearm_link" link2="t2_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_forearm_link" link2="t2_a2_base_link" reason="Never"/>
     <disable_collisions link1="t2_a1_forearm_link" link2="t2_a2_forearm_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_forearm_link" link2="t2_a2_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t2_a1_forearm_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_forearm_link" link2="t2_a2_left_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_forearm_link" link2="t2_a2_lower_wrist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_forearm_link" link2="t2_a2_right_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_forearm_link" link2="t2_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_forearm_link" link2="t2_a2_shoulder_link" reason="Never"/>
     <disable_collisions link1="t2_a1_forearm_link" link2="t2_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a1_left_finger_dist_link" reason="Never"/>
@@ -617,11 +687,20 @@
     <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a1_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a1_right_finger_prox_link" reason="Adjacent"/>
     <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a1_upper_wrist_link" reason="Adjacent"/>
+    <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_dummy_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_end_effector_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_forearm_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_lower_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_shoulder_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_tool_frame" reason="Never"/>
+    <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_a2_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_gripper_base_link" link2="t2_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a1_left_finger_prox_link" reason="Adjacent"/>
     <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a1_lower_wrist_link" reason="Never"/>
@@ -630,27 +709,43 @@
     <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a1_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_dummy_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_end_effector_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_forearm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_left_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_lower_wrist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_right_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_shoulder_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_tool_frame" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_a2_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_dist_link" link2="t2_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a1_lower_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a1_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a1_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a1_upper_wrist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_dummy_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_end_effector_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_forearm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_lower_wrist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_shoulder_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_tool_frame" reason="Never"/>
+    <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_a2_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_left_finger_prox_link" link2="t2_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t2_a1_lower_wrist_link" link2="t2_a1_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_lower_wrist_link" link2="t2_a1_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_lower_wrist_link" link2="t2_a1_upper_wrist_link" reason="Adjacent"/>
     <disable_collisions link1="t2_a1_lower_wrist_link" link2="t2_a2_base_link" reason="Never"/>
     <disable_collisions link1="t2_a1_lower_wrist_link" link2="t2_a2_forearm_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_lower_wrist_link" link2="t2_a2_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t2_a1_lower_wrist_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_lower_wrist_link" link2="t2_a2_left_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_lower_wrist_link" link2="t2_a2_lower_wrist_link" reason="Never"/>
@@ -662,20 +757,33 @@
     <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a1_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_dummy_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_end_effector_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_forearm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_lower_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_shoulder_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_tool_frame" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_a2_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_dist_link" link2="t2_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a1_upper_wrist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_dummy_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_end_effector_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_forearm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_gripper_base_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_lower_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_shoulder_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_tool_frame" reason="Never"/>
+    <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_a2_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_right_finger_prox_link" link2="t2_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t2_a1_shoulder_link" link2="t2_a2_arm_link" reason="Never"/>
     <disable_collisions link1="t2_a1_shoulder_link" link2="t2_a2_base_link" reason="Never"/>
@@ -692,8 +800,17 @@
     <disable_collisions link1="t2_a1_shoulder_link" link2="t2_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t2_a1_shoulder_link" link2="t2_platform_link" reason="Never"/>
     <disable_collisions link1="t2_a1_shoulder_link" link2="t2_rotation_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_tool_frame" link2="t2_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_tool_frame" link2="t2_a2_left_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_tool_frame" link2="t2_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_tool_frame" link2="t2_a2_right_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_tool_frame" link2="t2_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_upper_wrist_link" link2="t2_a2_base_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_upper_wrist_link" link2="t2_a2_gripper_base_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_upper_wrist_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a1_upper_wrist_link" link2="t2_a2_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_upper_wrist_link" link2="t2_a2_right_finger_dist_link" reason="Never"/>
+    <disable_collisions link1="t2_a1_upper_wrist_link" link2="t2_a2_right_finger_prox_link" reason="Never"/>
     <disable_collisions link1="t2_a1_upper_wrist_link" link2="t2_a2_shoulder_link" reason="Never"/>
     <disable_collisions link1="t2_a1_upper_wrist_link" link2="t2_mount_plate_right" reason="Never"/>
     <disable_collisions link1="t2_a2_arm_link" link2="t2_a2_base_link" reason="Never"/>
@@ -718,6 +835,8 @@
     <disable_collisions link1="t2_a2_forearm_link" link2="t2_a2_shoulder_link" reason="Never"/>
     <disable_collisions link1="t2_a2_forearm_link" link2="t2_a2_upper_wrist_link" reason="Never"/>
     <disable_collisions link1="t2_a2_forearm_link" link2="t2_mount_plate_left" reason="Never"/>
+    <disable_collisions link1="t2_a2_gripper_base_link" link2="t2_a1_left_finger_prox_link" reason="Never"/>
+    <disable_collisions link1="t2_a2_gripper_base_link" link2="t2_a1_right_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a2_gripper_base_link" link2="t2_a2_left_finger_dist_link" reason="Never"/>
     <disable_collisions link1="t2_a2_gripper_base_link" link2="t2_a2_left_finger_prox_link" reason="Adjacent"/>
     <disable_collisions link1="t2_a2_gripper_base_link" link2="t2_a2_lower_wrist_link" reason="Never"/>
