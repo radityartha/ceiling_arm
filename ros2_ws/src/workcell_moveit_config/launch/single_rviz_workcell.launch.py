@@ -194,4 +194,12 @@ def generate_launch_description():
         ]
     ]
 
+    # arm_1 Cartesian-velocity controller for the compliant curtain pull.
+    # Loaded inactive (--inactive): it claims nothing until run_close_curtain
+    # switches arm_1 from arm_1_controller to this for the pull, then back.
+    spawners.append(
+        Node(package="controller_manager", executable="spawner",
+             arguments=["t1_a1_twist_controller", "--inactive"], output="screen")
+    )
+
     return LaunchDescription(args + nodes + spawners)

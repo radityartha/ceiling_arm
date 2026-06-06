@@ -60,29 +60,36 @@
   <!-- Moving Tables Fake Hardware -->
   <!-- ==================================== -->
 
-  <ros2_control name="TableFakeHardware" type="system">
-    <hardware>
-      <plugin>mock_components/GenericSystem</plugin>
-    </hardware>
+  <!-- Only mock the table joints in fully-fake mode. On real hardware the table
+       joint states are owned and published by dual_table_controller (Modbus) on
+       /joint_states; a mock ros2_control system here would have joint_state_
+       broadcaster ALSO publish these joints as a constant 0, racing the real
+       values at ~5:1 and making the HUD / sequence _wait_for_table read 0. -->
+  <xacro:if value="$(arg use_fake_hardware)">
+    <ros2_control name="TableFakeHardware" type="system">
+      <hardware>
+        <plugin>mock_components/GenericSystem</plugin>
+      </hardware>
 
-    <joint name="t1_linear_joint">
-      <command_interface name="position" />
-      <state_interface name="position" />
-    </joint>
-    <joint name="t1_rotation_joint">
-      <command_interface name="position" />
-      <state_interface name="position" />
-    </joint>
+      <joint name="t1_linear_joint">
+        <command_interface name="position" />
+        <state_interface name="position" />
+      </joint>
+      <joint name="t1_rotation_joint">
+        <command_interface name="position" />
+        <state_interface name="position" />
+      </joint>
 
-    <joint name="t2_linear_joint">
-      <command_interface name="position" />
-      <state_interface name="position" />
-    </joint>
-    <joint name="t2_rotation_joint">
-      <command_interface name="position" />
-      <state_interface name="position" />
-    </joint>
-  </ros2_control>
+      <joint name="t2_linear_joint">
+        <command_interface name="position" />
+        <state_interface name="position" />
+      </joint>
+      <joint name="t2_rotation_joint">
+        <command_interface name="position" />
+        <state_interface name="position" />
+      </joint>
+    </ros2_control>
+  </xacro:if>
 
   <!-- ==================================== -->
   <!-- Arms Mounted on Table 1 -->

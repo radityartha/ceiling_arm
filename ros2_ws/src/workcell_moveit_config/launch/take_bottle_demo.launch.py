@@ -1,19 +1,32 @@
 """Launch the take-bottle demo sequence runner.
 
-Assumes single_rviz_workcell.launch.py is already running (MoveIt, arm controllers).
-Starts the dual_table_controller and the one-shot take-bottle sequence runner.
+Assumes single_rviz_workcell.launch.py is already running (MoveIt, arm controllers)
+AND a dual_table_controller is already running (its own terminal, table_keyboard.py, etc.).
+Only the one-shot take-bottle runner is started by default.
 
+    # Normal case: a dual_table_controller is already running.
     ros2 launch workcell_moveit_config take_bottle_demo.launch.py
-    ros2 launch workcell_moveit_config take_bottle_demo.launch.py use_fake_tables:=true
+    # Let this launch spawn the controller too (only if nothing else owns the serial ports):
+    ros2 launch workcell_moveit_config take_bottle_demo.launch.py start_table_controller:=true
+    ros2 launch workcell_moveit_config take_bottle_demo.launch.py start_table_controller:=true use_fake_tables:=true
+
+NOTE: never run two dual_table_controllers at once -- the second cannot lock
+/dev/ttyUSB* and comes up with table1/table2 = None, which the runner rejects with
+"Table 'table2' is not initialized or available."
 """
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
     args = [
+        DeclareLaunchArgument("start_table_controller", default_value="false",
+                              description="Set true to spawn dual_table_controller; leave false if one "
+                                          "is already running (the normal case). Two controllers fight "
+                                          "for the serial ports -> table1/table2 come up uninitialized."),
         DeclareLaunchArgument("use_fake_tables", default_value="false",
                               description="Use fake hardware for table motors"),
         DeclareLaunchArgument("gripper_grip_deg", default_value="49.0",
@@ -54,6 +67,7 @@ def generate_launch_description():
         parameters=[{
             "use_fake_hardware": LaunchConfiguration("use_fake_tables"),
         }],
+        condition=IfCondition(LaunchConfiguration("start_table_controller")),
     )
 
     runner = Node(

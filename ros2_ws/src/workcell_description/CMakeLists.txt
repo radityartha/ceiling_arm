@@ -41,7 +41,7 @@ endif()
 
 install(PROGRAMS
   scripts/lidar_filter.py
-  scripts/run_sequence_demo.py
+  scripts/run_take_bag.py
   scripts/run_take_bottle.py
   scripts/run_close_curtain.py
   scripts/run_open_curtain.py
