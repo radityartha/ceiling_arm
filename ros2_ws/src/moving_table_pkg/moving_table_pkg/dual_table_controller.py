@@ -30,6 +30,7 @@ JOG_DIRECTIONS = {
 # operation_type for home/preset
 OP_PRESET_HOME = 99
 OP_GOTO_HOME   = 98   # move to absolute encoder 0 (server-side, no client position needed)
+OP_GOTO_ABS    = 97   # move to absolute position (distance_mm, angle_deg) read server-side
 
 
 class DualTableController(Node):
@@ -94,6 +95,9 @@ class DualTableController(Node):
 
         # --- Initialize Tables using Parameters ---
         self._initialize_tables()
+        # Seed joint positions from hardware immediately so the first published
+        # joint_states reflect the real encoder position, not the 0.0 default.
+        self._update_joint_positions()
 
         # ------------------- Create ROS 2 Service -------------------
         self.srv = self.create_service(
@@ -312,24 +316,31 @@ class DualTableController(Node):
         try:
             if self.use_fake_hardware and table_controller == "fake":
                 self.get_logger().info(f"SIMULATING move for {table_id}...")
+                # For absolute moves distance_mm/angle_deg are the target; for
+                # relative moves they are a delta added to the current fake position.
+                with self.joint_state_lock:
+                    lin_j = self.t1_linear_joint if table_id == "table1" else self.t2_linear_joint
+                    rot_j = self.t1_rotation_joint if table_id == "table1" else self.t2_rotation_joint
+                    if request.operation_type == OP_GOTO_ABS:
+                        target_lin = request.distance_mm / 1000.0
+                        target_rot = request.angle_deg * 3.14159 / 180.0
+                    else:
+                        target_lin = self.joint_positions[lin_j] + request.distance_mm / 1000.0
+                        target_rot = self.joint_positions[rot_j] + request.angle_deg * 3.14159 / 180.0
                 move_time = (abs(request.distance_mm) + abs(request.angle_deg)) / 100.0
                 time.sleep(max(move_time, 1.0))
                 with self.joint_state_lock:
-                    if table_id == "table1":
-                        self.joint_positions[self.t1_linear_joint] = (
-                            request.distance_mm / 1000.0
-                        )
-                        self.joint_positions[self.t1_rotation_joint] = (
-                            request.angle_deg * 3.14159 / 180.0
-                        )
-                    elif table_id == "table2":
-                        self.joint_positions[self.t2_linear_joint] = (
-                            request.distance_mm / 1000.0
-                        )
-                        self.joint_positions[self.t2_rotation_joint] = (
-                            request.angle_deg * 3.14159 / 180.0
-                        )
+                    self.joint_positions[lin_j] = target_lin
+                    self.joint_positions[rot_j] = target_rot
                 success = True
+            elif request.operation_type == OP_GOTO_ABS:
+                success = table_controller.go_to_absolute(
+                    distance_mm=request.distance_mm,
+                    angle_degrees=request.angle_deg,
+                    linear_speed=request.linear_speed,
+                    rotate_speed=request.rotate_speed,
+                    stop_event=stop_event,
+                )
             elif request.operation_type == OP_GOTO_HOME:
                 success = table_controller.go_to_absolute_zero(
                     linear_speed=request.linear_speed,
