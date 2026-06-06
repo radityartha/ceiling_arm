@@ -51,6 +51,12 @@ controller_manager:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
+    # Cartesian-velocity controller for arm_1, used only for the compliant
+    # curtain pull. Loaded inactive; claims t1_a1_tcp twist interfaces.
+    t1_a1_twist_controller:
+      type: picknik_twist_controller/PicknikTwistController
+
+
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
@@ -164,6 +170,18 @@ table_1_with_arm_controller:
     state_interfaces:
       - position
       - velocity
+t1_a1_twist_controller:
+  ros__parameters:
+    # "joint" is the prefixed tcp interface name exported by the patched Kortex
+    # driver (joints_prefix_ + "tcp"); the controller claims t1_a1_tcp/twist.*.
+    joint: t1_a1_tcp
+    interface_names:
+      - twist.linear.x
+      - twist.linear.y
+      - twist.linear.z
+      - twist.angular.x
+      - twist.angular.y
+      - twist.angular.z
 table_2_with_arm_controller:
   ros__parameters:
     joints:

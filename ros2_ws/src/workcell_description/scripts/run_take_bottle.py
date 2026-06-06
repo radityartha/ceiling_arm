@@ -33,6 +33,11 @@ from control_msgs.action import GripperCommand
 
 from moving_table_interfaces.srv import MovingTable
 
+# operation_type: move to an ABSOLUTE table position. The controller reads the
+# motor encoder server-side and computes the move itself, so the sequence works
+# from any starting position without homing and without depending on /joint_states.
+OP_GOTO_ABS = 97
+
 
 ARM_JOINTS = {
     "arm_2": [f"t1_a2_joint_{i}" for i in range(1, 7)],
@@ -69,11 +74,6 @@ class TakeBottleRunner(Node):
         self.gripper_max_effort = self.declare_parameter("gripper_max_effort", 50.0).value
         self.skip_grippers = self.declare_parameter("skip_grippers", False).value
         self.arm_settle_s = self.declare_parameter("arm_settle_s", 0.5).value
-
-        self.table_cmd = {
-            "table1": {"mm": 0.0, "deg": 0.0},
-            "table2": {"mm": 0.0, "deg": 0.0},
-        }
 
         self._joint_state = {}
         self.create_subscription(JointState, "/joint_states", self._on_joint_state, 10)
@@ -194,26 +194,18 @@ class TakeBottleRunner(Node):
         return False
 
     def move_table(self, table_id, target_mm, target_deg) -> bool:
-        cur = self.table_cmd[table_id]
-        delta_mm = target_mm - cur["mm"]
-        delta_deg = target_deg - cur["deg"]
-
-        if abs(delta_mm) < 1e-6 and abs(delta_deg) < 1e-6:
-            self.get_logger().info(f"→ {table_id}: already at target ({target_mm} mm, {target_deg} deg).")
-            return True
-
+        # Send the ABSOLUTE target. The controller reads the motor encoder
+        # server-side and computes the move — no /joint_states delta on the client,
+        # so this is correct from any starting position.
         req = MovingTable.Request()
         req.table_id = table_id
-        req.distance_mm = float(delta_mm)
-        req.angle_deg = float(delta_deg)
+        req.distance_mm = float(target_mm)
+        req.angle_deg = float(target_deg)
         req.linear_speed = int(self.linear_speed)
         req.rotate_speed = int(self.rotate_speed)
-        req.operation_type = 2
+        req.operation_type = OP_GOTO_ABS
 
-        self.get_logger().info(
-            f"→ {table_id}: target {target_mm} mm / {target_deg} deg "
-            f"(delta {delta_mm:+.1f} mm, {delta_deg:+.1f} deg)"
-        )
+        self.get_logger().info(f"→ {table_id}: absolute target {target_mm} mm / {target_deg} deg")
         result = self._spin_until(self._table_client.call_async(req), timeout_sec=10.0)
         if result is None:
             self.get_logger().error(f"{table_id}: service call timed out.")
@@ -222,11 +214,7 @@ class TakeBottleRunner(Node):
             self.get_logger().error(f"{table_id}: service rejected — {result.message}")
             return False
 
-        if not self._wait_for_table(table_id, target_mm, target_deg):
-            return False
-
-        self.table_cmd[table_id] = {"mm": target_mm, "deg": target_deg}
-        return True
+        return self._wait_for_table(table_id, target_mm, target_deg)
 
     def _wait_for_table(self, table_id, target_mm, target_deg) -> bool:
         lin_joint, rot_joint = TABLE_JOINTS[table_id]

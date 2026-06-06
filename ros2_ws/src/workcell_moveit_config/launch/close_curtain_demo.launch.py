@@ -57,6 +57,20 @@ def generate_launch_description():
                               description="Delay (s) before the first command"),
         DeclareLaunchArgument("motor_settle_s", default_value="1.0",
                               description="Extra settle time (s) after table joints reach tolerance"),
+        # --- Compliant curtain pull (step 11) ---
+        DeclareLaunchArgument("use_compliant_pull", default_value="false",
+                              description="Pull the curtain (step 11) under Cartesian-velocity "
+                                          "(twist) control so arm_1 yields to load instead of "
+                                          "faulting. Requires the patched Kortex driver + "
+                                          "t1_a1_twist_controller. Tune pull_twist first."),
+        DeclareLaunchArgument("pull_target_deg", default_value="50.0",
+                              description="joint_1 angle (deg) that marks the curtain as pulled"),
+        DeclareLaunchArgument("pull_effort_limit", default_value="8.0",
+                              description="Per-joint effort (Nm) watchdog that stops the pull"),
+        DeclareLaunchArgument("pull_timeout_s", default_value="15.0",
+                              description="Hard deadman (s) for the compliant pull"),
+        DeclareLaunchArgument("pull_rate_hz", default_value="40.0",
+                              description="Twist command publish rate (Hz)"),
     ]
 
     table_controller = Node(
@@ -90,6 +104,11 @@ def generate_launch_description():
             "table_tol_deg": LaunchConfiguration("table_tol_deg"),
             "startup_delay_s": LaunchConfiguration("startup_delay_s"),
             "motor_settle_s": LaunchConfiguration("motor_settle_s"),
+            "use_compliant_pull": LaunchConfiguration("use_compliant_pull"),
+            "pull_target_deg": LaunchConfiguration("pull_target_deg"),
+            "pull_effort_limit": LaunchConfiguration("pull_effort_limit"),
+            "pull_timeout_s": LaunchConfiguration("pull_timeout_s"),
+            "pull_rate_hz": LaunchConfiguration("pull_rate_hz"),
         }],
     )
 

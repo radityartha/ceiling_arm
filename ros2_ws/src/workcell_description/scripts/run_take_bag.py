@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One-shot runner for the ceilingArm demo choreography (Sequence_ceilingArm_demo.pdf).
+"""One-shot runner for the take-the-bag demo choreography (Sequence_ceilingArm_demo.pdf).
 
 Drives the workcell through a fixed sequence:
   - tables via the `move_dual_table` service (moving_table_interfaces/srv/MovingTable)
@@ -23,6 +23,11 @@ from control_msgs.action import GripperCommand
 
 from moving_table_interfaces.srv import MovingTable
 
+# operation_type: move to an ABSOLUTE table position. The controller reads the
+# motor encoder server-side and computes the move itself, so the sequence works
+# from any starting position without homing and without depending on /joint_states.
+OP_GOTO_ABS = 97
+
 
 # Joint-name templates per planning group (from trailer_workcell.srdf)
 ARM_JOINTS = {
@@ -43,7 +48,7 @@ TABLE_JOINTS = {
 
 class SequenceRunner(Node):
     def __init__(self):
-        super().__init__("sequence_runner")
+        super().__init__("take_bag_runner")
 
         # --- Parameters ---
         self.gripper_grip_deg = self.declare_parameter("gripper_grip_deg", 47.5).value
@@ -56,18 +61,16 @@ class SequenceRunner(Node):
         self.table_timeout_s = self.declare_parameter("table_timeout_s", 120.0).value
         self.table_tol_mm = self.declare_parameter("table_tol_mm", 5.0).value
         self.table_tol_deg = self.declare_parameter("table_tol_deg", 2.0).value
+        # Number of CONSECUTIVE in-tolerance /joint_states samples required before
+        # a table is treated as "in position". One sample is not enough: the table
+        # can pass through the target while still moving, or a stale Modbus read
+        # can momentarily land in tolerance. ~6 samples @ ~0.2s ≈ 1.2s settled.
+        self.table_stable_samples = self.declare_parameter("table_stable_samples", 6).value
         self.startup_delay_s = self.declare_parameter("startup_delay_s", 3.0).value
         self.motor_settle_s = self.declare_parameter("motor_settle_s", 1.0).value
         self.gripper_max_effort = self.declare_parameter("gripper_max_effort", 50.0).value
         self.skip_grippers = self.declare_parameter("skip_grippers", False).value
         self.arm_settle_s = self.declare_parameter("arm_settle_s", 0.5).value
-
-        # Commanded absolute table positions (assume start at home: 0 mm, 0 deg).
-        # go_to_table is *relative*, so we always send (target - tracked).
-        self.table_cmd = {
-            "table1": {"mm": 0.0, "deg": 0.0},
-            "table2": {"mm": 0.0, "deg": 0.0},
-        }
 
         # Latest /joint_states sample (name -> position)
         self._joint_state = {}
@@ -211,29 +214,21 @@ class SequenceRunner(Node):
         return False
 
     # ------------------------------------------------------------------
-    # Table motion via service (relative deltas + wait for completion)
+    # Table motion via service (absolute target + wait for completion)
     # ------------------------------------------------------------------
     def move_table(self, table_id, target_mm, target_deg) -> bool:
-        cur = self.table_cmd[table_id]
-        delta_mm = target_mm - cur["mm"]
-        delta_deg = target_deg - cur["deg"]
-
-        if abs(delta_mm) < 1e-6 and abs(delta_deg) < 1e-6:
-            self.get_logger().info(f"→ {table_id}: already at target ({target_mm} mm, {target_deg} deg).")
-            return True
-
+        # Send the ABSOLUTE target. The controller reads the motor encoder
+        # server-side and computes the move — no /joint_states delta on the client,
+        # so this is correct from any starting position.
         req = MovingTable.Request()
         req.table_id = table_id
-        req.distance_mm = float(delta_mm)
-        req.angle_deg = float(delta_deg)
+        req.distance_mm = float(target_mm)
+        req.angle_deg = float(target_deg)
         req.linear_speed = int(self.linear_speed)
         req.rotate_speed = int(self.rotate_speed)
-        req.operation_type = 2  # both linear + rotation
+        req.operation_type = OP_GOTO_ABS
 
-        self.get_logger().info(
-            f"→ {table_id}: target {target_mm} mm / {target_deg} deg "
-            f"(delta {delta_mm:+.1f} mm, {delta_deg:+.1f} deg)"
-        )
+        self.get_logger().info(f"→ {table_id}: absolute target {target_mm} mm / {target_deg} deg")
         result = self._spin_until(self._table_client.call_async(req), timeout_sec=10.0)
         if result is None:
             self.get_logger().error(f"{table_id}: service call timed out.")
@@ -243,13 +238,18 @@ class SequenceRunner(Node):
             return False
 
         # Service is non-blocking; wait for the joints to settle at the target.
-        if not self._wait_for_table(table_id, target_mm, target_deg):
-            return False
-
-        self.table_cmd[table_id] = {"mm": target_mm, "deg": target_deg}
-        return True
+        return self._wait_for_table(table_id, target_mm, target_deg)
 
     def _wait_for_table(self, table_id, target_mm, target_deg) -> bool:
+        """Block until the table is STABLY at the target.
+
+        Returns True only after the joints read within tolerance for
+        `table_stable_samples` CONSECUTIVE /joint_states samples. A single
+        in-tolerance reading is not enough — the table can pass through the
+        target while still moving (or a stale Modbus read can momentarily land
+        in tolerance), which previously let the next arm step start before the
+        table was actually in position.
+        """
         lin_joint, rot_joint = TABLE_JOINTS[table_id]
         target_m = target_mm / 1000.0
         target_rad = math.radians(target_deg)
@@ -257,6 +257,7 @@ class SequenceRunner(Node):
         tol_rad = math.radians(self.table_tol_deg)
 
         deadline = time.time() + self.table_timeout_s
+        stable = 0
         while time.time() < deadline:
             rclpy.spin_once(self, timeout_sec=0.2)
             lin = self._joint_state.get(lin_joint)
@@ -264,14 +265,69 @@ class SequenceRunner(Node):
             if lin is None or rot is None:
                 continue
             if abs(lin - target_m) <= tol_m and abs(rot - target_rad) <= tol_rad:
-                if self.motor_settle_s > 0:
-                    time.sleep(self.motor_settle_s)
-                return True
+                stable += 1
+                if stable >= self.table_stable_samples:
+                    if self.motor_settle_s > 0:
+                        time.sleep(self.motor_settle_s)
+                    return True
+            else:
+                stable = 0  # left tolerance -> still moving; restart the count
         self.get_logger().error(
-            f"{table_id}: timed out waiting to reach target "
-            f"(last lin={self._joint_state.get(lin_joint)}, rot={self._joint_state.get(rot_joint)})."
+            f"{table_id}: timed out waiting to settle at target "
+            f"(last lin={self._joint_state.get(lin_joint)}, rot={self._joint_state.get(rot_joint)}, "
+            f"stable={stable}/{self.table_stable_samples})."
         )
         return False
+
+    def move_tables_parallel(self, targets) -> bool:
+        """Command several tables to absolute targets concurrently, then wait for
+        all of them to settle. `targets` is a list of (table_id, target_mm,
+        target_deg). The move_dual_table service is non-blocking server-side and
+        each table has its own serial port, so firing all requests first lets the
+        tables move at the same time; we then wait for each to reach tolerance
+        (total wait ~= the slowest table, not the sum)."""
+        # Phase 1: fire every service request (server-side moves are non-blocking).
+        for table_id, target_mm, target_deg in targets:
+            req = MovingTable.Request()
+            req.table_id = table_id
+            req.distance_mm = float(target_mm)
+            req.angle_deg = float(target_deg)
+            req.linear_speed = int(self.linear_speed)
+            req.rotate_speed = int(self.rotate_speed)
+            req.operation_type = OP_GOTO_ABS
+            self.get_logger().info(
+                f"→ {table_id}: absolute target {target_mm} mm / {target_deg} deg (parallel)"
+            )
+            result = self._spin_until(self._table_client.call_async(req), timeout_sec=10.0)
+            if result is None:
+                self.get_logger().error(f"{table_id}: service call timed out.")
+                return False
+            if not result.success:
+                self.get_logger().error(f"{table_id}: service rejected — {result.message}")
+                return False
+
+        # Phase 2: wait for every table to settle (they are already moving).
+        ok = True
+        for table_id, target_mm, target_deg in targets:
+            if not self._wait_for_table(table_id, target_mm, target_deg):
+                ok = False
+        return ok
+
+    def require_table_home(self, table_id) -> bool:
+        """Block until `table_id` is confirmed at home (0 mm / 0 deg) before the
+        handoff arm is allowed to move. Reuses _wait_for_table's tolerance
+        (table_tol_mm / table_tol_deg) and timeout (table_timeout_s); aborts on
+        timeout rather than letting the arm move into a mis-positioned table.
+
+        NOTE: this reads /joint_states, the same source step 11 already waited on.
+        If the table's absolute encoder origin is not set (ppreset / 'H' in
+        table_keyboard.py), /joint_states can report home while the table is not
+        physically home — this guard cannot catch that case. Zero the encoder first.
+        """
+        self.get_logger().info(
+            f"GUARD: blocking until {table_id} is home (0 mm / 0 deg) before arm2 moves..."
+        )
+        return self._wait_for_table(table_id, 0.0, 0.0)
 
     # ------------------------------------------------------------------
     # The choreography
@@ -282,33 +338,36 @@ class SequenceRunner(Node):
 
         # (label, callable) — executed in order; abort on first failure.
         steps = [
-            ("1  table2 -> 650mm / 90deg", lambda: self.move_table("table2", 650.0, 90.0)),
-            ("2  gripper4 open",           lambda: self.move_gripper("gripper_4", opn)),
-            ("2  arm4 approach 1",         lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -43, -56, -90, 76, 0])),
-            ("3  arm4 approach 2",         lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -10, -63, -90, 35, 0])),
-            ("3  gripper4 grip",           lambda: self.move_gripper("gripper_4", grip)),
-            ("4  arm4 reach",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -75, -130, -90, 30, 2])),
-            ("6  arm4 lift",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -60, -115, -90, 30, 2])),
-            ("7  arm4 carry",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -15, -90, -90, 15, 0])),
-            ("7b arm3 pre-approach",       lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [0, -55, -95, 90, -44, 90])),
-            ("8  arm3 approach",           lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [0, 0, -71, 89, -18, 90])),
-            ("8  gripper3 grip",           lambda: self.move_gripper("gripper_3", grip)),
-            ("9  gripper4 release",        lambda: self.move_gripper("gripper_4", 20.0)),
-            ("9  arm4 retreat",            lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -60, -115, -90, 30, 2])),
-            ("10 arm3 move",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [97, 99, 80, 106, -78, 90])),
-            ("11 table1 -> home",          lambda: self.move_table("table1", 0.0, 0.0)),
-            ("12a arm2 approach",          lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, -19, -120, 90, 9, -90])),
-            ("12b arm2 approach",          lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, 21, -86, 90, 16, -90])),
-            ("12  gripper2 grip",          lambda: self.move_gripper("gripper_2", grip)),
-            ("13  gripper3 loosen",        lambda: self.move_gripper("gripper_3", opn)),
-            ("13  arm3 retreat",           lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [63, 93, 130, 148, -119, 117])),
-            ("14 arm2 place",              lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [0, -45, -99, 90, 55, -90])),
-            ("14 gripper2 release",        lambda: self.move_gripper("gripper_2", opn)),
-            ("15 arm2 home",               lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [90, -150, -150, 0, 0, 0])),
-            ("15 arm3 home",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [90, -150, -150, 0, 0, 0])),
-            ("15 arm4 home",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -150, -150, 0, 0, 0])),
-            ("16 table1 -> home",          lambda: self.move_table("table1", 0.0, 0.0)),
-            ("16 table2 -> home",          lambda: self.move_table("table2", 0.0, 0.0)),
+            ("01 tables -> staging (t1 0/0, t2 650/90)",
+                                           lambda: self.move_tables_parallel(
+                                               [("table1", 0.0, 0.0), ("table2", 650.0, 90.0)])),
+            ("02 gripper4 open",           lambda: self.move_gripper("gripper_4", opn)),
+            ("03 arm4 approach 1",         lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -43, -56, -90, 76, 0])),
+            ("04 arm4 approach 2",         lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -10, -63, -90, 35, 0])),
+            ("05 gripper4 grip",           lambda: self.move_gripper("gripper_4", grip)),
+            ("06 arm4 reach",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -75, -130, -90, 30, 2])),
+            ("07 arm4 lift",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -60, -115, -90, 30, 2])),
+            ("08 arm4 carry",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -15, -90, -90, 15, 0])),
+            ("09 arm3 pre-approach",       lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [0, -55, -95, 90, -44, 90])),
+            ("10 arm3 approach",           lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [0, 0, -71, 89, -18, 90])),
+            ("11 gripper3 grip",           lambda: self.move_gripper("gripper_3", grip)),
+            ("12 gripper4 release",        lambda: self.move_gripper("gripper_4", 20.0)),
+            ("13 arm4 retreat",            lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -60, -115, -90, 30, 2])),
+            ("14 arm3 move",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [97, 99, 80, 106, -78, 90])),
+            ("15 table1 -> home",          lambda: self.move_table("table1", 0.0, 0.0)),
+            ("16 GUARD table1 home",       lambda: self.require_table_home("table1")),
+            ("17 arm2 approach 1",         lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, -19, -120, 90, 9, -90])),
+            ("18 arm2 approach 2",         lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, 21, -86, 90, 16, -90])),
+            ("19 gripper2 grip",           lambda: self.move_gripper("gripper_2", grip)),
+            ("20 gripper3 loosen",         lambda: self.move_gripper("gripper_3", opn)),
+            ("21 arm3 retreat",            lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [63, 93, 130, 148, -119, 117])),
+            ("22 arm2 place",              lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [0, -45, -99, 90, 55, -90])),
+            ("23 gripper2 release",        lambda: self.move_gripper("gripper_2", opn)),
+            ("24 arm2 home",               lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [90, -150, -150, 0, 0, 0])),
+            ("25 arm3 home",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [90, -150, -150, 0, 0, 0])),
+            ("26 arm4 home",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -150, -150, 0, 0, 0])),
+            ("27 table1 -> home",          lambda: self.move_table("table1", 0.0, 0.0)),
+            ("28 table2 -> home",          lambda: self.move_table("table2", 0.0, 0.0)),
         ]
 
         for label, action in steps:

@@ -2,23 +2,27 @@
 """One-shot runner for the open-curtain choreography.
 
 Sequence:
-  0a gripper1 open
-  0b gripper2 open
-  1  table1 → 1268 mm / 0 deg
-  2  arm2 pre-approach
-  3  arm2 approach
-  4  gripper2 grip (40 deg)
-  5  arm2 open-curtain swing
-  6  gripper2 open
-  7  arm2 joint1 clear (rotate to +120 deg)
-  8  arm2 home
-  9  arm1 pre-approach
-  10 arm1 approach
-  11 gripper1 grip (40 deg)
-  12 arm1 open-curtain swing
-  13 gripper1 open
-  14 arm1 retreat
-  15 arm1 home
+  1  gripper1 open
+  2  gripper2 open
+  3  table1 → 1268 mm / 0 deg
+  4  arm1 pre-approach
+  5  arm1 approach
+  6  gripper1 grip (40 deg)
+  7  arm1 open-curtain swing
+  8  table1 → 1352 mm
+  9  gripper1 open
+  10 arm1 retreat + table1 → 1268 mm (parallel)
+  11 arm1 home
+  12 table1 → 1268 mm / 0 deg
+  13 arm2 pre-approach
+  14 arm2 approach
+  15 gripper2 grip (40 deg)
+  16 arm2 open-curtain swing
+  17 table1 → 1170 mm
+  18 gripper2 open
+  19 arm2 joint1 clear (rotate to +120 deg)
+  20 arm2 lift
+  21 arm2 home
 """
 import math
 import time
@@ -28,10 +32,13 @@ from rclpy.node import Node
 from rclpy.action import ActionClient
 
 from sensor_msgs.msg import JointState
+from geometry_msgs.msg import Twist
 from moveit_msgs.action import MoveGroup
 from moveit_msgs.msg import Constraints, JointConstraint
 from control_msgs.action import GripperCommand
+from controller_manager_msgs.srv import SwitchController
 
+from rclpy.duration import Duration
 from moving_table_interfaces.srv import MovingTable
 
 # operation_type: move to an ABSOLUTE table position. The controller reads the
@@ -73,8 +80,27 @@ class OpenCurtainRunner(Node):
         self.skip_grippers = self.declare_parameter("skip_grippers", False).value
         self.arm_settle_s = self.declare_parameter("arm_settle_s", 0.5).value
 
+        self.use_compliant_pull = self.declare_parameter("use_compliant_pull", False).value
+        self.pull_target_deg = self.declare_parameter("pull_target_deg", -120.0).value
+        self.pull_tol_deg = self.declare_parameter("pull_tol_deg", 3.0).value
+        self.pull_timeout_s = self.declare_parameter("pull_timeout_s", 15.0).value
+        self.pull_rate_hz = self.declare_parameter("pull_rate_hz", 40.0).value
+        self.pull_effort_limit = self.declare_parameter("pull_effort_limit", 8.0).value
+        self.pull_twist = self.declare_parameter(
+            "pull_twist", [0.0, -0.05, 0.0, 0.0, 0.0, 0.0]).value
+        self.twist_controller = self.declare_parameter(
+            "twist_controller", "t1_a2_twist_controller").value
+        self.arm2_traj_controller = self.declare_parameter(
+            "arm2_traj_controller", "arm_2_controller").value
+
         self._joint_state = {}
+        self._joint_effort = {}
         self.create_subscription(JointState, "/joint_states", self._on_joint_state, 10)
+
+        self._twist_pub = self.create_publisher(
+            Twist, f"/{self.twist_controller}/commands", 10)
+        self._switch_client = self.create_client(
+            SwitchController, "/controller_manager/switch_controller")
 
         self._move_client = ActionClient(self, MoveGroup, "move_action")
         self.get_logger().info("Waiting for MoveGroup action server...")
@@ -96,6 +122,8 @@ class OpenCurtainRunner(Node):
     def _on_joint_state(self, msg: JointState):
         for name, pos in zip(msg.name, msg.position):
             self._joint_state[name] = pos
+        for name, eff in zip(msg.name, msg.effort):
+            self._joint_effort[name] = eff
 
     def _spin_until(self, future, timeout_sec=None):
         rclpy.spin_until_future_complete(self, future, timeout_sec=timeout_sec)
@@ -242,6 +270,118 @@ class OpenCurtainRunner(Node):
         )
         return False
 
+    def move_joints_and_table(self, group_name, joint_names, degrees_list,
+                               table_id, target_mm, target_deg) -> bool:
+        # Fire table command so both move concurrently; arm executes while table travels
+        req = MovingTable.Request()
+        req.table_id = table_id
+        req.distance_mm = float(target_mm)
+        req.angle_deg = float(target_deg)
+        req.linear_speed = int(self.linear_speed)
+        req.rotate_speed = int(self.rotate_speed)
+        req.operation_type = OP_GOTO_ABS
+        self.get_logger().info(
+            f"→ {table_id}: absolute target {target_mm} mm / {target_deg} deg (parallel)"
+        )
+        table_future = self._table_client.call_async(req)
+
+        arm_ok = self.move_joints(group_name, joint_names, degrees_list)
+
+        result = self._spin_until(table_future, timeout_sec=10.0)
+        if result is None:
+            self.get_logger().error(f"{table_id}: service call timed out.")
+            return False
+        if not result.success:
+            self.get_logger().error(f"{table_id}: service rejected — {result.message}")
+            return False
+
+        return arm_ok and self._wait_for_table(table_id, target_mm, target_deg)
+
+    def _switch_controllers(self, activate, deactivate) -> bool:
+        if not self._switch_client.wait_for_service(timeout_sec=5.0):
+            self.get_logger().error("switch_controller service not available.")
+            return False
+        req = SwitchController.Request()
+        req.activate_controllers = activate
+        req.deactivate_controllers = deactivate
+        req.strictness = SwitchController.Request.STRICT
+        req.activate_asap = True
+        req.timeout = Duration(seconds=2.0).to_msg()
+        result = self._spin_until(self._switch_client.call_async(req), timeout_sec=8.0)
+        if result is None or not result.ok:
+            self.get_logger().error(
+                f"switch_controller failed (activate={activate}, deactivate={deactivate}).")
+            return False
+        return True
+
+    def compliant_pull_arm2(self) -> bool:
+        """Pull the curtain under Cartesian-velocity (twist) control for arm_2.
+
+        Mirrors close_curtain compliant_pull() but targets arm_2. Switches from
+        its trajectory controller to the twist controller, streams a constant
+        tool-frame velocity, and stops on: target joint_1 angle reached, effort
+        watchdog, wrong-direction sanity check, or timeout. Always zeroes the
+        twist and restores the trajectory controller even on error.
+        """
+        joint1 = ARM_JOINTS["arm_2"][0]  # t1_a2_joint_1
+        target_rad = math.radians(self.pull_target_deg)
+        tol_rad = math.radians(self.pull_tol_deg)
+
+        start = self._joint_state.get(joint1)
+        if start is None:
+            self.get_logger().error("compliant_pull_arm2: no joint_1 state yet.")
+            return False
+        expected_sign = 1.0 if target_rad > start else -1.0
+
+        if not self._switch_controllers([self.twist_controller], [self.arm2_traj_controller]):
+            return False
+
+        t = self.pull_twist
+        twist = Twist()
+        twist.linear.x, twist.linear.y, twist.linear.z = t[0], t[1], t[2]
+        twist.angular.x, twist.angular.y, twist.angular.z = t[3], t[4], t[5]
+        zero = Twist()
+
+        period = 1.0 / self.pull_rate_hz
+        deadline = time.time() + self.pull_timeout_s
+        ok = False
+        reason = "timeout"
+        try:
+            while time.time() < deadline:
+                self._twist_pub.publish(twist)
+                rclpy.spin_once(self, timeout_sec=period)
+                pos = self._joint_state.get(joint1, start)
+
+                if abs(pos - target_rad) <= tol_rad:
+                    ok, reason = True, "target reached"
+                    break
+                if (pos - start) * expected_sign < -math.radians(5.0):
+                    reason = "wrong direction — check pull_twist sign/axis"
+                    break
+                eff = max((abs(self._joint_effort.get(j, 0.0))
+                           for j in ARM_JOINTS["arm_2"]), default=0.0)
+                if eff >= self.pull_effort_limit:
+                    if abs(pos - target_rad) <= math.radians(15.0):
+                        ok, reason = True, f"effort stop near target ({eff:.1f} Nm)"
+                    else:
+                        reason = f"effort limit hit mid-pull ({eff:.1f} Nm)"
+                    break
+        finally:
+            for _ in range(5):
+                self._twist_pub.publish(zero)
+                time.sleep(0.02)
+            if not self._switch_controllers(
+                    [self.arm2_traj_controller], [self.twist_controller]):
+                self.get_logger().error(
+                    "compliant_pull_arm2: FAILED to restore arm_2_controller — "
+                    "arm_2 may be left without an active position controller!")
+                return False
+
+        final_deg = math.degrees(self._joint_state.get(joint1, start))
+        self.get_logger().info(
+            f"compliant_pull_arm2 ended: {reason} (joint_1={final_deg:.1f} deg).")
+        return ok
+
     def run_sequence(self) -> bool:
         grip = self.gripper_grip_deg
         opn = self.gripper_open_deg
@@ -250,26 +390,32 @@ class OpenCurtainRunner(Node):
 
         steps = [
             # Ensure grippers open before moving
-            ("0a gripper1 open",                  lambda: self.move_gripper("gripper_1", opn)),
-            ("0b gripper2 open",                  lambda: self.move_gripper("gripper_2", opn)),
-            # Position table
-            ("1  table1 -> 1268mm / 0deg",         lambda: self.move_table("table1", 1268.0, 0.0)),
+            ("1  gripper1 open",                           lambda: self.move_gripper("gripper_1", opn)),
+            ("2  gripper2 open",                           lambda: self.move_gripper("gripper_2", opn)),
+            # Position table before arm1 approaches
+            ("3  table1 -> 1268mm / 0deg",                 lambda: self.move_table("table1", 1268.0, 0.0)),
+            # arm1 grabs and sweeps curtain open first
+            ("4  arm1 pre-approach",                       lambda: self.move_joints("arm_1", a1, [70, 0, -90, 0, 0, 0])),
+            ("5  arm1 approach",                           lambda: self.move_joints("arm_1", a1, [70, 30, -60, 0, 0, 0])),
+            ("6  gripper1 grip",                           lambda: self.move_gripper("gripper_1", grip)),
+            ("7  arm1 open-curtain swing",                 lambda: self.move_joints("arm_1", a1, [115, 30, -60, 0, 0, 0])),
+            ("8  table1 -> 1352mm",                        lambda: self.move_table("table1", 1352.0, 0.0)),
+            ("9  gripper1 open",                           lambda: self.move_gripper("gripper_1", opn)),
+            ("10 arm1 retreat + table1 -> 1268mm",         lambda: self.move_joints_and_table("arm_1", a1, [115, 0, 0, 0, 0, 0], "table1", 1268.0, 0.0)),
+            ("11 arm1 home",                               lambda: self.move_joints("arm_1", a1, [0, 150, 150, 0, 0, 0])),
+            # Confirm table position before arm2
+            ("12 table1 -> 1268mm / 0deg",                 lambda: self.move_table("table1", 1268.0, 0.0)),
             # arm2 grabs and sweeps curtain open
-            ("2  arm2 pre-approach",               lambda: self.move_joints("arm_2", a2, [-75, 0, -90, 0, 0, 0])),
-            ("3  arm2 approach",                   lambda: self.move_joints("arm_2", a2, [-75, 30, -60, 0, 0, 0])),
-            ("4  gripper2 grip",                   lambda: self.move_gripper("gripper_2", grip)),
-            ("5  arm2 open-curtain swing",         lambda: self.move_joints("arm_2", a2, [-120, 30, -60, 0, 0, 0])),
-            ("6  gripper2 open",                   lambda: self.move_gripper("gripper_2", opn)),
-            ("7  arm2 joint1 clear",               lambda: self.move_joints("arm_2", a2, [-120, 0, -90, 0, 0, 0])),
-            ("8  arm2 home",                       lambda: self.move_joints("arm_2", a2, [0, 150, 150, 0, 0, 0])),
-            # arm1 grabs and sweeps curtain open further
-            ("9  arm1 pre-approach",               lambda: self.move_joints("arm_1", a1, [70, 0, -90, 0, 0, 0])),
-            ("10 arm1 approach",                   lambda: self.move_joints("arm_1", a1, [70, 30, -60, 0, 0, 0])),
-            ("11 gripper1 grip",                   lambda: self.move_gripper("gripper_1", grip)),
-            ("12 arm1 open-curtain swing",         lambda: self.move_joints("arm_1", a1, [115, 30, -60, 0, 0, 0])),
-            ("13 gripper1 open",                   lambda: self.move_gripper("gripper_1", opn)),
-            ("14 arm1 retreat",                    lambda: self.move_joints("arm_1", a1, [115, 0, 0, 0, 0, 0])),
-            ("15 arm1 home",                       lambda: self.move_joints("arm_1", a1, [0, 150, 150, 0, 0, 0])),
+            ("13 arm2 pre-approach",                       lambda: self.move_joints("arm_2", a2, [-75, 0, -90, 0, 0, 0])),
+            ("14 arm2 approach",                           lambda: self.move_joints("arm_2", a2, [-75, 30, -60, 0, 0, 0])),
+            ("15 gripper2 grip",                           lambda: self.move_gripper("gripper_2", grip)),
+            ("16 arm2 open-curtain swing",                 lambda: self.compliant_pull_arm2() if self.use_compliant_pull
+                                                                   else self.move_joints("arm_2", a2, [-120, 30, -60, 0, 0, 0])),
+            ("17 table1 -> 1170mm",                        lambda: self.move_table("table1", 1170.0, 0.0)),
+            ("18 gripper2 open",                           lambda: self.move_gripper("gripper_2", opn)),
+            ("19 arm2 joint1 clear",                       lambda: self.move_joints("arm_2", a2, [-120, 0, -90, 0, 0, 0])),
+            ("20 arm2 lift",                               lambda: self.move_joints("arm_2", a2, [-120, 150, 150, 0, 0, 0])),
+            ("21 arm2 home",                               lambda: self.move_joints("arm_2", a2, [0, 150, 150, 0, 0, 0])),
         ]
 
         for label, action in steps:
