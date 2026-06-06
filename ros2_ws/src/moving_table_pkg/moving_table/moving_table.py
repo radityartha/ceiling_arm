@@ -229,6 +229,88 @@ class MovingTableController:
 
             time.sleep(self.poll_interval)
 
+    def go_to_absolute(self, distance_mm, angle_degrees, linear_speed, rotate_speed, stop_event=None):
+        """Move to an ABSOLUTE table position (distance_mm, angle_degrees).
+
+        Unlike go_to_table (which adds a delta to the current position), this reads
+        each motor's current encoder position directly and drives to the absolute
+        target derived from the home origin (encoder 0 = home, set by H/ppreset).
+        Because the target is computed server-side from the real encoder, it does
+        NOT depend on the ROS /joint_states topic — so a sequence can be started
+        from any table position without first homing.
+        """
+        motors = [self.motor1, self.motor2, self.motor3]
+        speeds = [linear_speed, linear_speed, rotate_speed]
+
+        linear_pulses = int((distance_mm / WHEEL_CIRCUMFERENCE) * PULSES_PER_REVOLUTION)
+        rotate_pulses = int(angle_degrees * PULSES_PER_DEGREE)
+        abs_targets = [linear_pulses, linear_pulses, rotate_pulses]
+
+        for motor in motors:
+            if not motor:
+                self._log("❌ Motor is not available.")
+                return False
+
+        # Read current encoder positions (for already-there skip + logging)
+        start_positions = []
+        for motor in motors:
+            motor.resetAlarm()
+            pos = motor.readPosition()
+            if not pos or not isinstance(pos, (list, tuple)) or len(pos) < 2 or pos[0] != 0:
+                self._log(f"❌ Cannot read position from motor {motor.serverAddress}: {pos}")
+                return False
+            start_positions.append(pos[1])
+
+        self._log(f"🎯 Absolute move: start={start_positions} → target={abs_targets}")
+
+        if all(abs(s - t) <= 50 for s, t in zip(start_positions, abs_targets)):
+            self._log("✅ Already at absolute target.")
+            return True
+
+        for motor, abs_target, speed in zip(motors, abs_targets, speeds):
+            result = motor.startPosition(position=abs_target, speed=speed, OpeType=1)
+            if result[0] != 0:
+                self._log(f"❌ Failed to start motor {motor.serverAddress}: {result}")
+                return False
+
+        start_time = time.time()
+        while True:
+            if stop_event and stop_event.is_set():
+                self._log("🛑 Stop signal — halting.")
+                for m in motors:
+                    try:
+                        m.stop()
+                    except Exception:
+                        pass
+                return False
+
+            all_reached = True
+            current = []
+            for motor, target in zip(motors, abs_targets):
+                pos = motor.readPosition()
+                if not pos or not isinstance(pos, (list, tuple)) or len(pos) < 2 or pos[0] != 0:
+                    self._log(f"⚠ Read error motor {motor.serverAddress}: {pos}")
+                    all_reached = False
+                    break
+                current.append(pos[1])
+                if abs(pos[1] - target) > 50:
+                    all_reached = False
+
+            if all_reached:
+                self._log(f"✅ All motors at absolute target. Positions: {current}")
+                return True
+
+            if time.time() - start_time > self.timeout:
+                self._log(f"⚠️ Timeout on absolute move. Last positions: {current}")
+                for m in motors:
+                    try:
+                        m.stop()
+                    except Exception:
+                        pass
+                return False
+
+            time.sleep(self.poll_interval)
+
     def start_continuous(self, direction: str, linear_speed: int, rotate_speed: int):
         """Fire-and-forget: start continuous drive immediately (no blocking)."""
         def _run(motor, speed, dir_code, label):
