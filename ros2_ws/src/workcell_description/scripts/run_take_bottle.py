@@ -59,7 +59,7 @@ class TakeBottleRunner(Node):
     def __init__(self):
         super().__init__("take_bottle_runner")
 
-        self.gripper_grip_deg = self.declare_parameter("gripper_grip_deg", 49.0).value
+        self.gripper_grip_deg = self.declare_parameter("gripper_grip_deg", 45.0).value
         self.gripper_open_deg = self.declare_parameter("gripper_open_deg", 0.0).value
         self.linear_speed = self.declare_parameter("linear_speed", 3000).value
         self.rotate_speed = self.declare_parameter("rotate_speed", 1000).value
@@ -180,15 +180,15 @@ class TakeBottleRunner(Node):
         r = result.result
         if r.reached_goal:
             return True
-        end_pos = self._joint_state.get(joint, start_pos)
-        moved = (start_pos is not None and end_pos is not None
-                 and abs(end_pos - start_pos) > 0.02)
+        end_pos = r.position
+        moved = (start_pos is not None and abs(end_pos - start_pos) > 0.02)
         if r.stalled and moved:
-            self.get_logger().info(f"{gripper_group}: stalled on object (pos={r.position:.3f}).")
+            self.get_logger().info(f"{gripper_group}: stalled on object (pos={end_pos:.3f}).")
             return True
         self.get_logger().error(
             f"{gripper_group}: did not actuate (stalled={r.stalled}, "
-            f"reached={r.reached_goal}, start={start_pos}, end={end_pos}). "
+            f"reached={r.reached_goal}, start={start_pos}, end={end_pos:.4f}). "
+            f"Grip angle must be ≤46° (kortex max 0.81 rad). "
             f"Check gripper hardware/driver, or run with skip_grippers:=true."
         )
         return False

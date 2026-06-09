@@ -244,6 +244,77 @@ python3 ros2_ws/src/workcell_description/scripts/move_arm_commander.py
 
 ---
 
+## Sequence Demos
+
+All sequence launches are one-shot runners. They require two things to already be running before you launch them:
+
+**Terminal 1 — MoveIt + RViz** (curtain/bottle use `single_rviz_workcell`, bag uses `my_workcell`):
+```bash
+# curtain + bottle demos
+ros2 launch workcell_moveit_config single_rviz_workcell.launch.py
+# take-bag demo
+ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false
+```
+
+**Terminal 2 — Table controller** (only one instance ever):
+```bash
+ros2 run moving_table_pkg dual_table_controller --ros-args -p use_fake_hardware:=false
+```
+
+**Terminal 3 — Run the sequence:**
+
+### Close curtain
+```bash
+ros2 launch workcell_moveit_config close_curtain_demo.launch.py
+
+# With compliant pull on arm_1 (yields under load, requires patched Kortex driver)
+ros2 launch workcell_moveit_config close_curtain_demo.launch.py use_compliant_pull:=true
+
+# Fake tables (no hardware)
+ros2 launch workcell_moveit_config close_curtain_demo.launch.py start_table_controller:=true use_fake_tables:=true
+```
+
+### Open curtain
+```bash
+ros2 launch workcell_moveit_config open_curtain_demo.launch.py
+
+# Fake tables
+ros2 launch workcell_moveit_config open_curtain_demo.launch.py start_table_controller:=true use_fake_tables:=true
+```
+
+### Take bag
+```bash
+ros2 launch workcell_moveit_config take_bag_demo.launch.py
+
+# Fake tables
+ros2 launch workcell_moveit_config take_bag_demo.launch.py start_table_controller:=true use_fake_tables:=true
+```
+
+### Take bottle
+```bash
+ros2 launch workcell_moveit_config take_bottle_demo.launch.py
+
+# Fake tables
+ros2 launch workcell_moveit_config take_bottle_demo.launch.py start_table_controller:=true use_fake_tables:=true
+```
+
+### Common tuning arguments (all 4 demos)
+
+| Argument | Default | Notes |
+|---|---|---|
+| `vel_scale` | 0.1 (0.2 for take_bag) | Arm velocity scaling 0–1 |
+| `acc_scale` | 0.1 (0.2 for take_bag) | Arm acceleration scaling 0–1 |
+| `gripper_grip_deg` | 40.0 (45.0 for bag/bottle) | Grip angle in degrees |
+| `skip_grippers` | false | Skip all gripper steps |
+| `linear_speed` | 3000 | Table linear speed (pulses/s) |
+| `rotate_speed` | 1000 | Table rotation speed (pulses/s) |
+| `startup_delay_s` | 3.0 | Wait (s) before first command |
+| `planning_time` | 10.0 | MoveIt planning timeout (s) |
+
+> **Never run two `dual_table_controller` nodes at once** — the second cannot acquire the serial port lock and comes up with `table1/table2 = None`, causing the runner to abort immediately.
+
+---
+
 ## Hardware Check & Manual Control
 
 Helper scripts in [scripts/](scripts/) for bringing the system up safely.

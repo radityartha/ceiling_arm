@@ -2,17 +2,25 @@
 """One-shot runner for the close-curtain choreography.
 
 Sequence:
-  1  table1 → 1268 mm / 0 deg
-  2  arm2 pre-approach
-  3  arm2 approach + gripper2 grip (40 deg)
-  5  arm2 swing (curtain pull)
-  6  gripper2 open
-  7  arm2 home
-  8  arm1 pre-approach
-  9  arm1 approach + gripper1 grip (40 deg)
-  11 arm1 close curtain swing
-  12 gripper1 open
-  13 arm1 home
+  0a  gripper1 open (0 deg)
+  0b  gripper2 open (0 deg)
+  1   table1 → 1268 mm / 0 deg
+  2   arm2 pre-approach       [-105, 0, -90, 0, 0, 0]
+  3   arm2 approach           [-105, 40, -50, 0, 0, 0]
+  4   gripper2 grip (40 deg)
+  5   arm2 swing              [-45, 40, -50, 0, 0, 0]
+  6   table1 rotate -20 deg
+  7   gripper2 open (0 deg)
+  8   table1 rotate 0 deg
+  9   arm2 home               [0, 150, 150, 0, 0, 0]
+  10  arm1 pre-approach       [136, -39, -112, 24, -35, -29]
+  11  arm1 approach           [106, 30, -60, 0, 0, 0]
+  12  gripper1 grip (40 deg)
+  13  arm1 close curtain swing [30, 30, -60, 0, 0, 0]
+  14  table1 rotate 10 deg
+  15  gripper1 open (0 deg)
+  16  arm1 home               [0, 150, 150, 0, 0, 0]
+  17  table1 rotate 0 deg
 """
 import math
 import time
@@ -386,10 +394,10 @@ class CloseCurtainRunner(Node):
             ("0b  gripper2 open",               lambda: self.move_gripper("gripper_2", opn)),
             ("1   table1 -> 1268mm / 0deg",     lambda: self.move_table("table1", 1268.0, 0.0)),
             ("2   arm2 pre-approach",            lambda: self.move_joints("arm_2", a2, [-105, 0, -90, 0, 0, 0])),
-            ("3   arm2 approach",                lambda: self.move_joints("arm_2", a2, [-105, 25, -66, 0, 0, 0])),
+            ("3   arm2 approach",                lambda: self.move_joints("arm_2", a2, [-105, 40, -50, 0, 0, 0])),
             ("4   gripper2 grip",                lambda: self.move_gripper("gripper_2", grip)),
-            ("5   arm2 swing",                   lambda: self.move_joints("arm_2", a2, [-45, 25, -66, 0, 0, 0])),
-            ("6   table1 rotate -30deg",         lambda: self.move_table("table1", 1268.0, -30.0)),
+            ("5   arm2 swing",                   lambda: self.move_joints("arm_2", a2, [-45, 40, -50, 0, 0, 0])),
+            ("6   table1 rotate -20deg",         lambda: self.move_table("table1", 1268.0, -20.0)),
             ("7   gripper2 open",                lambda: self.move_gripper("gripper_2", opn)),
             ("8   table1 rotate 0deg",           lambda: self.move_table("table1", 1268.0, 0.0)),
             ("9   arm2 home",                    lambda: self.move_joints("arm_2", a2, [0, 150, 150, 0, 0, 0])),
@@ -397,8 +405,8 @@ class CloseCurtainRunner(Node):
             ("11  arm1 approach",                lambda: self.move_joints("arm_1", a1, [106, 30, -60, 0, 0, 0])),
             ("12  gripper1 grip",                lambda: self.move_gripper("gripper_1", grip)),
             ("13  arm1 close curtain swing",     lambda: self.compliant_pull() if self.use_compliant_pull
-                                                         else self.move_joints("arm_1", a1, [50, 30, -60, 0, 0, 0])),
-            ("14  table1 rotate 20deg",          lambda: self.move_table("table1", 1268.0, 20.0)),
+                                                         else self.move_joints("arm_1", a1, [30, 30, -60, 0, 0, 0])),
+            ("14  table1 rotate 10deg",          lambda: self.move_table("table1", 1268.0, 10.0)),
             ("15  gripper1 open",                lambda: self.move_gripper("gripper_1", opn)),
             ("16  arm1 home",                    lambda: self.move_joints("arm_1", a1, [0, 150, 150, 0, 0, 0])),
             ("17  table1 rotate 0deg",           lambda: self.move_table("table1", 1268.0, 0.0)),
