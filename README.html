@@ -267,6 +267,117 @@ python3 scripts/table_keyboard.py</pre>
     <div class="warn" style="margin-top:12px;">⚠ <kbd>H</kbd> writes to the AZ-series absolute encoder — permanent until re-homed.</div>
   </div>
 
+  <!-- SEQUENCE DEMOS -->
+  <div class="card wide">
+    <h2><span>🎬</span> Sequence Demos</h2>
+    <p class="desc" style="margin-bottom:12px;">One-shot runners. Requires <strong>MoveIt + RViz</strong> and <strong>dual_table_controller</strong> already running in separate terminals before launching any demo.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+
+      <div>
+        <div class="cmd-label">Terminal 1 — MoveIt + RViz (curtain / bottle)</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config single_rviz_workcell.launch.py</pre>
+        </div>
+        <div class="cmd-label">Terminal 1 — MoveIt + RViz (take-bag)</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false</pre>
+        </div>
+      </div>
+
+      <div>
+        <div class="cmd-label">Terminal 2 — Table controller (one instance only)</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 run moving_table_pkg dual_table_controller \
+  --ros-args -p use_fake_hardware:=false</pre>
+        </div>
+        <div class="warn">⚠ Never run two <code>dual_table_controller</code> nodes — the second cannot acquire the serial port lock and the runner aborts immediately.</div>
+      </div>
+
+    </div>
+
+    <hr class="divider">
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px;">
+
+      <div>
+        <div class="cmd-label" style="color:var(--accent);font-weight:600;">Close Curtain</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config close_curtain_demo.launch.py</pre>
+        </div>
+        <div class="cmd-label">With compliant pull (arm_1 yields under load)</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config close_curtain_demo.launch.py use_compliant_pull:=true</pre>
+        </div>
+        <div class="cmd-label">Fake tables</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config close_curtain_demo.launch.py start_table_controller:=true use_fake_tables:=true</pre>
+        </div>
+      </div>
+
+      <div>
+        <div class="cmd-label" style="color:var(--accent);font-weight:600;">Open Curtain</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config open_curtain_demo.launch.py</pre>
+        </div>
+        <div class="cmd-label">Fake tables</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config open_curtain_demo.launch.py start_table_controller:=true use_fake_tables:=true</pre>
+        </div>
+      </div>
+
+      <div>
+        <div class="cmd-label" style="color:var(--accent);font-weight:600;">Take Bag</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config take_bag_demo.launch.py</pre>
+        </div>
+        <div class="cmd-label">Fake tables</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config take_bag_demo.launch.py start_table_controller:=true use_fake_tables:=true</pre>
+        </div>
+      </div>
+
+      <div>
+        <div class="cmd-label" style="color:var(--accent);font-weight:600;">Take Bottle</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config take_bottle_demo.launch.py</pre>
+        </div>
+        <div class="cmd-label">Fake tables</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch workcell_moveit_config take_bottle_demo.launch.py start_table_controller:=true use_fake_tables:=true</pre>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="divider">
+    <div style="margin-top:10px;">
+      <div class="cmd-label">Common tuning args (all 4 demos)</div>
+      <table class="key-table">
+        <tr><td style="width:180px;"><code>vel_scale</code></td><td class="desc">Arm velocity scaling 0–1 · default <strong>0.1</strong> (0.2 for take_bag)</td></tr>
+        <tr><td><code>acc_scale</code></td><td class="desc">Arm acceleration scaling 0–1 · default <strong>0.1</strong> (0.2 for take_bag)</td></tr>
+        <tr><td><code>gripper_grip_deg</code></td><td class="desc">Grip angle (deg) · default <strong>40.0</strong> (45.0 for bag/bottle)</td></tr>
+        <tr><td><code>skip_grippers</code></td><td class="desc">Skip all gripper steps · default <strong>false</strong></td></tr>
+        <tr><td><code>linear_speed</code></td><td class="desc">Table linear speed (pulses/s) · default <strong>3000</strong></td></tr>
+        <tr><td><code>rotate_speed</code></td><td class="desc">Table rotation speed (pulses/s) · default <strong>1000</strong></td></tr>
+        <tr><td><code>startup_delay_s</code></td><td class="desc">Wait before first command (s) · default <strong>3.0</strong></td></tr>
+        <tr><td><code>planning_time</code></td><td class="desc">MoveIt planning timeout (s) · default <strong>10.0</strong></td></tr>
+      </table>
+    </div>
+  </div>
+
   <!-- OTHER LAUNCHES -->
   <div class="card">
     <h2><span>⚙️</span> Other Launch Modes</h2>

@@ -29,8 +29,8 @@ def generate_launch_description():
                                           "for the serial ports -> table1/table2 come up uninitialized."),
         DeclareLaunchArgument("use_fake_tables", default_value="false",
                               description="Use fake hardware for table motors"),
-        DeclareLaunchArgument("gripper_grip_deg", default_value="49.0",
-                              description="Bottom-finger joint angle (deg) when gripping"),
+        DeclareLaunchArgument("gripper_grip_deg", default_value="45.0",
+                              description="Bottom-finger joint angle (deg) when gripping (max 46° = 0.81 rad kortex limit)"),
         DeclareLaunchArgument("gripper_open_deg", default_value="0.0",
                               description="Bottom-finger joint angle (deg) when open/loosened"),
         DeclareLaunchArgument("gripper_max_effort", default_value="50.0",
@@ -61,6 +61,10 @@ def generate_launch_description():
                               description="Delay (s) before the first command"),
         DeclareLaunchArgument("motor_settle_s", default_value="1.0",
                               description="Extra settle time (s) after table joints reach tolerance"),
+        DeclareLaunchArgument("gripper_pre_delay_s", default_value="1.5",
+                              description="Delay (s) before each gripper goal — allows Kortex hardware "
+                                          "to transition from high-level to low-level servoing mode "
+                                          "after an arm trajectory (prevents WRONG_SERVOING_MODE)"),
     ]
 
     table_controller = Node(
@@ -95,6 +99,7 @@ def generate_launch_description():
             "table_stable_samples": LaunchConfiguration("table_stable_samples"),
             "startup_delay_s": LaunchConfiguration("startup_delay_s"),
             "motor_settle_s": LaunchConfiguration("motor_settle_s"),
+            "gripper_pre_delay_s": LaunchConfiguration("gripper_pre_delay_s"),
         }],
     )
 

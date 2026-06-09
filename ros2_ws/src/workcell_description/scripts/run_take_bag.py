@@ -31,11 +31,13 @@ OP_GOTO_ABS = 97
 
 # Joint-name templates per planning group (from trailer_workcell.srdf)
 ARM_JOINTS = {
+    "arm_1": [f"t1_a1_joint_{i}" for i in range(1, 7)],
     "arm_2": [f"t1_a2_joint_{i}" for i in range(1, 7)],
     "arm_3": [f"t2_a1_joint_{i}" for i in range(1, 7)],
     "arm_4": [f"t2_a2_joint_{i}" for i in range(1, 7)],
 }
 GRIPPER_JOINT = {
+    "gripper_1": "t1_a1_right_finger_bottom_joint",
     "gripper_2": "t1_a2_right_finger_bottom_joint",
     "gripper_3": "t2_a1_right_finger_bottom_joint",
     "gripper_4": "t2_a2_right_finger_bottom_joint",
@@ -51,7 +53,7 @@ class SequenceRunner(Node):
         super().__init__("take_bag_runner")
 
         # --- Parameters ---
-        self.gripper_grip_deg = self.declare_parameter("gripper_grip_deg", 47.5).value
+        self.gripper_grip_deg = self.declare_parameter("gripper_grip_deg", 45.0).value
         self.gripper_open_deg = self.declare_parameter("gripper_open_deg", 0.0).value
         self.linear_speed = self.declare_parameter("linear_speed", 3000).value
         self.rotate_speed = self.declare_parameter("rotate_speed", 1000).value
@@ -71,6 +73,12 @@ class SequenceRunner(Node):
         self.gripper_max_effort = self.declare_parameter("gripper_max_effort", 50.0).value
         self.skip_grippers = self.declare_parameter("skip_grippers", False).value
         self.arm_settle_s = self.declare_parameter("arm_settle_s", 0.5).value
+        # Extra delay inside move_gripper before sending the goal. After an arm
+        # trajectory the Kortex hardware stays in high-level servoing mode; the
+        # gripper controller uses low-level BaseCyclic API and gets
+        # WRONG_SERVOING_MODE until the hardware transitions. 1.5 s is enough
+        # in practice; lower if grippers feel sluggish.
+        self.gripper_pre_delay_s = self.declare_parameter("gripper_pre_delay_s", 1.5).value
 
         # Latest /joint_states sample (name -> position)
         self._joint_state = {}
@@ -176,6 +184,12 @@ class SequenceRunner(Node):
         joint = GRIPPER_JOINT[gripper_group]
         start_pos = self._joint_state.get(joint)
 
+        # If already at target (within ~3°), skip — sending the goal would stall
+        # immediately with no movement, which the driver reports as failure.
+        if start_pos is not None and abs(start_pos - math.radians(degrees)) <= 0.05:
+            self.get_logger().info(f"{gripper_group}: already at {degrees}°, skipping.")
+            return True
+
         client = self._gripper_clients[gripper_group]
         if not client.wait_for_server(timeout_sec=15.0):
             self.get_logger().error(f"{gripper_group}: gripper action server not available.")
@@ -186,6 +200,8 @@ class SequenceRunner(Node):
         goal.command.max_effort = float(self.gripper_max_effort)
 
         self.get_logger().info(f"→ {gripper_group}: {degrees}°")
+        if self.gripper_pre_delay_s > 0:
+            time.sleep(self.gripper_pre_delay_s)
         goal_handle = self._spin_until(client.send_goal_async(goal))
         if goal_handle is None or not goal_handle.accepted:
             self.get_logger().error(f"{gripper_group}: goal rejected.")
@@ -200,15 +216,17 @@ class SequenceRunner(Node):
         if r.reached_goal:
             return True
         # Stalled is only a real grip if the finger actually moved from its start.
-        end_pos = self._joint_state.get(joint, start_pos)
-        moved = (start_pos is not None and end_pos is not None
-                 and abs(end_pos - start_pos) > 0.02)
+        # Use r.position (authoritative from the driver) instead of joint_states,
+        # which can be stale when the action result arrives.
+        end_pos = r.position
+        moved = (start_pos is not None and abs(end_pos - start_pos) > 0.02)
         if r.stalled and moved:
-            self.get_logger().info(f"{gripper_group}: stalled on object (pos={r.position:.3f}).")
+            self.get_logger().info(f"{gripper_group}: stalled on object (pos={end_pos:.3f}).")
             return True
         self.get_logger().error(
             f"{gripper_group}: did not actuate (stalled={r.stalled}, "
-            f"reached={r.reached_goal}, start={start_pos}, end={end_pos}). "
+            f"reached={r.reached_goal}, start={start_pos}, end={end_pos:.4f}). "
+            f"Grip angle must be ≤46° (kortex max 0.81 rad). "
             f"Check gripper hardware/driver, or run with skip_grippers:=true."
         )
         return False
@@ -341,33 +359,36 @@ class SequenceRunner(Node):
             ("01 tables -> staging (t1 0/0, t2 650/90)",
                                            lambda: self.move_tables_parallel(
                                                [("table1", 0.0, 0.0), ("table2", 650.0, 90.0)])),
-            ("02 gripper4 open",           lambda: self.move_gripper("gripper_4", opn)),
-            ("03 arm4 approach 1",         lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -43, -56, -90, 76, 0])),
-            ("04 arm4 approach 2",         lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -10, -63, -90, 35, 0])),
-            ("05 gripper4 grip",           lambda: self.move_gripper("gripper_4", grip)),
-            ("06 arm4 reach",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -75, -130, -90, 30, 2])),
-            ("07 arm4 lift",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -60, -115, -90, 30, 2])),
-            ("08 arm4 carry",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -15, -90, -90, 15, 0])),
-            ("09 arm3 pre-approach",       lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [0, -55, -95, 90, -44, 90])),
-            ("10 arm3 approach",           lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [0, 0, -71, 89, -18, 90])),
-            ("11 gripper3 grip",           lambda: self.move_gripper("gripper_3", grip)),
-            ("12 gripper4 release",        lambda: self.move_gripper("gripper_4", 20.0)),
-            ("13 arm4 retreat",            lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -60, -115, -90, 30, 2])),
-            ("14 arm3 move",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [97, 99, 80, 106, -78, 90])),
-            ("15 table1 -> home",          lambda: self.move_table("table1", 0.0, 0.0)),
-            ("16 GUARD table1 home",       lambda: self.require_table_home("table1")),
-            ("17 arm2 approach 1",         lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, -19, -120, 90, 9, -90])),
-            ("18 arm2 approach 2",         lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, 21, -86, 90, 16, -90])),
-            ("19 gripper2 grip",           lambda: self.move_gripper("gripper_2", grip)),
-            ("20 gripper3 loosen",         lambda: self.move_gripper("gripper_3", opn)),
-            ("21 arm3 retreat",            lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [63, 93, 130, 148, -119, 117])),
-            ("22 arm2 place",              lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [0, -45, -99, 90, 55, -90])),
-            ("23 gripper2 release",        lambda: self.move_gripper("gripper_2", opn)),
-            ("24 arm2 home",               lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [90, -150, -150, 0, 0, 0])),
-            ("25 arm3 home",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [90, -150, -150, 0, 0, 0])),
-            ("26 arm4 home",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -150, -150, 0, 0, 0])),
-            ("27 table1 -> home",          lambda: self.move_table("table1", 0.0, 0.0)),
-            ("28 table2 -> home",          lambda: self.move_table("table2", 0.0, 0.0)),
+            ("02 gripper1 open",           lambda: self.move_gripper("gripper_1", opn)),
+            ("03 gripper2 open",           lambda: self.move_gripper("gripper_2", opn)),
+            ("04 gripper3 open",           lambda: self.move_gripper("gripper_3", opn)),
+            ("05 gripper4 open",           lambda: self.move_gripper("gripper_4", opn)),
+            ("06 arm4 approach 1",         lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -43, -56, -90, 76, 0])),
+            ("07 arm4 approach 2",         lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -10, -63, -90, 35, 0])),
+            ("08 gripper4 grip",           lambda: self.move_gripper("gripper_4", grip)),
+            ("09 arm4 reach",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -75, -130, -90, 30, 2])),
+            ("10 arm4 lift",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -60, -115, -90, 30, 2])),
+            ("11 arm4 carry",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, 78, -5, -90, -86, 0])),
+            ("12 arm3 pre-approach",       lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [0, -55, -95, 90, -44, 90])),
+            ("13 arm3 approach",           lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [4, -20, -81, 101, -29, 79])),
+            ("14 gripper3 grip",           lambda: self.move_gripper("gripper_3", grip)),
+            ("15 gripper4 release",        lambda: self.move_gripper("gripper_4", 20.0)),
+            ("16 arm4 retreat",            lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, 86, -10, -90, -99, 0])),
+            ("17 arm3 move",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [88, 94, -14, -93, -95, 24])),
+            ("18 table1 -> home",          lambda: self.move_table("table1", 0.0, 0.0)),
+            ("19 GUARD table1 home",       lambda: self.require_table_home("table1")),
+            ("20 arm2 approach 1",         lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, -47, -129, 90, -9, -91])),
+            ("21 arm2 approach 2",         lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, 21, -86, 90, 16, -90])),
+            ("22 gripper2 grip",           lambda: self.move_gripper("gripper_2", grip)),
+            ("23 gripper3 loosen",         lambda: self.move_gripper("gripper_3", opn)),
+            ("24 arm2 place",              lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [0, -45, -99, 90, 55, -90])),
+            ("25 gripper2 release",        lambda: self.move_gripper("gripper_2", opn)),
+            ("26 arm2 home",               lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [0, 150, 150, 0, 0, 0])),
+            ("27 arm3 home",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [90, -150, -150, 0, 0, 0])),
+            ("28 arm4 home",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -150, -150, 0, 0, 0])),
+            ("29 arm1 home",               lambda: self.move_joints("arm_1", ARM_JOINTS["arm_1"], [0, 150, 150, 0, 0, 0])),
+            ("30 table1 -> home",          lambda: self.move_table("table1", 0.0, 0.0)),
+            ("31 table2 -> home",          lambda: self.move_table("table2", 0.0, 0.0)),
         ]
 
         for label, action in steps:

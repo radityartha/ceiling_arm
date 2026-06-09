@@ -395,10 +395,10 @@ class OpenCurtainRunner(Node):
             # Position table before arm1 approaches
             ("3  table1 -> 1268mm / 0deg",                 lambda: self.move_table("table1", 1268.0, 0.0)),
             # arm1 grabs and sweeps curtain open first
-            ("4  arm1 pre-approach",                       lambda: self.move_joints("arm_1", a1, [70, 0, -90, 0, 0, 0])),
-            ("5  arm1 approach",                           lambda: self.move_joints("arm_1", a1, [70, 30, -60, 0, 0, 0])),
+            ("4  arm1 pre-approach",                       lambda: self.move_joints("arm_1", a1, [55, 0, -90, 0, 0, 0])),
+            ("5  arm1 approach",                           lambda: self.move_joints("arm_1", a1, [55, 50, -30, 0, 0, 0])),
             ("6  gripper1 grip",                           lambda: self.move_gripper("gripper_1", grip)),
-            ("7  arm1 open-curtain swing",                 lambda: self.move_joints("arm_1", a1, [115, 30, -60, 0, 0, 0])),
+            ("7  arm1 open-curtain swing",                 lambda: self.move_joints("arm_1", a1, [115, 50, -30, 0, 0, 0])),
             ("8  table1 -> 1352mm",                        lambda: self.move_table("table1", 1352.0, 0.0)),
             ("9  gripper1 open",                           lambda: self.move_gripper("gripper_1", opn)),
             ("10 arm1 retreat + table1 -> 1268mm",         lambda: self.move_joints_and_table("arm_1", a1, [115, 0, 0, 0, 0, 0], "table1", 1268.0, 0.0)),
@@ -406,14 +406,13 @@ class OpenCurtainRunner(Node):
             # Confirm table position before arm2
             ("12 table1 -> 1268mm / 0deg",                 lambda: self.move_table("table1", 1268.0, 0.0)),
             # arm2 grabs and sweeps curtain open
-            ("13 arm2 pre-approach",                       lambda: self.move_joints("arm_2", a2, [-75, 0, -90, 0, 0, 0])),
-            ("14 arm2 approach",                           lambda: self.move_joints("arm_2", a2, [-75, 30, -60, 0, 0, 0])),
+            ("13 arm2 pre-approach",                       lambda: self.move_joints("arm_2", a2, [-60, 0, -90, 0, 0, 0])),
+            ("14 arm2 approach",                           lambda: self.move_joints("arm_2", a2, [-60, 50, -40, 0, 0, 0])),
             ("15 gripper2 grip",                           lambda: self.move_gripper("gripper_2", grip)),
             ("16 arm2 open-curtain swing",                 lambda: self.compliant_pull_arm2() if self.use_compliant_pull
-                                                                   else self.move_joints("arm_2", a2, [-120, 30, -60, 0, 0, 0])),
-            ("17 table1 -> 1170mm",                        lambda: self.move_table("table1", 1170.0, 0.0)),
+                                                                   else self.move_joints("arm_2", a2, [-120, 50, -40, 0, 0, 0])),
+            ("17 table1 -> 1110mm",                        lambda: self.move_table("table1", 1110.0, 0.0)),
             ("18 gripper2 open",                           lambda: self.move_gripper("gripper_2", opn)),
-            ("19 arm2 joint1 clear",                       lambda: self.move_joints("arm_2", a2, [-120, 0, -90, 0, 0, 0])),
             ("20 arm2 lift",                               lambda: self.move_joints("arm_2", a2, [-120, 150, 150, 0, 0, 0])),
             ("21 arm2 home",                               lambda: self.move_joints("arm_2", a2, [0, 150, 150, 0, 0, 0])),
         ]
