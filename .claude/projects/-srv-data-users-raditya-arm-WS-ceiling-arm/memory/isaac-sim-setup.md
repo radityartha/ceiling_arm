@@ -68,7 +68,24 @@ open(0.96)/close(0.0) visible in Isaac. Command:
 "{command: {position: 0.96, max_effort: 50.0}}"`. Note: GripperActionController often reports
 stalled:true with no object (cosmetic; allow_stalling:true). Mimic multiplier is -1 here (not the
 physically accurate -0.676 for tips) - fine for open/close, refine if precise grasping needed.
-NEXT: scale to 4-arm workcell (per-arm topic namespacing + table joints).
+**4-ARM WORKCELL via MoveIt (WORKING):** all 4 arms (arm_1..4) + 4 grippers controlled by MoveIt
+through Isaac. Files: `isaac_sim/workcell/ros2_bridge.py` / `ros2_bridge_gui.py` (isaac topics,
+shared /isaac_joint_commands + /isaac_joint_states; grippers handled natively by topic_based, no
+extra coupling) + `isaac_sim/workcell/ros/{bringup.launch.py,ros2_controllers.yaml,moveit_demo.py}`.
+Two source edits were REQUIRED (both additive, in repo + kortex):
+  (1) `ros2_ws/src/workcell_description/urdf/workcell.urdf.xacro`: added `sim_isaac` arg and threaded
+      `sim_isaac="$(arg sim_isaac)"` into all 4 load_robot calls (was hardcoded to mock).
+  (2) kortex `grippers/gen3_lite_2f/urdf/gen3_lite_2f.ros2_control.xacro`: changed
+      `<ros2_control name="GripperHardwareInterface">` -> `name="${prefix}GripperHardwareInterface"`
+      (4 grippers had duplicate hardware names -> ros2_control_node aborts "name is duplicated").
+Build robot_description with `sim_isaac:=true use_fake_hardware:=false` (both true => mock AND
+topic_based both emit -> conflict). Built overlay `/srv/data/users/raditya/workcell_overlay_ws`
+(workcell_description + workcell_moveit_config) against kortex_min_ws + apt. Bringup uses
+MoveItConfigsBuilder("trailer_workcell", "workcell_moveit_config") + moveit_controllers_per_arm.yaml.
+TABLES are NOT bridged (table joints have no topic_based; with use_fake_hardware=false the TableFakeHardware
+block is omitted) -> tables static in Isaac. move_group logs harmless "table_X_with_arm is not a chain"
+(those coupled groups have no IK; we plan arm_1..4 chains). Verified: all 4 arms reach POSE_A
+(joint_2~0.6, joint_4~-0.4) in /isaac_joint_states. `ros2 topic echo` CLI was flaky (use --no-daemon).
 
 **Gripper (Gen3 Lite 2F) = 1-DOF via SOFTWARE coupling in `isaac_sim/gripper.py`** (not PhysX
 mimic — importer's parse_mimic produced broken/flailing fingers: "needs a finite limit" errors and

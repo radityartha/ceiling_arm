@@ -1,0 +1,46 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 200  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_1_controller: { type: joint_trajectory_controller/JointTrajectoryController }
+    arm_2_controller: { type: joint_trajectory_controller/JointTrajectoryController }
+    arm_3_controller: { type: joint_trajectory_controller/JointTrajectoryController }
+    arm_4_controller: { type: joint_trajectory_controller/JointTrajectoryController }
+
+    gripper_1_controller: { type: position_controllers/GripperActionController }
+    gripper_2_controller: { type: position_controllers/GripperActionController }
+    gripper_3_controller: { type: position_controllers/GripperActionController }
+    gripper_4_controller: { type: position_controllers/GripperActionController }
+
+arm_1_controller:
+  ros__parameters:
+    joints: [t1_a1_joint_1, t1_a1_joint_2, t1_a1_joint_3, t1_a1_joint_4, t1_a1_joint_5, t1_a1_joint_6]
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+arm_2_controller:
+  ros__parameters:
+    joints: [t1_a2_joint_1, t1_a2_joint_2, t1_a2_joint_3, t1_a2_joint_4, t1_a2_joint_5, t1_a2_joint_6]
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+arm_3_controller:
+  ros__parameters:
+    joints: [t2_a1_joint_1, t2_a1_joint_2, t2_a1_joint_3, t2_a1_joint_4, t2_a1_joint_5, t2_a1_joint_6]
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+arm_4_controller:
+  ros__parameters:
+    joints: [t2_a2_joint_1, t2_a2_joint_2, t2_a2_joint_3, t2_a2_joint_4, t2_a2_joint_5, t2_a2_joint_6]
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+
+gripper_1_controller:
+  ros__parameters: { joint: t1_a1_right_finger_bottom_joint, allow_stalling: true, max_effort: 50.0, goal_tolerance: 0.05 }
+gripper_2_controller:
+  ros__parameters: { joint: t1_a2_right_finger_bottom_joint, allow_stalling: true, max_effort: 50.0, goal_tolerance: 0.05 }
+gripper_3_controller:
+  ros__parameters: { joint: t2_a1_right_finger_bottom_joint, allow_stalling: true, max_effort: 50.0, goal_tolerance: 0.05 }
+gripper_4_controller:
+  ros__parameters: { joint: t2_a2_right_finger_bottom_joint, allow_stalling: true, max_effort: 50.0, goal_tolerance: 0.05 }

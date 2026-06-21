@@ -7,6 +7,9 @@
   <!-- Set use_fake_hardware:=false and real IPs for real hardware   -->
   <!-- ============================================================ -->
   <xacro:arg name="use_fake_hardware" default="true"/>
+  <!-- sim_isaac: when true, each arm/gripper uses topic_based_ros2_control
+       (/isaac_joint_commands, /isaac_joint_states) for NVIDIA Isaac Sim. -->
+  <xacro:arg name="sim_isaac"         default="false"/>
   <xacro:arg name="arm1_ip"           default="0.0.0.0"/>
   <xacro:arg name="arm2_ip"           default="0.0.0.0"/>
   <xacro:arg name="arm3_ip"           default="0.0.0.0"/>
@@ -96,12 +99,12 @@
   <!-- ==================================== -->
 
   <!-- Arm 1 (t1_a1) — on table-1 RIGHT plate (left/right swapped to match real cell) -->
-  <xacro:load_robot prefix="t1_a1_" parent="t1_mount_plate_right" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm1_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm1_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+  <xacro:load_robot prefix="t1_a1_" parent="t1_mount_plate_right" arm="gen3_lite" dof="6" sim_isaac="$(arg sim_isaac)" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm1_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm1_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
     <origin xyz="0 0 -0.025" rpy="3.14159 0 -1.5707963267948966"/>
   </xacro:load_robot>
 
   <!-- Arm 2 (t1_a2) — on table-1 LEFT plate (left/right swapped to match real cell) -->
-  <xacro:load_robot prefix="t1_a2_" parent="t1_mount_plate_left" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm2_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm2_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+  <xacro:load_robot prefix="t1_a2_" parent="t1_mount_plate_left" arm="gen3_lite" dof="6" sim_isaac="$(arg sim_isaac)" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm2_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm2_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
     <origin xyz="0 0 -0.025" rpy="3.14159 0 1.5707963267948966"/>
   </xacro:load_robot>
 
@@ -110,12 +113,12 @@
   <!-- ==================================== -->
 
   <!-- Arm 3 (t2_a1) — on table-2 RIGHT plate (left/right swapped to match real cell) -->
-  <xacro:load_robot prefix="t2_a1_" parent="t2_mount_plate_right" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm3_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm3_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+  <xacro:load_robot prefix="t2_a1_" parent="t2_mount_plate_right" arm="gen3_lite" dof="6" sim_isaac="$(arg sim_isaac)" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm3_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm3_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
     <origin xyz="0 0 -0.025" rpy="3.14159 0 -1.5707963267948966"/>
   </xacro:load_robot>
 
   <!-- Arm 4 (t2_a2) — on table-2 LEFT plate (left/right swapped to match real cell) -->
-  <xacro:load_robot prefix="t2_a2_" parent="t2_mount_plate_left" arm="gen3_lite" dof="6" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm4_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm4_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
+  <xacro:load_robot prefix="t2_a2_" parent="t2_mount_plate_left" arm="gen3_lite" dof="6" sim_isaac="$(arg sim_isaac)" gripper="gen3_lite_2f" gripper_joint_name="right_finger_bottom_joint" use_fake_hardware="$(arg arm4_fake)" use_internal_bus_gripper_comm="true" gripper_max_velocity="100.0" gripper_max_force="100.0" vision="false" robot_ip="$(arg arm4_ip)" username="admin" password="admin" port="10000" port_realtime="10001" session_inactivity_timeout_ms="60000" connection_inactivity_timeout_ms="2000">
     <origin xyz="0 0 -0.025" rpy="3.14159 0 1.5707963267948966"/>
   </xacro:load_robot>
 
