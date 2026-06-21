@@ -94,6 +94,34 @@
     </ros2_control>
   </xacro:if>
 
+  <!-- Isaac Sim: drive the table joints through topic_based_ros2_control so they
+       move in the simulation (same /isaac_joint_* topics as the arms). -->
+  <xacro:if value="$(arg sim_isaac)">
+    <ros2_control name="TableTopicBased" type="system">
+      <hardware>
+        <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+        <param name="joint_commands_topic">/isaac_joint_commands</param>
+        <param name="joint_states_topic">/isaac_joint_states</param>
+      </hardware>
+      <joint name="t1_linear_joint">
+        <command_interface name="position" />
+        <state_interface name="position" /><state_interface name="velocity" />
+      </joint>
+      <joint name="t1_rotation_joint">
+        <command_interface name="position" />
+        <state_interface name="position" /><state_interface name="velocity" />
+      </joint>
+      <joint name="t2_linear_joint">
+        <command_interface name="position" />
+        <state_interface name="position" /><state_interface name="velocity" />
+      </joint>
+      <joint name="t2_rotation_joint">
+        <command_interface name="position" />
+        <state_interface name="position" /><state_interface name="velocity" />
+      </joint>
+    </ros2_control>
+  </xacro:if>
+
   <!-- ==================================== -->
   <!-- Arms Mounted on Table 1 -->
   <!-- ==================================== -->

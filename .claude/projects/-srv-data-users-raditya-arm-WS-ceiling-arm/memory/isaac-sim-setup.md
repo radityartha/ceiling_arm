@@ -82,10 +82,17 @@ Build robot_description with `sim_isaac:=true use_fake_hardware:=false` (both tr
 topic_based both emit -> conflict). Built overlay `/srv/data/users/raditya/workcell_overlay_ws`
 (workcell_description + workcell_moveit_config) against kortex_min_ws + apt. Bringup uses
 MoveItConfigsBuilder("trailer_workcell", "workcell_moveit_config") + moveit_controllers_per_arm.yaml.
-TABLES are NOT bridged (table joints have no topic_based; with use_fake_hardware=false the TableFakeHardware
-block is omitted) -> tables static in Isaac. move_group logs harmless "table_X_with_arm is not a chain"
-(those coupled groups have no IK; we plan arm_1..4 chains). Verified: all 4 arms reach POSE_A
-(joint_2~0.6, joint_4~-0.4) in /isaac_joint_states. `ros2 topic echo` CLI was flaky (use --no-daemon).
+move_group logs harmless "table_X_with_arm is not a chain" (those coupled groups have no IK; we plan
+arm_1..4 chains). Verified: all 4 arms reach POSE_A (joint_2~0.6, joint_4~-0.4) in /isaac_joint_states.
+`ros2 topic echo` CLI was flaky (use --no-daemon).
+
+**TABLES bridged too (WORKING):** added a `<xacro:if value="$(arg sim_isaac)">` TableTopicBased
+topic_based ros2_control system (t1/t2 linear+rotation) in workcell.urdf.xacro, plus table_1/2_controller
+(JTC) in ros/ros2_controllers.yaml + bringup. Verified table_1 linear->0.15, rotation->0.30 in Isaac.
+So the FULL workcell (4 arms + 4 grippers + 2 tables) is ROS2-controllable in Isaac.
+**Polished scene in GUI bridge:** ros2_bridge_gui.py now calls polish.build_room()/add_lights()/
+recolor_tables() so the MoveIt demo runs in the room+work-table scene (no add_default_ground_plane).
+Demo: `python3 isaac_sim/workcell/ros/moveit_demo.py` cycles the 4 arms.
 
 **Gripper (Gen3 Lite 2F) = 1-DOF via SOFTWARE coupling in `isaac_sim/gripper.py`** (not PhysX
 mimic — importer's parse_mimic produced broken/flailing fingers: "needs a finite limit" errors and

@@ -37,11 +37,17 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 USD_PATH = os.path.join(HERE, "workcell.usd")
 ROBOT = "/World/workcell"
 
+import polish  # noqa: E402  (room + lights + work table; same dir)
+
 world = World(stage_units_in_meters=1.0)
-world.scene.add_default_ground_plane()
 add_reference_to_stage(usd_path=USD_PATH, prim_path=ROBOT)
 wc = world.scene.add(Robot(prim_path=ROBOT, name="workcell"))
+_objs = polish.build_room()
+polish.add_lights()
+for _o in _objs:
+    world.scene.add(_o)
 world.reset()
+polish.recolor_tables()
 
 ART = next((str(p.GetPath()) for p in get_current_stage().Traverse()
             if p.HasAPI(UsdPhysics.ArticulationRootAPI)), ROBOT)
