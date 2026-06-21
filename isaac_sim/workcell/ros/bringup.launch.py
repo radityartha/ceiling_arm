@@ -30,7 +30,7 @@ def generate_launch_description():
         .robot_description(file_path=WORKCELL_XACRO,
                            mappings={"sim_isaac": "true", "use_fake_hardware": "false"})
         .robot_description_semantic(file_path="config/trailer_workcell.srdf")
-        .trajectory_execution(file_path="config/moveit_controllers_per_arm.yaml")
+        .trajectory_execution(file_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), "moveit_controllers.yaml"))
         .planning_pipelines(pipelines=["ompl"])
         .to_moveit_configs()
     )
