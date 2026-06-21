@@ -1,0 +1,2 @@
+- [Isaac Sim setup](isaac-sim-setup.md) — run Isaac Sim 4.5 + noVNC view + URDF-gen gotcha for ceiling_arm twin
+- [GNG reachability map project](gng-reachability-map-project.md) — sensei-assigned GNG action-map IK for the workcell (FRD-01 reference), Python + Isaac Sim

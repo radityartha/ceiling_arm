@@ -13,7 +13,7 @@ simulation_app = SimulationApp({"headless": True})
 
 import omni.kit.commands  # noqa: E402
 import omni.usd  # noqa: E402
-from pxr import Usd, UsdPhysics  # noqa: E402
+from pxr import Usd, UsdPhysics, PhysxSchema  # noqa: E402
 from isaacsim.asset.importer.urdf._urdf import UrdfJointTargetType  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -33,6 +33,7 @@ import_config.import_inertia_tensor = True   # use inertia from the URDF
 import_config.create_physics_scene = True
 import_config.default_drive_type = UrdfJointTargetType.JOINT_DRIVE_POSITION
 import_config.default_position_drive_damping = 1e3
+import_config.parse_mimic = False            # PhysX hard-mimic unreliable here; couple in software (see gripper.py)
 
 print(">>> importing:", URDF_PATH)
 result = omni.kit.commands.execute(
@@ -60,6 +61,7 @@ lines = [
     f"physics joints     : {len(joints)} (revolute: {len(revolute)} prismatic: {len(prismatic)})",
     f"revolute names     : {[p.GetName() for p in revolute]}",
     f"prismatic names    : {[p.GetName() for p in prismatic]}",
+    f"mimic joints       : {[p.GetName() for p in prims if p.HasAPI(PhysxSchema.PhysxMimicJointAPI)]}",
     f"articulation roots : {[str(p.GetPath()) for p in art_root]}",
     f"usd written to     : {USD_PATH} exists: {os.path.exists(USD_PATH)}",
     "======================================",
