@@ -43,8 +43,10 @@ def generate_launch_description():
                arguments=["joint_state_broadcaster", "-c", "/controller_manager"])
     jtc = Node(package="controller_manager", executable="spawner", output="screen",
                arguments=["joint_trajectory_controller", "-c", "/controller_manager"])
+    grip = Node(package="controller_manager", executable="spawner", output="screen",
+                arguments=["gen3_lite_2f_gripper_controller", "-c", "/controller_manager"])
     move_group = Node(
         package="moveit_ros_move_group", executable="move_group", output="screen",
         parameters=[moveit_config.to_dict(), {"use_sim_time": False}],
     )
-    return LaunchDescription([rsp, ros2_control, jsb, jtc, move_group])
+    return LaunchDescription([rsp, ros2_control, jsb, jtc, grip, move_group])

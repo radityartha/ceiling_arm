@@ -53,8 +53,22 @@ fields; do NOT build ros2_control from it, use apt). bringup builds robot_descri
 ros2_bridge.py (isaac venv), then `ros2 launch .../ros/bringup.launch.py` (source /opt/ros/humble +
 kortex_min_ws), both with ROS_DOMAIN_ID=42 RMW=cyclonedds. Verified: direct FJT goal -> joint_2=0.5006;
 MoveGroup plan+execute (joint_2->0.8, joint_4->-0.5) -> SUCCESS, Isaac reached 0.7991/-0.5096.
-No moveit_py installed; drive planning via rclpy MoveGroup action client (moveit_test.py). NEXT:
-gripper (GripperCommand) wiring, GUI viewer while bridging, then scale to 4-arm workcell + tables.
+No moveit_py installed; drive planning via rclpy MoveGroup action client (moveit_test.py /
+moveit_demo.py). GUI viewer: ros2_bridge_gui.py (headless:False, DISPLAY=:22380) shows MoveIt
+driving the arm live in noVNC.
+
+**Gripper via MoveIt (WORKING):** added gen3_lite_2f_gripper_controller
+(position_controllers/GripperActionController, joint right_finger_bottom_joint) to
+ros/ros2_controllers.yaml + bringup. The kortex sim_isaac xacro makes a SECOND topic_based system
+(GripperHardwareInterface) for the 4 finger joints that publishes to the SAME /isaac_joint_commands as
+the arm system (2 publishers, 1 subscriber, different joint sets -> no conflict). topic_based applies
+the ros2_control mimic params (multiplier -1) so all 4 fingers move from one command. Verified
+open(0.96)/close(0.0) visible in Isaac. Command:
+`ros2 action send_goal /gen3_lite_2f_gripper_controller/gripper_cmd control_msgs/action/GripperCommand
+"{command: {position: 0.96, max_effort: 50.0}}"`. Note: GripperActionController often reports
+stalled:true with no object (cosmetic; allow_stalling:true). Mimic multiplier is -1 here (not the
+physically accurate -0.676 for tips) - fine for open/close, refine if precise grasping needed.
+NEXT: scale to 4-arm workcell (per-arm topic namespacing + table joints).
 
 **Gripper (Gen3 Lite 2F) = 1-DOF via SOFTWARE coupling in `isaac_sim/gripper.py`** (not PhysX
 mimic — importer's parse_mimic produced broken/flailing fingers: "needs a finite limit" errors and
