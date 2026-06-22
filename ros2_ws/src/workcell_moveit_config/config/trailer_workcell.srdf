@@ -66,6 +66,11 @@
         <group name="arm_1"/>
         <group name="arm_2"/>
     </group>
+    <!--Single redundant arm+table chain (8 DOF) for GNG-seeded IK-->
+    <group name="table_1_with_arm_1">
+        <group name="table_1"/>
+        <group name="arm_1"/>
+    </group>
     <group name="table_2_with_arm">
         <group name="table_2"/>
         <group name="arm_3"/>
