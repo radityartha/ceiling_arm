@@ -12,10 +12,12 @@ Usage:
 """
 
 import os
+import subprocess
+import time
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -23,6 +25,24 @@ from launch_ros.actions import Node
 _HERE = os.path.dirname(os.path.realpath(__file__))
 _DEFAULT_URDF = os.path.normpath(os.path.join(
     _HERE, '..', '..', 'workcell_description', 'urdf', 'workcell_full.urdf'))
+
+# patterns of THIS launch's node executables -- killed before (re)starting so a
+# stale/orphaned instance can't double-publish the same topic. Scoped tightly
+# (executable paths, not "ros2 launch ...") so it never matches this launch
+# process itself or unrelated nodes. pkill skips its own PID.
+_STALE_PATTERNS = [
+    'lib/reachability_gng/visualize',                 # GNG marker publisher
+    'robot_state_publisher.*workcell_full.urdf',      # our RSP
+    'lib/joint_state_publisher_gui',                  # our JSP gui
+]
+
+
+def _kill_stale(context, *args, **kwargs):
+    for pat in _STALE_PATTERNS:
+        subprocess.run(['pkill', '-9', '-f', pat],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(0.5)  # let DDS discovery drop the killed publishers
+    return []
 
 
 def generate_launch_description():
@@ -43,14 +63,15 @@ def generate_launch_description():
             name='robot_state_publisher', output='screen',
             parameters=[{'robot_description': robot_desc}])]
 
-    from launch.actions import OpaqueFunction
-
     return LaunchDescription([
         DeclareLaunchArgument('model_path', default_value='/tmp/model.npz'),
         DeclareLaunchArgument('color_by', default_value='manip',
                               description='manip | hits'),
         DeclareLaunchArgument('frame', default_value='world'),
         DeclareLaunchArgument('urdf', default_value=_DEFAULT_URDF),
+
+        # kill any orphaned instances first, so the topic has exactly one publisher
+        OpaqueFunction(function=_kill_stale),
 
         OpaqueFunction(function=_rsp),
 
