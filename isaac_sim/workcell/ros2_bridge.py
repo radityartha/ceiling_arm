@@ -41,15 +41,44 @@ world = World(stage_units_in_meters=1.0)
 world.scene.add_default_ground_plane()
 add_reference_to_stage(usd_path=USD_PATH, prim_path=ROBOT)
 wc = world.scene.add(Robot(prim_path=ROBOT, name="workcell"))
+
+
+def _raise_table_drive_force(maxforce=1.0e7):
+    """USD drive max-force on the table joints (importer baked the tiny URDF
+    effort -> rotation 10 N·m can't turn the load -> stalls). 'Robot' lacks
+    set_max_efforts in this build, so set UsdPhysics.DriveAPI maxForce directly."""
+    st = get_current_stage()
+    nset = 0
+    for p in st.Traverse():
+        nm = p.GetName()
+        if not (nm.endswith("rotation_joint") or nm.endswith("linear_joint")):
+            continue
+        for sch in p.GetAppliedSchemas():
+            if sch.startswith("PhysicsDriveAPI:"):
+                drv = UsdPhysics.DriveAPI.Get(p, sch.split(":", 1)[1])
+                if drv:
+                    (drv.GetMaxForceAttr() or drv.CreateMaxForceAttr()).Set(maxforce)
+                    nset += 1
+    print(f">>> raised drive maxForce on {nset} table-joint drives", flush=True)
+
+
+_raise_table_drive_force()
 world.reset()
 
 ART = next((str(p.GetPath()) for p in get_current_stage().Traverse()
             if p.HasAPI(UsdPhysics.ArticulationRootAPI)), ROBOT)
 print(f">>> articulation root prim = {ART}", flush=True)
 
-# Stiff drives so commanded positions are reached and held.
+# Stiff drives so commanded positions are reached and held. Table joints (heavy,
+# low effort) get much lower damping than the arms or they stick-slip / stutter.
 n = wc.num_dof
+names = list(wc.dof_names)
 kps = np.full(n, 1.0e5); kds = np.full(n, 1.0e4)
+for i, nm in enumerate(names):
+    if nm.endswith("linear_joint"):
+        kps[i] = 1.0e5; kds[i] = 3.0e3
+    elif nm.endswith("rotation_joint"):
+        kps[i] = 1.0e5; kds[i] = 1.5e3
 wc.get_articulation_controller().set_gains(kps=kps, kds=kds)
 
 og.Controller.edit(
@@ -63,6 +92,10 @@ og.Controller.edit(
             ("PublishClock", "isaacsim.ros2.bridge.ROS2PublishClock"),
             ("SubscribeJointState", "isaacsim.ros2.bridge.ROS2SubscribeJointState"),
             ("ArticulationController", "isaacsim.core.nodes.IsaacArticulationController"),
+            # Dedicated table subscriber+controller so table commands are not
+            # starved by the arm flood on /isaac_joint_commands.
+            ("SubscribeTable", "isaacsim.ros2.bridge.ROS2SubscribeJointState"),
+            ("ArticulationControllerTable", "isaacsim.core.nodes.IsaacArticulationController"),
         ],
         og.Controller.Keys.CONNECT: [
             ("OnPlaybackTick.outputs:tick", "PublishJointState.inputs:execIn"),
@@ -78,6 +111,13 @@ og.Controller.edit(
             ("SubscribeJointState.outputs:positionCommand", "ArticulationController.inputs:positionCommand"),
             ("SubscribeJointState.outputs:velocityCommand", "ArticulationController.inputs:velocityCommand"),
             ("SubscribeJointState.outputs:effortCommand", "ArticulationController.inputs:effortCommand"),
+            ("OnPlaybackTick.outputs:tick", "SubscribeTable.inputs:execIn"),
+            ("OnPlaybackTick.outputs:tick", "ArticulationControllerTable.inputs:execIn"),
+            ("Context.outputs:context", "SubscribeTable.inputs:context"),
+            ("SubscribeTable.outputs:jointNames", "ArticulationControllerTable.inputs:jointNames"),
+            ("SubscribeTable.outputs:positionCommand", "ArticulationControllerTable.inputs:positionCommand"),
+            ("SubscribeTable.outputs:velocityCommand", "ArticulationControllerTable.inputs:velocityCommand"),
+            ("SubscribeTable.outputs:effortCommand", "ArticulationControllerTable.inputs:effortCommand"),
         ],
         og.Controller.Keys.SET_VALUES: [
             ("PublishJointState.inputs:topicName", "isaac_joint_states"),
@@ -85,12 +125,17 @@ og.Controller.edit(
             ("PublishClock.inputs:topicName", "clock"),
             ("SubscribeJointState.inputs:topicName", "isaac_joint_commands"),
             ("ArticulationController.inputs:robotPath", ART),
+            ("SubscribeTable.inputs:topicName", "isaac_table_commands"),
+            ("ArticulationControllerTable.inputs:robotPath", ART),
         ],
     },
 )
 
 world.reset()
 omni.timeline.get_timeline_interface().play()
+
+# Re-apply gains after reset/play (so they aren't wiped).
+wc.get_articulation_controller().set_gains(kps=kps, kds=kds)
 
 # Per-arm kortex ros2_control (topic_based) drives all 16 gripper joints via its mimic
 # params, so no extra coupling is needed here.

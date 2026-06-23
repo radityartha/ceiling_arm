@@ -1,6 +1,13 @@
 """RViz MotionPlanning for the workcell, to drive arms + tables interactively.
 Run alongside ros2_bridge_gui.py + bringup.launch.py (same env).
 
+Loads the reachability_gng RViz config (gng_moveit.rviz): MotionPlanning
+(groups table_1_with_arm_1 / table_1_with_arm_2) + RobotModel + the two GNG
+reachability MarkerArray displays (/gng_arm1//gng_arm2/gng_markers), with the
+table_2/arm_3/arm_4 links hidden. Publish the clouds alongside this with
+`ros2 launch reachability_gng gng_clouds.launch.py` (from THIS repo's workspace,
+same ROS_DOMAIN_ID / RMW), so they appear over the Isaac-driven robot.
+
     DISPLAY=:22380 ros2 launch isaac_sim/workcell/ros/rviz.launch.py
 """
 import os
@@ -13,6 +20,12 @@ WORKCELL_XACRO = os.path.join(
     get_package_share_directory("workcell_description"), "urdf", "workcell.urdf.xacro",
 )
 
+# reachability_gng config lives in this repo's ros2_ws (not the Isaac overlay),
+# so reference it by repo-relative path rather than get_package_share_directory.
+_REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+GNG_RVIZ = os.path.join(
+    _REPO, "ros2_ws", "src", "reachability_gng", "config", "gng_moveit.rviz")
+
 
 def generate_launch_description():
     moveit_config = (
@@ -24,8 +37,7 @@ def generate_launch_description():
         .to_moveit_configs()
     )
 
-    rviz_cfg = os.path.join(
-        get_package_share_directory("workcell_moveit_config"), "config", "moveit.rviz")
+    rviz_cfg = GNG_RVIZ
 
     rviz = Node(
         package="rviz2", executable="rviz2", output="screen",

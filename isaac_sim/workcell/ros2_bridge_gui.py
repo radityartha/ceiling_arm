@@ -42,6 +42,33 @@ import polish  # noqa: E402  (room + lights + work table; same dir)
 world = World(stage_units_in_meters=1.0)
 add_reference_to_stage(usd_path=USD_PATH, prim_path=ROBOT)
 wc = world.scene.add(Robot(prim_path=ROBOT, name="workcell"))
+
+
+def _raise_table_drive_force(maxforce=1.0e7):
+    """Set USD drive max-force on the table joints BEFORE physics init.
+
+    The URDF importer bakes the (tiny) URDF effort as the joint drive max-force
+    (rotation was 10 N·m) — far too low to turn the rotation bar + 2 arms, so the
+    rotation joint stalls mid-move. `Robot` has no `set_max_efforts` in this Isaac
+    build, so we set the UsdPhysics.DriveAPI maxForce on the joint prims directly.
+    """
+    st = get_current_stage()
+    nset = 0
+    for p in st.Traverse():
+        nm = p.GetName()
+        if not (nm.endswith("rotation_joint") or nm.endswith("linear_joint")):
+            continue
+        for sch in p.GetAppliedSchemas():            # e.g. 'PhysicsDriveAPI:angular'
+            if sch.startswith("PhysicsDriveAPI:"):
+                tok = sch.split(":", 1)[1]
+                drv = UsdPhysics.DriveAPI.Get(p, tok)
+                if drv:
+                    (drv.GetMaxForceAttr() or drv.CreateMaxForceAttr()).Set(maxforce)
+                    nset += 1
+    print(f">>> raised drive maxForce on {nset} table-joint drives", flush=True)
+
+
+_raise_table_drive_force()
 _objs = polish.build_room()
 polish.add_lights()
 for _o in _objs:
@@ -49,13 +76,44 @@ for _o in _objs:
 world.reset()
 polish.recolor_tables()
 
+# Hide table_2 + arm_3/arm_4 (all t2_* prims) for the table_1-focused GNG view.
+# VISIBILITY ONLY — the articulation keeps every DOF, so the bridge still
+# publishes/accepts the full /isaac_joint_states (RViz/move_group use a
+# matching table_1-only model). Set GNG_HIDE_T2=0 to keep them visible.
+if os.environ.get("GNG_HIDE_T2", "1") != "0":
+    from pxr import UsdGeom  # noqa: E402
+    _stage = get_current_stage()
+    _hidden = 0
+    for _p in _stage.Traverse():
+        if "t2_" in _p.GetName():
+            _img = UsdGeom.Imageable(_p)
+            if _img:
+                _img.MakeInvisible()
+                _hidden += 1
+    print(f">>> GNG view: hid {_hidden} t2_ prims (table_2 + arm_3/arm_4)", flush=True)
+
 ART = next((str(p.GetPath()) for p in get_current_stage().Traverse()
             if p.HasAPI(UsdPhysics.ArticulationRootAPI)), ROBOT)
 print(f">>> articulation root prim = {ART}", flush=True)
 
 # Stiff drives so commanded positions are reached and held.
+# Arm revolutes: stiff + damped (1e5/1e4) tracks well. The TABLE joints are
+# heavy (platform + 2 arms) with low effort limits, so the same big damping
+# (kd=1e4 -> ~5000 N at 0.5 m/s, above the ~1000 N rail effort) makes the
+# prismatic stick-slip / stutter. Give the table joints stiff position gain but
+# MUCH lower damping so the position drive tracks the JTC smoothly.
 n = wc.num_dof
+names = list(wc.dof_names)
 kps = np.full(n, 1.0e5); kds = np.full(n, 1.0e4)
+# Table joints get their own gains: stiff position gain + damping near
+# critically-damped for their inertia (with the high max-effort below, this
+# tracks smoothly AND settles without the inertial coast/overshoot you'd get
+# from too-low damping). Tune kd up if it still coasts, down if it stick-slips.
+for i, nm in enumerate(names):
+    if nm.endswith("linear_joint"):
+        kps[i] = 1.0e5; kds[i] = 3.0e3
+    elif nm.endswith("rotation_joint"):
+        kps[i] = 1.0e5; kds[i] = 1.5e3
 wc.get_articulation_controller().set_gains(kps=kps, kds=kds)
 
 og.Controller.edit(
@@ -69,6 +127,12 @@ og.Controller.edit(
             ("PublishClock", "isaacsim.ros2.bridge.ROS2PublishClock"),
             ("SubscribeJointState", "isaacsim.ros2.bridge.ROS2SubscribeJointState"),
             ("ArticulationController", "isaacsim.core.nodes.IsaacArticulationController"),
+            # Separate subscriber + controller for the TABLE so its commands are
+            # never starved by the arm/gripper flood on /isaac_joint_commands
+            # (single-latest-message subscriber drops the table's setpoints while
+            # the arm is active -> the rail/rotation freezes mid-move).
+            ("SubscribeTable", "isaacsim.ros2.bridge.ROS2SubscribeJointState"),
+            ("ArticulationControllerTable", "isaacsim.core.nodes.IsaacArticulationController"),
         ],
         og.Controller.Keys.CONNECT: [
             ("OnPlaybackTick.outputs:tick", "PublishJointState.inputs:execIn"),
@@ -84,6 +148,14 @@ og.Controller.edit(
             ("SubscribeJointState.outputs:positionCommand", "ArticulationController.inputs:positionCommand"),
             ("SubscribeJointState.outputs:velocityCommand", "ArticulationController.inputs:velocityCommand"),
             ("SubscribeJointState.outputs:effortCommand", "ArticulationController.inputs:effortCommand"),
+            # table branch
+            ("OnPlaybackTick.outputs:tick", "SubscribeTable.inputs:execIn"),
+            ("OnPlaybackTick.outputs:tick", "ArticulationControllerTable.inputs:execIn"),
+            ("Context.outputs:context", "SubscribeTable.inputs:context"),
+            ("SubscribeTable.outputs:jointNames", "ArticulationControllerTable.inputs:jointNames"),
+            ("SubscribeTable.outputs:positionCommand", "ArticulationControllerTable.inputs:positionCommand"),
+            ("SubscribeTable.outputs:velocityCommand", "ArticulationControllerTable.inputs:velocityCommand"),
+            ("SubscribeTable.outputs:effortCommand", "ArticulationControllerTable.inputs:effortCommand"),
         ],
         og.Controller.Keys.SET_VALUES: [
             ("PublishJointState.inputs:topicName", "isaac_joint_states"),
@@ -91,12 +163,17 @@ og.Controller.edit(
             ("PublishClock.inputs:topicName", "clock"),
             ("SubscribeJointState.inputs:topicName", "isaac_joint_commands"),
             ("ArticulationController.inputs:robotPath", ART),
+            ("SubscribeTable.inputs:topicName", "isaac_table_commands"),
+            ("ArticulationControllerTable.inputs:robotPath", ART),
         ],
     },
 )
 
 world.reset()
 omni.timeline.get_timeline_interface().play()
+
+# Re-apply drive gains after the final reset/play so they aren't wiped.
+wc.get_articulation_controller().set_gains(kps=kps, kds=kds)
 
 # Per-arm kortex ros2_control (topic_based) drives all 16 gripper joints via its mimic
 # params, so no extra coupling is needed here.

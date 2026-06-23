@@ -75,7 +75,7 @@
       <child link="${prefix}rotation_link"/>
       <origin xyz="0 0 -${0.065/2 + 0.015/2}" rpy="0 0 ${pi/2}"/> <!-- default 90° -->
       <axis xyz="0 0 1"/> <!-- rotate around Z -->
-      <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/> <!-- example ±90° -->
+      <limit lower="${-pi}" upper="${pi}" effort="10" velocity="1.0"/> <!-- ±180° travel -->
     </joint>
 
     <!-- ========== Mount plates (Arm attachment points) ========== -->

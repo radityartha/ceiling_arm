@@ -29,10 +29,20 @@ class GngViz(Node):
         self.declare_parameter('model_path', 'model.npz')
         self.declare_parameter('frame', 'world')
         self.declare_parameter('color_by', 'manip')   # 'manip' or 'hits'
+        # Edge color RGBA. Nodes stay colored by manipulability; edges use this
+        # so several arms' clouds are distinguishable (e.g. arm_1 green,
+        # arm_2 orange) when shown at once.
+        self.declare_parameter('edge_color', [0.0, 1.0, 0.0, 0.4])
 
         model_path = self.get_parameter('model_path').value
         self.frame = self.get_parameter('frame').value
         self.color_by = self.get_parameter('color_by').value
+        ec = list(self.get_parameter('edge_color').value)
+        if len(ec) != 4:
+            self.get_logger().warn(
+                f'edge_color needs 4 values (RGBA), got {ec}; using green.')
+            ec = [0.0, 1.0, 0.0, 0.4]
+        self.edge_color = [float(v) for v in ec]
 
         self.gng = GNG.load(model_path)
         self.stats = {}
@@ -82,7 +92,7 @@ class GngViz(Node):
         edges.action = Marker.ADD
         edges.scale.x = 0.003
         edges.color.r, edges.color.g, edges.color.b, edges.color.a = \
-            0.0, 1.0, 0.0, 0.4
+            self.edge_color
         from geometry_msgs.msg import Point
         for e in self.gng._edges:
             a, b = tuple(e)

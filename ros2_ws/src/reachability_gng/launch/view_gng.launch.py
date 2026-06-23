@@ -77,7 +77,9 @@ def generate_launch_description():
 
         Node(package='joint_state_publisher_gui',
              executable='joint_state_publisher_gui',
-             name='joint_state_publisher_gui', output='screen'),
+             name='joint_state_publisher_gui', output='screen',
+             # rest the table rotation at its -90° home (-pi/2); ±180° travel
+             parameters=[{'zeros.t1_rotation_joint': -1.5708}]),
 
         Node(package='reachability_gng', executable='visualize',
              name='gng_visualize', output='screen',

@@ -1,0 +1,353 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="trailer_workcell">
+    
+    
+    
+    
+    
+    <group name="arm_1">
+        <joint name="t1_a1_joint_1" />
+        <joint name="t1_a1_joint_2" />
+        <joint name="t1_a1_joint_3" />
+        <joint name="t1_a1_joint_4" />
+        <joint name="t1_a1_joint_5" />
+        <joint name="t1_a1_joint_6" />
+    </group>
+    <group name="arm_2">
+        <joint name="t1_a2_joint_1" />
+        <joint name="t1_a2_joint_2" />
+        <joint name="t1_a2_joint_3" />
+        <joint name="t1_a2_joint_4" />
+        <joint name="t1_a2_joint_5" />
+        <joint name="t1_a2_joint_6" />
+    </group>
+    <group name="gripper_1">
+        <joint name="t1_a1_right_finger_bottom_joint" />
+    </group>
+    <group name="gripper_2">
+        <joint name="t1_a2_right_finger_bottom_joint" />
+    </group>
+    <group name="table_1">
+        <joint name="t1_linear_joint" />
+        <joint name="t1_rotation_joint" />
+    </group>
+    <group name="table_1_with_arm">
+        <group name="table_1" />
+        <group name="arm_1" />
+        <group name="arm_2" />
+    </group>
+    
+    <group name="table_1_with_arm_1">
+        <group name="table_1" />
+        <group name="arm_1" />
+    </group>
+    <group name="table_1_with_arm_2">
+        <group name="table_1" />
+        <group name="arm_2" />
+    </group>
+    <group_state name="arm_1_home" group="arm_1">
+        <joint name="t1_a1_joint_1" value="0" />
+        <joint name="t1_a1_joint_2" value="-0.2792" />
+        <joint name="t1_a1_joint_3" value="1.309" />
+        <joint name="t1_a1_joint_4" value="0" />
+        <joint name="t1_a1_joint_5" value="-1.0471" />
+        <joint name="t1_a1_joint_6" value="0" />
+    </group_state>
+    <group_state name="arm_2_home" group="arm_2">
+        <joint name="t1_a2_joint_1" value="0" />
+        <joint name="t1_a2_joint_2" value="-0.2792" />
+        <joint name="t1_a2_joint_3" value="1.309" />
+        <joint name="t1_a2_joint_4" value="0" />
+        <joint name="t1_a2_joint_5" value="-1.0471" />
+        <joint name="t1_a2_joint_6" value="0" />
+    </group_state>
+    <group_state name="arm_1_candle" group="arm_1">
+        <joint name="t1_a1_joint_1" value="0" />
+        <joint name="t1_a1_joint_2" value="0" />
+        <joint name="t1_a1_joint_3" value="0" />
+        <joint name="t1_a1_joint_4" value="0" />
+        <joint name="t1_a1_joint_5" value="0" />
+        <joint name="t1_a1_joint_6" value="0" />
+    </group_state>
+    <group_state name="arm_2_candle" group="arm_2">
+        <joint name="t1_a2_joint_1" value="0" />
+        <joint name="t1_a2_joint_2" value="0" />
+        <joint name="t1_a2_joint_3" value="0" />
+        <joint name="t1_a2_joint_4" value="0" />
+        <joint name="t1_a2_joint_5" value="0" />
+        <joint name="t1_a2_joint_6" value="0" />
+    </group_state>
+    <group_state name="arm_1_packaging" group="arm_1">
+        <joint name="t1_a1_joint_1" value="0" />
+        <joint name="t1_a1_joint_2" value="2.583" />
+        <joint name="t1_a1_joint_3" value="2.583" />
+        <joint name="t1_a1_joint_4" value="1.5708" />
+        <joint name="t1_a1_joint_5" value="-2.4434" />
+        <joint name="t1_a1_joint_6" value="0" />
+    </group_state>
+    <group_state name="arm_2_packaging" group="arm_2">
+        <joint name="t1_a2_joint_1" value="0" />
+        <joint name="t1_a2_joint_2" value="2.583" />
+        <joint name="t1_a2_joint_3" value="2.583" />
+        <joint name="t1_a2_joint_4" value="1.5708" />
+        <joint name="t1_a2_joint_5" value="-2.4434" />
+        <joint name="t1_a2_joint_6" value="0" />
+    </group_state>
+    <end_effector name="eef_1" parent_link="t1_a1_end_effector_link" group="gripper_1" parent_group="arm_1" />
+    <end_effector name="eef_2" parent_link="t1_a2_end_effector_link" group="gripper_2" parent_group="arm_2" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a1_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a1_forearm_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a1_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a1_shoulder_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_arm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_forearm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_platform_link" reason="Never" />
+    <disable_collisions link1="t1_a1_arm_link" link2="t1_rotation_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a1_shoulder_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a2_arm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a2_forearm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_mount_plate_left" reason="Adjacent" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_platform_link" reason="Never" />
+    <disable_collisions link1="t1_a1_base_link" link2="t1_rotation_link" reason="Never" />
+    <disable_collisions link1="t1_a1_dummy_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_dummy_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_dummy_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_dummy_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_dummy_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_end_effector_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_end_effector_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_end_effector_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_end_effector_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_end_effector_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a1_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a1_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a1_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a1_lower_wrist_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a1_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a1_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a1_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a1_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_arm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_forearm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_forearm_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a1_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a1_left_finger_prox_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a1_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a1_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a1_right_finger_prox_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a1_upper_wrist_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_arm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_dummy_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_end_effector_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_forearm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_tool_frame" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_gripper_base_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a1_left_finger_prox_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a1_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a1_right_finger_dist_link" reason="Default" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a1_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a1_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_arm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_dummy_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_end_effector_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_forearm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_tool_frame" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_dist_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a1_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a1_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a1_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a1_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_arm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_dummy_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_end_effector_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_forearm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_tool_frame" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_left_finger_prox_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a1_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a1_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a1_upper_wrist_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_arm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_forearm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_lower_wrist_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a1_right_finger_prox_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a1_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_arm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_dummy_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_end_effector_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_forearm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_tool_frame" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_dist_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a1_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_arm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_dummy_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_end_effector_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_forearm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_tool_frame" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_right_finger_prox_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_arm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_forearm_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_platform_link" reason="Never" />
+    <disable_collisions link1="t1_a1_shoulder_link" link2="t1_rotation_link" reason="Never" />
+    <disable_collisions link1="t1_a1_tool_frame" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_tool_frame" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_tool_frame" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_tool_frame" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_tool_frame" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a1_upper_wrist_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a2_arm_link" link2="t1_a2_base_link" reason="Never" />
+    <disable_collisions link1="t1_a2_arm_link" link2="t1_a2_forearm_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a2_arm_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_arm_link" link2="t1_a2_shoulder_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a2_arm_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_a2_arm_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a2_arm_link" link2="t1_platform_link" reason="Never" />
+    <disable_collisions link1="t1_a2_arm_link" link2="t1_rotation_link" reason="Never" />
+    <disable_collisions link1="t1_a2_base_link" link2="t1_a2_shoulder_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a2_base_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_a2_base_link" link2="t1_mount_plate_right" reason="Adjacent" />
+    <disable_collisions link1="t1_a2_base_link" link2="t1_platform_link" reason="Never" />
+    <disable_collisions link1="t1_a2_base_link" link2="t1_rotation_link" reason="Never" />
+    <disable_collisions link1="t1_a2_forearm_link" link2="t1_a2_gripper_base_link" reason="Never" />
+    <disable_collisions link1="t1_a2_forearm_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_forearm_link" link2="t1_a2_left_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a2_forearm_link" link2="t1_a2_lower_wrist_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a2_forearm_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_forearm_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a2_forearm_link" link2="t1_a2_shoulder_link" reason="Never" />
+    <disable_collisions link1="t1_a2_forearm_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_forearm_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_a2_gripper_base_link" link2="t1_a2_left_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_gripper_base_link" link2="t1_a2_left_finger_prox_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a2_gripper_base_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_gripper_base_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_gripper_base_link" link2="t1_a2_right_finger_prox_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a2_gripper_base_link" link2="t1_a2_upper_wrist_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a2_gripper_base_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_a2_left_finger_dist_link" link2="t1_a2_left_finger_prox_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a2_left_finger_dist_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_left_finger_dist_link" link2="t1_a2_right_finger_dist_link" reason="Default" />
+    <disable_collisions link1="t1_a2_left_finger_dist_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a2_left_finger_dist_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_left_finger_prox_link" link2="t1_a2_lower_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_left_finger_prox_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_left_finger_prox_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a2_left_finger_prox_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_left_finger_prox_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_a2_lower_wrist_link" link2="t1_a2_right_finger_dist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_lower_wrist_link" link2="t1_a2_right_finger_prox_link" reason="Never" />
+    <disable_collisions link1="t1_a2_lower_wrist_link" link2="t1_a2_upper_wrist_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a2_lower_wrist_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_a2_right_finger_dist_link" link2="t1_a2_right_finger_prox_link" reason="Adjacent" />
+    <disable_collisions link1="t1_a2_right_finger_dist_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_right_finger_dist_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_a2_right_finger_prox_link" link2="t1_a2_upper_wrist_link" reason="Never" />
+    <disable_collisions link1="t1_a2_right_finger_prox_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_a2_shoulder_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_a2_shoulder_link" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_a2_shoulder_link" link2="t1_platform_link" reason="Never" />
+    <disable_collisions link1="t1_a2_shoulder_link" link2="t1_rotation_link" reason="Never" />
+    <disable_collisions link1="t1_a2_upper_wrist_link" link2="t1_mount_plate_left" reason="Never" />
+    <disable_collisions link1="t1_mount_plate_left" link2="t1_mount_plate_right" reason="Never" />
+    <disable_collisions link1="t1_mount_plate_left" link2="t1_platform_link" reason="Never" />
+    <disable_collisions link1="t1_mount_plate_left" link2="t1_rotation_link" reason="Adjacent" />
+    <disable_collisions link1="t1_mount_plate_right" link2="t1_platform_link" reason="Never" />
+    <disable_collisions link1="t1_mount_plate_right" link2="t1_rotation_link" reason="Adjacent" />
+    <disable_collisions link1="t1_platform_link" link2="t1_rotation_link" reason="Adjacent" />
+    </robot>

@@ -1,24 +1,25 @@
-# Sampling configuration for the redundant arm_1 + table_1 system (8 DOF).
+# Sampling configuration for the redundant arm_2 + table_1 system (8 DOF).
 #
+# Mirrors arm1_table1.yaml but targets the SECOND arm on table_1 (t1_a2_*).
 # urdf must be a FLATTENED urdf (xacro already expanded). The repo ships one at
 # workcell_description/urdf/workcell_full.urdf; regenerate after URDF edits with:
 #   xacro ros2_ws/src/workcell_description/urdf/workcell.urdf.xacro > \
 #       ros2_ws/src/workcell_description/urdf/workcell_full.urdf
 urdf: ros2_ws/src/workcell_description/urdf/workcell_full.urdf
 
-ee_frame: t1_a1_tool_frame
+ee_frame: t1_a2_tool_frame
 
 # The 8 actuated DOF that make up the redundant system. All other joints in the
 # full workcell are auto-locked at their neutral value by data_gen.
 joints:
   - t1_linear_joint        # table prismatic, 0..3.0 m
   - t1_rotation_joint      # table revolute,  -pi..pi rad (±180°)
-  - t1_a1_joint_1
-  - t1_a1_joint_2
-  - t1_a1_joint_3
-  - t1_a1_joint_4
-  - t1_a1_joint_5
-  - t1_a1_joint_6
+  - t1_a2_joint_1
+  - t1_a2_joint_2
+  - t1_a2_joint_3
+  - t1_a2_joint_4
+  - t1_a2_joint_5
+  - t1_a2_joint_6
 
 # Travel limits, same order as `joints`. Table from URDF; arm joints are the
 # Gen3 Lite ranges (verify against joint_limits.yaml / URDF before a real run).

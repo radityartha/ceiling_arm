@@ -32,7 +32,7 @@
   <joint name="t1_base_joint" type="fixed">
     <parent link="world"/>
     <child link="t1_base_link"/>
-    <origin rpy="0 0 0" xyz="0 0.36 0"/>
+    <origin rpy="0 0 0" xyz="0 0.36 2.05"/>  <!-- ceiling mount (matches workcell.urdf.xacro / Isaac) -->
   </joint>
   <!-- Platform -->
   <link name="t1_platform_link">
@@ -92,8 +92,8 @@
     <!-- default 90° -->
     <axis xyz="0 0 1"/>
     <!-- rotate around Z -->
-    <limit effort="10" lower="-1.57" upper="1.57" velocity="1.0"/>
-    <!-- example ±90° -->
+    <limit effort="10" lower="-3.14159265359" upper="3.14159265359" velocity="1.0"/>
+    <!-- ±180° travel -->
   </joint>
   <!-- Left plate -->
   <link name="t1_mount_plate_left">
@@ -146,7 +146,7 @@
   <joint name="t2_base_joint" type="fixed">
     <parent link="world"/>
     <child link="t2_base_link"/>
-    <origin rpy="0 0 0" xyz="0 -0.36 0"/>
+    <origin rpy="0 0 0" xyz="0 -0.36 2.05"/>  <!-- ceiling mount (matches workcell.urdf.xacro / Isaac) -->
   </joint>
   <!-- Platform -->
   <link name="t2_platform_link">
@@ -256,9 +256,37 @@
     <origin rpy="0 0 0" xyz="0 -0.4 -0.0325"/>
   </joint>
   <!-- ==================================== -->
+  <!-- Tables (mock ros2_control for the 4 linear/rotation joints) -->
+  <!-- ==================================== -->
+  <ros2_control name="table_system" type="system">
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
+    </hardware>
+    <joint name="t1_linear_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="t1_rotation_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">-1.5708</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="t2_linear_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="t2_rotation_joint">
+      <command_interface name="position"/>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+  <!-- ==================================== -->
   <!-- Arms Mounted on Table 1 -->
   <!-- ==================================== -->
-  <ros2_control name="GenericSystem" type="system">
+  <ros2_control name="t1_a1_system" type="system">
     <hardware>
       <plugin>mock_components/GenericSystem</plugin>
       <param name="fake_sensor_commands">False</param>
@@ -537,7 +565,7 @@
     <axis xyz="0 0 1"/>
     <limit effort="0" lower="0" upper="0" velocity="0"/>
   </joint>
-  <ros2_control name="GripperHardwareInterface" type="system">
+  <ros2_control name="t1_a1_gripper" type="system">
     <hardware>
       <plugin>mock_components/GenericSystem</plugin>
       <param name="mock_sensor_commands">False</param>
@@ -748,7 +776,7 @@
     <limit effort="1000" lower="-0.50" upper="0.21" velocity="1000"/>
     <!--limit lower="-1.03" upper="0.21" effort="1000" velocity="1000" /-->
   </joint>
-  <ros2_control name="GenericSystem" type="system">
+  <ros2_control name="t1_a2_system" type="system">
     <hardware>
       <plugin>mock_components/GenericSystem</plugin>
       <param name="fake_sensor_commands">False</param>
@@ -1027,7 +1055,7 @@
     <axis xyz="0 0 1"/>
     <limit effort="0" lower="0" upper="0" velocity="0"/>
   </joint>
-  <ros2_control name="GripperHardwareInterface" type="system">
+  <ros2_control name="t1_a2_gripper" type="system">
     <hardware>
       <plugin>mock_components/GenericSystem</plugin>
       <param name="mock_sensor_commands">False</param>
@@ -1241,7 +1269,7 @@
   <!-- ==================================== -->
   <!-- Arms Mounted on Table 2 -->
   <!-- ==================================== -->
-  <ros2_control name="GenericSystem" type="system">
+  <ros2_control name="t2_a1_system" type="system">
     <hardware>
       <plugin>mock_components/GenericSystem</plugin>
       <param name="fake_sensor_commands">False</param>
@@ -1520,7 +1548,7 @@
     <axis xyz="0 0 1"/>
     <limit effort="0" lower="0" upper="0" velocity="0"/>
   </joint>
-  <ros2_control name="GripperHardwareInterface" type="system">
+  <ros2_control name="t2_a1_gripper" type="system">
     <hardware>
       <plugin>mock_components/GenericSystem</plugin>
       <param name="mock_sensor_commands">False</param>
@@ -1731,7 +1759,7 @@
     <limit effort="1000" lower="-0.50" upper="0.21" velocity="1000"/>
     <!--limit lower="-1.03" upper="0.21" effort="1000" velocity="1000" /-->
   </joint>
-  <ros2_control name="GenericSystem" type="system">
+  <ros2_control name="t2_a2_system" type="system">
     <hardware>
       <plugin>mock_components/GenericSystem</plugin>
       <param name="fake_sensor_commands">False</param>
@@ -2010,7 +2038,7 @@
     <axis xyz="0 0 1"/>
     <limit effort="0" lower="0" upper="0" velocity="0"/>
   </joint>
-  <ros2_control name="GripperHardwareInterface" type="system">
+  <ros2_control name="t2_a2_gripper" type="system">
     <hardware>
       <plugin>mock_components/GenericSystem</plugin>
       <param name="mock_sensor_commands">False</param>

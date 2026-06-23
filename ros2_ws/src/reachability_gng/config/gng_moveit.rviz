@@ -1,6 +1,13 @@
 Panels:
   - Class: rviz_common/Displays
     Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /MotionPlanning1
+        - /GNG arm_1 (green)1
+        - /GNG arm_2 (orange)1
+  - Class: rviz_common/Views
+    Name: Views
 Visualization Manager:
   Global Options:
     Fixed Frame: world
@@ -11,10 +18,6 @@ Visualization Manager:
       Enabled: true
       Cell Size: 0.5
       Plane Cell Count: 20
-    - Class: rviz_default_plugins/TF
-      Name: TF
-      Enabled: false
-      Marker Scale: 0.3
     - Class: rviz_default_plugins/RobotModel
       Name: RobotModel
       Enabled: true
@@ -190,16 +193,176 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: false
+    - Class: moveit_rviz_plugin/MotionPlanning
+      Name: MotionPlanning
+      Enabled: true
+      Move Group Namespace: ""
+      MoveIt_Planning_Group: table_1_with_arm_1
+      Robot Description: robot_description
+      Planning Scene Topic: monitored_planning_scene
+      Planned Path:
+        Loop Animation: true
+        State Display Time: 0.05 s
+        Trajectory Topic: display_planned_path
+        Links:
+            t2_a1_arm_link:
+              Value: false
+            t2_a1_base_link:
+              Value: false
+            t2_a1_dummy_link:
+              Value: false
+            t2_a1_end_effector_link:
+              Value: false
+            t2_a1_forearm_link:
+              Value: false
+            t2_a1_gripper_base_link:
+              Value: false
+            t2_a1_left_finger_dist_link:
+              Value: false
+            t2_a1_left_finger_prox_link:
+              Value: false
+            t2_a1_lower_wrist_link:
+              Value: false
+            t2_a1_right_finger_dist_link:
+              Value: false
+            t2_a1_right_finger_prox_link:
+              Value: false
+            t2_a1_shoulder_link:
+              Value: false
+            t2_a1_tool_frame:
+              Value: false
+            t2_a1_upper_wrist_link:
+              Value: false
+            t2_a2_arm_link:
+              Value: false
+            t2_a2_base_link:
+              Value: false
+            t2_a2_dummy_link:
+              Value: false
+            t2_a2_end_effector_link:
+              Value: false
+            t2_a2_forearm_link:
+              Value: false
+            t2_a2_gripper_base_link:
+              Value: false
+            t2_a2_left_finger_dist_link:
+              Value: false
+            t2_a2_left_finger_prox_link:
+              Value: false
+            t2_a2_lower_wrist_link:
+              Value: false
+            t2_a2_right_finger_dist_link:
+              Value: false
+            t2_a2_right_finger_prox_link:
+              Value: false
+            t2_a2_shoulder_link:
+              Value: false
+            t2_a2_tool_frame:
+              Value: false
+            t2_a2_upper_wrist_link:
+              Value: false
+            t2_base_link:
+              Value: false
+            t2_mount_plate_left:
+              Value: false
+            t2_mount_plate_right:
+              Value: false
+            t2_platform_link:
+              Value: false
+            t2_rotation_link:
+              Value: false
+      Scene Geometry:
+        Scene Alpha: 1
+      Scene Robot:
+        Robot Alpha: 0.5
+        Links:
+            t2_a1_arm_link:
+              Value: false
+            t2_a1_base_link:
+              Value: false
+            t2_a1_dummy_link:
+              Value: false
+            t2_a1_end_effector_link:
+              Value: false
+            t2_a1_forearm_link:
+              Value: false
+            t2_a1_gripper_base_link:
+              Value: false
+            t2_a1_left_finger_dist_link:
+              Value: false
+            t2_a1_left_finger_prox_link:
+              Value: false
+            t2_a1_lower_wrist_link:
+              Value: false
+            t2_a1_right_finger_dist_link:
+              Value: false
+            t2_a1_right_finger_prox_link:
+              Value: false
+            t2_a1_shoulder_link:
+              Value: false
+            t2_a1_tool_frame:
+              Value: false
+            t2_a1_upper_wrist_link:
+              Value: false
+            t2_a2_arm_link:
+              Value: false
+            t2_a2_base_link:
+              Value: false
+            t2_a2_dummy_link:
+              Value: false
+            t2_a2_end_effector_link:
+              Value: false
+            t2_a2_forearm_link:
+              Value: false
+            t2_a2_gripper_base_link:
+              Value: false
+            t2_a2_left_finger_dist_link:
+              Value: false
+            t2_a2_left_finger_prox_link:
+              Value: false
+            t2_a2_lower_wrist_link:
+              Value: false
+            t2_a2_right_finger_dist_link:
+              Value: false
+            t2_a2_right_finger_prox_link:
+              Value: false
+            t2_a2_shoulder_link:
+              Value: false
+            t2_a2_tool_frame:
+              Value: false
+            t2_a2_upper_wrist_link:
+              Value: false
+            t2_base_link:
+              Value: false
+            t2_mount_plate_left:
+              Value: false
+            t2_mount_plate_right:
+              Value: false
+            t2_platform_link:
+              Value: false
+            t2_rotation_link:
+              Value: false
+      Value: true
     - Class: rviz_default_plugins/MarkerArray
-      Name: GNG
+      Name: GNG arm_1 (green)
       Enabled: true
       Topic:
-        Value: /gng_visualize/gng_markers
+        Value: /gng_arm1/gng_markers
+        Depth: 5
+        Durability Policy: Volatile
+        Reliability Policy: Reliable
+    - Class: rviz_default_plugins/MarkerArray
+      Name: GNG arm_2 (orange)
+      Enabled: true
+      Topic:
+        Value: /gng_arm2/gng_markers
         Depth: 5
         Durability Policy: Volatile
         Reliability Policy: Reliable
   Tools:
+    - Class: rviz_default_plugins/Interact
     - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
     - Class: rviz_default_plugins/FocusCamera
   Views:
     Current:
@@ -209,9 +372,10 @@ Visualization Manager:
       Focal Point:
         X: 1.0
         Y: 0.0
-        Z: 1.0
+        Z: 1.5
       Pitch: 0.4
       Yaw: 0.8
+      Target Frame: world
 Window Geometry:
-  Height: 800
-  Width: 1200
+  Height: 900
+  Width: 1400

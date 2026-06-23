@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>reachability_gng — Quick Start</title>
+<style>
+  :root { --bg:#0f1115; --card:#181b22; --fg:#e6e6e6; --mut:#9aa4b2;
+          --acc:#7ee787; --acc2:#ff9b3d; --line:#2a2f3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:15px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+  .wrap { max-width:820px; margin:0 auto; padding:32px 20px 64px; }
+  h1 { font-size:24px; margin:0 0 4px; }
+  h2 { font-size:16px; margin:28px 0 10px; border-bottom:1px solid var(--line);
+       padding-bottom:6px; }
+  p { color:var(--fg); margin:8px 0; }
+  .sub { color:var(--mut); margin-top:0; }
+  code { background:#11141a; color:#cdd9e5; padding:1px 6px; border-radius:4px;
+         font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px; }
+  pre { background:#11141a; border:1px solid var(--line); border-radius:8px;
+        padding:14px 16px; overflow-x:auto; }
+  pre code { background:none; padding:0; color:#cdd9e5; }
+  .pill { display:inline-block; padding:1px 8px; border-radius:999px; font-size:12px;
+          border:1px solid var(--line); color:var(--mut); }
+  .green { color:var(--acc); } .orange { color:var(--acc2); }
+  table { border-collapse:collapse; width:100%; margin:8px 0; font-size:14px; }
+  th,td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--mut); font-weight:600; }
+  .note { color:var(--mut); font-size:13px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px;
+          padding:4px 18px 14px; margin:14px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>reachability_gng — Quick Start</h1>
+  <p class="sub">Growing-Neural-Gas reachability/capability clouds for the ceiling
+  workcell, shown live in RViz with MoveIt MotionPlanning. One cloud per arm
+  (<span class="green">arm_1 green</span>, <span class="orange">arm_2 orange</span>),
+  nodes colored by manipulability. Table_1 focus; table rotation ±180°, home −90°.</p>
+
+  <div class="card">
+  <h2>0 · Build once</h2>
+<pre><code>cd ~/arm_WS/ceiling_arm/ros2_ws
+source /opt/ros/humble/setup.bash
+colcon build --packages-select reachability_gng --symlink-install
+source install/setup.bash
+
+# generate the two GNG maps -> /tmp/arm1_model.npz, /tmp/arm2_model.npz
+cd ~/arm_WS/ceiling_arm
+ros2_ws/src/reachability_gng/build_maps.sh</code></pre>
+  <p class="note">Adding arm_3/arm_4 later = one line in <code>build_maps.sh</code> + a config YAML.</p>
+  </div>
+
+  <div class="card">
+  <h2>0b · Tune the cloud (samples &amp; node count)</h2>
+  <p><code>build_maps.sh</code> reads env vars (defaults <code>N=80000 LAM=60
+     MAX_NODES=3000 EPOCHS=2</code> → ~2668 nodes). Node count ≈
+     <code>N × EPOCHS / LAM</code>.</p>
+<pre><code>N=200000 ros2_ws/src/reachability_gng/build_maps.sh   # more FK samples (denser, slower)
+LAM=160  ros2_ws/src/reachability_gng/build_maps.sh   # ~1000 nodes (sparser cloud)</code></pre>
+  <p><b>Fewer nodes, same coverage:</b> keep <code>N</code> high (samples = covered
+     area) and <b>raise <code>LAM</code></b> — GNG still spreads the nodes over the
+     whole region, so the cloud just gets sparser, not smaller. Pick
+     <code>LAM ≈ N×EPOCHS / (target nodes)</code> →
+     <code>110</code>≈1450, <code>160</code>≈1000, <code>320</code>≈500.
+     Don't lower <code>N</code> to cut nodes (that shrinks coverage + ragged edge).</p>
+  <p class="note">Then reload: <code>pkill -9 -f lib/reachability_gng/visualize</code>
+     and relaunch <code>gng_clouds.launch.py</code> / <code>launch_workcell.sh</code>.</p>
+  </div>
+
+  <div class="card">
+  <h2>A · With Isaac Sim <span class="pill">recommended</span></h2>
+  <p>Robot driven by the Isaac digital twin; plan in RViz, watch it move in Isaac
+     (noVNC: <code>http://&lt;server&gt;:22380/vnc.html</code>).</p>
+<pre><code>cd ~/arm_WS/ceiling_arm
+./isaac_sim/stop.sh            # clear any old session
+./isaac_sim/launch_workcell.sh # default 'gng' mode</code></pre>
+  <p>Brings up: Isaac bridge → move_group (table_1-only) → both clouds → RViz.
+     <b>table_2 / arm_3 / arm_4 are hidden in both Isaac and RViz.</b>
+     In RViz pick Planning Group <code>table_1_with_arm_1</code> or
+     <code>table_1_with_arm_2</code> → <b>Plan</b> → <b>Execute</b>.</p>
+  <p class="note">Modes:</p>
+  <table>
+    <tr><th>command</th><th>what you get</th></tr>
+    <tr><td><code>launch_workcell.sh</code></td><td>table_1 only + clouds + RViz (default)</td></tr>
+    <tr><td><code>launch_workcell.sh full</code></td><td>all 4 arms + 2 tables, RViz</td></tr>
+    <tr><td><code>launch_workcell.sh demo</code></td><td>all 4 arms, scripted loop (no RViz)</td></tr>
+    <tr><td><code>launch_workcell.sh headless</code></td><td>bridge + move_group only</td></tr>
+  </table>
+  <p class="note">Ctrl-C (or <code>./isaac_sim/stop.sh</code>) stops everything.</p>
+  </div>
+
+  <div class="card">
+  <h2>B · Without Isaac (fake hardware)</h2>
+  <p>Pure kinematic: mock controllers, no Isaac, no real arms.</p>
+<pre><code>source /opt/ros/humble/setup.bash &amp;&amp; source ros2_ws/install/setup.bash
+ros2 launch reachability_gng gng_moveit.launch.py</code></pre>
+  <p class="note">Cloud-only look (sliders, no MoveIt):
+     <code>ros2 launch reachability_gng view_gng.launch.py model_path:=/tmp/arm1_model.npz</code></p>
+  </div>
+
+  <div class="card">
+  <h2>Fixes / gotchas</h2>
+  <table>
+    <tr><th>symptom</th><th>do</th></tr>
+    <tr><td>Isaac force-closes on boot</td>
+        <td>numpy clash in its venv — <code>~/isaacsim/env_isaacsim/bin/python -m pip install "numpy==1.26.0"</code></td></tr>
+    <tr><td>cloud on the floor, arm on ceiling</td>
+        <td>rebuild maps (<code>build_maps.sh</code>); URDF table is at z=2.05</td></tr>
+    <tr><td>table_2/arm_3/4 still show</td>
+        <td>use default <code>gng</code> mode; regenerate model
+            <code>python3 isaac_sim/workcell/ros/make_table1_model.py</code></td></tr>
+    <tr><td>rotation slider only ±90°</td>
+        <td>rebuild overlay: <code>cd ~/workcell_overlay_ws &amp;&amp; colcon build --symlink-install</code></td></tr>
+    <tr><td>clouds not in Isaac RViz</td>
+        <td>same <code>ROS_DOMAIN_ID=42</code> + <code>RMW_IMPLEMENTATION=rmw_cyclonedds_cpp</code> everywhere</td></tr>
+  </table>
+  </div>
+
+  <p class="note">Full details, pipeline, and the paper notes live in
+     <code>README.md</code>.</p>
+
+</div>
+</body>
+</html>

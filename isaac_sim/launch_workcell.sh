@@ -16,10 +16,23 @@ REPO="/srv/data/users/raditya/arm_WS/ceiling_arm"
 ISAAC_ACT="/srv/data/users/raditya/isaacsim/activate_isaacsim.sh"
 KORTEX_WS="/srv/data/users/raditya/kortex_min_ws/install/setup.bash"
 WORKCELL_WS="/srv/data/users/raditya/workcell_overlay_ws/install/setup.bash"
+GNG_WS="$REPO/ros2_ws/install/setup.bash"   # this repo's ws: reachability_gng clouds
 export ROS_DOMAIN_ID=42 RMW_IMPLEMENTATION=rmw_cyclonedds_cpp DISPLAY=:22380
 LOG=/tmp/workcell_launch; mkdir -p "$LOG"
-MODE="${1:-rviz}"
+MODE="${1:-gng}"
 PIDS=()
+
+# Mode -> model scope. Default/gng/headless use the TABLE_1-ONLY model so
+# table_2/arm_3/arm_4 are absent in move_group + RViz AND hidden in Isaac
+# (GNG_HIDE_T2=1). full/demo keep the original 4-arm workcell.
+case "$MODE" in
+  full|demo) export GNG_HIDE_T2=0
+             BRINGUP="isaac_sim/workcell/ros/bringup.launch.py"
+             RVIZ_LAUNCH="isaac_sim/workcell/ros/rviz.launch.py";;
+  *)         export GNG_HIDE_T2=1
+             BRINGUP="isaac_sim/workcell/ros/bringup_table1.launch.py"
+             RVIZ_LAUNCH="isaac_sim/workcell/ros/rviz_table1.launch.py";;
+esac
 
 cleanup() { echo; echo ">>> stopping..."; kill -9 "${PIDS[@]}" 2>/dev/null; exit 0; }
 trap cleanup INT TERM
@@ -33,41 +46,60 @@ wait_for() {  # wait_for <logfile> <pattern> <timeout_s>
   done
 }
 
+# Self-clean: kill any leftovers from a previous run so we never double-start
+# (no need to run stop.sh first). Same pattern as stop.sh.
+_STALE='ros2_bridge_gui.py|ros2_bridge.py|ros2 launch isaac|ros2_control_node|move_group|rviz2|moveit_demo.py|robot_state_publisher|controller_manager/spawner|lib/reachability_gng/visualize|gng_clouds.launch.py'
+echo ">>> [0/3] clearing any previous session..."
+_old=$(pgrep -f "$_STALE" 2>/dev/null | tr '\n' ' ')
+[ -n "$_old" ] && { kill -9 $_old 2>/dev/null; sleep 2; echo "    cleared."; } || echo "    nothing running."
+
 echo ">>> [1/3] Isaac Sim + bridge (first boot ~1-2 min)..."
-( source "$ISAAC_ACT"; export ROS_DOMAIN_ID RMW_IMPLEMENTATION DISPLAY
+( set +u; source "$ISAAC_ACT"; export ROS_DOMAIN_ID RMW_IMPLEMENTATION DISPLAY GNG_HIDE_T2
   cd "$REPO/isaac_sim/workcell"; exec python ros2_bridge_gui.py ) > "$LOG/bridge.log" 2>&1 &
 PIDS+=($!)
 wait_for "$LOG/bridge.log" "Ctrl-C to stop" 240 || cleanup
 echo "    bridge up."
 
 echo ">>> [2/3] MoveIt + ros2_control..."
-( source /opt/ros/humble/setup.bash; source "$KORTEX_WS"; source "$WORKCELL_WS"
+( set +u; source /opt/ros/humble/setup.bash; source "$KORTEX_WS"; source "$WORKCELL_WS"
   export ROS_DOMAIN_ID RMW_IMPLEMENTATION
-  cd "$REPO"; exec ros2 launch isaac_sim/workcell/ros/bringup.launch.py ) > "$LOG/bringup.log" 2>&1 &
+  cd "$REPO"; exec ros2 launch "$BRINGUP" ) > "$LOG/bringup.log" 2>&1 &
 PIDS+=($!)
 wait_for "$LOG/bringup.log" "You can start planning now" 120 || cleanup
-echo "    move_group + 11 controllers up."
+echo "    move_group + controllers up ($BRINGUP)."
 
 case "$MODE" in
   headless) echo ">>> [3/3] skipped (headless).";;
   demo)
     echo ">>> [3/3] looping 4-arm MoveIt demo..."
-    ( source /opt/ros/humble/setup.bash; source "$KORTEX_WS"; source "$WORKCELL_WS"
+    ( set +u; source /opt/ros/humble/setup.bash; source "$KORTEX_WS"; source "$WORKCELL_WS"
       export ROS_DOMAIN_ID RMW_IMPLEMENTATION
       cd "$REPO"; exec python3 isaac_sim/workcell/ros/moveit_demo.py ) > "$LOG/demo.log" 2>&1 &
     PIDS+=($!);;
   *)
-    echo ">>> [3/3] RViz MotionPlanning..."
-    ( source /opt/ros/humble/setup.bash; source "$KORTEX_WS"; source "$WORKCELL_WS"
+    echo ">>> [3/3] GNG reachability clouds + RViz MotionPlanning..."
+    # clouds publish from THIS repo's workspace (kept separate from the Isaac
+    # overlay to avoid workspace shadowing); they reach RViz over DDS.
+    if [ ! -f /tmp/arm1_model.npz ] || [ ! -f /tmp/arm2_model.npz ]; then
+      echo "    !! /tmp/arm{1,2}_model.npz missing — run ros2_ws/src/reachability_gng/build_maps.sh first"
+    fi
+    ( set +u; source /opt/ros/humble/setup.bash; source "$GNG_WS"
+      export ROS_DOMAIN_ID RMW_IMPLEMENTATION
+      cd "$REPO"; exec ros2 launch reachability_gng gng_clouds.launch.py ) > "$LOG/gng_clouds.log" 2>&1 &
+    PIDS+=($!)
+    ( set +u; source /opt/ros/humble/setup.bash; source "$KORTEX_WS"; source "$WORKCELL_WS"
       export ROS_DOMAIN_ID RMW_IMPLEMENTATION DISPLAY
-      cd "$REPO"; exec ros2 launch isaac_sim/workcell/ros/rviz.launch.py ) > "$LOG/rviz.log" 2>&1 &
+      cd "$REPO"; exec ros2 launch "$RVIZ_LAUNCH" ) > "$LOG/rviz.log" 2>&1 &
     PIDS+=($!);;
 esac
 
 echo
 echo "=================================================================="
 echo " Workcell running. Open noVNC: http://<server>:22380/vnc.html"
-[ "$MODE" = "rviz" ] && echo " RViz: Planning Group -> arm_1..4 / table_1/2 -> Plan & Execute"
+case "$MODE" in
+  full|demo) echo " 4-arm workcell. RViz: Planning Group -> arm_1..4 / table_1/2 -> Plan & Execute";;
+  *)         echo " TABLE_1 GNG view (table_2/arm_3/4 hidden). RViz: Planning Group -> table_1_with_arm_1/_2 -> Plan & Execute";;
+esac
 echo " Logs: $LOG/   |   Press Ctrl-C here to stop everything."
 echo "=================================================================="
 wait
