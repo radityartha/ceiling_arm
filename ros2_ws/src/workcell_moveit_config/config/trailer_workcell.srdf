@@ -53,30 +53,30 @@
     <group name="gripper_4">
         <joint name="t2_a2_right_finger_bottom_joint"/>
     </group>
-    <group name="table_1">
+    <group name="gantry_1">
         <joint name="t1_linear_joint"/>
         <joint name="t1_rotation_joint"/>
     </group>
-    <group name="table_2">
+    <group name="gantry_2">
         <joint name="t2_linear_joint"/>
         <joint name="t2_rotation_joint"/>
     </group>
-    <group name="table_1_with_arm">
-        <group name="table_1"/>
+    <group name="gantry_1_with_arm">
+        <group name="gantry_1"/>
         <group name="arm_1"/>
         <group name="arm_2"/>
     </group>
     <!--Single redundant arm+table chains (8 DOF) for GNG-seeded IK-->
-    <group name="table_1_with_arm_1">
-        <group name="table_1"/>
+    <group name="gantry_1_with_arm_1">
+        <group name="gantry_1"/>
         <group name="arm_1"/>
     </group>
-    <group name="table_1_with_arm_2">
-        <group name="table_1"/>
+    <group name="gantry_1_with_arm_2">
+        <group name="gantry_1"/>
         <group name="arm_2"/>
     </group>
-    <group name="table_2_with_arm">
-        <group name="table_2"/>
+    <group name="gantry_2_with_arm">
+        <group name="gantry_2"/>
         <group name="arm_3"/>
         <group name="arm_4"/>
     </group>

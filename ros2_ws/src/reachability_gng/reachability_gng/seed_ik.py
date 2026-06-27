@@ -10,7 +10,7 @@ so the same node serves the A/B comparison the paper needs.
     cli : /compute_ik     moveit_msgs/srv/GetPositionIK
 
 Requires move_group running (e.g. my_workcell.launch.py) so /compute_ik exists,
-and the SRDF group `table_1_with_arm_1` (added in Phase 2).
+and the SRDF group `gantry_1_with_arm_1` (added in Phase 2).
 
 The shared `build_ik_request` / `solve_ik` helpers are reused by eval.py.
 """
@@ -64,7 +64,7 @@ class SeedIK(Node):
     def __init__(self):
         super().__init__('gng_seed_ik')
         self.declare_parameter('model_path', 'model.npz')
-        self.declare_parameter('group', 'table_1_with_arm_1')
+        self.declare_parameter('group', 'gantry_1_with_arm_1')
         self.declare_parameter('ee_frame', 't1_a1_tool_frame')
         self.declare_parameter('task', 'pos')
         self.declare_parameter('ori_weight', 0.3)

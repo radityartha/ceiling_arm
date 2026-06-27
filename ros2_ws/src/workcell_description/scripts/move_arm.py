@@ -220,7 +220,7 @@ def main():
     node.get_logger().info("--- Sending Goal to move arm_1 (while locking arm_2) ---")
     node.send_pose_goal(
         pose_goal_arm1,
-        group_name="table_1_with_arm",  # The 14-joint group
+        group_name="gantry_1_with_arm",  # The 14-joint group
         end_effector_link="t1_a1_end_effector_link",  # The link to move
         joints_to_lock=arm_2_joints_to_lock,  # The joints to keep fixed
     )

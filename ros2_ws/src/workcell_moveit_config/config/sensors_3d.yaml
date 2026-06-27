@@ -1,12 +1,14 @@
 # --- GLOBAL SETTINGS ---
 octomap_frame: world
-octomap_resolution: 0.02 # 1 cm resolution (The grid size)
+octomap_resolution: 0.03 # 3 cm voxels (lighter; was 0.02). Grid cell size.
 max_range: 5.0
 
 sensors:
   - default_sensor
   - kinect_depthimage
   - livox_lidar
+  - rgbd_scene
+  - rgbd2_scene
 default_sensor:
   far_clipping_plane_distance: 5.0
   filtered_cloud_topic: filtered_cloud
@@ -78,4 +80,34 @@ livox_lidar:
   clamping_min: 0.12
   clamping_max: 0.95
 
+# --- ISAAC RGBD CAMERAS (sim / GNG workflow) ---
+# collision_cloud publishes the FULL depth reading (whole scene: work table,
+# fixtures and objects) per camera in the optical frame; these updaters voxelize
+# both into the planning-scene octomap so MoveIt avoids the whole environment.
+# The robot's own links in view are self-filtered by the updater (padding below).
+# In the real-hardware workflow these topics simply have no publisher (idle).
+rgbd_scene:
+  sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
+  point_cloud_topic: /rgbd/collision_cloud
+  max_range: 8.0
+  point_subsample: 1
+  max_update_rate: 5.0
+  # aggressive self-filter so the arms (which hang into the camera view) are
+  # removed before octomap insertion -- otherwise the arm bakes in as a stale
+  # obstacle. Pairs with the periodic /clear_octomap refresher.
+  padding_offset: 0.05
+  padding_scale: 1.3
+  filtered_cloud_topic: rgbd_filtered_cloud
 
+rgbd2_scene:
+  sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
+  point_cloud_topic: /rgbd2/collision_cloud
+  max_range: 8.0
+  point_subsample: 1
+  max_update_rate: 5.0
+  # aggressive self-filter so the arms (which hang into the camera view) are
+  # removed before octomap insertion -- otherwise the arm bakes in as a stale
+  # obstacle. Pairs with the periodic /clear_octomap refresher.
+  padding_offset: 0.05
+  padding_scale: 1.3
+  filtered_cloud_topic: rgbd2_filtered_cloud

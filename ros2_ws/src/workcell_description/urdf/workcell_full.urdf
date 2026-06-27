@@ -58,7 +58,7 @@
     <child link="t1_platform_link"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="1 0 0"/>
-    <limit effort="1000" lower="0.0" upper="3.0" velocity="0.5"/>
+    <limit effort="1000" lower="0.0" upper="2.0" velocity="0.5"/>
   </joint>
   <!-- Rotation bar -->
   <link name="t1_rotation_link">
@@ -172,7 +172,7 @@
     <child link="t2_platform_link"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="1 0 0"/>
-    <limit effort="1000" lower="-1.5" upper="1.5" velocity="0.5"/>
+    <limit effort="1000" lower="0.0" upper="2.0" velocity="0.5"/>
   </joint>
   <!-- Rotation bar -->
   <link name="t2_rotation_link">

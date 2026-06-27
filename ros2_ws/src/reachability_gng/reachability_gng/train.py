@@ -13,6 +13,12 @@ quaternion units are comparable in the BMU metric.
 After training, every node is annotated with:
     hits  : number of dataset samples whose BMU is this node (reachability)
     manip : mean manipulability of those samples            (capability)
+    hold  : ||gravity torque|| at the node's own q          (holding energy)
+
+`hold` needs the robot model, so it is only computed when --config (the same
+YAML data_gen used) is given; otherwise it is stored as zeros. It is the static
+gravitational load of holding the node's representative configuration -- the
+energy-aware arm selection uses it (see gantry_reach_executor).
 """
 
 from __future__ import annotations
@@ -20,6 +26,7 @@ from __future__ import annotations
 import argparse
 
 import numpy as np
+import yaml
 
 from reachability_gng.gng import GNG, GNGParams
 
@@ -50,10 +57,30 @@ def annotate(g: GNG, X, manip):
     return hits, node_manip
 
 
+def hold_cost(cfg, node_q, joint_names):
+    """||generalized gravity torque|| at each node's own q (static hold energy).
+
+    Reuses eval.build_model (Pinocchio) so the joint order matches the dataset.
+    The gantry DOFs add ~0 (linear axis horizontal, rotation about vertical), so
+    `hold` reflects the arm's gravitational load -- larger when the ceiling arm
+    reaches far out and must fight gravity to hold the pose."""
+    from reachability_gng.eval import build_model
+    pin, model, data, ee_id, order, lo, hi = build_model(cfg)
+    if joint_names is not None and order != list(joint_names):
+        raise SystemExit(f'joint order mismatch: {order} vs {list(joint_names)}')
+    hold = np.empty(len(node_q))
+    for i, q in enumerate(node_q):
+        tau = pin.computeGeneralizedGravity(model, data, np.asarray(q, float))
+        hold[i] = float(np.linalg.norm(tau))
+    return hold
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--dataset', required=True)
     ap.add_argument('--out', default='model.npz')
+    ap.add_argument('--config', help='YAML (urdf/joints) to compute per-node '
+                    'gravity holding cost; omit to store hold=0')
     ap.add_argument('--task', choices=['pos', 'pose'], default='pos')
     ap.add_argument('--ori-weight', type=float, default=0.3)
     ap.add_argument('--max-nodes', type=int, default=2000)
@@ -75,10 +102,19 @@ def main():
     base = args.out[:-4] if args.out.endswith('.npz') else args.out
     names = data['joint_names'] if 'joint_names' in data \
         else np.array([], dtype=str)
-    np.savez(base + '_stats.npz', hits=hits, manip=node_manip,
+
+    hold = np.zeros(len(g.W))
+    if args.config:
+        with open(args.config) as f:
+            cfg = yaml.safe_load(f)
+        names_list = [str(n) for n in names] if len(names) else None
+        hold = hold_cost(cfg, g.W[:, task_dim:], names_list)
+
+    np.savez(base + '_stats.npz', hits=hits, manip=node_manip, hold=hold,
              joint_names=names)
     print(f'Trained GNG: {len(g.W)} nodes, {len(g._edges)} edges, '
-          f'task_dim={task_dim}. Saved {args.out} (+ _stats).')
+          f'task_dim={task_dim}. Saved {args.out} (+ _stats, '
+          f'hold={"computed" if args.config else "zeros"}).')
 
 
 if __name__ == '__main__':

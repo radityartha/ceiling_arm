@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  CycloneDDS config for the ceiling_arm workcell on this shared server.
+
+  Two problems this fixes at once:
+   1. Internet drop: with default DDS (ROS_LOCALHOST_ONLY=0) Cyclone uses the
+      real NIC + multicast discovery, which floods/disrupts the server network.
+      Here we bind DDS to the LOOPBACK interface `lo` ONLY, so it physically
+      never touches the real NIC -> the internet stays up. (Effectively
+      localhost-only, enforced by the interface, not by ROS_LOCALHOST_ONLY.)
+   2. RViz crash "Failed to find a free participant index": loopback has no
+      multicast, so Cyclone falls back to the participant-index port scheme,
+      whose default max (~9) is exhausted by all the Isaac + MoveIt + perception
+      + RViz nodes. We raise MaxAutoParticipantIndex so they all fit.
+
+  Point ROS at this file:  export CYCLONEDDS_URI=file:///srv/data/users/raditya/arm_WS/ceiling_arm/cyclonedds.xml
+-->
+<CycloneDDS xmlns="https://cdds.io/config"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="https://cdds.io/config https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
+  <Domain Id="any">
+    <General>
+      <!-- DDS traffic confined to loopback: never reaches the server's NIC. -->
+      <Interfaces>
+        <NetworkInterface name="lo" presence_required="false"/>
+      </Interfaces>
+      <AllowMulticast>false</AllowMulticast>
+    </General>
+    <Discovery>
+      <!-- No multicast on lo -> discover peers by unicast on localhost, and
+           allow many participants (default ~9 ran out -> RViz couldn't start). -->
+      <ParticipantIndex>auto</ParticipantIndex>
+      <MaxAutoParticipantIndex>250</MaxAutoParticipantIndex>
+      <Peers>
+        <Peer address="localhost"/>
+      </Peers>
+    </Discovery>
+  </Domain>
+</CycloneDDS>

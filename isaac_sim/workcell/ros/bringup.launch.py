@@ -43,7 +43,7 @@ def generate_launch_description():
         Node(package="moveit_ros_move_group", executable="move_group", output="screen",
              parameters=[moveit_config.to_dict(), {"use_sim_time": False}]),
     ]
-    tables = ["table_1_controller", "table_2_controller"]
+    tables = ["gantry_1_controller", "gantry_2_controller"]
     for c in ["joint_state_broadcaster"] + ARMS + GRIPPERS + tables:
         nodes.append(Node(package="controller_manager", executable="spawner",
                           output="screen", arguments=[c, "-c", "/controller_manager"]))

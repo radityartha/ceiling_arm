@@ -19,11 +19,11 @@ controller_manager:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
-    table_1_controller:
+    gantry_1_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
-    table_2_controller:
+    gantry_2_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
@@ -43,11 +43,11 @@ controller_manager:
       type: position_controllers/GripperActionController
 
 
-    table_1_with_arm_controller:
+    gantry_1_with_arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
-    table_2_with_arm_controller:
+    gantry_2_with_arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
@@ -116,7 +116,7 @@ arm_4_controller:
     state_interfaces:
       - position
       - velocity
-table_1_controller:
+gantry_1_controller:
   ros__parameters:
     joints:
       - t1_linear_joint
@@ -126,7 +126,7 @@ table_1_controller:
     state_interfaces:
       - position
       - velocity
-table_2_controller:
+gantry_2_controller:
   ros__parameters:
     joints:
       - t2_linear_joint
@@ -148,7 +148,7 @@ gripper_3_controller:
 gripper_4_controller:
   ros__parameters:
     joint: t2_a2_right_finger_bottom_joint
-table_1_with_arm_controller:
+gantry_1_with_arm_controller:
   ros__parameters:
     joints:
       - t1_linear_joint
@@ -182,7 +182,7 @@ t1_a1_twist_controller:
       - twist.angular.x
       - twist.angular.y
       - twist.angular.z
-table_2_with_arm_controller:
+gantry_2_with_arm_controller:
   ros__parameters:
     joints:
       - t2_linear_joint

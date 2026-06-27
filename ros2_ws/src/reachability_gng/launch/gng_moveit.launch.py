@@ -11,7 +11,7 @@ Brings up, on FAKE/MOCK hardware (no real arms, no Isaac Sim, NO LIDAR):
   - one GNG `visualize` node PER ARM, on distinct node names so each owns its
     own <node>/gng_markers topic and edge color (arm_1 green, arm_2 orange).
   - RViz loaded with config/gng_moveit.rviz: MotionPlanning (groups
-    table_1_with_arm_1 / table_1_with_arm_2) + RobotModel + both GNG clouds.
+    gantry_1_with_arm_1 / gantry_1_with_arm_2) + RobotModel + both GNG clouds.
 
 So you can Plan/Execute in MoveIt and see the reachability maps at the same
 time. Do NOT also start joint_state_publisher_gui (one /joint_states source).
@@ -55,7 +55,7 @@ _CONTROLLERS = [
     'joint_state_broadcaster',
     'gripper_1_controller', 'gripper_2_controller',
     'gripper_3_controller', 'gripper_4_controller',
-    'table_1_with_arm_controller', 'table_2_with_arm_controller',
+    'gantry_1_with_arm_controller', 'gantry_2_with_arm_controller',
 ]
 
 
@@ -84,6 +84,9 @@ def generate_launch_description():
     moveit_config = (
         MoveItConfigsBuilder('trailer_workcell', package_name='workcell_moveit_config')
         .robot_description(file_path=workcell_urdf)
+        # octomap obstacles from the two RGBD object clouds come in automatically:
+        # to_moveit_configs() auto-loads config/sensors_3d.yaml, which now carries
+        # the rgbd_objects / rgbd2_objects PointCloudOctomapUpdaters.
         .to_moveit_configs()
     )
     ros2_controllers = str(moveit_config.package_path / 'config' / 'ros2_controllers.yaml')

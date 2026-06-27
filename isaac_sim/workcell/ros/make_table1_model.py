@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate a TABLE_1-ONLY robot_description + SRDF for the Isaac GNG view.
 
-table_2 / arm_3 / arm_4 cannot be reliably hidden in RViz (the MotionPlanning
+gantry_2 / arm_3 / arm_4 cannot be reliably hidden in RViz (the MotionPlanning
 display renders the whole robot regardless of per-link visibility), so for the
 clean GNG view we give move_group a model that simply does not contain them.
 
@@ -10,7 +10,7 @@ It filters the EXPANDED sim_isaac workcell model (topic_based ros2_control, on
 and the full SRDF, dropping every element under the `t2_` prefix:
 
   table1_isaac.urdf   <- workcell.urdf.xacro sim_isaac:=true, minus all t2_*
-  trailer_table1.srdf <- trailer_workcell.srdf, minus arm_3/4, table_2, etc.
+  trailer_table1.srdf <- trailer_workcell.srdf, minus arm_3/4, gantry_2, etc.
 
 Re-run after URDF/SRDF edits:
   source /opt/ros/humble/setup.bash
@@ -32,7 +32,7 @@ FULL_SRDF = os.path.join(MOVEIT, "config", "trailer_workcell.srdf")
 OUT_URDF = os.path.join(HERE, "table1_isaac.urdf")
 OUT_SRDF = os.path.join(HERE, "trailer_table1.srdf")
 
-DROP = "t2_"   # everything table_2 / arm_3 / arm_4 is under this prefix
+DROP = "t2_"   # everything gantry_2 / arm_3 / arm_4 is under this prefix
 
 
 def _has(s):
@@ -77,7 +77,7 @@ def filter_srdf():
                 root.remove(el); continue
             if any(DROP in (j.get("name", "")) for j in el.findall("joint")):
                 root.remove(el); continue
-            if any(g.get("name", "") in ("arm_3", "arm_4", "table_2")
+            if any(g.get("name", "") in ("arm_3", "arm_4", "gantry_2")
                    for g in el.findall("group")):
                 root.remove(el); continue
         elif tag == "group_state":

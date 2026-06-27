@@ -78,14 +78,14 @@ LAM=160  ros2_ws/src/reachability_gng/build_maps.sh   # ~1000 nodes (sparser clo
 <pre><code>cd ~/arm_WS/ceiling_arm
 ./isaac_sim/stop.sh            # clear any old session
 ./isaac_sim/launch_workcell.sh # default 'gng' mode</code></pre>
-  <p>Brings up: Isaac bridge → move_group (table_1-only) → both clouds → RViz.
-     <b>table_2 / arm_3 / arm_4 are hidden in both Isaac and RViz.</b>
-     In RViz pick Planning Group <code>table_1_with_arm_1</code> or
-     <code>table_1_with_arm_2</code> → <b>Plan</b> → <b>Execute</b>.</p>
+  <p>Brings up: Isaac bridge → move_group (gantry_1-only) → both clouds → RViz.
+     <b>gantry_2 / arm_3 / arm_4 are hidden in both Isaac and RViz.</b>
+     In RViz pick Planning Group <code>gantry_1_with_arm_1</code> or
+     <code>gantry_1_with_arm_2</code> → <b>Plan</b> → <b>Execute</b>.</p>
   <p class="note">Modes:</p>
   <table>
     <tr><th>command</th><th>what you get</th></tr>
-    <tr><td><code>launch_workcell.sh</code></td><td>table_1 only + clouds + RViz (default)</td></tr>
+    <tr><td><code>launch_workcell.sh</code></td><td>gantry_1 only + clouds + RViz (default)</td></tr>
     <tr><td><code>launch_workcell.sh full</code></td><td>all 4 arms + 2 tables, RViz</td></tr>
     <tr><td><code>launch_workcell.sh demo</code></td><td>all 4 arms, scripted loop (no RViz)</td></tr>
     <tr><td><code>launch_workcell.sh headless</code></td><td>bridge + move_group only</td></tr>
@@ -110,11 +110,21 @@ ros2 launch reachability_gng gng_moveit.launch.py</code></pre>
         <td>numpy clash in its venv — <code>~/isaacsim/env_isaacsim/bin/python -m pip install "numpy==1.26.0"</code></td></tr>
     <tr><td>cloud on the floor, arm on ceiling</td>
         <td>rebuild maps (<code>build_maps.sh</code>); URDF table is at z=2.05</td></tr>
-    <tr><td>table_2/arm_3/4 still show</td>
+    <tr><td>gantry_2/arm_3/4 still show</td>
         <td>use default <code>gng</code> mode; regenerate model
             <code>python3 isaac_sim/workcell/ros/make_table1_model.py</code></td></tr>
     <tr><td>rotation slider only ±90°</td>
         <td>rebuild overlay: <code>cd ~/workcell_overlay_ws &amp;&amp; colcon build --symlink-install</code></td></tr>
+    <tr><td>table freezes / lags mid-move (arms fine)</td>
+        <td>command starvation — table must use its own topic <code>/isaac_table_commands</code>
+            (already wired in <code>ros2_bridge_gui.py</code> + <code>table1_isaac.urdf</code>);
+            confirm <code>ros2 topic list | grep isaac_table_commands</code></td></tr>
+    <tr><td>table can't reach target / no force (esp. rotation)</td>
+        <td>bridge raises <code>UsdPhysics.DriveAPI</code> maxForce on table joints at startup —
+            check <code>grep "drive maxForce" /tmp/workcell_launch/bridge.log</code> (should be N&gt;0)</td></tr>
+    <tr><td>rail stops at 1.5 m / wrong limits in Isaac</td>
+        <td>edit <code>isaac_sim/workcell/workcell.urdf</code> limits then re-import:
+            <code>python isaac_sim/workcell/import_urdf.py</code></td></tr>
     <tr><td>clouds not in Isaac RViz</td>
         <td>same <code>ROS_DOMAIN_ID=42</code> + <code>RMW_IMPLEMENTATION=rmw_cyclonedds_cpp</code> everywhere</td></tr>
   </table>

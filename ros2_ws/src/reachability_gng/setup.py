@@ -36,6 +36,18 @@ setup(
             'seed_server = reachability_gng.seed_server:main',
             'seed_ik = reachability_gng.seed_ik:main',
             'visualize = reachability_gng.visualize:main',
+            'object_localizer = reachability_gng.object_localizer:main',
+            'seg_colorizer = reachability_gng.seg_colorizer:main',
+            'seg_cloud = reachability_gng.seg_cloud:main',
+            'reachability_check = reachability_gng.reachability_check:main',
+            'reachability_cloud = reachability_gng.reachability_cloud:main',
+            'collision_cloud = reachability_gng.collision_cloud:main',
+            'object_collision = reachability_gng.object_collision:main',
+            'octomap_refresher = reachability_gng.octomap_refresher:main',
+            'map_table = reachability_gng.map_table:main',
+            'table_collision = reachability_gng.table_collision:main',
+            'gantry_reach_executor = '
+            'reachability_gng.gantry_reach_executor:main',
         ],
     },
 )

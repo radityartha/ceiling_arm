@@ -4,14 +4,14 @@ moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControll
 
 moveit_simple_controller_manager:
   controller_names:
-    - table_1_with_arm_controller
-    - table_2_with_arm_controller
+    - gantry_1_with_arm_controller
+    - gantry_2_with_arm_controller
     - gripper_1_controller
     - gripper_2_controller
     - gripper_3_controller
     - gripper_4_controller
 
-  table_1_with_arm_controller:
+  gantry_1_with_arm_controller:
     type: FollowJointTrajectory
     joints:
       - t1_linear_joint
@@ -30,7 +30,7 @@ moveit_simple_controller_manager:
       - t1_a2_joint_6
     action_ns: follow_joint_trajectory
     default: true
-  table_2_with_arm_controller:
+  gantry_2_with_arm_controller:
     type: FollowJointTrajectory
     joints:
       - t2_linear_joint

@@ -31,22 +31,24 @@ There is no formal test suite in this repo yet. Hardware/integration checks are 
 
 ## Architecture Overview
 
-ROS 2 Humble workspace for an automated workcell: **2 ceiling-mounted motorized tables**, **4 Kinova Gen3 Lite 6-DOF arms** (2 per table) each with a 2-finger gripper, and a **Livox Mid360 3D LIDAR** for collision sensing — all unified under MoveIt 2.
+ROS 2 Humble workspace for an automated workcell: **2 ceiling-mounted motorized gantries**, **4 Kinova Gen3 Lite 6-DOF arms** (2 per gantry) each with a 2-finger gripper, and a **Livox Mid360 3D LIDAR** for collision sensing — all unified under MoveIt 2.
+
+> **Naming note (renamed 2026-06-26):** the ceiling-mounted moving platforms are called **gantry** (not "table") to disambiguate from the workpiece **work table**. The rename covers MoveIt planning groups, controllers, kinematics, SRDF, and TF/frame docs (`gantry_1`, `gantry_2`, `gantry_1_with_arm`, `gantry_1_controller`, …). **Intentionally still named "table"** (hardware/driver layer, out of scope): the `moving_table_pkg` / `moving_table_interfaces` packages, the `MovingTable` service + its `table_id` field + `"table1"`/`"table2"` id strings, the URDF joint/link prefixes `t1_`/`t2_`, `dual_table_controller`, `move_dual_table`, and the `--tables` CLI flag.
 
 ### Hardware topology
 
 ```
 world
-├── table_1_base   (linear + rotation, Modbus RTU on /dev/ttyUSB0)
+├── gantry_1_base  (linear + rotation, Modbus RTU on /dev/ttyUSB0)
 │   ├── arm_1   (Kinova Gen3 Lite, Ethernet @ 192.168.2.13)
 │   └── arm_2   (Kinova Gen3 Lite, Ethernet @ 192.168.2.12)
-├── table_2_base   (linear + rotation, Modbus RTU on /dev/ttyUSB1)
+├── gantry_2_base  (linear + rotation, Modbus RTU on /dev/ttyUSB1)
 │   ├── arm_3   (Kinova Gen3 Lite, Ethernet @ 192.168.2.11)
 │   └── arm_4   (Kinova Gen3 Lite, Ethernet @ 192.168.2.10)
 └── livox_frame    (Mid360 LIDAR, overhead, x=2.3 z=1.9)
 ```
 
-Each table is driven by 3 Oriental Motor stepper motors (2 linear + 1 rotational) over Modbus RTU. Each arm speaks the Kinova Kortex API over Ethernet on subnet `192.168.2.x`.
+Each gantry is driven by 3 Oriental Motor stepper motors (2 linear + 1 rotational) over Modbus RTU. Each arm speaks the Kinova Kortex API over Ethernet on subnet `192.168.2.x`.
 
 ### Package dependency flow
 
@@ -81,8 +83,8 @@ MoveIt 2 config for the whole workcell.
 **Planning groups** (in `config/trailer_workcell.srdf`):
 - `arm_1` … `arm_4` — single 6-DOF arm
 - `gripper_1` … `gripper_4` — single gripper
-- `table_1`, `table_2` — table-only
-- `table_1_with_arm`, `table_2_with_arm` — coupled arm + table
+- `gantry_1`, `gantry_2` — gantry-only
+- `gantry_1_with_arm`, `gantry_2_with_arm` — coupled arm + gantry
 
 **Primary launch:** [launch/my_workcell.launch.py](ros2_ws/src/workcell_moveit_config/launch/my_workcell.launch.py) spawns `joint_state_broadcaster`, 2 table controllers, 4 arm controllers, Move Group, RViz, LIDAR static TF, and the Livox driver.
 
@@ -125,12 +127,12 @@ use_fake_hardware: false
 | Frame | Parent | Notes |
 |-------|--------|-------|
 | `world` | — | global origin |
-| `table_1_base` | `world` | y = +0.36, z = 2.05 |
-| `table_2_base` | `world` | y = −0.36, z = 2.05 |
-| `arm_1_base_link` | `table_1_mount_left` | |
-| `arm_2_base_link` | `table_1_mount_right` | |
-| `arm_3_base_link` | `table_2_mount_left` | |
-| `arm_4_base_link` | `table_2_mount_right` | |
+| `gantry_1_base` | `world` | y = +0.36, z = 2.05 |
+| `gantry_2_base` | `world` | y = −0.36, z = 2.05 |
+| `arm_1_base_link` | `gantry_1_mount_left` | |
+| `arm_2_base_link` | `gantry_1_mount_right` | |
+| `arm_3_base_link` | `gantry_2_mount_left` | |
+| `arm_4_base_link` | `gantry_2_mount_right` | |
 | `livox_frame` | `world` | x=2.3, z=1.9, pointing down |
 
 ### Helper scripts ([scripts/](scripts/))

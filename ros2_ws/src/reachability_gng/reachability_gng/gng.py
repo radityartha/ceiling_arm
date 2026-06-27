@@ -188,6 +188,26 @@ class GNG:
         d2 = self._dist2(x)
         return np.argsort(d2)[:k]
 
+    def query_radius(self, task_vec, radius, max_k=None):
+        """Indices of all nodes within `radius` (task-space), nearest-first.
+
+        Unlike `query` (fixed k by distance), this returns the whole reachable
+        POOL around a target so a caller can re-rank it by a SECONDARY cost
+        (e.g. energy) instead of by task distance alone -- a slightly-farther
+        node may still reach the object (via IK to the exact pose) yet cost less
+        to move to. Always returns at least the single nearest node, so a caller
+        never gets an empty pool. `max_k` caps the pool size."""
+        x = np.zeros(self.dim)
+        x[: self.task_dim] = task_vec
+        d2 = self._dist2(x)
+        within = np.where(d2 <= radius * radius)[0]
+        if len(within) == 0:
+            within = np.array([int(np.argmin(d2))])
+        within = within[np.argsort(d2[within])]
+        if max_k is not None:
+            within = within[:max_k]
+        return within
+
     def seed_q(self, task_vec):
         """Return the joint configuration (q part) of the nearest node."""
         i = int(self.query(task_vec, k=1)[0])

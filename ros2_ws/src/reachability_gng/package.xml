@@ -5,7 +5,7 @@
   <version>0.0.1</version>
   <description>
     Growing Neural Gas (GNG) reachability + capability map for the redundant
-    arm+table system (arm_1 + table_1, 8 DOF). Learns a topological map from
+    arm+table system (arm_1 + gantry_1, 8 DOF). Learns a topological map from
     forward-kinematics samples and serves joint-configuration seeds to MoveIt IK.
   </description>
 
@@ -16,9 +16,15 @@
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>visualization_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
   <exec_depend>moveit_msgs</exec_depend>
+  <exec_depend>shape_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
   <exec_depend>builtin_interfaces</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
+  <!-- object_localizer perception node -->
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>message_filters</exec_depend>
 
   <!-- FK backend for offline data generation (pick one):
        pinocchio (recommended) or PyKDL (no extra dep). -->

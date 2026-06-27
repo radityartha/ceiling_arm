@@ -15,8 +15,8 @@ controller_manager:
     gripper_3_controller: { type: position_controllers/GripperActionController }
     gripper_4_controller: { type: position_controllers/GripperActionController }
 
-    table_1_controller: { type: joint_trajectory_controller/JointTrajectoryController }
-    table_2_controller: { type: joint_trajectory_controller/JointTrajectoryController }
+    gantry_1_controller: { type: joint_trajectory_controller/JointTrajectoryController }
+    gantry_2_controller: { type: joint_trajectory_controller/JointTrajectoryController }
 
 arm_1_controller:
   ros__parameters:
@@ -48,12 +48,12 @@ gripper_3_controller:
 gripper_4_controller:
   ros__parameters: { joint: t2_a2_right_finger_bottom_joint, allow_stalling: true, max_effort: 50.0, goal_tolerance: 0.05 }
 
-table_1_controller:
+gantry_1_controller:
   ros__parameters:
     joints: [t1_linear_joint, t1_rotation_joint]
     command_interfaces: [position]
     state_interfaces: [position, velocity]
-table_2_controller:
+gantry_2_controller:
   ros__parameters:
     joints: [t2_linear_joint, t2_rotation_joint]
     command_interfaces: [position]

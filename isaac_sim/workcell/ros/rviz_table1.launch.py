@@ -1,7 +1,7 @@
 """RViz (GNG config) for the TABLE_1-ONLY Isaac view.
 
 Builds the MoveIt params from the trimmed table1_isaac.urdf / trailer_table1.srdf
-so the MotionPlanning panel + RobotModel contain NO table_2/arm_3/arm_4, and
+so the MotionPlanning panel + RobotModel contain NO gantry_2/arm_3/arm_4, and
 loads reachability_gng/config/gng_moveit.rviz (clouds + MotionPlanning). Run
 alongside bringup_table1.launch.py + the bridge + gng_clouds.launch.py.
 

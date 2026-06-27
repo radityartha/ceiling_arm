@@ -58,8 +58,8 @@ def generate_launch_description():
     controller_names = (
         "joint_state_broadcaster,"
         "gripper_1_controller,gripper_2_controller,gripper_3_controller,gripper_4_controller,"
-        "table_1_with_arm_controller,"
-        "table_2_with_arm_controller"
+        "gantry_1_with_arm_controller,"
+        "gantry_2_with_arm_controller"
     )
 
     spawn_launch_path = (

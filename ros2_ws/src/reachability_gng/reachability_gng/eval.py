@@ -218,7 +218,7 @@ def main():
     pk.add_argument('--config', help='YAML (enables random-restart + manip)')
     pk.add_argument('--methods', nargs='+', default=['gng', 'none'],
                     choices=['gng', 'none', 'random'])
-    pk.add_argument('--group', default='table_1_with_arm_1')
+    pk.add_argument('--group', default='gantry_1_with_arm_1')
     pk.add_argument('--ee-frame', default='t1_a1_tool_frame')
     pk.add_argument('--frame', default='world')
     pk.add_argument('--task-dim-ori-weight', dest='ori_weight',

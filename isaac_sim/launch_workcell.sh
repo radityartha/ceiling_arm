@@ -23,7 +23,7 @@ MODE="${1:-gng}"
 PIDS=()
 
 # Mode -> model scope. Default/gng/headless use the TABLE_1-ONLY model so
-# table_2/arm_3/arm_4 are absent in move_group + RViz AND hidden in Isaac
+# gantry_2/arm_3/arm_4 are absent in move_group + RViz AND hidden in Isaac
 # (GNG_HIDE_T2=1). full/demo keep the original 4-arm workcell.
 case "$MODE" in
   full|demo) export GNG_HIDE_T2=0
@@ -48,7 +48,7 @@ wait_for() {  # wait_for <logfile> <pattern> <timeout_s>
 
 # Self-clean: kill any leftovers from a previous run so we never double-start
 # (no need to run stop.sh first). Same pattern as stop.sh.
-_STALE='ros2_bridge_gui.py|ros2_bridge.py|ros2 launch isaac|ros2_control_node|move_group|rviz2|moveit_demo.py|robot_state_publisher|controller_manager/spawner|lib/reachability_gng/visualize|gng_clouds.launch.py'
+_STALE='ros2_bridge_gui.py|ros2_bridge.py|ros2 launch isaac|ros2_control_node|move_group|rviz2|moveit_demo.py|robot_state_publisher|controller_manager/spawner|lib/reachability_gng/visualize|gng_clouds.launch.py|rgbd2?_camera_optical|perception.launch.py|lib/reachability_gng/object_localizer|lib/reachability_gng/reachability_check|lib/reachability_gng/reachability_cloud|lib/reachability_gng/collision_cloud|lib/reachability_gng/object_collision|lib/reachability_gng/octomap_refresher|lib/reachability_gng/seg_cloud|lib/reachability_gng/table_collision'
 echo ">>> [0/3] clearing any previous session..."
 _old=$(pgrep -f "$_STALE" 2>/dev/null | tr '\n' ' ')
 [ -n "$_old" ] && { kill -9 $_old 2>/dev/null; sleep 2; echo "    cleared."; } || echo "    nothing running."
@@ -67,6 +67,26 @@ echo ">>> [2/3] MoveIt + ros2_control..."
 PIDS+=($!)
 wait_for "$LOG/bringup.log" "You can start planning now" 120 || cleanup
 echo "    move_group + controllers up ($BRINGUP)."
+
+# Static TFs world -> {rgbd,rgbd2}_camera_optical (ROS optical convention) so the
+# two Isaac RGBD cameras (/rgbd/*, /rgbd2/*) show up in RViz and detections can be
+# transformed to `world`. Quaternions computed from each camera's eye/target in
+# CAMERAS (ros2_bridge_gui.py) — keep in sync if you move a camera.
+echo ">>> [2.5] camera static TFs (world -> rgbd/rgbd2 optical)..."
+( set +u; source /opt/ros/humble/setup.bash
+  export ROS_DOMAIN_ID RMW_IMPLEMENTATION
+  exec ros2 run tf2_ros static_transform_publisher \
+    --x 2.8 --y -0.6 --z 2.05 \
+    --qx -0.722084 --qy -0.422309 --qz 0.27663 --qw 0.472996 \
+    --frame-id world --child-frame-id rgbd_camera_optical ) > "$LOG/camera_tf.log" 2>&1 &
+PIDS+=($!)
+( set +u; source /opt/ros/humble/setup.bash
+  export ROS_DOMAIN_ID RMW_IMPLEMENTATION
+  exec ros2 run tf2_ros static_transform_publisher \
+    --x -0.6 --y -0.6 --z 2.05 \
+    --qx -0.703886 --qy 0.435026 --qz -0.295205 --qw 0.477652 \
+    --frame-id world --child-frame-id rgbd2_camera_optical ) > "$LOG/camera2_tf.log" 2>&1 &
+PIDS+=($!)
 
 case "$MODE" in
   headless) echo ">>> [3/3] skipped (headless).";;
@@ -87,6 +107,11 @@ case "$MODE" in
       export ROS_DOMAIN_ID RMW_IMPLEMENTATION
       cd "$REPO"; exec ros2 launch reachability_gng gng_clouds.launch.py ) > "$LOG/gng_clouds.log" 2>&1 &
     PIDS+=($!)
+    # RGBD perception + reachability (consumes Isaac cameras + the static TFs).
+    ( set +u; source /opt/ros/humble/setup.bash; source "$GNG_WS"
+      export ROS_DOMAIN_ID RMW_IMPLEMENTATION
+      cd "$REPO"; exec ros2 launch reachability_gng perception.launch.py ) > "$LOG/perception.log" 2>&1 &
+    PIDS+=($!)
     ( set +u; source /opt/ros/humble/setup.bash; source "$KORTEX_WS"; source "$WORKCELL_WS"
       export ROS_DOMAIN_ID RMW_IMPLEMENTATION DISPLAY
       cd "$REPO"; exec ros2 launch "$RVIZ_LAUNCH" ) > "$LOG/rviz.log" 2>&1 &
@@ -97,8 +122,8 @@ echo
 echo "=================================================================="
 echo " Workcell running. Open noVNC: http://<server>:22380/vnc.html"
 case "$MODE" in
-  full|demo) echo " 4-arm workcell. RViz: Planning Group -> arm_1..4 / table_1/2 -> Plan & Execute";;
-  *)         echo " TABLE_1 GNG view (table_2/arm_3/4 hidden). RViz: Planning Group -> table_1_with_arm_1/_2 -> Plan & Execute";;
+  full|demo) echo " 4-arm workcell. RViz: Planning Group -> arm_1..4 / gantry_1/2 -> Plan & Execute";;
+  *)         echo " TABLE_1 GNG view (gantry_2/arm_3/4 hidden). RViz: Planning Group -> gantry_1_with_arm_1/_2 -> Plan & Execute";;
 esac
 echo " Logs: $LOG/   |   Press Ctrl-C here to stop everything."
 echo "=================================================================="

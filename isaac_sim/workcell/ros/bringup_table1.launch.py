@@ -2,9 +2,9 @@
 
 Same topic_based bridge to Isaac (/isaac_joint_commands, /isaac_joint_states) as
 bringup.launch.py, but the robot_description is the trimmed table1_isaac.urdf
-(table_1 + arm_1 + arm_2 only) with trailer_table1.srdf — so move_group / RViz
-contain NO table_2/arm_3/arm_4 (the reliable way to hide them). Isaac still runs
-the full 4-arm articulation; this model just tracks/commands the table_1 joints.
+(gantry_1 + arm_1 + arm_2 only) with trailer_table1.srdf — so move_group / RViz
+contain NO gantry_2/arm_3/arm_4 (the reliable way to hide them). Isaac still runs
+the full 4-arm articulation; this model just tracks/commands the gantry_1 joints.
 
 Regenerate the trimmed model first if URDF/SRDF changed:
   python3 isaac_sim/workcell/ros/make_table1_model.py
@@ -26,7 +26,7 @@ MOVEIT_CTRL = os.path.join(HERE, "moveit_controllers_table1.yaml")
 
 # only controllers whose joints exist in the trimmed model
 SPAWN = ["joint_state_broadcaster", "arm_1_controller", "arm_2_controller",
-         "gripper_1_controller", "gripper_2_controller", "table_1_controller"]
+         "gripper_1_controller", "gripper_2_controller", "gantry_1_controller"]
 
 
 def generate_launch_description():

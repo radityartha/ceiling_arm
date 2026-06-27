@@ -2,9 +2,9 @@
 Run alongside ros2_bridge_gui.py + bringup.launch.py (same env).
 
 Loads the reachability_gng RViz config (gng_moveit.rviz): MotionPlanning
-(groups table_1_with_arm_1 / table_1_with_arm_2) + RobotModel + the two GNG
+(groups gantry_1_with_arm_1 / gantry_1_with_arm_2) + RobotModel + the two GNG
 reachability MarkerArray displays (/gng_arm1//gng_arm2/gng_markers), with the
-table_2/arm_3/arm_4 links hidden. Publish the clouds alongside this with
+gantry_2/arm_3/arm_4 links hidden. Publish the clouds alongside this with
 `ros2 launch reachability_gng gng_clouds.launch.py` (from THIS repo's workspace,
 same ROS_DOMAIN_ID / RMW), so they appear over the Isaac-driven robot.
 
