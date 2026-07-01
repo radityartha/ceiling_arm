@@ -91,7 +91,7 @@ class TableCollision(Node):
         self._publish()
 
     def _publish(self):
-        self._scene.header.stamp = self.get_clock().now().to_msg()
+        self._scene.is_diff = True        # PlanningScene has no header; merge diff
         self.pub.publish(self._scene)
 
 

@@ -44,7 +44,8 @@ from std_msgs.msg import String
 from tf2_ros import (Buffer, ConnectivityException, ExtrapolationException,
                      LookupException, TransformListener)
 
-from reachability_gng.object_localizer import deproject, quat_to_R
+from reachability_gng.object_localizer import (deproject, quat_to_R,
+                                               resolve_target_ids)
 
 
 class ObjectCollision(Node):
@@ -61,6 +62,11 @@ class ObjectCollision(Node):
         self.declare_parameter('ttl', 1.0)           # s an object persists unseen
         self.declare_parameter('publish_period', 0.5)
         self.declare_parameter('touch_links', [''])  # gripper links allowed to touch
+        # Grasp target: empty -> box EVERY object (legacy). When set, only the
+        # matching object becomes a CollisionObject (others stay obstacles via
+        # the octomap, see collision_cloud).
+        self.declare_parameter('target_label', '')
+        self.declare_parameter('target_id', -1)
 
         self.world_frame = self.get_parameter('world_frame').value
         self.suffix = self.get_parameter('optical_frame_suffix').value
@@ -71,6 +77,8 @@ class ObjectCollision(Node):
         self.padding = float(self.get_parameter('padding').value)
         self.ttl = float(self.get_parameter('ttl').value)
         self.touch_links = [s for s in self.get_parameter('touch_links').value if s]
+        self.target_label = str(self.get_parameter('target_label').value)
+        self.target_id = int(self.get_parameter('target_id').value)
         nss = list(self.get_parameter('camera_namespaces').value)
 
         self.tf_buffer = Buffer()
@@ -156,7 +164,11 @@ class ObjectCollision(Node):
 
         valid = np.isfinite(depth) & (depth > self.min_depth) & (depth < self.max_depth)
         now = time.monotonic()
+        target_ids = resolve_target_ids(
+            self._labels[ns], self.target_label, self.target_id)
         for inst_id, label in self._labels[ns].items():
+            if target_ids is not None and inst_id not in target_ids:
+                continue   # box only the grasp target; others are octomap obstacles
             mask = (seg == inst_id) & valid
             ys, xs = np.nonzero(mask)
             if xs.size < self.min_pixels:
@@ -218,7 +230,7 @@ class ObjectCollision(Node):
                 self._boxes.pop(label, None)
 
         if scene.world.collision_objects:
-            scene.header.stamp = self.get_clock().now().to_msg()
+            scene.is_diff = True          # merge into the scene, not replace it
             self.scene_pub.publish(scene)
 
     # ---- attach / detach ----------------------------------------------------

@@ -22,7 +22,7 @@ import json
 import message_filters
 import numpy as np
 import rclpy
-from geometry_msgs.msg import Point, Pose, PoseArray
+from geometry_msgs.msg import Point, Pose, PoseArray, PoseStamped
 from rclpy.node import Node
 from sensor_msgs.msg import CameraInfo, Image
 from std_msgs.msg import ColorRGBA, String
@@ -67,6 +67,24 @@ def fuse(dets, radius):
     return [(m[0], m[1]) for m in merged]
 
 
+def resolve_target_ids(labels, target_label, target_id=-1):
+    """Seg ids in this camera's {id: label} map that are the grasp TARGET.
+
+    Returns None when no target is configured (target_label=="" and
+    target_id<0) -> the caller treats EVERY object as the target (legacy
+    behaviour). Matches by label name first (label basenames are stable across
+    cameras even though the numeric seg ids are not), falling back to target_id
+    only when the label is absent in THIS camera's map.
+    """
+    if not target_label and target_id < 0:
+        return None
+    ids = ({i for i, lab in labels.items() if lab == target_label}
+           if target_label else set())
+    if not ids and target_id >= 0 and target_id in labels:
+        ids = {target_id}
+    return ids
+
+
 class ObjectLocalizer(Node):
     def __init__(self):
         super().__init__('object_localizer')
@@ -78,6 +96,10 @@ class ObjectLocalizer(Node):
         self.declare_parameter('min_pixels', 20)
         self.declare_parameter('fuse_radius', 0.10)
         self.declare_parameter('publish_period', 0.5)
+        # Grasp target: when set, the matching object's pose is republished on
+        # /target_object (PoseStamped). Empty -> no target topic (legacy).
+        self.declare_parameter('target_label', '')
+        self.declare_parameter('target_id', -1)
 
         self.world_frame = self.get_parameter('world_frame').value
         self.suffix = self.get_parameter('optical_frame_suffix').value
@@ -85,6 +107,8 @@ class ObjectLocalizer(Node):
         self.max_depth = float(self.get_parameter('max_depth').value)
         self.min_pixels = int(self.get_parameter('min_pixels').value)
         self.fuse_radius = float(self.get_parameter('fuse_radius').value)
+        self.target_label = str(self.get_parameter('target_label').value)
+        self.target_id = int(self.get_parameter('target_id').value)
         nss = list(self.get_parameter('camera_namespaces').value)
 
         self.tf_buffer = Buffer()
@@ -111,6 +135,7 @@ class ObjectLocalizer(Node):
             self._syncs.append(sync)
 
         self.pose_pub = self.create_publisher(PoseArray, '/detected_objects', 1)
+        self.target_pub = self.create_publisher(PoseStamped, '/target_object', 1)
         self.marker_pub = self.create_publisher(
             MarkerArray, '/detected_objects/markers', 1)
         self.create_timer(
@@ -173,6 +198,15 @@ class ObjectLocalizer(Node):
             dets.append((label, c_world))
         self._dets[ns] = dets
 
+    def _target_names(self):
+        """Set of target label names, or None when no target is configured."""
+        if self.target_label:
+            return {self.target_label}
+        if self.target_id >= 0:
+            return {lab for labs in self._labels.values()
+                    for i, lab in labs.items() if i == self.target_id}
+        return None
+
     # ---- output -------------------------------------------------------------
     def _publish(self):
         alld = [d for dets in self._dets.values() for d in dets]
@@ -221,6 +255,20 @@ class ObjectLocalizer(Node):
 
         self.pose_pub.publish(pa)
         self.marker_pub.publish(ma)
+
+        # republish only the grasp target's pose (if one is configured + seen)
+        names = self._target_names()
+        if names:
+            for label, xyz in merged:
+                if label in names:
+                    ts = PoseStamped()
+                    ts.header.frame_id = self.world_frame
+                    ts.header.stamp = stamp
+                    ts.pose.position = Point(
+                        x=float(xyz[0]), y=float(xyz[1]), z=float(xyz[2]))
+                    ts.pose.orientation.w = 1.0
+                    self.target_pub.publish(ts)
+                    break
 
 
 def main():

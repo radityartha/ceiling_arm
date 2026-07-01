@@ -39,7 +39,8 @@
   <p class="sub">Growing-Neural-Gas reachability/capability clouds for the ceiling
   workcell, shown live in RViz with MoveIt MotionPlanning. One cloud per arm
   (<span class="green">arm_1 green</span>, <span class="orange">arm_2 orange</span>),
-  nodes colored by manipulability. Table_1 focus; table rotation ±180°, home −90°.</p>
+  nodes colored by manipulability. Table_1 focus; table rotation ±180°, home −90°.
+  Drives an <b>energy-aware pick</b> (arm selection + base placement, card C).</p>
 
   <div class="card">
   <h2>0 · Build once</h2>
@@ -103,6 +104,41 @@ ros2 launch reachability_gng gng_moveit.launch.py</code></pre>
   </div>
 
   <div class="card">
+  <h2>C · Perception → energy-aware pick</h2>
+  <p>Detected objects → choose <b>which arm</b> (arm_1/arm_2, shared gantry_1) and
+     the 8-DOF goal by <b>energy</b>, then MoveIt plans collision-aware. Needs A
+     (move_group + cameras) up.</p>
+<pre><code># cameras + scene collision (objects, env octomap)
+ros2 launch reachability_gng perception.launch.py
+
+# the executor — plan-only (robot stays put)
+ros2 launch reachability_gng gantry_pick.launch.py csv:=/tmp/picks.csv
+ros2 topic pub --once /gantry_reach_executor/pick std_msgs/String "{data: '0'}"
+column -t -s, /tmp/picks.csv
+
+# or drive picks from an interactive menu (second terminal)
+ros2 run reachability_gng pick_cli
+
+# execute for real (arm moves in Isaac)
+ros2 launch reachability_gng gantry_pick.launch.py execute:=true csv:=/tmp/picks.csv</code></pre>
+  <p><code>pick_cli</code> lists the live <code>/detected_objects</code> (with
+     labels + a cheap object→arm-tool distance estimate, <b>not</b> energy J) and
+     fires a pick by index — a friendlier stand-in for the
+     <code>ros2 topic pub .../pick</code> one-liner. Watch the executor terminal
+     for the chosen arm / plan result.</p>
+  <p>Each candidate scored
+     <code>J = w_gantry·d_gantry + w_arm·d_arm + w_hold·hold − w_manip·manip</code>;
+     task distance only filters the pool, so a <b>farther</b> seed with lower J can
+     win (rank-by-dist ≫ 0 is normal). Calibrated default weights
+     <code>2.0 / 0.2 / 1.2 / 30</code> (manip ×30 — tiny spread); override live with
+     <code>-p w_manip:=300</code> etc.</p>
+  <p class="note">Needs the maps' <code>_stats.npz</code> to carry <code>hold</code>
+     (train with <code>--config</code>, or augment an existing map). Grasp
+     orientation defaults top-down <code>(1,0,0,0)</code> — the centroid's identity
+     quat is unreachable (IK err −31).</p>
+  </div>
+
+  <div class="card">
   <h2>Fixes / gotchas</h2>
   <table>
     <tr><th>symptom</th><th>do</th></tr>
@@ -127,6 +163,22 @@ ros2 launch reachability_gng gng_moveit.launch.py</code></pre>
             <code>python isaac_sim/workcell/import_urdf.py</code></td></tr>
     <tr><td>clouds not in Isaac RViz</td>
         <td>same <code>ROS_DOMAIN_ID=42</code> + <code>RMW_IMPLEMENTATION=rmw_cyclonedds_cpp</code> everywhere</td></tr>
+    <tr><td>arm plans straight through the work table (collision octomap empty)</td>
+        <td>the RViz green/grey clouds are visualisation-only and never collide. The
+            <b>collision</b> octomap needs: <code>collision_cloud</code> publishing in the
+            <code>world</code> frame, and <code>octomap_refresher period</code> ≫ the updater's
+            per-cloud time (≈0.25 s at <code>stride=6</code>; the old 1 s period wiped it faster
+            than it rebuilt). Verify:
+            <code>ros2 service call /get_planning_scene moveit_msgs/srv/GetPlanningScene "{components: {components: 32}}"</code>
+            → <code>resolution=0.03</code>, <code>data</code> non-empty</td></tr>
+    <tr><td>pick: "no collision-free plan" / all IK fail (err −31)</td>
+        <td>centroid orientation is identity (unreachable) — executor uses
+            <code>grasp_orientation</code> top-down <code>(1,0,0,0)</code>; tune via
+            <code>-p grasp_orientation:=[x,y,z,w]</code></td></tr>
+    <tr><td>energy weights seem to do nothing</td>
+        <td>influence = weight × pool spread; <code>manip</code> spread ~0.08 so it
+            needs <code>w_manip</code>≈30+. Pool too small? raise
+            <code>pool_radius_factor</code></td></tr>
   </table>
   </div>
 

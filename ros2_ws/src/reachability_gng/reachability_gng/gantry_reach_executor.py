@@ -41,8 +41,9 @@ import rclpy
 from geometry_msgs.msg import PoseArray, PoseStamped
 from moveit_msgs.action import MoveGroup
 from moveit_msgs.msg import (Constraints, JointConstraint, MotionPlanRequest,
-                             PlanningOptions)
-from moveit_msgs.srv import GetPositionIK
+                             PlanningOptions, PlanningScene,
+                             PlanningSceneComponents)
+from moveit_msgs.srv import ApplyPlanningScene, GetPlanningScene, GetPositionIK
 from rclpy.action import ActionClient
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
@@ -156,6 +157,12 @@ class GantryReachExecutor(Node):
         # --- grasp / logging ---
         self.declare_parameter('auto_attach', False)
         self.declare_parameter('attach_object_id', '')
+        # Let the grasp target's own CollisionObject touch the robot (ACM allow)
+        # so IK + the plan can reach INTO the object being grasped; everything
+        # else stays collision-checked. The target is the scene collision object
+        # nearest the goal pose, within grasp_match_radius (m).
+        self.declare_parameter('allow_target_collision', True)
+        self.declare_parameter('grasp_match_radius', 0.12)
         self.declare_parameter('compute_traj_energy', False)
         self.declare_parameter('csv_log', '')
 
@@ -190,6 +197,8 @@ class GantryReachExecutor(Node):
         self.max_attempts = int(g('max_attempts').value)
         self.auto_attach = bool(g('auto_attach').value)
         self.attach_object_id = g('attach_object_id').value
+        self.allow_target_collision = bool(g('allow_target_collision').value)
+        self.grasp_match_radius = float(g('grasp_match_radius').value)
         self.compute_traj_energy = bool(g('compute_traj_energy').value)
         self.csv_log = g('csv_log').value
 
@@ -211,12 +220,16 @@ class GantryReachExecutor(Node):
 
         self._pin_cache = {}            # arm name -> (pin, model, data, order)
         self._latest_objects = None
+        self._latest_target = None      # /target_object, the single grasp target
         self._joints = {}               # joint name -> position
+        self._acm_allowed = set()       # object ids already ACM-allowed to touch
         self._busy = threading.Lock()
 
         cb = ReentrantCallbackGroup()
         self.create_subscription(PoseArray, '/detected_objects',
                                  self._on_objects, 1, callback_group=cb)
+        self.create_subscription(PoseStamped, '/target_object',
+                                 self._on_target, 1, callback_group=cb)
         self.create_subscription(JointState, '/joint_states',
                                  self._on_joints, 10, callback_group=cb)
         self.create_subscription(String, '~/pick', self._on_pick, 1,
@@ -225,6 +238,10 @@ class GantryReachExecutor(Node):
             String, '/object_collision/command', 1)
         self.ik_cli = self.create_client(GetPositionIK, '/compute_ik',
                                          callback_group=cb)
+        self.get_scene_cli = self.create_client(
+            GetPlanningScene, '/get_planning_scene', callback_group=cb)
+        self.apply_scene_cli = self.create_client(
+            ApplyPlanningScene, '/apply_planning_scene', callback_group=cb)
         self.move_cli = ActionClient(self, MoveGroup, 'move_action',
                                      callback_group=cb)
 
@@ -239,6 +256,9 @@ class GantryReachExecutor(Node):
     # ---- subscribers --------------------------------------------------------
     def _on_objects(self, msg):
         self._latest_objects = msg
+
+    def _on_target(self, msg):
+        self._latest_target = msg
 
     def _on_joints(self, msg):
         for n, p in zip(msg.name, msg.position):
@@ -294,21 +314,26 @@ class GantryReachExecutor(Node):
 
     # ---- main pick ----------------------------------------------------------
     def _do_pick(self, arg):
-        objs = self._latest_objects
-        if objs is None or not objs.poses:
-            self.get_logger().warn('no /detected_objects yet')
-            return
-        try:
-            idx = int(arg) if arg else 0
-        except ValueError:
-            self.get_logger().warn(f'pick arg "{arg}" not an index; using 0')
-            idx = 0
-        if not (0 <= idx < len(objs.poses)):
-            self.get_logger().warn(
-                f'object index {idx} out of range (have {len(objs.poses)})')
-            return
-
-        target = objs.poses[idx]
+        # Prefer the dedicated /target_object topic (the single grasp target);
+        # fall back to pick-by-index over /detected_objects when it isn't up yet.
+        if self._latest_target is not None:
+            target = self._latest_target.pose
+            idx = 'target'
+        else:
+            objs = self._latest_objects
+            if objs is None or not objs.poses:
+                self.get_logger().warn('no /target_object or /detected_objects yet')
+                return
+            try:
+                idx = int(arg) if arg else 0
+            except ValueError:
+                self.get_logger().warn(f'pick arg "{arg}" not an index; using 0')
+                idx = 0
+            if not (0 <= idx < len(objs.poses)):
+                self.get_logger().warn(
+                    f'object index {idx} out of range (have {len(objs.poses)})')
+                return
+            target = objs.poses[idx]
         tvec = self._task_vec(target)
         cur_by_arm = {a.name: self._current_q(a) for a in self.arms}
 
@@ -340,6 +365,11 @@ class GantryReachExecutor(Node):
         else:
             o = ps.pose.orientation
             o.x, o.y, o.z, o.w = self.grasp_ori            # fixed grasp approach
+
+        # allow the grasp target's own box to touch the robot (so IK + plan can
+        # reach into it); everything else stays collision-checked
+        if self.allow_target_collision:
+            self._allow_target_collision(target)
 
         # 2) try candidates in ascending-J order
         for attempt, c in enumerate(by_J[:self.max_attempts]):
@@ -497,6 +527,60 @@ class GantryReachExecutor(Node):
         except Exception as e:                       # energy is optional
             self.get_logger().warn(f'traj energy failed: {e}')
             return float('nan')
+
+    # ---- grasp collision allowance ------------------------------------------
+    def _allow_target_collision(self, target):
+        """Add the grasp target's own CollisionObject to the ACM default-allow so
+        IK + the plan can reach INTO the object being grasped. The target is the
+        scene collision object nearest `target` (within grasp_match_radius);
+        everything else (table, octomap, other objects) stays collision-checked.
+        Applied once per object id; no-op if no box is at the target yet."""
+        if not self.get_scene_cli.service_is_ready():
+            self.get_scene_cli.wait_for_service(timeout_sec=2.0)
+        req = GetPlanningScene.Request()
+        req.components.components = (
+            PlanningSceneComponents.WORLD_OBJECT_NAMES
+            | PlanningSceneComponents.WORLD_OBJECT_GEOMETRY
+            | PlanningSceneComponents.ALLOWED_COLLISION_MATRIX)
+        res = self._wait(self.get_scene_cli.call_async(req), self.plan_wait)
+        if res is None:
+            self.get_logger().warn('allow_target_collision: planning-scene fetch '
+                                   'timed out; grasp IK may collide with target')
+            return None
+        tp = np.array([target.position.x, target.position.y, target.position.z])
+        best, bestd = None, self.grasp_match_radius
+        for co in res.scene.world.collision_objects:
+            # MoveIt may return the centre in co.pose with primitives relative to
+            # it, OR co.pose at origin with the centre in primitive_poses -- match
+            # against both so we find the box regardless of convention.
+            positions = [co.pose.position] + [pp.position for pp in co.primitive_poses]
+            for c in positions:
+                d = float(np.linalg.norm(np.array([c.x, c.y, c.z]) - tp))
+                if d < bestd:
+                    best, bestd = co.id, d
+        if best is None:
+            self.get_logger().warn(
+                f'allow_target_collision: no collision object within '
+                f'{self.grasp_match_radius:.2f} m of the grasp goal '
+                f'(scene has {len(res.scene.world.collision_objects)} objects)')
+            return None
+        if best in self._acm_allowed:
+            return best
+        acm = res.scene.allowed_collision_matrix
+        acm.default_entry_names.append(best)
+        acm.default_entry_values.append(True)
+        scene = PlanningScene()
+        scene.is_diff = True
+        scene.allowed_collision_matrix = acm
+        areq = ApplyPlanningScene.Request()
+        areq.scene = scene
+        if self._wait(self.apply_scene_cli.call_async(areq), self.plan_wait) \
+                is not None:
+            self._acm_allowed.add(best)
+            self.get_logger().info(
+                f"grasp target '{best}' ACM-allowed to touch the robot "
+                f"(IK/plan may reach into it; {bestd:.3f} m from goal)")
+        return best
 
     # ---- grasp + logging ----------------------------------------------------
     def _attach(self, arm, object_id):

@@ -36,6 +36,10 @@ def generate_launch_description():
         .robot_description_semantic(file_path=SRDF)
         .trajectory_execution(file_path=MOVEIT_CTRL)
         .planning_pipelines(pipelines=["ompl"])
+        # load the octomap updaters (config/sensors_3d.yaml) so move_group
+        # voxelizes /rgbd*/collision_cloud into a planning-scene octomap;
+        # without this the planner sees an EMPTY world (no collision avoidance).
+        .sensors_3d()
         .to_moveit_configs()
     )
 

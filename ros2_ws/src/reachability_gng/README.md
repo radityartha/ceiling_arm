@@ -47,10 +47,11 @@ Node coloring in RViz encodes **manipulability** `w = sqrt(det(J Jᵀ))`
 
 ```
 data_gen.py   sample q -> FK (Pinocchio) -> [pose, q, manip]   ->  dataset.npz
-train.py      build [task|q], GNG.fit, annotate hits+manip     ->  model.npz (+_stats)
+train.py      build [task|q], GNG.fit, annotate hits+manip+hold->  model.npz (+_stats)
 seed_ik.py    PoseStamped -> GNG seed -> /compute_ik            ->  ik_solution
 visualize.py  load model; nodes/edges                          ->  RViz MarkerArray
 eval.py       volume comparison + IK benchmark                 ->  paper numbers
+gantry_reach_executor  object -> energy-ranked seed pool -> IK -> MoveGroup plan/exec
 ```
 
 ### 1. Flattened URDF (already present)
@@ -77,8 +78,11 @@ python3 -m reachability_gng.data_gen \
     --config ros2_ws/src/reachability_gng/config/arm1_table1.yaml \
     --out /tmp/arm1_dataset.npz --n 80000
 python3 -m reachability_gng.train --dataset /tmp/arm1_dataset.npz \
-    --out /tmp/arm1_model.npz --task pos --max-nodes 3000 --lam 60 --epochs 2
+    --out /tmp/arm1_model.npz --task pos --max-nodes 3000 --lam 60 --epochs 2 \
+    --config ros2_ws/src/reachability_gng/config/arm1_table1.yaml
 # -> ~2668 nodes; node hull reaches close to true arm+table reach
+# --config adds per-node `hold` (gravity holding cost) to _stats.npz for the
+# energy-aware executor (section 7); omit it and hold defaults to 0.
 ```
 
 **Node count is set by `lam`, not `max-nodes` alone:**
@@ -171,6 +175,20 @@ See **README.html** for the short quick-start.
   `workcell.usd`). After editing limits/effort there, **re-import**:
   `python isaac_sim/workcell/import_urdf.py` (Isaac venv). The rail is 0–3.0 m,
   rotation ±180°, home −90°.
+- **MoveIt's collision octomap silently stays empty** unless two conditions hold —
+  and then the arm plans straight through the work table (the RViz green/grey
+  clouds are `reachability_cloud`/`seg_cloud`, **visualisation only**; they never
+  collide):
+  1. `collision_cloud` must publish in the **`world`** frame (the octomap map
+     frame). In the camera optical frame the octomap updater drops every cloud
+     (no error logged) and the octree is never built.
+  2. `octomap_refresher`'s `period` must stay **≫ the updater's per-cloud time**
+     (≈0.25 s at `stride=6`, ≈1 s at `stride=3`). At the old 1 s period it
+     `/clear_octomap`-ed the map faster than it rebuilt, so the planner kept
+     seeing an empty world.
+  Verify the **collision** octomap directly:
+  `ros2 service call /get_planning_scene moveit_msgs/srv/GetPlanningScene "{components: {components: 32}}"`
+  — `resolution` should read `0.03` and `data` be non-empty.
 
 ### 4. GNG-seeded MoveIt IK (Phase 2)
 Needs `move_group` running so `/compute_ik` exists (e.g. `gng_moveit.launch.py`
@@ -220,6 +238,10 @@ Cameras publish, per namespace `rgbd` / `rgbd2`: `/<ns>/rgb`, `/<ns>/depth`,
 | `reachability_cloud` | depth + seg → `/reachability/voxels` (default) **or** `/<ns>/reachability_cloud` | per-part reachability that follows the object's shape; **voxel** mode classifies each voxel green/red and reports **% reachable by volume** |
 | `seg_colorizer` | seg (32SC1) → `/<ns>/instance_segmentation_color` (rgb8) | colourised mask for an RViz Image / rqt panel |
 | `seg_cloud` | depth + seg → `/<ns>/seg_cloud` (PointCloud2) | scene cloud coloured by segmentation id |
+| `collision_cloud` | depth (objects excluded) → `/<ns>/collision_cloud` (frame `world`) | environment-only cloud feeding MoveIt's octomap (graspables kept out, see `object_collision`). Published already in the `world` map frame and subsampled (`stride`, default 6) so the octomap updater keeps up — see the octomap gotcha below |
+| `object_collision` | depth + seg → `/planning_scene` | each object as an exact `CollisionObject` box + attach/detach for grasp (`/object_collision/command`) |
+| `octomap_refresher` | timer (`period`, default 5 s) → `/clear_octomap` | periodically flush stale arm/object voxels so a moved arm doesn't bake in. `period` **must stay well above** the updater's per-cloud time, or it wipes the map faster than it rebuilds (see gotcha) |
+| `map_table` / `table_collision` | one-shot map → `/planning_scene` | map the static work table ONCE into a box, publish it as reliable occlusion-free collision geometry |
 
 Reachability rule: an object (or voxel) is **reachable** if its distance to the
 nearest GNG node is ≤ `reach_radius` (default 0.12 m); the node's stored `q` (incl.
@@ -242,6 +264,79 @@ ros2 run reachability_gng seg_colorizer      # 2D colour-mask helper
 ros2 run reachability_gng seg_cloud          # segmentation scene cloud
 ```
 
+### 7. Energy-aware arm selection + base placement (Phase 5)
+
+`gantry_reach_executor` turns a detected object into an actual MoveIt plan,
+deciding **which arm** (arm_1 vs arm_2, both on the *shared* gantry_1) and
+**which 8-DOF goal config** by **energy**, not by nearest seed. GNG supplies the
+seed/goal; MoveIt does the collision-aware planning (and, with `execute:=true`,
+execution) against the live octomap. Per pick (`~/pick`, data = object index):
+
+1. **Pool** every arm's GNG nodes within `pool_radius` (task-space) of the
+   object — the reachability filter. Density-adaptive by default
+   (`pool_radius_factor × node spacing`, ×2.5 → ~19 candidates), so the pool is
+   independent of the GNG `lam`.
+2. **Score** each pooled candidate by
+   ```
+   J = w_gantry·d_gantry + w_arm·d_arm + w_hold·hold − w_manip·manip
+   ```
+   `d_*` = joint travel from the **current** state (gantry travel is the
+   dominant, expensive term — the gantry is the heavy Modbus platform); `hold` =
+   precomputed gravity holding cost; `manip` = node manipulability. Task distance
+   **only gated the pool** — J is the objective, so a *farther* seed with lower J
+   can win (and routinely does: picks at rank-by-dist 30+ are normal).
+3. **Evaluate in ascending-J order**: IK to the **exact** object pose (seeded by
+   the candidate q; orientation = `grasp_orientation`, default top-down
+   `(1,0,0,0)` because centroid detection gives no real orientation — identity
+   quat is unreachable for the ceiling arm and returns IK error −31). Then
+   MoveGroup plan (plan-only unless `execute:=true`). Accept the **first**
+   collision-free plan; otherwise fall through to the next candidate.
+4. **Log** per-pick CSV: chosen arm, J + components, **rank-by-J vs
+   rank-by-distance**, resulting gantry placement, IK/plan time, optional
+   trajectory energy.
+
+```bash
+# prerequisites already up: move_group (/compute_ik + move_action) +
+# perception (/detected_objects + octomap) — e.g. ./isaac_sim/launch_workcell.sh
+ros2 launch reachability_gng gantry_pick.launch.py csv:=/tmp/picks.csv        # plan-only
+ros2 topic pub --once /gantry_reach_executor/pick std_msgs/String "{data: '0'}"
+column -t -s, /tmp/picks.csv
+
+# execute for real (arm moves in Isaac):
+ros2 launch reachability_gng gantry_pick.launch.py execute:=true csv:=/tmp/picks.csv
+```
+
+**Interactive picker (`pick_cli`).** Instead of the `ros2 topic pub .../pick`
+one-liner, run the menu in a second terminal: it lists the live objects from
+`/detected_objects` (labels from `/detected_objects/markers`), shows a cheap
+straight-line distance from each object to every arm's current tool frame (a
+geometric proxy, **not** the executor's energy J), and fires a pick when you type
+its index. The index is exactly what the executor uses when no `/target_object`
+is set. Watch the `gantry_pick.launch.py` terminal for the chosen arm / plan
+result.
+```bash
+ros2 launch reachability_gng gantry_pick.launch.py     # backend (terminal 1)
+ros2 run reachability_gng pick_cli                     # this menu (terminal 2)
+```
+
+**Energy weights.** What drives the ranking is each term's *influence* =
+`weight × its spread across the pool`. The launch ships calibrated defaults
+`w_gantry=2.0, w_arm=0.2, w_hold=1.2, w_manip=30` (manip ×30 because its spread
+~0.08 is tiny; gantry dominant, arm minor, hold a clear secondary). Override
+live, e.g. `-p w_manip:=300` → picks more dexterous configs; `-p w_manip:=0` →
+flips toward shorter-travel / lower-manip. Naming: gantry/arm travel =
+*minimum-joint-travel* term, `hold` = *gravity/static-torque minimisation*,
+optional `∫|τ·q̇|dt` = true *mechanical energy* (post-plan, `compute_traj_energy`).
+
+**Holding cost.** `train.py --config <arm yaml>` annotates each node with
+`hold = ‖gravity torque‖` at the node's own q (Pinocchio), stored in
+`_stats.npz`. Without `--config`, `hold=0` (older maps stay compatible; augment
+them in place rather than retraining, to keep a tuned map).
+
+**Single-object regime.** The idle arm still *rides the shared gantry* — keep it
+tucked/clear. Simultaneous **two-object** allocation over one gantry (joint base
+placement + inter-arm collision) is the multi-arm extension, not implemented.
+
 ## Status
 
 **Phase 1 (done):** GNG core (`gng.py`, unit-tested; incremental adjacency
@@ -261,6 +356,15 @@ time, manipulability).
 per-object green/red classification + manipulability, and a shape-faithful
 voxel reachability cloud with a per-object **% reachable by volume** metric
 (camera-fused, jitter-debounced). Works for arbitrary object shapes.
+
+**Phase 5 (done):** energy-aware arm selection + base placement
+(`gantry_reach_executor`, section 7). Per-node `hold` (gravity) cost in
+`_stats.npz`; `GNG.query_radius` pool retrieval; two-arm energy ranking
+`J(d_gantry, d_arm, hold, manip)` with collision-aware MoveGroup plan/execute
+and ranked-candidate fallback; per-pick CSV. Validated live (plan-only) on the
+Isaac twin: energy routinely selects a farther-but-cheaper, IK/plan-feasible
+seed (rank-by-dist ≫ 0), and the weights are confirmed live levers. Remaining
+here: real-execution sweep, multi-object batch, weight study across scenes.
 
 Remaining for the paper: a Zacharias-style voxel-capability-map baseline, the
 table-aware node-separation ablation as a flag, open-vocab segmentation

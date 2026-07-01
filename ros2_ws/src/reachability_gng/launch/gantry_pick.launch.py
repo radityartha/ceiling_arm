@@ -60,6 +60,15 @@ def generate_launch_description():
                 'arm_ee_frames': ['t1_a1_tool_frame', 't1_a2_tool_frame'],
                 'gripper_links': ['t1_a1_gripper_base_link',
                                   't1_a2_gripper_base_link'],
+                # Energy weights, calibrated so each term's influence
+                # (weight x its pool spread) matches the intended balance:
+                # gantry dominant (heavy platform), arm minor (cheap joints),
+                # hold a clear secondary, manip x30 because its spread (~0.08)
+                # is tiny. Override live with -p w_*:=...
+                'w_gantry': 2.0,
+                'w_arm': 0.2,
+                'w_hold': 1.2,
+                'w_manip': 30.0,
                 # value_type coerces the "true"/"false" string to a real bool.
                 'execute': ParameterValue(execute, value_type=bool),
                 'csv_log': csv,
