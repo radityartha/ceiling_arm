@@ -75,17 +75,14 @@ def build_room():
                 visual_material=wall_mat)
 
     # Work table under the ceiling arms. The arms hang from z~2.05 and their
-    # reachable shell (GNG cloud) floors out at z~1.14, so a floor-height table
-    # (old top_z=0.78) put objects BELOW reach. Raise the top to z=1.30 so
-    # objects rest at z~1.35 -- comfortably inside the shell (not at its lower
-    # edge, where manipulability is poor). Legs + obj_z derive from top_z.
-    # Footprint sized to the 6-object cluster (~0.55 x 0.38 m) with a small
-    # margin rather than an oversized 1.3 x 1.3 slab, and nudged +0.25 m along
-    # +X (center 1.5 -> 1.75) to push the objects further from the arm bases
-    # while staying inside the gantry's reachable range (rail travels world +X
-    # 0..3.0 m, EE reach ~3.6 m). Objects are shifted by the same +0.25 m below
-    # so they stay on the top. Legs + obj_z derive from top_z.
-    cx, cy, top_z, th = 1.75, 0.0, 1.30, 0.05
+    # reachable GNG cloud floors out at z~1.22. top_z=1.05 puts the top ~0.17 m
+    # below that floor, but the 0.727 m pool radius (reachability heuristic)
+    # bridges the gap, so objects at z~1.10 still find candidate nodes and stay
+    # reachable. Legs + obj_z derive from top_z. Footprint sized to the object
+    # cluster with a small margin. Center sits at x=1.55 (was 1.75, shifted -0.20 m
+    # along X); object X and the cabinet (below) shift with it. Rail travels world
+    # +X 0..3.0 m, EE reach ~3.6 m, so this stays inside the gantry's X range.
+    cx, cy, top_z, th = 1.55, 0.0, 1.05, 0.05
     FixedCuboid(prim_path="/World/work_table/top", name="wt_top",
                 position=np.array([cx, cy, top_z]), scale=np.array([0.9, 0.7, th]),
                 visual_material=top_mat)
@@ -94,16 +91,16 @@ def build_room():
                     position=np.array([cx + dx, cy + dy, top_z / 2]),
                     scale=np.array([0.05, 0.05, top_z]), visual_material=leg_mat)
 
-    # Second work table on the +Y side ("left" of the arms), slightly SHORTER than
-    # table 1 (top_z 1.22 vs 1.30) -- kept just above the arms' reachable z-floor
-    # (~1.22 m, measured from the GNG map) so its near objects stay reachable. It
-    # is a long bench extended in +Y ON PURPOSE: gantry_1's reachable cloud only
-    # spans y up to ~1.08 m, so to host an object that is GENUINELY out of reach
-    # (the banana, below) the top has to extend well past that. Near end (small y)
-    # carries the reachable objects, far end (+Y) the unreachable one. ~0.15 m gap
-    # in Y from table 1 (table 1 +Y edge 0.35, table 2 -Y edge cy2 - sy2/2 = 0.50)
-    # so the two tables don't touch.
-    cx2, cy2, top_z2, sx2, sy2 = 1.75, 1.25, 1.22, 0.75, 1.5
+    # Second work table on the +Y side ("left" of the arms), slightly lower than
+    # table 1 (top_z2 0.97 vs 1.05). It is a bench extended in +Y so its far end can
+    # host an object GENUINELY out of reach: gantry_1's reachable cloud spans y up
+    # to ~1.08 m and the pool radius is 0.727 m, so the unreachable crossover is
+    # ~y=1.45. The near end (small y) carries the reachable objects; the far end
+    # (the banana at y=1.60) is the unreachable one. Shortened from sy2=1.5/cy2=1.25
+    # (far edge 2.00) to sy2=1.30/cy2=1.02 (far edge 1.67) since the banana no longer
+    # needs to sit at y=1.85. Table 1 +Y edge = 0.35, table 2 -Y edge = cy2-sy2/2 =
+    # 0.37, so the two tables nearly touch but don't.
+    cx2, cy2, top_z2, sx2, sy2 = 1.75, 1.02, 0.97, 0.75, 1.30
     FixedCuboid(prim_path="/World/work_table2/top", name="wt2_top",
                 position=np.array([cx2, cy2, top_z2]), scale=np.array([sx2, sy2, th]),
                 visual_material=top_mat)
@@ -115,9 +112,9 @@ def build_room():
 
     # A cabinet standing beside the table on the -X side (i.e. "before" the table,
     # toward the rail origin) as a static obstacle for collision testing -- the arm
-    # planner must route around it. It is a solid box from the floor up, made
-    # SLIGHTLY taller than the table top (top at z=cab_h=1.45 vs the table's
-    # ~1.325) so it pokes into the lower workspace. No semantic label on purpose:
+    # planner must route around it. It is a solid box from the floor up, its top at
+    # z=cab_h=1.45 -- above the lowered table top (~1.075) -- so it pokes into the
+    # lower workspace. No semantic label on purpose:
     # it stays "background" (seg<=1) so the cameras feed it into the MoveIt
     # collision octomap as environment, not as a graspable object. Depth along X,
     # width matched to the table in Y, placed just off the table's -X edge.
@@ -147,16 +144,20 @@ def build_room():
     surf2 = top_z2 + th / 2
     # label, usd (relative to ycb), (x, y, surface_z), has_physics_variant
     specs = [
-        ("cracker_box",     "Axis_Aligned_Physics/003_cracker_box.usd",     (1.62, -0.16, surf1), True),
-        ("sugar_box",       "Axis_Aligned_Physics/004_sugar_box.usd",       (1.62,  0.16, surf1), True),
-        ("tomato_soup_can", "Axis_Aligned_Physics/005_tomato_soup_can.usd", (1.90, -0.16, surf1), True),
-        ("mustard_bottle",  "Axis_Aligned_Physics/006_mustard_bottle.usd",  (1.90,  0.16, surf1), True),
+        ("cracker_box",     "Axis_Aligned_Physics/003_cracker_box.usd",     (1.42, -0.16, surf1), True),
+        ("sugar_box",       "Axis_Aligned_Physics/004_sugar_box.usd",       (1.42,  0.16, surf1), True),
+        ("tomato_soup_can", "Axis_Aligned_Physics/005_tomato_soup_can.usd", (1.70, -0.16, surf1), True),
+        ("mustard_bottle",  "Axis_Aligned_Physics/006_mustard_bottle.usd",  (1.70,  0.16, surf1), True),
         ("tuna_fish_can",   "Axis_Aligned/007_tuna_fish_can.usd",           (1.60,  0.70, surf2), False),
         ("potted_meat_can", "Axis_Aligned/010_potted_meat_can.usd",         (1.92,  0.72, surf2), False),
-        # banana sits at the far +Y end (y=1.85) -- ~0.77 m past the reachable
-        # cloud's y-max (1.08 m), beyond the ~0.73 m pool radius, so the reachability
-        # check finds NO candidate nodes and reports it UNREACHABLE on purpose.
-        ("banana",          "Axis_Aligned/011_banana.usd",                  (1.75,  1.85, surf2), False),
+        # banana sits at the +Y end (y=1.60): its nearest reachable GNG node is
+        # ~0.90 m away -- past the 0.727 m pool radius (2.5 x 0.291 m node spacing)
+        # -- so the reachability check finds NO candidate nodes and reports it
+        # UNREACHABLE on purpose. It was pulled in from y=1.85 so it lands closer to
+        # the RGBD cameras' axis (they sit at y=-0.6 aimed at y=0.30) and projects
+        # enough pixels to clear the localizer's min_pixels gate; the unreachable
+        # crossover is ~y=1.45, so 1.60 keeps a ~0.15 m margin.
+        ("banana",          "Axis_Aligned/011_banana.usd",                  (1.75,  1.60, surf2), False),
     ]
     objs = []
     stage = get_current_stage()

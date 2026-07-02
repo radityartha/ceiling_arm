@@ -4,9 +4,12 @@ A small control terminal: it lists the live objects from /detected_objects
 (with labels from /detected_objects/markers) and lets you type an index to fire
 a pick -- replacing the repeated `ros2 topic pub .../pick` one-liner.
 
-The index is the position in /detected_objects, exactly what the executor uses
-when no /target_object is configured (target_label==""). If a target_label IS
-set the executor ignores the index and always grasps that target.
+Selecting an object publishes its LABEL on /grasp_target, which makes
+collision_cloud carve that object out of the octomap and object_collision box it
+(so the gripper can reach + attach it) while every other object stays an octomap
+obstacle; object_localizer then puts it on /target_object for the executor. Then
+the index is sent to fire the pick. Type `c` to clear the target (all objects go
+back into the octomap).
 
 Each object also shows a CHEAP distance estimate: the straight-line distance
 from the object to each arm's current tool frame (via TF), and which arm is
@@ -59,6 +62,10 @@ class PickCli(Node):
         self.create_subscription(MarkerArray, '/detected_objects/markers',
                                  self._on_markers, 1)
         self.pick_pub = self.create_publisher(String, self._topic, 1)
+        # Selecting an object also announces it as the grasp target so
+        # collision_cloud carves it out of the octomap and object_collision boxes
+        # it (reachable + attachable); the rest stay octomap obstacles.
+        self.target_pub = self.create_publisher(String, '/grasp_target', 1)
 
     def _on_objects(self, msg):
         with self._lock:
@@ -102,6 +109,10 @@ class PickCli(Node):
     def send_pick(self, idx):
         self.pick_pub.publish(String(data=str(idx)))
 
+    def send_target(self, label):
+        """Announce the grasp target (or '' to clear -> all back in octomap)."""
+        self.target_pub.publish(String(data=label))
+
 
 def _fmt_dist(node, pose, world):
     dists = node.arm_distances(pose, world)
@@ -127,7 +138,7 @@ def _print_menu(node, poses, labels, world):
 
 
 def _loop(node: PickCli):
-    print('\n=== pick_cli ===  (Enter=refresh, q=quit)')
+    print('\n=== pick_cli ===  (Enter=refresh, c=clear target, q=quit)')
     print('dist = straight-line object->current arm tool (estimate, '
           'not energy J)')
     while rclpy.ok():
@@ -140,6 +151,10 @@ def _loop(node: PickCli):
             break
         if raw.lower() in ('q', 'quit', 'exit'):
             break
+        if raw.lower() == 'c':
+            node.send_target('')         # clear -> every object back in octomap
+            print('  -> grasp target cleared (all objects back in octomap)')
+            continue
         if raw == '':
             continue                     # refresh the menu
         if not raw.isdigit():
@@ -150,6 +165,12 @@ def _loop(node: PickCli):
             print(f'  ! index {idx} out of range '
                   f'(only {len(poses)} objects)')
             continue
+        label = labels.get(idx, '')
+        if label and label != '?':
+            node.send_target(label)      # carve it out + box it before picking
+            print(f'  -> grasp target = {label} (carved out of octomap + boxed)')
+        else:
+            print('  ! no label for this object yet; picking by index only')
         node.send_pick(idx)
         print(f'  -> pick object {idx} sent to {node._topic} '
               f'(see executor terminal for the result)')

@@ -28,6 +28,11 @@ MAX_NODES="${MAX_NODES:-3000}"
 LAM="${LAM:-60}"
 EPOCHS="${EPOCHS:-2}"
 TASK="${TASK:-pos}"
+# BOUNDARY>0 pins that many fixed shell nodes on the true reachable surface so
+# the node hull reaches the real workspace edge instead of settling ~half a cell
+# inside it (set BOUNDARY=0 for the legacy centroid-only map).
+BOUNDARY="${BOUNDARY:-600}"
+BOUNDARY_TAU="${BOUNDARY_TAU:-0.4}"
 
 mkdir -p "$OUT_DIR"
 
@@ -40,9 +45,10 @@ for entry in "${ARMS[@]}"; do
   echo "=== [$name] data_gen ($N samples) -> $dataset ==="
   python3 -m reachability_gng.data_gen --config "$cfg" --out "$dataset" --n "$N"
 
-  echo "=== [$name] train (max-nodes=$MAX_NODES lam=$LAM epochs=$EPOCHS) -> $model ==="
+  echo "=== [$name] train (max-nodes=$MAX_NODES lam=$LAM epochs=$EPOCHS boundary=$BOUNDARY) -> $model ==="
   python3 -m reachability_gng.train --dataset "$dataset" --out "$model" \
-      --task "$TASK" --max-nodes "$MAX_NODES" --lam "$LAM" --epochs "$EPOCHS"
+      --task "$TASK" --max-nodes "$MAX_NODES" --lam "$LAM" --epochs "$EPOCHS" \
+      --boundary-nodes "$BOUNDARY" --boundary-tau "$BOUNDARY_TAU"
 done
 
 echo "=== done. Models in $OUT_DIR: ${ARMS[*]%%:*} ==="

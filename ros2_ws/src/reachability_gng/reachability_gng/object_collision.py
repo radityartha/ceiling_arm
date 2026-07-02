@@ -1,17 +1,17 @@
 """Turn segmented objects into MoveIt CollisionObjects + attach/detach for grasp.
 
-Companion to collision_cloud (which keeps objects OUT of the octomap): this node
-represents each detected object as an exact CollisionObject BOX in the planning
-scene so MoveIt avoids every object during transit, and lets the grasp pipeline
-ATTACH the target object to the gripper (so the gripper may contact/carry it)
-then DETACH it after release.
+Companion to collision_cloud (which keeps ALL objects in the octomap by default,
+carving out only the grasp target): this node represents ONLY the chosen grasp
+target as an exact CollisionObject BOX in the planning scene, so the gripper can
+reach it, be ACM-allowed into it, and ATTACH it to the gripper (contact/carry)
+then DETACH after release. Non-target objects are left as octomap obstacles.
 
-Per camera it time-syncs depth + instance_segmentation, deprojects each object's
-pixels (seg id > 1) to `world`, groups points by label across cameras, fits an
-axis-aligned box per object, and publishes them as a PlanningScene diff on
-`/planning_scene`. Objects unseen for `ttl` seconds are removed. Boxes use the
-instance-seg label as the CollisionObject id (stable per object), so an
-open-vocab detector can later replace the Isaac segmentation with no change here.
+Per camera it time-syncs depth + instance_segmentation, deprojects the TARGET
+object's pixels to `world`, groups points by label across cameras, fits an
+axis-aligned box, and publishes it as a PlanningScene diff on `/planning_scene`.
+The target unseen for `ttl` seconds is removed. Boxes use the instance-seg label
+as the CollisionObject id (stable per object), so an open-vocab detector can later
+replace the Isaac segmentation with no change here. No target set -> no boxes.
 
 Attach / detach via a std_msgs/String command on `/object_collision/command`
 (no custom .srv needed -- this package is ament_python):
@@ -46,6 +46,7 @@ from tf2_ros import (Buffer, ConnectivityException, ExtrapolationException,
 
 from reachability_gng.object_localizer import (deproject, quat_to_R,
                                                resolve_target_ids)
+from reachability_gng.pause_gate import PauseGate
 
 
 class ObjectCollision(Node):
@@ -62,9 +63,9 @@ class ObjectCollision(Node):
         self.declare_parameter('ttl', 1.0)           # s an object persists unseen
         self.declare_parameter('publish_period', 0.5)
         self.declare_parameter('touch_links', [''])  # gripper links allowed to touch
-        # Grasp target: empty -> box EVERY object (legacy). When set, only the
-        # matching object becomes a CollisionObject (others stay obstacles via
-        # the octomap, see collision_cloud).
+        # Grasp target: empty -> box NOTHING (all objects stay in the octomap as
+        # obstacles, see collision_cloud). When set, ONLY the matching object
+        # becomes a CollisionObject box (reachable + attachable for the grasp).
         self.declare_parameter('target_label', '')
         self.declare_parameter('target_id', -1)
 
@@ -83,6 +84,10 @@ class ObjectCollision(Node):
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
+        # Freeze the CollisionObject republish during a pick (see pause_gate) so
+        # the 0.5 s re-ADD doesn't bump the scene version mid-plan.
+        self.declare_parameter('pause_timeout', 8.0)   # resume 8 s after heartbeat stops
+        self.gate = PauseGate(self, float(self.get_parameter('pause_timeout').value))
         self._K = {ns: None for ns in nss}
         self._labels = {ns: {} for ns in nss}
         # per camera: label -> (points_world Nx3, last_seen_monotonic)
@@ -97,6 +102,11 @@ class ObjectCollision(Node):
         self.scene_pub = self.create_publisher(PlanningScene, '/planning_scene', qos)
         self.create_subscription(String, '/object_collision/command',
                                  self._on_command, 10)
+        # Runtime target selection: publish a label on /grasp_target to box that
+        # object (reachable + attachable) without a restart; empty string clears it
+        # (all objects then stay octomap-only).
+        self.create_subscription(String, '/grasp_target',
+                                 self._on_grasp_target, 10)
 
         for ns in nss:
             self.create_subscription(
@@ -167,8 +177,11 @@ class ObjectCollision(Node):
         target_ids = resolve_target_ids(
             self._labels[ns], self.target_label, self.target_id)
         for inst_id, label in self._labels[ns].items():
-            if target_ids is not None and inst_id not in target_ids:
-                continue   # box only the grasp target; others are octomap obstacles
+            # ONLY the chosen grasp target becomes a CollisionObject box (so it can
+            # be reached + attached); every other object stays an octomap obstacle
+            # (collision_cloud keeps them). No target set -> box nothing.
+            if not target_ids or inst_id not in target_ids:
+                continue
             mask = (seg == inst_id) & valid
             ys, xs = np.nonzero(mask)
             if xs.size < self.min_pixels:
@@ -177,6 +190,16 @@ class ObjectCollision(Node):
                             depth[ys[::self.stride], xs[::self.stride]],
                             fx, fy, cx, cy)
             self._latest[ns][label] = (pts @ R.T + T, now)
+
+    def _on_grasp_target(self, msg):
+        label = msg.data.strip()
+        if label == self.target_label:
+            return
+        self.target_label = label
+        self.target_id = -1   # label is the runtime interface; clear numeric
+        self.get_logger().info(
+            f"grasp target -> '{label}' (boxed as CollisionObject)" if label
+            else 'grasp target cleared (no object boxes; all octomap obstacles)')
 
     def _on_command(self, msg):
         parts = msg.data.split()
@@ -191,6 +214,8 @@ class ObjectCollision(Node):
 
     # ---- world publish ------------------------------------------------------
     def _publish(self):
+        if self.gate.paused():
+            return                 # keep the scene frozen while a pick plans
         now = time.monotonic()
         # fuse latest in-TTL points per label across cameras
         fused = {}

@@ -1,6 +1,7 @@
 # --- GLOBAL SETTINGS ---
 octomap_frame: world
-octomap_resolution: 0.03 # 3 cm voxels (lighter; was 0.02). Grid cell size.
+octomap_resolution: 0.02 # 2 cm voxels: finer, follows the sensed shape more
+# closely (was 0.03 for lightness). If move_group/RViz get sluggish, revert to 0.03.
 max_range: 5.0
 
 sensors:
@@ -91,7 +92,7 @@ rgbd_scene:
   point_cloud_topic: /rgbd/collision_cloud
   max_range: 8.0
   point_subsample: 1
-  max_update_rate: 5.0
+  max_update_rate: 20.0   # ingest more frames so the surface fills faster/denser
   # aggressive self-filter so the arms (which hang into the camera view) are
   # removed before octomap insertion -- otherwise the arm bakes in as a stale
   # obstacle. Pairs with the periodic /clear_octomap refresher.
@@ -104,7 +105,7 @@ rgbd2_scene:
   point_cloud_topic: /rgbd2/collision_cloud
   max_range: 8.0
   point_subsample: 1
-  max_update_rate: 5.0
+  max_update_rate: 20.0   # ingest more frames so the surface fills faster/denser
   # aggressive self-filter so the arms (which hang into the camera view) are
   # removed before octomap insertion -- otherwise the arm bakes in as a stale
   # obstacle. Pairs with the periodic /clear_octomap refresher.

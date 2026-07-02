@@ -54,6 +54,10 @@ class GNG:
         # node reference vectors, growable; start empty (seeded in fit/init)
         self.W = np.empty((0, self.dim), dtype=np.float64)
         self.error = np.empty((0,), dtype=np.float64)
+        # pinned nodes are frozen boundary seeds: never moved by adaptation and
+        # never removed, so the node hull stays anchored on the true reachable
+        # surface instead of shrinking to Voronoi centroids (see seed_boundary).
+        self.pinned = np.empty((0,), dtype=bool)
         # edge ages keyed by frozenset({i, j}); _adj is an incremental
         # neighbour index (node -> set of neighbours) kept in sync with _edges
         # so the hot path is O(degree), not O(num_edges).
@@ -73,9 +77,10 @@ class GNG:
     def _neighbours(self, i):
         return list(self._adj.get(i, ()))
 
-    def _add_node(self, vec):
+    def _add_node(self, vec, pinned=False):
         self.W = np.vstack([self.W, vec[None, :]])
         self.error = np.append(self.error, 0.0)
+        self.pinned = np.append(self.pinned, bool(pinned))
         idx = len(self.W) - 1
         self._adj[idx] = set()
         return idx
@@ -95,6 +100,7 @@ class GNG:
         remap = {old: new for new, old in enumerate(keep)}
         self.W = self.W[keep]
         self.error = self.error[keep]
+        self.pinned = self.pinned[keep]
         new_edges = {}
         for e, age in self._edges.items():
             a, b = tuple(e)
@@ -117,6 +123,21 @@ class GNG:
         self._add_node(X[idx[1]].copy())
         self._set_edge(0, 1, 0)
 
+    def seed_boundary(self, W_seed, edges):
+        """Seed the graph with fixed boundary nodes before fitting.
+
+        `W_seed` (M, dim) are full [task | q] vectors sampled on the reachable
+        workspace surface; `edges` is an iterable of (i, j) index pairs forming
+        the boundary shell. All seeded nodes are pinned (frozen + never removed),
+        so the interior GNG grows inside a hull anchored on the true surface.
+        Call instead of init_two, before fit()."""
+        for vec in np.asarray(W_seed, dtype=np.float64):
+            self._add_node(vec.copy(), pinned=True)
+        for i, j in edges:
+            if i != j:
+                self._set_edge(int(i), int(j), 0)
+        return self
+
     def step(self, x):
         """Present a single sample and update the graph."""
         self._step += 1
@@ -127,16 +148,24 @@ class GNG:
         # accumulate error of the BMU (squared task-space distance)
         self.error[s1] += d2[s1]
 
-        # move BMU and its topological neighbours toward x (full vector)
-        self.W[s1] += self.params.eps_b * (x - self.W[s1])
+        # move BMU and its topological neighbours toward x (full vector).
+        # Pinned (boundary) nodes are frozen: they stay on the true reachable
+        # surface and their q remains the config that reached that surface point.
+        if not self.pinned[s1]:
+            self.W[s1] += self.params.eps_b * (x - self.W[s1])
         for n in self._neighbours(s1):
-            self.W[n] += self.params.eps_n * (x - self.W[n])
+            if not self.pinned[n]:
+                self.W[n] += self.params.eps_n * (x - self.W[n])
 
         # An edge's age only grows when one endpoint is the BMU, so an edge can
         # only become stale right after being aged here -> we age + prune just
-        # the BMU's incident edges (O(degree)).
+        # the BMU's incident edges (O(degree)). Edges touching a pinned node are
+        # never aged/pruned, so the boundary shell (and its anchors to the
+        # interior) persists for the whole run.
         touched = set()
         for n in list(self._adj[s1]):
+            if self.pinned[s1] or self.pinned[n]:
+                continue
             e = frozenset((s1, n))
             self._edges[e] += 1
             if self._edges[e] > self.params.age_max:
@@ -144,8 +173,10 @@ class GNG:
                 touched.add(n)
         self._set_edge(s1, s2, 0)  # refresh BMU<->2nd-BMU edge (age 0)
 
-        # drop nodes that just lost their last edge
-        for i in sorted((n for n in touched if not self._adj[n]), reverse=True):
+        # drop non-pinned nodes that just lost their last edge
+        for i in sorted((n for n in touched
+                         if not self._adj[n] and not self.pinned[n]),
+                        reverse=True):
             if len(self.W) > 2:
                 self._remove_node(i)
 
@@ -220,7 +251,7 @@ class GNG:
         ages = np.array(list(self._edges.values()), dtype=np.int64)
         np.savez(
             path, W=self.W, error=self.error, edges=edges, ages=ages,
-            dim=self.dim, task_dim=self.task_dim,
+            dim=self.dim, task_dim=self.task_dim, pinned=self.pinned,
         )
 
     @classmethod
@@ -229,6 +260,8 @@ class GNG:
         g = cls(dim=int(d['dim']), task_dim=int(d['task_dim']))
         g.W = d['W']
         g.error = d['error']
+        g.pinned = (d['pinned'] if 'pinned' in d
+                    else np.zeros(len(g.W), dtype=bool))
         g._edges = {frozenset(map(int, e)): int(a)
                     for e, a in zip(d['edges'], d['ages'])}
         g._adj = {i: set() for i in range(len(g.W))}

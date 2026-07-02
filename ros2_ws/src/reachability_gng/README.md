@@ -79,35 +79,42 @@ python3 -m reachability_gng.data_gen \
     --out /tmp/arm1_dataset.npz --n 80000
 python3 -m reachability_gng.train --dataset /tmp/arm1_dataset.npz \
     --out /tmp/arm1_model.npz --task pos --max-nodes 3000 --lam 60 --epochs 2 \
+    --boundary-nodes 600 \
     --config ros2_ws/src/reachability_gng/config/arm1_table1.yaml
-# -> ~2668 nodes; node hull reaches close to true arm+table reach
+# -> 3000 nodes (600 pinned boundary shell + interior); node hull reaches the
+#    TRUE arm+table reach surface exactly (--boundary-nodes; see gotcha below).
+#    Omit --boundary-nodes (or set 0) for the legacy centroid-only map that falls
+#    ~0.26 m short at the edge.
 # --config adds per-node `hold` (gravity holding cost) to _stats.npz for the
 # energy-aware executor (section 7); omit it and hold defaults to 0.
 ```
 
-**Node count is set by `lam`, not `max-nodes` alone:**
+**Node count = pinned boundary shell + interior; the interior is set by `lam`:**
 ```
-nodes ≈ min( max_nodes , n × epochs / lam )
+nodes ≈ BOUNDARY  +  min( max_nodes − BOUNDARY , n × epochs / lam )
 ```
-e.g. `--max-nodes 1500` with default `--lam 200`, `n=50000`, `epochs=2` gives
-only ~500 nodes (cap never reached, cloud looks short). To hit a target node
-count `N`, set `lam ≈ n × epochs / N`.
+The `BOUNDARY` pinned shell nodes (default 600, see "boundary seeding" below) are
+independent of `lam`; only the *interior* count follows `n × epochs / lam`. To
+hit a target interior count `M`, set `lam ≈ n × epochs / M`.
 
 #### Tuning: change sample count / node density
 `build_maps.sh` takes the knobs as env vars (defaults `N=80000 LAM=60
-MAX_NODES=3000 EPOCHS=2` → ~2668 nodes):
+MAX_NODES=3000 EPOCHS=2 BOUNDARY=600 BOUNDARY_TAU=0.4` → 3000 nodes = 600 pinned
+shell + ~2400 interior):
 ```bash
 N=200000 ros2_ws/src/reachability_gng/build_maps.sh    # more FK samples (denser data, slower)
-LAM=160  ros2_ws/src/reachability_gng/build_maps.sh    # ~1000 nodes (sparser cloud)
+LAM=160  ros2_ws/src/reachability_gng/build_maps.sh    # ~1600 nodes (600 shell + ~1000 interior)
+BOUNDARY=1000 ros2_ws/src/reachability_gng/build_maps.sh  # denser edge shell
+BOUNDARY=0 ros2_ws/src/reachability_gng/build_maps.sh     # legacy centroid-only map (no shell)
 ```
-**Fewer nodes but same coverage:** keep `N` high (samples define the covered
-area) and *raise* `LAM` — GNG still spreads the nodes across the whole sampled
-region, so the cloud only gets sparser, not smaller. Pick `LAM ≈ N×EPOCHS /
-(target nodes)`, e.g. `LAM=110`→~1450, `LAM=160`→~1000, `LAM=320`→~500.
-Do **not** lower `N` to reduce nodes — that shrinks coverage and ragged-ifies the
-boundary. After rebuilding, reload the clouds (`pkill -9 -f
-lib/reachability_gng/visualize` then relaunch `gng_clouds.launch.py` /
-`launch_workcell.sh`).
+**Fewer nodes, same coverage — now safe:** the boundary is pinned, so raising
+`LAM` only thins the *interior*; the outer extent and edge fidelity are held by
+the shell (unlike the legacy map, where fewer nodes ragged-ified/shrank the
+boundary). Pick `LAM ≈ N×EPOCHS / (target interior nodes)`, e.g. `LAM=110`→~1450,
+`LAM=160`→~1000, `LAM=320`→~500 interior. Lowering `N` still shrinks coverage
+(samples define what the shell can cover), so keep `N` high. After rebuilding,
+reload the clouds (`pkill -9 -f lib/reachability_gng/visualize` then relaunch
+`gng_clouds.launch.py` / `launch_workcell.sh`).
 
 ### 3a. Quick cloud-only look in RViz (no MoveIt)
 ```bash
@@ -241,7 +248,7 @@ Cameras publish, per namespace `rgbd` / `rgbd2`: `/<ns>/rgb`, `/<ns>/depth`,
 | `collision_cloud` | depth (objects excluded) → `/<ns>/collision_cloud` (frame `world`) | environment-only cloud feeding MoveIt's octomap (graspables kept out, see `object_collision`). Published already in the `world` map frame and subsampled (`stride`, default 6) so the octomap updater keeps up — see the octomap gotcha below |
 | `object_collision` | depth + seg → `/planning_scene` | each object as an exact `CollisionObject` box + attach/detach for grasp (`/object_collision/command`) |
 | `octomap_refresher` | timer (`period`, default 5 s) → `/clear_octomap` | periodically flush stale arm/object voxels so a moved arm doesn't bake in. `period` **must stay well above** the updater's per-cloud time, or it wipes the map faster than it rebuilds (see gotcha) |
-| `map_table` / `table_collision` | one-shot map → `/planning_scene` | map the static work table ONCE into a box, publish it as reliable occlusion-free collision geometry |
+| `map_static` / `static_collision` | one-shot map → `/planning_scene` | map STATIC known geometry (work table, cabinet, fridge, …) ONCE into boxes, publish them as reliable occlusion-free collision geometry. Map one piece per run with `name:=` (and `roi:=[xmin,xmax,ymin,ymax]` when several are in view); boxes append to a shared list |
 
 Reachability rule: an object (or voxel) is **reachable** if its distance to the
 nearest GNG node is ≤ `reach_radius` (default 0.12 m); the node's stored `q` (incl.
@@ -278,13 +285,19 @@ execution) against the live octomap. Per pick (`~/pick`, data = object index):
    independent of the GNG `lam`.
 2. **Score** each pooled candidate by
    ```
-   J = w_gantry·d_gantry + w_arm·d_arm + w_hold·hold − w_manip·manip
+   J = w_gantry_lin·d_gantry_lin + w_gantry_rot·d_gantry_rot
+       + w_arm·d_arm + w_dist·ee_dist − w_manip·manip
    ```
    `d_*` = joint travel from the **current** state (gantry travel is the
-   dominant, expensive term — the gantry is the heavy Modbus platform); `hold` =
-   precomputed gravity holding cost; `manip` = node manipulability. Task distance
-   **only gated the pool** — J is the objective, so a *farther* seed with lower J
-   can win (and routinely does: picks at rank-by-dist 30+ are normal).
+   dominant, expensive term — the gantry is the heavy Modbus platform). The
+   gantry's linear (prismatic, metres) and rotation (radians) axes carry
+   **separate weights** because their units and cost differ. `ee_dist` = the
+   arm's **current** tool-frame distance (via TF, Euclidean metres) to the
+   object — one value **per arm**, so this term biases the allocation toward the
+   arm whose end-effector is already nearer (set `w_dist=0` to disable). `manip`
+   = node manipulability. (The per-node task-space `dist` still gates the pool
+   and is logged for the rank-by-distance diagnostic; the gravity `hold` cost is
+   CSV-only.) J is the objective, so a *farther* seed with lower J can still win.
 3. **Evaluate in ascending-J order**: IK to the **exact** object pose (seeded by
    the candidate q; orientation = `grasp_orientation`, default top-down
    `(1,0,0,0)` because centroid detection gives no real orientation — identity
@@ -320,13 +333,16 @@ ros2 run reachability_gng pick_cli                     # this menu (terminal 2)
 ```
 
 **Energy weights.** What drives the ranking is each term's *influence* =
-`weight × its spread across the pool`. The launch ships calibrated defaults
-`w_gantry=2.0, w_arm=0.2, w_hold=1.2, w_manip=30` (manip ×30 because its spread
-~0.08 is tiny; gantry dominant, arm minor, hold a clear secondary). Override
-live, e.g. `-p w_manip:=300` → picks more dexterous configs; `-p w_manip:=0` →
-flips toward shorter-travel / lower-manip. Naming: gantry/arm travel =
-*minimum-joint-travel* term, `hold` = *gravity/static-torque minimisation*,
-optional `∫|τ·q̇|dt` = true *mechanical energy* (post-plan, `compute_traj_energy`).
+`weight × its spread across the pool`. The calibrated defaults live in one place
+only — the node's `declare_parameter` calls in `gantry_reach_executor.py`:
+`w_gantry_lin=1, w_gantry_rot=1, w_arm=2, w_dist=1, w_manip=0` (the gantry linear
+and rotation axes are tuned separately; `w_dist` rewards the arm whose current
+end-effector is nearer the object; set `w_dist=0` to disable). The `hold` term
+was removed from J (still logged to the CSV for reference). The launch does not
+override them. Override live, e.g. `-p w_manip:=300` → picks more dexterous
+configs; `-p w_manip:=0` → flips toward shorter-travel / lower-manip. Naming:
+gantry/arm travel = *minimum-joint-travel* term, optional `∫|τ·q̇|dt` = true
+*mechanical energy* (post-plan, `compute_traj_energy`).
 
 **Holding cost.** `train.py --config <arm yaml>` annotates each node with
 `hold = ‖gravity torque‖` at the node's own q (Pinocchio), stored in
@@ -360,7 +376,7 @@ voxel reachability cloud with a per-object **% reachable by volume** metric
 **Phase 5 (done):** energy-aware arm selection + base placement
 (`gantry_reach_executor`, section 7). Per-node `hold` (gravity) cost in
 `_stats.npz`; `GNG.query_radius` pool retrieval; two-arm energy ranking
-`J(d_gantry, d_arm, hold, manip)` with collision-aware MoveGroup plan/execute
+`J(d_gantry_lin, d_gantry_rot, d_arm, hold, manip)` with collision-aware MoveGroup plan/execute
 and ranked-candidate fallback; per-pick CSV. Validated live (plan-only) on the
 Isaac twin: energy routinely selects a farther-but-cheaper, IK/plan-feasible
 seed (rank-by-dist ≫ 0), and the weights are confirmed live levers. Remaining
@@ -377,10 +393,19 @@ scripts.
   slider pose only moves the robot. At `t1_linear=0` the arm alone reaches a
   ~0.7 m sphere (X up to ~+0.4); the cloud extends to X≈+3.6 only because other
   samples slid the table out. That is correct.
-- **GNG leaves a small boundary gap.** Nodes settle at Voronoi-cell centroids,
-  so the node hull sits ~one half-cell inside the true reachable surface
-  (~0.1–0.25 m). For an exact reachability *boundary* figure, use an
-  alpha-shape/voxel over the raw FK samples — worth contrasting in the paper.
+- **GNG leaves a small boundary gap — fixed by boundary seeding.** Plain GNG
+  nodes settle at Voronoi-cell centroids, so the node hull sits ~one half-cell
+  inside the true reachable surface (measured ~0.26 m short in max radius at
+  2668 nodes). This is why a genuinely-reachable object near the edge could score
+  0% reach. `train.py --boundary-nodes N` (default `BOUNDARY=600` in
+  `build_maps.sh`) fixes it: it detects the outer-surface FK samples purely by
+  kNN one-sidedness (no voxels/scipy — the same enclosure idea the runtime gate
+  uses), farthest-point-samples `N` of them into a fixed shell (`knn_edges`
+  connectivity), and **pins** those nodes — never moved by adaptation, never
+  pruned/deleted. The interior GNG then grows inside a hull anchored on the true
+  surface (measured shortfall 0.000 m). Tune with `--boundary-tau` (higher =
+  fewer, more clearly-outer points). Set `BOUNDARY=0` for the legacy map. Pinned
+  nodes carry each surface sample's own `q`, so they double as valid IK seeds.
 - **Joint limits** in `config/arm1_table1.yaml` match the URDF (verified). Table
   rail is sampled 0–3.0 m.
 

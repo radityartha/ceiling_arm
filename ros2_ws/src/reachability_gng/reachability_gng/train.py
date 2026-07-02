@@ -45,6 +45,70 @@ def build_matrix(data, task, ori_weight):
     return X, task_feat.shape[1]
 
 
+def boundary_mask(P, k=15, tau=0.4, chunk=800):
+    """Flag the outer-surface points of a point cloud, purely from geometry.
+
+    For each point, take its `k` nearest neighbours and the unit vectors toward
+    them. An INTERIOR point is surrounded, so those unit vectors roughly cancel
+    (|mean| ~ 0); a SURFACE point has neighbours only on the inward side, so they
+    add up (|mean| large). Points with |mean| > `tau` are the reachable-workspace
+    boundary. Same one-sidedness idea the runtime `enclose` gate uses, applied to
+    the raw FK samples. Chunked brute-force kNN (no scipy/voxels)."""
+    P = np.asarray(P, dtype=np.float32)
+    n = len(P)
+    out = np.zeros(n, dtype=bool)
+    k = min(k, n - 1)
+    Psq = np.einsum('ij,ij->i', P, P)                         # (N,) |p|^2
+    for s in range(0, n, chunk):
+        blk = P[s:s + chunk]                                  # (B,3)
+        # |a-b|^2 = |a|^2 + |b|^2 - 2 a.b, so the (B,N,3) diff is never formed
+        d2 = Psq[None, :] + Psq[s:s + chunk, None] - 2.0 * (blk @ P.T)  # (B,N)
+        nn = np.argpartition(d2, k, axis=1)[:, :k + 1]        # k nearest + self
+        rows = np.arange(blk.shape[0])[:, None]
+        vec = P[nn] - blk[:, None, :]                         # (B,k+1,3)
+        d = np.linalg.norm(vec, axis=2)                       # (B,k+1)
+        # drop the self match (distance ~0) per row, keep k neighbours
+        self_col = np.argmin(d, axis=1)
+        keep = d > 1e-9
+        keep[rows[:, 0], self_col] = False
+        units = np.where(keep[..., None], vec / np.maximum(d[..., None], 1e-9), 0.0)
+        cnt = np.maximum(keep.sum(axis=1, keepdims=True), 1)
+        out[s:s + blk.shape[0]] = np.linalg.norm(units.sum(1) / cnt, axis=1) > tau
+    return out
+
+
+def farthest_point_sample(P, m, seed=0):
+    """Indices of `m` well-spread points via farthest-point sampling (pure numpy)."""
+    P = np.asarray(P, dtype=np.float64)
+    n = len(P)
+    if m >= n:
+        return np.arange(n)
+    rng = np.random.default_rng(seed)
+    chosen = [int(rng.integers(n))]
+    d = np.linalg.norm(P - P[chosen[0]], axis=1)
+    for _ in range(m - 1):
+        i = int(np.argmax(d))
+        chosen.append(i)
+        d = np.minimum(d, np.linalg.norm(P - P[i], axis=1))
+    return np.array(chosen, dtype=int)
+
+
+def knn_edges(P, k=6):
+    """Undirected (i, j) edges linking each point to its k nearest others."""
+    P = np.asarray(P, dtype=np.float64)
+    n = len(P)
+    k = min(k, n - 1)
+    d2 = np.einsum('ijk,ijk->ij', P[:, None, :] - P[None, :, :],
+                   P[:, None, :] - P[None, :, :])
+    nn = np.argpartition(d2, k, axis=1)[:, :k + 1]
+    edges = set()
+    for i in range(n):
+        for j in nn[i]:
+            if int(j) != i:
+                edges.add((min(i, int(j)), max(i, int(j))))
+    return list(edges)
+
+
 def annotate(g: GNG, X, manip):
     """Assign each sample to its BMU and accumulate hits + mean manipulability."""
     hits = np.zeros(len(g.W))
@@ -87,6 +151,17 @@ def main():
     ap.add_argument('--lam', type=int, default=200)
     ap.add_argument('--epochs', type=int, default=2)
     ap.add_argument('--seed', type=int, default=0)
+    ap.add_argument('--boundary-nodes', type=int, default=0,
+                    help='pin this many fixed boundary-shell nodes on the true '
+                    'reachable surface before growing the interior (0 = off, '
+                    'legacy centroid-only map)')
+    ap.add_argument('--boundary-k', type=int, default=15,
+                    help='kNN used for surface detection')
+    ap.add_argument('--boundary-tau', type=float, default=0.4,
+                    help='one-sidedness threshold (0..1); higher = fewer, more '
+                    'clearly-outer points flagged as boundary')
+    ap.add_argument('--boundary-edges-k', type=int, default=6,
+                    help='shell connectivity: edges per boundary node')
     args = ap.parse_args()
 
     data = np.load(args.dataset)
@@ -94,6 +169,18 @@ def main():
 
     params = GNGParams(max_nodes=args.max_nodes, lam=args.lam, seed=args.seed)
     g = GNG(dim=X.shape[1], task_dim=task_dim, params=params)
+    if args.boundary_nodes > 0:
+        pos = X[:, :3]                              # metric xyz for geometry
+        bmask = boundary_mask(pos, k=args.boundary_k, tau=args.boundary_tau)
+        bidx = np.where(bmask)[0]
+        if len(bidx) == 0:
+            raise SystemExit('no boundary points found; lower --boundary-tau')
+        sel = bidx[farthest_point_sample(pos[bidx], args.boundary_nodes,
+                                         seed=args.seed)]
+        edges = knn_edges(pos[sel], k=args.boundary_edges_k)
+        g.seed_boundary(X[sel], edges)
+        print(f'boundary: {len(bidx)} surface pts detected, pinned '
+              f'{len(sel)} shell nodes ({len(edges)} shell edges)')
     g.fit(X, epochs=args.epochs)
 
     hits, node_manip = annotate(g, X, data['manip'])
@@ -112,8 +199,9 @@ def main():
 
     np.savez(base + '_stats.npz', hits=hits, manip=node_manip, hold=hold,
              joint_names=names)
-    print(f'Trained GNG: {len(g.W)} nodes, {len(g._edges)} edges, '
-          f'task_dim={task_dim}. Saved {args.out} (+ _stats, '
+    print(f'Trained GNG: {len(g.W)} nodes ({int(g.pinned.sum())} pinned '
+          f'boundary), {len(g._edges)} edges, task_dim={task_dim}. '
+          f'Saved {args.out} (+ _stats, '
           f'hold={"computed" if args.config else "zeros"}).')
 
 

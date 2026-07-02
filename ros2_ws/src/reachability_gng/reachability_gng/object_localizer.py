@@ -138,11 +138,24 @@ class ObjectLocalizer(Node):
         self.target_pub = self.create_publisher(PoseStamped, '/target_object', 1)
         self.marker_pub = self.create_publisher(
             MarkerArray, '/detected_objects/markers', 1)
+        # Runtime target selection: publish a label on /grasp_target to make that
+        # object the target on /target_object without a restart; empty clears it.
+        self.create_subscription(String, '/grasp_target',
+                                 self._on_grasp_target, 10)
         self.create_timer(
             float(self.get_parameter('publish_period').value), self._publish)
         self.get_logger().info(f'object_localizer up; cameras={nss}')
 
     # ---- subscriber callbacks ----------------------------------------------
+    def _on_grasp_target(self, msg):
+        label = msg.data.strip()
+        if label == self.target_label:
+            return
+        self.target_label = label
+        self.target_id = -1   # label is the runtime interface; clear numeric
+        self.get_logger().info(
+            f"grasp target -> '{label}'" if label else 'grasp target cleared')
+
     def _on_info(self, ns, m):
         k = m.k
         self._K[ns] = (k[0], k[4], k[2], k[5])  # fx, fy, cx, cy

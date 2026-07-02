@@ -58,16 +58,25 @@ ros2_ws/src/reachability_gng/build_maps.sh</code></pre>
   <div class="card">
   <h2>0b · Tune the cloud (samples &amp; node count)</h2>
   <p><code>build_maps.sh</code> reads env vars (defaults <code>N=80000 LAM=60
-     MAX_NODES=3000 EPOCHS=2</code> → ~2668 nodes). Node count ≈
-     <code>N × EPOCHS / LAM</code>.</p>
+     MAX_NODES=3000 EPOCHS=2 BOUNDARY=600 BOUNDARY_TAU=0.4</code> → 3000 nodes =
+     <b>600 pinned boundary shell + ~2400 interior</b>). Interior count ≈
+     <code>N × EPOCHS / LAM</code>; the shell is independent of <code>LAM</code>.</p>
 <pre><code>N=200000 ros2_ws/src/reachability_gng/build_maps.sh   # more FK samples (denser, slower)
-LAM=160  ros2_ws/src/reachability_gng/build_maps.sh   # ~1000 nodes (sparser cloud)</code></pre>
-  <p><b>Fewer nodes, same coverage:</b> keep <code>N</code> high (samples = covered
-     area) and <b>raise <code>LAM</code></b> — GNG still spreads the nodes over the
-     whole region, so the cloud just gets sparser, not smaller. Pick
-     <code>LAM ≈ N×EPOCHS / (target nodes)</code> →
+LAM=160  ros2_ws/src/reachability_gng/build_maps.sh   # ~1600 nodes (600 shell + ~1000 interior)
+BOUNDARY=1000 ros2_ws/src/reachability_gng/build_maps.sh  # denser edge shell
+BOUNDARY=0    ros2_ws/src/reachability_gng/build_maps.sh  # legacy centroid-only map</code></pre>
+  <p><b>Boundary seeding (why the edge is now honest):</b> plain GNG nodes settle
+     at Voronoi centroids, so the hull sits ~0.26 m <i>inside</i> the true reachable
+     surface — a genuinely-reachable object near the edge then scored 0% reach.
+     <code>BOUNDARY&gt;0</code> detects the outer FK samples (kNN one-sidedness, no
+     voxels) and <b>pins</b> them as a fixed shell that adaptation never moves and
+     pruning never deletes, so the hull reaches the true surface exactly (0.00 m
+     short). Raise <code>BOUNDARY_TAU</code> if the shell balloons to stray samples.</p>
+  <p><b>Fewer nodes, same coverage — now safe:</b> because the shell is pinned,
+     <b>raising <code>LAM</code></b> only thins the <i>interior</i>; the outer extent
+     and edge fidelity hold. Pick <code>LAM ≈ N×EPOCHS / (target interior)</code> →
      <code>110</code>≈1450, <code>160</code>≈1000, <code>320</code>≈500.
-     Don't lower <code>N</code> to cut nodes (that shrinks coverage + ragged edge).</p>
+     Keep <code>N</code> high (samples define what the shell can cover).</p>
   <p class="note">Then reload: <code>pkill -9 -f lib/reachability_gng/visualize</code>
      and relaunch <code>gng_clouds.launch.py</code> / <code>launch_workcell.sh</code>.</p>
   </div>
@@ -127,10 +136,14 @@ ros2 launch reachability_gng gantry_pick.launch.py execute:=true csv:=/tmp/picks
      <code>ros2 topic pub .../pick</code> one-liner. Watch the executor terminal
      for the chosen arm / plan result.</p>
   <p>Each candidate scored
-     <code>J = w_gantry·d_gantry + w_arm·d_arm + w_hold·hold − w_manip·manip</code>;
-     task distance only filters the pool, so a <b>farther</b> seed with lower J can
-     win (rank-by-dist ≫ 0 is normal). Calibrated default weights
-     <code>2.0 / 0.2 / 1.2 / 30</code> (manip ×30 — tiny spread); override live with
+     <code>J = w_gantry_lin·d_gantry_lin + w_gantry_rot·d_gantry_rot + w_arm·d_arm + w_dist·ee_dist − w_manip·manip</code>
+     (gantry linear/prismatic and rotation axes weighted separately;
+     <code>ee_dist</code> = the arm's CURRENT tool-frame Euclidean distance (via TF) to the
+     object, one value per arm, so it biases allocation toward the nearer end-effector —
+     <code>w_dist=0</code> to disable; the gravity <code>hold</code> cost was
+     removed from J but is still logged to the CSV). A <b>farther</b> seed with lower J can
+     still win. Calibrated default weights
+     <code>lin 1 / rot 1 / arm 2 / dist 1 / manip 0</code>; override live with
      <code>-p w_manip:=300</code> etc.</p>
   <p class="note">Needs the maps' <code>_stats.npz</code> to carry <code>hold</code>
      (train with <code>--config</code>, or augment an existing map). Grasp
@@ -175,6 +188,10 @@ ros2 launch reachability_gng gantry_pick.launch.py execute:=true csv:=/tmp/picks
         <td>centroid orientation is identity (unreachable) — executor uses
             <code>grasp_orientation</code> top-down <code>(1,0,0,0)</code>; tune via
             <code>-p grasp_orientation:=[x,y,z,w]</code></td></tr>
+    <tr><td>reachable object scores 0% / red near the workspace edge</td>
+        <td>legacy centroid map's node hull falls ~0.26 m short of the true reach
+            surface. Rebuild with boundary seeding (<code>BOUNDARY=600</code>, the
+            default) so the pinned shell reaches the real edge; see card 0b</td></tr>
     <tr><td>energy weights seem to do nothing</td>
         <td>influence = weight × pool spread; <code>manip</code> spread ~0.08 so it
             needs <code>w_manip</code>≈30+. Pool too small? raise
