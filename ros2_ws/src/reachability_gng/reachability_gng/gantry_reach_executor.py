@@ -57,6 +57,7 @@ from rclpy.node import Node
 from rclpy.time import Time
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Bool, String
+from visualization_msgs.msg import MarkerArray
 from tf2_ros import (Buffer, ConnectivityException, ExtrapolationException,
                      LookupException, TransformListener)
 
@@ -192,6 +193,11 @@ class GantryReachExecutor(Node):
         # --- IK / planning ---
         self.declare_parameter('ik_timeout', 0.05)        # inside the IK request
         self.declare_parameter('ik_wait', 2.0)            # service round-trip cap
+        # Collision-aware IK. True (default) makes /compute_ik reject a solution
+        # that collides -> returns -31. Set False to A/B test a -31: if IK then
+        # succeeds, the -31 was a COLLISION (e.g. against the static collision
+        # geometry / octomap), not a kinematically unreachable pose.
+        self.declare_parameter('ik_avoid_collisions', True)
         self.declare_parameter('plan_time', 2.0)
         self.declare_parameter('plan_attempts', 5)
         self.declare_parameter('plan_wait', 12.0)
@@ -257,6 +263,7 @@ class GantryReachExecutor(Node):
         self.log_j_table_max = int(g('log_j_table_max').value)
         self.ik_timeout = float(g('ik_timeout').value)
         self.ik_wait = float(g('ik_wait').value)
+        self.ik_avoid_collisions = bool(g('ik_avoid_collisions').value)
         self.plan_time = float(g('plan_time').value)
         self.exec_wait = float(g('exec_wait').value)
         self.reach_tol = float(g('reach_tol').value)
@@ -295,6 +302,8 @@ class GantryReachExecutor(Node):
         self._pin_cache = {}            # arm name -> (pin, model, data, order)
         self._latest_objects = None
         self._latest_target = None      # /target_object, the single grasp target
+        self._labels = {}               # marker id -> label text (class/color name)
+        self._target_label = ''         # latest /grasp_target (target-pick name)
         self._joints = {}               # joint name -> position
         self._acm_allowed = set()       # object ids already ACM-allowed to touch
         self._busy = threading.Lock()
@@ -309,6 +318,11 @@ class GantryReachExecutor(Node):
                                  self._on_objects, 1, callback_group=cb)
         self.create_subscription(PoseStamped, '/target_object',
                                  self._on_target, 1, callback_group=cb)
+        # object labels (class/color, e.g. 'yellow bottle') for terminal output
+        self.create_subscription(MarkerArray, '/detected_objects/markers',
+                                 self._on_markers, 1, callback_group=cb)
+        self.create_subscription(String, '/grasp_target',
+                                 self._on_grasp_target, 10, callback_group=cb)
         self.create_subscription(JointState, '/joint_states',
                                  self._on_joints, 10, callback_group=cb)
         self.create_subscription(String, '~/pick', self._on_pick, 1,
@@ -343,6 +357,21 @@ class GantryReachExecutor(Node):
 
     def _on_target(self, msg):
         self._latest_target = msg
+
+    def _on_markers(self, msg):
+        for m in msg.markers:
+            if m.ns == 'labels':
+                self._labels[m.id] = m.text
+
+    def _on_grasp_target(self, msg):
+        self._target_label = msg.data.strip()
+
+    def _obj_name(self, idx):
+        """Human label for logs: the grasp-target label for a /target_object pick,
+        else the marker label at that index, falling back to 'obj<idx>'."""
+        if idx == 'target':
+            return self._target_label or 'target'
+        return self._labels.get(idx) or f'obj{idx}'
 
     def _on_joints(self, msg):
         for n, p in zip(msg.name, msg.position):
@@ -431,11 +460,29 @@ class GantryReachExecutor(Node):
             d_gantry_lin = d_gantry_rot = d_arm = 0.0
         return d_gantry_lin, d_gantry_rot, d_arm
 
-    def _log_j_table(self, idx, by_J, dist_rank):
+    @staticmethod
+    def _interleave_by_arm(by_J):
+        """Round-robin the J-sorted candidates across arms: best-of-arm-A,
+        best-of-arm-B, 2nd-of-arm-A, ... The arm with the overall lowest J still
+        goes first (its bucket is inserted first, preserving the energy winner),
+        but every arm gets a turn before any arm's 2nd node -- so a failing arm
+        can't monopolise max_attempts. Ascending-J order is preserved within each
+        arm's bucket."""
+        buckets = {}
+        for c in by_J:                       # by_J is already ascending-J
+            buckets.setdefault(c['arm'].name, []).append(c)
+        order, lists = [], list(buckets.values())
+        for i in range(max(len(b) for b in lists)):
+            for b in lists:
+                if i < len(b):
+                    order.append(b[i])
+        return order
+
+    def _log_j_table(self, name, by_J, dist_rank):
         """Print the full ranked J table -- every pooled candidate in ascending
         J, with each term's weighted contribution (weight*value), so the J
         calculation is fully visible in the terminal. `*` marks the winner."""
-        rows = ['', f'>>> obj{idx}: J ranking ({len(by_J)} candidates, '
+        rows = ['', f'>>> {name}: J ranking ({len(by_J)} candidates, '
                     f'weights glin={self.w_gantry_lin:g} grot={self.w_gantry_rot:g} '
                     f'arm={self.w_arm:g} dist={self.w_dist:g} '
                     f'manip={self.w_manip:g})',
@@ -486,8 +533,9 @@ class GantryReachExecutor(Node):
                     f'no /target_object yet')
                 return
         p = target.position
+        name = self._obj_name(idx)      # class/color label for terminal output
         self.get_logger().info(
-            f'>>> NEW TARGET obj{idx}: pick requested at '
+            f'>>> NEW TARGET {name}: pick requested at '
             f'x={p.x:+.3f} y={p.y:+.3f} z={p.z:+.3f} (world) -- allocating arm')
         tvec = self._task_vec(target)
         cur_by_arm = {a.name: self._current_q(a) for a in self.arms}
@@ -522,7 +570,7 @@ class GantryReachExecutor(Node):
                                   d_arm=d_arm, J=J))
         if not cands:
             self.get_logger().error(
-                f'>>> obj{idx}: FAILED -- no reachable arm candidates in pool '
+                f'>>> {name}: FAILED -- no reachable arm candidates in pool '
                 f'(object out of every arm\'s GNG reach map)')
             return
 
@@ -530,9 +578,15 @@ class GantryReachExecutor(Node):
         # rank-by-distance, to later show energy may pick a non-nearest seed
         dist_rank = {id(c): r for r, c in
                      enumerate(sorted(cands, key=lambda c: c['dist']))}
+        # Fallback order: round-robin ACROSS arms (best-per-arm first), keeping
+        # ascending-J WITHIN each arm. Otherwise the lowest-J arm's cluster of
+        # near-identical nodes fills all max_attempts and the other arm is never
+        # tried -- a whole arm's worth of -31s/collisions is spent before the
+        # alternative ever gets a single shot.
+        attempt_order = self._interleave_by_arm(by_J)
 
         if self.log_j_table:
-            self._log_j_table(idx, by_J, dist_rank)
+            self._log_j_table(name, by_J, dist_rank)
 
         # Announce the arm the energy allocation chose (lowest-J candidate). This
         # is the arm that WILL do the task; if its plan fails the executor falls
@@ -543,7 +597,7 @@ class GantryReachExecutor(Node):
             by_arm_bestJ.setdefault(c['arm'].name, c['J'])
         summary = ', '.join(f'{n} J={j:.3f}' for n, j in by_arm_bestJ.items())
         self.get_logger().info(
-            f'>>> obj{idx}: allocation -> {best["arm"].name} will do the task '
+            f'>>> {name}: allocation -> {best["arm"].name} will do the task '
             f'(best J={best["J"]:.3f} [gantry_lin={best["d_gantry_lin"]:.3f} '
             f'gantry_rot={best["d_gantry_rot"]:.3f} arm={best["d_arm"]:.3f} '
             f'eedist={best["ee_dist"]:.3f} '
@@ -573,15 +627,15 @@ class GantryReachExecutor(Node):
         # plan; settle lets the last in-flight update land, then resume in finally.
         self._set_perception_pause(True)
         try:
-            # 2) try candidates in ascending-J order
-            for attempt, c in enumerate(by_J[:self.max_attempts]):
+            # 2) try candidates round-robin across arms (best-per-arm first)
+            for attempt, c in enumerate(attempt_order[:self.max_attempts]):
                 arm = c['arm']
                 t0 = time.perf_counter()
                 ok, js, ikerr = self._solve_ik(arm, ps, c['q'], ori_list)
                 ik_ms = (time.perf_counter() - t0) * 1e3
                 if not ok:
                     self.get_logger().info(
-                        f'obj{idx} cand#{attempt} {arm.name} J={c["J"]:.3f}: '
+                        f'{name} cand#{attempt} {arm.name} J={c["J"]:.3f}: '
                         f'IK failed (err={ikerr})')
                     continue
                 goal_q = self._extract(js, arm.joint_names)
@@ -592,14 +646,14 @@ class GantryReachExecutor(Node):
                 plan_ms = (time.perf_counter() - t1) * 1e3
                 if not planned:
                     self.get_logger().info(
-                        f'obj{idx} cand#{attempt} {arm.name} J={c["J"]:.3f}: '
+                        f'{name} cand#{attempt} {arm.name} J={c["J"]:.3f}: '
                         f'plan failed (err={perr})')
                     continue
 
                 energy = (self._traj_energy(arm, traj)
                           if self.compute_traj_energy else float('nan'))
                 self.get_logger().info(
-                    f'obj{idx}: PICKED {arm.name} via cand#{attempt} '
+                    f'{name}: PICKED {arm.name} via cand#{attempt} '
                     f'(rank-by-dist {dist_rank[id(c)]}) J={c["J"]:.3f} '
                     f'[gantry_lin={c["d_gantry_lin"]:.3f} '
                     f'gantry_rot={c["d_gantry_rot"]:.3f} arm={c["d_arm"]:.3f} '
@@ -617,11 +671,11 @@ class GantryReachExecutor(Node):
                         if self.auto_attach and self.attach_object_id:
                             self._attach(arm, self.attach_object_id)
                         self.get_logger().info(
-                            f'>>> obj{idx}: SUCCESS -- {arm.name} reached the '
+                            f'>>> {name}: SUCCESS -- {arm.name} reached the '
                             f'target (max joint err={err:.3f} <= {self.reach_tol})')
                     else:
                         self.get_logger().error(
-                            f'>>> obj{idx}: {arm.name} motion did NOT settle at '
+                            f'>>> {name}: {arm.name} motion did NOT settle at '
                             f'the goal within {self.exec_wait:.0f}s '
                             f'(max joint err={err:.3f} > {self.reach_tol})')
                 self._log_csv(idx, attempt, dist_rank[id(c)], c, goal_q,
@@ -630,7 +684,7 @@ class GantryReachExecutor(Node):
 
             n_tried = min(len(by_J), self.max_attempts)
             self.get_logger().error(
-                f'>>> obj{idx}: FAILED -- no arm could reach the target '
+                f'>>> {name}: FAILED -- no arm could reach the target '
                 f'(no collision-free plan over {n_tried} candidates)')
             self._log_csv(idx, -1, -1, None, None, float('nan'),
                           float('nan'), float('nan'), float('nan'))
@@ -661,7 +715,7 @@ class GantryReachExecutor(Node):
             o.x, o.y, o.z, o.w = ox, oy, oz, ow
             req = build_ik_request(arm.group, arm.ee_frame, pose_stamped,
                                    arm.joint_names, seed_q, self.ik_timeout,
-                                   avoid_collisions=True)
+                                   avoid_collisions=self.ik_avoid_collisions)
             res = self._wait(self.ik_cli.call_async(req), self.ik_wait)
             if res is None:
                 continue

@@ -38,19 +38,22 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 USD_PATH = os.path.join(HERE, "workcell.usd")
 ROBOT = "/World/workcell"
 
-# Two RGBD cameras at OPPOSITE ends of the gantry_1 prismatic rail (x: 0..2.0 m;
-# reachable EE extent x ~[-0.66, 2.60]). Each sits at ceiling height (z=2.05, the
-# max allowed) and is pulled to the -Y side of the rail (arms hang at y=+0.36) so
-# it peeks UNDER the hanging arms at the work area below them. Both aim at the
-# under-arm work centre (1.2, 0.30, 1.25): horizontally close enough to look ~22-24
-# deg down (vs the old ~8-9 deg flat oblique) yet from opposite ends so an object
-# occluded from one side is usually visible from the other. Detections fuse in
-# `world` (each is independent ground-truth RGBD, calibrated to `world` by its
-# static TF in launch_workcell.sh -> KEEP THOSE TFs IN SYNC if you move a camera).
+# Two RGBD cameras at DIAGONALLY OPPOSITE corners of the gantry_1 work area (rail
+# x: 0..2.0 m; reachable EE extent x ~[-0.66, 2.60]). Both sit at ceiling height
+# (z=2.05, the max allowed). EXPERIMENTAL diagonal layout for visual comparison:
+# cam1 (rgbd) is mirrored to the +Y side at (+X, +Y) while cam2 (rgbd2) stays at
+# (-X, -Y), so their view axes cross diagonally in X and Y for extra azimuthal
+# coverage. Trade-off vs the old both-on--Y layout: cam1 now looks across the
+# hanging arms (y=+0.36) so expect more arm self-occlusion of the work area. Both
+# aim at the under-arm work centre (1.2, 0.30, 1.25). Detections fuse in `world`
+# (each is independent ground-truth RGBD, calibrated to `world` by its static TF
+# in launch_workcell.sh -> KEEP THOSE TFs IN SYNC if you move a camera).
+# To revert to the both-on--Y baseline: cam1 eye -> (2.8, -0.6, 2.05) and its TF
+# quat -> (-0.722084, -0.422309, 0.27663, 0.472996).
 CAM_RES = (1280, 720)
 CAMERAS = [
     {"prim": "/World/rgbd_camera",  "ns": "rgbd",  "frame": "rgbd_camera_optical",
-     "eye": (2.8, -0.6, 2.05),  "target": (1.2, 0.30, 1.25), "focal": 17.25},
+     "eye": (3.0, 1.2, 2.05),  "target": (1.2, 0.30, 1.25), "focal": 17.25},
     {"prim": "/World/rgbd2_camera", "ns": "rgbd2", "frame": "rgbd2_camera_optical",
      "eye": (-0.6, -0.6, 2.05), "target": (1.2, 0.30, 1.25), "focal": 16.42},
 ]

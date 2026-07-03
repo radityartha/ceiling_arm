@@ -18,6 +18,7 @@ replace the Isaac ground-truth publisher with no change downstream.
 from __future__ import annotations
 
 import json
+from collections import Counter
 
 import message_filters
 import numpy as np
@@ -96,6 +97,18 @@ class ObjectLocalizer(Node):
         self.declare_parameter('min_pixels', 20)
         self.declare_parameter('fuse_radius', 0.10)
         self.declare_parameter('publish_period', 0.5)
+        # Temporal tracking: keeps the detected-object list stable across the
+        # detector's per-frame flicker (esp. YOLOE at ~0.75 Hz). A detection is
+        # matched to the nearest existing track within track_match_radius, its
+        # position EMA-smoothed by track_smooth; a track survives track_ttl
+        # seconds without a fresh hit (bridges dropped frames) and keeps a stable
+        # id so the published order/index does not jump.
+        self.declare_parameter('track_ttl', 1.5)
+        self.declare_parameter('track_match_radius', 0.12)
+        self.declare_parameter('track_smooth', 0.5)
+        # Two tracks closer than this are the SAME object (e.g. one object seen
+        # by both cameras that fuse() missed) -> merged, so no duplicate rows.
+        self.declare_parameter('track_merge_dist', 0.15)
         # Grasp target: when set, the matching object's pose is republished on
         # /target_object (PoseStamped). Empty -> no target topic (legacy).
         self.declare_parameter('target_label', '')
@@ -107,6 +120,12 @@ class ObjectLocalizer(Node):
         self.max_depth = float(self.get_parameter('max_depth').value)
         self.min_pixels = int(self.get_parameter('min_pixels').value)
         self.fuse_radius = float(self.get_parameter('fuse_radius').value)
+        self.track_ttl = float(self.get_parameter('track_ttl').value)
+        self.track_match_radius = float(
+            self.get_parameter('track_match_radius').value)
+        self.track_smooth = float(self.get_parameter('track_smooth').value)
+        self.track_merge_dist = float(
+            self.get_parameter('track_merge_dist').value)
         self.target_label = str(self.get_parameter('target_label').value)
         self.target_id = int(self.get_parameter('target_id').value)
         nss = list(self.get_parameter('camera_namespaces').value)
@@ -118,6 +137,8 @@ class ObjectLocalizer(Node):
         self._labels = {ns: {} for ns in nss}     # ns -> {id: label}
         self._dets = {ns: [] for ns in nss}       # ns -> [(label, xyz_world)]
         self._syncs = []                          # keep refs alive
+        self._tracks = {}    # tid -> {'label', 'xyz'(np3), 'last'(sec)}
+        self._next_tid = 0   # monotonic stable-id counter
 
         for ns in nss:
             self.create_subscription(
@@ -220,10 +241,70 @@ class ObjectLocalizer(Node):
                     for i, lab in labs.items() if i == self.target_id}
         return None
 
+    def _update_tracks(self, cur):
+        """Fold this cycle's detections into persistent, stable-id tracks.
+
+        `cur` is [(label, xyz)] fused across cameras for THIS cycle. Each
+        detection updates the nearest track within track_match_radius (position
+        EMA-smoothed, label added to that track's vote histogram); unmatched ->
+        new track. Tracks older than track_ttl are dropped, then tracks closer
+        than track_merge_dist are merged (kills cross-camera doubles of one
+        object). Returns alive tracks as [(voted_label, xyz)] ordered by stable
+        id -- persistent, deduplicated, and MAJORITY-VOTED so the class stops
+        flickering frame to frame.
+        """
+        now = self.get_clock().now().nanoseconds * 1e-9
+        used = set()
+        for label, xyz in cur:
+            xyz = np.asarray(xyz, float)
+            best_tid, best_d = None, self.track_match_radius
+            for tid, tr in self._tracks.items():
+                if tid in used:
+                    continue
+                d = float(np.linalg.norm(tr['xyz'] - xyz))
+                if d <= best_d:
+                    best_d, best_tid = d, tid
+            if best_tid is None:
+                self._tracks[self._next_tid] = {
+                    'votes': Counter([label]), 'xyz': xyz, 'last': now}
+                used.add(self._next_tid)
+                self._next_tid += 1
+            else:
+                tr = self._tracks[best_tid]
+                a = self.track_smooth
+                tr['xyz'] = a * tr['xyz'] + (1.0 - a) * xyz
+                tr['votes'][label] += 1
+                tr['last'] = now
+                used.add(best_tid)
+        self._tracks = {tid: tr for tid, tr in self._tracks.items()
+                        if now - tr['last'] <= self.track_ttl}
+        self._merge_tracks()
+        return [(tr['votes'].most_common(1)[0][0], tr['xyz'])
+                for _, tr in sorted(self._tracks.items())]
+
+    def _merge_tracks(self):
+        """Merge track pairs within track_merge_dist (one object seen by two
+        cameras -> one track). Keeps the older (smaller) id, sums the vote
+        histograms, and averages position."""
+        tids = sorted(self._tracks)
+        for i, a in enumerate(tids):
+            ta = self._tracks.get(a)
+            if ta is None:
+                continue
+            for b in tids[i + 1:]:
+                tb = self._tracks.get(b)
+                if tb is None:
+                    continue
+                if float(np.linalg.norm(ta['xyz'] - tb['xyz'])) <= self.track_merge_dist:
+                    ta['votes'] += tb['votes']
+                    ta['xyz'] = 0.5 * (ta['xyz'] + tb['xyz'])
+                    ta['last'] = max(ta['last'], tb['last'])
+                    del self._tracks[b]
+
     # ---- output -------------------------------------------------------------
     def _publish(self):
         alld = [d for dets in self._dets.values() for d in dets]
-        merged = fuse(alld, self.fuse_radius)
+        merged = self._update_tracks(fuse(alld, self.fuse_radius))
 
         stamp = self.get_clock().now().to_msg()
         pa = PoseArray()
@@ -234,6 +315,13 @@ class ObjectLocalizer(Node):
         clear = Marker()
         clear.action = Marker.DELETEALL
         ma.markers.append(clear)
+
+        # Number same-named objects for the DISPLAY only: 'yellow bottle' ->
+        # 'yellow bottle 1', 'yellow bottle 2' when >1 share a label (order is
+        # stable via the track ids). The underlying label stays unnumbered for
+        # target matching; pick_cli strips the suffix before /grasp_target.
+        dup_counts = Counter(lab for lab, _ in merged)
+        dup_seen = {}
 
         for i, (label, xyz) in enumerate(merged):
             pose = Pose()
@@ -263,7 +351,11 @@ class ObjectLocalizer(Node):
             text.pose.orientation.w = 1.0
             text.scale.z = 0.05
             text.color = ColorRGBA(r=1.0, g=1.0, b=1.0, a=1.0)
-            text.text = label
+            if dup_counts[label] > 1:
+                dup_seen[label] = dup_seen.get(label, 0) + 1
+                text.text = f'{label} {dup_seen[label]}'
+            else:
+                text.text = label
             ma.markers.append(text)
 
         self.pose_pub.publish(pa)

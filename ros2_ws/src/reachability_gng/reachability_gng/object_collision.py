@@ -60,6 +60,13 @@ class ObjectCollision(Node):
         self.declare_parameter('min_pixels', 30)
         self.declare_parameter('stride', 2)
         self.declare_parameter('padding', 0.01)      # inflate each AABB (m)
+        # Seg-mask edge pixels can read BACKGROUND depth (floor/wall/far table),
+        # deprojecting to points metres away that blow the raw AABB up into a
+        # room-filling box (planning then fails: start state in collision). Drop
+        # the scattered far minority radially before fitting, and refuse to
+        # publish anything larger than a graspable object could plausibly be.
+        self.declare_parameter('reject_pct', 95.0)   # keep this % nearest median
+        self.declare_parameter('max_box_size', 0.6)  # m; skip box if any axis over
         self.declare_parameter('ttl', 1.0)           # s an object persists unseen
         self.declare_parameter('publish_period', 0.5)
         self.declare_parameter('touch_links', [''])  # gripper links allowed to touch
@@ -76,6 +83,8 @@ class ObjectCollision(Node):
         self.min_pixels = int(self.get_parameter('min_pixels').value)
         self.stride = max(1, int(self.get_parameter('stride').value))
         self.padding = float(self.get_parameter('padding').value)
+        self.reject_pct = float(self.get_parameter('reject_pct').value)
+        self.max_box_size = float(self.get_parameter('max_box_size').value)
         self.ttl = float(self.get_parameter('ttl').value)
         self.touch_links = [s for s in self.get_parameter('touch_links').value if s]
         self.target_label = str(self.get_parameter('target_label').value)
@@ -212,6 +221,18 @@ class ObjectCollision(Node):
             self.get_logger().warn(
                 f"bad command '{msg.data}'; use 'attach <id> <link>' or 'detach <id>'")
 
+    def _reject_outliers(self, pts):
+        """Drop the scattered far minority (seg-mask leakage onto background).
+
+        Keeps the `reject_pct` fraction of points nearest the median, radially,
+        so a compact object survives intact but stray metres-away points that
+        would explode the AABB are removed."""
+        if len(pts) < 10:
+            return pts
+        d = np.linalg.norm(pts - np.median(pts, axis=0), axis=1)
+        keep = d <= np.percentile(d, self.reject_pct)
+        return pts[keep] if keep.any() else pts
+
     # ---- world publish ------------------------------------------------------
     def _publish(self):
         if self.gate.paused():
@@ -230,11 +251,21 @@ class ObjectCollision(Node):
         scene.is_diff = True
         active = set()
         for label, chunks in fused.items():
-            pts = np.concatenate(chunks, axis=0)
+            pts = self._reject_outliers(np.concatenate(chunks, axis=0))
             lo = pts.min(axis=0) - self.padding
             hi = pts.max(axis=0) + self.padding
-            center = (lo + hi) / 2
             size = np.maximum(hi - lo, 1e-3)
+            if np.any(size > self.max_box_size):
+                # seg-mask leaked to background: a room-sized box would break
+                # planning. Skip it and mark the label published-but-inactive so
+                # the removal loop below REMOVEs any stale huge box for it that is
+                # already in the scene (self-healing across a node restart too).
+                self.get_logger().warn(
+                    f"'{label}' box {size.round(2)} m exceeds max "
+                    f"{self.max_box_size} m -- likely seg-mask leak; not published")
+                self._published.add(label)
+                continue
+            center = (lo + hi) / 2
             self._boxes[label] = (center, size)
             active.add(label)
             if label in self._attached:

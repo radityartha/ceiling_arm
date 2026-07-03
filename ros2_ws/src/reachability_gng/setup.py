@@ -37,6 +37,7 @@ setup(
             'seed_ik = reachability_gng.seed_ik:main',
             'visualize = reachability_gng.visualize:main',
             'object_localizer = reachability_gng.object_localizer:main',
+            'seg_router = reachability_gng.seg_router:main',
             'seg_colorizer = reachability_gng.seg_colorizer:main',
             'seg_cloud = reachability_gng.seg_cloud:main',
             'reachability_check = reachability_gng.reachability_check:main',

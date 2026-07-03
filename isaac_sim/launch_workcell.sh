@@ -48,7 +48,7 @@ wait_for() {  # wait_for <logfile> <pattern> <timeout_s>
 
 # Self-clean: kill any leftovers from a previous run so we never double-start
 # (no need to run stop.sh first). Same pattern as stop.sh.
-_STALE='ros2_bridge_gui.py|ros2_bridge.py|ros2 launch isaac|ros2_control_node|move_group|rviz2|moveit_demo.py|robot_state_publisher|controller_manager/spawner|lib/reachability_gng/visualize|gng_clouds.launch.py|rgbd2?_camera_optical|perception.launch.py|lib/reachability_gng/object_localizer|lib/reachability_gng/reachability_check|lib/reachability_gng/reachability_cloud|lib/reachability_gng/collision_cloud|lib/reachability_gng/object_collision|lib/reachability_gng/octomap_refresher|lib/reachability_gng/seg_cloud|lib/reachability_gng/static_collision|lib/reachability_gng/table_slab'
+_STALE='ros2_bridge_gui.py|ros2_bridge.py|ros2 launch isaac|ros2_control_node|move_group|rviz2|moveit_demo.py|robot_state_publisher|controller_manager/spawner|lib/reachability_gng/visualize|gng_clouds.launch.py|rgbd2?_camera_optical|perception.launch.py|lib/reachability_gng/object_localizer|lib/reachability_gng/reachability_check|lib/reachability_gng/reachability_cloud|lib/reachability_gng/collision_cloud|lib/reachability_gng/object_collision|lib/reachability_gng/octomap_refresher|lib/reachability_gng/seg_cloud|lib/reachability_gng/seg_router|lib/reachability_gng/static_collision|lib/reachability_gng/table_slab'
 echo ">>> [0/3] clearing any previous session..."
 _old=$(pgrep -f "$_STALE" 2>/dev/null | tr '\n' ' ')
 [ -n "$_old" ] && { kill -9 $_old 2>/dev/null; sleep 2; echo "    cleared."; } || echo "    nothing running."
@@ -76,8 +76,8 @@ echo ">>> [2.5] camera static TFs (world -> rgbd/rgbd2 optical)..."
 ( set +u; source /opt/ros/humble/setup.bash
   export ROS_DOMAIN_ID RMW_IMPLEMENTATION
   exec ros2 run tf2_ros static_transform_publisher \
-    --x 2.8 --y -0.6 --z 2.05 \
-    --qx -0.722084 --qy -0.422309 --qz 0.27663 --qw 0.472996 \
+    --x 3.0 --y 1.2 --z 2.05 \
+    --qx -0.435026 --qy -0.703886 --qz 0.477652 --qw 0.295205 \
     --frame-id world --child-frame-id rgbd_camera_optical ) > "$LOG/camera_tf.log" 2>&1 &
 PIDS+=($!)
 ( set +u; source /opt/ros/humble/setup.bash

@@ -113,13 +113,13 @@ def build_room():
     # A cabinet standing beside the table on the -X side (i.e. "before" the table,
     # toward the rail origin) as a static obstacle for collision testing -- the arm
     # planner must route around it. It is a solid box from the floor up, its top at
-    # z=cab_h=1.45 -- above the lowered table top (~1.075) -- so it pokes into the
+    # z=cab_h=1.15 -- above the lowered table top (~1.075) -- so it pokes into the
     # lower workspace. No semantic label on purpose:
     # it stays "background" (seg<=1) so the cameras feed it into the MoveIt
     # collision octomap as environment, not as a graspable object. Depth along X,
     # width matched to the table in Y, placed just off the table's -X edge.
-    cab_dx, cab_wy, cab_h = 0.4, 0.35, 1.45
-    cab_x = cx - 0.45 - 0.07 - cab_dx / 2         # just before the -X edge of the top
+    cab_dx, cab_wy, cab_h = 0.4, 0.35, 1.15
+    cab_x = cx - 0.45 - 0.07 - cab_dx / 2 - 0.40  # shifted -0.40 m along X (moved back)
     FixedCuboid(prim_path="/World/cabinet/body", name="cabinet",
                 position=np.array([cab_x, cy, cab_h / 2]),
                 scale=np.array([cab_dx, cab_wy, cab_h]), visual_material=cab_mat)
@@ -145,27 +145,38 @@ def build_room():
     # label, usd (relative to ycb), (x, y, surface_z), has_physics_variant
     specs = [
         ("cracker_box",     "Axis_Aligned_Physics/003_cracker_box.usd",     (1.42, -0.16, surf1), True),
-        ("sugar_box",       "Axis_Aligned_Physics/004_sugar_box.usd",       (1.42,  0.16, surf1), True),
+        ("sugar_box",       "Axis_Aligned_Physics/004_sugar_box.usd",       (1.52,  0.16, surf1), True),
         ("tomato_soup_can", "Axis_Aligned_Physics/005_tomato_soup_can.usd", (1.70, -0.16, surf1), True),
-        ("mustard_bottle",  "Axis_Aligned_Physics/006_mustard_bottle.usd",  (1.70,  0.16, surf1), True),
-        ("tuna_fish_can",   "Axis_Aligned/007_tuna_fish_can.usd",           (1.60,  0.70, surf2), False),
-        ("potted_meat_can", "Axis_Aligned/010_potted_meat_can.usd",         (1.92,  0.72, surf2), False),
-        # banana sits at the +Y end (y=1.60): its nearest reachable GNG node is
-        # ~0.90 m away -- past the 0.727 m pool radius (2.5 x 0.291 m node spacing)
+        # obj_3 seated on TOP of the cabinet (cab_x, cy, cab top = cab_h).
+        ("mustard_bottle",  "Axis_Aligned_Physics/006_mustard_bottle.usd",  (cab_x, cy,   cab_h), True),
+        # obj_4: IsaacLab teddy bear (not YCB) -> full URL, resolved directly below.
+        ("teddy_bear",      f"{root}/Isaac/IsaacLab/Objects/Teddy_Bear/teddy_bear.usd", (1.55,  0.70, surf2), False),
+        # potted_meat_can now holds the unreachable-by-design +Y spot (y=1.60): its
+        # nearest reachable GNG node is ~0.90 m away -- past the 0.727 m pool radius
         # -- so the reachability check finds NO candidate nodes and reports it
-        # UNREACHABLE on purpose. It was pulled in from y=1.85 so it lands closer to
-        # the RGBD cameras' axis (they sit at y=-0.6 aimed at y=0.30) and projects
-        # enough pixels to clear the localizer's min_pixels gate; the unreachable
-        # crossover is ~y=1.45, so 1.60 keeps a ~0.15 m margin.
-        ("banana",          "Axis_Aligned/011_banana.usd",                  (1.75,  1.60, surf2), False),
+        # UNREACHABLE on purpose (the ~y=1.45 crossover leaves a ~0.15 m margin).
+        ("potted_meat_can", "Axis_Aligned/010_potted_meat_can.usd",         (1.75,  1.60, surf2), False),
+        # banana swapped to the reachable near end (was at y=1.60).
+        ("banana",          "Axis_Aligned/011_banana.usd",                  (1.87,  0.72, surf2), False),
     ]
     objs = []
     stage = get_current_stage()
     bbox = UsdGeom.BBoxCache(Usd.TimeCode.Default(),
                              [UsdGeom.Tokens.default_, UsdGeom.Tokens.render])
+    # Cans/bottle ship lying on their side; a +90 deg rotation about X stands them
+    # upright (long axis -> +Z). quat is (w, x, y, z), scalar-first. Flip to about-Y
+    # [0.7071, 0, 0.7071, 0] if an object ends up lying the other way.
+    _stand = np.array([0.70710678, 0.70710678, 0.0, 0.0])       # +90 deg about X
+    # mustard bottle came out upside down at +90; -90 (i.e. +180 more) stands it right way up.
+    _stand_flip = np.array([0.70710678, -0.70710678, 0.0, 0.0])  # -90 deg about X
+    _yaw90 = np.array([0.70710678, 0.0, 0.0, 0.70710678])         # +90 deg about Z (in-plane)
+    # obj_0/obj_1 boxes (-90), obj_2 tomato_soup_can (+90),
+    # obj_3 mustard_bottle (-90), obj_5 potted_meat_can (+90), obj_6 banana (+90 yaw)
+    stand_rot = {0: _stand_flip, 1: _stand_flip, 2: _stand, 3: _stand_flip, 5: _stand, 6: _yaw90}
     for i, (label, rel, (ox, oy, surf), has_phys) in enumerate(specs):
         prim_path = f"/World/objects/obj_{i}"
-        add_reference_to_stage(usd_path=f"{ycb}/{rel}", prim_path=prim_path)
+        usd_path = rel if "://" in rel else f"{ycb}/{rel}"
+        add_reference_to_stage(usd_path=usd_path, prim_path=prim_path)
         prim = stage.GetPrimAtPath(prim_path)
         # Measure the asset's own bounds (still at identity) and seat it BEFORE
         # building the wrapper: bottom exactly on the table top, centered on
@@ -175,10 +186,23 @@ def build_room():
         # scene object to its construction-time default pose -- a later
         # set_world_pose would be reverted, which is what left them sunk before.
         rng = bbox.ComputeWorldBound(prim).ComputeAlignedRange()
+        quat = stand_rot.get(i)                 # (w,x,y,z) to stand a can upright, or None
         if rng.IsEmpty():
             pos = np.array([ox, oy, surf])      # fallback: origin on the surface
         else:
             mn, mx = rng.GetMin(), rng.GetMax()
+            if quat is not None:
+                # Seat against the STOOD-UP extents: rotate the 8 local-bbox
+                # corners by the same quat so the bottom (not the side) lands on
+                # the table and the body stays centered on (ox, oy).
+                w, x, y, z = quat
+                R = np.array([[1-2*(y*y+z*z), 2*(x*y-w*z),   2*(x*z+w*y)],
+                              [2*(x*y+w*z),   1-2*(x*x+z*z), 2*(y*z-w*x)],
+                              [2*(x*z-w*y),   2*(y*z+w*x),   1-2*(x*x+y*y)]])
+                corners = np.array([[a, b, c] for a in (mn[0], mx[0])
+                                    for b in (mn[1], mx[1])
+                                    for c in (mn[2], mx[2])]) @ R.T
+                mn, mx = corners.min(axis=0), corners.max(axis=0)
             pos = np.array([ox - 0.5 * (mn[0] + mx[0]),
                             oy - 0.5 * (mn[1] + mx[1]),
                             surf - mn[2]])
@@ -188,10 +212,18 @@ def build_room():
         else:
             # visual-only mesh -> add a static convex-hull collider on each mesh.
             for d in Usd.PrimRange(prim):
+                # The IsaacLab teddy bear ships as a DEFORMABLE (soft) body, which
+                # PhysX only supports on GPU ("enable GPU dynamics flag" warning).
+                # We want a static collider like every other object, so strip any
+                # deformable-body API before adding the convex hull below.
+                for s in list(d.GetAppliedSchemas()):
+                    if "Deformable" in s:
+                        d.RemoveAppliedSchema(s)
                 if d.IsA(UsdGeom.Mesh):
                     UsdPhysics.CollisionAPI.Apply(d)
                     UsdPhysics.MeshCollisionAPI.Apply(d).CreateApproximationAttr("convexHull")
-        obj = SingleXFormPrim(prim_path=prim_path, name=f"obj_{i}", position=pos)
+        obj = SingleXFormPrim(prim_path=prim_path, name=f"obj_{i}",
+                              position=pos, orientation=quat)
         objs.append(obj)
         # Semantic class label -> the cameras' instance_segmentation publishes a
         # labeled mask + an id->class JSON, so the localizer can name each
