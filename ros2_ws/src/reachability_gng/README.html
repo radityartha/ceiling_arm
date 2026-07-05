@@ -117,34 +117,36 @@ ros2 launch reachability_gng gng_moveit.launch.py</code></pre>
   <p>Detected objects → choose <b>which arm</b> (arm_1/arm_2, shared gantry_1) and
      the 8-DOF goal by <b>energy</b>, then MoveIt plans collision-aware. Needs A
      (move_group + cameras) up.</p>
-<pre><code># cameras + scene collision (objects, env octomap)
-ros2 launch reachability_gng perception.launch.py
-
-# the executor — plan-only (robot stays put)
-ros2 launch reachability_gng gantry_pick.launch.py csv:=/tmp/picks.csv
-ros2 topic pub --once /gantry_reach_executor/pick std_msgs/String "{data: '0'}"
-column -t -s, /tmp/picks.csv
-
-# or drive picks from an interactive menu (second terminal)
+<pre><code># Terminal 2: perception + executor together (restart freely, Isaac stays up)
+ros2 launch reachability_gng pick_stack.launch.py execute:=true box_clearance:=0.15
+# Terminal 3: interactive / natural-language picker (own terminal, reads keyboard)
 ros2 run reachability_gng pick_cli
 
-# execute for real (arm moves in Isaac)
-ros2 launch reachability_gng gantry_pick.launch.py execute:=true csv:=/tmp/picks.csv</code></pre>
-  <p><code>pick_cli</code> lists the live <code>/detected_objects</code> (with
-     labels + a cheap object→arm-tool distance estimate, <b>not</b> energy J) and
-     fires a pick by index — a friendlier stand-in for the
-     <code>ros2 topic pub .../pick</code> one-liner. Watch the executor terminal
-     for the chosen arm / plan result.</p>
-  <p>Each candidate scored
-     <code>J = w_gantry_lin·d_gantry_lin + w_gantry_rot·d_gantry_rot + w_arm·d_arm + w_dist·ee_dist − w_manip·manip</code>
-     (gantry linear/prismatic and rotation axes weighted separately;
-     <code>ee_dist</code> = the arm's CURRENT tool-frame Euclidean distance (via TF) to the
-     object, one value per arm, so it biases allocation toward the nearer end-effector —
-     <code>w_dist=0</code> to disable; the gravity <code>hold</code> cost was
-     removed from J but is still logged to the CSV). A <b>farther</b> seed with lower J can
-     still win. Calibrated default weights
-     <code>lin 1 / rot 1 / arm 2 / dist 1 / manip 0</code>; override live with
-     <code>-p w_manip:=300</code> etc.</p>
+# plan-only, CSV log, no execution:
+ros2 launch reachability_gng gantry_pick.launch.py csv:=/tmp/picks.csv
+ros2 topic pub --once /gantry_reach_executor/pick std_msgs/String "{data: '0'}"
+column -t -s, /tmp/picks.csv</code></pre>
+  <p><code>pick_stack.launch.py</code> bundles <code>perception.launch.py</code> +
+     <code>gantry_pick.launch.py</code> into one terminal (background nodes quieted
+     to WARN so it shows the pick pipeline); <code>launch_workcell.sh</code> no
+     longer starts perception itself. <code>pick_cli</code> lists live
+     <code>/detected_objects</code>, fires a pick by index, drives the detector
+     (<code>y</code>/<code>i</code>/<code>p</code> = YOLOE / Isaac / set prompts),
+     and accepts natural language ("get me a box").</p>
+  <p>Search runs <b>plan-only round-robin across arms</b> (best-per-arm first);
+     the pre-grasp stands off <code>box_clearance</code> m <b>above the object's
+     tracked TOP</b> (dynamic, size-adaptive — a fixed centroid offset can land
+     inside a tall object → IK −31). The first candidate that plans is the only
+     one <b>executed</b> (confirmed against live <code>/joint_states</code>); if
+     execution aborts (env-change −3) it falls through to the next candidate
+     instead of giving up. Perception is frozen for the whole pick so a mid-plan
+     scene bump can't invalidate it. J =
+     <code>w_gantry_lin·d_gantry_lin + w_gantry_rot·d_gantry_rot + w_arm·d_arm + w_dist·ee_dist − w_manip·manip</code>;
+     <code>box_clearance</code> is live-tunable via <code>ros2 param set</code>.</p>
+  <p><b>Grasp vs approach-only.</b> Default (<code>carve_target:=true
+     allow_target_collision:=true</code>) = grasp mode: target carved out of the
+     octomap and ACM-allowed. Set <b>both false</b> for approach-only: target
+     stays a hard obstacle, the EE only stands off above it, never touching it.</p>
   <p class="note">Needs the maps' <code>_stats.npz</code> to carry <code>hold</code>
      (train with <code>--config</code>, or augment an existing map). Grasp
      orientation defaults top-down <code>(1,0,0,0)</code> — the centroid's identity
@@ -196,6 +198,12 @@ ros2 launch reachability_gng gantry_pick.launch.py execute:=true csv:=/tmp/picks
         <td>influence = weight × pool spread; <code>manip</code> spread ~0.08 so it
             needs <code>w_manip</code>≈30+. Pool too small? raise
             <code>pool_radius_factor</code></td></tr>
+    <tr><td>move_group aborts mid-motion on a long gantry move (err −3/−4)</td>
+        <td>Isaac runs slower than realtime and trips the execution-duration
+            monitor — <code>bringup_table1.launch.py</code> disables
+            <code>trajectory_execution.execution_duration_monitoring</code> and
+            widens the duration/goal margins (the plan is already
+            collision-checked pre-exec)</td></tr>
   </table>
   </div>
 

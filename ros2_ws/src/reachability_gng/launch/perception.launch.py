@@ -60,6 +60,14 @@ def _kill_stale(context, *args, **kwargs):
     return []
 
 
+# Silence the background perception nodes to WARN so the shared pick terminal
+# shows the executor's pick pipeline (target, J, arm, plan, success) instead of
+# per-frame chatter. reachability_cloud stays at INFO -- it prints the per-object
+# "% reachable", now only when it changes. Raise any node with `-p`/relaunch, or
+# `ros2 run <node> --ros-args --log-level info` if you need its detail back.
+_QUIET = {'ros_arguments': ['--log-level', 'WARN']}
+
+
 def generate_launch_description():
     # Single control point for which object is the grasp TARGET. Empty ->
     # legacy behaviour (every object boxed + kept out of the octomap). When set,
@@ -77,9 +85,15 @@ def generate_launch_description():
                                  value_type=str)
     seg_conf = ParameterValue(LaunchConfiguration('seg_conf'), value_type=float)
     seg_imgsz = ParameterValue(LaunchConfiguration('seg_imgsz'), value_type=int)
+    carve_target = ParameterValue(LaunchConfiguration('carve_target'),
+                                  value_type=bool)
     return LaunchDescription([
         DeclareLaunchArgument('target_label', default_value=''),
         DeclareLaunchArgument('target_id', default_value='-1'),
+        # true (grasp mode): carve the target out of the octomap so the gripper
+        # can reach it. false (approach-only): keep the target in the octomap as a
+        # hard obstacle so the arm stands off above it without touching it.
+        DeclareLaunchArgument('carve_target', default_value='true'),
         DeclareLaunchArgument('seg_source', default_value='yoloe'),
         DeclareLaunchArgument('seg_model', default_value='yoloe-11s-seg.pt'),
         DeclareLaunchArgument('seg_device', default_value=''),   # '' -> auto
@@ -98,7 +112,7 @@ def generate_launch_description():
         # consumers below are remapped to). prompts is a comma string here and is
         # split by the node; change it live on /seg_prompts.
         Node(package='reachability_gng', executable='seg_router',
-             name='seg_router', output='screen',
+             name='seg_router', output='screen', **_QUIET,
              parameters=[{'source': seg_source,
                           'camera_namespaces': _CAMERA_NS,
                           'model_path': LaunchConfiguration('seg_model'),
@@ -107,10 +121,10 @@ def generate_launch_description():
                           'imgsz': seg_imgsz,
                           'prompts': seg_prompts}]),
         Node(package='reachability_gng', executable='object_localizer',
-             name='object_localizer', output='screen',
+             name='object_localizer', output='screen', **_QUIET,
              parameters=target_params, remappings=_SEG_REMAP),
         Node(package='reachability_gng', executable='reachability_check',
-             name='reachability_check', output='screen'),
+             name='reachability_check', output='screen', **_QUIET),
         Node(package='reachability_gng', executable='reachability_cloud',
              name='reachability_cloud', output='screen', remappings=_SEG_REMAP),
         # environment depth (objects excluded) -> MoveIt octomap.
@@ -120,11 +134,13 @@ def generate_launch_description():
         # refresher now idles (period 60 s), so stride 3 populates fine. If the
         # octomap lags at 0.02 m resolution, raise stride back toward 4-6.
         Node(package='reachability_gng', executable='collision_cloud',
-             name='collision_cloud', output='screen',
-             parameters=target_params + [{'stride': 3}], remappings=_SEG_REMAP),
+             name='collision_cloud', output='screen', **_QUIET,
+             parameters=target_params + [{'stride': 3,
+                                          'carve_target': carve_target}],
+             remappings=_SEG_REMAP),
         # detected objects -> exact CollisionObject boxes (+ attach/detach for grasp)
         Node(package='reachability_gng', executable='object_collision',
-             name='object_collision', output='screen',
+             name='object_collision', output='screen', **_QUIET,
              parameters=target_params, remappings=_SEG_REMAP),
         # Safety-net only. collision_cloud now publishes in the camera optical
         # frame, so MoveIt ray-carves and clears moving-arm voxels incrementally
@@ -132,11 +148,11 @@ def generate_launch_description():
         # the scene and invalidating plans, MoveGroup err=-3). period=60 s just
         # flushes any rare residue; set very large / remove once carving is trusted.
         Node(package='reachability_gng', executable='octomap_refresher',
-             name='octomap_refresher', output='screen',
+             name='octomap_refresher', output='screen', **_QUIET,
              parameters=[{'period': 60.0}]),
         # full depth reading -> 3D point cloud (table grey + objects coloured)
         Node(package='reachability_gng', executable='seg_cloud',
-             name='seg_cloud', output='screen', remappings=_SEG_REMAP),
+             name='seg_cloud', output='screen', **_QUIET, remappings=_SEG_REMAP),
         # table_slab (a solid thin table-surface CollisionObject) is intentionally
         # NOT autostarted -- user opted out (it covered too much). The node + entry
         # point remain available to run by hand if reconsidered:

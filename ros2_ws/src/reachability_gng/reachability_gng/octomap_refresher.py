@@ -20,6 +20,8 @@ import rclpy
 from rclpy.node import Node
 from std_srvs.srv import Empty
 
+from reachability_gng.pause_gate import PauseGate
+
 
 class OctomapRefresher(Node):
     def __init__(self):
@@ -31,11 +33,17 @@ class OctomapRefresher(Node):
 
         self.cli = self.create_client(Empty, service)
         self._warned = False
+        # Don't clear the octomap while a pick runs: wiping it mid-execution
+        # invalidates the running plan (move_group aborts with -3). Paused during
+        # a pick, resumes ~8 s after it ends.
+        self.gate = PauseGate(self, 8.0)
         self.create_timer(period, self._tick)
         self.get_logger().info(
             f'octomap_refresher up; clearing {service} every {period:.1f}s')
 
     def _tick(self):
+        if self.gate.paused():
+            return
         if not self.cli.service_is_ready():
             if not self._warned:
                 self.get_logger().warn(

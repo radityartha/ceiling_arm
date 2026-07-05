@@ -107,11 +107,10 @@ case "$MODE" in
       export ROS_DOMAIN_ID RMW_IMPLEMENTATION
       cd "$REPO"; exec ros2 launch reachability_gng gng_clouds.launch.py ) > "$LOG/gng_clouds.log" 2>&1 &
     PIDS+=($!)
-    # RGBD perception + reachability (consumes Isaac cameras + the static TFs).
-    ( set +u; source /opt/ros/humble/setup.bash; source "$GNG_WS"
-      export ROS_DOMAIN_ID RMW_IMPLEMENTATION
-      cd "$REPO"; exec ros2 launch reachability_gng perception.launch.py ) > "$LOG/perception.log" 2>&1 &
-    PIDS+=($!)
+    # RGBD perception is NOT started here anymore: it runs alongside the executor
+    # in pick_stack.launch.py (a separate terminal) so perception/executor code can
+    # be restarted fast without rebooting Isaac. Start it with:
+    #   ros2 launch reachability_gng pick_stack.launch.py execute:=true
     ( set +u; source /opt/ros/humble/setup.bash; source "$KORTEX_WS"; source "$WORKCELL_WS"
       export ROS_DOMAIN_ID RMW_IMPLEMENTATION DISPLAY
       cd "$REPO"; exec ros2 launch "$RVIZ_LAUNCH" ) > "$LOG/rviz.log" 2>&1 &

@@ -195,6 +195,21 @@ def split_color(phrase):
     return color, cls
 
 
+# Class aliases: words that name the SAME object for YOLOE. Saying any member
+# points YOLOE at the whole group (so a reliably-detected member still fires --
+# e.g. YOLOE always reads the plush as 'teddy bear', never 'doll'), and a
+# detection labelled as ANY member satisfies the request.
+_ALIAS_GROUPS = [{'teddy bear', 'doll'}]
+
+
+def _alias_group(cls):
+    """The alias set containing `cls` (incl. itself), or {cls} when it has none."""
+    for g in _ALIAS_GROUPS:
+        if cls in g:
+            return set(g)
+    return {cls}
+
+
 def _fetch(node, sentence):
     """Understand a request, point YOLOE at the object, then target + pick it.
 
@@ -209,9 +224,11 @@ def _fetch(node, sentence):
         return
     color, cls = split_color(obj)
     detect_class = cls or obj         # what YOLOE is told to look for
-    print(f"  -> understood: '{obj}'  (YOLOE looking for '{detect_class}')")
+    aliases = _alias_group(detect_class)   # {detect_class}, or its synonym group
+    prompts = sorted(aliases)
+    print(f"  -> understood: '{obj}'  (YOLOE looking for {prompts})")
     node.set_source('yoloe')
-    node.set_prompts([detect_class])
+    node.set_prompts(prompts)
     deadline = time.time() + 25.0     # YOLOE warmup + ~0.75 Hz inference
     idx = fallback = None
     while time.time() < deadline and rclpy.ok():
@@ -220,10 +237,11 @@ def _fetch(node, sentence):
             lab = labels.get(i, '').lower()
             if not lab:
                 continue
-            if lab == obj or (color and obj in lab):
-                idx = i               # exact color+class match
+            cls_hit = any(a in lab for a in aliases)   # class (or an alias) match
+            if cls_hit and (not color or color in lab):
+                idx = i               # class matches (+ color if one was asked)
                 break
-            if cls and cls in lab and fallback is None:
+            if cls_hit and fallback is None:
                 fallback = i          # same class, different/unknown color
         if idx is not None:
             break
@@ -235,7 +253,8 @@ def _fetch(node, sentence):
                   f"picking the nearest '{cls}'")
     if idx is None:
         print(f"  ! '{obj}' not detected within 25 s -- is it in the camera "
-              f"view? try rephrasing, or 'p {detect_class}' then watch the list")
+              f"view? try rephrasing, or 'p {', '.join(prompts)}' "
+              f"then watch the list")
         return
     target = node.snapshot()[1].get(idx, obj)   # full measured label of the pick
     node.send_target(target)          # object_localizer -> /target_object + carve/box

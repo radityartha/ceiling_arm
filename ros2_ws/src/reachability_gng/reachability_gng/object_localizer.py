@@ -25,6 +25,7 @@ import numpy as np
 import rclpy
 from geometry_msgs.msg import Point, Pose, PoseArray, PoseStamped
 from rclpy.node import Node
+from rclpy.qos import QoSDurabilityPolicy, QoSProfile
 from sensor_msgs.msg import CameraInfo, Image
 from std_msgs.msg import ColorRGBA, String
 from tf2_ros import (Buffer, ConnectivityException, ExtrapolationException,
@@ -52,20 +53,38 @@ def deproject(xs, ys, z, fx, fy, cx, cy):
 
 
 def fuse(dets, radius):
-    """Merge detections (label, xyz) whose centroids are within `radius` (greedy).
+    """Merge detections (label, xyz, top_z) whose centroids are within `radius`.
 
-    Dedups an object seen by multiple cameras; returns [(label, xyz), ...].
+    Dedups an object seen by multiple cameras; averages the centroid and keeps
+    the HIGHEST observed top (each camera sees a partial top). Returns
+    [(label, xyz, top_z), ...].
     """
-    merged = []  # [label, xyz, count]
-    for label, xyz in dets:
+    merged = []  # [label, xyz, top_z, count]
+    for label, xyz, top in dets:
         for m in merged:
             if np.linalg.norm(m[1] - xyz) <= radius:
-                m[1] = (m[1] * m[2] + xyz) / (m[2] + 1)
-                m[2] += 1
+                m[1] = (m[1] * m[3] + xyz) / (m[3] + 1)
+                m[2] = max(m[2], top)
+                m[3] += 1
                 break
         else:
-            merged.append([label, np.asarray(xyz, float).copy(), 1])
-    return [(m[0], m[1]) for m in merged]
+            merged.append([label, np.asarray(xyz, float).copy(), float(top), 1])
+    return [(m[0], m[1], m[2]) for m in merged]
+
+
+# Color words seg_router prefixes onto a label (see seg_router.name_color). The
+# color is OPTIONAL disambiguation: matching falls back to the class name alone
+# when the exact color+class label is not present.
+_COLORS = {'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple',
+           'pink', 'brown', 'white', 'gray', 'grey', 'black'}
+
+
+def _strip_color(label):
+    """Drop a single leading color word: 'yellow banana' -> 'banana'."""
+    parts = label.strip().lower().split()
+    if len(parts) > 1 and parts[0] in _COLORS:
+        return ' '.join(parts[1:])
+    return ' '.join(parts)
 
 
 def resolve_target_ids(labels, target_label, target_id=-1):
@@ -73,14 +92,22 @@ def resolve_target_ids(labels, target_label, target_id=-1):
 
     Returns None when no target is configured (target_label=="" and
     target_id<0) -> the caller treats EVERY object as the target (legacy
-    behaviour). Matches by label name first (label basenames are stable across
-    cameras even though the numeric seg ids are not), falling back to target_id
-    only when the label is absent in THIS camera's map.
+    behaviour). Matches the exact color+class label first; when that is absent
+    (e.g. the detector measured a different color this frame) it falls back to
+    matching by the object NAME (class) alone -- color is only optional
+    disambiguation, so a color mismatch never drops the target. target_id is the
+    last resort when the label is absent in THIS camera's map.
     """
     if not target_label and target_id < 0:
         return None
-    ids = ({i for i, lab in labels.items() if lab == target_label}
-           if target_label else set())
+    ids = set()
+    if target_label:
+        ids = {i for i, lab in labels.items() if lab == target_label}
+        if not ids:
+            # color optional -> match the class name, ignoring the color prefix
+            tgt_cls = _strip_color(target_label)
+            ids = {i for i, lab in labels.items()
+                   if _strip_color(lab) == tgt_cls}
     if not ids and target_id >= 0 and target_id in labels:
         ids = {target_id}
     return ids
@@ -159,6 +186,14 @@ class ObjectLocalizer(Node):
         self.target_pub = self.create_publisher(PoseStamped, '/target_object', 1)
         self.marker_pub = self.create_publisher(
             MarkerArray, '/detected_objects/markers', 1)
+        # Target's stable, size-adaptive box (center + size) so the executor can
+        # stand the EE off the object TOP -- computed from the SAME tracked points
+        # as the centroid (so it inherits the tracking's stability), unlike
+        # object_collision's per-frame AABB. Latched. Empty [] when no target.
+        box_qos = QoSProfile(depth=1)
+        box_qos.durability = QoSDurabilityPolicy.TRANSIENT_LOCAL
+        self.box_pub = self.create_publisher(
+            String, '/target_collision_boxes', box_qos)
         # Runtime target selection: publish a label on /grasp_target to make that
         # object the target on /target_object without a restart; empty clears it.
         self.create_subscription(String, '/grasp_target',
@@ -228,8 +263,12 @@ class ObjectLocalizer(Node):
             if xs.size < self.min_pixels:
                 continue
             pts = deproject(xs, ys, depth[ys, xs], fx, fy, cx, cy)
-            c_world = R @ np.median(pts, axis=0) + T
-            dets.append((label, c_world))
+            pts_world = pts @ R.T + T
+            c_world = np.median(pts_world, axis=0)
+            # object TOP in world z; 95th pct (not max) rejects a few noisy far
+            # pixels so the stand-off height doesn't jump on outliers.
+            top_z = float(np.percentile(pts_world[:, 2], 95))
+            dets.append((label, c_world, top_z))
         self._dets[ns] = dets
 
     def _target_names(self):
@@ -244,7 +283,7 @@ class ObjectLocalizer(Node):
     def _update_tracks(self, cur):
         """Fold this cycle's detections into persistent, stable-id tracks.
 
-        `cur` is [(label, xyz)] fused across cameras for THIS cycle. Each
+        `cur` is [(label, xyz, top_z)] fused across cameras for THIS cycle. Each
         detection updates the nearest track within track_match_radius (position
         EMA-smoothed, label added to that track's vote histogram); unmatched ->
         new track. Tracks older than track_ttl are dropped, then tracks closer
@@ -255,7 +294,7 @@ class ObjectLocalizer(Node):
         """
         now = self.get_clock().now().nanoseconds * 1e-9
         used = set()
-        for label, xyz in cur:
+        for label, xyz, top in cur:
             xyz = np.asarray(xyz, float)
             best_tid, best_d = None, self.track_match_radius
             for tid, tr in self._tracks.items():
@@ -266,20 +305,22 @@ class ObjectLocalizer(Node):
                     best_d, best_tid = d, tid
             if best_tid is None:
                 self._tracks[self._next_tid] = {
-                    'votes': Counter([label]), 'xyz': xyz, 'last': now}
+                    'votes': Counter([label]), 'xyz': xyz, 'top': float(top),
+                    'last': now}
                 used.add(self._next_tid)
                 self._next_tid += 1
             else:
                 tr = self._tracks[best_tid]
                 a = self.track_smooth
                 tr['xyz'] = a * tr['xyz'] + (1.0 - a) * xyz
+                tr['top'] = a * tr['top'] + (1.0 - a) * float(top)
                 tr['votes'][label] += 1
                 tr['last'] = now
                 used.add(best_tid)
         self._tracks = {tid: tr for tid, tr in self._tracks.items()
                         if now - tr['last'] <= self.track_ttl}
         self._merge_tracks()
-        return [(tr['votes'].most_common(1)[0][0], tr['xyz'])
+        return [(tr['votes'].most_common(1)[0][0], tr['xyz'], tr['top'])
                 for _, tr in sorted(self._tracks.items())]
 
     def _merge_tracks(self):
@@ -298,6 +339,7 @@ class ObjectLocalizer(Node):
                 if float(np.linalg.norm(ta['xyz'] - tb['xyz'])) <= self.track_merge_dist:
                     ta['votes'] += tb['votes']
                     ta['xyz'] = 0.5 * (ta['xyz'] + tb['xyz'])
+                    ta['top'] = max(ta['top'], tb['top'])
                     ta['last'] = max(ta['last'], tb['last'])
                     del self._tracks[b]
 
@@ -320,10 +362,10 @@ class ObjectLocalizer(Node):
         # 'yellow bottle 1', 'yellow bottle 2' when >1 share a label (order is
         # stable via the track ids). The underlying label stays unnumbered for
         # target matching; pick_cli strips the suffix before /grasp_target.
-        dup_counts = Counter(lab for lab, _ in merged)
+        dup_counts = Counter(lab for lab, _, _ in merged)
         dup_seen = {}
 
-        for i, (label, xyz) in enumerate(merged):
+        for i, (label, xyz, top) in enumerate(merged):
             pose = Pose()
             pose.position = Point(x=float(xyz[0]), y=float(xyz[1]), z=float(xyz[2]))
             pose.orientation.w = 1.0
@@ -361,10 +403,14 @@ class ObjectLocalizer(Node):
         self.pose_pub.publish(pa)
         self.marker_pub.publish(ma)
 
-        # republish only the grasp target's pose (if one is configured + seen)
+        # republish only the grasp target's pose + its size-adaptive box (if a
+        # target is configured + seen). The box's TOP (center_z + size_z/2) is the
+        # object top, so the executor stands the EE off ABOVE it -- dynamic per
+        # object height. Publish [] when no target so the executor clears it.
         names = self._target_names()
+        boxes = []
         if names:
-            for label, xyz in merged:
+            for label, xyz, top in merged:
                 if label in names:
                     ts = PoseStamped()
                     ts.header.frame_id = self.world_frame
@@ -373,7 +419,14 @@ class ObjectLocalizer(Node):
                         x=float(xyz[0]), y=float(xyz[1]), z=float(xyz[2]))
                     ts.pose.orientation.w = 1.0
                     self.target_pub.publish(ts)
+                    # size_z chosen so center_z + size_z/2 == top (object top).
+                    half = max(float(top) - float(xyz[2]), 1e-3)
+                    boxes.append({
+                        'id': label,
+                        'center': [float(xyz[0]), float(xyz[1]), float(xyz[2])],
+                        'size': [0.05, 0.05, 2.0 * half]})
                     break
+        self.box_pub.publish(String(data=json.dumps(boxes)))
 
 
 def main():

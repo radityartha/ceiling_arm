@@ -127,6 +127,10 @@ class ReachabilityCheck(Node):
         self.declare_parameter('enclose_k', 8)
         self.declare_parameter('world_frame', 'world')
         self.declare_parameter('object_size', 0.05)   # cube edge (m) for markers
+        # Per-object REACH/OUT report to the terminal, once per callback. Off by
+        # default (it prints continuously); the RViz markers still show it. Turn
+        # on with -p log_reach:=true when you need the numbers.
+        self.declare_parameter('log_reach', False)
 
         models = list(self.get_parameter('arm_models').value)
         names = list(self.get_parameter('arm_names').value)
@@ -136,6 +140,7 @@ class ReachabilityCheck(Node):
         enclose_k = int(self.get_parameter('enclose_k').value)
         self.world_frame = self.get_parameter('world_frame').value
         self.object_size = float(self.get_parameter('object_size').value)
+        self.log_reach = bool(self.get_parameter('log_reach').value)
 
         self.arms = []
         for nm, mp in zip(names, models):
@@ -215,7 +220,7 @@ class ReachabilityCheck(Node):
                 + ' '.join(f'{nm}:{d:.3f}' for nm, d, _ in per_arm))
 
         self.pub.publish(ma)
-        if report:
+        if report and self.log_reach:
             self.get_logger().info('; '.join(report))
 
 

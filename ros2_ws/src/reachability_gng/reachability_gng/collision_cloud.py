@@ -70,6 +70,13 @@ class CollisionCloud(Node):
         # so non-target objects remain as octomap obstacles.
         self.declare_parameter('target_label', '')
         self.declare_parameter('target_id', -1)
+        # carve_target=True (grasp mode): remove the target from the octomap so the
+        # gripper can reach/attach it. False (approach-only mode): KEEP the target
+        # in the octomap as a normal obstacle, so the planner stands the arm off
+        # ABOVE it and never drives the gripper into it (which would nudge the
+        # object before it is grasped). Grasping into the object is deferred to a
+        # future dedicated grasp mode.
+        self.declare_parameter('carve_target', True)
         # Static geometry mapped by map_static (the work table, cabinet, ...) is
         # published as exact solid CollisionObject boxes by static_collision, so we
         # DROP any octomap point that falls inside a mapped box: that surface is
@@ -105,6 +112,7 @@ class CollisionCloud(Node):
         self.stride = max(1, int(self.get_parameter('stride').value))
         self.target_label = str(self.get_parameter('target_label').value)
         self.target_id = int(self.get_parameter('target_id').value)
+        self.carve_target = bool(self.get_parameter('carve_target').value)
         self.static_exclude = bool(self.get_parameter('static_exclude').value)
         self.static_map_file = self.get_parameter('static_map_file').value
         self.static_margin = float(self.get_parameter('static_margin').value)
@@ -204,12 +212,13 @@ class CollisionCloud(Node):
                 & (sub_d < self.max_depth))
         target_ids = resolve_target_ids(
             self._labels[ns], self.target_label, self.target_id)
-        if target_ids:
+        if target_ids and self.carve_target:
             # A grasp target is set AND visible here -> carve ONLY it out of the
             # octomap so the gripper can reach + attach it (object_collision boxes
             # it separately). EVERY other object stays in the octomap as a dense
             # obstacle. No target (target_ids None/empty) -> keep ALL objects in
-            # the octomap, matching the sensor (dense environment).
+            # the octomap, matching the sensor (dense environment). carve_target
+            # False (approach-only) -> keep the target in the octomap too.
             mask &= ~np.isin(sub_s, list(target_ids))
         # Stamp the output with THIS node's clock, NOT the incoming Isaac depth
         # stamp. Isaac stamps depth with sim time (~seconds since start) while the

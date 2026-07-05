@@ -38,6 +38,8 @@ def _kill_stale(context, *args, **kwargs):
 def generate_launch_description():
     execute = LaunchConfiguration('execute')
     csv = LaunchConfiguration('csv')
+    box_clearance = LaunchConfiguration('box_clearance')
+    allow_target_collision = LaunchConfiguration('allow_target_collision')
 
     return LaunchDescription([
         DeclareLaunchArgument('execute', default_value='false',
@@ -45,6 +47,15 @@ def generate_launch_description():
                                           'false = plan-only (benchmark)'),
         DeclareLaunchArgument('csv', default_value='',
                               description='per-pick CSV log path (empty = off)'),
+        DeclareLaunchArgument('box_clearance', default_value='0.05',
+                              description='EE stand-off (m) above the target '
+                                          "box top; also tunable live via "
+                                          '`ros2 param set`'),
+        DeclareLaunchArgument('allow_target_collision', default_value='true',
+                              description='true = ACM-allow the gripper to touch '
+                                          'the target box (grasp mode). false = '
+                                          'approach-only: target stays a hard '
+                                          'obstacle, gripper never enters it'),
         OpaqueFunction(function=_kill_stale),
         Node(
             package='reachability_gng',
@@ -66,6 +77,10 @@ def generate_launch_description():
                 # value_type coerces the "true"/"false" string to a real bool.
                 'execute': ParameterValue(execute, value_type=bool),
                 'csv_log': csv,
+                'box_clearance': ParameterValue(box_clearance,
+                                                value_type=float),
+                'allow_target_collision': ParameterValue(
+                    allow_target_collision, value_type=bool),
             }],
         ),
     ])

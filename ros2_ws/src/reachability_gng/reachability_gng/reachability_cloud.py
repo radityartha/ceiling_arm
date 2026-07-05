@@ -35,6 +35,7 @@ from tf2_ros import (Buffer, ConnectivityException, ExtrapolationException,
 from visualization_msgs.msg import Marker, MarkerArray
 
 from reachability_gng.object_localizer import quat_to_R
+from reachability_gng.pause_gate import PauseGate
 from reachability_gng.reachability_check import ArmMap
 
 # blue (not green) for reachable so it isn't confused with the green
@@ -46,6 +47,9 @@ _RED = (220, 30, 30)
 class ReachabilityCloud(Node):
     def __init__(self):
         super().__init__('reachability_cloud')
+        # Suppress the terminal % log while a pick runs (perception paused), so it
+        # doesn't interleave with the executor's pick pipeline. Markers still update.
+        self.gate = PauseGate(self, 8.0)
         self.declare_parameter('camera_namespaces', ['rgbd', 'rgbd2'])
         self.declare_parameter('world_frame', 'world')
         self.declare_parameter('optical_frame_suffix', '_camera_optical')
@@ -288,8 +292,14 @@ class ReachabilityCloud(Node):
 
         ma.markers.append(cubes)
         self.vox_pub.publish(ma)
-        if report:
-            self.get_logger().info('voxel reach -> ' + ' '.join(report))
+        if report and not self.gate.paused():
+            # Log the % only when it CHANGES (rounded), not every frame, and never
+            # while a pick runs (paused) -- the RViz markers carry the live value,
+            # so per-frame terminal spam just buries the executor's pick pipeline.
+            line = 'voxel reach -> ' + ' '.join(report)
+            if line != getattr(self, '_last_reach_line', None):
+                self._last_reach_line = line
+                self.get_logger().info(line)
 
     # ---- point-cloud packing ------------------------------------------------
     def _make_cloud(self, pts, rgb, stamp):

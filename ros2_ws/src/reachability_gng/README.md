@@ -196,6 +196,12 @@ See **README.html** for the short quick-start.
   Verify the **collision** octomap directly:
   `ros2 service call /get_planning_scene moveit_msgs/srv/GetPlanningScene "{components: {components: 32}}"`
   — `resolution` should read `0.03` and `data` be non-empty.
+- **move_group aborts slow gantry executions.** Isaac runs slower than realtime,
+  so a long gantry move trips move_group's execution-duration monitor and aborts
+  mid-motion (short arm-only moves finish inside the tolerance and succeed).
+  `bringup_table1.launch.py` sets `trajectory_execution.execution_duration_monitoring:
+  false` (+ large `allowed_execution_duration_scaling` / `allowed_goal_duration_margin`)
+  so slow-but-correct motions are not killed; the plan was already collision-checked.
 
 ### 4. GNG-seeded MoveIt IK (Phase 2)
 Needs `move_group` running so `/compute_ik` exists (e.g. `gng_moveit.launch.py`
@@ -230,9 +236,13 @@ python3 -m reachability_gng.eval ik --model /tmp/model.npz --dataset /tmp/datase
 Two RGBD cameras in Isaac (in `isaac_sim/workcell/ros2_bridge_gui.py`) watch the
 gantry_1 corridor from opposite ends of the prismatic rail; ground-truth instance
 segmentation labels each object. Perception nodes turn that into object positions
-in `world` and check them against the GNG cloud. Everything comes up with
-`./isaac_sim/launch_workcell.sh` (it launches `perception.launch.py`), or run the
-nodes by hand from this workspace.
+in `world` and check them against the GNG cloud. The whole stack comes up with
+`pick_stack.launch.py` (perception **+** the executor, Section 7) or, on its own,
+`perception.launch.py`. `object_localizer` also publishes the target's
+**size-adaptive box** on `/target_collision_boxes` (tracked object top → the
+executor's stand-off height). Background nodes are quieted to WARN in the launch
+so the shared terminal shows the executor's pick pipeline; `reachability_cloud`
+stays at INFO and prints each object's **% reachable** only when it changes.
 
 Cameras publish, per namespace `rgbd` / `rgbd2`: `/<ns>/rgb`, `/<ns>/depth`,
 `/<ns>/camera_info`, `/<ns>/instance_segmentation` (+ `_labels`). The
@@ -247,7 +257,7 @@ Cameras publish, per namespace `rgbd` / `rgbd2`: `/<ns>/rgb`, `/<ns>/depth`,
 | `seg_cloud` | depth + seg → `/<ns>/seg_cloud` (PointCloud2) | scene cloud coloured by segmentation id |
 | `collision_cloud` | depth (objects excluded) → `/<ns>/collision_cloud` (frame `world`) | environment-only cloud feeding MoveIt's octomap (graspables kept out, see `object_collision`). Published already in the `world` map frame and subsampled (`stride`, default 6) so the octomap updater keeps up — see the octomap gotcha below |
 | `object_collision` | depth + seg → `/planning_scene` | each object as an exact `CollisionObject` box + attach/detach for grasp (`/object_collision/command`) |
-| `octomap_refresher` | timer (`period`, default 5 s) → `/clear_octomap` | periodically flush stale arm/object voxels so a moved arm doesn't bake in. `period` **must stay well above** the updater's per-cloud time, or it wipes the map faster than it rebuilds (see gotcha) |
+| `octomap_refresher` | timer (`period`, default 60 s) → `/clear_octomap` | periodically flush stale arm/object voxels so a moved arm doesn't bake in. **Gated by `pause_gate`** — never clears during a pick (wiping the octomap mid-execution invalidates the running plan → move_group aborts −3). `period` **must stay well above** the updater's per-cloud time, or it wipes the map faster than it rebuilds (see gotcha) |
 | `map_static` / `static_collision` | one-shot map → `/planning_scene` | map STATIC known geometry (work table, cabinet, fridge, …) ONCE into boxes, publish them as reliable occlusion-free collision geometry. Map one piece per run with `name:=` (and `roi:=[xmin,xmax,ymin,ymax]` when several are in view); boxes append to a shared list |
 
 Reachability rule: an object (or voxel) is **reachable** if its distance to the
@@ -298,39 +308,65 @@ execution) against the live octomap. Per pick (`~/pick`, data = object index):
    = node manipulability. (The per-node task-space `dist` still gates the pool
    and is logged for the rank-by-distance diagnostic; the gravity `hold` cost is
    CSV-only.) J is the objective, so a *farther* seed with lower J can still win.
-3. **Evaluate in ascending-J order**: IK to the **exact** object pose (seeded by
-   the candidate q; orientation = `grasp_orientation`, default top-down
-   `(1,0,0,0)` because centroid detection gives no real orientation — identity
-   quat is unreachable for the ceiling arm and returns IK error −31). Then
-   MoveGroup plan (plan-only unless `execute:=true`). Accept the **first**
-   collision-free plan; otherwise fall through to the next candidate.
-4. **Log** per-pick CSV: chosen arm, J + components, **rank-by-J vs
+3. **Search — round-robin across arms** (best-per-arm first, so a failing arm
+   can't monopolise all `max_attempts` before the other is tried). Per candidate:
+   IK to a **pre-grasp that stands off `box_clearance` m above the object's TOP**
+   — a *dynamic, size-adaptive* height from `object_localizer`'s tracked box
+   (a tall object's centroid sits inside its body, so a fixed centroid offset
+   collides with the object's own octomap voxels → IK −31; standing off the top
+   clears the whole gripper). Orientation = `grasp_orientation`, default top-down
+   `(1,0,0,0)` (centroid gives no real orientation → identity quat is unreachable
+   → −31; `grasp_yaw_samples` free yaws are tried). `ik_avoid_collisions` (default
+   true) makes a *colliding* solution return −31 too; set false to A/B a −31 (if
+   IK then passes, the −31 was a collision, not unreachable). The search runs
+   **plan-only** so it never moves the arm — the **first** candidate that plans
+   wins. `box_clearance` is live-tunable (`ros2 param set … box_clearance 0.15`).
+4. **Execute once** (`execute:=true`): only the chosen candidate is
+   planned-and-executed, then confirmed against the LIVE `/joint_states`
+   (move_group's result can beat Isaac's slower physics). If execution aborts
+   (e.g. env-change −3), **fall through to the next candidate** so the arm keeps
+   trying. Perception is frozen for the whole pick (`pause_gate`: `collision_cloud`,
+   `object_collision`, `octomap_refresher`, `reachability_cloud` all pause) so a
+   mid-plan scene bump can't invalidate the plan.
+5. **Log** per-pick CSV: chosen arm, J + components, **rank-by-J vs
    rank-by-distance**, resulting gantry placement, IK/plan time, optional
    trajectory energy.
 
+**`pick_stack.launch.py` — perception + executor in one terminal.** Since the
+perception nodes (Section 6) and the executor are always run together for a pick,
+`pick_stack.launch.py` includes both, so only `launch_workcell.sh` (Isaac +
+move_group + RViz) and the `pick_cli` menu are separate. **`launch_workcell.sh`
+no longer starts `perception.launch.py`** — it lives in `pick_stack` so
+perception/executor code can be restarted fast without rebooting Isaac.
 ```bash
-# prerequisites already up: move_group (/compute_ik + move_action) +
-# perception (/detected_objects + octomap) — e.g. ./isaac_sim/launch_workcell.sh
+# Terminal 1: Isaac + move_group + RViz (rarely restarted)
+./isaac_sim/launch_workcell.sh
+# Terminal 2: perception + executor (restart this after any perception/executor edit)
+ros2 launch reachability_gng pick_stack.launch.py execute:=true box_clearance:=0.15
+# Terminal 3: interactive picker (must be its own terminal — it reads the keyboard)
+ros2 run reachability_gng pick_cli
+```
+Or drive just the executor (perception already up), plan-only, with CSV:
+```bash
 ros2 launch reachability_gng gantry_pick.launch.py csv:=/tmp/picks.csv        # plan-only
 ros2 topic pub --once /gantry_reach_executor/pick std_msgs/String "{data: '0'}"
 column -t -s, /tmp/picks.csv
-
-# execute for real (arm moves in Isaac):
-ros2 launch reachability_gng gantry_pick.launch.py execute:=true csv:=/tmp/picks.csv
 ```
 
-**Interactive picker (`pick_cli`).** Instead of the `ros2 topic pub .../pick`
-one-liner, run the menu in a second terminal: it lists the live objects from
+**Grasp vs approach-only mode.** Default (`carve_target:=true`,
+`allow_target_collision:=true`) = *grasp* mode: the target is carved out of the
+octomap and ACM-allowed so the gripper may enter it. Set **both false** for
+*approach-only*: the target stays a hard octomap obstacle and the EE only stands
+off above it (`box_clearance`) without ever touching it.
+
+**Interactive picker (`pick_cli`).** Lists the live objects from
 `/detected_objects` (labels from `/detected_objects/markers`), shows a cheap
 straight-line distance from each object to every arm's current tool frame (a
 geometric proxy, **not** the executor's energy J), and fires a pick when you type
-its index. The index is exactly what the executor uses when no `/target_object`
-is set. Watch the `gantry_pick.launch.py` terminal for the chosen arm / plan
-result.
-```bash
-ros2 launch reachability_gng gantry_pick.launch.py     # backend (terminal 1)
-ros2 run reachability_gng pick_cli                     # this menu (terminal 2)
-```
+its index (which also publishes the object's label on `/grasp_target` so
+perception carves/boxes it). Also drives the detector (`y`/`i`/`p` = YOLOE /
+Isaac / set prompts) and accepts a natural-language request ("get me a box").
+Watch the executor terminal for the chosen arm / plan result.
 
 **Energy weights.** What drives the ranking is each term's *influence* =
 `weight × its spread across the pool`. The calibrated defaults live in one place
@@ -377,15 +413,16 @@ voxel reachability cloud with a per-object **% reachable by volume** metric
 (`gantry_reach_executor`, section 7). Per-node `hold` (gravity) cost in
 `_stats.npz`; `GNG.query_radius` pool retrieval; two-arm energy ranking
 `J(d_gantry_lin, d_gantry_rot, d_arm, hold, manip)` with collision-aware MoveGroup plan/execute
-and ranked-candidate fallback; per-pick CSV. Validated live (plan-only) on the
-Isaac twin: energy routinely selects a farther-but-cheaper, IK/plan-feasible
-seed (rank-by-dist ≫ 0), and the weights are confirmed live levers. Remaining
-here: real-execution sweep, multi-object batch, weight study across scenes.
+and ranked-candidate fallback; per-pick CSV. Hardened for live execution: arm
+round-robin fallback, a **size-adaptive top-down stand-off** (`box_clearance`
+above the tracked object box), **plan-only search → execute-once** with
+keep-trying-on-abort, and perception frozen per pick. **Open-vocab detection
+(YOLOE)** via `seg_router` replaces the Isaac ground-truth masks at runtime.
+Validated live on the Isaac twin (plan-only and real execution). Remaining here:
+multi-object batch, weight study across scenes.
 
 Remaining for the paper: a Zacharias-style voxel-capability-map baseline, the
-table-aware node-separation ablation as a flag, open-vocab segmentation
-(YOLOE / YOLO-World) to replace the Isaac ground-truth masks, and plotting
-scripts.
+table-aware node-separation ablation as a flag, and plotting scripts.
 
 ## Notes / gotchas
 

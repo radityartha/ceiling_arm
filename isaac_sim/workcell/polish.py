@@ -100,7 +100,7 @@ def build_room():
     # (far edge 2.00) to sy2=1.30/cy2=1.02 (far edge 1.67) since the banana no longer
     # needs to sit at y=1.85. Table 1 +Y edge = 0.35, table 2 -Y edge = cy2-sy2/2 =
     # 0.37, so the two tables nearly touch but don't.
-    cx2, cy2, top_z2, sx2, sy2 = 1.75, 1.02, 0.97, 0.75, 1.30
+    cx2, cy2, top_z2, sx2, sy2 = 0.75, 1.02, 0.97, 0.75, 1.30
     FixedCuboid(prim_path="/World/work_table2/top", name="wt2_top",
                 position=np.array([cx2, cy2, top_z2]), scale=np.array([sx2, sy2, th]),
                 visual_material=top_mat)
@@ -150,14 +150,14 @@ def build_room():
         # obj_3 seated on TOP of the cabinet (cab_x, cy, cab top = cab_h).
         ("mustard_bottle",  "Axis_Aligned_Physics/006_mustard_bottle.usd",  (cab_x, cy,   cab_h), True),
         # obj_4: IsaacLab teddy bear (not YCB) -> full URL, resolved directly below.
-        ("teddy_bear",      f"{root}/Isaac/IsaacLab/Objects/Teddy_Bear/teddy_bear.usd", (1.55,  0.70, surf2), False),
+        ("teddy_bear",      f"{root}/Isaac/IsaacLab/Objects/Teddy_Bear/teddy_bear.usd", (0.55,  0.70, surf2), False),
         # potted_meat_can now holds the unreachable-by-design +Y spot (y=1.60): its
         # nearest reachable GNG node is ~0.90 m away -- past the 0.727 m pool radius
         # -- so the reachability check finds NO candidate nodes and reports it
         # UNREACHABLE on purpose (the ~y=1.45 crossover leaves a ~0.15 m margin).
-        ("potted_meat_can", "Axis_Aligned/010_potted_meat_can.usd",         (1.75,  1.60, surf2), False),
+        ("potted_meat_can", "Axis_Aligned/010_potted_meat_can.usd",         (0.75,  1.60, surf2), False),
         # banana swapped to the reachable near end (was at y=1.60).
-        ("banana",          "Axis_Aligned/011_banana.usd",                  (1.87,  0.72, surf2), False),
+        ("banana",          "Axis_Aligned/011_banana.usd",                  (0.87,  0.72, surf2), False),
     ]
     objs = []
     stage = get_current_stage()

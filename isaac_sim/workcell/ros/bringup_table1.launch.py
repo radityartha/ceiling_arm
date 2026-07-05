@@ -49,7 +49,16 @@ def generate_launch_description():
         Node(package="controller_manager", executable="ros2_control_node", output="screen",
              parameters=[moveit_config.robot_description, CONTROLLERS_YAML]),
         Node(package="moveit_ros_move_group", executable="move_group", output="screen",
-             parameters=[moveit_config.to_dict(), {"use_sim_time": False}]),
+             parameters=[moveit_config.to_dict(), {"use_sim_time": False},
+                         # Isaac runs slower than realtime, so a long gantry move
+                         # trips move_group's execution monitors and aborts mid-
+                         # motion (err -3/-4). Disable the duration monitor and give
+                         # a large margin so slow-but-correct motions are not
+                         # killed; the plan was already collision-checked pre-exec.
+                         {"trajectory_execution.execution_duration_monitoring": False,
+                          "trajectory_execution.allowed_execution_duration_scaling": 20.0,
+                          "trajectory_execution.allowed_goal_duration_margin": 20.0,
+                          "trajectory_execution.allowed_start_tolerance": 0.1}]),
     ]
     for c in SPAWN:
         nodes.append(Node(package="controller_manager", executable="spawner",

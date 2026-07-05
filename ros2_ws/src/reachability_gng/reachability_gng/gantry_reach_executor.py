@@ -40,12 +40,14 @@ stack publishing /detected_objects (perception.launch.py).
 from __future__ import annotations
 
 import csv
+import json
 import threading
 import time
 
 import numpy as np
 import rclpy
 from geometry_msgs.msg import PoseArray, PoseStamped
+from rcl_interfaces.msg import SetParametersResult
 from moveit_msgs.action import MoveGroup
 from moveit_msgs.msg import (Constraints, JointConstraint, MotionPlanRequest,
                              PlanningOptions, PlanningScene,
@@ -161,6 +163,13 @@ class GantryReachExecutor(Node):
         # the gripper stops over the object instead of plunging to the centroid and
         # hitting the table/environment octomap (goal-pose collision -> -2).
         self.declare_parameter('approach_offset', 0.10)
+        # EE stand-off: when object_collision has published a fitted 3D box for
+        # the target (/target_collision_boxes), aim the pre-grasp this many metres
+        # ABOVE the box top instead of approach_offset above the centroid -- a
+        # tall object's centroid sits inside its body, so a centroid+offset goal
+        # can still be within the object (goal-in-collision -2). Standing off the
+        # box top keeps a safe EE<->box clearance regardless of object height.
+        self.declare_parameter('box_clearance', 0.05)
         self.declare_parameter('world_frame', 'world')
         # pool_radius <= 0 -> density-adaptive (pool_radius_factor * node
         # spacing), so the pool size is independent of the GNG `lam`; > 0 ->
@@ -178,14 +187,14 @@ class GantryReachExecutor(Node):
         # The gantry's two DOFs are weighted SEPARATELY because their units and
         # cost differ: w_gantry_lin scores the linear/prismatic axis (metres of
         # heavy-carriage travel), w_gantry_rot the rotation axis (radians).
-        self.declare_parameter('w_gantry_lin', 1.0)
-        self.declare_parameter('w_gantry_rot', 1.0)
-        self.declare_parameter('w_arm', 2.0)        #1.2
+        self.declare_parameter('w_gantry_lin', 20.0)
+        self.declare_parameter('w_gantry_rot', 20.0)
+        self.declare_parameter('w_arm', 1.0)        #1.2
         self.declare_parameter('w_manip', 30.0)      #30
         # w_dist scores the task-space gap (metres) between the candidate node
         # and the object: distance already gates the pool, this also makes a
         # closer seed cheaper inside J (0 = distance only gates, does not rank).
-        self.declare_parameter('w_dist', 10.0)
+        self.declare_parameter('w_dist', 50.0)
         # Print the full ranked J table (every pooled candidate, ascending J,
         # with each term's weighted contribution) to the terminal on each pick.
         self.declare_parameter('log_j_table', True)
@@ -220,6 +229,23 @@ class GantryReachExecutor(Node):
         self.declare_parameter('joint_tolerance', 1e-3)
         self.declare_parameter('execute', False)          # plan-only by default
         self.declare_parameter('max_attempts', 8)
+        # Head start for the allocation winner (overall lowest-J arm): try this
+        # many of its nodes BEFORE any other arm gets a turn. 1 = strict
+        # round-robin (old behaviour). >1 stops a single un-plannable winner node
+        # (e.g. a goal-in-collision -2) from immediately handing the whole task to
+        # another arm -- e.g. when the winner arm is already hovering over the
+        # object, let it try its next node in place before a far arm drives the
+        # shared gantry across the workcell. Capped below max_attempts so the
+        # other arm is still guaranteed a shot.
+        self.declare_parameter('winner_head_start', 2)
+        # In-place re-grasp: when an arm's tool is already essentially over the
+        # object (current ee_dist <= this, metres), add a candidate whose IK SEED
+        # is the arm's CURRENT config -- so IK re-grasps from where the arm
+        # already is (near-zero gantry travel) instead of only re-seeding from GNG
+        # nodes whose stored configs can jump the shared gantry across the
+        # workcell. 0 disables. Default 0.30 m cleanly separates "hovering after a
+        # pick" (~0.17 m) from "moved away / far arm" (>0.8 m).
+        self.declare_parameter('in_place_radius', 0.30)
         # Fix A: freeze the sensed scene (octomap + object CollisionObjects) for
         # the plan/execute window so a mid-plan scene-version bump doesn't drop the
         # plan (-3/-2). gate_settle lets the last in-flight update land first.
@@ -249,6 +275,10 @@ class GantryReachExecutor(Node):
         self.grasp_ori = [float(v) for v in g('grasp_orientation').value]
         self.grasp_yaw_samples = int(g('grasp_yaw_samples').value)
         self.approach_offset = float(g('approach_offset').value)
+        self.box_clearance = float(g('box_clearance').value)
+        # Let `ros2 param set` retune the stand-off live (no restart), since these
+        # are the knobs iterated during tuning.
+        self.add_on_set_parameters_callback(self._on_set_params)
         self.world_frame = g('world_frame').value
         self.pool_radius = float(g('pool_radius').value)
         self.pool_radius_factor = float(g('pool_radius_factor').value)
@@ -274,6 +304,8 @@ class GantryReachExecutor(Node):
         self.joint_tol = float(g('joint_tolerance').value)
         self.execute = bool(g('execute').value)
         self.max_attempts = int(g('max_attempts').value)
+        self.winner_head_start = max(1, int(g('winner_head_start').value))
+        self.in_place_radius = float(g('in_place_radius').value)
         self.gate_perception = bool(g('gate_perception').value)
         self.gate_settle = float(g('gate_settle').value)
         self.auto_attach = bool(g('auto_attach').value)
@@ -302,6 +334,7 @@ class GantryReachExecutor(Node):
         self._pin_cache = {}            # arm name -> (pin, model, data, order)
         self._latest_objects = None
         self._latest_target = None      # /target_object, the single grasp target
+        self._target_boxes = []         # [(center3, size3)] fitted target box(es)
         self._labels = {}               # marker id -> label text (class/color name)
         self._target_label = ''         # latest /grasp_target (target-pick name)
         self._joints = {}               # joint name -> position
@@ -318,6 +351,10 @@ class GantryReachExecutor(Node):
                                  self._on_objects, 1, callback_group=cb)
         self.create_subscription(PoseStamped, '/target_object',
                                  self._on_target, 1, callback_group=cb)
+        # target's fitted 3D box(es) from object_collision -> EE stand-off height
+        self.create_subscription(String, '/target_collision_boxes',
+                                 self._on_target_boxes, latched_qos(),
+                                 callback_group=cb)
         # object labels (class/color, e.g. 'yellow bottle') for terminal output
         self.create_subscription(MarkerArray, '/detected_objects/markers',
                                  self._on_markers, 1, callback_group=cb)
@@ -358,6 +395,16 @@ class GantryReachExecutor(Node):
     def _on_target(self, msg):
         self._latest_target = msg
 
+    def _on_target_boxes(self, msg):
+        """Latest fitted target box(es) as [(center3, size3)] for the EE stand-off."""
+        try:
+            data = json.loads(msg.data)
+        except (ValueError, TypeError):
+            return
+        self._target_boxes = [
+            (np.asarray(b['center'], float), np.asarray(b['size'], float))
+            for b in data if 'center' in b and 'size' in b]
+
     def _on_markers(self, msg):
         for m in msg.markers:
             if m.ns == 'labels':
@@ -388,7 +435,36 @@ class GantryReachExecutor(Node):
         finally:
             self._busy.release()
 
+    def _on_set_params(self, params):
+        """Apply live `ros2 param set` for the tunable stand-off knobs so they
+        take effect on the NEXT pick without a restart."""
+        for p in params:
+            if p.name == 'box_clearance':
+                self.box_clearance = float(p.value)
+            elif p.name == 'approach_offset':
+                self.approach_offset = float(p.value)
+        return SetParametersResult(successful=True)
+
     # ---- helpers ------------------------------------------------------------
+    def _pregrasp_point(self, obj_xyz):
+        """Pre-grasp (x, y, z) above the object plus whether a fitted box was used.
+
+        If object_collision has a target box near obj_xyz, stand the EE off
+        box_clearance ABOVE the box top (x, y at the box centre) so a tall
+        object's body is not entered. Otherwise fall back to the object centroid
+        + approach_offset (legacy)."""
+        best, bestd = None, self.grasp_match_radius
+        for center, size in self._target_boxes:
+            d = float(np.linalg.norm(center - obj_xyz))
+            if d < bestd:
+                best, bestd = (center, size), d
+        if best is not None:
+            center, size = best
+            return (float(center[0]), float(center[1]),
+                    float(center[2] + size[2] / 2.0 + self.box_clearance), True)
+        return (float(obj_xyz[0]), float(obj_xyz[1]),
+                float(obj_xyz[2] + self.approach_offset), False)
+
     def _task_vec(self, pose):
         p = pose.position
         if self.task == 'pos':
@@ -461,19 +537,26 @@ class GantryReachExecutor(Node):
         return d_gantry_lin, d_gantry_rot, d_arm
 
     @staticmethod
-    def _interleave_by_arm(by_J):
-        """Round-robin the J-sorted candidates across arms: best-of-arm-A,
-        best-of-arm-B, 2nd-of-arm-A, ... The arm with the overall lowest J still
-        goes first (its bucket is inserted first, preserving the energy winner),
-        but every arm gets a turn before any arm's 2nd node -- so a failing arm
-        can't monopolise max_attempts. Ascending-J order is preserved within each
-        arm's bucket."""
+    def _interleave_by_arm(by_J, head_start=1):
+        """Round-robin the J-sorted candidates across arms, giving the allocation
+        winner (overall lowest-J arm, whose bucket is first) a `head_start`: its
+        first `head_start` nodes are tried BEFORE any other arm gets a turn, then
+        the remaining candidates round-robin across arms with the OTHER arms ahead
+        of the winner's tail so every arm is still guaranteed a shot within
+        max_attempts. Ascending-J order is preserved within each arm's bucket.
+        head_start=1 reproduces strict round-robin (best-A, best-B, 2nd-A, ...).
+        """
         buckets = {}
         for c in by_J:                       # by_J is already ascending-J
             buckets.setdefault(c['arm'].name, []).append(c)
-        order, lists = [], list(buckets.values())
-        for i in range(max(len(b) for b in lists)):
-            for b in lists:
+        lists = list(buckets.values())
+        winner = lists[0]
+        order = list(winner[:head_start])
+        # remaining rounds: other arms first, then the winner's tail, so after the
+        # head start no arm monopolises the rest.
+        rest = list(lists[1:]) + [winner[head_start:]]
+        for i in range(max((len(b) for b in rest), default=0)):
+            for b in rest:
                 if i < len(b):
                     order.append(b[i])
         return order
@@ -568,6 +651,27 @@ class GantryReachExecutor(Node):
                                   d_gantry_lin=d_gantry_lin,
                                   d_gantry_rot=d_gantry_rot,
                                   d_arm=d_arm, J=J))
+
+        # 1b) in-place seed for any arm already over the object: IK seeded from
+        # its CURRENT config, scored with ZERO joint travel (it IS the current
+        # state, manip unknown -> 0), so J = w_dist*ee_dist leads that arm's
+        # bucket and is tried first -- re-grasp in place instead of a far arm
+        # driving the shared gantry to a target this arm is already hovering over.
+        if self.in_place_radius > 0.0:
+            for arm in self.arms:
+                q_cur = cur_by_arm[arm.name]
+                ee_dist = ee_dist_by_arm[arm.name]
+                if q_cur is None or ee_dist > self.in_place_radius:
+                    continue
+                cands.append(dict(arm=arm, node=-1, q=q_cur.copy(), dist=ee_dist,
+                                  ee_dist=ee_dist, manip=0.0, hold=0.0,
+                                  d_gantry_lin=0.0, d_gantry_rot=0.0, d_arm=0.0,
+                                  J=self.w_dist * ee_dist))
+                self.get_logger().info(
+                    f'{name}: {arm.name} already over target '
+                    f'(ee_dist={ee_dist:.3f} <= {self.in_place_radius:.2f} m) '
+                    f'-- added in-place re-grasp candidate (node -1)')
+
         if not cands:
             self.get_logger().error(
                 f'>>> {name}: FAILED -- no reachable arm candidates in pool '
@@ -583,7 +687,7 @@ class GantryReachExecutor(Node):
         # near-identical nodes fills all max_attempts and the other arm is never
         # tried -- a whole arm's worth of -31s/collisions is spent before the
         # alternative ever gets a single shot.
-        attempt_order = self._interleave_by_arm(by_J)
+        attempt_order = self._interleave_by_arm(by_J, self.winner_head_start)
 
         if self.log_j_table:
             self._log_j_table(name, by_J, dist_rank)
@@ -605,10 +709,16 @@ class GantryReachExecutor(Node):
 
         ps = PoseStamped()
         ps.header.frame_id = self.world_frame
-        # pre-grasp point: above the object centroid (don't share target.position)
-        ps.pose.position.x = target.position.x
-        ps.pose.position.y = target.position.y
-        ps.pose.position.z = target.position.z + self.approach_offset
+        # pre-grasp point: stand the EE off ABOVE the fitted box top (safe EE<->box
+        # clearance) when a target box is known, else above the object centroid.
+        px, py, pz, used_box = self._pregrasp_point(obj_xyz)
+        ps.pose.position.x = px
+        ps.pose.position.y = py
+        ps.pose.position.z = pz
+        self.get_logger().info(
+            f'{name}: pre-grasp z={pz:.3f} '
+            + (f'(box top + {self.box_clearance:.3f} m clearance)' if used_box
+               else f'(centroid + {self.approach_offset:.3f} m; no target box yet)'))
         if self.task == 'pose':
             o = target.orientation
             ori_list = [(o.x, o.y, o.z, o.w)]              # real detected ori
@@ -627,7 +737,14 @@ class GantryReachExecutor(Node):
         # plan; settle lets the last in-flight update land, then resume in finally.
         self._set_perception_pause(True)
         try:
-            # 2) try candidates round-robin across arms (best-per-arm first)
+            # Try candidates round-robin across arms. For each: IK, then a
+            # plan-only CHECK (fast, no motion) to skip un-plannable ones without
+            # ever moving the arm; the FIRST that plans is executed and confirmed
+            # against the LIVE arm. If execution fails (e.g. env change -3), we
+            # KEEP GOING to the next candidate instead of giving up -- so a
+            # transient abort doesn't end the pick. Because each execution is
+            # awaited to completion before the next, a slow gantry can't cause the
+            # old mid-motion mis-fire (-4 / IK timeouts).
             for attempt, c in enumerate(attempt_order[:self.max_attempts]):
                 arm = c['arm']
                 t0 = time.perf_counter()
@@ -642,7 +759,8 @@ class GantryReachExecutor(Node):
                 if goal_q is None:
                     continue
                 t1 = time.perf_counter()
-                planned, traj, perr, ptime = self._plan(arm, goal_q)
+                planned, traj, perr, ptime = self._plan(
+                    arm, goal_q, do_execute=False)
                 plan_ms = (time.perf_counter() - t1) * 1e3
                 if not planned:
                     self.get_logger().info(
@@ -661,31 +779,41 @@ class GantryReachExecutor(Node):
                     f'manip={c["manip"]:.3f}] '
                     f'gantry_goal=({goal_q[0]:.3f},{goal_q[1]:.3f}) '
                     f'ik={ik_ms:.0f}ms plan={plan_ms:.0f}ms '
-                    f'{"executed" if self.execute else "plan-only"}')
-                if self.execute:
-                    # Confirm against the LIVE arm: move_group's result can beat
-                    # Isaac Sim's physics, so wait for /joint_states to converge.
-                    reached, err = self._wait_until_reached(
+                    f'{"executing" if self.execute else "plan-only"}')
+
+                if not self.execute:                     # plan-only: first wins
+                    self._log_csv(idx, attempt, dist_rank[id(c)], c, goal_q,
+                                  ik_ms, ptime, plan_ms, energy)
+                    return
+
+                # Execute this candidate, then confirm against the LIVE arm
+                # (/joint_states), since move_group's result can beat Isaac's
+                # slower physics.
+                ex_ok, _, eperr, _ = self._plan(arm, goal_q, do_execute=True)
+                reached, err = (
+                    self._wait_until_reached(
                         arm, goal_q, self.reach_tol, self.exec_wait)
-                    if reached:
-                        if self.auto_attach and self.attach_object_id:
-                            self._attach(arm, self.attach_object_id)
-                        self.get_logger().info(
-                            f'>>> {name}: SUCCESS -- {arm.name} reached the '
-                            f'target (max joint err={err:.3f} <= {self.reach_tol})')
-                    else:
-                        self.get_logger().error(
-                            f'>>> {name}: {arm.name} motion did NOT settle at '
-                            f'the goal within {self.exec_wait:.0f}s '
-                            f'(max joint err={err:.3f} > {self.reach_tol})')
-                self._log_csv(idx, attempt, dist_rank[id(c)], c, goal_q,
-                              ik_ms, ptime, plan_ms, energy)
-                return
+                    if ex_ok else (False, float('inf')))
+                if reached:
+                    if self.auto_attach and self.attach_object_id:
+                        self._attach(arm, self.attach_object_id)
+                    self.get_logger().info(
+                        f'>>> {name}: SUCCESS -- {arm.name} reached the '
+                        f'target (max joint err={err:.3f} <= {self.reach_tol})')
+                    self._log_csv(idx, attempt, dist_rank[id(c)], c, goal_q,
+                                  ik_ms, ptime, plan_ms, energy)
+                    return
+                # Execution failed (e.g. -3 env change): fall through and try the
+                # next candidate so the arm keeps trying to reach the target.
+                self.get_logger().warn(
+                    f'{name} cand#{attempt} {arm.name}: did NOT reach '
+                    f'(exec err={eperr}, joint err={err:.3f}) -- trying next '
+                    f'candidate')
 
             n_tried = min(len(by_J), self.max_attempts)
             self.get_logger().error(
-                f'>>> {name}: FAILED -- no arm could reach the target '
-                f'(no collision-free plan over {n_tried} candidates)')
+                f'>>> {name}: FAILED -- no arm reached the target '
+                f'over {n_tried} candidates')
             self._log_csv(idx, -1, -1, None, None, float('nan'),
                           float('nan'), float('nan'), float('nan'))
         finally:
@@ -733,8 +861,10 @@ class GantryReachExecutor(Node):
         except KeyError:
             return None
 
-    def _plan(self, arm, goal_q):
-        """MoveGroup to a joint-space goal; plan_only unless self.execute.
+    def _plan(self, arm, goal_q, do_execute):
+        """MoveGroup to a joint-space goal; plan-only when do_execute is False,
+        plan-AND-execute when True (the caller searches plan-only, then executes
+        only the chosen candidate once).
 
         Returns (success, planned_trajectory, error_code, planning_time)."""
         if not self.move_cli.wait_for_server(timeout_sec=3.0):
@@ -760,7 +890,7 @@ class GantryReachExecutor(Node):
         goal = MoveGroup.Goal()
         goal.request = req
         goal.planning_options = PlanningOptions()
-        goal.planning_options.plan_only = not self.execute
+        goal.planning_options.plan_only = not do_execute
 
         gh = self._wait(self.move_cli.send_goal_async(goal), self.plan_wait)
         if gh is None or not gh.accepted:
@@ -768,7 +898,7 @@ class GantryReachExecutor(Node):
         # plan-only returns as soon as planning finishes; execute only completes
         # once the trajectory has physically moved -> allow exec_wait for that.
         result_wait = self.plan_wait + self.plan_time + (
-            self.exec_wait if self.execute else 5.0)
+            self.exec_wait if do_execute else 5.0)
         rr = self._wait(gh.get_result_async(), result_wait)
         if rr is None:
             return False, None, None, float('nan')
