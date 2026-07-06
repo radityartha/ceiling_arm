@@ -11,18 +11,23 @@ Pipeline per pick (`~/pick`):
   2. From EACH arm's GNG map, gather the POOL of nodes within `pool_radius`
      (task-space) of the object -- the reachability filter (hard).
   3. Score every pooled candidate by
-        J = w_gantry_lin*d_gantry_lin + w_gantry_rot*d_gantry_rot
-            + w_arm*d_arm + w_dist*ee_dist - w_manip*manip
-     where d_* are joint travel from the current state. The gantry's linear
+        J = w_gantry_lin*d_gantry_lin/ref_gantry_lin
+            + w_gantry_rot*d_gantry_rot/ref_gantry_rot + w_arm*d_arm/ref_arm
+            + w_dist*ee_dist/ref_dist + w_hold*hold/ref_hold
+            - w_manip*manip/ref_manip
+     where d_* are joint travel from the current state, each divided by a fixed
+     physical reference (ref_*) so every term is dimensionless ~O(1) and the
+     w_* are pure, directly-comparable priorities. The gantry's linear
      (prismatic, metres) and rotation (radians) axes are weighted separately
      because their units and cost differ; gantry travel is the dominant,
      expensive term. `ee_dist` is the arm's CURRENT tool-frame distance (TF,
      metres) to the object -- one value per arm, so this term biases the
      allocation toward whichever arm's end-effector is already nearer. (The
      per-node task-space `dist` still gates the pool and is logged for the
-     rank-by-distance diagnostic; the gravity `hold` cost is CSV-only.) `manip`
-     is the node manipulability. J is the OBJECTIVE; arm selection emerges from
-     J.
+     rank-by-distance diagnostic.) `hold` is the ||generalized gravity torque||
+     at the node's config -- the static load of holding that pose, so J prefers
+     configs that fight gravity less. `manip` is the node manipulability. J is
+     the OBJECTIVE; arm selection emerges from J.
   4. Evaluate candidates in ascending-J order: IK to the EXACT object pose
      (seeded by the candidate q) on that arm's `gantry_1_with_arm_<n>` group ->
      MoveGroup plan (plan_only unless `execute`). Accept the FIRST candidate
@@ -159,6 +164,17 @@ class GantryReachExecutor(Node):
         # the exact 6-DOF pose, so a single unreachable orientation -> -31; sampling
         # yaw gives the redundant arm+gantry several reachable targets. 1 = off.
         self.declare_parameter('grasp_yaw_samples', 8)
+        # Tilt fallback: the GNG reach map is POSITION-only, so it can flag an xyz
+        # reachable while a straight-DOWN grasp there is infeasible (the arm can
+        # only touch that spot at an angle) -> IK -31 for every yaw. Sample this
+        # many tilt magnitudes (up to grasp_tilt_max deg off vertical), each swung
+        # around grasp_tilt_azimuths compass directions, and accept the first IK
+        # that solves. Vertical is ALWAYS tried first (preferred); tilts are pure
+        # fallback so a clean top-down grasp still wins when available. 0 = off
+        # (vertical + yaw only, legacy).
+        self.declare_parameter('grasp_tilt_samples', 2)
+        self.declare_parameter('grasp_tilt_max', 45.0)     # deg off vertical
+        self.declare_parameter('grasp_tilt_azimuths', 4)
         # Pre-grasp: aim this many metres ABOVE the object centroid (world +Z) so
         # the gripper stops over the object instead of plunging to the centroid and
         # hitting the table/environment octomap (goal-pose collision -> -2).
@@ -179,22 +195,52 @@ class GantryReachExecutor(Node):
         self.declare_parameter('max_candidates', 20)
         self.declare_parameter('n_gantry_dofs', 2)
         # --- energy weights (J) --- single source of truth for the calibrated
-        # defaults; the launch no longer overrides these. Calibrated so each
-        # term's influence (weight x its pool spread) matches the intended
-        # balance: gantry dominant (heavy platform), arm minor (cheap joints),
-        # manip x30 because its spread (~0.08) is tiny.
-        # Override live with -p w_*:=...
+        # defaults; the launch no longer overrides these.
+        #
+        # Each term is NORMALISED by a fixed physical reference (ref_*, its
+        # representative full-scale) BEFORE its weight is applied, so every term
+        # feeds J as a dimensionless ~O(1) quantity:
+        #     J = sum_i  w_i * (value_i / ref_i)   (manip enters with a minus).
+        # That decouples the two jobs the old single weight had to do at once:
+        # ref_* absorbs the unit/scale conversion (metres vs radians vs the tiny
+        # ~0.08 manip index), leaving w_* as a PURE priority knob you can read
+        # and compare directly. Retune priority via w_*, rescale a term via ref_*.
+        #
+        # The defaults below reproduce the previous hand-tuned ranking EXACTLY:
+        # each old weight was remapped w_new = w_old * ref (so w/ref is unchanged
+        # -- old lin/rot/arm/dist/manip = 20/20/1/50/30). Read as priorities the
+        # new weights say: dist (25) leads, gantry lin/rot (10) next, manip (3),
+        # arm (1) least. Override live with -p w_*:=... or -p ref_*:=...
+        #
         # The gantry's two DOFs are weighted SEPARATELY because their units and
         # cost differ: w_gantry_lin scores the linear/prismatic axis (metres of
         # heavy-carriage travel), w_gantry_rot the rotation axis (radians).
-        self.declare_parameter('w_gantry_lin', 20.0)
-        self.declare_parameter('w_gantry_rot', 20.0)
-        self.declare_parameter('w_arm', 1.0)        #1.2
-        self.declare_parameter('w_manip', 30.0)      #30
+        self.declare_parameter('w_gantry_lin', 1.0)
+        self.declare_parameter('w_gantry_rot', 1.0)
+        self.declare_parameter('w_arm', 1.0)
+        self.declare_parameter('w_manip', 1.0)
+        # w_hold scores the static gravity load (||generalized gravity torque||,
+        # Nm) of holding the candidate config -- a positive cost so J prefers
+        # poses that fight gravity less (0 = ignore gravity). Requires maps built
+        # with --config so `hold` is non-zero; hold=0 makes this term inert.
+        self.declare_parameter('w_hold', 1.0)
         # w_dist scores the task-space gap (metres) between the candidate node
         # and the object: distance already gates the pool, this also makes a
         # closer seed cheaper inside J (0 = distance only gates, does not rank).
-        self.declare_parameter('w_dist', 50.0)
+        self.declare_parameter('w_dist', 1.0)
+        # Fixed normalisation references (representative full-scale of each term):
+        # linear travel (m), gantry rotation (rad), summed arm-joint travel (rad),
+        # ee->object gap (m), manipulability index. Constants (not pool-relative)
+        # so J stays comparable across picks.
+        self.declare_parameter('ref_gantry_lin', 1.0)
+        self.declare_parameter('ref_gantry_rot', 1.0)
+        self.declare_parameter('ref_arm', 1.0)
+        self.declare_parameter('ref_dist', 0.5)
+        self.declare_parameter('ref_manip', 0.1)
+        # representative full-scale gravity hold torque (Nm): median ||gravity
+        # torque|| across the built maps (~6.3-6.6 Nm, arm1/arm2) from the URDF
+        # inertias, so hold/ref_hold is ~O(1) at a typical config.
+        self.declare_parameter('ref_hold', 6.5)
         # Print the full ranked J table (every pooled candidate, ascending J,
         # with each term's weighted contribution) to the terminal on each pick.
         self.declare_parameter('log_j_table', True)
@@ -274,6 +320,9 @@ class GantryReachExecutor(Node):
         self.ori_weight = float(g('ori_weight').value)
         self.grasp_ori = [float(v) for v in g('grasp_orientation').value]
         self.grasp_yaw_samples = int(g('grasp_yaw_samples').value)
+        self.grasp_tilt_samples = int(g('grasp_tilt_samples').value)
+        self.grasp_tilt_max = float(g('grasp_tilt_max').value)
+        self.grasp_tilt_azimuths = int(g('grasp_tilt_azimuths').value)
         self.approach_offset = float(g('approach_offset').value)
         self.box_clearance = float(g('box_clearance').value)
         # Let `ros2 param set` retune the stand-off live (no restart), since these
@@ -288,7 +337,14 @@ class GantryReachExecutor(Node):
         self.w_gantry_rot = float(g('w_gantry_rot').value)
         self.w_arm = float(g('w_arm').value)
         self.w_manip = float(g('w_manip').value)
+        self.w_hold = float(g('w_hold').value)
         self.w_dist = float(g('w_dist').value)
+        self.ref_gantry_lin = float(g('ref_gantry_lin').value)
+        self.ref_gantry_rot = float(g('ref_gantry_rot').value)
+        self.ref_arm = float(g('ref_arm').value)
+        self.ref_dist = float(g('ref_dist').value)
+        self.ref_manip = float(g('ref_manip').value)
+        self.ref_hold = float(g('ref_hold').value)
         self.log_j_table = bool(g('log_j_table').value)
         self.log_j_table_max = int(g('log_j_table_max').value)
         self.ik_timeout = float(g('ik_timeout').value)
@@ -438,11 +494,18 @@ class GantryReachExecutor(Node):
     def _on_set_params(self, params):
         """Apply live `ros2 param set` for the tunable stand-off knobs so they
         take effect on the NEXT pick without a restart."""
+        # attr name is the param name for the J weight/reference knobs, so they
+        # can be retuned live (next pick) while reading the J table.
+        live = ('w_gantry_lin', 'w_gantry_rot', 'w_arm', 'w_manip', 'w_hold',
+                'w_dist', 'ref_gantry_lin', 'ref_gantry_rot', 'ref_arm',
+                'ref_dist', 'ref_manip', 'ref_hold')
         for p in params:
             if p.name == 'box_clearance':
                 self.box_clearance = float(p.value)
             elif p.name == 'approach_offset':
                 self.approach_offset = float(p.value)
+            elif p.name in live:
+                setattr(self, p.name, float(p.value))
         return SetParametersResult(successful=True)
 
     # ---- helpers ------------------------------------------------------------
@@ -568,20 +631,24 @@ class GantryReachExecutor(Node):
         rows = ['', f'>>> {name}: J ranking ({len(by_J)} candidates, '
                     f'weights glin={self.w_gantry_lin:g} grot={self.w_gantry_rot:g} '
                     f'arm={self.w_arm:g} dist={self.w_dist:g} '
-                    f'manip={self.w_manip:g})',
-                '  rank arm     node      J | glin  grot   arm eedist  manip '
+                    f'hold={self.w_hold:g} manip={self.w_manip:g}; '
+                    f'refs glin={self.ref_gantry_lin:g} grot={self.ref_gantry_rot:g} '
+                    f'arm={self.ref_arm:g} dist={self.ref_dist:g} '
+                    f'hold={self.ref_hold:g} manip={self.ref_manip:g})',
+                '  rank arm     node      J | glin  grot   arm eedist  hold  manip '
                 '(rank_dist)']
         for r, c in enumerate(by_J[:self.log_j_table_max]):
-            glin = self.w_gantry_lin * c['d_gantry_lin']
-            grot = self.w_gantry_rot * c['d_gantry_rot']
-            arm = self.w_arm * c['d_arm']
-            eedist = self.w_dist * c['ee_dist']
-            manip = -self.w_manip * c['manip']
+            glin = self.w_gantry_lin * c['d_gantry_lin'] / self.ref_gantry_lin
+            grot = self.w_gantry_rot * c['d_gantry_rot'] / self.ref_gantry_rot
+            arm = self.w_arm * c['d_arm'] / self.ref_arm
+            eedist = self.w_dist * c['ee_dist'] / self.ref_dist
+            hold = self.w_hold * c['hold'] / self.ref_hold
+            manip = -self.w_manip * c['manip'] / self.ref_manip
             mark = '*' if r == 0 else ' '
             rows.append(
                 f'{mark} {r:>3} {c["arm"].name:<7} {c["node"]:>4} '
                 f'{c["J"]:>7.3f} | {glin:>5.2f} {grot:>5.2f} {arm:>5.2f} '
-                f'{eedist:>5.2f} {manip:>6.2f}  '
+                f'{eedist:>5.2f} {hold:>5.2f} {manip:>6.2f}  '
                 f'({dist_rank[id(c)]})')
         if len(by_J) > self.log_j_table_max:
             rows.append(f'  ... {len(by_J) - self.log_j_table_max} more '
@@ -641,11 +708,12 @@ class GantryReachExecutor(Node):
                     tvec, arm.eff_radius, self.max_candidates):
                 d_gantry_lin, d_gantry_rot, d_arm = self._score(
                     q, cur_by_arm[arm.name])
-                J = (self.w_gantry_lin * d_gantry_lin
-                     + self.w_gantry_rot * d_gantry_rot
-                     + self.w_arm * d_arm
-                     + self.w_dist * ee_dist
-                     - self.w_manip * manip)
+                J = (self.w_gantry_lin * d_gantry_lin / self.ref_gantry_lin
+                     + self.w_gantry_rot * d_gantry_rot / self.ref_gantry_rot
+                     + self.w_arm * d_arm / self.ref_arm
+                     + self.w_dist * ee_dist / self.ref_dist
+                     + self.w_hold * hold / self.ref_hold
+                     - self.w_manip * manip / self.ref_manip)
                 cands.append(dict(arm=arm, node=node_idx, q=q, dist=dist,
                                   ee_dist=ee_dist, manip=manip, hold=hold,
                                   d_gantry_lin=d_gantry_lin,
@@ -666,7 +734,7 @@ class GantryReachExecutor(Node):
                 cands.append(dict(arm=arm, node=-1, q=q_cur.copy(), dist=ee_dist,
                                   ee_dist=ee_dist, manip=0.0, hold=0.0,
                                   d_gantry_lin=0.0, d_gantry_rot=0.0, d_arm=0.0,
-                                  J=self.w_dist * ee_dist))
+                                  J=self.w_dist * ee_dist / self.ref_dist))
                 self.get_logger().info(
                     f'{name}: {arm.name} already over target '
                     f'(ee_dist={ee_dist:.3f} <= {self.in_place_radius:.2f} m) '
@@ -745,12 +813,14 @@ class GantryReachExecutor(Node):
             # transient abort doesn't end the pick. Because each execution is
             # awaited to completion before the next, a slow gantry can't cause the
             # old mid-motion mis-fire (-4 / IK timeouts).
+            fail = {'ik': [], 'plan': 0, 'exec': 0}   # why each candidate lost
             for attempt, c in enumerate(attempt_order[:self.max_attempts]):
                 arm = c['arm']
                 t0 = time.perf_counter()
                 ok, js, ikerr = self._solve_ik(arm, ps, c['q'], ori_list)
                 ik_ms = (time.perf_counter() - t0) * 1e3
                 if not ok:
+                    fail['ik'].append(ikerr)
                     self.get_logger().info(
                         f'{name} cand#{attempt} {arm.name} J={c["J"]:.3f}: '
                         f'IK failed (err={ikerr})')
@@ -763,6 +833,7 @@ class GantryReachExecutor(Node):
                     arm, goal_q, do_execute=False)
                 plan_ms = (time.perf_counter() - t1) * 1e3
                 if not planned:
+                    fail['plan'] += 1
                     self.get_logger().info(
                         f'{name} cand#{attempt} {arm.name} J={c["J"]:.3f}: '
                         f'plan failed (err={perr})')
@@ -805,15 +876,35 @@ class GantryReachExecutor(Node):
                     return
                 # Execution failed (e.g. -3 env change): fall through and try the
                 # next candidate so the arm keeps trying to reach the target.
+                fail['exec'] += 1
                 self.get_logger().warn(
                     f'{name} cand#{attempt} {arm.name}: did NOT reach '
                     f'(exec err={eperr}, joint err={err:.3f}) -- trying next '
                     f'candidate')
 
+            # Classify WHY every candidate lost so the terminal says it plainly.
             n_tried = min(len(by_J), self.max_attempts)
+            n_ik31 = sum(1 for e in fail['ik'] if e == -31)
+            if n_tried and n_ik31 == n_tried:
+                why = ('UNREACHABLE -- no IK solution for any candidate; the '
+                       'target is outside the arm+gantry workspace (or every '
+                       'grasp pose collides). If it should be reachable, '
+                       're-run with ik_avoid_collisions:=false to tell '
+                       'kinematics from collision.')
+            elif fail['exec']:
+                why = (f'planned but execution aborted on {fail["exec"]} '
+                       f'candidate(s) (env change / controller) -- target may '
+                       f'still be reachable, retry.')
+            elif fail['plan']:
+                why = (f'{fail["plan"]} candidate(s) had IK but NO '
+                       f'collision-free plan -- target blocked by an '
+                       f'obstacle/octomap on the approach.')
+            else:
+                why = 'no viable candidate (IK/plan failed).'
             self.get_logger().error(
-                f'>>> {name}: FAILED -- no arm reached the target '
-                f'over {n_tried} candidates')
+                f'>>> {name}: FAILED -- {why} '
+                f'[{n_tried} candidates: {n_ik31} no-IK, '
+                f'{fail["plan"]} no-plan, {fail["exec"]} exec-abort]')
             self._log_csv(idx, -1, -1, None, None, float('nan'),
                           float('nan'), float('nan'), float('nan'))
         finally:
@@ -821,14 +912,38 @@ class GantryReachExecutor(Node):
 
     # ---- IK / planning ------------------------------------------------------
     def _grasp_ori_candidates(self):
-        """grasp_orientation plus yaw rotations about world Z (list of xyzw)."""
+        """Ordered list of grasp orientations (xyzw) to try, best-first: the
+        vertical (grasp_orientation) approach with each yaw FIRST, then -- as a
+        fallback for spots the ceiling arm can only reach at an angle -- the same
+        yaws swung off vertical by grasp_tilt_samples magnitudes around
+        grasp_tilt_azimuths compass directions. IK takes the first that solves, so
+        a clean top-down grasp is always preferred and tilts only kick in when
+        vertical is unreachable (-31)."""
         base = tuple(self.grasp_ori)
-        n = max(1, self.grasp_yaw_samples)
-        cands = []
-        for i in range(n):
-            yaw = 2.0 * np.pi * i / n
-            qz = (0.0, 0.0, np.sin(yaw / 2.0), np.cos(yaw / 2.0))  # Rz(yaw) xyzw
-            cands.append(quat_mul(qz, base))
+        yaws = max(1, self.grasp_yaw_samples)
+
+        def with_yaws(ori):
+            out = []
+            for i in range(yaws):
+                yaw = 2.0 * np.pi * i / yaws
+                qz = (0.0, 0.0, np.sin(yaw / 2.0), np.cos(yaw / 2.0))  # Rz(yaw)
+                out.append(quat_mul(qz, ori))
+            return out
+
+        cands = with_yaws(base)                     # vertical first (preferred)
+        if self.grasp_tilt_samples > 0 and self.grasp_tilt_max > 0:
+            n_az = max(1, self.grasp_tilt_azimuths)
+            for k in range(1, self.grasp_tilt_samples + 1):
+                tilt = np.radians(self.grasp_tilt_max * k / self.grasp_tilt_samples)
+                st, ct = np.sin(tilt / 2.0), np.cos(tilt / 2.0)
+                for a in range(n_az):
+                    phi = 2.0 * np.pi * a / n_az
+                    # tilt the down-approach by `tilt` toward compass dir `phi`
+                    # (rotation about the horizontal axis (cos phi, sin phi, 0)).
+                    # One orientation per (tilt, azimuth) -- azimuth already gives
+                    # the reach variety; no full yaw sweep here (keeps IK bounded).
+                    q_tilt = (np.cos(phi) * st, np.sin(phi) * st, 0.0, ct)
+                    cands.append(quat_mul(q_tilt, base))
         return cands
 
     def _solve_ik(self, arm, pose_stamped, seed_q, ori_list):

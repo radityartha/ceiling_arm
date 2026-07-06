@@ -52,19 +52,28 @@ def generate_launch_description():
         DeclareLaunchArgument('allow_target_collision', default_value='true',
                               description='false = do not ACM-allow gripper to '
                                           'touch the target (approach-only)'),
+        DeclareLaunchArgument('compute_traj_energy', default_value='false',
+                              description='true = compute per-pick mechanical '
+                                          'energy (Pinocchio) for the CSV '
+                                          'traj_energy column'),
         # perception args
         DeclareLaunchArgument('seg_source', default_value='yoloe',
                               description="'yoloe' (open-vocab) or 'isaac' "
                                           '(ground truth)'),
         DeclareLaunchArgument('seg_prompts',
-                              default_value='box,can,bottle,banana,teddy bear',
+                              default_value='box,tin can,canned food,bottle,'
+                                            'banana,teddy bear',
                               description='YOLOE open-vocab classes'),
+        DeclareLaunchArgument('seg_model', default_value='yoloe-11m-seg.pt',
+                              description='YOLOE weights (11m detects the sim '
+                                          'objects far better than 11s)'),
         DeclareLaunchArgument('seg_conf', default_value='0.25'),
         DeclareLaunchArgument('seg_imgsz', default_value='768'),
 
         include('perception.launch.py', {
             'seg_source': LaunchConfiguration('seg_source'),
             'seg_prompts': LaunchConfiguration('seg_prompts'),
+            'seg_model': LaunchConfiguration('seg_model'),
             'seg_conf': LaunchConfiguration('seg_conf'),
             'seg_imgsz': LaunchConfiguration('seg_imgsz'),
             'carve_target': LaunchConfiguration('carve_target'),
@@ -75,5 +84,6 @@ def generate_launch_description():
             'box_clearance': LaunchConfiguration('box_clearance'),
             'allow_target_collision':
                 LaunchConfiguration('allow_target_collision'),
+            'compute_traj_energy': LaunchConfiguration('compute_traj_energy'),
         }),
     ])

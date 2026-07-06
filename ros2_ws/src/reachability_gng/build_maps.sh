@@ -47,6 +47,7 @@ for entry in "${ARMS[@]}"; do
 
   echo "=== [$name] train (max-nodes=$MAX_NODES lam=$LAM epochs=$EPOCHS boundary=$BOUNDARY) -> $model ==="
   python3 -m reachability_gng.train --dataset "$dataset" --out "$model" \
+      --config "$cfg" \
       --task "$TASK" --max-nodes "$MAX_NODES" --lam "$LAM" --epochs "$EPOCHS" \
       --boundary-nodes "$BOUNDARY" --boundary-tau "$BOUNDARY_TAU"
 done

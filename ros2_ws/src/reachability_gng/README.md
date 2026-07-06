@@ -298,7 +298,8 @@ execution) against the live octomap. Per pick (`~/pick`, data = object index):
    J = w_gantry_lin·d_gantry_lin + w_gantry_rot·d_gantry_rot
        + w_arm·d_arm + w_dist·ee_dist − w_manip·manip
    ```
-   `d_*` = joint travel from the **current** state (gantry travel is the
+   (each term is normalised by a fixed `ref_*` before its weight is applied — see
+   "Energy weights" below). `d_*` = joint travel from the **current** state (gantry travel is the
    dominant, expensive term — the gantry is the heavy Modbus platform). The
    gantry's linear (prismatic, metres) and rotation (radians) axes carry
    **separate weights** because their units and cost differ. `ee_dist` = the
@@ -371,9 +372,14 @@ Watch the executor terminal for the chosen arm / plan result.
 **Energy weights.** What drives the ranking is each term's *influence* =
 `weight × its spread across the pool`. The calibrated defaults live in one place
 only — the node's `declare_parameter` calls in `gantry_reach_executor.py`:
-`w_gantry_lin=1, w_gantry_rot=1, w_arm=2, w_dist=1, w_manip=0` (the gantry linear
+`w_gantry_lin=10, w_gantry_rot=10, w_arm=1, w_manip=3, w_dist=25` (the gantry linear
 and rotation axes are tuned separately; `w_dist` rewards the arm whose current
-end-effector is nearer the object; set `w_dist=0` to disable). The `hold` term
+end-effector is nearer the object; set `w_dist=0` to disable). Each term is first
+normalised by a fixed reference (`ref_gantry_lin=0.5`, `ref_gantry_rot=0.5`,
+`ref_arm=1.0`, `ref_dist=0.5`, `ref_manip=0.1`) before its weight is applied, so J
+stays comparable across picks and a weight is that term's influence at its
+reference full-scale (read as priorities: dist leads, gantry lin/rot next, manip,
+arm least). The `hold` term
 was removed from J (still logged to the CSV for reference). The launch does not
 override them. Override live, e.g. `-p w_manip:=300` → picks more dexterous
 configs; `-p w_manip:=0` → flips toward shorter-travel / lower-manip. Naming:

@@ -50,6 +50,8 @@ for _ns in _CAMERA_NS:
         (f'/{_ns}/instance_segmentation', f'/{_ns}/seg/instance_segmentation'),
         (f'/{_ns}/instance_segmentation_labels',
          f'/{_ns}/seg/instance_segmentation_labels'),
+        (f'/{_ns}/instance_segmentation_conf',
+         f'/{_ns}/seg/instance_segmentation_conf'),
     ]
 
 
@@ -95,12 +97,13 @@ def generate_launch_description():
         # hard obstacle so the arm stands off above it without touching it.
         DeclareLaunchArgument('carve_target', default_value='true'),
         DeclareLaunchArgument('seg_source', default_value='yoloe'),
-        DeclareLaunchArgument('seg_model', default_value='yoloe-11s-seg.pt'),
+        DeclareLaunchArgument('seg_model', default_value='yoloe-11m-seg.pt'),
         DeclareLaunchArgument('seg_device', default_value=''),   # '' -> auto
         # Default open-vocab classes for the workcell scene (also the labels you
         # target in pick_cli). Change live with pick_cli `p ...` or /seg_prompts.
         DeclareLaunchArgument('seg_prompts',
-                              default_value='box,can,bottle,banana,teddy bear'),
+                              default_value='box,tin can,canned food,bottle,'
+                                            'banana,teddy bear'),
         # 0.25 drops weak/wrong labels; object_localizer's tracking + label
         # voting bridge the rest. Lower toward 0.1 if real objects get missed.
         DeclareLaunchArgument('seg_conf', default_value='0.25'),

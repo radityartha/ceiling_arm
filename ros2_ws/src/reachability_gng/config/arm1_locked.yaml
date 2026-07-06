@@ -1,0 +1,21 @@
+# E1 ablation config: arm_1 with the GANTRY LOCKED (parked) — arm-only workspace.
+# Identical to arm1_table1.yaml EXCEPT the two gantry DOF are pinned (lower==upper)
+# so data_gen samples only the 6 arm joints. Used to measure the reachable-volume
+# GAIN contributed by the gantry (active vs locked) in eval.py `volume`.
+#   linear parked mid-rail (1.5 m), rotation at home (-90° = -1.5708 rad).
+urdf: ros2_ws/src/workcell_description/urdf/workcell_full.urdf
+
+ee_frame: t1_a1_tool_frame
+
+joints:
+  - t1_linear_joint        # LOCKED at 1.5 m (parked)
+  - t1_rotation_joint      # LOCKED at -1.5708 rad (home)
+  - t1_a1_joint_1
+  - t1_a1_joint_2
+  - t1_a1_joint_3
+  - t1_a1_joint_4
+  - t1_a1_joint_5
+  - t1_a1_joint_6
+
+lower: [1.5, -1.5708, -2.68, -2.61, -2.61, -2.60, -2.53, -2.60]
+upper: [1.5, -1.5708,  2.68,  2.61,  2.61,  2.60,  2.53,  2.60]

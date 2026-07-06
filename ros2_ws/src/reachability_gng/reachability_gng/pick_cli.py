@@ -65,6 +65,7 @@ class PickCli(Node):
         self._poses = []                 # latest /detected_objects poses
         self._world = 'world'            # /detected_objects header frame
         self._labels = {}                # marker id -> label text
+        self._conf = {}                  # marker id -> YOLOE conf text (display)
         self._lock = threading.Lock()
         # local echo of what we last commanded seg_router to (it publishes no
         # state topic); starts at the perception.launch.py default so the header
@@ -99,10 +100,16 @@ class PickCli(Node):
             for m in msg.markers:
                 if m.ns == 'labels':
                     self._labels[m.id] = m.text
+                elif m.ns == 'conf':
+                    self._conf[m.id] = m.text
 
     def snapshot(self):
         with self._lock:
             return list(self._poses), dict(self._labels), self._world
+
+    def conf_snapshot(self):
+        with self._lock:
+            return dict(self._conf)
 
     def _tool_xyz(self, frame, world):
         """Current tool-frame position in `world`, or None if TF not ready."""
@@ -199,7 +206,11 @@ def split_color(phrase):
 # points YOLOE at the whole group (so a reliably-detected member still fires --
 # e.g. YOLOE always reads the plush as 'teddy bear', never 'doll'), and a
 # detection labelled as ANY member satisfies the request.
-_ALIAS_GROUPS = [{'teddy bear', 'doll'}]
+# 'can': YOLOE ignores the bare word "can" on the YCB cans but fires on
+# "tin can" / "canned food", so saying "can" points it at those working words
+# (and either label satisfies the request).
+_ALIAS_GROUPS = [{'teddy bear', 'doll'},
+                 {'can', 'tin can', 'canned food'}]
 
 
 def _alias_group(cls):
@@ -225,27 +236,44 @@ def _fetch(node, sentence):
     color, cls = split_color(obj)
     detect_class = cls or obj         # what YOLOE is told to look for
     aliases = _alias_group(detect_class)   # {detect_class}, or its synonym group
-    prompts = sorted(aliases)
-    print(f"  -> understood: '{obj}'  (YOLOE looking for {prompts})")
-    node.set_source('yoloe')
-    node.set_prompts(prompts)
-    deadline = time.time() + 25.0     # YOLOE warmup + ~0.75 Hz inference
-    idx = fallback = None
-    while time.time() < deadline and rclpy.ok():
-        poses, labels, _ = node.snapshot()
+
+    def _scan(poses, labels):
+        """(exact idx, same-class fallback idx) for the request in a snapshot."""
+        hit = fb = None
         for i in range(len(poses)):
             lab = labels.get(i, '').lower()
             if not lab:
                 continue
-            cls_hit = any(a in lab for a in aliases)   # class (or an alias) match
+            cls_hit = any(a in lab for a in aliases)   # class (or alias) match
             if cls_hit and (not color or color in lab):
-                idx = i               # class matches (+ color if one was asked)
+                hit = i               # class matches (+ color if one was asked)
                 break
-            if cls_hit and fallback is None:
-                fallback = i          # same class, different/unknown color
-        if idx is not None:
-            break
-        time.sleep(0.5)
+            if cls_hit and fb is None:
+                fb = i                # same class, different/unknown color
+        return hit, fb
+
+    # If the object is ALREADY on the live list (whatever the current seg source
+    # is), target it straight away. Forcing YOLOE + narrowing its prompts here
+    # reloads set_classes and destabilizes detection, so an object that was just
+    # shown can drop off during the 25 s wait -- exactly why a visible object
+    # would "not be detected". Only fall back to pointing YOLOE at it (+ warmup
+    # wait) when it is not on the list yet.
+    poses, labels, _ = node.snapshot()
+    idx, fallback = _scan(poses, labels)
+    if idx is None and fallback is None:
+        prompts = sorted(aliases)
+        print(f"  -> understood: '{obj}'  (YOLOE looking for {prompts})")
+        node.set_source('yoloe')
+        node.set_prompts(prompts)
+        deadline = time.time() + 25.0     # YOLOE warmup + ~0.75 Hz inference
+        while time.time() < deadline and rclpy.ok():
+            poses, labels, _ = node.snapshot()
+            idx, fallback = _scan(poses, labels)
+            if idx is not None:
+                break
+            time.sleep(0.5)
+    else:
+        print(f"  -> understood: '{obj}'  (already on the list)")
     if idx is None and fallback is not None:
         idx = fallback
         if color:
@@ -284,11 +312,15 @@ def _print_menu(node, poses, labels, world):
         print('  (no objects on /detected_objects yet -- '
               'check perception.launch.py)')
         return
+    conf = node.conf_snapshot()
     for i, p in enumerate(poses):
         pos = p.position
         label = labels.get(i, '?')
+        # YOLOE confidence value (blank under Isaac ground truth, which has none)
+        c = conf.get(i)
+        c_str = f'conf={c} ' if c else ''
         print(f'  [{i}] {label:<12} '
-              f'x={pos.x:+.2f} y={pos.y:+.2f} z={pos.z:+.2f}   '
+              f'x={pos.x:+.2f} y={pos.y:+.2f} z={pos.z:+.2f}   {c_str}'
               f'{_fmt_dist(node, p, world)}')
 
 

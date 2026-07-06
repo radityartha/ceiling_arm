@@ -162,6 +162,7 @@ class ObjectLocalizer(Node):
 
         self._K = {ns: None for ns in nss}        # ns -> (fx, fy, cx, cy)
         self._labels = {ns: {} for ns in nss}     # ns -> {id: label}
+        self._label_conf = {}                     # label -> latest YOLOE conf (display)
         self._dets = {ns: [] for ns in nss}       # ns -> [(label, xyz_world)]
         self._syncs = []                          # keep refs alive
         self._tracks = {}    # tid -> {'label', 'xyz'(np3), 'last'(sec)}
@@ -174,6 +175,9 @@ class ObjectLocalizer(Node):
             self.create_subscription(
                 String, f'/{ns}/instance_segmentation_labels',
                 lambda m, ns=ns: self._on_labels(ns, m), 1)
+            self.create_subscription(
+                String, f'/{ns}/instance_segmentation_conf',
+                lambda m, ns=ns: self._on_conf(ns, m), 1)
             depth_sub = message_filters.Subscriber(self, Image, f'/{ns}/depth')
             seg_sub = message_filters.Subscriber(
                 self, Image, f'/{ns}/instance_segmentation')
@@ -228,6 +232,25 @@ class ObjectLocalizer(Node):
             d[int(key)] = str(val).rsplit('/', 1)[-1]  # basename of prim path
         if d:
             self._labels[ns] = d
+
+    def _on_conf(self, ns, m):
+        """Correlate this camera's {id: conf} with its labels -> {label: conf}.
+
+        Display only: keyed by label so the CLI/marker can show YOLOE's
+        confidence next to each object. Isaac ground truth publishes {} (no
+        conf), which simply leaves prior values untouched.
+        """
+        try:
+            raw = json.loads(m.data)
+        except (ValueError, TypeError):
+            return
+        labels = self._labels[ns]
+        for key, val in raw.items():
+            if not key.isdigit():
+                continue
+            label = labels.get(int(key))
+            if label:
+                self._label_conf[label] = float(val)
 
     def _decode(self, msg, dtype):
         a = np.frombuffer(bytes(msg.data), dtype=dtype)
@@ -399,6 +422,22 @@ class ObjectLocalizer(Node):
             else:
                 text.text = label
             ma.markers.append(text)
+
+            # YOLOE confidence for this object (ns 'conf', id aligned to the
+            # pose index) -- consumed by pick_cli for its list, absent for Isaac.
+            conf = self._label_conf.get(label)
+            if conf is not None:
+                cm = Marker()
+                cm.header.frame_id = self.world_frame
+                cm.ns = 'conf'
+                cm.id = i
+                cm.type = Marker.TEXT_VIEW_FACING
+                cm.action = Marker.ADD
+                cm.pose.orientation.w = 1.0
+                cm.scale.z = 0.01
+                cm.color = ColorRGBA(a=0.0)   # data channel only, not drawn
+                cm.text = f'{conf:.2f}'
+                ma.markers.append(cm)
 
         self.pose_pub.publish(pa)
         self.marker_pub.publish(ma)

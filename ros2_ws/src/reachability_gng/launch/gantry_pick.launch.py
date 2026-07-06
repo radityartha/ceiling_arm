@@ -40,6 +40,7 @@ def generate_launch_description():
     csv = LaunchConfiguration('csv')
     box_clearance = LaunchConfiguration('box_clearance')
     allow_target_collision = LaunchConfiguration('allow_target_collision')
+    compute_traj_energy = LaunchConfiguration('compute_traj_energy')
 
     return LaunchDescription([
         DeclareLaunchArgument('execute', default_value='false',
@@ -56,6 +57,11 @@ def generate_launch_description():
                                           'the target box (grasp mode). false = '
                                           'approach-only: target stays a hard '
                                           'obstacle, gripper never enters it'),
+        DeclareLaunchArgument('compute_traj_energy', default_value='false',
+                              description='true = compute per-pick mechanical '
+                                          'energy (Pinocchio inverse dynamics) '
+                                          'for the CSV traj_energy column '
+                                          '(needs arm_pin_configs; adds latency)'),
         OpaqueFunction(function=_kill_stale),
         Node(
             package='reachability_gng',
@@ -71,6 +77,15 @@ def generate_launch_description():
                 'arm_ee_frames': ['t1_a1_tool_frame', 't1_a2_tool_frame'],
                 'gripper_links': ['t1_a1_gripper_base_link',
                                   't1_a2_gripper_base_link'],
+                # Same configs build_maps.sh uses (absolute paths -- resolved
+                # regardless of this process's CWD). Enables optional per-pick
+                # trajectory energy (Pinocchio inverse dynamics) for CSV logging.
+                'arm_pin_configs': [
+                    '/srv/data/users/raditya/arm_WS/ceiling_arm/ros2_ws/src/'
+                    'reachability_gng/config/arm1_table1.yaml',
+                    '/srv/data/users/raditya/arm_WS/ceiling_arm/ros2_ws/src/'
+                    'reachability_gng/config/arm2_table1.yaml',
+                ],
                 # Energy weights (w_gantry_lin/w_gantry_rot/w_arm/w_dist/w_manip)
                 # live solely in the node's declare_parameter defaults -- single
                 # source of truth. Override live with -p w_*:=... if needed.
@@ -81,6 +96,8 @@ def generate_launch_description():
                                                 value_type=float),
                 'allow_target_collision': ParameterValue(
                     allow_target_collision, value_type=bool),
+                'compute_traj_energy': ParameterValue(
+                    compute_traj_energy, value_type=bool),
             }],
         ),
     ])

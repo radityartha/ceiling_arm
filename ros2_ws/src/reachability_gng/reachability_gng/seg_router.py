@@ -85,6 +85,10 @@ class SegRouter(Node):
         self.declare_parameter('out_seg_topic', '{ns}/seg/instance_segmentation')
         self.declare_parameter('out_labels_topic',
                                '{ns}/seg/instance_segmentation_labels')
+        # Per-instance YOLOE confidence {id: value}, parallel to out_labels_topic
+        # (display only -- consumers still key off out_labels_topic).
+        self.declare_parameter('out_conf_topic',
+                               '{ns}/seg/instance_segmentation_conf')
         # YOLOE settings
         self.declare_parameter('model_path', 'yoloe-11s-seg.pt')
         self.declare_parameter('prompts', 'bottle,cup,box')   # comma-separated
@@ -115,12 +119,14 @@ class SegRouter(Node):
             v = str(self.get_parameter(name).value)
             return v if v.startswith('/') else '/' + v
 
-        self._seg_pub, self._lbl_pub = {}, {}
+        self._seg_pub, self._lbl_pub, self._conf_pub = {}, {}, {}
         for ns in nss:
             self._seg_pub[ns] = self.create_publisher(
                 Image, _t('out_seg_topic').format(ns=ns), 1)
             self._lbl_pub[ns] = self.create_publisher(
                 String, _t('out_labels_topic').format(ns=ns), 1)
+            self._conf_pub[ns] = self.create_publisher(
+                String, _t('out_conf_topic').format(ns=ns), 1)
             # Isaac ground-truth relay inputs
             self.create_subscription(
                 Image, _t('isaac_seg_topic').format(ns=ns),
@@ -212,9 +218,11 @@ class SegRouter(Node):
         h, w = img.shape[:2]
         seg = np.zeros((h, w), np.int32)
         id_labels = {}
+        id_conf = {}
         if res.masks is not None and len(res.masks) > 0:
             masks = res.masks.data.cpu().numpy()            # (N, h', w') in [0,1]
             cls = res.boxes.cls.cpu().numpy().astype(int)
+            conf = res.boxes.conf.cpu().numpy()              # (N,) in [0,1]
             names = res.names                                # {idx: name}
             for i in range(masks.shape[0]):
                 inst_id = 2 + i                              # id>1 == object
@@ -228,11 +236,14 @@ class SegRouter(Node):
                     b, g, r = img[m].mean(axis=0)   # img is BGR
                     cls_name = f'{name_color(r, g, b)} {cls_name}'
                 id_labels[inst_id] = cls_name
+                id_conf[inst_id] = round(float(conf[i]), 3)
 
         self._publish_seg(ns, seg, msg.header)
         lbl = String()
         lbl.data = json.dumps({str(k): v for k, v in id_labels.items()})
         self._lbl_pub[ns].publish(lbl)
+        self._conf_pub[ns].publish(
+            String(data=json.dumps({str(k): v for k, v in id_conf.items()})))
 
     @staticmethod
     def _rgb_to_bgr(msg):

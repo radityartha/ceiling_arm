@@ -4,7 +4,8 @@
 # workcell_description/urdf/workcell_full.urdf; regenerate after URDF edits with:
 #   xacro ros2_ws/src/workcell_description/urdf/workcell.urdf.xacro > \
 #       ros2_ws/src/workcell_description/urdf/workcell_full.urdf
-urdf: ros2_ws/src/workcell_description/urdf/workcell_full.urdf
+# absolute path so it resolves regardless of the launching process's CWD
+urdf: /srv/data/users/raditya/arm_WS/ceiling_arm/ros2_ws/src/workcell_description/urdf/workcell_full.urdf
 
 ee_frame: t1_a1_tool_frame
 
