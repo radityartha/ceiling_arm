@@ -75,8 +75,11 @@ echo "    move_group + controllers up ($BRINGUP)."
 echo ">>> [2.5] camera static TFs (world -> rgbd/rgbd2 optical)..."
 ( set +u; source /opt/ros/humble/setup.bash
   export ROS_DOMAIN_ID RMW_IMPLEMENTATION
+  # x shifted 3.0 -> 4.35 to follow rgbd's eye/target +1.35 X shift in
+  # ros2_bridge_gui.py (matches polish.py's work-table move to cx=2.9); the
+  # quaternion is unchanged because that shift was a pure translation.
   exec ros2 run tf2_ros static_transform_publisher \
-    --x 3.0 --y 1.2 --z 2.05 \
+    --x 4.35 --y 1.2 --z 2.05 \
     --qx -0.435026 --qy -0.703886 --qz 0.477652 --qw 0.295205 \
     --frame-id world --child-frame-id rgbd_camera_optical ) > "$LOG/camera_tf.log" 2>&1 &
 PIDS+=($!)

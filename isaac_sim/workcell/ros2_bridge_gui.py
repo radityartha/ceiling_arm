@@ -51,9 +51,15 @@ ROBOT = "/World/workcell"
 # To revert to the both-on--Y baseline: cam1 eye -> (2.8, -0.6, 2.05) and its TF
 # quat -> (-0.722084, -0.422309, 0.27663, 0.472996).
 CAM_RES = (1280, 720)
+# rgbd (cam1) eye+target both shifted +1.35 in X to follow polish.py's work
+# table move (cx 1.55 -> 2.9, for the wider pick-distance calibration range).
+# Shifting eye AND target by the SAME delta leaves the target-eye vector (and
+# therefore the look-at orientation / TF quaternion) UNCHANGED -- pure
+# translation. Keep launch_workcell.sh's rgbd_camera_optical static TF --x in
+# sync (3.0 -> 4.35); its quaternion does not need to change.
 CAMERAS = [
     {"prim": "/World/rgbd_camera",  "ns": "rgbd",  "frame": "rgbd_camera_optical",
-     "eye": (3.0, 1.2, 2.05),  "target": (1.2, 0.30, 1.25), "focal": 17.25},
+     "eye": (4.35, 1.2, 2.05),  "target": (2.55, 0.30, 1.25), "focal": 17.25},
     {"prim": "/World/rgbd2_camera", "ns": "rgbd2", "frame": "rgbd2_camera_optical",
      "eye": (-0.6, -0.6, 2.05), "target": (1.2, 0.30, 1.25), "focal": 16.42},
 ]

@@ -296,7 +296,7 @@ execution) against the live octomap. Per pick (`~/pick`, data = object index):
 2. **Score** each pooled candidate by
    ```
    J = w_gantry_lin·d_gantry_lin + w_gantry_rot·d_gantry_rot
-       + w_arm·d_arm + w_dist·ee_dist − w_manip·manip
+       + w_arm·d_arm + w_dist·ee_dist + w_hold·hold − w_manip·manip
    ```
    (each term is normalised by a fixed `ref_*` before its weight is applied — see
    "Energy weights" below). `d_*` = joint travel from the **current** state (gantry travel is the
@@ -305,10 +305,12 @@ execution) against the live octomap. Per pick (`~/pick`, data = object index):
    **separate weights** because their units and cost differ. `ee_dist` = the
    arm's **current** tool-frame distance (via TF, Euclidean metres) to the
    object — one value **per arm**, so this term biases the allocation toward the
-   arm whose end-effector is already nearer (set `w_dist=0` to disable). `manip`
-   = node manipulability. (The per-node task-space `dist` still gates the pool
-   and is logged for the rank-by-distance diagnostic; the gravity `hold` cost is
-   CSV-only.) J is the objective, so a *farther* seed with lower J can still win.
+   arm whose end-effector is already nearer (set `w_dist=0` to disable). `hold` =
+   node ‖gravity torque‖ (Nm), a positive cost so J prefers poses that fight
+   gravity less (needs maps built with `--config`, else `hold=0` and the term is
+   inert). `manip` = node manipulability. (The per-node task-space `dist` still gates
+   the pool and is logged for the rank-by-distance diagnostic.) J is the objective, so
+   a *farther* seed with lower J can still win.
 3. **Search — round-robin across arms** (best-per-arm first, so a failing arm
    can't monopolise all `max_attempts` before the other is tried). Per candidate:
    IK to a **pre-grasp that stands off `box_clearance` m above the object's TOP**
@@ -372,16 +374,17 @@ Watch the executor terminal for the chosen arm / plan result.
 **Energy weights.** What drives the ranking is each term's *influence* =
 `weight × its spread across the pool`. The calibrated defaults live in one place
 only — the node's `declare_parameter` calls in `gantry_reach_executor.py`:
-`w_gantry_lin=10, w_gantry_rot=10, w_arm=1, w_manip=3, w_dist=25` (the gantry linear
-and rotation axes are tuned separately; `w_dist` rewards the arm whose current
-end-effector is nearer the object; set `w_dist=0` to disable). Each term is first
-normalised by a fixed reference (`ref_gantry_lin=0.5`, `ref_gantry_rot=0.5`,
-`ref_arm=1.0`, `ref_dist=0.5`, `ref_manip=0.1`) before its weight is applied, so J
-stays comparable across picks and a weight is that term's influence at its
-reference full-scale (read as priorities: dist leads, gantry lin/rot next, manip,
-arm least). The `hold` term
-was removed from J (still logged to the CSV for reference). The launch does not
-override them. Override live, e.g. `-p w_manip:=300` → picks more dexterous
+`w_gantry_lin=2, w_gantry_rot=12, w_arm=20, w_dist=3, w_hold=1, w_manip=1` (the gantry
+linear and rotation axes are tuned separately; `w_dist` rewards the arm whose current
+end-effector is nearer the object, set `w_dist=0` to disable; `w_hold` charges gravity
+holding torque, set `w_hold=0` to ignore gravity). Each term is first normalised by a
+fixed reference = the **median raw value of that term over a 63-pick calibration session**
+(`ref_gantry_lin=0.95`, `ref_gantry_rot=0.70`, `ref_arm=6.0`, `ref_dist=1.36`,
+`ref_hold=2.90`, `ref_manip=0.145`) before its weight is applied, so every term is
+dimensionless ~O(1) and a weight reads directly as that term's priority (read as
+priorities: arm travel leads, then gantry rotation, dist, gantry linear, hold ≈ manip).
+The `hold` term is now **part of J** (re-added; requires `--config` maps so `hold≠0`).
+The launch does not override them. Override live, e.g. `-p w_manip:=300` → picks more dexterous
 configs; `-p w_manip:=0` → flips toward shorter-travel / lower-manip. Naming:
 gantry/arm travel = *minimum-joint-travel* term, optional `∫|τ·q̇|dt` = true
 *mechanical energy* (post-plan, `compute_traj_energy`).

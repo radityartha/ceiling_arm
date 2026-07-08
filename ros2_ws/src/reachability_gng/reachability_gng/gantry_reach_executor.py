@@ -201,23 +201,41 @@ class GantryReachExecutor(Node):
         # representative full-scale) BEFORE its weight is applied, so every term
         # feeds J as a dimensionless ~O(1) quantity:
         #     J = sum_i  w_i * (value_i / ref_i)   (manip enters with a minus).
-        # That decouples the two jobs the old single weight had to do at once:
-        # ref_* absorbs the unit/scale conversion (metres vs radians vs the tiny
-        # ~0.08 manip index), leaving w_* as a PURE priority knob you can read
-        # and compare directly. Retune priority via w_*, rescale a term via ref_*.
+        # That decouples the two jobs a single weight would otherwise have to do
+        # at once: ref_* absorbs the unit/scale conversion (metres vs radians vs
+        # Nm vs the tiny ~0.1 manip index), leaving w_* as a PURE priority knob
+        # you can read and compare directly. Retune priority via w_*, rescale a
+        # term via ref_*.
         #
-        # The defaults below reproduce the previous hand-tuned ranking EXACTLY:
-        # each old weight was remapped w_new = w_old * ref (so w/ref is unchanged
-        # -- old lin/rot/arm/dist/manip = 20/20/1/50/30). Read as priorities the
-        # new weights say: dist (25) leads, gantry lin/rot (10) next, manip (3),
-        # arm (1) least. Override live with -p w_*:=... or -p ref_*:=...
+        # w_*/ref_* below are EMPIRICALLY calibrated (not hand-picked) from a
+        # 63-pick /tmp/calib.csv session: ref_* = each term's median raw value
+        # (analyze_calib.py Tahap 1); w_* = Spearman(term, traj_energy) evidence
+        # (Tahap 4) -- J is meant as an ENERGY proxy here, so priority follows
+        # what actually tracks the executed trajectory's mechanical energy
+        # (Pinocchio rnea over the full 8-DOF gantry+arm chain), not intuition:
+        #   arm   rho=0.308 (strongest, most stable)      -> w_arm=20 (leads)
+        #   grot  rho=0.276 (real, stable)                -> w_gantry_rot=12
+        #   dist  rho=0.18-0.24 (weak, UNSTABLE across n)  -> w_dist=3
+        #   glin  rho=0.15 (weak; adding it LOWERS combined rho) -> w_gantry_lin=2
+        #   manip rho=0.12 (weak, wrong-ish sign)          -> w_manip=1
+        #   hold  rho=0.03 (~no signal)                    -> w_hold=1
+        # CAVEAT: even the best achievable combo (arm alone) only reaches
+        # rho~0.31 (weak). Root cause (verified): the URDF has NO <dynamics
+        # damping/friction> on any gantry or arm joint, and t1_linear_joint's
+        # axis (1,0,0) / t1_rotation_joint's axis (0,0,1) are both orthogonal to
+        # gravity -- so this idealised rigid-body model can't capture the
+        # friction/stiction that likely dominates the REAL gantry motors' energy
+        # draw. Treat J as idealised mechanical energy (gravity+inertia only),
+        # not real motor energy, when writing this up.
+        # Override live with -p w_*:=... or -p ref_*:=... (re-run
+        # analyze_calib.py after collecting new picks to re-derive these).
         #
         # The gantry's two DOFs are weighted SEPARATELY because their units and
         # cost differ: w_gantry_lin scores the linear/prismatic axis (metres of
         # heavy-carriage travel), w_gantry_rot the rotation axis (radians).
-        self.declare_parameter('w_gantry_lin', 1.0)
-        self.declare_parameter('w_gantry_rot', 1.0)
-        self.declare_parameter('w_arm', 1.0)
+        self.declare_parameter('w_gantry_lin', 2.0)
+        self.declare_parameter('w_gantry_rot', 12.0)
+        self.declare_parameter('w_arm', 20.0)
         self.declare_parameter('w_manip', 1.0)
         # w_hold scores the static gravity load (||generalized gravity torque||,
         # Nm) of holding the candidate config -- a positive cost so J prefers
@@ -227,20 +245,22 @@ class GantryReachExecutor(Node):
         # w_dist scores the task-space gap (metres) between the candidate node
         # and the object: distance already gates the pool, this also makes a
         # closer seed cheaper inside J (0 = distance only gates, does not rank).
-        self.declare_parameter('w_dist', 1.0)
+        self.declare_parameter('w_dist', 3.0)
         # Fixed normalisation references (representative full-scale of each term):
         # linear travel (m), gantry rotation (rad), summed arm-joint travel (rad),
         # ee->object gap (m), manipulability index. Constants (not pool-relative)
-        # so J stays comparable across picks.
-        self.declare_parameter('ref_gantry_lin', 1.0)
-        self.declare_parameter('ref_gantry_rot', 1.0)
-        self.declare_parameter('ref_arm', 1.0)
-        self.declare_parameter('ref_dist', 0.5)
-        self.declare_parameter('ref_manip', 0.1)
+        # so J stays comparable across picks. Values = median raw term across the
+        # 63-pick calibration session (analyze_calib.py Tahap 1).
+        self.declare_parameter('ref_gantry_lin', 0.95)
+        self.declare_parameter('ref_gantry_rot', 0.70)
+        self.declare_parameter('ref_arm', 6.0)
+        self.declare_parameter('ref_dist', 1.36)
+        self.declare_parameter('ref_manip', 0.145)
         # representative full-scale gravity hold torque (Nm): median ||gravity
-        # torque|| across the built maps (~6.3-6.6 Nm, arm1/arm2) from the URDF
-        # inertias, so hold/ref_hold is ~O(1) at a typical config.
-        self.declare_parameter('ref_hold', 6.5)
+        # torque|| across the 63-pick calibration session (was 6.5, a rougher
+        # estimate from the full GNG map rather than the actual in-pool
+        # candidates that J evaluates).
+        self.declare_parameter('ref_hold', 2.90)
         # Print the full ranked J table (every pooled candidate, ascending J,
         # with each term's weighted contribution) to the terminal on each pick.
         self.declare_parameter('log_j_table', True)

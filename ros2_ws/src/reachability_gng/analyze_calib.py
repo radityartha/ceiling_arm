@@ -147,19 +147,86 @@ def main():
           'next, hold/manip small, arm least).')
 
     # --- Tahap 3: ground-truth (J vs energy) -------------------------------
+    # IMPORTANT: recompute J from the raw per-term columns using the w_*/ref_*
+    # given on THIS run's command line, rather than trusting the CSV's stored
+    # `J` column. That column was computed with whatever weights/refs were
+    # LIVE at collection time (often neutral w=1 to avoid selection bias,
+    # while ref_* still held old/uncalibrated defaults) -- it does not
+    # necessarily match the candidate weighting you are evaluating now.
     print('\n[Tahap 3] does low J mean low energy?  Spearman(J, traj_energy)')
-    pairs = [(_f(r.get('J')), _f(r.get('traj_energy'))) for r in rows
-             if _f(r.get('success')) == 1.0]
-    pairs = [(j, e) for j, e in pairs if j is not None and e is not None]
+
+    def recompute_j(r):
+        total = 0.0
+        for n, (col, _w, _ref, sign) in TERMS.items():
+            v = _f(r.get(col))
+            if v is None or not ref[n]:
+                return None
+            total += sign * w[n] * v / ref[n]
+        return total
+
+    succ_rows = [r for r in rows if _f(r.get('success')) == 1.0]
+    pairs = []
+    for r in succ_rows:
+        j = recompute_j(r)
+        e = _f(r.get('traj_energy'))
+        if j is not None and e is not None:
+            pairs.append((j, e))
     if len(pairs) < 3:
-        print(f'  only {len(pairs)} rows with both J and finite traj_energy '
-              '(need >=3). Run picks with execution/energy logging enabled.')
+        print(f'  only {len(pairs)} rows with recomputable J and finite '
+              'traj_energy (need >=3). Run picks with execution/energy '
+              'logging enabled.')
     else:
         rho = _spearman([j for j, _e in pairs], [e for _j, e in pairs])
         verdict = ('GOOD: J is a solid energy surrogate' if rho > 0.7 else
                    'WEAK: J only loosely tracks energy' if rho > 0.4 else
                    'BAD: J does not predict energy -- revisit terms/weights')
-        print(f'  n={len(pairs)}  rho={rho:.3f}  -> {verdict}')
+        print(f'  n={len(pairs)}  rho={rho:.3f}  (J recomputed with the '
+              f'w_*/ref_* above)  -> {verdict}')
+
+    # for reference: correlation using the AS-COLLECTED J column (whatever
+    # weights/refs were live on the node during logging -- may differ from
+    # the w_*/ref_* used above).
+    old_pairs = [(_f(r.get('J')), _f(r.get('traj_energy'))) for r in succ_rows]
+    old_pairs = [(j, e) for j, e in old_pairs if j is not None and e is not None]
+    if len(old_pairs) >= 3:
+        rho_old = _spearman([j for j, _e in old_pairs],
+                            [e for _j, e in old_pairs])
+        print(f'  (for reference: as-collected J column vs traj_energy: '
+              f'n={len(old_pairs)} rho={rho_old:.3f})')
+
+    # --- Tahap 4: per-term correlation with energy --------------------------
+    # Which raw terms actually track traj_energy, individually? A term with
+    # |rho| near 0 is dead weight in J (or has the wrong sign) regardless of
+    # how it's weighted; a term with strong |rho| is a good energy proxy and
+    # deserves more weight. `manip` is a REWARD in J (sign -1: higher manip ->
+    # lower J), so for manip a NEGATIVE rho with energy is the "correct" sign
+    # (higher manipulability -> lower energy); for the cost terms a POSITIVE
+    # rho is "correct".
+    print('\n[Tahap 4] per-term Spearman(term, traj_energy) -- which terms '
+          'actually track energy?')
+    energy_by_row = [_f(r.get('traj_energy')) for r in succ_rows]
+    print(f'  {"term":<6} {"n":>4} {"rho":>7}  expected-sign  verdict')
+    term_rhos = []
+    for n, (col, _w, _ref, sign) in TERMS.items():
+        xs, es = [], []
+        for r, e in zip(succ_rows, energy_by_row):
+            v = _f(r.get(col))
+            if v is not None and e is not None:
+                xs.append(v); es.append(e)
+        if len(xs) < 3:
+            print(f'  {n:<6} {len(xs):>4}     n/a  (need >=3)')
+            continue
+        rho = _spearman(xs, es)
+        term_rhos.append((n, rho))
+        want = 'negative' if sign < 0 else 'positive'
+        got_ok = (rho < -0.2) if sign < 0 else (rho > 0.2)
+        verdict = ('tracks energy (correct sign)' if got_ok else
+                   'wrong sign / no signal -- reconsider'
+                   if abs(rho) > 0.2 else 'no signal (|rho| small)')
+        print(f'  {n:<6} {len(xs):>4} {rho:>7.3f}  {want:<13} {verdict}')
+    if term_rhos:
+        best = max(term_rhos, key=lambda t: abs(t[1]))
+        print(f'  strongest single-term signal: {best[0]} (rho={best[1]:.3f})')
 
 
 if __name__ == '__main__':

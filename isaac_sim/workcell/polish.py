@@ -66,12 +66,16 @@ def build_room():
                 visual_material=floor_mat)
     # Two side walls (y=+-2.5). The back (-x) and front (+x) walls are OMITTED so
     # nothing occludes the two RGBD cameras, which sit near the rail ends
-    # (rgbd2 at x=-0.6, rgbd at x=2.8) looking in under the arms.
+    # (rgbd2 at x=-0.6, rgbd at x=4.35) looking in under the arms. X length
+    # widened 6 -> 10 (span -5..5, was -3..3): after the work table moved to
+    # cx=2.9, its farthest object (tomato_soup_can, x=3.05) and the rgbd camera
+    # (x=4.35) both fell OUTSIDE the old wall span, letting light leak in past
+    # the open end and blow out (glare) the now-unshaded objects.
     FixedCuboid(prim_path="/World/room/wall_left", name="wall_left",
-                position=np.array([0, 2.5, 2.0]), scale=np.array([6, 0.1, 4.0]),
+                position=np.array([0, 2.5, 2.0]), scale=np.array([10, 0.1, 4.0]),
                 visual_material=wall_mat)
     FixedCuboid(prim_path="/World/room/wall_right", name="wall_right",
-                position=np.array([0, -2.5, 2.0]), scale=np.array([6, 0.1, 4.0]),
+                position=np.array([0, -2.5, 2.0]), scale=np.array([10, 0.1, 4.0]),
                 visual_material=wall_mat)
 
     # Work table under the ceiling arms. The arms hang from z~2.05 and their
@@ -79,10 +83,13 @@ def build_room():
     # below that floor, but the 0.727 m pool radius (reachability heuristic)
     # bridges the gap, so objects at z~1.10 still find candidate nodes and stay
     # reachable. Legs + obj_z derive from top_z. Footprint sized to the object
-    # cluster with a small margin. Center sits at x=1.55 (was 1.75, shifted -0.20 m
-    # along X); object X and the cabinet (below) shift with it. Rail travels world
-    # +X 0..3.0 m, EE reach ~3.6 m, so this stays inside the gantry's X range.
-    cx, cy, top_z, th = 1.55, 0.0, 1.05, 0.05
+    # cluster with a small margin. Rail travels world +X 0..3.0 m, EE reach
+    # ~3.6 m, so this stays inside the gantry's X range.
+    # Center pushed to x=2.9 (was 1.55, delta +1.35) to widen the pick-distance
+    # range for J/energy calibration -- the far object (tomato_soup_can, was
+    # 1.70) lands at ~3.05, ~0.25 m inside the ~3.6 m reach cap. Object X specs
+    # below and the cabinet (cab_x, derived from cx) shift with it.
+    cx, cy, top_z, th = 2.9, 0.0, 1.05, 0.05
     FixedCuboid(prim_path="/World/work_table/top", name="wt_top",
                 position=np.array([cx, cy, top_z]), scale=np.array([0.9, 0.7, th]),
                 visual_material=top_mat)
@@ -143,10 +150,13 @@ def build_room():
     surf1 = top_z + th / 2
     surf2 = top_z2 + th / 2
     # label, usd (relative to ycb), (x, y, surface_z), has_physics_variant
+    # table-1 object X shifted +1.35 (was 1.42/1.52/1.70) to follow cx's move
+    # to 2.9 -- these are literal coords, NOT derived from cx, so they must be
+    # kept in sync with it by hand.
     specs = [
-        ("cracker_box",     "Axis_Aligned_Physics/003_cracker_box.usd",     (1.42, -0.16, surf1), True),
-        ("sugar_box",       "Axis_Aligned_Physics/004_sugar_box.usd",       (1.52,  0.16, surf1), True),
-        ("tomato_soup_can", "Axis_Aligned_Physics/005_tomato_soup_can.usd", (1.70, -0.16, surf1), True),
+        ("cracker_box",     "Axis_Aligned_Physics/003_cracker_box.usd",     (2.77, -0.16, surf1), True),
+        ("sugar_box",       "Axis_Aligned_Physics/004_sugar_box.usd",       (2.87,  0.16, surf1), True),
+        ("tomato_soup_can", "Axis_Aligned_Physics/005_tomato_soup_can.usd", (3.05, -0.16, surf1), True),
         # obj_3 seated on TOP of the cabinet (cab_x, cy, cab top = cab_h).
         ("mustard_bottle",  "Axis_Aligned_Physics/006_mustard_bottle.usd",  (cab_x, cy,   cab_h), True),
         # obj_4: IsaacLab teddy bear (not YCB) -> full URL, resolved directly below.

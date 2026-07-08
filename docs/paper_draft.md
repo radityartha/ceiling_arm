@@ -159,7 +159,8 @@ base is attached to the world, each arm base is attached to the rail, and a tool
 at the gripper defines the end-effector pose that the task is specified in. Because the
 two arms are mounted on the same carriage, moving the rail moves both of them together,
 which is what couples the choice of arm to the placement of the base. Figure 1 shows
-the platform and its frames.
+the platform and its frames alongside an overview of the end-to-end pipeline, from
+perception through energy-aware selection to planning and execution.
 
 **III-B. Simulation environment.**
 All experiments in this paper are carried out in NVIDIA Isaac Sim, a GPU-accelerated
@@ -236,19 +237,12 @@ end-effector can reach and a ready inverse-kinematics seed for reaching it. This
 sense in which the map is base-aware. Because q carries the rail translation and
 rotation, two ways of reaching the same point from different base placements settle into
 different nodes, so a node's seed stays a valid single configuration rather than an
-average of incompatible base positions.
+average of incompatible base positions. To keep the map faithful at the reachable
+boundary, where nodes grown only from interior samples would otherwise settle inward, we
+pin a shell of nodes on the measured reach surface before growing the interior (Fig. 4),
+and Section VI reports the resulting edge fidelity.
 
-**IV-C. Boundary seeding.**
-A network grown only from interior samples tends to pull its outermost nodes inward,
-because a node settles near the centroid of the samples it wins, so the node hull falls
-short of the true reach surface. That surface is exactly where an object is most likely
-to be judged just out of reach, so a shortfall there is costly. To prevent it, we pin a
-shell of boundary nodes on the measured reach surface before growing the interior. The
-pinned shell holds the outer extent of the map while the interior nodes fill the volume,
-so the hull follows the true surface (Fig. 4). Section VI quantifies this shortfall and
-the fidelity gained by boundary seeding.
-
-**IV-D. Capability layers.**
+**IV-C. Capability layers.**
 Beyond plain reachability, each node carries two quality values that the energy cost of
 Section V draws on. The manipulability w [Yoshikawa1985] records how dexterous the arm is
 at that node, low near the workspace edge and near singular postures and high where the
@@ -261,10 +255,87 @@ the node, so they are available at query time at no extra cost.
 
 ---
 
+## V. Energy-Aware Arm and Base Selection
+
+Given the object pose from perception and the two capability maps, the selection stage
+decides which arm to use and which eight-degree-of-freedom configuration to reach with.
+It makes both decisions together, by an energy cost evaluated over candidates drawn from
+the maps.
+
+**V-A. The energy cost.**
+We score a candidate configuration by a weighted sum of the effort of using it,
+
+J = w_gl·(Δ_lin/ρ_gl) + w_gr·(Δ_rot/ρ_gr) + w_arm·(Δ_arm/ρ_arm)
+    + w_dist·(e/ρ_dist) + w_hold·(h/ρ_hold) − w_manip·(m/ρ_manip),
+
+where Δ_lin, Δ_rot, and Δ_arm are the rail-linear, rail-rotation, and summed arm-joint
+travel from the current state to the candidate, e is the distance from the arm's current
+tool frame to the object, h is the gravity torque needed to hold the candidate posture,
+and m is its manipulability [Yoshikawa1985]. The rail's linear and rotational axes carry
+separate weights because their units and their cost differ, metres of heavy-carriage
+travel against radians of rotation. Manipulability enters with a minus sign, so a more
+dexterous configuration is cheaper. Each term is divided by a fixed reference ρ before
+its weight is applied, which makes the terms dimensionless and of comparable magnitude so
+that a weight reads directly as the priority of that term. We set each reference to the
+median value the term takes over a calibration set of picks, so that no term dominates
+the sum merely because of the units it is measured in, and we tune the weights on the
+same set rather than by hand. Table 1 lists the calibrated weights and references.
+
+**Table 1.** Calibrated weights and normalization references for the energy cost J.
+Each reference ρ is the median raw value of its term over the calibration set of picks.
+
+| Term | Symbol | Weight | Reference ρ |
+|------|--------|-------:|------------:|
+| Rail linear travel | Δ_lin | 2 | 0.95 |
+| Rail rotation travel | Δ_rot | 12 | 0.70 |
+| Arm joint travel | Δ_arm | 20 | 6.00 |
+| Tool-to-object distance | e | 3 | 1.36 |
+| Gravity holding torque | h | 1 | 2.90 |
+| Manipulability (subtracted) | m | 1 | 0.145 |
+
+The terms are proxies for the energy of carrying out the pick. Rail and arm travel are
+the mechanical work of moving each axis, with the heavy rail the dominant cost
+[MoMaPos2024], [BaSeNet2024]; the tool-to-object distance stands for the arm motion still
+needed to reach the object; and the holding term charges for fighting gravity. We do not
+claim that J is the exact energy of a pick, but Section VI shows that minimizing it lowers
+the measured mechanical energy of the executed trajectory relative to the baselines
+[EnergySLR2024].
+
+**V-B. Pooling candidates.**
+For a target object, we gather from each arm's capability map the nodes whose task
+position lies within a radius of the object, which serves as the reachability filter, and
+score each of them with J. The radius scales with the node spacing of the map, so the
+number of pooled candidates stays stable no matter how densely the map was grown. Because
+the two arms have separate maps, the pool holds candidates from both arms at once, each
+carrying its own base placement and full configuration, so scoring the pool compares the
+two arms and their base placements on the same scale.
+
+**V-C. Round-robin selection and execution.**
+We sort the pooled candidates by J and try them in order, but interleave the order across
+the two arms so that one arm cannot consume every attempt before the other is tried; the
+arm that holds the overall lowest-J candidate is given a small head start. For each
+candidate in turn we solve inverse kinematics, seeded by the candidate configuration, to a
+pre-grasp pose that stands off a fixed clearance above the top of the object with a
+top-down orientation, and we ask MoveIt for a collision-free plan. The search is
+plan-only, so the arm never moves during selection, and the first candidate that yields a
+valid plan is selected (Fig. 5). When execution is enabled, only the selected candidate is
+planned and executed, and if execution is aborted by a change in the scene the search
+falls through to the next candidate. The arm that wins and the rail placement its
+configuration implies are exactly the arm-and-base decision that this paper sets out to
+make.
+
+---
+
 ## Open items carried forward
 - ¶4 contribution style: kept as "First/Second/Third" prose; user may still switch to
   a bullet list.
 - ¶5 numeric `[PLACEHOLDER]`s fill from E2/E3 once data is collected.
-- Title's "Energy-Aware" leans on the `traj_energy` validation in E3 because `w_dist`
-  (ee->object distance) is currently the leading J term (w_dist=25); E3 must show
+- Title's "Energy-Aware" leans on the `traj_energy` validation in E3; E3 must show
   actual mechanical-energy reduction vs baselines.
+- J weights/refs are code-synced but have drifted twice — CURRENT (2026-07-07,
+  gantry_reach_executor.py): weights w_gl=2, w_gr=12, w_arm=20, w_dist=3, w_hold=1,
+  w_manip=1; refs ρ = median raw term over a 63-pick calib session (ρ_gl=0.95,
+  ρ_gr=0.70, ρ_arm=6.0, ρ_dist=1.36, ρ_hold=2.90, ρ_manip=0.145). `hold` IS in J now
+  (w_hold=1). RE-VERIFY these against the code before submission; V-A prose keeps them
+  symbolic so numbers live in one place. NOTE: reachability_gng/README.md is stale
+  (shows old weights, no hold term) — re-sync.
