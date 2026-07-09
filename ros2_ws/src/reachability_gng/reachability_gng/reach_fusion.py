@@ -18,6 +18,7 @@ import numpy as np
 import rclpy
 from geometry_msgs.msg import Point, PoseArray
 from rclpy.node import Node
+from sensor_msgs.msg import JointState
 from std_msgs.msg import ColorRGBA, String
 from visualization_msgs.msg import Marker, MarkerArray
 
@@ -64,6 +65,15 @@ class ReachFusion(Node):
         p('diffusion_levels', 4)
         p('reach_max_z', 2.05)        # drop reach nodes above the ceiling gantry
         p('publish_hz', 2.0)
+        # 2c energy: pick the winning arm by the executor's calibrated J over the
+        # collision-free grasp candidates (cfree nodes within pool_radius of the
+        # target). Travel terms need /joint_states; without it J uses dist+hold-manip.
+        p('joint_states_topic', '/joint_states')
+        p('energy_pool_radius', 0.20)   # grasp candidates: non-danger within this
+        p('w_gantry_lin', 2.0); p('w_gantry_rot', 12.0); p('w_arm', 20.0)
+        p('w_dist', 3.0); p('w_hold', 1.0); p('w_manip', 1.0)
+        p('ref_gantry_lin', 0.95); p('ref_gantry_rot', 0.70); p('ref_arm', 6.0)
+        p('ref_dist', 1.36); p('ref_hold', 2.90); p('ref_manip', 0.145)
         g = lambda k: self.get_parameter(k).value
         self.world_frame = g('world_frame')
         self.coll_r = float(g('collision_radius'))
@@ -73,18 +83,31 @@ class ReachFusion(Node):
         self.reach_tol = float(g('reach_tol'))
         max_z = float(g('reach_max_z'))
         gamma, levels = float(g('diffusion_gamma')), int(g('diffusion_levels'))
+        self.pool_r = float(g('energy_pool_radius'))
+        self.w = {k: float(g('w_' + k)) for k in
+                  ('gantry_lin', 'gantry_rot', 'arm', 'dist', 'hold', 'manip')}
+        self.ref = {k: float(g('ref_' + k)) for k in
+                    ('gantry_lin', 'gantry_rot', 'arm', 'dist', 'hold', 'manip')}
+        self._joints = {}             # live joint name -> position
 
-        self.arms = []                # (label, R, edges, S) per arm
+        self.arms = []
         for lab, path in zip(list(g('arm_labels')), list(g('arm_models'))):
             try:
                 gng = GNG.load(path)
             except Exception as e:  # noqa: BLE001
                 self.get_logger().error(f'{lab}: cannot load {path}: {e}')
                 continue
-            R = gng.W[:, :gng.task_dim].astype(np.float64)
-            R, edges = self._crop_z(R, [tuple(e) for e in gng._edges], max_z)
+            td = gng.task_dim
+            R, q = gng.W[:, :td].astype(np.float64), gng.W[:, td:].astype(np.float64)
+            manip, hold, jnames = self._load_stats(path, len(R))
+            keep = R[:, 2] <= max_z   # crop above-gantry nodes; remap edges
+            remap = {int(o): i for i, o in enumerate(np.where(keep)[0])}
+            edges = [(remap[i], remap[j]) for i, j in (tuple(e) for e in gng._edges)
+                     if i in remap and j in remap]
+            R, q, manip, hold = R[keep], q[keep], manip[keep], hold[keep]
             S = _diffusion_matrix(len(R), edges, gamma, levels)
-            self.arms.append((lab, R, edges, S))
+            self.arms.append(dict(lab=lab, R=R, edges=edges, S=S, q=q,
+                                  manip=manip, hold=hold, jnames=jnames))
             self.get_logger().info(f'{lab}: {len(R)} nodes, {len(edges)} edges')
 
         self.env_pts = np.empty((0, 3))
@@ -98,18 +121,61 @@ class ReachFusion(Node):
                                  self._on_obj_markers, 1)
         self.create_subscription(String, '/reach_fusion/set_target',
                                  self._on_set_target, 1)
+        self.create_subscription(JointState, g('joint_states_topic'),
+                                 self._on_joints, 10)
         self.pub = self.create_publisher(MarkerArray, '/reach_fusion/markers', 1)
         self.create_timer(1.0 / max(float(g('publish_hz')), 0.5), self._tick)
 
     @staticmethod
-    def _crop_z(R, edges, max_z):
-        keep = R[:, 2] <= max_z
-        if keep.all():
-            return R, edges
-        remap = {int(o): i for i, o in enumerate(np.where(keep)[0])}
-        edges = [(remap[i], remap[j]) for i, j in edges
-                 if i in remap and j in remap]
-        return R[keep], edges
+    def _load_stats(path, n):
+        """(manip, hold, joint_names) from <model>_stats.npz; zeros/None if absent."""
+        try:
+            s = np.load((path[:-4] if path.endswith('.npz') else path) + '_stats.npz')
+        except Exception:  # noqa: BLE001
+            return np.zeros(n), np.zeros(n), None
+        manip = s['manip'] if 'manip' in s else np.zeros(n)
+        hold = s['hold'] if 'hold' in s else np.zeros(n)
+        jn = [str(x) for x in s['joint_names']] if 'joint_names' in s else None
+        return manip, hold, (jn or None)
+
+    def _on_joints(self, msg):
+        self._joints.update(dict(zip(msg.name, msg.position)))
+
+    def _current_q(self, jnames):
+        if not jnames:
+            return None
+        try:
+            return np.array([self._joints[n] for n in jnames])
+        except KeyError:
+            return None
+
+    def _arm_energy(self, arm, target, danger):
+        """(min J, grasp node idx) over graspable candidates, or None.
+
+        Candidates = non-danger reach nodes within pool_r of the target (the arm
+        can reach & grasp there collision-free). J = executor's calibrated energy:
+        gantry+arm travel from current state + task gap + gravity hold - manip."""
+        if target is None:
+            return None
+        dR = np.linalg.norm(arm['R'] - target, axis=1)
+        cand = np.where(~danger & (dR <= self.pool_r))[0]
+        if len(cand) == 0:
+            return None
+        cur = self._current_q(arm['jnames'])
+        w, ref = self.w, self.ref
+        best = None
+        for i in cand:
+            j = (w['dist'] * dR[i] / ref['dist']
+                 + w['hold'] * arm['hold'][i] / ref['hold']
+                 - w['manip'] * arm['manip'][i] / ref['manip'])
+            if cur is not None:
+                q = arm['q'][i]
+                j += (w['gantry_lin'] * abs(q[0] - cur[0]) / ref['gantry_lin']
+                      + w['gantry_rot'] * abs(q[1] - cur[1]) / ref['gantry_rot']
+                      + w['arm'] * np.abs(q[2:] - cur[2:]).sum() / ref['arm'])
+            if best is None or j < best[0]:
+                best = (float(j), int(i))
+        return best
 
     def _on_env(self, msg):
         if msg.markers:
@@ -185,8 +251,13 @@ class ReachFusion(Node):
             return
         markers, mid, now = [], 0, self.get_clock().now().to_msg()
         target = self._resolve_target()
-        for lab, R, edges, S in self.arms:
+        energies = {}                 # lab -> (J, grasp_idx)
+        for a in self.arms:
+            lab, R, edges, S = a['lab'], a['R'], a['edges'], a['S']
             danger, cfree = self._classify(R, S, target)
+            e = self._arm_energy(a, target, danger)
+            if e is not None:
+                energies[lab] = e
             cr, cg, cb = _ARM_COLORS.get(lab, (0.6, 0.6, 0.6))
             free = self._sphere_list(lab, 'free', mid, 0.022,
                                      ColorRGBA(r=cr, g=cg, b=cb, a=1.0), now)
@@ -205,16 +276,36 @@ class ReachFusion(Node):
                                Point(x=float(R[j][0]), y=float(R[j][1]), z=float(R[j][2]))]
             markers += [free, dang, cfr, net]
             mid += 4
+
+        winner = min(energies, key=lambda k: energies[k][0]) if energies else None
         if target is not None:
-            t = Marker()
-            t.header.frame_id, t.header.stamp = self.world_frame, now
-            t.ns, t.id, t.type, t.action = 'target_obj', mid, Marker.SPHERE, Marker.ADD
-            t.scale.x = t.scale.y = t.scale.z = 0.10
-            t.color = ColorRGBA(r=1.0, g=1.0, b=0.0, a=0.9)
-            t.pose.position = Point(x=float(target[0]), y=float(target[1]),
-                                    z=float(target[2]))
-            markers.append(t)
+            markers.append(self._point_marker(
+                'target_obj', mid, target, 0.10, ColorRGBA(r=1.0, g=1.0, b=0.0, a=0.9), now))
+        if winner is not None:                 # highlight the winning arm's grasp node
+            gi = energies[winner][1]
+            arm = next(a for a in self.arms if a['lab'] == winner)
+            markers.append(self._point_marker(
+                'winner', mid + 1, arm['R'][gi], 0.07,
+                ColorRGBA(r=0.1, g=1.0, b=0.2, a=1.0), now))
+            self._log_energy(winner, energies)
         self.pub.publish(MarkerArray(markers=markers))
+
+    def _point_marker(self, ns, mid, xyz, size, color, now):
+        m = Marker()
+        m.header.frame_id, m.header.stamp = self.world_frame, now
+        m.ns, m.id, m.type, m.action = ns, mid, Marker.SPHERE, Marker.ADD
+        m.scale.x = m.scale.y = m.scale.z = size
+        m.color = color
+        m.pose.position = Point(x=float(xyz[0]), y=float(xyz[1]), z=float(xyz[2]))
+        return m
+
+    def _log_energy(self, winner, energies):
+        rank = sorted(energies.items(), key=lambda kv: kv[1][0])
+        if rank != getattr(self, '_last_rank', None):
+            self._last_rank = rank
+            txt = '  '.join(f'{k}={v[0]:.2f}{"*" if k == winner else ""}'
+                            for k, v in rank)
+            self.get_logger().info(f'energy J (collision-free): {txt}  -> WIN {winner}')
 
 
 def main():

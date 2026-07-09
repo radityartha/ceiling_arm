@@ -56,8 +56,9 @@ class ObjnLocalizer:
         self.id2objn.update({k: v.rstrip('/').split('/')[-1] for k, v in d.items()
                              if isinstance(v, str) and 'obj_' in v})
 
-    def _instance_at(self, ns, P):
-        """Instance id under world point P in camera `ns`'s seg image, or None."""
+    def _instance_at(self, ns, P, patch=3):
+        """Most common obj_N instance id in a small window under world point P
+        (patch sampling is robust to boundary noise / single-pixel misreads)."""
         if ns not in self.K or ns not in self.seg:
             return None
         try:
@@ -73,7 +74,13 @@ class ObjnLocalizer:
         fx, fy, cx, cy = self.K[ns]
         u, v = int(fx * pc[0] / pc[2] + cx), int(fy * pc[1] / pc[2] + cy)
         s = self.seg[ns]
-        return int(s[v, u]) if 0 <= v < s.shape[0] and 0 <= u < s.shape[1] else None
+        if not (0 <= v < s.shape[0] and 0 <= u < s.shape[1]):
+            return None
+        win = s[max(0, v - patch):v + patch + 1,
+                max(0, u - patch):u + patch + 1].ravel()
+        ids, counts = np.unique(win[np.isin(win, np.array(
+            [int(k) for k in self.id2objn], dtype=win.dtype))], return_counts=True)
+        return int(ids[counts.argmax()]) if len(ids) else None
 
     def objn_of(self, P):
         """obj_N name at centroid P (tries every camera), or None."""
