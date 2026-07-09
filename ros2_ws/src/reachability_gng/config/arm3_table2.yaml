@@ -1,0 +1,28 @@
+# Sampling configuration for the redundant arm_3 + gantry_2 system (8 DOF).
+#
+# Mirrors arm1_table1.yaml but targets the FIRST arm on gantry_2 (t2_a1_*).
+# urdf must be a FLATTENED urdf (xacro already expanded). The repo ships one at
+# workcell_description/urdf/workcell_full.urdf; regenerate after URDF edits with:
+#   xacro ros2_ws/src/workcell_description/urdf/workcell.urdf.xacro > \
+#       ros2_ws/src/workcell_description/urdf/workcell_full.urdf
+# absolute path so it resolves regardless of the launching process's CWD
+urdf: /srv/data/users/raditya/arm_WS/ceiling_arm/ros2_ws/src/workcell_description/urdf/workcell_full.urdf
+
+ee_frame: t2_a1_tool_frame
+
+# The 8 actuated DOF that make up the redundant system. All other joints in the
+# full workcell are auto-locked at their neutral value by data_gen.
+joints:
+  - t2_linear_joint        # table prismatic, 0..3.0 m
+  - t2_rotation_joint      # table revolute,  -pi..pi rad (±180°)
+  - t2_a1_joint_1
+  - t2_a1_joint_2
+  - t2_a1_joint_3
+  - t2_a1_joint_4
+  - t2_a1_joint_5
+  - t2_a1_joint_6
+
+# Travel limits, same order as `joints`. Table from URDF; arm joints are the
+# Gen3 Lite ranges (verify against joint_limits.yaml / URDF before a real run).
+lower: [0.0,  -3.14159, -2.68, -2.61, -2.61, -2.60, -2.53, -2.60]
+upper: [3.0,   3.14159,  2.68,  2.61,  2.61,  2.60,  2.53,  2.60]

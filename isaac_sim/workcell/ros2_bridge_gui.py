@@ -44,8 +44,10 @@ ROBOT = "/World/workcell"
 # cam1 (rgbd) is mirrored to the +Y side at (+X, +Y) while cam2 (rgbd2) stays at
 # (-X, -Y), so their view axes cross diagonally in X and Y for extra azimuthal
 # coverage. Trade-off vs the old both-on--Y layout: cam1 now looks across the
-# hanging arms (y=+0.36) so expect more arm self-occlusion of the work area. Both
-# aim at the under-arm work centre (1.2, 0.30, 1.25). Detections fuse in `world`
+# hanging arms (y=+0.36) so expect more arm self-occlusion of the work area. cam2
+# is placed symmetric to cam1: its eye (y=-1.2) sits 0.84 m off gantry_2's centre
+# (y=-0.36) on -Y, matching cam1's 0.84 m off gantry_1's centre (y=+0.36) on +Y --
+# a mirror across y=0. Detections fuse in `world`
 # (each is independent ground-truth RGBD, calibrated to `world` by its static TF
 # in launch_workcell.sh -> KEEP THOSE TFs IN SYNC if you move a camera).
 # To revert to the both-on--Y baseline: cam1 eye -> (2.8, -0.6, 2.05) and its TF
@@ -61,7 +63,7 @@ CAMERAS = [
     {"prim": "/World/rgbd_camera",  "ns": "rgbd",  "frame": "rgbd_camera_optical",
      "eye": (4.35, 1.2, 2.05),  "target": (2.55, 0.30, 1.25), "focal": 17.25},
     {"prim": "/World/rgbd2_camera", "ns": "rgbd2", "frame": "rgbd2_camera_optical",
-     "eye": (-0.6, -0.6, 2.05), "target": (1.2, 0.30, 1.25), "focal": 16.42},
+     "eye": (-0.6, -1.2, 2.05), "target": (1.2, -0.30, 1.25), "focal": 16.42},
 ]
 
 import polish  # noqa: E402  (room + lights + work table; same dir)

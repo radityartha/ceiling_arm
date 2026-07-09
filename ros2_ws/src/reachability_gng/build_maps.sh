@@ -17,8 +17,8 @@ set -euo pipefail
 ARMS=(
   "arm1:ros2_ws/src/reachability_gng/config/arm1_table1.yaml"
   "arm2:ros2_ws/src/reachability_gng/config/arm2_table1.yaml"
-  # "arm3:ros2_ws/src/reachability_gng/config/arm3_table2.yaml"   # future: one line
-  # "arm4:ros2_ws/src/reachability_gng/config/arm4_table2.yaml"
+  "arm3:ros2_ws/src/reachability_gng/config/arm3_table2.yaml"   # gantry_2, t2_a1
+  "arm4:ros2_ws/src/reachability_gng/config/arm4_table2.yaml"   # gantry_2, t2_a2
 )
 
 # --- dense recipe knobs (see README) -----------------------------------------

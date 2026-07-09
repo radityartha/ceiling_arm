@@ -85,8 +85,11 @@ echo ">>> [2.5] camera static TFs (world -> rgbd/rgbd2 optical)..."
 PIDS+=($!)
 ( set +u; source /opt/ros/humble/setup.bash
   export ROS_DOMAIN_ID RMW_IMPLEMENTATION
+  # y shifted -0.6 -> -1.2 to follow rgbd2's eye/target -0.6 Y shift in
+  # ros2_bridge_gui.py (puts cam2 0.84 m off gantry_2 in Y, mirroring cam1);
+  # pure translation, so the quaternion is unchanged.
   exec ros2 run tf2_ros static_transform_publisher \
-    --x -0.6 --y -0.6 --z 2.05 \
+    --x -0.6 --y -1.2 --z 2.05 \
     --qx -0.703886 --qy 0.435026 --qz -0.295205 --qw 0.477652 \
     --frame-id world --child-frame-id rgbd2_camera_optical ) > "$LOG/camera2_tf.log" 2>&1 &
 PIDS+=($!)

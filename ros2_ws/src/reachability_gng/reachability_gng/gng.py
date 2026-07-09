@@ -244,6 +244,35 @@ class GNG:
         i = int(self.query(task_vec, k=1)[0])
         return self.W[i, self.task_dim:].copy()
 
+    def remove_nodes(self, indices):
+        """Batch-remove nodes by index (skips pinned; keeps >=2 nodes).
+
+        Adaptive-GNG node deletion (thesis Step 6'-ii / GNG-U): an online
+        perception map calls this to drop nodes the data no longer supports --
+        e.g. stale "bridge" nodes left in free space, whose interior edges
+        connect two non-winner nodes and so never age out on their own. Rebuilds
+        the index remap once for the whole batch."""
+        victims = {int(i) for i in indices if not self.pinned[int(i)]}
+        if not victims or len(self.W) - len(victims) < 2:
+            return
+        keep = [k for k in range(len(self.W)) if k not in victims]
+        remap = {old: new for new, old in enumerate(keep)}
+        self.W = self.W[keep]
+        self.error = self.error[keep]
+        self.pinned = self.pinned[keep]
+        new_edges = {}
+        for e, age in self._edges.items():
+            a, b = tuple(e)
+            if a in victims or b in victims:
+                continue
+            new_edges[frozenset((remap[a], remap[b]))] = age
+        self._edges = new_edges
+        self._adj = {remap[k]: set() for k in keep}
+        for e in self._edges:
+            a, b = tuple(e)
+            self._adj[a].add(b)
+            self._adj[b].add(a)
+
     # ---- persistence --------------------------------------------------------
     def save(self, path):
         edges = np.array([list(e) for e in self._edges], dtype=np.int64) \
