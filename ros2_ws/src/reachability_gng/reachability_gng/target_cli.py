@@ -15,7 +15,7 @@ import numpy as np
 import rclpy
 from geometry_msgs.msg import PoseArray
 from rclpy.node import Node
-from std_msgs.msg import String
+from std_msgs.msg import Empty, String
 
 from reachability_gng.objn_localizer import ObjnLocalizer
 
@@ -32,6 +32,7 @@ class TargetCli(Node):
                                  self._on_objects, 1)
         self.pub = self.create_publisher(
             String, self.get_parameter('set_target_topic').value, 1)
+        self.exec_pub = self.create_publisher(Empty, '/reach_fusion/execute', 1)
 
     def _on_objects(self, msg):
         with self._lock:
@@ -48,10 +49,14 @@ class TargetCli(Node):
         self.pub.publish(String(data=value))
         self.last_sent = value
 
+    def execute(self):
+        self.exec_pub.publish(Empty())
+
 
 def _loop(node: TargetCli):
-    print('\n=== target_cli ===  (Enter=refresh, q=quit)')
-    print('type obj_N (ground truth) / a class label / an index -> reach_fusion target')
+    print('\n=== target_cli ===  (Enter=refresh, g/go=execute approach, q=quit)')
+    print('type obj_N (ground truth) / a class label / an index -> set target;')
+    print('then g (or go) -> move the winning arm to approach it')
     while rclpy.ok():
         objn, n = node.objn_map()
         cur = f'  [current: {node.last_sent}]' if node.last_sent else ''
@@ -62,14 +67,18 @@ def _loop(node: TargetCli):
             i, p = objn[name]
             print(f'  {name}  (index {i})  x={p[0]:+.2f} y={p[1]:+.2f} z={p[2]:+.2f}')
         try:
-            raw = input('Set target> ').strip()
+            raw = input('target> ').strip()
         except (EOFError, KeyboardInterrupt):
             break
-        if raw.lower() in ('q', 'quit', 'exit'):
+        low = raw.lower()
+        if low in ('q', 'quit', 'exit'):
             break
-        if raw:
+        if low in ('g', 'go', 'x', 'execute'):
+            node.execute()
+            print('  -> execute sent (watch reach_fusion for the plan/execute result)')
+        elif raw:
             node.send(raw)
-            print(f'  -> sent "{raw}"')
+            print(f'  -> target set to "{raw}"  (type g to execute)')
 
 
 def main():
