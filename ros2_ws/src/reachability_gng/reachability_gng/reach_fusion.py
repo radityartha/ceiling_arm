@@ -17,9 +17,13 @@ import re
 import numpy as np
 import rclpy
 from geometry_msgs.msg import Point, PoseArray
+from moveit_msgs.action import MoveGroup
+from moveit_msgs.msg import (Constraints, JointConstraint, MotionPlanRequest,
+                             PlanningOptions)
+from rclpy.action import ActionClient
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-from std_msgs.msg import ColorRGBA, String
+from std_msgs.msg import ColorRGBA, Empty, String
 from visualization_msgs.msg import Marker, MarkerArray
 
 from reachability_gng.gng import GNG
@@ -74,6 +78,16 @@ class ReachFusion(Node):
         p('w_dist', 3.0); p('w_hold', 1.0); p('w_manip', 1.0)
         p('ref_gantry_lin', 0.95); p('ref_gantry_rot', 0.70); p('ref_arm', 6.0)
         p('ref_dist', 1.36); p('ref_hold', 2.90); p('ref_manip', 0.145)
+        # 3a execution: publish to /reach_fusion/execute to send the winning
+        # arm's grasp-node q as a MoveGroup joint goal (plan + execute).
+        # gantry_1 arms have coupled per-arm groups (plan gantry+arm); gantry_2
+        # only has arm-only arm_3/arm_4 (no per-arm coupled group in the SRDF),
+        # so those plan the 6 arm joints only -- the gantry must already be in
+        # position for gantry_2 grasps (see _on_execute joint filtering).
+        p('arm_groups', ['gantry_1_with_arm_1', 'gantry_1_with_arm_2',
+                         'arm_3', 'arm_4'])
+        p('plan_time', 5.0); p('plan_attempts', 10)
+        p('vel_scale', 0.1); p('acc_scale', 0.1); p('joint_tol', 0.01)
         g = lambda k: self.get_parameter(k).value
         self.world_frame = g('world_frame')
         self.coll_r = float(g('collision_radius'))
@@ -89,9 +103,12 @@ class ReachFusion(Node):
         self.ref = {k: float(g('ref_' + k)) for k in
                     ('gantry_lin', 'gantry_rot', 'arm', 'dist', 'hold', 'manip')}
         self._joints = {}             # live joint name -> position
+        self._winner = None           # (arm dict, grasp node idx) for execution
 
         self.arms = []
-        for lab, path in zip(list(g('arm_labels')), list(g('arm_models'))):
+        groups = list(g('arm_groups'))
+        for k, (lab, path) in enumerate(zip(list(g('arm_labels')),
+                                            list(g('arm_models')))):
             try:
                 gng = GNG.load(path)
             except Exception as e:  # noqa: BLE001
@@ -107,8 +124,14 @@ class ReachFusion(Node):
             R, q, manip, hold = R[keep], q[keep], manip[keep], hold[keep]
             S = _diffusion_matrix(len(R), edges, gamma, levels)
             self.arms.append(dict(lab=lab, R=R, edges=edges, S=S, q=q,
-                                  manip=manip, hold=hold, jnames=jnames))
+                                  manip=manip, hold=hold, jnames=jnames,
+                                  group=groups[k] if k < len(groups) else ''))
             self.get_logger().info(f'{lab}: {len(R)} nodes, {len(edges)} edges')
+        self.plan_time = float(g('plan_time'))
+        self.plan_attempts = int(g('plan_attempts'))
+        self.vel_scale, self.acc_scale = float(g('vel_scale')), float(g('acc_scale'))
+        self.joint_tol = float(g('joint_tol'))
+        self.move_cli = ActionClient(self, MoveGroup, 'move_action')
 
         self.env_pts = np.empty((0, 3))
         self.poses = np.empty((0, 3))
@@ -123,6 +146,8 @@ class ReachFusion(Node):
                                  self._on_set_target, 1)
         self.create_subscription(JointState, g('joint_states_topic'),
                                  self._on_joints, 10)
+        self.create_subscription(Empty, '/reach_fusion/execute',
+                                 self._on_execute, 1)
         self.pub = self.create_publisher(MarkerArray, '/reach_fusion/markers', 1)
         self.create_timer(1.0 / max(float(g('publish_hz')), 0.5), self._tick)
 
@@ -284,11 +309,57 @@ class ReachFusion(Node):
         if winner is not None:                 # highlight the winning arm's grasp node
             gi = energies[winner][1]
             arm = next(a for a in self.arms if a['lab'] == winner)
+            self._winner = (arm, gi)           # latched for /reach_fusion/execute
             markers.append(self._point_marker(
                 'winner', mid + 1, arm['R'][gi], 0.07,
                 ColorRGBA(r=0.1, g=1.0, b=0.2, a=1.0), now))
             self._log_energy(winner, energies)
+        else:
+            self._winner = None
         self.pub.publish(MarkerArray(markers=markers))
+
+    # ---- 3a execution: winner grasp node q -> MoveGroup joint goal -----------
+    def _on_execute(self, _msg):
+        if self._winner is None:
+            self.get_logger().warn('execute: no winning arm yet')
+            return
+        if not self.move_cli.server_is_ready():
+            self.get_logger().error('execute: move_action server not ready')
+            return
+        arm, gi = self._winner
+        # arm-only groups (no 'gantry' in the name) plan just the 6 arm joints;
+        # q/jnames lead with the 2 gantry DOFs, so drop them for those groups.
+        jn, q = arm['jnames'], arm['q'][gi]
+        if 'gantry' not in arm['group']:
+            jn, q = jn[2:], q[2:]
+        req = MotionPlanRequest(group_name=arm['group'])
+        con = Constraints()
+        for n, v in zip(jn, q):
+            con.joint_constraints.append(JointConstraint(
+                joint_name=n, position=float(v), tolerance_above=self.joint_tol,
+                tolerance_below=self.joint_tol, weight=1.0))
+        req.goal_constraints = [con]
+        req.num_planning_attempts = self.plan_attempts
+        req.allowed_planning_time = self.plan_time
+        req.max_velocity_scaling_factor = self.vel_scale
+        req.max_acceleration_scaling_factor = self.acc_scale
+        goal = MoveGroup.Goal(request=req, planning_options=PlanningOptions(plan_only=False))
+        self.get_logger().info(f"executing {arm['lab']} -> {arm['group']} (grasp node {gi})")
+        self.move_cli.send_goal_async(goal).add_done_callback(
+            lambda f, a=arm: self._on_goal_resp(f, a))
+
+    def _on_goal_resp(self, fut, arm):
+        gh = fut.result()
+        if gh is None or not gh.accepted:
+            self.get_logger().error(f"{arm['lab']}: MoveGroup goal rejected")
+            return
+        gh.get_result_async().add_done_callback(
+            lambda f, a=arm: self._on_exec_result(f, a))
+
+    def _on_exec_result(self, fut, arm):
+        code = fut.result().result.error_code.val
+        msg = 'OK' if code == 1 else f'FAILED (code {code})'
+        self.get_logger().info(f"{arm['lab']} execute: {msg}")
 
     def _point_marker(self, ns, mid, xyz, size, color, now):
         m = Marker()
