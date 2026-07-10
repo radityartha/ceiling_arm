@@ -80,12 +80,12 @@ class ReachFusion(Node):
         p('ref_dist', 1.36); p('ref_hold', 2.90); p('ref_manip', 0.145)
         # 3a execution: publish to /reach_fusion/execute to send the winning
         # arm's grasp-node q as a MoveGroup joint goal (plan + execute).
-        # gantry_1 arms have coupled per-arm groups (plan gantry+arm); gantry_2
-        # only has arm-only arm_3/arm_4 (no per-arm coupled group in the SRDF),
-        # so those plan the 6 arm joints only -- the gantry must already be in
-        # position for gantry_2 grasps (see _on_execute joint filtering).
+        # coupled per-arm groups (plan gantry + arm together). gantry_2_with_arm_1/
+        # _2 must exist in the loaded SRDF -- restart move_group after an SRDF
+        # update. Arm-only groups (no 'gantry' in the name) still work: _on_execute
+        # then plans the 6 arm joints only.
         p('arm_groups', ['gantry_1_with_arm_1', 'gantry_1_with_arm_2',
-                         'arm_3', 'arm_4'])
+                         'gantry_2_with_arm_1', 'gantry_2_with_arm_2'])
         p('plan_time', 5.0); p('plan_attempts', 10)
         p('vel_scale', 0.1); p('acc_scale', 0.1); p('joint_tol', 0.01)
         g = lambda k: self.get_parameter(k).value
