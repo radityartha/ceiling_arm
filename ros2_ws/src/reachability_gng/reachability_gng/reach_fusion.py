@@ -96,6 +96,12 @@ class ReachFusion(Node):
         # Must clear the gripper length + the object's GNG collision sphere, else
         # the approach config sits on the collision boundary (IK -31 / plan fails).
         p('grasp_standoff', 0.20)
+        # try the vertical grasp at several yaws, then tilted approaches -- IK
+        # takes the first that solves (many -31 are just an unreachable yaw).
+        p('grasp_yaw_samples', 8)
+        p('grasp_tilt_samples', 2)
+        p('grasp_tilt_max', 30.0)       # degrees off vertical
+        p('grasp_tilt_azimuths', 4)
         p('plan_time', 5.0); p('plan_attempts', 10)
         p('vel_scale', 0.1); p('acc_scale', 0.1); p('joint_tol', 0.01)
         # -4 (CONTROL_FAILED) / -3 (env change) are transient sim mis-fires that
@@ -116,7 +122,7 @@ class ReachFusion(Node):
         self.ref = {k: float(g('ref_' + k)) for k in
                     ('gantry_lin', 'gantry_rot', 'arm', 'dist', 'hold', 'manip')}
         self._joints = {}             # live joint name -> position
-        self._winner = None           # (arm dict, grasp node idx) for execution
+        self._ranked = []             # [(arm dict, grasp idx)] by energy, best first
 
         self.arms = []
         groups = list(g('arm_groups'))
@@ -148,6 +154,10 @@ class ReachFusion(Node):
         self.joint_tol = float(g('joint_tol'))
         self.grasp_ori = [float(v) for v in g('grasp_orientation')]
         self.standoff = float(g('grasp_standoff'))
+        self.yaw_samples = int(g('grasp_yaw_samples'))
+        self.tilt_samples = int(g('grasp_tilt_samples'))
+        self.tilt_max = float(g('grasp_tilt_max'))
+        self.tilt_azimuths = int(g('grasp_tilt_azimuths'))
         self.max_retries = int(g('max_execute_retries'))
         self._retries = 0
         self._target = None           # latest resolved target xyz (for IK)
@@ -324,59 +334,109 @@ class ReachFusion(Node):
             markers += [free, dang, cfr, net]
             mid += 4
 
-        winner = min(energies, key=lambda k: energies[k][0]) if energies else None
+        # arms ranked by energy J (winner first); execution tries them in order,
+        # falling back to the next when the winner's exact-pose IK has no solution
+        # (the position-only reach map can flag an arm reachable that isn't).
+        by_j = sorted(energies.items(), key=lambda kv: kv[1][0])
+        self._ranked = [(next(a for a in self.arms if a['lab'] == lab), e[1])
+                        for lab, e in by_j]
+        winner = by_j[0][0] if by_j else None
         if target is not None:
             markers.append(self._point_marker(
                 'target_obj', mid, target, 0.10, ColorRGBA(r=1.0, g=1.0, b=0.0, a=0.9), now))
         if winner is not None:                 # highlight the winning arm's grasp node
-            gi = energies[winner][1]
-            arm = next(a for a in self.arms if a['lab'] == winner)
-            self._winner = (arm, gi)           # latched for /reach_fusion/execute
+            arm, gi = self._ranked[0]
             markers.append(self._point_marker(
                 'winner', mid + 1, arm['R'][gi], 0.07,
                 ColorRGBA(r=0.1, g=1.0, b=0.2, a=1.0), now))
             self._log_energy(winner, energies)
-        else:
-            self._winner = None
         self.pub.publish(MarkerArray(markers=markers))
 
     # ---- 3a execution: winner node q = IK seed -> IK to exact target -> plan --
+    @staticmethod
+    def _quat_mul(a, b):
+        ax, ay, az, aw = a
+        bx, by, bz, bw = b
+        return (aw * bx + ax * bw + ay * bz - az * by,
+                aw * by - ax * bz + ay * bw + az * bx,
+                aw * bz + ax * by - ay * bx + az * bw,
+                aw * bw - ax * bx - ay * by - az * bz)
+
+    def _grasp_orientations(self):
+        """Grasp orientations to try (best-first): vertical at each yaw, then
+        tilted fallbacks for spots only reachable at an angle."""
+        base = tuple(self.grasp_ori)
+        out = []
+        for i in range(max(1, self.yaw_samples)):
+            yaw = 2.0 * np.pi * i / max(1, self.yaw_samples)
+            out.append(self._quat_mul(
+                (0.0, 0.0, np.sin(yaw / 2), np.cos(yaw / 2)), base))
+        if self.tilt_samples > 0 and self.tilt_max > 0:
+            for k in range(1, self.tilt_samples + 1):
+                t = np.radians(self.tilt_max * k / self.tilt_samples)
+                st, ct = np.sin(t / 2), np.cos(t / 2)
+                for a in range(max(1, self.tilt_azimuths)):
+                    phi = 2.0 * np.pi * a / max(1, self.tilt_azimuths)
+                    out.append(self._quat_mul(
+                        (np.cos(phi) * st, np.sin(phi) * st, 0.0, ct), base))
+        return out
+
     def _on_execute(self, _msg):
         self._retries = 0
         self._attempt()
 
     def _attempt(self):
-        if self._winner is None or self._target is None:
-            self.get_logger().warn('execute: no winning arm / target yet')
+        if not self._ranked or self._target is None:
+            self.get_logger().warn('execute: no reachable arm / target yet')
             return
         if not self.ik_cli.service_is_ready():
             self.get_logger().error('execute: /compute_ik not ready')
             return
-        arm, gi = self._winner
+        self._exec_ranked = list(self._ranked)   # freeze arm order for this attempt
+        self._exec_target = self._target.copy()
+        self._oris = self._grasp_orientations()
+        self._ai = 0
+        self._try_arm()
+
+    def _try_arm(self):
+        if self._ai >= len(self._exec_ranked):
+            self.get_logger().error('execute: no arm has an IK solution to target')
+            return
+        self._exec_arm, self._exec_gi = self._exec_ranked[self._ai]
+        self._oi = 0
+        self.get_logger().info(
+            f"approach {self._exec_arm['lab']} -> target "
+            f"(arm {self._ai + 1}/{len(self._exec_ranked)}, {len(self._oris)} oris)")
+        self._try_ik()
+
+    def _try_ik(self):
+        arm, gi, tgt = self._exec_arm, self._exec_gi, self._exec_target
         # arm-only groups plan only the 6 arm joints; q leads with 2 gantry DOFs.
         seed_names = arm['jnames'] if 'gantry' in arm['group'] else arm['jnames'][2:]
         seed_pos = arm['q'][gi] if 'gantry' in arm['group'] else arm['q'][gi][2:]
         ps = PoseStamped()
         ps.header.frame_id = self.world_frame
-        # approach: aim a stand-off above the object (do not touch it)
-        ps.pose.position = Point(x=float(self._target[0]), y=float(self._target[1]),
-                                 z=float(self._target[2] + self.standoff))
-        ox, oy, oz, ow = self.grasp_ori
-        ps.pose.orientation.x, ps.pose.orientation.y = ox, oy
-        ps.pose.orientation.z, ps.pose.orientation.w = oz, ow
-        # node q SEEDS the redundant IK; MoveIt solves the EXACT target pose so
-        # the EE reaches the object (not just the coarse reach-map node).
+        ps.pose.position = Point(x=float(tgt[0]), y=float(tgt[1]),
+                                 z=float(tgt[2] + self.standoff))  # stand-off above
+        ox, oy, oz, ow = self._oris[self._oi]
+        ps.pose.orientation.x, ps.pose.orientation.y = float(ox), float(oy)
+        ps.pose.orientation.z, ps.pose.orientation.w = float(oz), float(ow)
         req = build_ik_request(arm['group'], arm['ee_frame'], ps,
                                seed_names, seed_pos, avoid_collisions=True)
-        self.get_logger().info(f"IK to target for {arm['lab']} ({arm['group']})")
-        self.ik_cli.call_async(req).add_done_callback(
-            lambda f, a=arm: self._on_ik(f, a))
+        self.ik_cli.call_async(req).add_done_callback(self._on_ik)
 
-    def _on_ik(self, fut, arm):
+    def _on_ik(self, fut):
+        arm = self._exec_arm
         res = fut.result()
         if res is None or res.error_code.val != 1:
-            code = res.error_code.val if res else 'None'
-            self.get_logger().error(f"{arm['lab']}: IK failed (code {code})")
+            self._oi += 1
+            if self._oi < len(self._oris):       # try the next orientation
+                self._try_ik()
+            else:                                # exhausted -> next-best arm
+                self.get_logger().warn(
+                    f"{arm['lab']}: no IK over {len(self._oris)} oris -> next arm")
+                self._ai += 1
+                self._try_arm()
             return
         if not self.move_cli.server_is_ready():
             self.get_logger().error('execute: move_action server not ready')
