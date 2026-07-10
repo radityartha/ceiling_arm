@@ -98,6 +98,9 @@ class ReachFusion(Node):
         p('grasp_standoff', 0.20)
         p('plan_time', 5.0); p('plan_attempts', 10)
         p('vel_scale', 0.1); p('acc_scale', 0.1); p('joint_tol', 0.01)
+        # -4 (CONTROL_FAILED) / -3 (env change) are transient sim mis-fires that
+        # the executor also retries; re-attempt the IK->plan->execute this often.
+        p('max_execute_retries', 3)
         g = lambda k: self.get_parameter(k).value
         self.world_frame = g('world_frame')
         self.coll_r = float(g('collision_radius'))
@@ -145,6 +148,8 @@ class ReachFusion(Node):
         self.joint_tol = float(g('joint_tol'))
         self.grasp_ori = [float(v) for v in g('grasp_orientation')]
         self.standoff = float(g('grasp_standoff'))
+        self.max_retries = int(g('max_execute_retries'))
+        self._retries = 0
         self._target = None           # latest resolved target xyz (for IK)
         self.move_cli = ActionClient(self, MoveGroup, 'move_action')
         self.ik_cli = self.create_client(GetPositionIK, '/compute_ik')
@@ -337,6 +342,10 @@ class ReachFusion(Node):
 
     # ---- 3a execution: winner node q = IK seed -> IK to exact target -> plan --
     def _on_execute(self, _msg):
+        self._retries = 0
+        self._attempt()
+
+    def _attempt(self):
         if self._winner is None or self._target is None:
             self.get_logger().warn('execute: no winning arm / target yet')
             return
@@ -401,8 +410,16 @@ class ReachFusion(Node):
 
     def _on_exec_result(self, fut, arm):
         code = fut.result().result.error_code.val
-        msg = 'OK' if code == 1 else f'FAILED (code {code})'
-        self.get_logger().info(f"{arm['lab']} execute: {msg}")
+        if code == 1:
+            self.get_logger().info(f"{arm['lab']} execute: OK")
+        elif code in (-3, -4) and self._retries < self.max_retries:
+            self._retries += 1
+            self.get_logger().warn(
+                f"{arm['lab']} execute code {code} (transient) -> "
+                f"retry {self._retries}/{self.max_retries}")
+            self._attempt()
+        else:
+            self.get_logger().error(f"{arm['lab']} execute: FAILED (code {code})")
 
     def _point_marker(self, ns, mid, xyz, size, color, now):
         m = Marker()
