@@ -16,10 +16,11 @@ import re
 
 import numpy as np
 import rclpy
-from geometry_msgs.msg import Point, PoseArray
+from geometry_msgs.msg import Point, PoseArray, PoseStamped
 from moveit_msgs.action import MoveGroup
 from moveit_msgs.msg import (Constraints, JointConstraint, MotionPlanRequest,
                              PlanningOptions)
+from moveit_msgs.srv import GetPositionIK
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
@@ -28,6 +29,7 @@ from visualization_msgs.msg import Marker, MarkerArray
 
 from reachability_gng.gng import GNG
 from reachability_gng.objn_localizer import ObjnLocalizer
+from reachability_gng.seed_ik import build_ik_request
 
 _OBJN_RE = re.compile(r'^obj_\d+$')
 # green is reserved for the env topo_map; red=danger, cyan=collision-free.
@@ -86,6 +88,9 @@ class ReachFusion(Node):
         # then plans the 6 arm joints only.
         p('arm_groups', ['gantry_1_with_arm_1', 'gantry_1_with_arm_2',
                          'gantry_2_with_arm_1', 'gantry_2_with_arm_2'])
+        p('arm_ee_frames', ['t1_a1_tool_frame', 't1_a2_tool_frame',
+                            't2_a1_tool_frame', 't2_a2_tool_frame'])
+        p('grasp_orientation', [1.0, 0.0, 0.0, 0.0])   # top-down grasp (xyzw)
         p('plan_time', 5.0); p('plan_attempts', 10)
         p('vel_scale', 0.1); p('acc_scale', 0.1); p('joint_tol', 0.01)
         g = lambda k: self.get_parameter(k).value
@@ -107,6 +112,7 @@ class ReachFusion(Node):
 
         self.arms = []
         groups = list(g('arm_groups'))
+        ee_frames = list(g('arm_ee_frames'))
         for k, (lab, path) in enumerate(zip(list(g('arm_labels')),
                                             list(g('arm_models')))):
             try:
@@ -125,13 +131,17 @@ class ReachFusion(Node):
             S = _diffusion_matrix(len(R), edges, gamma, levels)
             self.arms.append(dict(lab=lab, R=R, edges=edges, S=S, q=q,
                                   manip=manip, hold=hold, jnames=jnames,
-                                  group=groups[k] if k < len(groups) else ''))
+                                  group=groups[k] if k < len(groups) else '',
+                                  ee_frame=ee_frames[k] if k < len(ee_frames) else ''))
             self.get_logger().info(f'{lab}: {len(R)} nodes, {len(edges)} edges')
         self.plan_time = float(g('plan_time'))
         self.plan_attempts = int(g('plan_attempts'))
         self.vel_scale, self.acc_scale = float(g('vel_scale')), float(g('acc_scale'))
         self.joint_tol = float(g('joint_tol'))
+        self.grasp_ori = [float(v) for v in g('grasp_orientation')]
+        self._target = None           # latest resolved target xyz (for IK)
         self.move_cli = ActionClient(self, MoveGroup, 'move_action')
+        self.ik_cli = self.create_client(GetPositionIK, '/compute_ik')
 
         self.env_pts = np.empty((0, 3))
         self.poses = np.empty((0, 3))
@@ -276,6 +286,7 @@ class ReachFusion(Node):
             return
         markers, mid, now = [], 0, self.get_clock().now().to_msg()
         target = self._resolve_target()
+        self._target = target         # latched for IK on /reach_fusion/execute
         energies = {}                 # lab -> (J, grasp_idx)
         for a in self.arms:
             lab, R, edges, S = a['lab'], a['R'], a['edges'], a['S']
@@ -318,33 +329,58 @@ class ReachFusion(Node):
             self._winner = None
         self.pub.publish(MarkerArray(markers=markers))
 
-    # ---- 3a execution: winner grasp node q -> MoveGroup joint goal -----------
+    # ---- 3a execution: winner node q = IK seed -> IK to exact target -> plan --
     def _on_execute(self, _msg):
-        if self._winner is None:
-            self.get_logger().warn('execute: no winning arm yet')
+        if self._winner is None or self._target is None:
+            self.get_logger().warn('execute: no winning arm / target yet')
+            return
+        if not self.ik_cli.service_is_ready():
+            self.get_logger().error('execute: /compute_ik not ready')
+            return
+        arm, gi = self._winner
+        # arm-only groups plan only the 6 arm joints; q leads with 2 gantry DOFs.
+        seed_names = arm['jnames'] if 'gantry' in arm['group'] else arm['jnames'][2:]
+        seed_pos = arm['q'][gi] if 'gantry' in arm['group'] else arm['q'][gi][2:]
+        ps = PoseStamped()
+        ps.header.frame_id = self.world_frame
+        ps.pose.position = Point(x=float(self._target[0]), y=float(self._target[1]),
+                                 z=float(self._target[2]))
+        ox, oy, oz, ow = self.grasp_ori
+        ps.pose.orientation.x, ps.pose.orientation.y = ox, oy
+        ps.pose.orientation.z, ps.pose.orientation.w = oz, ow
+        # node q SEEDS the redundant IK; MoveIt solves the EXACT target pose so
+        # the EE reaches the object (not just the coarse reach-map node).
+        req = build_ik_request(arm['group'], arm['ee_frame'], ps,
+                               seed_names, seed_pos, avoid_collisions=True)
+        self.get_logger().info(f"IK to target for {arm['lab']} ({arm['group']})")
+        self.ik_cli.call_async(req).add_done_callback(
+            lambda f, a=arm: self._on_ik(f, a))
+
+    def _on_ik(self, fut, arm):
+        res = fut.result()
+        if res is None or res.error_code.val != 1:
+            code = res.error_code.val if res else 'None'
+            self.get_logger().error(f"{arm['lab']}: IK failed (code {code})")
             return
         if not self.move_cli.server_is_ready():
             self.get_logger().error('execute: move_action server not ready')
             return
-        arm, gi = self._winner
-        # arm-only groups (no 'gantry' in the name) plan just the 6 arm joints;
-        # q/jnames lead with the 2 gantry DOFs, so drop them for those groups.
-        jn, q = arm['jnames'], arm['q'][gi]
-        if 'gantry' not in arm['group']:
-            jn, q = jn[2:], q[2:]
+        js = res.solution.joint_state
+        grp = set(arm['jnames'] if 'gantry' in arm['group'] else arm['jnames'][2:])
         req = MotionPlanRequest(group_name=arm['group'])
         con = Constraints()
-        for n, v in zip(jn, q):
-            con.joint_constraints.append(JointConstraint(
-                joint_name=n, position=float(v), tolerance_above=self.joint_tol,
-                tolerance_below=self.joint_tol, weight=1.0))
+        for n, v in zip(js.name, js.position):
+            if n in grp:
+                con.joint_constraints.append(JointConstraint(
+                    joint_name=n, position=float(v), tolerance_above=self.joint_tol,
+                    tolerance_below=self.joint_tol, weight=1.0))
         req.goal_constraints = [con]
         req.num_planning_attempts = self.plan_attempts
         req.allowed_planning_time = self.plan_time
         req.max_velocity_scaling_factor = self.vel_scale
         req.max_acceleration_scaling_factor = self.acc_scale
         goal = MoveGroup.Goal(request=req, planning_options=PlanningOptions(plan_only=False))
-        self.get_logger().info(f"executing {arm['lab']} -> {arm['group']} (grasp node {gi})")
+        self.get_logger().info(f"executing {arm['lab']} to IK solution")
         self.move_cli.send_goal_async(goal).add_done_callback(
             lambda f, a=arm: self._on_goal_resp(f, a))
 
