@@ -24,7 +24,7 @@ from moveit_msgs.srv import GetPositionIK
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-from std_msgs.msg import ColorRGBA, Empty, String
+from std_msgs.msg import Bool, ColorRGBA, Empty, String
 from visualization_msgs.msg import Marker, MarkerArray
 
 from reachability_gng.gng import GNG
@@ -163,6 +163,7 @@ class ReachFusion(Node):
         self._target = None           # latest resolved target xyz (for IK)
         self.move_cli = ActionClient(self, MoveGroup, 'move_action')
         self.ik_cli = self.create_client(GetPositionIK, '/compute_ik')
+        self.hold_pub = self.create_publisher(Bool, '/gng_collision/hold', 1)
 
         self.env_pts = np.empty((0, 3))
         self.poses = np.empty((0, 3))
@@ -385,6 +386,9 @@ class ReachFusion(Node):
         self._retries = 0
         self._attempt()
 
+    def _hold(self, on):
+        self.hold_pub.publish(Bool(data=bool(on)))   # freeze GNG collision scene
+
     def _attempt(self):
         if not self._ranked or self._target is None:
             self.get_logger().warn('execute: no reachable arm / target yet')
@@ -392,6 +396,7 @@ class ReachFusion(Node):
         if not self.ik_cli.service_is_ready():
             self.get_logger().error('execute: /compute_ik not ready')
             return
+        self._hold(True)                          # scene stays put through execution
         self._exec_ranked = list(self._ranked)   # freeze arm order for this attempt
         self._exec_target = self._target.copy()
         self._oris = self._grasp_orientations()
@@ -401,6 +406,7 @@ class ReachFusion(Node):
     def _try_arm(self):
         if self._ai >= len(self._exec_ranked):
             self.get_logger().error('execute: no arm has an IK solution to target')
+            self._hold(False)
             return
         self._exec_arm, self._exec_gi = self._exec_ranked[self._ai]
         self._oi = 0
@@ -464,6 +470,7 @@ class ReachFusion(Node):
         gh = fut.result()
         if gh is None or not gh.accepted:
             self.get_logger().error(f"{arm['lab']}: MoveGroup goal rejected")
+            self._hold(False)
             return
         gh.get_result_async().add_done_callback(
             lambda f, a=arm: self._on_exec_result(f, a))
@@ -472,14 +479,16 @@ class ReachFusion(Node):
         code = fut.result().result.error_code.val
         if code == 1:
             self.get_logger().info(f"{arm['lab']} execute: OK")
+            self._hold(False)
         elif code in (-3, -4) and self._retries < self.max_retries:
             self._retries += 1
             self.get_logger().warn(
                 f"{arm['lab']} execute code {code} (transient) -> "
                 f"retry {self._retries}/{self.max_retries}")
-            self._attempt()
+            self._attempt()               # keep the scene held across the retry
         else:
             self.get_logger().error(f"{arm['lab']} execute: FAILED (code {code})")
+            self._hold(False)
 
     def _point_marker(self, ns, mid, xyz, size, color, now):
         m = Marker()

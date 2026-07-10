@@ -20,6 +20,7 @@ from geometry_msgs.msg import Point, Pose, PointStamped
 from moveit_msgs.msg import CollisionObject, PlanningScene
 from rclpy.node import Node
 from shape_msgs.msg import SolidPrimitive
+from std_msgs.msg import Bool
 from visualization_msgs.msg import MarkerArray
 
 
@@ -43,10 +44,15 @@ class GngCollision(Node):
 
         self.nodes = np.empty((0, 3))
         self.carve = None             # xyz to exclude (GRASP mode), or None
+        self.hold = False             # freeze the scene during arm execution
         self.create_subscription(MarkerArray, g('env_markers_topic'),
                                  self._on_env, 1)
         self.create_subscription(PointStamped, '/gng_collision/carve',
                                  self._on_carve, 1)
+        # while an arm is executing, DON'T republish: a changing collision world
+        # aborts MoveIt execution (MOTION_PLAN_INVALIDATED_BY_ENVIRONMENT_CHANGE).
+        self.create_subscription(Bool, '/gng_collision/hold',
+                                 lambda m: setattr(self, 'hold', m.data), 1)
         self.pub = self.create_publisher(PlanningScene, '/planning_scene', 1)
         self.create_timer(1.0 / max(float(g('publish_hz')), 0.5), self._tick)
         self.get_logger().info(
@@ -74,6 +80,8 @@ class GngCollision(Node):
         return pts
 
     def _tick(self):
+        if self.hold:                 # frozen during execution -> scene stays put
+            return
         pts = self._spheres()
         co = CollisionObject()
         co.header.frame_id = self.world_frame

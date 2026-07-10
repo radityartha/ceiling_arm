@@ -41,7 +41,13 @@ def generate_launch_description():
         Node(package="controller_manager", executable="ros2_control_node", output="screen",
              parameters=[moveit_config.robot_description, CONTROLLERS_YAML]),
         Node(package="moveit_ros_move_group", executable="move_group", output="screen",
-             parameters=[moveit_config.to_dict(), {"use_sim_time": False}]),
+             parameters=[moveit_config.to_dict(), {"use_sim_time": False},
+                         # loosen execution tolerances so the sim gantry does not
+                         # trip CONTROL_FAILED (-4); see moveit_controllers.yaml.
+                         {"trajectory_execution.allowed_start_tolerance": 0.1,
+                          "trajectory_execution.execution_duration_monitoring": False,
+                          "trajectory_execution.allowed_execution_duration_scaling": 3.0,
+                          "trajectory_execution.allowed_goal_duration_margin": 2.0}]),
     ]
     tables = ["gantry_1_controller", "gantry_2_controller"]
     for c in ["joint_state_broadcaster"] + ARMS + GRIPPERS + tables:
