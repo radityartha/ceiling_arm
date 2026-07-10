@@ -23,6 +23,7 @@ import time
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
@@ -96,6 +97,10 @@ def generate_launch_description():
         # can reach it. false (approach-only): keep the target in the octomap as a
         # hard obstacle so the arm stands off above it without touching it.
         DeclareLaunchArgument('carve_target', default_value='true'),
+        # false -> skip the octomap/object-box collision nodes (collision_cloud,
+        # object_collision, octomap_refresher). Use with the GNG collision path
+        # (gng_collision) so the topological map replaces the octomap.
+        DeclareLaunchArgument('use_octomap', default_value='true'),
         DeclareLaunchArgument('seg_source', default_value='yoloe'),
         DeclareLaunchArgument('seg_model', default_value='yoloe-11m-seg.pt'),
         DeclareLaunchArgument('seg_device', default_value=''),   # '' -> auto
@@ -138,12 +143,14 @@ def generate_launch_description():
         # octomap lags at 0.02 m resolution, raise stride back toward 4-6.
         Node(package='reachability_gng', executable='collision_cloud',
              name='collision_cloud', output='screen', **_QUIET,
+             condition=IfCondition(LaunchConfiguration('use_octomap')),
              parameters=target_params + [{'stride': 3,
                                           'carve_target': carve_target}],
              remappings=_SEG_REMAP),
         # detected objects -> exact CollisionObject boxes (+ attach/detach for grasp)
         Node(package='reachability_gng', executable='object_collision',
              name='object_collision', output='screen', **_QUIET,
+             condition=IfCondition(LaunchConfiguration('use_octomap')),
              parameters=target_params, remappings=_SEG_REMAP),
         # Safety-net only. collision_cloud now publishes in the camera optical
         # frame, so MoveIt ray-carves and clears moving-arm voxels incrementally
@@ -152,6 +159,7 @@ def generate_launch_description():
         # flushes any rare residue; set very large / remove once carving is trusted.
         Node(package='reachability_gng', executable='octomap_refresher',
              name='octomap_refresher', output='screen', **_QUIET,
+             condition=IfCondition(LaunchConfiguration('use_octomap')),
              parameters=[{'period': 60.0}]),
         # full depth reading -> 3D point cloud (table grey + objects coloured)
         Node(package='reachability_gng', executable='seg_cloud',

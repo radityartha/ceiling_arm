@@ -43,6 +43,7 @@ setup(
             'env_gng = reachability_gng.env_gng:main',
             'reach_fusion = reachability_gng.reach_fusion:main',
             'target_cli = reachability_gng.target_cli:main',
+            'gng_collision = reachability_gng.gng_collision:main',
             'reachability_check = reachability_gng.reachability_check:main',
             'reachability_cloud = reachability_gng.reachability_cloud:main',
             'collision_cloud = reachability_gng.collision_cloud:main',

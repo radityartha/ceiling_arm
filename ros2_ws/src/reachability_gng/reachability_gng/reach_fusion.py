@@ -91,6 +91,9 @@ class ReachFusion(Node):
         p('arm_ee_frames', ['t1_a1_tool_frame', 't1_a2_tool_frame',
                             't2_a1_tool_frame', 't2_a2_tool_frame'])
         p('grasp_orientation', [1.0, 0.0, 0.0, 0.0])   # top-down grasp (xyzw)
+        # APPROACH mode: aim the EE this far ABOVE the object so it stops over the
+        # target without touching it (object stays a GNG obstacle, not carved).
+        p('grasp_standoff', 0.12)
         p('plan_time', 5.0); p('plan_attempts', 10)
         p('vel_scale', 0.1); p('acc_scale', 0.1); p('joint_tol', 0.01)
         g = lambda k: self.get_parameter(k).value
@@ -139,6 +142,7 @@ class ReachFusion(Node):
         self.vel_scale, self.acc_scale = float(g('vel_scale')), float(g('acc_scale'))
         self.joint_tol = float(g('joint_tol'))
         self.grasp_ori = [float(v) for v in g('grasp_orientation')]
+        self.standoff = float(g('grasp_standoff'))
         self._target = None           # latest resolved target xyz (for IK)
         self.move_cli = ActionClient(self, MoveGroup, 'move_action')
         self.ik_cli = self.create_client(GetPositionIK, '/compute_ik')
@@ -343,8 +347,9 @@ class ReachFusion(Node):
         seed_pos = arm['q'][gi] if 'gantry' in arm['group'] else arm['q'][gi][2:]
         ps = PoseStamped()
         ps.header.frame_id = self.world_frame
+        # approach: aim a stand-off above the object (do not touch it)
         ps.pose.position = Point(x=float(self._target[0]), y=float(self._target[1]),
-                                 z=float(self._target[2]))
+                                 z=float(self._target[2] + self.standoff))
         ox, oy, oz, ow = self.grasp_ori
         ps.pose.orientation.x, ps.pose.orientation.y = ox, oy
         ps.pose.orientation.z, ps.pose.orientation.w = oz, ow
