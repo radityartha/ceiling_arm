@@ -93,7 +93,9 @@ class ReachFusion(Node):
         p('grasp_orientation', [1.0, 0.0, 0.0, 0.0])   # top-down grasp (xyzw)
         # APPROACH mode: aim the EE this far ABOVE the object so it stops over the
         # target without touching it (object stays a GNG obstacle, not carved).
-        p('grasp_standoff', 0.12)
+        # Must clear the gripper length + the object's GNG collision sphere, else
+        # the approach config sits on the collision boundary (IK -31 / plan fails).
+        p('grasp_standoff', 0.20)
         p('plan_time', 5.0); p('plan_attempts', 10)
         p('vel_scale', 0.1); p('acc_scale', 0.1); p('joint_tol', 0.01)
         g = lambda k: self.get_parameter(k).value
