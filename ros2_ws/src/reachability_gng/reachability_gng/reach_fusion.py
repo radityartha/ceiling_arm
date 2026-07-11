@@ -16,6 +16,7 @@ import re
 
 import numpy as np
 import rclpy
+import rclpy.time
 from geometry_msgs.msg import Point, PoseArray, PoseStamped
 from moveit_msgs.action import MoveGroup
 from moveit_msgs.msg import (Constraints, JointConstraint, MotionPlanRequest,
@@ -96,6 +97,7 @@ class ReachFusion(Node):
         # Must clear the gripper length + the object's GNG collision sphere, else
         # the approach config sits on the collision boundary (IK -31 / plan fails).
         p('grasp_standoff', 0.20)
+        p('approach_tol', 0.12)         # EE this close to the stand-off = success
         # try the vertical grasp at several yaws, then tilted approaches -- IK
         # takes the first that solves (many -31 are just an unreachable yaw).
         p('grasp_yaw_samples', 8)
@@ -154,6 +156,7 @@ class ReachFusion(Node):
         self.joint_tol = float(g('joint_tol'))
         self.grasp_ori = [float(v) for v in g('grasp_orientation')]
         self.standoff = float(g('grasp_standoff'))
+        self.approach_tol = float(g('approach_tol'))
         self.yaw_samples = int(g('grasp_yaw_samples'))
         self.tilt_samples = int(g('grasp_tilt_samples'))
         self.tilt_max = float(g('grasp_tilt_max'))
@@ -480,6 +483,7 @@ class ReachFusion(Node):
         if code == 1:
             self.get_logger().info(f"{arm['lab']} execute: OK")
             self._hold(False)
+            self._verify_approach(arm)
         elif code in (-3, -4) and self._retries < self.max_retries:
             self._retries += 1
             self.get_logger().warn(
@@ -494,6 +498,27 @@ class ReachFusion(Node):
         else:
             self.get_logger().error(f"{arm['lab']} execute: FAILED (code {code})")
             self._hold(False)
+
+    def _verify_approach(self, arm):
+        """Log APPROACH SUCCESS once the REAL EE (from TF) is above the object."""
+        goal = self._exec_target + np.array([0.0, 0.0, self.standoff])
+        try:
+            t = self.objn.tf.lookup_transform(
+                self.world_frame, arm['ee_frame'],
+                rclpy.time.Time()).transform.translation
+        except Exception:  # noqa: BLE001
+            self.get_logger().info(
+                f"=== APPROACH DONE: {arm['lab']} (EE pose unavailable to verify) ===")
+            return
+        err = float(np.linalg.norm(np.array([t.x, t.y, t.z]) - goal))
+        if err <= self.approach_tol:
+            self.get_logger().info(
+                f"=== APPROACH SUCCESS: {arm['lab']} is above the object "
+                f"(EE {err:.3f} m from the stand-off) ===")
+        else:
+            self.get_logger().warn(
+                f"{arm['lab']} executed but EE is {err:.2f} m from the "
+                f"stand-off (not above the object)")
 
     def _point_marker(self, ns, mid, xyz, size, color, now):
         m = Marker()
