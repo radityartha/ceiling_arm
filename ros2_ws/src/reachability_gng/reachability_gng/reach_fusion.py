@@ -406,10 +406,13 @@ class ReachFusion(Node):
         self._ai = 0
         self._try_arm()
 
+    def _approach_failed(self, reason):
+        self.get_logger().error(f"=== APPROACH FAILED: {reason} ===")
+        self._hold(False)
+
     def _try_arm(self):
         if self._ai >= len(self._exec_ranked):
-            self.get_logger().error('execute: no arm has an IK solution to target')
-            self._hold(False)
+            self._approach_failed('no arm can reach the target (IK/plan)')
             return
         self._exec_arm, self._exec_gi = self._exec_ranked[self._ai]
         self._oi = 0
@@ -472,8 +475,7 @@ class ReachFusion(Node):
     def _on_goal_resp(self, fut, arm):
         gh = fut.result()
         if gh is None or not gh.accepted:
-            self.get_logger().error(f"{arm['lab']}: MoveGroup goal rejected")
-            self._hold(False)
+            self._approach_failed(f"{arm['lab']} MoveGroup goal rejected")
             return
         gh.get_result_async().add_done_callback(
             lambda f, a=arm: self._on_exec_result(f, a))
@@ -496,8 +498,7 @@ class ReachFusion(Node):
             self._ai += 1
             self._try_arm()               # hold stays on
         else:
-            self.get_logger().error(f"{arm['lab']} execute: FAILED (code {code})")
-            self._hold(False)
+            self._approach_failed(f"{arm['lab']} execute code {code}")
 
     def _verify_approach(self, arm):
         """Log APPROACH SUCCESS once the REAL EE (from TF) is above the object."""
@@ -516,9 +517,9 @@ class ReachFusion(Node):
                 f"=== APPROACH SUCCESS: {arm['lab']} is above the object "
                 f"(EE {err:.3f} m from the stand-off) ===")
         else:
-            self.get_logger().warn(
-                f"{arm['lab']} executed but EE is {err:.2f} m from the "
-                f"stand-off (not above the object)")
+            self.get_logger().error(
+                f"=== APPROACH FAILED: {arm['lab']} executed but EE is "
+                f"{err:.2f} m from the stand-off (not above the object) ===")
 
     def _point_marker(self, ns, mid, xyz, size, color, now):
         m = Marker()
