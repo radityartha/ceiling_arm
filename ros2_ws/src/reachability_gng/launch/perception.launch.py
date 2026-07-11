@@ -132,9 +132,12 @@ def generate_launch_description():
              name='object_localizer', output='screen', **_QUIET,
              parameters=target_params, remappings=_SEG_REMAP),
         Node(package='reachability_gng', executable='reachability_check',
-             name='reachability_check', output='screen', **_QUIET),
+             name='reachability_check', output='screen', **_QUIET,
+             condition=IfCondition(LaunchConfiguration('use_octomap'))),
+        # old reach-voxel viz (spammy per-frame INFO); not needed on the GNG path.
         Node(package='reachability_gng', executable='reachability_cloud',
-             name='reachability_cloud', output='screen', remappings=_SEG_REMAP),
+             name='reachability_cloud', output='screen', remappings=_SEG_REMAP,
+             condition=IfCondition(LaunchConfiguration('use_octomap'))),
         # environment depth (objects excluded) -> MoveIt octomap.
         # stride=3 gives a denser cloud so the octomap fills more of the surface
         # (fewer holes) and follows the sensed shape. This was 6 earlier because a
