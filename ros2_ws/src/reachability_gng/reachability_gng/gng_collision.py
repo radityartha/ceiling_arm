@@ -32,7 +32,8 @@ class GngCollision(Node):
         p('world_frame', 'world')
         p('object_id', 'gng_obstacles')
         p('collision_leaf', 0.08)     # downsample grid (m) -> fewer spheres
-        p('sphere_radius', 0.06)      # per-node collision sphere radius (m)
+        p('sphere_radius', 0.05)      # per-node collision sphere radius (m):
+        #   smaller = less conservative, arm paths clear the obstacles more easily
         p('carve_radius', 0.15)       # exclude nodes within this of the carve point
         p('publish_hz', 1.5)
         g = lambda k: self.get_parameter(k).value

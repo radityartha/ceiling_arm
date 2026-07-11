@@ -102,7 +102,7 @@ class ReachFusion(Node):
         p('grasp_tilt_samples', 2)
         p('grasp_tilt_max', 30.0)       # degrees off vertical
         p('grasp_tilt_azimuths', 4)
-        p('plan_time', 5.0); p('plan_attempts', 10)
+        p('plan_time', 8.0); p('plan_attempts', 20)
         p('vel_scale', 0.1); p('acc_scale', 0.1); p('joint_tol', 0.01)
         # -4 (CONTROL_FAILED) / -3 (env change) are transient sim mis-fires that
         # the executor also retries; re-attempt the IK->plan->execute this often.
@@ -486,6 +486,11 @@ class ReachFusion(Node):
                 f"{arm['lab']} execute code {code} (transient) -> "
                 f"retry {self._retries}/{self.max_retries}")
             self._attempt()               # keep the scene held across the retry
+        elif code in (-1, -2):            # plan invalid/collision -> next-best arm
+            self.get_logger().warn(
+                f"{arm['lab']} plan code {code} (path collides) -> next arm")
+            self._ai += 1
+            self._try_arm()               # hold stays on
         else:
             self.get_logger().error(f"{arm['lab']} execute: FAILED (code {code})")
             self._hold(False)
