@@ -103,6 +103,17 @@ class ReachFusion(Node):
         # the approach config sits on the collision boundary (IK -31 / plan fails).
         p('grasp_standoff', 0.20)
         p('approach_tol', 0.12)         # EE this close to the stand-off = success
+        # MoveGroup returns code=1 as soon as it finishes STREAMING the trajectory
+        # to Isaac's topic_based_ros2_control bridge, but Isaac physics (finite PD
+        # gains) then needs a few seconds to actually drive the arm to the last
+        # setpoint. Verifying the EE immediately reads the arm mid-motion -> false
+        # "APPROACH FAILED" (measured 0.53 m while still settling; 0.013 m once
+        # settled). So after code=1, poll until the actual joints match the
+        # commanded IK config within settle_tol (or settle_timeout elapses), then
+        # measure the EE. Gantry tracks near-instantly; only the arm needs this.
+        p('settle_tol', 0.03)           # max |cmd-act| joint residual = settled (rad)
+        p('settle_timeout', 8.0)        # give up waiting, verify anyway (s)
+        p('settle_period', 0.5)         # poll interval (s)
         # try the vertical grasp at several yaws, then tilted approaches -- IK
         # takes the first that solves (many -31 are just an unreachable yaw).
         p('grasp_yaw_samples', 8)
@@ -177,6 +188,10 @@ class ReachFusion(Node):
         self.ik_avoid = bool(g('ik_avoid_collisions'))
         self.standoff = float(g('grasp_standoff'))
         self.approach_tol = float(g('approach_tol'))
+        self.settle_tol = float(g('settle_tol'))
+        self.settle_timeout = float(g('settle_timeout'))
+        self.settle_period = float(g('settle_period'))
+        self._settle_timer = None
         self.yaw_samples = int(g('grasp_yaw_samples'))
         self.tilt_samples = int(g('grasp_tilt_samples'))
         self.tilt_max = float(g('grasp_tilt_max'))
@@ -493,6 +508,10 @@ class ReachFusion(Node):
         self._t_plan = time.monotonic()
         js = res.solution.joint_state
         grp = set(arm['jnames'] if 'gantry' in arm['group'] else arm['jnames'][2:])
+        # stash the commanded (IK-solution) group config for the post-exec diag:
+        # lets _verify_approach tell "gantry/arm never reached goal" (controller
+        # didn't track, code=1 anyway) apart from "object drifted / FK mismatch".
+        self._ik_sol = {n: float(v) for n, v in zip(js.name, js.position) if n in grp}
         req = MotionPlanRequest(group_name=arm['group'])
         con = Constraints()
         for n, v in zip(js.name, js.position):
@@ -529,10 +548,16 @@ class ReachFusion(Node):
             f"=== TIMING: plan+execute took {plan_exec_dt:.3f}s, "
             f"total attempt {total_dt:.3f}s, code={code} ===")
         if code == 1:
-            self.get_logger().info(f"{arm['lab']} execute: OK")
-            self._hold(False)
-            self._verify_approach(arm)
-        elif code in (-3, -4) and self._retries < self.max_retries:
+            self.get_logger().info(f"{arm['lab']} execute: OK; waiting for arm to settle")
+            self._settle_arm = arm
+            self._settle_t0 = time.monotonic()
+            if self._settle_timer is not None:
+                self._settle_timer.cancel()
+            self._settle_timer = self.create_timer(self.settle_period, self._settle_check)
+        elif code in (-3, -4, 99999) and self._retries < self.max_retries:
+            # -3 env change, -4 CONTROL_FAILED, 99999 MoveItErrorCodes.FAILURE
+            # (generic) are all transient sim mis-fires under host contention --
+            # observed recovering on retry (e.g. -4 -> 99999 -> code=1).
             self._retries += 1
             self.get_logger().warn(
                 f"{arm['lab']} execute code {code} (transient) -> "
@@ -545,6 +570,30 @@ class ReachFusion(Node):
             self._try_arm()               # hold stays on
         else:
             self._approach_failed(f"{arm['lab']} execute code {code}")
+
+    def _settle_check(self):
+        """Poll until the arm reaches the commanded IK config, then verify.
+
+        Isaac's physics lags MoveGroup's code=1 by a few seconds (see settle_tol
+        comment); measuring the EE before the arm settles gives a false failure.
+        Waits until max |cmd-act| joint residual <= settle_tol or settle_timeout."""
+        arm = self._settle_arm
+        sol = getattr(self, '_ik_sol', {}) or {}
+        max_d = 0.0
+        for n, v in sol.items():
+            act = self._joints.get(n)
+            if act is not None:
+                max_d = max(max_d, abs(act - v))
+        elapsed = time.monotonic() - self._settle_t0
+        if max_d <= self.settle_tol or elapsed >= self.settle_timeout:
+            self._settle_timer.cancel()
+            self._settle_timer = None
+            settled = max_d <= self.settle_tol
+            self.get_logger().info(
+                f"=== settled={settled}: max joint residual {max_d:.3f} rad "
+                f"after {elapsed:.1f}s ===")
+            self._hold(False)
+            self._verify_approach(arm)
 
     def _verify_approach(self, arm):
         """Log APPROACH SUCCESS once the REAL EE (from TF) is above the object."""
@@ -559,6 +608,18 @@ class ReachFusion(Node):
             return
         err = float(np.linalg.norm(np.array([t.x, t.y, t.z]) - goal))
         total_dt = time.monotonic() - self._t_attempt
+        # DIAG: commanded (IK solution) vs actual joints -- large residual on a
+        # gantry joint => controller reported success without tracking the goal.
+        sol = getattr(self, '_ik_sol', {}) or {}
+        diffs = []
+        for n in sorted(sol):
+            act = self._joints.get(n)
+            if act is not None:
+                diffs.append(f"{n}={sol[n]:+.3f}->{act:+.3f}(d{act - sol[n]:+.3f})")
+        self.get_logger().info(
+            f"=== DIAG EE: want=({goal[0]:+.3f},{goal[1]:+.3f},{goal[2]:+.3f}) "
+            f"got=({t.x:+.3f},{t.y:+.3f},{t.z:+.3f}) err={err:.3f} ===")
+        self.get_logger().info(f"=== DIAG joints cmd->act: {'  '.join(diffs)} ===")
         if err <= self.approach_tol:
             self.get_logger().info(
                 f"=== APPROACH SUCCESS: {arm['lab']} is above the object "
