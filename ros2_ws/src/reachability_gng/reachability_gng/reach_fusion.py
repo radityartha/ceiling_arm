@@ -13,6 +13,7 @@ Publishes /reach_fusion/markers: per arm armN_{free,danger,cfree,edges} + target
 from __future__ import annotations
 
 import re
+import time
 
 import numpy as np
 import rclpy
@@ -92,6 +93,10 @@ class ReachFusion(Node):
         p('arm_ee_frames', ['t1_a1_tool_frame', 't1_a2_tool_frame',
                             't2_a1_tool_frame', 't2_a2_tool_frame'])
         p('grasp_orientation', [1.0, 0.0, 0.0, 0.0])   # top-down grasp (xyzw)
+        # IK is kinematics-only (fast, ~ms): collision-aware IK vs the 787 GNG
+        # spheres is slow (~3 s/call) AND rejects valid stand-off configs; the
+        # PLAN (MoveGroup) is collision-aware and is the real collision arbiter.
+        p('ik_avoid_collisions', False)
         # APPROACH mode: aim the EE this far ABOVE the object so it stops over the
         # target without touching it (object stays a GNG obstacle, not carved).
         # Must clear the gripper length + the object's GNG collision sphere, else
@@ -145,8 +150,22 @@ class ReachFusion(Node):
                      if i in remap and j in remap]
             R, q, manip, hold = R[keep], q[keep], manip[keep], hold[keep]
             S = _diffusion_matrix(len(R), edges, gamma, levels)
+            # R/edges are static once the GNG model is loaded -- build each node's
+            # Point and the whole edges LINE_LIST marker ONCE here, not per tick.
+            # Reconstructing ~2450 node Points + ~12800*2 edge Points from scratch
+            # every 0.5s tick was blocking reach_fusion's single-threaded executor
+            # for 10s+ under host CPU contention, delaying the /compute_ik future's
+            # done-callback by the same amount (measured: 50s/tick -> IK "stuck" 100s).
+            cr, cg, cb = _ARM_COLORS.get(lab, (0.6, 0.6, 0.6))
+            pts = [Point(x=float(w[0]), y=float(w[1]), z=float(w[2])) for w in R]
+            net = self._sphere_list(lab, 'edges', k * 4 + 3, 0.004,
+                                    ColorRGBA(r=cr, g=cg, b=cb, a=0.3),
+                                    self.get_clock().now().to_msg())
+            net.type, net.scale.x = Marker.LINE_LIST, 0.004
+            for i, j in edges:
+                net.points += [pts[i], pts[j]]
             self.arms.append(dict(lab=lab, R=R, edges=edges, S=S, q=q,
-                                  manip=manip, hold=hold, jnames=jnames,
+                                  manip=manip, hold=hold, jnames=jnames, pts=pts, net=net,
                                   group=groups[k] if k < len(groups) else '',
                                   ee_frame=ee_frames[k] if k < len(ee_frames) else ''))
             self.get_logger().info(f'{lab}: {len(R)} nodes, {len(edges)} edges')
@@ -155,6 +174,7 @@ class ReachFusion(Node):
         self.vel_scale, self.acc_scale = float(g('vel_scale')), float(g('acc_scale'))
         self.joint_tol = float(g('joint_tol'))
         self.grasp_ori = [float(v) for v in g('grasp_orientation')]
+        self.ik_avoid = bool(g('ik_avoid_collisions'))
         self.standoff = float(g('grasp_standoff'))
         self.approach_tol = float(g('approach_tol'))
         self.yaw_samples = int(g('grasp_yaw_samples'))
@@ -314,7 +334,7 @@ class ReachFusion(Node):
         self._target = target         # latched for IK on /reach_fusion/execute
         energies = {}                 # lab -> (J, grasp_idx)
         for a in self.arms:
-            lab, R, edges, S = a['lab'], a['R'], a['edges'], a['S']
+            lab, R, S = a['lab'], a['R'], a['S']
             danger, cfree = self._classify(R, S, target)
             e = self._arm_energy(a, target, danger)
             if e is not None:
@@ -326,15 +346,11 @@ class ReachFusion(Node):
                                      ColorRGBA(r=0.9, g=0.1, b=0.1, a=1.0), now)
             cfr = self._sphere_list(lab, 'cfree', mid + 2, 0.032,
                                     ColorRGBA(r=0.1, g=0.95, b=0.95, a=1.0), now)
-            for i, w in enumerate(R):
-                pt = Point(x=float(w[0]), y=float(w[1]), z=float(w[2]))
-                (dang if danger[i] else cfr if cfree[i] else free).points.append(pt)
-            net = self._sphere_list(lab, 'edges', mid + 3, 0.004,
-                                    ColorRGBA(r=cr, g=cg, b=cb, a=0.3), now)
-            net.type, net.scale.x = Marker.LINE_LIST, 0.004
-            for i, j in edges:
-                net.points += [Point(x=float(R[i][0]), y=float(R[i][1]), z=float(R[i][2])),
-                               Point(x=float(R[j][0]), y=float(R[j][1]), z=float(R[j][2]))]
+            pts = a['pts']
+            for i in range(len(R)):
+                (dang if danger[i] else cfr if cfree[i] else free).points.append(pts[i])
+            net = a['net']              # static geometry, cached at load time
+            net.header.stamp = now
             markers += [free, dang, cfr, net]
             mid += 4
 
@@ -404,10 +420,17 @@ class ReachFusion(Node):
         self._exec_target = self._target.copy()
         self._oris = self._grasp_orientations()
         self._ai = 0
+        self._t_attempt = time.monotonic()
+        self._ik_calls = 0
+        self._ik_time = 0.0
+        self.get_logger().info(
+            f"=== TIMING: attempt start, {len(self._exec_ranked)} arm(s) ranked, "
+            f"{len(self._oris)} orientations/arm ===")
         self._try_arm()
 
     def _approach_failed(self, reason):
-        self.get_logger().error(f"=== APPROACH FAILED: {reason} ===")
+        dt = time.monotonic() - self._t_attempt if hasattr(self, '_t_attempt') else -1.0
+        self.get_logger().error(f"=== APPROACH FAILED: {reason} ({dt:.3f}s total) ===")
         self._hold(False)
 
     def _try_arm(self):
@@ -434,13 +457,23 @@ class ReachFusion(Node):
         ps.pose.orientation.x, ps.pose.orientation.y = float(ox), float(oy)
         ps.pose.orientation.z, ps.pose.orientation.w = float(oz), float(ow)
         req = build_ik_request(arm['group'], arm['ee_frame'], ps,
-                               seed_names, seed_pos, avoid_collisions=True)
+                               seed_names, seed_pos,
+                               avoid_collisions=self.ik_avoid)
+        self._ik_calls += 1
+        self._t_ik = time.monotonic()
         self.ik_cli.call_async(req).add_done_callback(self._on_ik)
 
     def _on_ik(self, fut):
         arm = self._exec_arm
+        dt = time.monotonic() - self._t_ik
+        self._ik_time += dt
         res = fut.result()
-        if res is None or res.error_code.val != 1:
+        ok = res is not None and res.error_code.val == 1
+        code = res.error_code.val if res is not None else None
+        self.get_logger().info(
+            f"=== TIMING: IK #{self._ik_calls} {arm['lab']} ori{self._oi} "
+            f"({dt:.3f}s) code={code} {'OK' if ok else ''} ===")
+        if not ok:
             self._oi += 1
             if self._oi < len(self._oris):       # try the next orientation
                 self._try_ik()
@@ -450,9 +483,14 @@ class ReachFusion(Node):
                 self._ai += 1
                 self._try_arm()
             return
+        self.get_logger().info(
+            f"=== TIMING: IK solved after {self._ik_calls} call(s), "
+            f"{self._ik_time:.3f}s IK time, "
+            f"{time.monotonic() - self._t_attempt:.3f}s since attempt start ===")
         if not self.move_cli.server_is_ready():
             self.get_logger().error('execute: move_action server not ready')
             return
+        self._t_plan = time.monotonic()
         js = res.solution.joint_state
         grp = set(arm['jnames'] if 'gantry' in arm['group'] else arm['jnames'][2:])
         req = MotionPlanRequest(group_name=arm['group'])
@@ -474,6 +512,9 @@ class ReachFusion(Node):
 
     def _on_goal_resp(self, fut, arm):
         gh = fut.result()
+        self.get_logger().info(
+            f"=== TIMING: MoveGroup goal {'accepted' if gh and gh.accepted else 'REJECTED'} "
+            f"after {time.monotonic() - self._t_plan:.3f}s ===")
         if gh is None or not gh.accepted:
             self._approach_failed(f"{arm['lab']} MoveGroup goal rejected")
             return
@@ -482,6 +523,11 @@ class ReachFusion(Node):
 
     def _on_exec_result(self, fut, arm):
         code = fut.result().result.error_code.val
+        plan_exec_dt = time.monotonic() - self._t_plan
+        total_dt = time.monotonic() - self._t_attempt
+        self.get_logger().info(
+            f"=== TIMING: plan+execute took {plan_exec_dt:.3f}s, "
+            f"total attempt {total_dt:.3f}s, code={code} ===")
         if code == 1:
             self.get_logger().info(f"{arm['lab']} execute: OK")
             self._hold(False)
@@ -512,10 +558,11 @@ class ReachFusion(Node):
                 f"=== APPROACH DONE: {arm['lab']} (EE pose unavailable to verify) ===")
             return
         err = float(np.linalg.norm(np.array([t.x, t.y, t.z]) - goal))
+        total_dt = time.monotonic() - self._t_attempt
         if err <= self.approach_tol:
             self.get_logger().info(
                 f"=== APPROACH SUCCESS: {arm['lab']} is above the object "
-                f"(EE {err:.3f} m from the stand-off) ===")
+                f"(EE {err:.3f} m from the stand-off, {total_dt:.3f}s total) ===")
         else:
             self.get_logger().error(
                 f"=== APPROACH FAILED: {arm['lab']} executed but EE is "
