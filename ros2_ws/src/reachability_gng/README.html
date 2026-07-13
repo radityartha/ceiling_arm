@@ -36,11 +36,11 @@
 <div class="wrap">
 
   <h1>reachability_gng — Quick Start</h1>
-  <p class="sub">Growing-Neural-Gas reachability/capability clouds for the ceiling
-  workcell, shown live in RViz with MoveIt MotionPlanning. One cloud per arm
-  (<span class="green">arm_1 green</span>, <span class="orange">arm_2 orange</span>),
-  nodes colored by manipulability. Table_1 focus; table rotation ±180°, home −90°.
-  Drives an <b>energy-aware pick</b> (arm selection + base placement, card C).</p>
+  <p class="sub">Growing-Neural-Gas reachability/capability maps for the ceiling
+  workcell (one map per arm, nodes colored by manipulability). Used to seed MoveIt
+  IK and to drive an <b>energy-aware pick / approach</b> — pick which arm + 8-DOF
+  goal by energy, then MoveIt plans collision-aware. Commands only below; full
+  details in <code>README.md</code>.</p>
 
   <div class="card">
   <h2>0 · Build once</h2>
@@ -49,165 +49,74 @@ source /opt/ros/humble/setup.bash
 colcon build --packages-select reachability_gng --symlink-install
 source install/setup.bash
 
-# generate the two GNG maps -> /tmp/arm1_model.npz, /tmp/arm2_model.npz
+# GNG maps -> /tmp/arm{1..4}_model.npz  (4 arms built in parallel, ~3 min)
 cd ~/arm_WS/ceiling_arm
 ros2_ws/src/reachability_gng/build_maps.sh</code></pre>
-  <p class="note">Adding arm_3/arm_4 later = one line in <code>build_maps.sh</code> + a config YAML.</p>
+  <p class="note">Tuning knobs are env vars (defaults <code>N=80000 LAM=60
+     MAX_NODES=3000 EPOCHS=2 BOUNDARY=600</code>), e.g.
+     <code>LAM=160 build_maps.sh</code> → fewer interior nodes.
+     <code>PARALLEL=0</code> forces sequential; <code>JOB_THREADS</code> bounds
+     each job's threads. <code>/tmp</code> is wiped periodically — rebuild when a
+     node logs <code>cannot load /tmp/armN_model.npz</code>.</p>
   </div>
 
   <div class="card">
-  <h2>0b · Tune the cloud (samples &amp; node count)</h2>
-  <p><code>build_maps.sh</code> reads env vars (defaults <code>N=80000 LAM=60
-     MAX_NODES=3000 EPOCHS=2 BOUNDARY=600 BOUNDARY_TAU=0.4</code> → 3000 nodes =
-     <b>600 pinned boundary shell + ~2400 interior</b>). Interior count ≈
-     <code>N × EPOCHS / LAM</code>; the shell is independent of <code>LAM</code>.</p>
-<pre><code>N=200000 ros2_ws/src/reachability_gng/build_maps.sh   # more FK samples (denser, slower)
-LAM=160  ros2_ws/src/reachability_gng/build_maps.sh   # ~1600 nodes (600 shell + ~1000 interior)
-BOUNDARY=1000 ros2_ws/src/reachability_gng/build_maps.sh  # denser edge shell
-BOUNDARY=0    ros2_ws/src/reachability_gng/build_maps.sh  # legacy centroid-only map</code></pre>
-  <p><b>Boundary seeding (why the edge is now honest):</b> plain GNG nodes settle
-     at Voronoi centroids, so the hull sits ~0.26 m <i>inside</i> the true reachable
-     surface — a genuinely-reachable object near the edge then scored 0% reach.
-     <code>BOUNDARY&gt;0</code> detects the outer FK samples (kNN one-sidedness, no
-     voxels) and <b>pins</b> them as a fixed shell that adaptation never moves and
-     pruning never deletes, so the hull reaches the true surface exactly (0.00 m
-     short). Raise <code>BOUNDARY_TAU</code> if the shell balloons to stray samples.</p>
-  <p><b>Fewer nodes, same coverage — now safe:</b> because the shell is pinned,
-     <b>raising <code>LAM</code></b> only thins the <i>interior</i>; the outer extent
-     and edge fidelity hold. Pick <code>LAM ≈ N×EPOCHS / (target interior)</code> →
-     <code>110</code>≈1450, <code>160</code>≈1000, <code>320</code>≈500.
-     Keep <code>N</code> high (samples define what the shell can cover).</p>
-  <p class="note">Then reload: <code>pkill -9 -f lib/reachability_gng/visualize</code>
-     and relaunch <code>gng_clouds.launch.py</code> / <code>launch_workcell.sh</code>.</p>
-  </div>
-
-  <div class="card">
-  <h2>A · With Isaac Sim <span class="pill">recommended</span></h2>
+  <h2>A · Isaac Sim workcell <span class="pill">recommended</span></h2>
   <p>Robot driven by the Isaac digital twin; plan in RViz, watch it move in Isaac
      (noVNC: <code>http://&lt;server&gt;:22380/vnc.html</code>).</p>
 <pre><code>cd ~/arm_WS/ceiling_arm
-./isaac_sim/stop.sh            # clear any old session
-./isaac_sim/launch_workcell.sh # default 'gng' mode</code></pre>
-  <p>Brings up: Isaac bridge → move_group (gantry_1-only) → both clouds → RViz.
-     <b>gantry_2 / arm_3 / arm_4 are hidden in both Isaac and RViz.</b>
-     In RViz pick Planning Group <code>gantry_1_with_arm_1</code> or
-     <code>gantry_1_with_arm_2</code> → <b>Plan</b> → <b>Execute</b>.</p>
-  <p class="note">Modes:</p>
-  <table>
-    <tr><th>command</th><th>what you get</th></tr>
-    <tr><td><code>launch_workcell.sh</code></td><td>gantry_1 only + clouds + RViz (default)</td></tr>
-    <tr><td><code>launch_workcell.sh full</code></td><td>all 4 arms + 2 tables, RViz</td></tr>
-    <tr><td><code>launch_workcell.sh demo</code></td><td>all 4 arms, scripted loop (no RViz)</td></tr>
-    <tr><td><code>launch_workcell.sh headless</code></td><td>bridge + move_group only</td></tr>
-  </table>
-  <p class="note">Ctrl-C (or <code>./isaac_sim/stop.sh</code>) stops everything.</p>
+./isaac_sim/stop.sh              # clear any old session
+./isaac_sim/launch_workcell.sh        # 'gng' mode: gantry_1 only + clouds + RViz
+./isaac_sim/launch_workcell.sh full   # all 4 arms + 2 tables</code></pre>
+  <p class="note">In RViz pick Planning Group
+     <code>gantry_1_with_arm_1</code>/<code>_2</code> → <b>Plan</b> → <b>Execute</b>.
+     Ctrl-C or <code>./isaac_sim/stop.sh</code> stops everything.</p>
   </div>
 
   <div class="card">
-  <h2>B · Without Isaac (fake hardware)</h2>
-  <p>Pure kinematic: mock controllers, no Isaac, no real arms.</p>
-<pre><code>source /opt/ros/humble/setup.bash &amp;&amp; source ros2_ws/install/setup.bash
-ros2 launch reachability_gng gng_moveit.launch.py</code></pre>
-  <p class="note">Cloud-only look (sliders, no MoveIt):
-     <code>ros2 launch reachability_gng view_gng.launch.py model_path:=/tmp/arm1_model.npz</code></p>
+  <h2>B · Topological reach-fusion + approach <span class="pill">4 arms</span></h2>
+  <p>Detected object → collision-free corridor (Meso diffusion on the GNG reach
+     graph) → energy-ranked arm → approach to a stand-off above the object. Needs
+     A (<code>full</code>) up.</p>
+<pre><code># Terminal 2: perception + env map + reach_fusion + collision (one stack)
+ros2 launch reachability_gng topo_fusion.launch.py     # seg_source:=isaac by default
+# Terminal 3: interactive target picker (own terminal, reads keyboard)
+ros2 run reachability_gng target_cli
+#   -> type obj_N / class / index to set target, then 'g' to approach
+
+# or by topic:
+ros2 topic pub --once /reach_fusion/set_target std_msgs/msg/String "{data: 'obj_2'}"
+ros2 topic pub --once /reach_fusion/execute    std_msgs/msg/Empty  "{}"</code></pre>
+  <p class="note">Watch for
+     <code>=== APPROACH SUCCESS: armN is above the object (EE 0.0XX m …) ===</code>.
+     <code>obj_N</code> is resolved from the object-marker labels (ground truth),
+     IK is multi-seeded, and verification waits for the arm to settle before
+     measuring. Key params: <code>grasp_standoff</code> 0.20 m,
+     <code>ik_timeout</code> 0.3 s, <code>settle_timeout</code> 20 s.</p>
   </div>
 
   <div class="card">
-  <h2>C · Perception → energy-aware pick</h2>
-  <p>Detected objects → choose <b>which arm</b> (arm_1/arm_2, shared gantry_1) and
-     the 8-DOF goal by <b>energy</b>, then MoveIt plans collision-aware. Needs A
-     (move_group + cameras) up.</p>
-<pre><code># Terminal 2: perception + executor together (restart freely, Isaac stays up)
+  <h2>C · Perception → energy-aware pick (octomap executor)</h2>
+  <p>The Section-7 pick path (octomap collision instead of the GNG env map).</p>
+<pre><code># Terminal 2: perception + executor together
 ros2 launch reachability_gng pick_stack.launch.py execute:=true box_clearance:=0.15
-# Terminal 3: interactive / natural-language picker (own terminal, reads keyboard)
+# Terminal 3: interactive / natural-language picker
 ros2 run reachability_gng pick_cli
 
-# plan-only, CSV log, no execution:
+# plan-only, CSV log:
 ros2 launch reachability_gng gantry_pick.launch.py csv:=/tmp/picks.csv
-ros2 topic pub --once /gantry_reach_executor/pick std_msgs/String "{data: '0'}"
-column -t -s, /tmp/picks.csv</code></pre>
-  <p><code>pick_stack.launch.py</code> bundles <code>perception.launch.py</code> +
-     <code>gantry_pick.launch.py</code> into one terminal (background nodes quieted
-     to WARN so it shows the pick pipeline); <code>launch_workcell.sh</code> no
-     longer starts perception itself. <code>pick_cli</code> lists live
-     <code>/detected_objects</code>, fires a pick by index, drives the detector
-     (<code>y</code>/<code>i</code>/<code>p</code> = YOLOE / Isaac / set prompts),
-     and accepts natural language ("get me a box").</p>
-  <p>Search runs <b>plan-only round-robin across arms</b> (best-per-arm first);
-     the pre-grasp stands off <code>box_clearance</code> m <b>above the object's
-     tracked TOP</b> (dynamic, size-adaptive — a fixed centroid offset can land
-     inside a tall object → IK −31). The first candidate that plans is the only
-     one <b>executed</b> (confirmed against live <code>/joint_states</code>); if
-     execution aborts (env-change −3) it falls through to the next candidate
-     instead of giving up. Perception is frozen for the whole pick so a mid-plan
-     scene bump can't invalidate it. J =
-     <code>w_gantry_lin·d_gantry_lin + w_gantry_rot·d_gantry_rot + w_arm·d_arm + w_dist·ee_dist − w_manip·manip</code>;
-     <code>box_clearance</code> is live-tunable via <code>ros2 param set</code>.</p>
-  <p><b>Grasp vs approach-only.</b> Default (<code>carve_target:=true
-     allow_target_collision:=true</code>) = grasp mode: target carved out of the
-     octomap and ACM-allowed. Set <b>both false</b> for approach-only: target
-     stays a hard obstacle, the EE only stands off above it, never touching it.</p>
-  <p class="note">Needs the maps' <code>_stats.npz</code> to carry <code>hold</code>
-     (train with <code>--config</code>, or augment an existing map). Grasp
-     orientation defaults top-down <code>(1,0,0,0)</code> — the centroid's identity
-     quat is unreachable (IK err −31).</p>
+ros2 topic pub --once /gantry_reach_executor/pick std_msgs/String "{data: '0'}"</code></pre>
   </div>
 
   <div class="card">
-  <h2>Fixes / gotchas</h2>
-  <table>
-    <tr><th>symptom</th><th>do</th></tr>
-    <tr><td>Isaac force-closes on boot</td>
-        <td>numpy clash in its venv — <code>~/isaacsim/env_isaacsim/bin/python -m pip install "numpy==1.26.0"</code></td></tr>
-    <tr><td>cloud on the floor, arm on ceiling</td>
-        <td>rebuild maps (<code>build_maps.sh</code>); URDF table is at z=2.05</td></tr>
-    <tr><td>gantry_2/arm_3/4 still show</td>
-        <td>use default <code>gng</code> mode; regenerate model
-            <code>python3 isaac_sim/workcell/ros/make_table1_model.py</code></td></tr>
-    <tr><td>rotation slider only ±90°</td>
-        <td>rebuild overlay: <code>cd ~/workcell_overlay_ws &amp;&amp; colcon build --symlink-install</code></td></tr>
-    <tr><td>table freezes / lags mid-move (arms fine)</td>
-        <td>command starvation — table must use its own topic <code>/isaac_table_commands</code>
-            (already wired in <code>ros2_bridge_gui.py</code> + <code>table1_isaac.urdf</code>);
-            confirm <code>ros2 topic list | grep isaac_table_commands</code></td></tr>
-    <tr><td>table can't reach target / no force (esp. rotation)</td>
-        <td>bridge raises <code>UsdPhysics.DriveAPI</code> maxForce on table joints at startup —
-            check <code>grep "drive maxForce" /tmp/workcell_launch/bridge.log</code> (should be N&gt;0)</td></tr>
-    <tr><td>rail stops at 1.5 m / wrong limits in Isaac</td>
-        <td>edit <code>isaac_sim/workcell/workcell.urdf</code> limits then re-import:
-            <code>python isaac_sim/workcell/import_urdf.py</code></td></tr>
-    <tr><td>clouds not in Isaac RViz</td>
-        <td>same <code>ROS_DOMAIN_ID=42</code> + <code>RMW_IMPLEMENTATION=rmw_cyclonedds_cpp</code> everywhere</td></tr>
-    <tr><td>arm plans straight through the work table (collision octomap empty)</td>
-        <td>the RViz green/grey clouds are visualisation-only and never collide. The
-            <b>collision</b> octomap needs: <code>collision_cloud</code> publishing in the
-            <code>world</code> frame, and <code>octomap_refresher period</code> ≫ the updater's
-            per-cloud time (≈0.25 s at <code>stride=6</code>; the old 1 s period wiped it faster
-            than it rebuilt). Verify:
-            <code>ros2 service call /get_planning_scene moveit_msgs/srv/GetPlanningScene "{components: {components: 32}}"</code>
-            → <code>resolution=0.03</code>, <code>data</code> non-empty</td></tr>
-    <tr><td>pick: "no collision-free plan" / all IK fail (err −31)</td>
-        <td>centroid orientation is identity (unreachable) — executor uses
-            <code>grasp_orientation</code> top-down <code>(1,0,0,0)</code>; tune via
-            <code>-p grasp_orientation:=[x,y,z,w]</code></td></tr>
-    <tr><td>reachable object scores 0% / red near the workspace edge</td>
-        <td>legacy centroid map's node hull falls ~0.26 m short of the true reach
-            surface. Rebuild with boundary seeding (<code>BOUNDARY=600</code>, the
-            default) so the pinned shell reaches the real edge; see card 0b</td></tr>
-    <tr><td>energy weights seem to do nothing</td>
-        <td>influence = weight × pool spread; <code>manip</code> spread ~0.08 so it
-            needs <code>w_manip</code>≈30+. Pool too small? raise
-            <code>pool_radius_factor</code></td></tr>
-    <tr><td>move_group aborts mid-motion on a long gantry move (err −3/−4)</td>
-        <td>Isaac runs slower than realtime and trips the execution-duration
-            monitor — <code>bringup_table1.launch.py</code> disables
-            <code>trajectory_execution.execution_duration_monitoring</code> and
-            widens the duration/goal margins (the plan is already
-            collision-checked pre-exec)</td></tr>
-  </table>
+  <h2>D · Without Isaac (fake hardware)</h2>
+  <p>Pure kinematic: mock controllers, no Isaac, no real arms.</p>
+<pre><code>source /opt/ros/humble/setup.bash &amp;&amp; source ros2_ws/install/setup.bash
+ros2 launch reachability_gng gng_moveit.launch.py                    # both clouds + MoveIt
+ros2 launch reachability_gng view_gng.launch.py model_path:=/tmp/arm1_model.npz  # cloud only</code></pre>
   </div>
 
-  <p class="note">Full details, pipeline, and the paper notes live in
+  <p class="note">Full pipeline, tuning, gotchas, and paper notes live in
      <code>README.md</code>.</p>
 
 </div>

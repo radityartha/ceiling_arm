@@ -63,14 +63,20 @@ flattened file directly for now.
 
 ### 2. Sample FK data + train (offline, no ROS) — recommended dense recipe
 
-**One map per arm, in one command** — loops over the arm configs and writes
+**One map per arm, in one command** — builds the arm maps and writes
 `/tmp/<name>_model.npz` (+ `_stats.npz`) for each. Adding `arm_3`/`arm_4` later
 is a one-line addition to the `ARMS` array in the script (plus a config):
 ```bash
 source /opt/ros/humble/setup.bash && source ros2_ws/install/setup.bash
-ros2_ws/src/reachability_gng/build_maps.sh        # -> /tmp/arm1_model.npz, /tmp/arm2_model.npz
+ros2_ws/src/reachability_gng/build_maps.sh        # -> /tmp/arm{1..4}_model.npz
 # override the dense recipe via env vars, e.g.:  N=20000 LAM=120 build_maps.sh
 ```
+The arm maps are independent, so the script builds all of them **in parallel**
+(byte-identical output, ~11 min → ~3 min). `PARALLEL=0` forces the old sequential
+build; `JOB_THREADS` (default 4) bounds each job's BLAS threads so the concurrent
+jobs don't oversubscribe the host or starve a running `move_group`. Per-arm logs
+go to `/tmp/<name>_build.log`. `/tmp` is wiped periodically — rebuild when a node
+logs `cannot load /tmp/armN_model.npz`.
 
 Or a single arm by hand (the script just loops this):
 ```bash
@@ -397,6 +403,54 @@ them in place rather than retraining, to keep a tuned map).
 **Single-object regime.** The idle arm still *rides the shared gantry* — keep it
 tucked/clear. Simultaneous **two-object** allocation over one gantry (joint base
 placement + inter-arm collision) is the multi-arm extension, not implemented.
+
+### 8. Topological reach-fusion + approach (`reach_fusion`, all 4 arms)
+
+`reach_fusion` is the topological-map counterpart to the Section-7 executor: it
+runs a **Meso adjacency-diffusion** (`S = Σ γ^l Â^l`) on each arm's GNG reach
+graph to carve a **collision-free corridor** to the target, energy-ranks the arms
+over the collision-free grasp candidates, then **approaches** the winner to a
+stand-off above the object. It fuses two GNG maps:
+
+- **reach map** (per arm, `build_maps.sh`) — the action/config-space graph.
+- **env map** (`env_gng`) — a live GNG of the perceived scene (`/topo_map/markers`);
+  `gng_collision` turns those nodes into MoveIt collision spheres (replaces the
+  octomap).
+
+One launch bundles perception (Isaac GT seg) + env map + fusion + collision:
+```bash
+# Terminal 1: Isaac + move_group + RViz (4-arm cell)
+./isaac_sim/launch_workcell.sh full
+# Terminal 2: perception + env_gng + reach_fusion + gng_collision (one stack)
+ros2 launch reachability_gng topo_fusion.launch.py            # seg_source:=isaac by default
+# Terminal 3: interactive target picker (own terminal — reads the keyboard)
+ros2 run reachability_gng target_cli
+```
+In `target_cli`: type an `obj_N` (Isaac ground-truth), a class substring, or an
+index to set the target, then `g` (or `go`) to approach it with the winning arm.
+Or drive it by topic:
+```bash
+ros2 topic pub --once /reach_fusion/set_target std_msgs/msg/String "{data: 'obj_2'}"
+ros2 topic pub --once /reach_fusion/execute    std_msgs/msg/Empty  "{}"
+```
+Watch for `=== APPROACH SUCCESS: armN is above the object (EE 0.0XX m …) ===`.
+
+**obj_N is resolved from the object-marker labels** (`object_localizer` publishes
+the ground-truth prim name at the correct centroid under `seg_source:=isaac`), not
+from a reverse-projection — the projection mislabelled obj_N (read a neighbouring
+instance's pixels → aimed at the wrong object → IK failed on all orientations).
+IK is seeded **multi-seed** (the map node nearest the target, then the energy grasp
+node) because a GNG node's stored `q` is a topological average, so which node seeds
+KDL into a solution is target-dependent. After MoveGroup returns `code=1`,
+verification **waits for the arm to settle** (Isaac physics lags the trajectory
+stream by seconds) before measuring the EE, so a still-moving arm isn't reported as
+a false failure. Key params: `grasp_standoff` (0.20 m above the object),
+`ik_timeout` (0.3 s), `settle_timeout` (20 s), `grasp_yaw_samples`/`grasp_tilt_*`.
+
+> Known limitation (perception, not `reach_fusion`): `object_localizer`'s obj_N
+> label can flip between physical objects frame-to-frame, so which object `obj_2`
+> denotes is not stable across runs — an identity-cache issue in the perception
+> layer, not the fusion/IK.
 
 ## Status
 
