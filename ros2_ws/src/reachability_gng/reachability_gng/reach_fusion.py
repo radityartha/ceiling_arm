@@ -97,6 +97,13 @@ class ReachFusion(Node):
         # spheres is slow (~3 s/call) AND rejects valid stand-off configs; the
         # PLAN (MoveGroup) is collision-aware and is the real collision arbiter.
         p('ik_avoid_collisions', False)
+        # KDL does random-restart IK until this budget; 0.05 s under a contended
+        # move_group yields only 1-2 restarts, so a marginal-reach target (obj_2,
+        # workspace edge) solves only ~10-13/16 orientations -- flaky, and a whole
+        # sweep can miss. The per-call WALL time is dominated by move_group service
+        # latency (~seconds under contention), not this budget, so raising it to
+        # 0.3 s barely changes wall time but gives KDL many more restarts.
+        p('ik_timeout', 0.3)
         # APPROACH mode: aim the EE this far ABOVE the object so it stops over the
         # target without touching it (object stays a GNG obstacle, not carved).
         # Must clear the gripper length + the object's GNG collision sphere, else
@@ -112,7 +119,11 @@ class ReachFusion(Node):
         # commanded IK config within settle_tol (or settle_timeout elapses), then
         # measure the EE. Gantry tracks near-instantly; only the arm needs this.
         p('settle_tol', 0.03)           # max |cmd-act| joint residual = settled (rad)
-        p('settle_timeout', 8.0)        # give up waiting, verify anyway (s)
+        # a large arm+gantry move (e.g. arm4 swinging across, after -4 retries)
+        # can still be 1+ rad out at 8 s under sim contention yet reach 0.01 m of
+        # the stand-off shortly after -- 8 s reported a false failure. 20 s covers
+        # the worst observed settle; a genuine miss just takes that long to report.
+        p('settle_timeout', 20.0)       # give up waiting, verify anyway (s)
         p('settle_period', 0.5)         # poll interval (s)
         # try the vertical grasp at several yaws, then tilted approaches -- IK
         # takes the first that solves (many -31 are just an unreachable yaw).
@@ -186,6 +197,7 @@ class ReachFusion(Node):
         self.joint_tol = float(g('joint_tol'))
         self.grasp_ori = [float(v) for v in g('grasp_orientation')]
         self.ik_avoid = bool(g('ik_avoid_collisions'))
+        self.ik_timeout = float(g('ik_timeout'))
         self.standoff = float(g('grasp_standoff'))
         self.approach_tol = float(g('approach_tol'))
         self.settle_tol = float(g('settle_tol'))
@@ -296,17 +308,26 @@ class ReachFusion(Node):
         self.get_logger().info(f'target -> {v}')
 
     def _resolve_target(self):
-        """Target centroid by obj_N (ground truth) / class substring / index."""
+        """Target centroid by obj_N (marker label) / class substring / index."""
         if len(self.poses) == 0:
             return None
         lbl = self.target_label
         if lbl:
-            if _OBJN_RE.match(lbl):
-                return self.objn.find(lbl, self.poses)
-            for lab, mxyz in self.labels:      # class substring (seg -- unreliable)
-                if lbl in lab:
+            # Match the object-marker labels first: under seg_source:=isaac,
+            # object_localizer publishes the ground-truth obj_N prim name as each
+            # marker's text at the correct centroid. ObjnLocalizer's reverse-
+            # projection (world centroid -> pixel -> instance id) was mislabelling
+            # obj_N -- it read a NEIGHBOURING instance's pixels and returned the
+            # wrong object (observed: obj_2 -> obj_1's position), so reach_fusion
+            # aimed at the wrong target and its IK failed. Exact match for obj_N,
+            # substring for a class label. Projection stays as a fallback only.
+            objn = bool(_OBJN_RE.match(lbl))
+            for lab, mxyz in self.labels:
+                if (lbl == lab) if objn else (lbl in lab):
                     return self.poses[int(np.argmin(
                         np.linalg.norm(self.poses - mxyz, axis=1)))]
+            if objn:                           # no marker label -> projection GT
+                return self.objn.find(lbl, self.poses)
             return None
         return (self.poses[self.target_index]
                 if 0 <= self.target_index < len(self.poses) else None)
@@ -453,17 +474,35 @@ class ReachFusion(Node):
             self._approach_failed('no arm can reach the target (IK/plan)')
             return
         self._exec_arm, self._exec_gi = self._exec_ranked[self._ai]
+        arm, tgt = self._exec_arm, self._exec_target
+        # Seed candidates (tried in order until one solves the orientation sweep):
+        # the map node NEAREST the target, then the energy-ranked grasp node gi.
+        # A GNG node's stored q is a topological AVERAGE, so which node seeds KDL
+        # into a solution is target-dependent -- the nearest node solves some
+        # targets the energy node misses (obj_2 @ 1.772) and vice-versa (@ 3.051).
+        # Trying both recovers IK on targets that a single fixed seed drops.
+        near = int(np.argmin(np.linalg.norm(arm['R'] - tgt, axis=1)))
+        self._seed_nodes = [near] + ([self._exec_gi] if self._exec_gi != near else [])
+        self._seed_i = 0
         self._oi = 0
         self.get_logger().info(
             f"approach {self._exec_arm['lab']} -> target "
-            f"(arm {self._ai + 1}/{len(self._exec_ranked)}, {len(self._oris)} oris)")
+            f"(arm {self._ai + 1}/{len(self._exec_ranked)}, {len(self._oris)} oris, "
+            f"{len(self._seed_nodes)} seed(s))")
         self._try_ik()
 
     def _try_ik(self):
-        arm, gi, tgt = self._exec_arm, self._exec_gi, self._exec_target
+        arm, tgt = self._exec_arm, self._exec_target
+        si = self._seed_nodes[self._seed_i]      # current seed-node candidate
+        if self._oi == 0:
+            self.get_logger().info(
+                f"=== DIAG seed {self._seed_i + 1}/{len(self._seed_nodes)}: "
+                f"tgt=({tgt[0]:+.3f},{tgt[1]:+.3f},{tgt[2]:+.3f}) "
+                f"seed_node=({arm['R'][si][0]:+.3f},{arm['R'][si][1]:+.3f},"
+                f"{arm['R'][si][2]:+.3f}) node_dist={np.linalg.norm(arm['R'][si]-tgt):.3f} ===")
         # arm-only groups plan only the 6 arm joints; q leads with 2 gantry DOFs.
         seed_names = arm['jnames'] if 'gantry' in arm['group'] else arm['jnames'][2:]
-        seed_pos = arm['q'][gi] if 'gantry' in arm['group'] else arm['q'][gi][2:]
+        seed_pos = arm['q'][si] if 'gantry' in arm['group'] else arm['q'][si][2:]
         ps = PoseStamped()
         ps.header.frame_id = self.world_frame
         ps.pose.position = Point(x=float(tgt[0]), y=float(tgt[1]),
@@ -472,7 +511,7 @@ class ReachFusion(Node):
         ps.pose.orientation.x, ps.pose.orientation.y = float(ox), float(oy)
         ps.pose.orientation.z, ps.pose.orientation.w = float(oz), float(ow)
         req = build_ik_request(arm['group'], arm['ee_frame'], ps,
-                               seed_names, seed_pos,
+                               seed_names, seed_pos, timeout_s=self.ik_timeout,
                                avoid_collisions=self.ik_avoid)
         self._ik_calls += 1
         self._t_ik = time.monotonic()
@@ -492,9 +531,17 @@ class ReachFusion(Node):
             self._oi += 1
             if self._oi < len(self._oris):       # try the next orientation
                 self._try_ik()
-            else:                                # exhausted -> next-best arm
+            elif self._seed_i + 1 < len(self._seed_nodes):   # next seed candidate
+                self._seed_i += 1
+                self._oi = 0
                 self.get_logger().warn(
-                    f"{arm['lab']}: no IK over {len(self._oris)} oris -> next arm")
+                    f"{arm['lab']}: no IK over {len(self._oris)} oris on seed "
+                    f"{self._seed_i}/{len(self._seed_nodes)} -> next seed")
+                self._try_ik()
+            else:                                # seeds exhausted -> next-best arm
+                self.get_logger().warn(
+                    f"{arm['lab']}: no IK over {len(self._oris)} oris x "
+                    f"{len(self._seed_nodes)} seeds -> next arm")
                 self._ai += 1
                 self._try_arm()
             return

@@ -36,20 +36,47 @@ BOUNDARY_TAU="${BOUNDARY_TAU:-0.4}"
 
 mkdir -p "$OUT_DIR"
 
-for entry in "${ARMS[@]}"; do
-  name="${entry%%:*}"
-  cfg="${entry#*:}"
-  dataset="$OUT_DIR/${name}_dataset.npz"
-  model="$OUT_DIR/${name}_model.npz"
+# The GNG fit dominates the ~2.7 min/arm build and is single-threaded Python, so
+# extra BLAS threads barely help it -- but the 4 arm maps are INDEPENDENT, so
+# building them CONCURRENTLY (one process per core) is a near-linear win with
+# byte-identical output: ~11 min sequential -> ~3 min. Set PARALLEL=0 to force
+# sequential (small/contended host); JOB_THREADS bounds each job's BLAS threads
+# so N_arms x threads doesn't oversubscribe the host or starve a live move_group.
+PARALLEL="${PARALLEL:-1}"
+JOB_THREADS="${JOB_THREADS:-4}"
+export OMP_NUM_THREADS="$JOB_THREADS" OPENBLAS_NUM_THREADS="$JOB_THREADS" \
+       MKL_NUM_THREADS="$JOB_THREADS" NUMEXPR_NUM_THREADS="$JOB_THREADS"
 
+build_one() {
+  local name="$1" cfg="$2"
+  local dataset="$OUT_DIR/${name}_dataset.npz"
+  local model="$OUT_DIR/${name}_model.npz"
   echo "=== [$name] data_gen ($N samples) -> $dataset ==="
   python3 -m reachability_gng.data_gen --config "$cfg" --out "$dataset" --n "$N"
-
   echo "=== [$name] train (max-nodes=$MAX_NODES lam=$LAM epochs=$EPOCHS boundary=$BOUNDARY) -> $model ==="
   python3 -m reachability_gng.train --dataset "$dataset" --out "$model" \
       --config "$cfg" \
       --task "$TASK" --max-nodes "$MAX_NODES" --lam "$LAM" --epochs "$EPOCHS" \
       --boundary-nodes "$BOUNDARY" --boundary-tau "$BOUNDARY_TAU"
-done
+}
+
+if [ "$PARALLEL" = "1" ]; then
+  pids=(); names=(); fail=0
+  for entry in "${ARMS[@]}"; do
+    name="${entry%%:*}"
+    build_one "$name" "${entry#*:}" > "$OUT_DIR/${name}_build.log" 2>&1 &
+    pids+=("$!"); names+=("$name")
+    echo "=== [$name] building in background (pid $!) -> $OUT_DIR/${name}_build.log ==="
+  done
+  for i in "${!pids[@]}"; do
+    if wait "${pids[$i]}"; then echo "=== [${names[$i]}] OK ==="
+    else echo "=== [${names[$i]}] FAILED (see $OUT_DIR/${names[$i]}_build.log) ==="; fail=1; fi
+  done
+  [ "$fail" = 0 ] || { echo "one or more arm builds failed"; exit 1; }
+else
+  for entry in "${ARMS[@]}"; do
+    build_one "${entry%%:*}" "${entry#*:}"
+  done
+fi
 
 echo "=== done. Models in $OUT_DIR: ${ARMS[*]%%:*} ==="
