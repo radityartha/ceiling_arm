@@ -413,19 +413,23 @@ over the collision-free grasp candidates, then **approaches** the winner to a
 stand-off above the object. It fuses two GNG maps:
 
 - **reach map** (per arm, `build_maps.sh`) — the action/config-space graph.
-- **env map** (`env_gng`) — a live GNG of the perceived scene (`/topo_map/markers`);
+- **env map** (`env_gng`) — a GNG of the perceived scene (`/topo_map/markers`);
   `gng_collision` turns those nodes into MoveIt collision spheres (replaces the
-  octomap).
+  octomap). Built from a **geometry-only RGBD depth cloud** (`depth_cloud`, no
+  segmentation gate) and optionally split into a reproducible **static** + live
+  **dynamic** layer — see [8a](#8a-staticdynamic-topo-map-depth_cloud) below.
 
-One launch bundles perception (Isaac GT seg) + env map + fusion + collision:
+One launch bundles perception + env map + fusion + collision:
 ```bash
 # Terminal 1: Isaac + move_group + RViz (4-arm cell)
 ./isaac_sim/launch_workcell.sh full
-# Terminal 2: perception + env_gng + reach_fusion + gng_collision (one stack)
-ros2 launch reachability_gng topo_fusion.launch.py            # seg_source:=isaac by default
+# Terminal 2: perception + depth_cloud + env_gng + reach_fusion + gng_collision
+ros2 launch reachability_gng topo_fusion.launch.py           # seg_source:=yoloe by default
 # Terminal 3: interactive target picker (own terminal — reads the keyboard)
 ros2 run reachability_gng target_cli
 ```
+(`seg_source` only affects object *identity* for picking — the topo map itself
+comes from `depth_cloud`, so it builds even when the detector is blind.)
 In `target_cli`: type an `obj_N` (Isaac ground-truth), a class substring, or an
 index to set the target, then `g` (or `go`) to approach it with the winning arm.
 Or drive it by topic:
@@ -451,6 +455,75 @@ a false failure. Key params: `grasp_standoff` (0.20 m above the object),
 > label can flip between physical objects frame-to-frame, so which object `obj_2`
 > denotes is not stable across runs — an identity-cache issue in the perception
 > layer, not the fusion/IK.
+
+### 8a. Static/dynamic topo map + `depth_cloud`
+
+The env map is geometry, not labels, so it is built from **`depth_cloud`** — a
+node that deprojects `/rgbd*/depth` into a world-frame xyz cloud with **no
+segmentation sync** — which is what `env_gng`/`map_topo_static` read by default
+(`cloud_topic_suffix:=depth_cloud`). This decouples the map from `seg_source`
+(the real-world RGBD-only path) and keeps it publishing even when YOLOE detects
+nothing on synthetic imagery.
+
+By default the live map re-grows from scratch every run (its node/edge layout
+varies). To make it **reproducible AND still track moving obstacles**, split it
+into two layers:
+
+1. **Capture the STATIC layer once** (arms may stay — they are TF self-filtered):
+   ```bash
+   # with topo_fusion (or at least depth_cloud) running:
+   ros2 run reachability_gng map_topo_static \
+     --ros-args -p max_nodes:=1800 -p max_z:=1.75 -p capture_seconds:=8.0
+   # -> /tmp/topo_static.npz  (frozen GNG of the fixed structure)
+   ```
+   Clear movable objects first for a clean static map (arms are filtered either
+   way). `epochs` auto-scales to fill `max_nodes`; the fit pool is capped
+   (`fit_max_points`) so it stays fast.
+
+2. **Run two-layer:** pass `static_map:=` — `topo_static_pub` republishes it on
+   `/topo_map/static/markers` (blue, latched), and `env_gng` subtracts live
+   points within `bg_dist` of a static node, so the green `/topo_map/markers`
+   carries only the **dynamic remainder**. `gng_collision` unions both.
+   ```bash
+   ros2 launch reachability_gng topo_fusion.launch.py \
+     static_map:=/tmp/topo_static.npz seg_source:=yoloe \
+     bg_dist:=0.15 prune_dist:=0.06 prune_every:=2 \
+     max_z:=1.75 self_filter_frames:=20
+   ```
+   In RViz add a MarkerArray on `/topo_map/static/markers` (already in
+   `gng_moveit.rviz` as **TopoStatic**). Blue = fixed backbone (identical every
+   run), green = only genuinely dynamic obstacles (a person, a moved object).
+
+**Launch args** (all `key:=value` on `topo_fusion.launch.py`):
+
+| arg | default | effect |
+|-----|---------|--------|
+| `static_map` | `''` | saved static GNG; empty = old all-live map |
+| `bg_dist` | `0.08` | drop live points within this of a static node (≥ static node spacing) |
+| `prune_dist` / `prune_every` | `0.10` / `5` | delete/period for stray floating live nodes |
+| `max_z` | `1.9` | crop above this (set **1.75** to drop the overhead gantry/arm-mount) |
+| `self_filter_frames` | `6` | filter each arm over its last N pose snapshots (swept path) |
+| `self_filter_radius` / `finger_radius` | `0.07` / `0.05` | arm-link / gripper capsule radii |
+| `topo_cloud` | `depth_cloud` | geometry cloud suffix (`seg_cloud` for the old segmented cloud) |
+| `max_edge_len` (node param) | `0.15` | hide long GNG "bridge" edges (display only) |
+
+Notes:
+- **Self-filter is swept.** The Isaac depth cloud has a *sim-time* stamp while TF
+  is *wall-clock*, so a moving arm can't be filtered at its capture instant;
+  `env_gng` instead filters against the last `self_filter_frames` arm poses
+  (its recent swept path). The gripper body is covered by `end_effector→finger`
+  capsules. Raise `self_filter_frames` / `finger_radius` if a fast arm still
+  flickers green. These arm nodes are display-and-collision only — MoveIt already
+  knows the arm via the URDF/ACM.
+- **`max_z` matches both layers.** Set it the same for the static capture and the
+  live launch or the live map will green-flag structure the static map cropped.
+- **Auto single-instance.** `topo_fusion.launch.py` kills leftover perception
+  nodes before spawning, so a second launch never runs alongside a first (which
+  showed as a flickering/"double" map).
+- **Sim/robustness fixes baked in:** BEST_EFFORT QoS on cloud subs; numpy
+  grid-hash instead of scipy KDTree (which hangs here) for outlier/subtract/prune;
+  updates driven off the cloud callback (a `create_timer` was starved by the /tf
+  firehose); always-publish so RViz/collision clear when nothing is dynamic.
 
 ## Status
 
@@ -483,6 +556,13 @@ keep-trying-on-abort, and perception frozen per pick. **Open-vocab detection
 (YOLOE)** via `seg_router` replaces the Isaac ground-truth masks at runtime.
 Validated live on the Isaac twin (plan-only and real execution). Remaining here:
 multi-object batch, weight study across scenes.
+
+**Phase 6 (done):** static/dynamic two-layer env map (section 8a). `depth_cloud`
+(segmentation-independent RGBD geometry) + `map_topo_static`/`topo_static_pub`
+(reproducible frozen backbone) + `env_gng` background subtraction (live map =
+dynamic remainder only); swept arm self-filter, gantry/arm-mount crop, bridge-edge
+hiding, and single-instance launch. Validated live: blue backbone identical across
+runs, a person walking in shows green, arm/gripper filtered.
 
 Remaining for the paper: a Zacharias-style voxel-capability-map baseline, the
 table-aware node-separation ablation as a flag, and plotting scripts.

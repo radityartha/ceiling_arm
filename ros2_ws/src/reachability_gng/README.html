@@ -78,8 +78,8 @@ ros2_ws/src/reachability_gng/build_maps.sh</code></pre>
   <p>Detected object → collision-free corridor (Meso diffusion on the GNG reach
      graph) → energy-ranked arm → approach to a stand-off above the object. Needs
      A (<code>full</code>) up.</p>
-<pre><code># Terminal 2: perception + env map + reach_fusion + collision (one stack)
-ros2 launch reachability_gng topo_fusion.launch.py     # seg_source:=isaac by default
+<pre><code># Terminal 2: perception + depth_cloud + env map + reach_fusion + collision
+ros2 launch reachability_gng topo_fusion.launch.py     # seg_source:=yoloe by default
 # Terminal 3: interactive target picker (own terminal, reads keyboard)
 ros2 run reachability_gng target_cli
 #   -> type obj_N / class / index to set target, then 'g' to approach
@@ -93,6 +93,40 @@ ros2 topic pub --once /reach_fusion/execute    std_msgs/msg/Empty  "{}"</code></
      IK is multi-seeded, and verification waits for the arm to settle before
      measuring. Key params: <code>grasp_standoff</code> 0.20 m,
      <code>ik_timeout</code> 0.3 s, <code>settle_timeout</code> 20 s.</p>
+  </div>
+
+  <div class="card">
+  <h2>B2 · Static / dynamic topo map <span class="pill">reproducible</span></h2>
+  <p>The env map is geometry, so it is built from <code>depth_cloud</code>
+     (deprojects <code>/rgbd*/depth</code>, <b>no segmentation gate</b>) — it
+     builds even when the detector is blind, and is the real-world RGBD-only path.
+     Split it into a frozen <span class="green">static</span> backbone + a live
+     <span class="green">dynamic</span> remainder so the map stops changing every
+     run yet still tracks moving obstacles.</p>
+<pre><code># 1) capture the STATIC layer once (arms may stay — they are TF self-filtered;
+#    clear movable objects for a clean map). Needs depth_cloud running (via B).
+ros2 run reachability_gng map_topo_static \
+  --ros-args -p max_nodes:=1800 -p max_z:=1.75 -p capture_seconds:=8.0
+#    -> /tmp/topo_static.npz
+
+# 2) run two-layer (blue = fixed backbone, green = only dynamic obstacles)
+ros2 launch reachability_gng topo_fusion.launch.py \
+  static_map:=/tmp/topo_static.npz seg_source:=yoloe \
+  bg_dist:=0.15 prune_dist:=0.06 prune_every:=2 \
+  max_z:=1.75 self_filter_frames:=20</code></pre>
+  <p class="note"><b>Launch args:</b>
+     <code>static_map</code> (empty = old all-live map) ·
+     <code>bg_dist</code> (drop live pts near a static node; ≥ node spacing) ·
+     <code>max_z</code> (crop overhead gantry/arm-mount — set the <b>same</b> for
+     capture and launch) · <code>self_filter_frames</code> (filter each arm over
+     its recent swept path — the sim-time cloud vs wall-clock TF can't be aligned
+     at capture, so raise this if a moving arm flickers green) ·
+     <code>self_filter_radius</code>/<code>finger_radius</code> (arm/gripper
+     capsule radii) · <code>topo_cloud</code> (<code>seg_cloud</code> for the old
+     segmented cloud). Add a MarkerArray on
+     <code>/topo_map/static/markers</code> in RViz (already in
+     <code>gng_moveit.rviz</code> as <b>TopoStatic</b>). A new launch auto-kills
+     leftover perception nodes, so a second launch never doubles the map.</p>
   </div>
 
   <div class="card">
