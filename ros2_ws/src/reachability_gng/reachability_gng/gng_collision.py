@@ -29,13 +29,23 @@ class GngCollision(Node):
         super().__init__('gng_collision')
         p = self.declare_parameter
         p('env_markers_topic', '/topo_map/markers')
+        # Fixed background layer (topo_static_pub); merged with the live nodes so
+        # static structure stays solid even when a camera is occluded and the
+        # live map has a hole there. Empty = live-only (original behaviour).
+        p('static_markers_topic', '/topo_map/static/markers')
         p('world_frame', 'world')
         p('object_id', 'gng_obstacles')
-        p('collision_leaf', 0.08)     # downsample grid (m) -> fewer spheres
-        p('sphere_radius', 0.05)      # per-node collision sphere radius (m):
+        # A CollisionObject with N sphere primitives costs MoveIt O(N) per
+        # collision check AND an FCL world rebuild on every /planning_scene diff.
+        # At 0.08/1.5 Hz that was ~800 spheres rebuilt 1.5x/s -> move_group
+        # saturated (IK/plan/scene-query all timed out). 0.15 m halves the count
+        # (~670) and 0.5 Hz cuts the rebuild churn 3x, keeping move_group
+        # responsive while still lighter than a dense octomap.
+        p('collision_leaf', 0.15)     # downsample grid (m) -> fewer spheres
+        p('sphere_radius', 0.07)      # per-node collision sphere radius (m):
         #   smaller = less conservative, arm paths clear the obstacles more easily
         p('carve_radius', 0.15)       # exclude nodes within this of the carve point
-        p('publish_hz', 1.5)
+        p('publish_hz', 0.5)
         g = lambda k: self.get_parameter(k).value
         self.world_frame = g('world_frame')
         self.object_id = g('object_id')
@@ -44,10 +54,19 @@ class GngCollision(Node):
         self.carve_r = float(g('carve_radius'))
 
         self.nodes = np.empty((0, 3))
+        self.static_nodes = np.empty((0, 3))
         self.carve = None             # xyz to exclude (GRASP mode), or None
         self.hold = False             # freeze the scene during arm execution
         self.create_subscription(MarkerArray, g('env_markers_topic'),
                                  self._on_env, 1)
+        static_topic = g('static_markers_topic')
+        if static_topic:
+            # transient-local to match topo_static_pub's latched publisher.
+            from rclpy.qos import QoSDurabilityPolicy, QoSProfile
+            sq = QoSProfile(depth=1)
+            sq.durability = QoSDurabilityPolicy.TRANSIENT_LOCAL
+            self.create_subscription(MarkerArray, static_topic,
+                                     self._on_static, sq)
         self.create_subscription(PointStamped, '/gng_collision/carve',
                                  self._on_carve, 1)
         # while an arm is executing, DON'T republish: a changing collision world
@@ -63,13 +82,25 @@ class GngCollision(Node):
         if msg.markers:
             self.nodes = np.array([[q.x, q.y, q.z] for q in msg.markers[0].points])
 
+    def _on_static(self, msg):
+        if msg.markers:
+            self.static_nodes = np.array(
+                [[q.x, q.y, q.z] for q in msg.markers[0].points])
+
     def _on_carve(self, msg):
         p = msg.point
         self.carve = (None if not np.isfinite([p.x, p.y, p.z]).all()
                       else np.array([p.x, p.y, p.z]))
 
     def _spheres(self):
-        pts = self.nodes
+        # union of the live (dynamic) and fixed (static background) node sets;
+        # the leaf downsample below collapses any overlap between them.
+        if len(self.static_nodes) and len(self.nodes):
+            pts = np.vstack([self.nodes, self.static_nodes])
+        elif len(self.static_nodes):
+            pts = self.static_nodes
+        else:
+            pts = self.nodes
         if len(pts) == 0:
             return pts
         if self.leaf > 0:             # coarse grid -> lighter than octomap

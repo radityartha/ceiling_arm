@@ -1257,6 +1257,19 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /topo_map/markers
       Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: TopoStatic
+      Namespaces:
+        topo_static_edges: true
+        topo_static_nodes: true
+      Topic:
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /topo_map/static/markers
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
