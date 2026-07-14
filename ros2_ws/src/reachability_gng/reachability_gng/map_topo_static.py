@@ -44,12 +44,13 @@ class MapTopoStatic(Node):
         # colour-by-instance cloud.
         p('cloud_topic_suffix', 'depth_cloud')
         p('min_z', 0.02)
-        p('max_z', 1.9)
+        p('max_z', 1.75)              # match topo_fusion.launch.py default (crops
+        #                              the overhead gantry/arm-mount)
         p('leaf_size', 0.02)
         p('outlier_radius', 0.05)
         p('outlier_min_neighbors', 3)
-        p('capture_seconds', 4.0)      # accumulate clouds this long, then fit
-        p('max_nodes', 800)            # match env_gng so subtraction lines up
+        p('capture_seconds', 8.0)      # accumulate clouds this long, then fit
+        p('max_nodes', 1800)           # dense static backbone (spacing ~0.085 m)
         p('lam', 100)
         # epochs: 0 = AUTO (recommended). GNG needs ~max_nodes*lam samples to
         # fill the graph; auto sets epochs so epochs*points hits that target with

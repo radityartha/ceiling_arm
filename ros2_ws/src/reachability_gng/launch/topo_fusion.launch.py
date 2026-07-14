@@ -57,11 +57,11 @@ def generate_launch_description():
         # once on the empty scene) to get a reproducible fixed backbone + a live
         # map that only tracks the dynamic remainder.
         DeclareLaunchArgument(
-            'static_map', default_value='',
-            description='saved static GNG (map_topo_static output); '
-                        'empty = whole-scene live map'),
+            'static_map', default_value='/tmp/topo_static.npz',
+            description='saved static GNG (map_topo_static output); missing file '
+                        "or ''=whole-scene live map (warns, no crash)"),
         DeclareLaunchArgument(
-            'bg_dist', default_value='0.08',
+            'bg_dist', default_value='0.15',
             description='drop live points within this of a static node (m)'),
         # Geometry source for the topo map. depth_cloud (default) deprojects RGBD
         # depth only -> the map is independent of seg_source (works even when the
@@ -76,10 +76,10 @@ def generate_launch_description():
         # updates. Lower prune_dist / prune_every = more aggressive cleanup of
         # stray floating nodes + bridge edges left in free space.
         DeclareLaunchArgument(
-            'prune_dist', default_value='0.10',
+            'prune_dist', default_value='0.06',
             description='delete live nodes floating > this from data (m)'),
         DeclareLaunchArgument(
-            'prune_every', default_value='5',
+            'prune_every', default_value='2',
             description='run the stale-node prune every N updates'),
         # Crop height for the topo map. Points above this are dropped BEFORE the
         # GNG, in BOTH the live map and (match it) the static capture. Set below
@@ -87,14 +87,15 @@ def generate_launch_description():
         # body is never baked as static nor mapped live. Default 1.9 keeps the
         # old behaviour (crops only the platform top at 2.05).
         DeclareLaunchArgument(
-            'max_z', default_value='1.9',
-            description='drop topo-map points above this height (m)'),
+            'max_z', default_value='1.75',
+            description='drop topo-map points above this height (m); 1.75 crops '
+                        'the overhead gantry/arm-mount (match map_topo_static)'),
         # Arm self-filter: filter the arm against the last N pose snapshots (its
         # recent swept path) to remove a MOVING arm despite cloud/TF lag; raise
         # if a moving/settling arm still flickers green. self_filter_radius is the
         # link-capsule radius (m).
         DeclareLaunchArgument(
-            'self_filter_frames', default_value='6',
+            'self_filter_frames', default_value='20',
             description='filter arm against last N pose snapshots (swept path)'),
         DeclareLaunchArgument(
             'self_filter_radius', default_value='0.07',
