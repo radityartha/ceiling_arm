@@ -12,6 +12,7 @@ Publishes /reach_fusion/markers: per arm armN_{free,danger,cfree,edges} + target
 """
 from __future__ import annotations
 
+import json
 import re
 import time
 
@@ -19,6 +20,7 @@ import numpy as np
 import rclpy
 import rclpy.time
 from geometry_msgs.msg import Point, PoseArray, PoseStamped
+from rclpy.qos import QoSDurabilityPolicy, QoSProfile
 from moveit_msgs.action import MoveGroup
 from moveit_msgs.msg import (Constraints, JointConstraint, MotionPlanRequest,
                              PlanningOptions)
@@ -67,12 +69,12 @@ class ReachFusion(Node):
         p('collision_radius', 0.15)   # reach node this close to an obstacle = danger
         p('target_radius', 0.15)      # env nodes this close to target = carved out
         p('target_label', '')         # obj_N / class substring; '' -> target_index
-        p('target_index', 0)
+        p('target_index', -1)         # -1 -> no default target (idle until one is set)
         p('reach_tol', 0.20)          # arm reaches target if nearest node this close
         p('diffusion_gamma', 0.5)
         p('diffusion_levels', 4)
         p('reach_max_z', 2.05)        # drop reach nodes above the ceiling gantry
-        p('publish_hz', 2.0)
+        p('publish_hz', 0.5)
         # 2c energy: pick the winning arm by the executor's calibrated J over the
         # collision-free grasp candidates (cfree nodes within pool_radius of the
         # target). Travel terms need /joint_states; without it J uses dist+hold-manip.
@@ -218,12 +220,21 @@ class ReachFusion(Node):
         self.env_pts = np.empty((0, 3))
         self.poses = np.empty((0, 3))
         self.labels = []              # [(label_lower, marker_xyz)] class-label path
+        self._tracks_xyz = {}         # stable track id -> centroid (identity handle)
+        self._tracks_lbl = {}         # stable track id -> class label (for logging)
         self.objn = ObjnLocalizer(self, world_frame=self.world_frame)
         obj_topic = g('objects_topic')
         self.create_subscription(MarkerArray, g('env_markers_topic'), self._on_env, 1)
         self.create_subscription(PoseArray, obj_topic, self._on_objects, 1)
         self.create_subscription(MarkerArray, obj_topic + '/markers',
                                  self._on_obj_markers, 1)
+        # Stable-identity handles from object_localizer (persistent track id per
+        # physical object); targeting a track id is immune to the per-frame label
+        # flicker that made obj_N nondeterministic. Latched to match the publisher.
+        tq = QoSProfile(depth=1)
+        tq.durability = QoSDurabilityPolicy.TRANSIENT_LOCAL
+        self._tracks_topic = obj_topic + '/tracks'
+        self.create_subscription(String, self._tracks_topic, self._on_tracks, tq)
         self.create_subscription(String, '/reach_fusion/set_target',
                                  self._on_set_target, 1)
         self.create_subscription(JointState, g('joint_states_topic'),
@@ -299,19 +310,62 @@ class ReachFusion(Node):
         if lab:
             self.labels = lab
 
+    def _on_tracks(self, msg):
+        try:
+            arr = json.loads(msg.data)
+        except (ValueError, TypeError):
+            return
+        self._tracks_xyz = {int(t['tid']): np.array(
+            [float(t['x']), float(t['y']), float(t['z'])]) for t in arr}
+        self._tracks_lbl = {int(t['tid']): str(t.get('label', '')) for t in arr}
+
     def _on_set_target(self, msg):
         v = msg.data.strip()
         if v.lstrip('-').isdigit():
             self.target_index, self.target_label = int(v), ''
         else:
             self.target_label = v.lower()
-        self.get_logger().info(f'target -> {v}')
+        self._last_winner = None       # re-log the arm choice once for the new target
+        # log the object by name, not the raw handle: for a #<tid> track resolve
+        # the class label AND the nearest deterministic obj_N marker, so the class
+        # target can be cross-checked against the ground-truth object id.
+        name = v
+        if v.startswith('#'):
+            try:
+                tid = int(v[1:])
+                name = self._tracks_lbl.get(tid) or v
+                objn = self._nearest_objn(self._tracks_xyz.get(tid))
+                if objn:
+                    name = f'{name} ({objn})'
+            except ValueError:
+                name = v
+        self.get_logger().info(f'target -> {name}')
+
+    def _nearest_objn(self, xyz):
+        """Deterministic obj_N marker (object_localizer) closest to xyz, or ''."""
+        if xyz is None or not self.labels:
+            return ''
+        objns = [(lab, mxyz) for lab, mxyz in self.labels if _OBJN_RE.match(lab)]
+        if not objns:
+            return ''
+        return min(objns, key=lambda lm: np.linalg.norm(lm[1] - xyz))[0]
 
     def _resolve_target(self):
-        """Target centroid by obj_N (marker label) / class substring / index."""
+        """Target centroid by stable track id (#<tid>) / obj_N / class / index.
+
+        A #<tid> handle is the PREFERRED, source-agnostic target: it names a
+        persistent spatial track (object_localizer), so it follows one physical
+        object even as the per-frame class label flickers. The obj_N / class /
+        index paths are kept for backward compatibility.
+        """
+        lbl = self.target_label
+        if lbl.startswith('#'):
+            try:
+                return self._tracks_xyz.get(int(lbl[1:]))
+            except ValueError:
+                return None
         if len(self.poses) == 0:
             return None
-        lbl = self.target_label
         if lbl:
             # Match the object-marker labels first: under seg_source:=isaac,
             # object_localizer publishes the ground-truth obj_N prim name as each
@@ -365,6 +419,19 @@ class ReachFusion(Node):
     def _tick(self):
         if not self.arms:
             return
+        # Guard: a #<tid> handle is only consistent if ONE object_localizer
+        # publishes the tracks. Two instances (e.g. a stale + a fresh launch)
+        # number tracks independently, so reach_fusion's #tid can point at a
+        # DIFFERENT object than target_cli's -> wrong pick. Surface it loudly
+        # rather than silently target the wrong object.
+        npub = self.count_publishers(self._tracks_topic)
+        if npub > 1:
+            self.get_logger().error(
+                f'{npub} publishers on {self._tracks_topic} -- MULTIPLE '
+                'object_localizer instances running; #tid handles are '
+                'INCONSISTENT (target_cli and reach_fusion may disagree). Kill '
+                'the stale topo_fusion/object_localizer, keep exactly one.',
+                throttle_duration_sec=5.0)
         markers, mid, now = [], 0, self.get_clock().now().to_msg()
         target = self._resolve_target()
         self._target = target         # latched for IK on /reach_fusion/execute
@@ -686,9 +753,11 @@ class ReachFusion(Node):
         return m
 
     def _log_energy(self, winner, energies):
+        # Log once, and re-log only when the WINNING arm changes -- dedup on the
+        # arm label alone so per-tick J jitter (e.g. 29.45 -> 29.44) stays quiet.
         rank = sorted(energies.items(), key=lambda kv: kv[1][0])
-        if rank != getattr(self, '_last_rank', None):
-            self._last_rank = rank
+        if winner != getattr(self, '_last_winner', None):
+            self._last_winner = winner
             txt = '  '.join(f'{k}={v[0]:.2f}{"*" if k == winner else ""}'
                             for k, v in rank)
             self.get_logger().info(f'energy J (collision-free): {txt}  -> WIN {winner}')
