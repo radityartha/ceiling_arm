@@ -136,6 +136,29 @@ class ObjectLocalizer(Node):
         # Two tracks closer than this are the SAME object (e.g. one object seen
         # by both cameras that fuse() missed) -> merged, so no duplicate rows.
         self.declare_parameter('track_merge_dist', 0.15)
+        # Association is GLOBAL (Hungarian) rather than greedy nearest-neighbour
+        # so two objects that pass close never swap identity; a detection can
+        # only bind to a track within track_match_radius (gating) and same-class
+        # pairs are preferred (class_cost added to cross-class pairs). A track is
+        # only PUBLISHED once seen in confirm_frames separate cycles, which
+        # rejects 1-frame detector flicker (spurious YOLOE blobs). The published
+        # CLASS switches only when a challenger out-votes the committed class by
+        # label_hysteresis_margin (vote hysteresis), so a single mislabelled
+        # frame does not rename a stable object. Identity itself comes from the
+        # spatial track id, never the (per-frame, class-only) label -- so this is
+        # source-agnostic (Isaac GT and YOLOE alike).
+        self.declare_parameter('confirm_frames', 3)
+        self.declare_parameter('class_cost', 0.10)
+        self.declare_parameter('label_hysteresis_margin', 2)
+        # Votes DECAY each frame (multiply by vote_decay before adding the new
+        # one) so the committed label reflects the RECENT window (~1/(1-decay)
+        # frames), not the whole lifetime. Without decay, votes accumulate
+        # unbounded and an early label becomes permanently sticky -- e.g. after
+        # switching seg_source isaac->yoloe the object's class would stay 'obj_N'
+        # for a very long time. Decay keeps flicker-rejection (a 1-frame
+        # challenger can't beat the steady count by the margin) while letting a
+        # SUSTAINED new label take over in a handful of frames. 1.0 = no decay.
+        self.declare_parameter('vote_decay', 0.9)
         # Grasp target: when set, the matching object's pose is republished on
         # /target_object (PoseStamped). Empty -> no target topic (legacy).
         self.declare_parameter('target_label', '')
@@ -153,6 +176,11 @@ class ObjectLocalizer(Node):
         self.track_smooth = float(self.get_parameter('track_smooth').value)
         self.track_merge_dist = float(
             self.get_parameter('track_merge_dist').value)
+        self.confirm_frames = int(self.get_parameter('confirm_frames').value)
+        self.class_cost = float(self.get_parameter('class_cost').value)
+        self.label_hysteresis_margin = int(
+            self.get_parameter('label_hysteresis_margin').value)
+        self.vote_decay = float(self.get_parameter('vote_decay').value)
         self.target_label = str(self.get_parameter('target_label').value)
         self.target_id = int(self.get_parameter('target_id').value)
         nss = list(self.get_parameter('camera_namespaces').value)
@@ -198,6 +226,12 @@ class ObjectLocalizer(Node):
         box_qos.durability = QoSDurabilityPolicy.TRANSIENT_LOCAL
         self.box_pub = self.create_publisher(
             String, '/target_collision_boxes', box_qos)
+        # Stable-identity handle for downstream targeting: JSON list of the
+        # confirmed tracks [{tid,label,x,y,z}], SAME order as /detected_objects,
+        # so reach_fusion/target_cli can target a persistent track id (#<tid>)
+        # instead of the flaky per-frame class label. Latched. Source-agnostic.
+        self.tracks_pub = self.create_publisher(
+            String, '/detected_objects/tracks', box_qos)
         # Runtime target selection: publish a label on /grasp_target to make that
         # object the target on /target_object without a restart; empty clears it.
         self.create_subscription(String, '/grasp_target',
@@ -303,53 +337,99 @@ class ObjectLocalizer(Node):
                     for i, lab in labs.items() if i == self.target_id}
         return None
 
+    def _associate(self, cur):
+        """Global (Hungarian) match of detections `cur` to existing tracks.
+
+        Returns (pairs, unmatched): pairs = [(det_idx, tid)] accepted within the
+        gating radius; unmatched = det indices with no track. Cost = Euclidean
+        distance + class_cost when the detection's class differs from the track's
+        committed class; pairs beyond track_match_radius are forbidden (BIG) so a
+        detection never jumps onto a far track. Global assignment (vs greedy NN)
+        keeps two objects that pass close from swapping identity.
+        """
+        tids = list(self._tracks)
+        if not tids or not cur:
+            return [], list(range(len(cur)))
+        from scipy.optimize import linear_sum_assignment
+        BIG = 1e6
+        C = np.full((len(cur), len(tids)), BIG)
+        for r, (label, xyz, _top) in enumerate(cur):
+            cls = _strip_color(label)
+            xyz = np.asarray(xyz, float)
+            for c, tid in enumerate(tids):
+                tr = self._tracks[tid]
+                d = float(np.linalg.norm(tr['xyz'] - xyz))
+                if d <= self.track_match_radius:
+                    C[r, c] = d + (0.0 if _strip_color(tr['label']) == cls
+                                   else self.class_cost)
+        rows, cols = linear_sum_assignment(C)
+        pairs, matched = [], set()
+        for r, c in zip(rows, cols):
+            if C[r, c] < BIG:
+                pairs.append((r, tids[c]))
+                matched.add(r)
+        return pairs, [r for r in range(len(cur)) if r not in matched]
+
+    def _commit_label(self, tr):
+        """Vote hysteresis: switch the track's published class only when a
+        challenger out-votes the committed class by label_hysteresis_margin, so
+        one mislabelled frame never renames a stable object."""
+        top_label, top_n = tr['votes'].most_common(1)[0]
+        cur = tr.get('label')
+        if cur is None:
+            tr['label'] = top_label
+        elif (top_label != cur
+              and top_n - tr['votes'][cur] >= self.label_hysteresis_margin):
+            tr['label'] = top_label
+        return tr['label']
+
     def _update_tracks(self, cur):
         """Fold this cycle's detections into persistent, stable-id tracks.
 
-        `cur` is [(label, xyz, top_z)] fused across cameras for THIS cycle. Each
-        detection updates the nearest track within track_match_radius (position
-        EMA-smoothed, label added to that track's vote histogram); unmatched ->
-        new track. Tracks older than track_ttl are dropped, then tracks closer
-        than track_merge_dist are merged (kills cross-camera doubles of one
-        object). Returns alive tracks as [(voted_label, xyz)] ordered by stable
-        id -- persistent, deduplicated, and MAJORITY-VOTED so the class stops
-        flickering frame to frame.
+        `cur` is [(label, xyz, top_z)] fused across cameras for THIS cycle.
+        Detections are matched to tracks by GLOBAL (Hungarian) assignment within
+        track_match_radius (see _associate); a matched track is EMA-smoothed and
+        its label voted, an unmatched detection starts a new track. Tracks older
+        than track_ttl are dropped, then near-duplicates merged. Only tracks seen
+        in >= confirm_frames cycles are returned (rejects flicker), as
+        [(tid, label, xyz, top)] ordered by stable id -- persistent, deduped,
+        vote-hysteresis labelled. Identity is the tid, not the class label.
         """
         now = self.get_clock().now().nanoseconds * 1e-9
-        used = set()
-        for label, xyz, top in cur:
-            xyz = np.asarray(xyz, float)
-            best_tid, best_d = None, self.track_match_radius
-            for tid, tr in self._tracks.items():
-                if tid in used:
-                    continue
-                d = float(np.linalg.norm(tr['xyz'] - xyz))
-                if d <= best_d:
-                    best_d, best_tid = d, tid
-            if best_tid is None:
-                self._tracks[self._next_tid] = {
-                    'votes': Counter([label]), 'xyz': xyz, 'top': float(top),
-                    'last': now}
-                used.add(self._next_tid)
-                self._next_tid += 1
-            else:
-                tr = self._tracks[best_tid]
-                a = self.track_smooth
-                tr['xyz'] = a * tr['xyz'] + (1.0 - a) * xyz
-                tr['top'] = a * tr['top'] + (1.0 - a) * float(top)
-                tr['votes'][label] += 1
-                tr['last'] = now
-                used.add(best_tid)
+        pairs, unmatched = self._associate(cur)
+        for det_idx, tid in pairs:
+            label, xyz, top = cur[det_idx]
+            tr = self._tracks[tid]
+            a = self.track_smooth
+            tr['xyz'] = a * tr['xyz'] + (1.0 - a) * np.asarray(xyz, float)
+            tr['top'] = a * tr['top'] + (1.0 - a) * float(top)
+            if self.vote_decay < 1.0:      # forget old frames -> bounded window
+                for k in list(tr['votes']):
+                    tr['votes'][k] *= self.vote_decay
+                    if tr['votes'][k] < 0.05:
+                        del tr['votes'][k]
+            tr['votes'][label] += 1.0
+            tr['last'] = now
+            tr['hits'] += 1
+            self._commit_label(tr)
+        for det_idx in unmatched:
+            label, xyz, top = cur[det_idx]
+            self._tracks[self._next_tid] = {
+                'votes': Counter([label]), 'label': label,
+                'xyz': np.asarray(xyz, float), 'top': float(top),
+                'last': now, 'hits': 1}
+            self._next_tid += 1
         self._tracks = {tid: tr for tid, tr in self._tracks.items()
                         if now - tr['last'] <= self.track_ttl}
         self._merge_tracks()
-        return [(tr['votes'].most_common(1)[0][0], tr['xyz'], tr['top'])
-                for _, tr in sorted(self._tracks.items())]
+        return [(tid, tr['label'], tr['xyz'], tr['top'])
+                for tid, tr in sorted(self._tracks.items())
+                if tr['hits'] >= self.confirm_frames]
 
     def _merge_tracks(self):
         """Merge track pairs within track_merge_dist (one object seen by two
         cameras -> one track). Keeps the older (smaller) id, sums the vote
-        histograms, and averages position."""
+        histograms, averages position, and re-commits the voted label."""
         tids = sorted(self._tracks)
         for i, a in enumerate(tids):
             ta = self._tracks.get(a)
@@ -364,6 +444,8 @@ class ObjectLocalizer(Node):
                     ta['xyz'] = 0.5 * (ta['xyz'] + tb['xyz'])
                     ta['top'] = max(ta['top'], tb['top'])
                     ta['last'] = max(ta['last'], tb['last'])
+                    ta['hits'] = max(ta['hits'], tb['hits'])
+                    self._commit_label(ta)
                     del self._tracks[b]
 
     # ---- output -------------------------------------------------------------
@@ -385,10 +467,10 @@ class ObjectLocalizer(Node):
         # 'yellow bottle 1', 'yellow bottle 2' when >1 share a label (order is
         # stable via the track ids). The underlying label stays unnumbered for
         # target matching; pick_cli strips the suffix before /grasp_target.
-        dup_counts = Counter(lab for lab, _, _ in merged)
+        dup_counts = Counter(lab for _tid, lab, _, _ in merged)
         dup_seen = {}
 
-        for i, (label, xyz, top) in enumerate(merged):
+        for i, (tid, label, xyz, top) in enumerate(merged):
             pose = Pose()
             pose.position = Point(x=float(xyz[0]), y=float(xyz[1]), z=float(xyz[2]))
             pose.orientation.w = 1.0
@@ -442,6 +524,14 @@ class ObjectLocalizer(Node):
         self.pose_pub.publish(pa)
         self.marker_pub.publish(ma)
 
+        # Stable-identity handles (same order as the PoseArray) for downstream
+        # targeting by persistent track id rather than the per-frame label.
+        self.tracks_pub.publish(String(data=json.dumps(
+            [{'tid': int(tid), 'label': label,
+              'x': float(xyz[0]), 'y': float(xyz[1]), 'z': float(xyz[2]),
+              'conf': float(self._label_conf.get(label, 0.0))}
+             for tid, label, xyz, _top in merged])))
+
         # republish only the grasp target's pose + its size-adaptive box (if a
         # target is configured + seen). The box's TOP (center_z + size_z/2) is the
         # object top, so the executor stands the EE off ABOVE it -- dynamic per
@@ -449,7 +539,7 @@ class ObjectLocalizer(Node):
         names = self._target_names()
         boxes = []
         if names:
-            for label, xyz, top in merged:
+            for tid, label, xyz, top in merged:
                 if label in names:
                     ts = PoseStamped()
                     ts.header.frame_id = self.world_frame
