@@ -110,7 +110,7 @@ class ReachFusion(Node):
         # target without touching it (object stays a GNG obstacle, not carved).
         # Must clear the gripper length + the object's GNG collision sphere, else
         # the approach config sits on the collision boundary (IK -31 / plan fails).
-        p('grasp_standoff', 0.20)
+        p('grasp_standoff', 0.30)
         p('approach_tol', 0.12)         # EE this close to the stand-off = success
         # MoveGroup returns code=1 as soon as it finishes STREAMING the trajectory
         # to Isaac's topic_based_ros2_control bridge, but Isaac physics (finite PD

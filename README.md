@@ -1,4 +1,4 @@
-# Moonshot Workcell Project
+beri guidance untk # Moonshot Workcell Project
 
 A ROS 2 workspace for controlling an automated workcell consisting of two ceiling-mounted motorized tables, four Kinova Gen3 Lite robotic arms, four 2-finger grippers, and a Livox Mid360 3D LIDAR sensor — all integrated with MoveIt 2 for motion planning.
 

@@ -45,6 +45,13 @@ def generate_launch_description():
         .to_moveit_configs()
     )
 
+    # Give the Kortex arms more time to finish trajectories. Isaac physics runs
+    # slower than the planned trajectory duration, so MoveIt's default 1.2x
+    # execution-duration monitor cancels mid-flight and reports CONTROL_FAILED
+    # (-4). 3.0x (matching single_rviz_workcell.launch.py) lets slow moves land.
+    moveit_config.trajectory_execution["trajectory_execution.allowed_execution_duration_scaling"] = 3.0
+    moveit_config.trajectory_execution["trajectory_execution.allowed_goal_duration_margin"] = 5.0
+
     ld = generate_demo_launch(moveit_config)
 
     # 2. Use Sim Time

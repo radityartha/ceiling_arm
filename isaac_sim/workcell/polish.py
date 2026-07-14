@@ -64,18 +64,18 @@ def build_room():
     FixedCuboid(prim_path="/World/room/floor", name="floor",
                 position=np.array([0, 0, -0.05]), scale=np.array([12, 12, 0.1]),
                 visual_material=floor_mat)
-    # Two side walls (y=+-2.5). The back (-x) and front (+x) walls are OMITTED so
-    # nothing occludes the two RGBD cameras, which sit near the rail ends
-    # (rgbd2 at x=-0.6, rgbd at x=4.35) looking in under the arms. X length
-    # widened 6 -> 10 (span -5..5, was -3..3): after the work table moved to
-    # cx=2.9, its farthest object (tomato_soup_can, x=3.05) and the rgbd camera
-    # (x=4.35) both fell OUTSIDE the old wall span, letting light leak in past
-    # the open end and blow out (glare) the now-unshaded objects.
+    # Two side walls, now 2.4 m apart: wall_left at y=+1.2, wall_right at y=-1.2
+    # (inner faces at +-1.15 given the 0.1 m thickness). The back (-x) and front
+    # (+x) walls are OMITTED so nothing occludes the two RGBD cameras, which sit
+    # near the rail ends (rgbd2 at x=-0.6, rgbd at x=4.35) looking in under the
+    # arms. X length stays 10 (span -5..5) so the far object (tomato_soup_can,
+    # x=3.05) and the rgbd camera (x=4.35) stay inside the wall span (no light
+    # leak / glare on the unshaded objects).
     FixedCuboid(prim_path="/World/room/wall_left", name="wall_left",
-                position=np.array([0, 2.5, 2.0]), scale=np.array([10, 0.1, 4.0]),
+                position=np.array([0, 1.2, 2.0]), scale=np.array([10, 0.1, 4.0]),
                 visual_material=wall_mat)
     FixedCuboid(prim_path="/World/room/wall_right", name="wall_right",
-                position=np.array([0, -2.5, 2.0]), scale=np.array([10, 0.1, 4.0]),
+                position=np.array([0, -1.2, 2.0]), scale=np.array([10, 0.1, 4.0]),
                 visual_material=wall_mat)
 
     # Work table under the ceiling arms. The arms hang from z~2.05 and their
@@ -85,11 +85,16 @@ def build_room():
     # reachable. Legs + obj_z derive from top_z. Footprint sized to the object
     # cluster with a small margin. Rail travels world +X 0..3.0 m, EE reach
     # ~3.6 m, so this stays inside the gantry's X range.
-    # Center pushed to x=2.9 (was 1.55, delta +1.35) to widen the pick-distance
-    # range for J/energy calibration -- the far object (tomato_soup_can, was
-    # 1.70) lands at ~3.05, ~0.25 m inside the ~3.6 m reach cap. Object X specs
-    # below and the cabinet (cab_x, derived from cx) shift with it.
-    cx, cy, top_z, th = 2.9, 0.0, 1.05, 0.05
+    # Center at x=2.85 so the table's +X edge (cx+0.45=3.30) slides under obj_2
+    # (tomato_soup_can at x=3.25), the unreachable-object case shoved past the reach
+    # fringe -- the table supports it there instead of it floating. obj_0/obj_1/obj_2
+    # X specs below are carried by the same -0.1 shift so they stay on the table;
+    # the cabinet (cab_x, derived from cx) rides along too, keeping it just off the
+    # table's -X edge.
+    # cy pushed to -0.80 so the table sits flush against wall_right: its -Y edge
+    # (cy - 0.7/2 = -1.15) touches the wall inner face. Table-1 object Y specs
+    # below are shifted by the same -0.80 (they are literal, not derived from cy).
+    cx, cy, top_z, th = 2.85, -0.80, 1.05, 0.05
     FixedCuboid(prim_path="/World/work_table/top", name="wt_top",
                 position=np.array([cx, cy, top_z]), scale=np.array([0.9, 0.7, th]),
                 visual_material=top_mat)
@@ -99,15 +104,14 @@ def build_room():
                     scale=np.array([0.05, 0.05, top_z]), visual_material=leg_mat)
 
     # Second work table on the +Y side ("left" of the arms), slightly lower than
-    # table 1 (top_z2 0.97 vs 1.05). It is a bench extended in +Y so its far end can
-    # host an object GENUINELY out of reach: gantry_1's reachable cloud spans y up
-    # to ~1.08 m and the pool radius is 0.727 m, so the unreachable crossover is
-    # ~y=1.45. The near end (small y) carries the reachable objects; the far end
-    # (the banana at y=1.60) is the unreachable one. Shortened from sy2=1.5/cy2=1.25
-    # (far edge 2.00) to sy2=1.30/cy2=1.02 (far edge 1.67) since the banana no longer
-    # needs to sit at y=1.85. Table 1 +Y edge = 0.35, table 2 -Y edge = cy2-sy2/2 =
-    # 0.37, so the two tables nearly touch but don't.
-    cx2, cy2, top_z2, sx2, sy2 = 0.75, 1.02, 0.97, 0.75, 1.30
+    # table 1 (top_z2 0.97 vs 1.05). Rotated 90 deg vs before so it now runs LONG
+    # along X (sx2=1.30, sy2=0.75, was 0.75x1.30) and sits flush against wall_left:
+    # its +Y edge (cy2 + 0.75/2 = 1.15) touches the wall inner face. Centered at
+    # cx2=1.6 so it spans x 0.95..2.25, inside the gantry X range. Its 2 objects
+    # (teddy_bear, mug) are lined up along X at y=cy2 (see specs below). NOTE: the old per-object
+    # reachable/unreachable design (banana reachable, potted_meat_can out of reach
+    # at y=1.60) no longer holds under this layout and would need re-tuning.
+    cx2, cy2, top_z2, sx2, sy2 = 1.6, 0.775, 0.97, 1.30, 0.75
     FixedCuboid(prim_path="/World/work_table2/top", name="wt2_top",
                 position=np.array([cx2, cy2, top_z2]), scale=np.array([sx2, sy2, th]),
                 visual_material=top_mat)
@@ -117,6 +121,20 @@ def build_room():
                     position=np.array([cx2 + dx, cy2 + dy, top_z2 / 2]),
                     scale=np.array([0.05, 0.05, top_z2]), visual_material=leg_mat)
 
+    # Third work table spanning the full corridor WIDTH (wall to wall) near the
+    # gantry START point (rail x=0), nudged to cx3=0.2. sy3=2.3 makes its Y edges
+    # touch both wall inner faces (+-1.15); sx3=0.9 deep in X, top matched to
+    # table 1 (1.05). Holds the banana (moved off table 2) + a beaker (see specs).
+    cx3, cy3, top_z3, sx3, sy3 = 0.2, 0.0, 1.05, 0.9, 2.3
+    FixedCuboid(prim_path="/World/work_table3/top", name="wt3_top",
+                position=np.array([cx3, cy3, top_z3]), scale=np.array([sx3, sy3, th]),
+                visual_material=top_mat)
+    lx3, ly3 = sx3 / 2 - 0.05, sy3 / 2 - 0.05
+    for i, (dx, dy) in enumerate([(lx3, ly3), (lx3, -ly3), (-lx3, ly3), (-lx3, -ly3)]):
+        FixedCuboid(prim_path=f"/World/work_table3/leg_{i}", name=f"wt3_leg_{i}",
+                    position=np.array([cx3 + dx, cy3 + dy, top_z3 / 2]),
+                    scale=np.array([0.05, 0.05, top_z3]), visual_material=leg_mat)
+
     # A cabinet standing beside the table on the -X side (i.e. "before" the table,
     # toward the rail origin) as a static obstacle for collision testing -- the arm
     # planner must route around it. It is a solid box from the floor up, its top at
@@ -124,24 +142,26 @@ def build_room():
     # lower workspace. No semantic label on purpose:
     # it stays "background" (seg<=1) so the cameras feed it into the MoveIt
     # collision octomap as environment, not as a graspable object. Depth along X,
-    # width matched to the table in Y, placed just off the table's -X edge.
+    # placed just off the table's -X edge. cab_cy=-0.975 sets it flush against
+    # wall_right too (its -Y edge cab_cy - 0.35/2 = -1.15 touches the wall).
     cab_dx, cab_wy, cab_h = 0.4, 0.35, 1.15
     cab_x = cx - 0.45 - 0.07 - cab_dx / 2 - 0.40  # shifted -0.40 m along X (moved back)
+    cab_cy = -0.975
     FixedCuboid(prim_path="/World/cabinet/body", name="cabinet",
-                position=np.array([cab_x, cy, cab_h / 2]),
+                position=np.array([cab_x, cab_cy, cab_h / 2]),
                 scale=np.array([cab_dx, cab_wy, cab_h]), visual_material=cab_mat)
 
     # Real YCB objects (cans / bottle / boxes / banana) instead of primitives, so
     # segmentation + localization + reachability run against realistic geometry.
     # Two asset variants are mixed: 4 ship as *physics* USDs (RigidBodyAPI +
-    # ConvexHull collision baked in), the other 3 are visual-only meshes. We turn
+    # ConvexHull collision baked in), the other 4 are visual-only meshes. We turn
     # ALL of them into STATIC colliders -- they never fall, never move, and carry
     # no rigid-body dynamics, so World.reset() never tries to zero a velocity on
     # them (that was the "PxRigidDynamic::setLinearVelocity: Body must be
     # non-kinematic" spam). Static is also what the perception/reachability task
     # wants: fixed objects at known poses. Split: physics objects on table 1
-    # (surf1), visual-only on table 2 (surf2). (x, y) are spaced >0.25 m apart so
-    # no two objects touch.
+    # (surf1), visual-only on tables 2 & 3 (surf2/surf3). (x, y) are spaced >0.25 m
+    # apart so no two objects touch.
     from pxr import Usd, UsdGeom, UsdPhysics
     root = get_assets_root_path()
     if root is None:
@@ -149,25 +169,33 @@ def build_room():
     ycb = f"{root}/Isaac/Props/YCB"
     surf1 = top_z + th / 2
     surf2 = top_z2 + th / 2
+    surf3 = top_z3 + th / 2
     # label, usd (relative to ycb), (x, y, surface_z), has_physics_variant
-    # table-1 object X shifted +1.35 (was 1.42/1.52/1.70) to follow cx's move
-    # to 2.9 -- these are literal coords, NOT derived from cx, so they must be
-    # kept in sync with it by hand.
+    # table-1 objects sit flush-side with the table: their Y was shifted by -0.80
+    # (to follow cy) so they land near y=-0.96/-0.64, inside the table's -1.15..-0.45
+    # span. These are literal coords, NOT derived from cx/cy, so keep them in sync
+    # with the table by hand.
     specs = [
-        ("cracker_box",     "Axis_Aligned_Physics/003_cracker_box.usd",     (2.77, -0.16, surf1), True),
-        ("sugar_box",       "Axis_Aligned_Physics/004_sugar_box.usd",       (2.87,  0.16, surf1), True),
-        ("tomato_soup_can", "Axis_Aligned_Physics/005_tomato_soup_can.usd", (3.05, -0.16, surf1), True),
-        # obj_3 seated on TOP of the cabinet (cab_x, cy, cab top = cab_h).
-        ("mustard_bottle",  "Axis_Aligned_Physics/006_mustard_bottle.usd",  (cab_x, cy,   cab_h), True),
+        ("cracker_box",     "Axis_Aligned_Physics/003_cracker_box.usd",     (2.72, -0.96, surf1), True),
+        ("sugar_box",       "Axis_Aligned_Physics/004_sugar_box.usd",       (2.82, -0.64, surf1), True),
+        # obj_2 deliberately shoved to x=3.25 -- past the ~3.06 m reach-map fringe of
+        # gantry_1, so it sits OUTSIDE the arm capability map (unreachable-object
+        # test case). Table 1 (cx=2.85) reaches it: its +X edge (3.30) supports obj_2
+        # rather than leaving it floating.
+        ("tomato_soup_can", "Axis_Aligned_Physics/005_tomato_soup_can.usd", (3.25, -0.66, surf1), True),
+        # obj_3 seated on TOP of the cabinet (cab_x, cab_cy, cab top = cab_h).
+        ("mustard_bottle",  "Axis_Aligned_Physics/006_mustard_bottle.usd",  (cab_x, cab_cy, cab_h), True),
+        # obj_4/5 lined up along X on the rotated table 2 at y=cy2 (0.775), spaced
+        # ~0.9 m apart, inside its x 0.95..2.25 span.
         # obj_4: IsaacLab teddy bear (not YCB) -> full URL, resolved directly below.
-        ("teddy_bear",      f"{root}/Isaac/IsaacLab/Objects/Teddy_Bear/teddy_bear.usd", (0.55,  0.70, surf2), False),
-        # potted_meat_can now holds the unreachable-by-design +Y spot (y=1.60): its
-        # nearest reachable GNG node is ~0.90 m away -- past the 0.727 m pool radius
-        # -- so the reachability check finds NO candidate nodes and reports it
-        # UNREACHABLE on purpose (the ~y=1.45 crossover leaves a ~0.15 m margin).
-        ("potted_meat_can", "Axis_Aligned/010_potted_meat_can.usd",         (0.75,  1.60, surf2), False),
-        # banana swapped to the reachable near end (was at y=1.60).
-        ("banana",          "Axis_Aligned/011_banana.usd",                  (0.87,  0.72, surf2), False),
+        ("teddy_bear",      f"{root}/Isaac/IsaacLab/Objects/Teddy_Bear/teddy_bear.usd", (1.15, 0.775, surf2), False),
+        # obj_5: Isaac Props mug (not YCB) -> full URL. Ships upright (Z up), so it
+        # needs NO stand rotation (see stand_rot below).
+        ("mug",             f"{root}/Isaac/Props/Mugs/SM_Mug_A2.usd",        (2.05, 0.775, surf2), False),
+        # obj_6/7 on table 3 (surf3), spread in Y near the two gantries at x=cx3=0.2.
+        ("banana",          "Axis_Aligned/011_banana.usd",                  (0.2, 0.4, surf3), False),
+        # obj_7: Isaac Props 500 ml beaker (not YCB) -> full URL. Ships upright (Z up).
+        ("beaker",          f"{root}/Isaac/Props/Beaker/beaker_500ml.usd",  (0.2, -0.4, surf3), False),
     ]
     objs = []
     stage = get_current_stage()
@@ -181,8 +209,9 @@ def build_room():
     _stand_flip = np.array([0.70710678, -0.70710678, 0.0, 0.0])  # -90 deg about X
     _yaw90 = np.array([0.70710678, 0.0, 0.0, 0.70710678])         # +90 deg about Z (in-plane)
     # obj_0/obj_1 boxes (-90), obj_2 tomato_soup_can (+90),
-    # obj_3 mustard_bottle (-90), obj_5 potted_meat_can (+90), obj_6 banana (+90 yaw)
-    stand_rot = {0: _stand_flip, 1: _stand_flip, 2: _stand, 3: _stand_flip, 5: _stand, 6: _yaw90}
+    # obj_3 mustard_bottle (-90), obj_6 banana (+90 yaw). obj_5 (mug), obj_7 (beaker)
+    # ship upright -> no entry.
+    stand_rot = {0: _stand_flip, 1: _stand_flip, 2: _stand, 3: _stand_flip, 6: _yaw90}
     for i, (label, rel, (ox, oy, surf), has_phys) in enumerate(specs):
         prim_path = f"/World/objects/obj_{i}"
         usd_path = rel if "://" in rel else f"{ycb}/{rel}"
@@ -239,4 +268,58 @@ def build_room():
         # labeled mask + an id->class JSON, so the localizer can name each
         # detected object. Ground-truth seg now; swap source for open-vocab later.
         add_update_semantics(prim, label)
+
+    # A standing human beside the workcell as scene context / static obstacle. It
+    # gets NO semantic label (like the cabinet), so it stays background: the cameras
+    # feed it into the MoveIt collision octomap as environment, never as a graspable
+    # object. NVIDIA's People characters are authored Z-up with the origin at the
+    # feet, so z=0 puts the soles on the floor -- no bbox-seating needed like the
+    # center-origin YCB meshes. Note the asset naming quirk: the folder carries an
+    # "original_" prefix that the .usd filename does NOT. Placed near wall_left
+    # (y=1.0, back to the +Y wall) at x=0.5, clear of rotated table 2 (x 0.95..2.25).
+    #
+    # Every People/DH character in the Isaac library ships in a T-pose (arms out) --
+    # that is the skeleton's rest pose, and there is no static natural-pose human
+    # asset. A relaxed idle normally needs the omni.anim.people retarget +
+    # AnimationGraph (heavyweight, interactive; the character's 101-joint Reallusion
+    # skeleton does not even match the 81-joint Isaac animation clips). Instead we
+    # drop the arms into a static A-pose with a tiny 2-joint UsdSkel animation that
+    # rotates only the shoulders (L/R_Upperarm) from horizontal to ~68 deg down and
+    # slightly outward. The local rotations below were computed offline from this
+    # rig's bind transforms (verified: arm dir (+-1,0,0) -> (+-0.38,0.01,-0.93)) and
+    # are reused across every People character since they share the RL skeleton. To
+    # raise/lower the arms, regenerate the two quats at a different down-angle.
+    from pxr import UsdSkel, Gf, Vt
+    person_char = "original_male_adult_construction_05/male_adult_construction_05.usd"
+    person_usd = f"{root}/Isaac/People/Characters/{person_char}"
+    person_path = "/World/person/body"
+    add_reference_to_stage(usd_path=person_usd, prim_path=person_path)
+    person_prim = stage.GetPrimAtPath(person_path)
+    L_ARM = "RL_BoneRoot/Hip/Waist/Spine01/Spine02/L_Clavicle/L_Upperarm"
+    R_ARM = "RL_BoneRoot/Hip/Waist/Spine01/Spine02/R_Clavicle/R_Upperarm"
+    skel = next((p for p in Usd.PrimRange(person_prim)
+                 if p.GetTypeName() == "Skeleton"), None)
+    sj = list(UsdSkel.Skeleton(skel).GetJointsAttr().Get() or []) if skel else []
+    if L_ARM in sj and R_ARM in sj:
+        # Sparse animation: only the two shoulders move; UsdSkel keeps every other
+        # joint at its rest transform. Translations are the rest bone offsets (only
+        # rotation changes). quat is (w, x, y, z), scalar-first.
+        anim = UsdSkel.Animation.Define(stage, f"{person_path}/ArmsDown")
+        anim.CreateJointsAttr(Vt.TokenArray([L_ARM, R_ARM]))
+        anim.CreateTranslationsAttr(Vt.Vec3fArray([Gf.Vec3f(0.0, 0.14946, 0.0),
+                                                   Gf.Vec3f(0.0, 0.14953, 0.0)]))
+        anim.CreateRotationsAttr(Vt.QuatfArray([
+            Gf.Quatf(0.826161, 0.121839, 0.083670, -0.543703),    # L_Upperarm
+            Gf.Quatf(0.825552, 0.121207, -0.083080, 0.544859)]))  # R_Upperarm
+        anim.CreateScalesAttr(Vt.Vec3hArray([Gf.Vec3h(1, 1, 1), Gf.Vec3h(1, 1, 1)]))
+        UsdSkel.BindingAPI.Apply(skel).CreateAnimationSourceRel().SetTargets(
+            [anim.GetPrim().GetPath()])
+    # The character's own forward (foot->toe) is -Y. A -90 deg rotation about Z
+    # swings that forward from -Y to -X, so the person faces "backward" toward the
+    # rail origin (-X). The person is scene geometry; MoveIt sees it, if at all,
+    # through the camera->octomap path, like the cabinet. quat is (w,x,y,z),
+    # scalar-first.
+    SingleXFormPrim(prim_path=person_path, name="person",
+                    position=np.array([3.7, 0.0, 0.0]),
+                    orientation=np.array([0.70710678, 0.0, 0.0, -0.70710678]))
     return objs

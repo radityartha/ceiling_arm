@@ -70,6 +70,16 @@ def _kill_stale(context, *args, **kwargs):
 # `ros2 run <node> --ros-args --log-level info` if you need its detail back.
 _QUIET = {'ros_arguments': ['--log-level', 'WARN']}
 
+# Every node here does per-frame numpy/point-cloud work; unconstrained, each
+# process's BLAS backend spawns one thread per host core (measured: 72 threads
+# on a 64-core box). With this many nodes running concurrently that starves
+# move_group of CPU (IK/plan calls that normally take <1s start timing out).
+# Capping each process to 1 BLAS thread fixes it -- these nodes' per-call
+# arrays are small, so single-threaded is also faster than the spawn overhead.
+_THREAD_CAP = {'additional_env': {
+    'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1',
+    'MKL_NUM_THREADS': '1', 'NUMEXPR_NUM_THREADS': '1'}}
+
 
 def generate_launch_description():
     # Single control point for which object is the grasp TARGET. Empty ->
@@ -108,7 +118,7 @@ def generate_launch_description():
         # target in pick_cli). Change live with pick_cli `p ...` or /seg_prompts.
         DeclareLaunchArgument('seg_prompts',
                               default_value='box,tin can,canned food,bottle,'
-                                            'banana,teddy bear'),
+                                            'banana,teddy bear,mug,glass beaker'),
         # 0.25 drops weak/wrong labels; object_localizer's tracking + label
         # voting bridge the rest. Lower toward 0.1 if real objects get missed.
         DeclareLaunchArgument('seg_conf', default_value='0.25'),
@@ -120,7 +130,7 @@ def generate_launch_description():
         # consumers below are remapped to). prompts is a comma string here and is
         # split by the node; change it live on /seg_prompts.
         Node(package='reachability_gng', executable='seg_router',
-             name='seg_router', output='screen', **_QUIET,
+             name='seg_router', output='screen', **_QUIET, **_THREAD_CAP,
              parameters=[{'source': seg_source,
                           'camera_namespaces': _CAMERA_NS,
                           'model_path': LaunchConfiguration('seg_model'),
@@ -129,7 +139,7 @@ def generate_launch_description():
                           'imgsz': seg_imgsz,
                           'prompts': seg_prompts}]),
         Node(package='reachability_gng', executable='object_localizer',
-             name='object_localizer', output='screen', **_QUIET,
+             name='object_localizer', output='screen', **_QUIET, **_THREAD_CAP,
              parameters=target_params, remappings=_SEG_REMAP),
         Node(package='reachability_gng', executable='reachability_check',
              name='reachability_check', output='screen', **_QUIET,
@@ -145,7 +155,7 @@ def generate_launch_description():
         # refresher now idles (period 60 s), so stride 3 populates fine. If the
         # octomap lags at 0.02 m resolution, raise stride back toward 4-6.
         Node(package='reachability_gng', executable='collision_cloud',
-             name='collision_cloud', output='screen', **_QUIET,
+             name='collision_cloud', output='screen', **_QUIET, **_THREAD_CAP,
              condition=IfCondition(LaunchConfiguration('use_octomap')),
              parameters=target_params + [{'stride': 3,
                                           'carve_target': carve_target}],
@@ -166,7 +176,8 @@ def generate_launch_description():
              parameters=[{'period': 60.0}]),
         # full depth reading -> 3D point cloud (table grey + objects coloured)
         Node(package='reachability_gng', executable='seg_cloud',
-             name='seg_cloud', output='screen', **_QUIET, remappings=_SEG_REMAP),
+             name='seg_cloud', output='screen', **_QUIET, **_THREAD_CAP,
+             remappings=_SEG_REMAP),
         # table_slab (a solid thin table-surface CollisionObject) is intentionally
         # NOT autostarted -- user opted out (it covered too much). The node + entry
         # point remain available to run by hand if reconsidered:

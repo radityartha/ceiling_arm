@@ -209,8 +209,12 @@ def split_color(phrase):
 # 'can': YOLOE ignores the bare word "can" on the YCB cans but fires on
 # "tin can" / "canned food", so saying "can" points it at those working words
 # (and either label satisfies the request).
+# 'beaker': the Isaac GT label is 'beaker' but YOLOE reads it as 'glass beaker'
+# (one class, see seg_prompts); grouping them + 'glass' makes any of the words
+# target the same object under either seg_source.
 _ALIAS_GROUPS = [{'teddy bear', 'doll'},
-                 {'can', 'tin can', 'canned food'}]
+                 {'can', 'tin can', 'canned food'},
+                 {'glass', 'beaker', 'glass beaker'}]
 
 
 def _alias_group(cls):

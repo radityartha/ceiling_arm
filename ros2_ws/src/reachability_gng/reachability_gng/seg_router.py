@@ -89,6 +89,11 @@ class SegRouter(Node):
         # (display only -- consumers still key off out_labels_topic).
         self.declare_parameter('out_conf_topic',
                                '{ns}/seg/instance_segmentation_conf')
+        # Human-viewable overlay (RGB + colored masks + label/conf) so YOLOE
+        # segmentation can be inspected in rqt_image_view / RViz. YOLOE path only;
+        # display-only, consumers ignore it. Set publish_debug:=false to skip.
+        self.declare_parameter('publish_debug', True)
+        self.declare_parameter('out_debug_topic', '{ns}/seg/debug_image')
         # YOLOE settings
         self.declare_parameter('model_path', 'yoloe-11s-seg.pt')
         self.declare_parameter('prompts', 'bottle,cup,box')   # comma-separated
@@ -109,6 +114,7 @@ class SegRouter(Node):
         self.max_rate = float(self.get_parameter('max_rate').value)
         self.label_color = bool(self.get_parameter('label_color').value)
         self.model_path = str(self.get_parameter('model_path').value)
+        self.publish_debug = bool(self.get_parameter('publish_debug').value)
         nss = list(self.get_parameter('camera_namespaces').value)
 
         self._model = None                 # lazy-loaded YOLOE
@@ -120,6 +126,7 @@ class SegRouter(Node):
             return v if v.startswith('/') else '/' + v
 
         self._seg_pub, self._lbl_pub, self._conf_pub = {}, {}, {}
+        self._dbg_pub = {}
         for ns in nss:
             self._seg_pub[ns] = self.create_publisher(
                 Image, _t('out_seg_topic').format(ns=ns), 1)
@@ -127,6 +134,9 @@ class SegRouter(Node):
                 String, _t('out_labels_topic').format(ns=ns), 1)
             self._conf_pub[ns] = self.create_publisher(
                 String, _t('out_conf_topic').format(ns=ns), 1)
+            if self.publish_debug:
+                self._dbg_pub[ns] = self.create_publisher(
+                    Image, _t('out_debug_topic').format(ns=ns), 1)
             # Isaac ground-truth relay inputs
             self.create_subscription(
                 Image, _t('isaac_seg_topic').format(ns=ns),
@@ -239,6 +249,9 @@ class SegRouter(Node):
                 id_conf[inst_id] = round(float(conf[i]), 3)
 
         self._publish_seg(ns, seg, msg.header)
+        if self.publish_debug and ns in self._dbg_pub:
+            # res.plot() -> BGR uint8 with masks + class/conf drawn on the frame.
+            self._publish_debug(ns, res.plot(), msg.header)
         lbl = String()
         lbl.data = json.dumps({str(k): v for k, v in id_labels.items()})
         self._lbl_pub[ns].publish(lbl)
@@ -256,6 +269,20 @@ class SegRouter(Node):
         if enc.startswith('rgb'):
             return cv2.cvtColor(a, cv2.COLOR_RGB2BGR)
         return a.copy()   # already bgr8
+
+    def _publish_debug(self, ns, bgr, header):
+        """Publish a human-viewable overlay (BGR uint8) as a bgr8 Image."""
+        bgr = np.ascontiguousarray(bgr, np.uint8)
+        h, w = bgr.shape[:2]
+        out = Image()
+        out.header = header
+        out.height = h
+        out.width = w
+        out.encoding = 'bgr8'
+        out.is_bigendian = 0
+        out.step = w * 3
+        out.data = bgr.tobytes()
+        self._dbg_pub[ns].publish(out)
 
     def _publish_seg(self, ns, seg, header):
         """Publish an int32 label image as a 32SC1 Image (Isaac-compatible)."""
