@@ -195,7 +195,7 @@ def build_room():
         # obj_6/7 on table 3 (surf3), spread in Y near the two gantries at x=cx3=0.2.
         ("banana",          "Axis_Aligned/011_banana.usd",                  (0.2, 0.4, surf3), False),
         # obj_7: Isaac Props 500 ml beaker (not YCB) -> full URL. Ships upright (Z up).
-        ("beaker",          f"{root}/Isaac/Props/Beaker/beaker_500ml.usd",  (0.2, -0.4, surf3), False),
+        ("beaker",          f"{root}/Isaac/Props/Beaker/beaker_500ml.usd",  (0.2, -0.3, surf3), False),
     ]
     objs = []
     stage = get_current_stage()
@@ -268,6 +268,18 @@ def build_room():
         # labeled mask + an id->class JSON, so the localizer can name each
         # detected object. Ground-truth seg now; swap source for open-vocab later.
         add_update_semantics(prim, label)
+        if label == 'mug':
+            # Override the mug's shipped ceramic look with a bright, saturated PBR
+            # color so it reads as a vivid object -- bound per mesh, stronger than
+            # the asset's own material (same pattern as recolor_tables).
+            from pxr import UsdShade
+            bright = OmniPBR(prim_path='/World/Looks/MugBright', name='mug_bright',
+                             color=np.array([1.0, 0.42, 0.05]))
+            bmat = UsdShade.Material(stage.GetPrimAtPath(bright.prim_path))
+            for d in Usd.PrimRange(prim):
+                if d.IsA(UsdGeom.Mesh):
+                    UsdShade.MaterialBindingAPI.Apply(d).Bind(
+                        bmat, bindingStrength=UsdShade.Tokens.strongerThanDescendants)
 
     # A standing human beside the workcell as scene context / static obstacle. It
     # gets NO semantic label (like the cabinet), so it stays background: the cameras

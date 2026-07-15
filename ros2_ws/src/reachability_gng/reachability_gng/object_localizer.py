@@ -500,9 +500,11 @@ class ObjectLocalizer(Node):
             text.color = ColorRGBA(r=1.0, g=1.0, b=1.0, a=1.0)
             if dup_counts[label] > 1:
                 dup_seen[label] = dup_seen.get(label, 0) + 1
-                text.text = f'{label} {dup_seen[label]}'
+                disp = f'{label} {dup_seen[label]}'
             else:
-                text.text = label
+                disp = label
+            conf = self._label_conf.get(label)
+            text.text = f'{disp} {conf * 100:.0f}%' if conf is not None else disp
             ma.markers.append(text)
 
             # YOLOE confidence for this object (ns 'conf', id aligned to the

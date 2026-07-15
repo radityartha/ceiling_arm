@@ -1,0 +1,113 @@
+\relax 
+\citation{unitednations2024world,who2025clinical}
+\citation{IFR2025,Lisondra2025}
+\citation{kemp2007challenges}
+\citation{sisbot2007human}
+\citation{toyama2002development}
+\citation{Jayathilaka2025}
+\citation{MoMaPos2024,BaSeNet2024,EnergySLR2024}
+\citation{Zacharias2007,Makhal2018}
+\citation{Zacharias2007}
+\citation{MoMaPos2024,InvReach2022}
+\citation{Yoshikawa1985}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{}\protected@file@percent }
+\citation{Fritzke1995}
+\citation{Yoshikawa1985}
+\citation{Wang2025}
+\citation{Zacharias2007}
+\citation{Makhal2018}
+\citation{RM4D2024}
+\citation{InvReach2022}
+\citation{MoMaPos2024}
+\citation{BaSeNet2024}
+\citation{Yoshikawa1985}
+\citation{IKDiffuser2025}
+\citation{DAGPlan2024,RoboPARA2025}
+\citation{Kinova}
+\@writefile{toc}{\contentsline {section}{\numberline {II}Related Work}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {III}System}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Robot Platform and Kinematic Model}{2}{}\protected@file@percent }
+\citation{IsaacSim2026,Mittal2023}
+\citation{Wang2025}
+\citation{Coleman2014}
+\citation{Sucan2012}
+\citation{Carpentier2019}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Overview of the ceiling-rail dual-arm robot and the proposed pipeline. Left: a rail mounted to the ceiling carries two Kinova Gen3 Lite arms and adds a prismatic axis ($d$) and a revolute axis ($\theta $) that both arms share, so each arm forms an eight-degree-of-freedom chain $\mathbf  {q}=[d,\theta ,q_1 \ldots  q_6]$; two overhead RGB-D cameras observe the workspace. Right: the end-to-end pipeline, from open-vocabulary perception, through energy-aware arm-and-base selection over the base-aware capability map, to collision-free planning and execution.}}{3}{}\protected@file@percent }
+\newlabel{fig:overview}{{1}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}Simulation Environment}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-C}}Perception Front End}{3}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The simulated workspace in NVIDIA Isaac Sim, viewed from one of the two overhead RGB-D cameras, showing the tabletop objects used in the experiments; at least one object is placed near the edge of the reachable workspace.}}{3}{}\protected@file@percent }
+\newlabel{fig:scene}{{2}{3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Open-vocabulary perception. YOLOE detects and segments the requested object from a text prompt (masks and labels shown); the mask is back-projected with depth to localize the object in the world frame.}}{3}{}\protected@file@percent }
+\newlabel{fig:perception}{{3}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-D}}Planning and Execution Stack}{3}{}\protected@file@percent }
+\citation{Carpentier2019}
+\citation{Yoshikawa1985}
+\citation{Fritzke1995}
+\citation{Yoshikawa1985}
+\citation{Zacharias2007}
+\citation{Carpentier2019}
+\citation{Yoshikawa1985}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Base-Aware GNG Capability Map}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Sampling Reachable Configurations}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Growing the Map}{4}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces The base-aware GNG capability map for one arm, rendered in RViz. Nodes are colored by manipulability (blue near the workspace edge, red where the arm is dexterous); the pinned boundary shell reaches the true rail-extended reach surface.}}{4}{}\protected@file@percent }
+\newlabel{fig:gngmap}{{4}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Capability Layers}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {V}Energy-Aware Arm and Base Selection}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}The Energy Cost}{4}{}\protected@file@percent }
+\newlabel{eq:J}{{1}{4}}
+\citation{MoMaPos2024,BaSeNet2024}
+\citation{EnergySLR2024}
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Calibrated weights and normalization references for the energy cost $J$. Each reference $\rho $ is the median raw value of its term over the calibration set of picks.}}{5}{}\protected@file@percent }
+\newlabel{tab:weights}{{I}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}Pooling Candidates}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-C}}Round-Robin Selection and Execution}{5}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Energy-aware selection in a representative pick (values from a logged trial). The cost $J$ prefers the arm and base placement with lower total energy, which here is not the arm whose end-effector is nearest the object.}}{5}{}\protected@file@percent }
+\newlabel{fig:selection}{{5}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Experiments}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-A}}Map Characterization (E0)}{5}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces GNG capability map properties, per arm.}}{5}{}\protected@file@percent }
+\newlabel{tab:e0}{{II}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-B}}Reachable-Workspace Gain from the Rail DOF (E1)}{5}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Reachable volume, rail locked vs. rail active (arm\_1).}}{5}{}\protected@file@percent }
+\newlabel{tab:e1}{{III}{5}}
+\bibcite{Zacharias2007}{1}
+\bibcite{Yoshikawa1985}{2}
+\bibcite{Fritzke1995}{3}
+\bibcite{Makhal2018}{4}
+\bibcite{MoMaPos2024}{5}
+\bibcite{BaSeNet2024}{6}
+\bibcite{InvReach2022}{7}
+\bibcite{RM4D2024}{8}
+\bibcite{EnergySLR2024}{9}
+\bibcite{Wang2025}{10}
+\bibcite{IsaacSim2026}{11}
+\bibcite{Mittal2023}{12}
+\bibcite{Coleman2014}{13}
+\bibcite{Sucan2012}{14}
+\bibcite{Carpentier2019}{15}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {VI-B}1}Boundary-Seeding Ablation (E1b)}{6}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Reachable-edge shortfall with and without boundary seeding (arm\_1).}}{6}{}\protected@file@percent }
+\newlabel{tab:e1b}{{IV}{6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Results. (a) Reachable-workspace volume with the rail locked versus active, showing the gain from treating the base as a DOF. (b) Rail travel and mechanical energy per selection mode (energy-aware vs. nearest, fixed, random).}}{6}{}\protected@file@percent }
+\newlabel{fig:results}{{6}{6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-C}}GNG-Seeded Inverse Kinematics (E2)}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-D}}Energy-Aware Arm and Base Selection (E3)}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-E}}End-to-End Pick (E6)}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-F}}Perception Accuracy (E4, E5)}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{References}{6}{}\protected@file@percent }
+\bibcite{Kinova}{16}
+\bibcite{IKDiffuser2025}{17}
+\bibcite{RoboPARA2025}{18}
+\bibcite{DAGPlan2024}{19}
+\bibcite{Lisondra2025}{20}
+\bibcite{unitednations2024world}{21}
+\bibcite{who2025clinical}{22}
+\bibcite{IFR2025}{23}
+\bibcite{Jayathilaka2025}{24}
+\bibcite{kemp2007challenges}{25}
+\bibcite{sisbot2007human}{26}
+\bibcite{toyama2002development}{27}
+\gdef \@abspage@last{7}

@@ -13,6 +13,7 @@ import json
 import re
 import threading
 import time
+from collections import Counter
 
 import numpy as np
 import rclpy
@@ -29,6 +30,31 @@ from reachability_gng.pick_cli import parse_object, split_color, _alias_group
 
 _OBJN_RE = re.compile(r'^obj_\d+$')
 SEARCH_SECS = 10.0      # re-scan window for a requested object before giving up
+# object_localizer's vote-hysteresis (label_hysteresis_margin/vote_decay) is meant
+# to reject 1-frame label flicker, but a SUSTAINED run of wrong YOLOE classifications
+# can still out-vote it -- observed LIVE: a track's committed label flipped from
+# 'brown teddy bear' to 'red box' (its POSITION stayed anchored on the physical
+# teddy bear the whole time -- identity/position tracking is fine, only the class
+# label mis-committed). How many publish cycles a flip like that persists for is
+# NOT known/bounded, so a natural-language match cannot just trust one snapshot, or
+# even trust that a SECOND read shortly after will have reverted. Instead _fetch
+# samples the live tracks for VOTE_WINDOW seconds and matches by MAJORITY vote
+# across that window: a genuinely, stably labelled object dominates the window
+# regardless of how long any one flip lasts, whereas a flip that never becomes the
+# majority can never be selected. VOTE_POLL is finer than object_localizer's
+# default 0.5 s publish period so the window reliably samples several cycles.
+VOTE_WINDOW = 3.0
+VOTE_POLL = 0.4
+
+
+def _label_matches(label, aliases, color):
+    """True if `label` still satisfies an NL match's (aliases, color) criteria.
+
+    Shared by _fetch's live sampling and the execute-time drift re-check in
+    _loop, so 'still the same match' means the same thing in both places.
+    """
+    lab = str(label).lower()
+    return bool(lab) and any(a in lab for a in aliases) and (not color or color in lab)
 
 
 class TargetCli(Node):
@@ -39,6 +65,11 @@ class TargetCli(Node):
         self.poses = np.empty((0, 3))
         self.tracks = []            # [{tid,label,x,y,z}] stable-identity handles
         self.last_sent = None
+        # Set by _fetch() when a target comes from an NL match (aliases/color to
+        # re-check), cleared by send() otherwise (explicit #id/obj_N/index has no
+        # phrase to drift-check against). See execute-time guard in _loop.
+        self.last_match = None
+        self.pending_confirm = False
         self.objn = ObjnLocalizer(self)
         self.create_subscription(PoseArray, '/detected_objects',
                                  self._on_objects, 1)
@@ -79,6 +110,8 @@ class TargetCli(Node):
     def send(self, value):
         self.pub.publish(String(data=value))
         self.last_sent = value
+        self.last_match = None
+        self.pending_confirm = False
 
     def execute(self):
         self.exec_pub.publish(Empty())
@@ -89,10 +122,11 @@ def _fetch(node: TargetCli, sentence):
 
     Deterministically parses the object phrase ('please bring a teddy bear' ->
     'teddy bear'), then matches it against the current confirmed tracks by class
-    (color optional). One match -> targets its #tid straight away; several
-    matches of the same class -> lists the candidate #ids so the user picks the
-    exact object (never auto-guesses which of two identical objects). Identity is
-    the persistent track, so this works under Isaac GT and YOLOE alike.
+    (color optional), sampling over VOTE_WINDOW and picking the MAJORITY-vote tid
+    (see module docstring on VOTE_WINDOW for why a single snapshot is not trusted).
+    One candidate -> targets its #tid; several -> the most-voted one, listing the
+    candidate #ids so the user can override. Identity is the persistent track
+    (position-anchored), so this works under Isaac GT and YOLOE alike.
     """
     phrase = parse_object(sentence)
     if not phrase:
@@ -102,49 +136,74 @@ def _fetch(node: TargetCli, sentence):
     aliases = _alias_group(cls or phrase)
 
     def _match(tracks):
-        out = []
-        for t in tracks:
-            lab = str(t.get('label', '')).lower()
-            if lab and any(a in lab for a in aliases) and (not color or color in lab):
-                out.append(t)
-        return out
+        return [t for t in tracks if _label_matches(t.get('label', ''), aliases, color)]
 
-    # Perception can miss the object on the FIRST frame (label flicker / a track
-    # not confirmed yet), so don't reject on a single snapshot -- re-scan the
-    # live tracks for a few seconds before giving up, like pick_cli does. This
-    # avoids rejecting a request just because of a transient early-detection gap.
-    matches = _match(node.track_list())
-    if not matches:
-        print(f"  -> looking for '{phrase}' (re-checking tracks for {SEARCH_SECS:g}s)...")
-        deadline = time.time() + SEARCH_SECS
-        while time.time() < deadline and rclpy.ok():
-            time.sleep(0.5)
-            matches = _match(node.track_list())
-            if matches:
+    # Perception can miss the object on the FIRST frames (label flicker / a track
+    # not confirmed yet), so don't reject on an empty snapshot -- keep sampling for
+    # up to SEARCH_SECS before giving up. Once ANY sample matches, collect votes
+    # for VOTE_WINDOW seconds (across >= 2 publish cycles) and pick the tid with
+    # the most matching samples, not just whichever tid the FIRST or LATEST sample
+    # happened to carry -- that is what makes a transient mislabel (a minority of
+    # samples) lose to the genuinely, stably labelled object (the majority).
+    deadline = time.time() + SEARCH_SECS
+    votes = Counter()
+    latest = {}   # tid -> most recent matching track dict (for display + position)
+    window_end = None
+    printed_looking = False
+    while rclpy.ok():
+        matches = _match(node.track_list())
+        for t in matches:
+            votes[t['tid']] += 1
+            latest[t['tid']] = t
+        if matches and window_end is None:
+            window_end = time.time() + VOTE_WINDOW
+        if window_end is not None and time.time() >= window_end:
+            break
+        if window_end is None:
+            if time.time() >= deadline:
                 break
-    if not matches:
+            if not printed_looking:
+                print(f"  -> looking for '{phrase}' "
+                      f"(re-checking tracks for {SEARCH_SECS:g}s)...")
+                printed_looking = True
+        time.sleep(VOTE_POLL)
+    if not votes:
         seen = sorted({str(t.get('label', '')) for t in node.track_list()})
         print(f"  ! no '{phrase}' among current tracks after {SEARCH_SECS:g}s "
               f"(seen: {seen or '(none)'})")
         return
-    if len(matches) == 1:
-        t = matches[0]
-        node.send(f"#{t['tid']}")
-        print(f"  -> understood '{phrase}' = track #{t['tid']} ({t['label']}); "
-              "type g to execute the approach")
+    total = sum(votes.values())
+    ranked = votes.most_common()
+    best_tid, best_n = ranked[0]
+    # A thin plurality (the winner didn't dominate the window) means the label was
+    # genuinely unstable during the sample -- still act on the best evidence
+    # available (majority vote beats a single snapshot either way), but say so
+    # loudly rather than silently presenting it as a clean match (Rule: fail loud).
+    shaky = best_n < total / 2 or (len(ranked) > 1 and best_n - ranked[1][1] <= 1)
+    stability = f"{best_n}/{total} samples" + (' -- UNSTABLE, verify below' if shaky else '')
+    if len(ranked) == 1:
+        t = latest[best_tid]
+        node.send(f"#{best_tid}")
+        node.last_match = {'phrase': phrase, 'aliases': aliases, 'color': color,
+                           'tid': best_tid, 'label_at_select': t['label']}
+        print(f"  -> understood '{phrase}' = track #{best_tid} ({t['label']}), "
+              f"{stability}; type g to execute the approach")
         return
-    # Several identical-class objects match. Default to the highest-confidence
-    # one (set it as the current target) so typing g straight away executes it;
-    # the user can still override by typing another #id first.
-    best = max(matches, key=lambda t: t.get('conf', 0.0))
-    node.send(f"#{best['tid']}")
-    print(f"  understood '{phrase}', but {len(matches)} objects match -- "
-          f"defaulting to highest-confidence #{best['tid']}:")
-    for t in matches:
-        mark = '  <- default' if t['tid'] == best['tid'] else ''
-        print(f"    #{t['tid']}  {t['label']}"
+    # Several candidate tids got votes (either genuinely distinct objects of the
+    # same class, or one is a flicker artifact) -- default to the majority-vote
+    # one so typing g straight away executes it; list all so the user can verify
+    # and override with another #id if the vote was close.
+    node.send(f"#{best_tid}")
+    node.last_match = {'phrase': phrase, 'aliases': aliases, 'color': color,
+                       'tid': best_tid, 'label_at_select': latest[best_tid]['label']}
+    print(f"  understood '{phrase}', {len(ranked)} tracks matched over the "
+          f"sample window -- defaulting to #{best_tid} ({stability}):")
+    for tid, n in ranked:
+        t = latest[tid]
+        mark = '  <- default' if tid == best_tid else ''
+        print(f"    #{tid}  {t['label']}"
               f"  x={t['x']:+.2f} y={t['y']:+.2f} z={t['z']:+.2f}"
-              f"  conf={t.get('conf', 0.0):.2f}{mark}")
+              f"  votes={n}/{total}{mark}")
     print('  (type g to take the default, or another #id first)')
 
 
@@ -183,7 +242,31 @@ def _loop(node: TargetCli):
         if low in ('q', 'quit', 'exit'):
             break
         if low in ('g', 'go', 'x', 'execute'):
+            lm = node.last_match
+            if lm and not node.pending_confirm:
+                # Re-check the LIVE label right before firing, not the label at
+                # selection time -- object_localizer's vote hysteresis can be
+                # defeated by a sustained (multi-second) run of misclassified
+                # frames (observed live: a majority-vote match can still be
+                # stale by execute time). Catching drift here, not just at
+                # selection, is what a fixed track id alone cannot guarantee.
+                live = next((t for t in node.track_list()
+                            if t.get('tid') == lm['tid']), None)
+                if live is None:
+                    print(f"  ! track #{lm['tid']} ('{lm['label_at_select']}') "
+                          "is no longer visible -- pick a target again")
+                    continue
+                if not _label_matches(live.get('label', ''), lm['aliases'], lm['color']):
+                    node.pending_confirm = True
+                    print(f"  !! WARNING: '{lm['phrase']}' was matched to track "
+                          f"#{lm['tid']} ('{lm['label_at_select']}') at selection "
+                          f"time, but it is now labelled '{live['label']}' -- the "
+                          "class label may have drifted (YOLOE instability), and "
+                          "executing may approach the WRONG object.")
+                    print('  type g again to execute anyway, or pick a different target.')
+                    continue
             node.execute()
+            node.pending_confirm = False
             print('  -> execute sent (watch reach_fusion for the plan/execute result)')
         elif not raw:
             continue

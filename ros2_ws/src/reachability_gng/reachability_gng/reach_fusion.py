@@ -23,8 +23,8 @@ from geometry_msgs.msg import Point, PoseArray, PoseStamped
 from rclpy.qos import QoSDurabilityPolicy, QoSProfile
 from moveit_msgs.action import MoveGroup
 from moveit_msgs.msg import (Constraints, JointConstraint, MotionPlanRequest,
-                             PlanningOptions)
-from moveit_msgs.srv import GetPositionIK
+                             PlanningOptions, RobotState)
+from moveit_msgs.srv import GetPositionIK, GetStateValidity
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
@@ -79,7 +79,12 @@ class ReachFusion(Node):
         # collision-free grasp candidates (cfree nodes within pool_radius of the
         # target). Travel terms need /joint_states; without it J uses dist+hold-manip.
         p('joint_states_topic', '/joint_states')
-        p('energy_pool_radius', 0.20)   # grasp candidates: non-danger within this
+        # 0.20 left some near-fringe targets with ZERO candidate node on any arm
+        # (observed live: arm3's nearest node to a cracker_box target was 0.201m --
+        # 1mm past the old cutoff, so the whole orientation/IK sweep never even
+        # started). 0.25 covers that gap; collision safety is unaffected since
+        # candidates still have to clear collision_radius separately.
+        p('energy_pool_radius', 0.25)   # grasp candidates: non-danger within this
         p('w_gantry_lin', 2.0); p('w_gantry_rot', 12.0); p('w_arm', 20.0)
         p('w_dist', 3.0); p('w_hold', 1.0); p('w_manip', 1.0)
         p('ref_gantry_lin', 0.95); p('ref_gantry_rot', 0.70); p('ref_arm', 6.0)
@@ -110,7 +115,11 @@ class ReachFusion(Node):
         # target without touching it (object stays a GNG obstacle, not carved).
         # Must clear the gripper length + the object's GNG collision sphere, else
         # the approach config sits on the collision boundary (IK -31 / plan fails).
-        p('grasp_standoff', 0.30)
+        # 0.35: a /check_state_validity sweep over the teddy bear (under an
+        # overhang) showed 0.30 leaves the arm's forearm/wrist in collision for
+        # ~half the orientations (6-9/16 valid), while 0.35 is collision-free for
+        # ALL 16 on BOTH arms yet still within reach (0.40 already exceeds arm1).
+        p('grasp_standoff', 0.35)
         p('approach_tol', 0.12)         # EE this close to the stand-off = success
         # MoveGroup returns code=1 as soon as it finishes STREAMING the trajectory
         # to Isaac's topic_based_ros2_control bridge, but Isaac physics (finite PD
@@ -121,11 +130,17 @@ class ReachFusion(Node):
         # commanded IK config within settle_tol (or settle_timeout elapses), then
         # measure the EE. Gantry tracks near-instantly; only the arm needs this.
         p('settle_tol', 0.03)           # max |cmd-act| joint residual = settled (rad)
-        # a large arm+gantry move (e.g. arm4 swinging across, after -4 retries)
-        # can still be 1+ rad out at 8 s under sim contention yet reach 0.01 m of
-        # the stand-off shortly after -- 8 s reported a false failure. 20 s covers
-        # the worst observed settle; a genuine miss just takes that long to report.
-        p('settle_timeout', 20.0)       # give up waiting, verify anyway (s)
+        # A slow move (vel_scale 0.1 + a large gantry rotation) under sim
+        # contention can take FAR longer than a fixed timeout to settle: a real
+        # pick was still 2.7 rad out at 20 s yet reached the stand-off (EE 0.003 m)
+        # afterwards -- a fixed 20 s reported that success as a failure. So don't
+        # give up on the clock while the arm is still CONVERGING: keep waiting as
+        # long as the residual keeps shrinking, and only stop early when it stops
+        # improving for settle_stall seconds (arm genuinely stalled) -- with a
+        # generous settle_timeout as a hard safety cap.
+        p('settle_timeout', 90.0)       # hard cap: give up + verify anyway (s)
+        p('settle_stall', 12.0)         # no residual progress this long => stalled (s)
+        p('settle_progress_eps', 0.02)  # residual drop that counts as progress (rad)
         p('settle_period', 0.5)         # poll interval (s)
         # try the vertical grasp at several yaws, then tilted approaches -- IK
         # takes the first that solves (many -31 are just an unreachable yaw).
@@ -138,6 +153,29 @@ class ReachFusion(Node):
         # -4 (CONTROL_FAILED) / -3 (env change) are transient sim mis-fires that
         # the executor also retries; re-attempt the IK->plan->execute this often.
         p('max_execute_retries', 3)
+        # self._ranked / self._target are refreshed only by _tick (publish_hz
+        # ~2 s) and only once the detector confirms the object (YOLOE ~0.75 Hz +
+        # confirm_frames), so an execute issued right after set_target -- or
+        # during a dropped detection frame -- can momentarily find them empty.
+        # Poll this long for the next tick(s) to populate them before giving up,
+        # so a warm-up/latency transient is not reported as a hard failure.
+        p('execute_wait', 6.0)
+        # After a successful approach the EE hovers over the object; retreat the
+        # arm to its READY (tuck) config before releasing, so it parks CLEAR and
+        # the next pick starts collision-free instead of blocked on top of this
+        # object. The gantry stays where it is (only the arm tucks up); joint
+        # order is [j1..j6]. Set retreat_to_ready:=false to disable.
+        p('retreat_to_ready', True)
+        p('ready_arm_joints', [0.0, 2.6, 2.6, 0.0, 0.0, 0.0])   # tuck up
+        # Last-resort backstop: if an approach chain stays busy longer than this
+        # (a hung/errored async future that skipped its busy-release), force it to
+        # fail cleanly so the node never wedges and ignores all future executes.
+        # Generous: with no early bail-out, a full sweep of up to 16 orientations
+        # x 2 seeds where MOST have a valid-but-hard-to-plan goal (each costing
+        # several seconds of real OMPL search, observed up to ~16 s) can add up;
+        # plus a 90 s settle + retreat. This is a backstop, not the expected
+        # runtime -- most attempts resolve far sooner via the goal-validity gate.
+        p('busy_timeout', 900.0)
         g = lambda k: self.get_parameter(k).value
         self.world_frame = g('world_frame')
         self.coll_r = float(g('collision_radius'))
@@ -204,6 +242,8 @@ class ReachFusion(Node):
         self.approach_tol = float(g('approach_tol'))
         self.settle_tol = float(g('settle_tol'))
         self.settle_timeout = float(g('settle_timeout'))
+        self.settle_stall = float(g('settle_stall'))
+        self.settle_progress_eps = float(g('settle_progress_eps'))
         self.settle_period = float(g('settle_period'))
         self._settle_timer = None
         self.yaw_samples = int(g('grasp_yaw_samples'))
@@ -211,10 +251,23 @@ class ReachFusion(Node):
         self.tilt_max = float(g('grasp_tilt_max'))
         self.tilt_azimuths = int(g('grasp_tilt_azimuths'))
         self.max_retries = int(g('max_execute_retries'))
+        self.execute_wait = float(g('execute_wait'))
+        self.retreat_to_ready = bool(g('retreat_to_ready'))
+        self.ready_arm_joints = [float(v) for v in g('ready_arm_joints')]
+        self.busy_timeout = float(g('busy_timeout'))
+        self._exec_wait_timer = None
+        self._exec_wait_t0 = 0.0
         self._retries = 0
+        self._busy = False            # an approach chain is in progress
+        self._busy_since = 0.0        # when the current chain started (watchdog)
         self._target = None           # latest resolved target xyz (for IK)
         self.move_cli = ActionClient(self, MoveGroup, 'move_action')
         self.ik_cli = self.create_client(GetPositionIK, '/compute_ik')
+        # Fast goal-config collision gate: reject an IK solution whose config is
+        # in collision in ~10 ms instead of spending seconds PLANNING to it and
+        # failing (-2). Lets the orientation sweep scan all 16 cheaply and only
+        # plan a collision-free config.
+        self.sv_cli = self.create_client(GetStateValidity, '/check_state_validity')
         self.hold_pub = self.create_publisher(Bool, '/gng_collision/hold', 1)
 
         self.env_pts = np.empty((0, 3))
@@ -243,6 +296,7 @@ class ReachFusion(Node):
                                  self._on_execute, 1)
         self.pub = self.create_publisher(MarkerArray, '/reach_fusion/markers', 1)
         self.create_timer(1.0 / max(float(g('publish_hz')), 0.5), self._tick)
+        self.create_timer(2.0, self._busy_watchdog)   # never wedge on a hung chain
 
     @staticmethod
     def _load_stats(path, n):
@@ -505,18 +559,90 @@ class ReachFusion(Node):
         return out
 
     def _on_execute(self, _msg):
+        # Guard re-entrancy: an approach is a long chain of async IK/plan
+        # callbacks that share self._ai/_oi/_seed_i/_exec_arm. A second execute
+        # arriving mid-chain (e.g. the user re-triggers during a slow sweep)
+        # would start a SECOND chain that interleaves and corrupts that state --
+        # observed as arm1/arm2 callbacks stomping on each other. Ignore execute
+        # while one is already running.
+        if self._busy:
+            self.get_logger().warn(
+                'execute ignored: an approach is already in progress')
+            return
+        self._busy = True
+        self._busy_since = time.monotonic()
         self._retries = 0
+        self._exec_wait_t0 = time.monotonic()
         self._attempt()
+
+    def _busy_watchdog(self):
+        """Backstop: force a stuck approach chain to end so the node never wedges
+        (a hung/errored async future that skipped its busy-release would otherwise
+        make every future execute be ignored)."""
+        if self._busy and time.monotonic() - self._busy_since > self.busy_timeout:
+            self.get_logger().error(
+                f'watchdog: approach stuck > {self.busy_timeout:.0f}s -- force reset')
+            for t in (self._settle_timer, self._exec_wait_timer):
+                if t is not None:
+                    t.cancel()
+            self._settle_timer = self._exec_wait_timer = None
+            self._hold(False)
+            self._busy = False
 
     def _hold(self, on):
         self.hold_pub.publish(Bool(data=bool(on)))   # freeze GNG collision scene
 
+    def _cancel_exec_wait(self):
+        if self._exec_wait_timer is not None:
+            self._exec_wait_timer.cancel()
+            self._exec_wait_timer = None
+
+    def _target_diag(self):
+        """'target=None (tid #6 NOT in 7 known tracks)' style detail for the
+        execute-wait log -- distinguishes an UNRESOLVED target (tid/label never
+        matched a track -- a detection/bookkeeping problem) from a resolved
+        target with zero reachable arms (a genuine reachability/collision
+        problem, which waiting longer cannot fix)."""
+        tid_info = ''
+        if self.target_label.startswith('#'):
+            try:
+                tid = int(self.target_label[1:])
+                tid_info = (f" (tid #{tid} "
+                            f"{'FOUND' if tid in self._tracks_xyz else 'NOT in'} "
+                            f"{len(self._tracks_xyz)} known tracks)")
+            except ValueError:
+                pass
+        tgt = (f"({self._target[0]:+.2f},{self._target[1]:+.2f},"
+              f"{self._target[2]:+.2f})" if self._target is not None else 'None')
+        return f'target={tgt}{tid_info}, ranked={len(self._ranked)} arm(s)'
+
     def _attempt(self):
         if not self._ranked or self._target is None:
-            self.get_logger().warn('execute: no reachable arm / target yet')
+            # Latched by _tick; may lag the execute request or a dropped
+            # detection frame. Poll for a short window before giving up so a
+            # transient is not mistaken for an unreachable/undetected object.
+            waited = time.monotonic() - self._exec_wait_t0
+            if waited < self.execute_wait:
+                self.get_logger().warn(
+                    f'execute: no reachable arm / target yet, waiting for '
+                    f'detection/tick ({waited:.1f}/{self.execute_wait:.0f}s) '
+                    f'-- {self._target_diag()}',
+                    throttle_duration_sec=1.0)
+                self._cancel_exec_wait()
+                self._exec_wait_timer = self.create_timer(
+                    self.settle_period, self._exec_wait_poll)
+                return
+            self._cancel_exec_wait()
+            self.get_logger().error(
+                f'execute: no reachable arm / target after {self.execute_wait:.0f}s '
+                f'-- {self._target_diag()} -- target unresolved (detection/bookkeeping) '
+                'if target=None, else 0 arms can reach it collision-free')
+            self._busy = False
             return
+        self._cancel_exec_wait()
         if not self.ik_cli.service_is_ready():
             self.get_logger().error('execute: /compute_ik not ready')
+            self._busy = False
             return
         self._hold(True)                          # scene stays put through execution
         self._exec_ranked = list(self._ranked)   # freeze arm order for this attempt
@@ -531,10 +657,15 @@ class ReachFusion(Node):
             f"{len(self._oris)} orientations/arm ===")
         self._try_arm()
 
+    def _exec_wait_poll(self):
+        self._cancel_exec_wait()      # one-shot: re-check now that a tick may have run
+        self._attempt()
+
     def _approach_failed(self, reason):
         dt = time.monotonic() - self._t_attempt if hasattr(self, '_t_attempt') else -1.0
         self.get_logger().error(f"=== APPROACH FAILED: {reason} ({dt:.3f}s total) ===")
         self._hold(False)
+        self._busy = False
 
     def _try_arm(self):
         if self._ai >= len(self._exec_ranked):
@@ -542,6 +673,48 @@ class ReachFusion(Node):
             return
         self._exec_arm, self._exec_gi = self._exec_ranked[self._ai]
         arm, tgt = self._exec_arm, self._exec_target
+        # Cheap pre-check: is the arm's CURRENT (start) config already in
+        # collision (e.g. parked on/inside an obstacle from a prior failed
+        # approach)? If so, EVERY orientation's path from here is doomed --
+        # skip this arm immediately (~10 ms) instead of burning a full
+        # orientation x seed sweep of multi-second plan attempts that can only
+        # ever fail. A merely HARD-to-reach target (valid start, awkward goal)
+        # does not trip this -- that case gets the full sweep below, including
+        # the tilted orientations, since only the goal orientation determines
+        # whether a collision-free path exists for those.
+        cur = self._current_q(arm['jnames'])
+        if cur is not None and self.sv_cli.service_is_ready():
+            rs = RobotState()
+            rs.joint_state = JointState(name=list(arm['jnames']),
+                                        position=[float(v) for v in cur])
+            vq = GetStateValidity.Request()
+            vq.group_name = arm['group']
+            vq.robot_state = rs
+            self.sv_cli.call_async(vq).add_done_callback(
+                lambda f, a=arm: self._on_start_valid(f, a))
+            return
+        self._start_arm_sweep(arm, tgt)
+
+    def _on_start_valid(self, fut, arm):
+        try:
+            vr = fut.result()
+        except Exception as e:  # noqa: BLE001
+            self.get_logger().warn(f'{arm["lab"]}: start-validity check error: {e}')
+            self._start_arm_sweep(arm, self._exec_target)
+            return
+        if vr is not None and not vr.valid:
+            links = sorted({c.contact_body_1 for c in vr.contacts}
+                           | {c.contact_body_2 for c in vr.contacts})
+            self.get_logger().warn(
+                f"{arm['lab']}: START config already in collision "
+                f"[{', '.join(l for l in links if l)[:90]}] -> next arm "
+                "(likely still parked on/near an obstacle)")
+            self._ai += 1
+            self._try_arm()
+            return
+        self._start_arm_sweep(arm, self._exec_target)
+
+    def _start_arm_sweep(self, arm, tgt):
         # Seed candidates (tried in order until one solves the orientation sweep):
         # the map node NEAREST the target, then the energy-ranked grasp node gi.
         # A GNG node's stored q is a topological AVERAGE, so which node seeds KDL
@@ -553,7 +726,7 @@ class ReachFusion(Node):
         self._seed_i = 0
         self._oi = 0
         self.get_logger().info(
-            f"approach {self._exec_arm['lab']} -> target "
+            f"approach {arm['lab']} -> target "
             f"(arm {self._ai + 1}/{len(self._exec_ranked)}, {len(self._oris)} oris, "
             f"{len(self._seed_nodes)} seed(s))")
         self._try_ik()
@@ -584,6 +757,33 @@ class ReachFusion(Node):
         self._t_ik = time.monotonic()
         self.ik_cli.call_async(req).add_done_callback(self._on_ik)
 
+    def _advance_candidate(self, why):
+        """Advance the (orientation -> seed -> arm) sweep after a dead-end.
+
+        Called both when IK has no solution AND when the plan/execute COLLIDES:
+        try the next grasp orientation, then the next seed node, then the
+        next-best arm. Crucially this means a vertical grasp whose PATH collides
+        (e.g. the target sits under an overhang) falls through to the TILTED
+        orientations -- which exist exactly for spots only reachable at an angle
+        -- instead of abandoning the whole arm on its first upright config."""
+        arm = self._exec_arm
+        self._oi += 1
+        if self._oi < len(self._oris):               # next orientation, same seed
+            self._try_ik()
+        elif self._seed_i + 1 < len(self._seed_nodes):   # next seed candidate
+            self._seed_i += 1
+            self._oi = 0
+            self.get_logger().warn(
+                f"{arm['lab']}: {why} over {len(self._oris)} oris on seed "
+                f"{self._seed_i}/{len(self._seed_nodes)} -> next seed")
+            self._try_ik()
+        else:                                        # exhausted -> next-best arm
+            self.get_logger().warn(
+                f"{arm['lab']}: {why} over {len(self._oris)} oris x "
+                f"{len(self._seed_nodes)} seeds -> next arm")
+            self._ai += 1
+            self._try_arm()
+
     def _on_ik(self, fut):
         arm = self._exec_arm
         dt = time.monotonic() - self._t_ik
@@ -595,32 +795,55 @@ class ReachFusion(Node):
             f"=== TIMING: IK #{self._ik_calls} {arm['lab']} ori{self._oi} "
             f"({dt:.3f}s) code={code} {'OK' if ok else ''} ===")
         if not ok:
-            self._oi += 1
-            if self._oi < len(self._oris):       # try the next orientation
-                self._try_ik()
-            elif self._seed_i + 1 < len(self._seed_nodes):   # next seed candidate
-                self._seed_i += 1
-                self._oi = 0
-                self.get_logger().warn(
-                    f"{arm['lab']}: no IK over {len(self._oris)} oris on seed "
-                    f"{self._seed_i}/{len(self._seed_nodes)} -> next seed")
-                self._try_ik()
-            else:                                # seeds exhausted -> next-best arm
-                self.get_logger().warn(
-                    f"{arm['lab']}: no IK over {len(self._oris)} oris x "
-                    f"{len(self._seed_nodes)} seeds -> next arm")
-                self._ai += 1
-                self._try_arm()
+            self._advance_candidate('no IK')
             return
         self.get_logger().info(
             f"=== TIMING: IK solved after {self._ik_calls} call(s), "
             f"{self._ik_time:.3f}s IK time, "
             f"{time.monotonic() - self._t_attempt:.3f}s since attempt start ===")
+        js = res.solution.joint_state
+        # Fast collision gate: reject a colliding goal CONFIG now (~10 ms) rather
+        # than PLANNING to it for seconds and failing (-2). Only a collision-free
+        # config goes on to plan+execute, so the orientation sweep can scan all 16
+        # cheaply and pick a valid one (or fail fast when none is).
+        if self.sv_cli.service_is_ready():
+            self._pending_js = js
+            rs = RobotState()
+            rs.joint_state = js
+            vq = GetStateValidity.Request()
+            vq.group_name = arm['group']
+            vq.robot_state = rs
+            self.sv_cli.call_async(vq).add_done_callback(self._on_state_valid)
+        else:
+            self._send_plan(arm, js)
+
+    def _on_state_valid(self, fut):
+        arm = self._exec_arm
+        try:
+            vr = fut.result()
+        except Exception as e:  # noqa: BLE001
+            self.get_logger().warn(f'{arm["lab"]}: goal-validity check error: {e}')
+            self._send_plan(arm, self._pending_js)   # fail open -> let planning decide
+            return
+        if vr is not None and vr.valid:
+            self._send_plan(arm, self._pending_js)
+            return
+        links = sorted({c.contact_body_1 for c in (vr.contacts if vr else [])}
+                       | {c.contact_body_2 for c in (vr.contacts if vr else [])})
+        self.get_logger().info(
+            f"{arm['lab']} ori{self._oi}: goal config in collision "
+            f"[{', '.join(l for l in links if l)[:90]}] -> skip (no plan)")
+        # cheap rejection -> just scan the next orientation/seed (do NOT count
+        # toward the plan-collision giveup, which is for expensive plan failures).
+        self._advance_candidate('goal in collision')
+
+    def _send_plan(self, arm, js):
         if not self.move_cli.server_is_ready():
             self.get_logger().error('execute: move_action server not ready')
+            self._hold(False)
+            self._busy = False
             return
         self._t_plan = time.monotonic()
-        js = res.solution.joint_state
         grp = set(arm['jnames'] if 'gantry' in arm['group'] else arm['jnames'][2:])
         # stash the commanded (IK-solution) group config for the post-exec diag:
         # lets _verify_approach tell "gantry/arm never reached goal" (controller
@@ -644,7 +867,11 @@ class ReachFusion(Node):
             lambda f, a=arm: self._on_goal_resp(f, a))
 
     def _on_goal_resp(self, fut, arm):
-        gh = fut.result()
+        try:
+            gh = fut.result()
+        except Exception as e:  # noqa: BLE001
+            self._approach_failed(f"{arm['lab']} MoveGroup goal error: {e}")
+            return
         self.get_logger().info(
             f"=== TIMING: MoveGroup goal {'accepted' if gh and gh.accepted else 'REJECTED'} "
             f"after {time.monotonic() - self._t_plan:.3f}s ===")
@@ -655,7 +882,14 @@ class ReachFusion(Node):
             lambda f, a=arm: self._on_exec_result(f, a))
 
     def _on_exec_result(self, fut, arm):
-        code = fut.result().result.error_code.val
+        # Guard: an errored action future here would otherwise raise out of the
+        # callback and leave _busy stuck True (all future executes ignored). Fail
+        # cleanly instead. The watchdog is the last-resort backstop.
+        try:
+            code = fut.result().result.error_code.val
+        except Exception as e:  # noqa: BLE001
+            self._approach_failed(f"{arm['lab']} execute result error: {e}")
+            return
         plan_exec_dt = time.monotonic() - self._t_plan
         total_dt = time.monotonic() - self._t_attempt
         self.get_logger().info(
@@ -665,6 +899,8 @@ class ReachFusion(Node):
             self.get_logger().info(f"{arm['lab']} execute: OK; waiting for arm to settle")
             self._settle_arm = arm
             self._settle_t0 = time.monotonic()
+            self._settle_best = float('inf')     # lowest residual seen (convergence)
+            self._settle_last_prog = self._settle_t0   # last time it improved
             if self._settle_timer is not None:
                 self._settle_timer.cancel()
             self._settle_timer = self.create_timer(self.settle_period, self._settle_check)
@@ -677,20 +913,35 @@ class ReachFusion(Node):
                 f"{arm['lab']} execute code {code} (transient) -> "
                 f"retry {self._retries}/{self.max_retries}")
             self._attempt()               # keep the scene held across the retry
-        elif code in (-1, -2):            # plan invalid/collision -> next-best arm
+        elif code in (-1, -2):            # plan invalid/collision
+            # The vertical grasp path collides (e.g. target under an overhang);
+            # try the remaining orientations / seeds on THIS arm -- a tilted
+            # approach (index >= grasp_yaw_samples) may clear the obstacle the
+            # vertical ones can't. We do NOT bail early on a run of collisions
+            # here: that was tried (plan_collide_giveup) and it cut the sweep off
+            # at 4 -- before ANY tilted orientation (index 8+) got a chance --
+            # which is indistinguishable, from a pure collision-count, from "this
+            # target genuinely needs a tilted approach". The real "arm blocked at
+            # its own start pose" case (parked on the previous object) is instead
+            # caught directly and immediately in _try_arm's start-state check,
+            # which does not cost an orientation sweep at all.
             self.get_logger().warn(
-                f"{arm['lab']} plan code {code} (path collides) -> next arm")
-            self._ai += 1
-            self._try_arm()               # hold stays on
+                f"{arm['lab']} plan code {code} (path collides) -> next orientation/seed")
+            self._advance_candidate(f'plan code {code} collides')  # hold stays on
         else:
             self._approach_failed(f"{arm['lab']} execute code {code}")
 
     def _settle_check(self):
-        """Poll until the arm reaches the commanded IK config, then verify.
+        """Poll until the arm CONVERGES to the commanded IK config, then verify.
 
-        Isaac's physics lags MoveGroup's code=1 by a few seconds (see settle_tol
-        comment); measuring the EE before the arm settles gives a false failure.
-        Waits until max |cmd-act| joint residual <= settle_tol or settle_timeout."""
+        Isaac's physics lags MoveGroup's code=1, and a slow move (vel_scale +
+        large gantry rotation) under contention can take much longer than a fixed
+        timeout to settle -- a real pick was 2.7 rad out at 20 s yet reached the
+        stand-off afterwards. So track the residual's PROGRESS: keep waiting while
+        it keeps shrinking (arm still converging), and only stop early once it has
+        not improved for settle_stall seconds (arm genuinely stalled). A generous
+        settle_timeout is the hard safety cap. Reaching settle_tol = settled."""
+        now = time.monotonic()
         arm = self._settle_arm
         sol = getattr(self, '_ik_sol', {}) or {}
         max_d = 0.0
@@ -698,19 +949,34 @@ class ReachFusion(Node):
             act = self._joints.get(n)
             if act is not None:
                 max_d = max(max_d, abs(act - v))
-        elapsed = time.monotonic() - self._settle_t0
-        if max_d <= self.settle_tol or elapsed >= self.settle_timeout:
+        if max_d < self._settle_best - self.settle_progress_eps:
+            self._settle_best = max_d          # still converging -> reset stall clock
+            self._settle_last_prog = now
+        elapsed = now - self._settle_t0
+        stalled_for = now - self._settle_last_prog
+        settled = max_d <= self.settle_tol
+        if settled or stalled_for >= self.settle_stall or elapsed >= self.settle_timeout:
             self._settle_timer.cancel()
             self._settle_timer = None
-            settled = max_d <= self.settle_tol
+            why = ('reached' if settled
+                   else 'stalled' if stalled_for >= self.settle_stall else 'timeout')
             self.get_logger().info(
-                f"=== settled={settled}: max joint residual {max_d:.3f} rad "
+                f"=== settled={settled} ({why}): max joint residual {max_d:.3f} rad "
                 f"after {elapsed:.1f}s ===")
-            self._hold(False)
-            self._verify_approach(arm)
+            self._verify_approach(arm, settled)
 
-    def _verify_approach(self, arm):
-        """Log APPROACH SUCCESS once the REAL EE (from TF) is above the object."""
+    def _verify_approach(self, arm, settled=True):
+        """Log APPROACH SUCCESS once the REAL EE (from TF) is above the object.
+
+        `settled` is False when the arm never reached the commanded IK config
+        (the controller/physics stalled -- e.g. the streamed path drives the arm
+        into an obstacle MoveGroup's planning scene does not model, so Isaac
+        blocks it despite code=1). That config is not physically executable, so
+        rather than declaring a terminal failure we fall through to the next-best
+        arm (mirrors the code=-1/-2 'path collides -> next arm' branch); the
+        scene stays HELD across the continued sweep. Only a SETTLED-but-off EE is
+        a hard failure (the arm reached its goal but the object isn't there --
+        drift / FK mismatch, which retrying the same target won't fix)."""
         goal = self._exec_target + np.array([0.0, 0.0, self.standoff])
         try:
             t = self.objn.tf.lookup_transform(
@@ -719,6 +985,8 @@ class ReachFusion(Node):
         except Exception:  # noqa: BLE001
             self.get_logger().info(
                 f"=== APPROACH DONE: {arm['lab']} (EE pose unavailable to verify) ===")
+            self._hold(False)
+            self._busy = False
             return
         err = float(np.linalg.norm(np.array([t.x, t.y, t.z]) - goal))
         total_dt = time.monotonic() - self._t_attempt
@@ -738,10 +1006,81 @@ class ReachFusion(Node):
             self.get_logger().info(
                 f"=== APPROACH SUCCESS: {arm['lab']} is above the object "
                 f"(EE {err:.3f} m from the stand-off, {total_dt:.3f}s total) ===")
+            if self.retreat_to_ready:
+                self._retreat(arm)     # park at ready; releases hold + busy when done
+            else:
+                self._hold(False)
+                self._busy = False
+        elif not settled:
+            self.get_logger().warn(
+                f"{arm['lab']} executed but the arm STALLED short of the IK "
+                f"config (EE {err:.2f} m off; likely a path through an obstacle "
+                "not in the planning scene) -> next arm")
+            self._ai += 1
+            self._try_arm()               # hold stays on across the next arm
         else:
             self.get_logger().error(
-                f"=== APPROACH FAILED: {arm['lab']} executed but EE is "
-                f"{err:.2f} m from the stand-off (not above the object) ===")
+                f"=== APPROACH FAILED: {arm['lab']} reached its goal but EE is "
+                f"{err:.2f} m from the stand-off (object drifted / not there) ===")
+            self._hold(False)
+            self._busy = False
+
+    # ---- retreat: lift the EE clear after a successful approach --------------
+    def _end_retreat(self, msg):
+        """Release the scene + busy flag and log why the retreat ended."""
+        self.get_logger().info(f"=== retreat: {msg}; arm parked, ready for next ===")
+        self._hold(False)
+        self._busy = False
+
+    def _retreat(self, arm):
+        """Park the arm at its READY (tuck) config so it clears the object it just
+        approached; the next pick then starts from a collision-free pose. This is
+        a JOINT-space goal (no IK): the 6 arm joints go to ready_arm_joints, the
+        gantry (if part of the group) is held at its current value so it does not
+        traverse. Any failure just parks as-is -- it must never wedge busy."""
+        if not self.move_cli.server_is_ready():
+            self._end_retreat('move_action unavailable, no retreat')
+            return
+        coupled = 'gantry' in arm['group']
+        arm_names = arm['jnames'][2:] if coupled else arm['jnames']
+        if len(arm_names) != len(self.ready_arm_joints):
+            self._end_retreat('ready_arm_joints size mismatch, no retreat')
+            return
+        targets = list(zip(arm_names, self.ready_arm_joints))
+        if coupled:                       # pin the gantry at its current pose
+            cur = self._current_q(arm['jnames'])
+            if cur is None:
+                self._end_retreat('no joint state, no retreat')
+                return
+            targets += list(zip(arm['jnames'][:2], [float(cur[0]), float(cur[1])]))
+        con = Constraints()
+        for n, v in targets:
+            con.joint_constraints.append(JointConstraint(
+                joint_name=n, position=float(v), tolerance_above=self.joint_tol,
+                tolerance_below=self.joint_tol, weight=1.0))
+        req = MotionPlanRequest(group_name=arm['group'])
+        req.goal_constraints = [con]
+        req.num_planning_attempts = self.plan_attempts
+        req.allowed_planning_time = self.plan_time
+        req.max_velocity_scaling_factor = self.vel_scale
+        req.max_acceleration_scaling_factor = self.acc_scale
+        goal = MoveGroup.Goal(request=req, planning_options=PlanningOptions(plan_only=False))
+        self.get_logger().info(f"retreat: parking {arm['lab']} at ready (tuck)")
+        self.move_cli.send_goal_async(goal).add_done_callback(self._on_retreat_goal)
+
+    def _on_retreat_goal(self, fut):
+        gh = fut.result()
+        if gh is None or not gh.accepted:
+            self._end_retreat('lift goal rejected')
+            return
+        gh.get_result_async().add_done_callback(self._on_retreat_done)
+
+    def _on_retreat_done(self, fut):
+        try:
+            code = fut.result().result.error_code.val
+        except Exception:  # noqa: BLE001
+            code = None
+        self._end_retreat(f'lift done (code={code})')
 
     def _point_marker(self, ns, mid, xyz, size, color, now):
         m = Marker()
