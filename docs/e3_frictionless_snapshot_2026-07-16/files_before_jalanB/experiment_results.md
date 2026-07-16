@@ -1,0 +1,318 @@
+# Experiment Results (running log)
+
+Companion to [experiment_plan.md](experiment_plan.md). Records actual numbers as
+collected. All datasets reproducible with `--seed 0`; artefacts currently in `/tmp`
+(regenerate via commands below — do NOT rely on /tmp persistence).
+
+> **RERUN 2026-07-16 (rail 2.0 + ceiling filter).** The E0/E1/E1b blocks below were
+> first measured 2026-07-05 with the rail sampled to **3.0 m** and **no ceiling cut**.
+> Both are now wrong: the URDF/MoveIt rail is **2.0 m**, and the maps now drop FK
+> samples with EE `z > 2.05 m` (arm would penetrate the ceiling). Superseding numbers
+> are in the `— RERUN` subsections; the 2026-07-05 numbers are kept struck-through for
+> provenance. Net effect: **E1 gain 5.10× → ~4.1× at res 0.05** (rail is shorter), E1b
+> conclusion unchanged (boundary seeding still recovers the edge), E0 spacing definition
+> corrected to match the code (`_node_spacing` = median nearest-neighbour, not edge
+> length).
+
+## E1 — Reachable-workspace gain from gantry DOF (arm_1) — DONE 2026-07-05
+
+**Method note (important):** voxel-occupancy volume from finite FK samples is
+resolution- AND sample-density-dependent. A first run with EQUAL sample count
+(80k each) was biased: active spans ~3× the volume of locked, so equal counts gave
+active ~3× lower sample density → active volume under-counted → gain drifted
+1.69× (res 0.03) … 4.42× (res 0.08) = an artefact, not physics. **Fix = match
+sample DENSITY:** active 450k / locked 150k (locked spans ~1/3 the volume). Report
+gain only at resolutions where BOTH datasets are saturated (≥~5 samples/voxel).
+
+Configs: `config/arm1_table1.yaml` (active: rail 0–3.0 m, rot ±180°) vs
+`config/arm1_locked.yaml` (gantry parked: linear 1.5 m, rot −90°; 6 arm DOF only).
+
+| res (m) | vol locked (m³) | vol active (m³) | gain | note |
+|---------|-----------------|-----------------|------|------|
+| 0.08 | 2.127 | 12.289 | 5.78× | saturated |
+| 0.05 | 1.920 | 9.787 | **5.10×** | saturated — **primary** |
+| 0.03 | 1.417 | 5.904 | 4.17× | under-sampled, discard |
+
+~~**Headline: gantry DOF expands the reachable workspace ~5× (5.10× at res 0.05 m;
+robust bracket 5.1–5.8× over saturated resolutions).** locked bbox ≈ 1.51×1.52×1.49 m
+(arm-only sphere); active bbox ≈ 5.19×2.31×1.49 m (rail sweeps X).~~ **← STALE (rail
+3.0). Superseded below.**
+
+### E1 — RERUN 2026-07-16 (rail 2.0, arm_1) — DONE
+
+Same density-matched method (active 450k / locked 150k). `arm1_table1.yaml` now caps the
+rail at **2.0 m** (was 3.0). Reported both without and with the `z ≤ 2.05 m` ceiling cut
+(the cut the capability map itself applies); the cut removes the same **13.2 %** of
+samples from locked and active, so the gain ratio barely moves.
+
+| res (m) | gain (no ceiling cut) | gain (ceiling z≤2.05) | note |
+|---------|-----------------------|-----------------------|------|
+| 0.08 | 4.61× | 4.46× | saturated (≥25/vox) |
+| 0.05 | **4.11×** | **4.03×** | saturated (≥7/vox) — **primary** |
+| 0.03 | 3.55× | 3.51× | under-sampled (~2.5/vox), discard |
+
+**Headline (updated): the rail DOF expands the reachable workspace ~4× (4.11× raw /
+4.03× ceiling-capped at res 0.05 m; robust bracket ~4.0–4.6× over saturated
+resolutions).** locked bbox ≈ 1.51×1.52×1.49 m (arm-only sphere, unchanged); active
+bbox ≈ **4.20×2.31×1.49 m** (was 5.19 in X — the shorter rail sweeps X ~1 m less). The
+drop from 5.10× to ~4.1× is entirely the rail going 3.0→2.0 m; ¶5 of the draft must use
+the ~4× (or "roughly four times") number, not five.
+
+Reproduce:
+```bash
+source /opt/ros/humble/setup.bash && source ros2_ws/install/setup.bash
+python3 -m reachability_gng.data_gen --config ros2_ws/src/reachability_gng/config/arm1_table1.yaml --out /tmp/e1_active_r2.npz --n 450000 --seed 0
+python3 -m reachability_gng.data_gen --config ros2_ws/src/reachability_gng/config/arm1_locked.yaml --out /tmp/e1_locked_r2.npz --n 150000 --seed 0
+python3 -m reachability_gng.eval volume --datasets /tmp/e1_locked_r2.npz /tmp/e1_active_r2.npz --res 0.05
+# ceiling-capped variant: filter pose[:,2] <= 2.05 on both before voxel_volume (inline script)
+```
+**TODO (B2, user-approved):** replicate this for one arm on gantry_2 (arm_3) to state the
+rail-DOF gain symmetrically, or explicitly claim symmetry (arm_3 is a y-mirror of arm_1).
+
+### E1b — Boundary-seeding ablation (edge shortfall) — DONE 2026-07-05
+
+Metric = reachable-EDGE fidelity: how far the GNG node hull's outer extent falls
+short of the true FK reachable surface. **Use EXTENT metrics (max reach radius +
+per-axis bbox), NOT centroid-radial-per-direction** — the active workspace is a
+long rail-swept, non-star-convex shape, so radial-from-centroid inflates spurious
+shortfalls where the shape folds (measured mean 0.14 m there is a shape artefact,
+discarded). Both models trained on the same `/tmp/arm1_dataset.npz` (80k, seed 0),
+max-nodes 3000, lam 60, epochs 2.
+
+| model | #nodes | max reach radius (m) | radius shortfall (m) | bbox extent shortfall x,y,z (m) |
+|-------|--------|----------------------|----------------------|----------------------------------|
+| TRUE surface | — | 2.572 | — | — |
+| **BOUNDARY=600** (seeded) | 3000 | 2.569 | **0.003** | 0.029, 0.023, 0.013 |
+| BOUNDARY=0 (legacy) | 2668 | 2.314 | **0.258** | 0.545, 0.405, 0.251 |
+
+~~**Headline: boundary seeding cuts the reachable-edge shortfall from 0.26 m to
+<0.01 m (max radius)** ... biggest gain along the rail axis X (0.545 → 0.029 m).~~
+**← STALE (rail 3.0, no ceiling). Superseded below.** Note the old script
+`scratchpad/edge_shortfall.py` was in the ephemeral session scratchpad and is GONE.
+
+### E1b — RERUN 2026-07-16 (rail 2.0 + ceiling, arm_1) — DONE
+
+Reconstructed the extent metric (original script lost). Radius reference = centroid of
+the true FK surface cloud (`[1.00, 0.36, 1.56]`); the per-axis **bbox-extent shortfall**
+is reference-free and carries the conclusion. Both models trained on the same
+`/tmp/arm1_dataset.npz` (80k, seed 0, ceiling z≤2.05), max-nodes 3000, lam 60, epochs 2.
+BOUNDARY=600 → `/tmp/arm1_model.npz` (2915 nodes), BOUNDARY=0 → `/tmp/arm1_model_b0.npz`
+(2317 nodes).
+
+| model | #nodes | max reach radius (m) | radius shortfall (m) | bbox extent shortfall x,y,z (m) |
+|-------|--------|----------------------|----------------------|----------------------------------|
+| TRUE surface (ceiling-cut FK) | 69460 | 2.102 | — | — |
+| **BOUNDARY=600** (seeded) | 2915 | 2.094 | **0.008** | 0.017, 0.004, 0.003 |
+| BOUNDARY=0 (legacy) | 2317 | 1.882 | **0.221** | 0.501, 0.364, 0.173 |
+
+**Headline (updated): boundary seeding cuts the reachable-edge shortfall from 0.22 m to
+<0.01 m (max radius), recovering the true workspace extent — biggest gain along the rail
+axis X (bbox shortfall 0.501 → 0.017 m).** Same conclusion as the rail-3.0 run, slightly
+smaller absolute magnitudes because the rail is shorter. Reproduce: train two models with
+`--boundary-nodes 600` vs `0` (both `--ceiling 2.05`), then the extent-shortfall calc is
+an inline numpy script (bbox span of node xyz vs ceiling-cut FK xyz).
+
+## E0 — GNG map characterization — DATA DONE (all 4 arms), figure TODO
+
+~~2026-07-05 (arm_1, arm_2 only): 3000 nodes, median spacing 0.176 m.~~ **← STALE
+(rail 3.0, no ceiling, edge-length spacing metric). Superseded below.**
+
+### E0 — RERUN 2026-07-16 (all 4 arms, rail 2.0 + ceiling z≤2.05)
+
+Current `/tmp/arm*_model.npz` (built 2026-07-16 08:56 via the parallel `build_maps.sh`,
+N=80000, max-nodes 3000, lam 60, epochs 2, boundary 600, ceiling 2.05). The ceiling cut
+drops **10540 / 80000** FK samples (EE above the rail) before fitting on all four arms.
+arm_3/arm_4 are y-mirrors of arm_1/arm_2 (gantry_2 at world y=−0.36).
+
+| property | arm_1 | arm_2 | arm_3 | arm_4 |
+|----------|-------|-------|-------|-------|
+| FK samples (raw / after ceiling cut) | 80000 / 69460 | 80000 / 69460 | 80000 / 69460 | 80000 / 69460 |
+| total nodes | 2915 | 2915 | 2915 | 2915 |
+| pinned boundary (shell) | 600 | 600 | 600 | 600 |
+| interior nodes | 2315 | 2315 | 2315 | 2315 |
+| edges | 14547 | 14562 | 14547 | 14562 |
+| median node spacing (NN, m) | 0.090 | 0.090 | 0.090 | 0.090 |
+| mean node spacing (NN, m) | 0.092 | 0.092 | 0.092 | 0.092 |
+| node x_max (m) | 3.068 | 3.102 | 3.068 | 3.102 |
+| node z_max (m) | 2.050 | 2.050 | 2.050 | 2.050 |
+| task_dim | 3 (xyz) | 3 | 3 | 3 |
+| q DOF per node | 8 (2 gantry + 6 arm) | 8 | 8 | 8 |
+
+**Spacing definition note:** "node spacing" here is the **median nearest-neighbour
+distance** between node xyz — the SAME quantity the code's `GantryArm._node_spacing`
+computes and that `pool_radius = pool_radius_factor(2.5) × spacing ≈ 0.225 m` uses. The
+old 0.176 m was the median **graph-edge length** (a different, larger metric: current
+median edge length is 0.153 m, mean 0.169 m) on the stale rail-3.0 map. Report 0.090 m
+(NN) for consistency with the pool-radius text in Section V.
+
+TODO E0: RViz figure — `ros2 launch reachability_gng view_gng.launch.py
+model_path:=/tmp/arm1_model.npz` → screenshot cloud coloured by manipulability +
+visible boundary shell (Section 3 figure). USER GUI step (needs display/noVNC).
+
+---
+
+## E2 — GNG-seeded IK benchmark — DONE 2026-07-16 (arm_1 + arm_3) ⚠ NEGATIVE RESULT
+
+Against the LIVE `move_group` (`/compute_ik`), N=500 held-out reachable poses from each
+arm's dataset, `ik_timeout=0.05 s`. Methods: `gng` (seed = nearest GNG node's q, 1 try),
+`none` (zero-vector seed, 1 try), `random` (up to 10 uniform-random restarts). `voxel`
+seed baseline NOT yet implemented (plan §5 code item — still pending).
+
+| arm | method | success | mean ms | median ms | mean manip |
+|-----|--------|--------:|--------:|----------:|-----------:|
+| arm_1 | gng | 78.0% | 5.89 | 5.55 | 0.0757 |
+| arm_1 | none | **90.6%** | 4.21 | 3.86 | 0.0718 |
+| arm_1 | random | **99.0%** | 9.77 | 5.01 | 0.0742 |
+| arm_3 | gng | 75.4% | 6.02 | 5.59 | 0.0989 |
+| arm_3 | none | **91.6%** | 4.25 | 3.91 | 0.0989 |
+| arm_3 | random | **99.2%** | 9.57 | 5.16 | 0.0989 |
+
+**⚠ The GNG seed LOSES: lower IK success and slower than the zero seed, and well below
+random-restart, on BOTH arms.** This directly contradicts the draft ¶5 placeholder
+"GNG seeding raises IK success and lowers solve time" — DO NOT write that claim.
+
+Stratified diagnostic (arm_1, N=600, `/tmp/e2_shell.py`) to test whether GNG wins on
+hard/boundary poses (the plan's intended sub-analysis) — **it does not, in any regime:**
+
+| z-shell (EE height) | n | gng | none |    | dist-to-nearest-node | n | gng | none |
+|---------------------|--:|----:|-----:|----|----------------------|--:|----:|-----:|
+| [0.9,1.4) | 150 | 88.7% | 97.3% |    | [0,0.05) (on a node) | 150 | 80.7% | 97.3% |
+| [1.4,1.7) | 195 | 82.6% | 93.8% |    | [0.05,0.10) | 347 | 79.3% | 91.6% |
+| [1.7,2.05) | 168 | 69.0% | 88.7% |    | [0.10,0.20) | 74 | 68.9% | 81.1% |
+| [2.05,3.0) | 87 | 65.5% | 79.3% |    | [0.20,∞) | 29 | 69.0% | 79.3% |
+
+Even for poses sitting essentially ON a GNG node (dist<0.05 m, GNG's best case), GNG
+still loses 80.7% vs 97.3%. Likely cause: task_dim=3, so the node's stored q matches the
+target POSITION but carries an arbitrary wrist ORIENTATION; seeding KDL from that twisted
+config within a 0.05 s timeout converges worse than a neutral zero seed.
+
+### E2-b — pipeline-faithful test (top-down grasp IK) — DONE 2026-07-16
+
+Requested by user "do (b) just to see the result." This tests GNG seeding in its ACTUAL
+pipeline role: IK to a fixed **top-down grasp** orientation (executor
+`grasp_orientation=[1,0,0,0]`), with the MOST FAVORABLE setup for GNG — the target IS a
+GNG node and the GNG seed IS that node's own stored q. `/tmp/e2b_topdown.py`, arm_1, 500
+node targets.
+
+| orientation set | gng success | none success | gng median ms | none median ms |
+|-----------------|------------:|-------------:|--------------:|---------------:|
+| single top-down (yaw=0) | 54.4% | **57.4%** | 5.34 | 5.02 |
+| top-down + 4 yaws (pipeline) | 76.6% | **77.8%** | 7.54 | 6.53 |
+
+**Even here GNG seeding gives NO benefit — tied-to-slightly-worse than a zero seed on
+both success and time.** Conclusion is now airtight: MoveIt/KDL solves the IK just as
+well from a neutral seed, so the GNG map's value is NOT IK acceleration. Its value is
+(1) selecting WHICH arm + WHERE the base goes (E3) and (2) representing the base-extended
+reachable workspace (E0/E1). The per-node q matters only as a *valid full 8-DOF config
+that carries a rail placement* for the candidate to exist — not as an IK speed-up.
+
+**→ Paper decision (user: E2-a).** Drop the IK-seeding benchmark as a contribution;
+reframe the GNG map as the arm+base SELECTION substrate + workspace representation. E2 is
+kept in this log as a documented negative result, not a paper table. (The lower top-down
+success ~54–78% vs E2-a's ~90% is expected: a fixed top-down orientation is harder than
+"any orientation," which is exactly why the executor adds the yaw+tilt fallback.)
+
+**Interpretation for the paper (decision needed — see report):** E2 tests generic
+full-pose IK, which is NOT what GNG seeding does in the live pipeline (there it seeds IK
+to a TOP-DOWN grasp at a pooled candidate, and picks succeed at 0.006–0.016 m). Options:
+(a) DROP the IK-seeding benchmark and frame the GNG map purely as the arm+base SELECTION
+substrate + workspace representation (E0/E1/E3), which is the actual star; or (b) redesign
+E2 to measure GNG's real role (seed IK to the pooled top-down grasp vs neutral). Do NOT
+report the current E2 as a GNG win. CSVs: `/tmp/e2_arm1.csv`, `/tmp/e2_arm3.csv`.
+
+---
+
+## E3 — Energy-aware arm & base selection (UTAMA) — FULL SWEEP DONE 2026-07-16
+
+Code + driver validated, then the full sweep run against the live `move_group`
+(plan-only, `compute_traj_energy:=true`), full 4-arm workcell
+(`launch_workcell.sh full`). Grid = union reachable hull, symmetric y,
+`--nx 6 --ny 5 --nz 2` = 60 positions, same grid for every mode.
+
+**New code (additive, backward-compatible):**
+- `gantry_reach_executor.py`: param `selection_mode ∈ {energy,nearest,fixed,random}`
+  (+ `fixed_arm`, `random_seed`). Only the candidate ATTEMPT ORDER changes per mode;
+  J is still computed + logged for every candidate. New CSV column `selection_mode`.
+- `gantry_pick.launch.py`: `selection_mode:=` and `fixed_arm:=` launch args.
+- `scripts/e3_grid_driver.py`: publishes a grid of `/target_object` poses (union
+  reachable hull, symmetric y) and triggers a plan-only pick per position.
+
+**Blocker investigated and REFUTED (2026-07-16):** an earlier 12-position subset run
+(same day) had found arm_3/arm_4 (gantry_2) always failing IK (-31) on the top-down
+grasp at every y=−1.2 target, leading to a "arm_3/4 need a mirrored grasp quaternion"
+hypothesis. Root-caused before touching any code:
+1. URDF check (`workcell.urdf.xacro`, `moving_table.urdf.xacro`): arm_3's mount `origin
+   rpy` is byte-identical to arm_1's (`3.14159 0 -1.5707963267948966`), and the
+   `moving_table` xacro macro is reused verbatim for t1_/t2_ — gantry_2 is a pure
+   Y-translation of gantry_1 (y=−0.36 vs +0.36), **no orientation mirroring exists in
+   the mechanism**. So a mirrored grasp quaternion was never structurally necessary.
+2. Live `/compute_ik` A/B (arm_1 vs arm_3, several candidate orientations, zero seed):
+   arm_1 and arm_3 behaved identically — both solve `[1,0,0,0]` at their respective
+   rails, both need the yaw-sweep for some orientations. No arm_3-specific failure mode.
+3. The actual cause of the earlier failure was an **unrelated stale environment**: the
+   `move_group` instance running at investigation time was `launch_workcell.sh`'s
+   DEFAULT `gng` mode (table1-only bringup, `GNG_HIDE_T2=1`) — gantry_2/arm_3/arm_4
+   were **absent from that URDF entirely** (`/compute_ik` returned -15
+   INVALID_LINK_NAME for `t2_a1_tool_frame`, confirmed live). The 12-position subset run
+   must have hit a different transient (orchestration contention, per the existing
+   gotchas below), not a code defect. Fix: restart with `launch_workcell.sh full`.
+4. Re-ran the exact failing target (x=1.0, y=−1.2, z=1.1) against `fixed_arm:=arm_3`
+   on a clean full-mode stack with the **unmodified default** `grasp_orientation` — IK
+   solved on cand#0, planned OK. Swept x∈{0.3,0.9,1.5,2.1,2.7} at y=−1.2 (arm_3) vs the
+   mirrored y=+1.2 (arm_1): **5/6 succeed on both sides**, with the single failure at
+   the same edge-of-rail x=2.7/2.8 on both — symmetric, expected, not an arm_3/4 bug.
+   **No code change was made or needed.**
+
+**Full sweep results (60 positions/mode, plan-only):**
+
+| mode | success | rate | gantry_lin (m) mean/med | gantry_rot (rad) mean/med | d_arm (rad) mean/med | traj_energy (J) mean/med | plan_time (s) mean/med |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **energy** (paper) | 56/60 | 93.3% | 1.131 / 1.163 | 0.632 / 1.388 | 6.552 / 5.893 | 13.187 / 12.314 | 0.081 / 0.079 |
+| nearest | 56/60 | 93.3% | 1.205 / 1.335 | 0.367 / 0.277 | 7.937 / 7.496 | 12.006 / 10.718 | 0.080 / 0.081 |
+| random | 56/60 | 93.3% | 1.153 / 1.134 | 0.123 / 0.355 | 8.128 / 7.693 | 12.869 / 11.661 | 0.080 / 0.080 |
+| fixed arm_1 | 37/60 | 61.7% | 1.072 / 1.048 | 0.099 / −0.012 | 8.013 / 7.491 | 14.892 / 15.648 | 0.083 / 0.082 |
+| fixed arm_2 | 38/60 | 63.3% | 1.177 / 1.119 | −0.188 / −0.417 | 8.088 / 7.639 | 12.761 / 11.038 | 0.079 / 0.080 |
+| fixed arm_3 | 36/60 | 60.0% | 1.146 / 1.401 | 0.135 / −0.057 | 7.772 / 7.353 | 11.498 / 9.869 | 0.076 / 0.075 |
+| fixed arm_4 | 39/60 | 65.0% | 1.181 / 1.139 | 0.256 / 0.680 | 7.467 / 7.171 | 12.866 / 11.189 | 0.078 / 0.079 |
+
+**Fixed baseline (per E3 plan revision, BEST & WORST of the 4):** BEST = **arm_4**
+(39/60, 65.0%), WORST = **arm_3** (36/60, 60.0%) — the four single-arm baselines
+cluster tightly around 60–65%, roughly symmetric between gantries (arm_1 37 vs arm_3
+36; arm_2 38 vs arm_4 39), as expected from the workcell's near-mirror geometry. All
+three multi-arm policies (energy/nearest/random) reach 93.3%, ~30 points above any
+single fixed arm — confirming 4-arm coverage is the main reachability win.
+**Caveat (report honestly, do not spin):** on this grid's aggregate, energy's mean/
+median `traj_energy` (13.187/12.314 J) is actually the *highest* of the three
+multi-arm policies, not the lowest (nearest 12.006/10.718, random 12.869/11.661) —
+i.e. `J` does not dominate `nearest`/`random` on population-average realised
+mechanical energy here. This is consistent with the pre-existing finding (E3
+calibration, `gantry_reach_executor.py` header) that `J`'s correlation with
+Pinocchio-computed `traj_energy` is weak (best single term rho≈0.31) because the
+URDF has no joint damping/friction and both gantry axes are orthogonal to gravity,
+so this idealised rigid-body energy likely under-represents real motor draw
+(friction/stiction). Energy's clearest, defensible win in this dataset is
+**arm-joint travel** (mean 6.552 rad vs 7.937 nearest / 8.128 random — energy
+visibly trades base travel for arm travel) and the qualitative "picks a farther,
+cheaper arm" behaviour in the case studies below, not a population-level energy
+reduction. Do not claim the latter without re-deriving `traj_energy`'s ties to a
+more realistic dynamics model.
+Per-arm win counts: energy {arm_2:18, arm_3:14, arm_1:12, arm_4:12}; nearest
+{arm_2:18, arm_3:14, arm_1:13, arm_4:11}; random {arm_2:21, arm_3:12, arm_1:12,
+arm_4:11} — all 4 arms, including gantry_2's arm_3/4, are actually selected across the
+grid (the earlier blocker's "gantry_2 never wins" concern does not hold once the full
+mode is used).
+
+**"J picks a farther/costlier-travel arm that is actually cheaper" case for Fig. 5**
+(same grid index, same target, energy vs nearest CSVs compared row-by-row; energy
+picked a DIFFERENT arm than nearest in 30/56 comparable rows):
+- target (x=0.00, y=−0.60, z=1.15): **energy → arm_3** (gantry_lin=0.574 m,
+  d_arm=5.385 rad, J=19.80, traj_energy=**11.36 J**) vs **nearest → arm_2**
+  (gantry_lin=0.000 m, d_arm=12.219 rad, J=73.61, traj_energy=**14.63 J**). Energy
+  accepts MORE gantry (base) travel on arm_3 to avoid a much larger arm-joint
+  excursion on arm_2, for both a lower J and a lower realised traj_energy.
+- Second example, same pattern: target (x=0.56, y=0.00, z=1.15): energy → arm_3
+  (gantry_lin=0.689, traj_energy=**5.61 J**) vs nearest → arm_2 (gantry_lin=0.306,
+  traj_energy=**11.27 J**) — again farther base travel, lower realised energy.
+
+CSVs: `/tmp/e3_energy.csv`, `/tmp/e3_nearest.csv`, `/tmp/e3_random.csv`,
+`/tmp/e3_fixed_arm{1,2,3,4}.csv` (60 rows each, shared header, `selection_mode` column).
