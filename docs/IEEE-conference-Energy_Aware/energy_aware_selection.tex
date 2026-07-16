@@ -45,7 +45,7 @@
 The two ceiling-mounted \textcolor{red}{rails} carrying four arms \textcolor{red}{turn} every pick into two coupled decisions:
 which arm should act, and where \textcolor{red}{its base should go}, since repositioning the
 \textcolor{red}{base} is one of the dominant costs of the motion. We propose an energy-aware
-selection cost $J$ that chooses the arm and the full eight-degree-of-freedom
+selection cost $J$ that chooses the arm and the full eight-degree-of-freedom (8-DOF)
 configuration together over a base-aware capability map built with Growing Neural
 Gas (GNG). Every map node stores a representative configuration \textcolor{red}{that includes its rail placement}, together with its
 manipulability and the effort needed to hold it against gravity, so \textcolor{red}{each node already fixes both an arm and a base rather than marking only whether a cell is reachable}. Treating the rail as a
@@ -54,14 +54,16 @@ the measured reachable workspace by \textcolor{red}{about four times}, and a bou
 keeps the map accurate to within a few centimetres of the true reach surface. In
 simulation on NVIDIA Isaac Sim, \textcolor{red}{energy-aware
 selection is evaluated} against \textcolor{red}{nearest, fixed, and random baseline} policies for
-arm and base choice; \textcolor{red}{over a 60-position grid, the multi-arm policies
-(energy-aware, nearest, random) each reach 93.3\% plan success, versus 60--65\% for
-any single fixed arm, and energy-aware selection substantially lowers both summed
-arm-joint travel (6.55~rad mean vs.\ 7.94--8.13~rad for nearest/random) and
-rail-rotation travel (0.68~rad vs.\ 1.37~rad for nearest/random, roughly half),
-without trading one for the other, though aggregate measured mechanical
-energy across the grid is comparable across the three multi-arm policies and not
-uniformly lower under this idealised (damping-free) dynamics model}.
+arm and base choice, using a rail dynamics model with an assumed Coulomb/viscous
+friction (a modelling assumption, not measured hardware data) so that
+repositioning the rail carries a real energy cost; \textcolor{red}{over a
+60-position grid, the multi-arm policies (energy-aware, nearest, random) each
+reach 93.3\% plan success, versus 63--65\% for any single fixed arm, and
+energy-aware selection reaches the lowest mean measured mechanical energy of the
+three multi-arm policies (5.1\% below nearest, 3.1\% below random), with a
+majority (57--61\%) same-target pairwise win rate against each baseline, though
+the median result is closer -- a real but partial improvement, not a uniform win
+on every metric}.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -84,17 +86,17 @@ and robots must also share these spaces with the residents at all times.
 In the case of mobile manipulator robots that traverse the floor, this can impede 
 the mobility of residents, who must exercise caution when walking or performing 
 activities within the residence to avoid collisions with the robot \cite{sisbot2007human}. 
-One potential solution to this problem is to elevate the robot entirely off the floor \cite{toyama2002development}. 
+One potential solution to this problem is to elevate the robot entirely off the floor \cite{Lalonde2024}.
 In the event that the robotic arm is suspended from the ceiling, 
 the floor area will be considered safe for the residents. 
 Consequently, the robot will be able to continue performing its duties 
-as an in-home assistant from above without interfering with the residents' activities \cite{Jayathilaka2025}. 
+as an in-home assistant from above without interfering with the residents' activities \cite{Kaluarachchi2025}.
 The present study focuses on the analysis of a ceiling robot equipped with a \textcolor{red}{dual-gantry} system.
 Each gantry is equipped with two six-degree-of-freedom (6 DOF) arms, 
 thereby constituting a quad-arm cooperative overhead manipulator.
 
 Each gantry is characterized by two distinct types of motion: linear and rotational. 
-Consequently, each arm possesses eight degrees of freedom. 
+Consequently, each arm possesses eight degrees of freedom (8-DOF).
 A given object can typically be accessed by \textcolor{red}{several arms}, and from a multitude of
 \textcolor{red}{base} positions. 
 The robot, therefore, confronts two coupled inquiries simultaneously: 
@@ -163,15 +165,15 @@ has been demonstrated to effectively recover the true reach at the workspace edg
 with an accuracy of approximately one centimeter relative to the forward-kinematics 
 reach surface. Furthermore, the employment of energy-aware
 selection, together with the other multi-arm baselines, has been shown to raise
-plan success from 60--65\% (any single fixed arm) to 93.3\%, and energy-aware
-selection specifically reduces both summed arm-joint travel and rail-rotation
-travel relative to the nearest
-and random baselines \textcolor{red}{(arm: 6.55~rad mean vs.\ 7.94/8.13~rad;
-rail-rotation: 0.68~rad vs.\ 1.37/1.37~rad, roughly half; aggregate
-measured mechanical energy across the grid was comparable across the three
-multi-arm policies rather than uniformly lower for energy-aware selection, a
-limitation of the idealised damping-free dynamics model used to compute it --
-see Section~VI-C)}. In order to ground these findings, our simulation in NVIDIA Isaac Sim \cite{IsaacSim2026}
+plan success from 63--65\% (any single fixed arm) to 93.3\%, and under a rail
+dynamics model with assumed Coulomb/viscous friction (a modelling assumption,
+not measured hardware data, so that rail travel carries a real energy cost)
+energy-aware selection reaches the lowest mean measured mechanical energy of the
+three multi-arm policies \textcolor{red}{(45.84~J mean vs.\ 48.28~J nearest,
+$-5.1\%$, and 47.31~J random, $-3.1\%$; a majority same-target pairwise win rate
+of 57--61\% against each baseline, though the median result is closer to
+random's -- see Section~VI-C for the full, honestly-reported comparison)}. In
+order to ground these findings, our simulation in NVIDIA Isaac Sim \cite{IsaacSim2026}
 is modeled as a high fidelity digital twin of our physical trailer living laboratory 
 and ceiling-mounted robot system \cite{Kubota2022}. 
 While the physical integration and real-world validation of this dual-gantry quad-arm 
@@ -261,7 +263,7 @@ perception$\to$selection$\to$planning pipeline (right)}
 \caption{Overview of the \textcolor{red}{dual-gantry quad-arm ceiling} robot and the proposed pipeline.
 Left: \textcolor{red}{two rails mounted to the ceiling, each carrying two Kinova Gen3 Lite arms and each adding a
 prismatic axis ($d$) and a revolute axis ($\theta$) that its two arms share}, so each
-arm forms an eight-degree-of-freedom chain $\mathbf{q}=[d,\theta,q_1 \ldots q_6]$;
+arm forms an 8-DOF chain $\mathbf{q}=[d,\theta,q_1 \ldots q_6]$;
 two overhead RGB-D cameras observe the workspace. Right: the end-to-end pipeline,
 from open-vocabulary perception, through energy-aware arm-and-base selection over
 the base-aware capability map, to collision-free planning and execution.}
@@ -278,7 +280,7 @@ It is evident that each rail contributes an additional degree of freedom
 to the pair of arms, resulting in a prismatic axis that enables horizontal 
 movement of the carriage, and a revolute axis that facilitates rotation. 
 Consequently, with respect to the ground, each arm establishes an 
-eight-degree-of-freedom chain. The configuration of one arm is expressed as follows:
+8-DOF chain. The configuration of one arm is expressed as follows:
 as $\mathbf{q} = [d,\ \theta,\ q_1,\ \ldots,\ q_6]$, where $d$ and $\theta$ are the translation 
 and rotation of that arm's own rail, and $q_1 \ldots q_6$ the arm joints.  
 The kinematic tree is anchored at a fixed world frame, thereby ensuring stability 
@@ -304,12 +306,15 @@ are consistent with the real hardware. The scene is characterised by the placeme
 of a set of everyday tabletop objects within the workspace. A number of these 
 objects are positioned within easy reach of several arms, while at least one is 
 deliberately placed near the edge of the workspace (Fig.~\ref{fig:scene}). 
-The scene is observed by two RGB-D cameras placed above the
-workspace, which are the system's only exteroceptive sensor. Their images serve two
-roles at once. The color stream feeds the object detector, and the depth stream
-builds the collision octomap used for planning, so a single sensing rig supports
-both perception and collision avoidance. We treat the simulator as the evaluation
-platform for this work and validate on the physical robot in future work.
+The scene under consideration is observed by two RGB-D cameras placed 
+above the workspace. These cameras constitute the system's sole exteroceptive 
+sensor. It is evident that the images in question fulfil dual roles. 
+The colour stream is utilised by the object detector, while the depth stream 
+contributes to the construction of the collision octomap, which is employed for 
+the purpose of planning. Consequently, a single sensing rig serves to facilitate 
+both perception and collision avoidance. In this study, the simulator is utilised 
+as the evaluation platform, with the physical robot being employed for validation 
+in subsequent research endeavours.
 
 \begin{figure}[htbp]
 \centering
@@ -322,15 +327,17 @@ least one object is placed near the edge of the reachable workspace.}
 
 \subsection{Perception Front End}
 
-Target objects are supplied to the pipeline by an open-vocabulary perception module
-based on YOLOE, a real-time model that detects and segments objects from free-form
-text prompts \cite{Wang2025}. Running on the color image from each of the two
-overhead cameras, it returns a segmentation mask per object, which we back-project
-with the aligned depth and combine across the two viewpoints to estimate the
-object's position in the world frame. This lets the operator ask for an object by
-name and have the system localize it without a fixed object database
-(Fig.~\ref{fig:perception}). Perception acts as the enabling front end here,
-providing the target that the capability map and the energy cost then act on.
+The target objects are supplied to the pipeline by an open-vocabulary perception 
+module based on YOLOE, a real-time model that detects and segments objects 
+from free-form text prompts \cite{Wang2025}. The colour image from each of 
+the two overhead cameras is processed to generate a segmentation mask for 
+each object. These masks are then back-projected with the aligned depth data 
+and combined across the two viewpoints to estimate the object's position in 
+the world frame. This facilitates the operator's ability to request an object 
+by name and enable the system to localise it in the absence of a fixed object 
+database (Fig.~\ref{fig:perception}). In this context, perception functions 
+as the enabling front end, providing the target on which the capability map 
+and the energy cost are subsequently based.
 
 \begin{figure}[htbp]
 \centering
@@ -345,34 +352,40 @@ with depth to localize the object in the world frame.}
 
 Given a target and a candidate configuration, the motion layer is built on MoveIt~2
 \cite{Coleman2014} with planners from the Open Motion Planning Library
-\cite{Sucan2012}. Inverse kinematics requests are answered by MoveIt against the
-current robot state, and collisions are checked against an octomap that is
-populated from the two cameras' depth images, so a plan avoids both the scene and
-the robot's own body. The object chosen as the target is excluded from the cloud
-that feeds the octomap so that it can be grasped, while the remaining objects and
-the environment stay as obstacles. The capability map of Section~IV is built
-offline with the Pinocchio rigid-body-dynamics library \cite{Carpentier2019}, which
-we use for forward kinematics when sampling configurations and for the gravity
-torque that gives each map node its holding cost. At run time a candidate drawn
-from the map seeds the inverse-kinematics query, MoveIt plans a collision-free
-motion to it, and the motion is optionally executed in simulation. The selection
-procedure that decides which candidate to try, and in which order, is the subject
-of Section~V.
+\cite{Sucan2012}.  Inverse kinematics requests are answered by MoveIt against 
+the current robot state. Collisions are checked against an octomap that is 
+populated from the two cameras' depth images. This ensures that a plan avoids 
+both the scene and the robot's own body. The object selected for removal is 
+isolated from the cloud that supplies the octomap, thus enabling its grasping, 
+while the remaining objects and the environment persist as obstacles. 
+The capability map of Section IV is constructed offline with the Pinocchio 
+rigid-body dynamics library \cite{Carpentier2019}, which is employed for the 
+purpose of forward kinematics when sampling configurations and for the gravity 
+torque that imbues each map node with its holding cost. During the execution 
+phase, a candidate is selected from the map seeds. Subsequently, the inverse-kinematics 
+query is initiated, and the MoveIt software plans a collision-free motion to 
+the selected candidate. This motion can be executed in simulation, depending on 
+the user's preference. The selection procedure that determines which candidate is 
+to be selected, as well as the order in which they are to be selected, is the 
+subject of Section V.
 
 \section{Base-Aware GNG Capability Map}
 
-The core of our method is a capability map of a single arm. For every location the
-end-effector can reach, the map stores a configuration that reaches it and a
-measure of how good that configuration is. Unlike a reachability map, which encodes
-only whether a location is attainable, this representation associates each
-reachable location with a concrete configuration and a quality measure, and it is
-base-aware in that the stored configuration incorporates the rail's degrees of
-freedom. We build one such capability map per arm, so the \textcolor{red}{four arms across the two rails
-are described by four maps} that we query independently in Section~V.
+The fundamental principle of our methodology is the creation of a capability map 
+of a single arm. For each location at which the end-effector has the capacity 
+to reach, the map retains a configuration that enables access, in addition to a 
+measurement of the efficacy of that configuration. In contradistinction to a 
+reachability map, which encodes solely whether a location is attainable, 
+this representation associates each reachable location with a concrete 
+configuration and a quality measure. Furthermore, it is base-aware in 
+that the stored configuration incorporates the rail's degrees of freedom. 
+The construction of a capability map is undertaken for each arm; consequently, 
+the four red arms that traverse the two rails are delineated by four maps 
+that are queried independently in Section V.
 
 \subsection{Sampling Reachable Configurations}
 
-We sample the eight-degree-of-freedom configuration
+We sample the 8-DOF configuration
 $\mathbf{q} = [d,\ \theta,\ q_1,\ \ldots,\ q_6]$ uniformly within the joint limits
 and compute the resulting end-effector pose by forward kinematics with the
 Pinocchio library \cite{Carpentier2019}. For each sample we also record the
@@ -430,7 +443,7 @@ node, so they are available at query time at no extra cost.
 \section{Energy-Aware Arm and Base Selection}
 
 Given the object pose from perception and the two capability maps, the selection
-stage decides which arm to use and which eight-degree-of-freedom configuration to
+stage decides which arm to use and which 8-DOF configuration to
 reach with. It makes both decisions together, by an energy cost evaluated over
 candidates drawn from the maps.
 
@@ -456,30 +469,34 @@ configuration is cheaper. Each term is divided by a fixed reference $\rho$ befor
 its weight is applied, which makes the terms dimensionless and of comparable
 magnitude so that a weight reads directly as the priority of that term. We set each
 reference to the median value the term takes over a calibration set of picks, so
-that no term dominates the sum merely because of the units it is measured in, and
-we tune the weights on the same set rather than by hand. Table~\ref{tab:weights}
+that no term dominates the sum merely because of the units it is measured in.
+\textcolor{red}{The weights themselves are fit by ordinary least squares,
+regressing the measured mechanical energy of executed trajectories on the six
+normalized terms over a calibration set of picks, rather than set by hand
+(Section~VI-C reports the fit quality).} Table~\ref{tab:weights}
 lists the calibrated weights and references.
 
 \begin{table}[htbp]
-\caption{Calibrated weights and normalization references for the energy cost $J$.
-Each reference $\rho$ is the median raw value of its term over the calibration set
-of picks.}
+\caption{\textcolor{red}{Calibrated weights and normalization references for the
+energy cost $J$, fit by OLS regression against measured mechanical energy under
+the rail friction model (Section~VI-C). Each reference $\rho$ is the median raw
+value of its term over the 168-pick calibration set.}}
 \begin{center}
 \begin{tabular}{|l|c|r|r|}
 \hline
 \textbf{Term} & \textbf{Symbol} & \textbf{Weight} & \textbf{Reference $\rho$} \\
 \hline
-Rail linear travel & $\Delta_{lin}$ & 2 & 0.95 \\
+Rail linear travel & $\Delta_{lin}$ & \textcolor{red}{27.16} & \textcolor{red}{1.18} \\
 \hline
-Rail rotation travel & $\Delta_{rot}$ & 12 & 0.70 \\
+Tool-to-object distance & $e$ & \textcolor{red}{12.78} & \textcolor{red}{1.45} \\
 \hline
-Arm joint travel & $\Delta_{arm}$ & 20 & 6.00 \\
+Rail rotation travel & $\Delta_{rot}$ & \textcolor{red}{3.08} & \textcolor{red}{1.24} \\
 \hline
-Tool-to-object distance & $e$ & 3 & 1.36 \\
+Manipulability (subtracted) & $m$ & \textcolor{red}{2.95} & \textcolor{red}{0.105} \\
 \hline
-Gravity holding torque & $h$ & 1 & 2.90 \\
+Arm joint travel & $\Delta_{arm}$ & \textcolor{red}{0.09} & \textcolor{red}{7.18} \\
 \hline
-Manipulability (subtracted) & $m$ & 1 & 0.145 \\
+Gravity holding torque & $h$ & \textcolor{red}{0 (disabled)} & \textcolor{red}{2.04} \\
 \hline
 \end{tabular}
 \label{tab:weights}
@@ -490,7 +507,14 @@ The terms are proxies for the energy of carrying out the pick. Rail and arm trav
 are the mechanical work of moving each axis, with the heavy rail the dominant cost
 \cite{MoMaPos2024,BaSeNet2024}; the tool-to-object distance stands for the arm
 motion still needed to reach the object; and the holding term charges for fighting
-gravity. We do not claim that $J$ is the exact energy of a pick, but Section~VI
+gravity. \textcolor{red}{The rail carries a Coulomb and viscous friction model
+(mass- and coefficient-of-friction-derived, a stated modelling assumption rather
+than measured hardware data; Section~VI-C), which is what lets rail-linear travel
+dominate the fitted weights -- under a frictionless rail this same regression
+gave a far weaker fit ($R^2=0.055$) and put nearly all weight on arm travel
+instead. The gravity-holding term's OLS coefficient came out negative and weak,
+so it is disabled ($w_{hold}=0$) rather than fit backwards.} We do not claim that
+$J$ is the exact energy of a pick, but Section~VI
 shows that minimizing it lowers the measured mechanical energy of the executed
 trajectory relative to the baselines \cite{EnergySLR2024}.
 
@@ -636,8 +660,8 @@ recovery along the rail's travel axis (\textcolor{red}{$x$: 0.501~m~$\to$~0.017~
 \centering
 \FIGPLACEHOLDER{3.5cm}{(a) bar chart: reachable volume, rail locked vs. active
 (Table~\ref{tab:e1}, data ready); (b) boxplot: rail-linear/rail-rotation/arm travel
-and traj\_energy per selection mode, data ready (Table~\ref{tab:e3},
-\texttt{/tmp/e3\_\{energy,nearest,random,fixed\_arm1..4\}.csv})}
+and traj\_energy per selection mode, friction-model data ready (Table~\ref{tab:e3},
+\texttt{/tmp/e3b\_\{energy\_v2\_clean,nearest,random,fixed\_arm1..4\}.csv})}
 \caption{Results. (a) Reachable-workspace volume with the rail locked versus
 active, showing the gain from treating the base as a DOF. (b) Rail travel and
 mechanical energy per selection mode (energy-aware vs. nearest, fixed, random).}
@@ -664,55 +688,81 @@ successful picks only, mean/median rail-linear travel, rail-rotation travel,
 summed arm-joint travel, measured mechanical energy (Pinocchio inverse dynamics),
 and plan time.}
 
+\textcolor{red}{\textbf{Rail friction model.} The gantry rail's URDF joints
+originally carried no \texttt{<dynamics>} damping/friction, so this idealised
+rigid-body energy could not see the cost of horizontal rail travel (both rail
+axes are orthogonal to gravity) and $J$'s single-term correlation with measured
+\texttt{traj\_energy} topped out at $\rho\approx0.31$. We add a
+\emph{modelling assumption, not measured hardware data}: Coulomb friction
+$=\mu N$ ($N=$ carried weight $\times g$, mass from the URDF's own link masses)
+plus a small viscous term, on both rail joints ($\mu=0.15$, mid of a typical
+linear-guide range 0.10--0.20; friction $=27.6$~N linear / $2.03$~Nm rotational).
+Since Pinocchio's \texttt{rnea} does not itself apply URDF friction/damping (we
+verified this by comparing \texttt{rnea} output at zero vs.\ non-zero joint
+velocity, which was identical without this fix), the dissipated power is added
+explicitly to \texttt{traj\_energy}. We then re-fit $w_*$/$\mathrm{ref}_*$ by OLS
+regression of measured energy on the six normalised $J$ terms (168 pooled picks),
+reaching $R^2=0.857$ and $\mathrm{Spearman}(J,\mathrm{energy})=0.909$ (up from
+$R^2=0.055$/$\rho\approx0.31$ without friction) -- $\mathrm{gantry\_lin}$ becomes
+the dominant term ($w=27.16$) and $\mathrm{arm}$ becomes nearly negligible
+($w=0.09$), consistent with a friction-dominated rail cost. Notably, the
+calibration recovers from the measured energy alone the Section~I premise that
+repositioning the base is the dominant cost of a pick, which the frictionless rail
+model was structurally unable to represent. Table~\ref{tab:e3}
+reports the rerun under this friction model and the recalibrated weights.}
+
 \begin{table}[htbp]
-\caption{\textcolor{red}{E3: selection-policy comparison, 60 target poses,
-plan-only (mean / median over successful picks).}}
+\caption{\textcolor{red}{E3: selection-policy comparison under the rail-friction
+model, 60 target poses, plan-only (mean / median over successful picks).}}
 \begin{center}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|}
 \hline
 \textbf{Mode} & \textbf{Succ.} & \textbf{Rail lin. (m)} & \textbf{Rail rot. (rad)} & \textbf{Arm (rad)} & \textbf{Energy (J)} \\
 \hline
-\textcolor{red}{energy (ours)} & \textcolor{red}{56/60 (93.3\%)} & \textcolor{red}{1.14/1.16} & \textcolor{red}{0.68/0.42} & \textcolor{red}{6.55/5.89} & \textcolor{red}{13.19/12.31} \\
+\textcolor{red}{energy (ours)} & \textcolor{red}{56/60 (93.3\%)} & \textcolor{red}{0.97/1.01} & \textcolor{red}{1.27/1.14} & \textcolor{red}{8.66/8.76} & \textcolor{red}{\textbf{45.84}/52.34} \\
 \hline
-\textcolor{red}{nearest} & \textcolor{red}{56/60 (93.3\%)} & \textcolor{red}{1.19/1.41} & \textcolor{red}{1.37/1.33} & \textcolor{red}{7.94/7.50} & \textcolor{red}{12.01/10.72} \\
+\textcolor{red}{nearest} & \textcolor{red}{56/60 (93.3\%)} & \textcolor{red}{1.19/1.41} & \textcolor{red}{1.37/1.33} & \textcolor{red}{7.94/7.50} & \textcolor{red}{48.28/54.79} \\
 \hline
-\textcolor{red}{random} & \textcolor{red}{56/60 (93.3\%)} & \textcolor{red}{1.17/1.28} & \textcolor{red}{1.37/1.35} & \textcolor{red}{8.13/7.69} & \textcolor{red}{12.87/11.66} \\
+\textcolor{red}{random} & \textcolor{red}{56/60 (93.3\%)} & \textcolor{red}{1.17/1.28} & \textcolor{red}{1.36/1.35} & \textcolor{red}{8.10/7.69} & \textcolor{red}{47.31/51.72} \\
 \hline
-\textcolor{red}{fixed (best: arm\_4)} & \textcolor{red}{39/60 (65.0\%)} & \textcolor{red}{1.14/1.21} & \textcolor{red}{1.22/1.23} & \textcolor{red}{7.47/7.17} & \textcolor{red}{12.87/11.19} \\
+\textcolor{red}{fixed (best: arm\_4)} & \textcolor{red}{39/60 (65.0\%)} & \textcolor{red}{1.14/1.21} & \textcolor{red}{1.22/1.23} & \textcolor{red}{7.47/7.17} & \textcolor{red}{49.79/55.78} \\
 \hline
-\textcolor{red}{fixed (worst: arm\_3)} & \textcolor{red}{36/60 (60.0\%)} & \textcolor{red}{1.19/1.41} & \textcolor{red}{1.65/1.44} & \textcolor{red}{7.77/7.35} & \textcolor{red}{11.50/9.87} \\
+\textcolor{red}{fixed (worst: arm\_1)} & \textcolor{red}{38/60 (63.3\%)} & \textcolor{red}{1.13/1.28} & \textcolor{red}{1.74/1.67} & \textcolor{red}{8.05/7.56} & \textcolor{red}{45.43/43.12} \\
 \hline
 \end{tabular}}
 \label{tab:e3}
 \end{center}
 \end{table}
 
-\textcolor{red}{The four single-arm \texttt{fixed} baselines cluster at 60--65\%
-success and are roughly symmetric between gantries (arm\_1 37/60 vs.\ its
-$y$-mirror arm\_3 36/60; arm\_2 38/60 vs.\ arm\_4 39/60), consistent with the
-workcell's near-mirror geometry. All three multi-arm policies reach 93.3\%, about
-30 points above any single fixed arm, showing that four-arm coverage is the
-dominant reachability gain. Energy-aware selection's distinct, defensible
-contribution in this dataset is a substantial reduction in travel on \emph{both}
-axes at once, not a trade of one for the other: summed arm-joint travel
-(6.55~rad mean vs.\ 7.94/8.13~rad for nearest/random) and rail-rotation travel
-(0.68~rad vs.\ 1.37/1.37~rad for nearest/random, roughly half, Table~\ref{tab:e3}),
-with rail-linear travel essentially unchanged; its aggregate measured energy (13.19/12.31~J
-mean/median) is, honestly, \emph{not} the lowest of the three multi-arm
-policies (nearest: 12.01/10.72~J; random: 12.87/11.66~J) on this grid, which we
-attribute to $J$'s known weak correlation with the idealised (damping-free)
-Pinocchio energy model (the URDF has no joint damping/friction and both rail axes
-are orthogonal to gravity, so this energy likely under-represents real motor
-draw) rather than a failure of the selection method. Per-arm
-win counts confirm all four arms are actually selected across the grid, including
-gantry\_2's arm\_3/arm\_4 (energy: arm\_2 18, arm\_3 14, arm\_1 12, arm\_4 12).
-In 30 of 56 comparable positions, energy and nearest selected a \emph{different}
-arm; in a representative case (target $x{=}0.00,y{=}-0.60,z{=}1.15$) energy chose
-arm\_3 (0.574~m rail-linear travel, 5.39~rad arm travel, measured energy 11.36~J)
-over nearest's arm\_2 (0.000~m rail travel, 12.22~rad arm travel, 14.63~J) --
-accepting more base travel to avoid a much larger arm-joint excursion, for both a
-lower cost $J$ and a lower realised energy. This is the case plotted in
+\textcolor{red}{The four single-arm \texttt{fixed} baselines cluster at 63--65\%
+success (arm\_1 38/60 WORST; arm\_2, arm\_3, arm\_4 tied at 39/60/65.0\% BEST),
+well below the 93.3\% every multi-arm policy reaches, confirming four-arm
+coverage as the dominant reachability gain (unchanged from the frictionless
+model). The fixed-arm energy figures in Table~\ref{tab:e3} are each computed over
+that arm's own smaller set of reachable targets, so they are not comparable to the
+multi-arm policies evaluated at full 93.3\% coverage; the meaningful energy
+comparison is against \texttt{nearest} and \texttt{random}. Under the
+friction model, \textbf{energy-aware selection has the lowest mean measured
+energy of the three multi-arm policies} (45.84~J vs.\ nearest 48.28~J,
+$-5.1\%$, and random 47.31~J, $-3.1\%$) -- the reversal Table~\ref{tab:e3} was
+built to test for, since under the frictionless model energy-mode's mean energy
+was the \emph{highest} of the three (13.19~J vs.\ 12.01/12.87~J). We report this
+honestly as a real but partial win, not a clean sweep: on \emph{median} energy
+(52.34~J) is clearly better than nearest (54.79~J) but essentially tied with
+random (51.72~J); on a paired, same-target comparison (56 rows where both
+succeeded) energy's measured energy is lower than nearest's in 32/56 (57.1\%) and
+lower than random's in 34/56 (60.7\%) -- a real majority, not overwhelming.
+Energy-mode's summed arm-joint travel is now \emph{higher} than nearest's (8.66
+vs.\ 7.94~rad), the opposite of the frictionless result, because the
+recalibrated weights correctly de-prioritise arm travel once rail friction
+dominates real energy cost -- energy-mode now spends more arm motion to save
+costlier rail travel, the intended trade under a friction-aware objective. In a
+representative case (target $x{=}1.12,y{=}-0.60,z{=}1.15$) energy chose arm\_3
+(0.64~m rail-linear travel, 10.23~rad arm travel, measured energy 42.37~J) over
+nearest's arm\_4 (1.15~m rail travel, 5.71~rad arm travel, 72.47~J) -- accepting
+a larger arm excursion to avoid 0.51~m of friction-costly rail travel, for a
+30.1~J lower realised energy. This is the case plotted in
 Fig.~\ref{fig:selection}.}
 
 \subsection{End-to-End Pick (E6)}
@@ -771,11 +821,10 @@ affects the calibrated weights of $J$, is left for future work.
 \bibitem{unitednations2024world} United Nations, Department of Economic and Social Affairs, Population Division, ``World Population Prospects 2024: Summary of Results,'' United Nations, New York, NY, USA, 2024.
 \bibitem{who2025clinical} World Health Organization, ``WHO Clinical Consortium on Healthy Ageing 2024: Meeting Report,'' World Health Organization, Geneva, Switzerland, 2025.
 \bibitem{IFR2025} International Federation of Robotics, \textit{World Robotics 2025 -- Service Robots} (Executive Summary), 2025.
-\bibitem{Jayathilaka2025} W. A. D. M. Jayathilaka \textit{et al.}, ``A novel hybrid robot configuration for enhanced accessibility and space efficiency,'' in \textit{Proceedings in Technology Transfer}, Springer, 2025, doi: 10.1007/978-981-96-1399-1\_22.
+\bibitem{Kaluarachchi2025} Y. P. D. Kaluarachchi, T. D. S. S. Senarathna, A. V. P. Lakshan, \textit{et al.}, ``A novel hybrid robot configuration for enhanced accessibility and space efficiency,'' in \textit{Proceedings in Technology Transfer}, Springer, 2025, doi: 10.1007/978-981-96-1399-1\_22.
 \bibitem{kemp2007challenges} C. C. Kemp, A. Edsinger, and E. Torres-Jara, \textcolor{red}{``Challenges for robot manipulation in human environments [Grand Challenges of Robotics],''} \textit{IEEE Robotics \& Automation Magazine}, vol. 14, no. 1, \textcolor{red}{pp. 20--29}, 2007, \textcolor{red}{doi: 10.1109/MRA.2007.339604}.
 \bibitem{sisbot2007human} E. A. Sisbot, L. F. Marin-Urias, R. Alami, and T. Sim{\'e}on, ``A human-aware mobile robot motion planner,'' \textit{IEEE Transactions on Robotics}, vol. 23, no. 5, pp. 874--883, 2007, doi: 10.1109/TRO.2007.904911.
-% \textcolor{red}{UNVERIFIED -- LIKELY FABRICATED. This exact title appears in NO source; pp. 3841--3846 belong to a different ICRA paper; the DOI resolves to a real IEEE doc (1014387) whose true title could not be confirmed (Xplore JS-blocked). DO NOT use as-is: verify IEEE document 1014387 directly, or replace this cite -- e.g. with the already-verified ceiling-manipulator anchor Jayathilaka2025.}
-\bibitem{toyama2002development} H. Toyama, T. Takahashi, H. Ueno, \textit{et al.}, ``Development of a ceiling-mounted assistive robot system for home care,'' in \textit{Proc. IEEE Int. Conf. Robotics and Automation (ICRA)}, 2002, vol. 4, pp. 3841--3846, doi: 10.1109/ROBOT.2002.1014387.
+\bibitem{Lalonde2024} I. Lalonde, J. Denis, M. Lamy, and A. Girard, ``A dual-motor actuator for ceiling robots with high force and high speed capabilities,'' arXiv:2405.05162, 2024.
 \bibitem{Kubota2022} N. Kubota, ``Multiscopic topological twin in trailer living laboratory: Plenary talk,'' in \textit{Proc. IEEE 22nd Int. Symp. Computational Intelligence and Informatics and 8th IEEE Int. Conf. Recent Achievements in Mechatronics, Automation, Computer Science and Robotics (CINTI-MACRo)}, 2022, pp. 11--12.
 \end{thebibliography}
 

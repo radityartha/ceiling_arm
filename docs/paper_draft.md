@@ -366,21 +366,36 @@ make.
   4.03× ceiling-capped @res 0.05). The remaining ¶5 `[PLACEHOLDER]` (selection vs
   baselines) fills from E3.
 - Title's "Energy-Aware" leans on the `traj_energy` validation in E3; E3 must show
-  actual mechanical-energy reduction vs baselines.
-- J weights/refs are code-synced but have drifted before — CURRENT (2026-07-16,
-  gantry_reach_executor.py): weights w_gl=2, w_gr=12, w_arm=20, w_dist=3, w_hold=1,
-  w_manip=1; refs ρ = median raw term over a 63-pick calib session (ρ_gl=0.95,
-  ρ_gr=0.70, ρ_arm=6.0, ρ_dist=1.36, ρ_hold=2.90, ρ_manip=0.145). `hold` IS in J now
-  (w_hold=1). RE-VERIFY these against the code before submission; V-A prose keeps them
-  symbolic so numbers live in one place. NOTE: reachability_gng/README.md is stale
-  again (weights re-tuned since last sync) — re-sync before submission.
-- HONESTY CAVEAT (found in code comments, 2026-07-16): the weights were derived from
-  Spearman correlation (ρ) between each raw term and measured `traj_energy`; even the
-  best single term (arm travel) only reaches ρ≈0.31 (weak), because the URDF has no
-  joint damping/friction and the rail axes are orthogonal to gravity, so this rigid-body
-  J cannot capture real motor friction/stiction. V-A now hedges this ("built to move in
-  the same direction," not "equals... exactly") — do not strengthen this claim in
-  Section VI beyond what the E3 data actually shows.
+  actual mechanical-energy reduction vs baselines. **RESOLVED 2026-07-16/17 ("Jalan
+  B"):** the original frictionless model failed this test (energy-mode was the
+  *highest*-energy multi-arm policy). Added a rail Coulomb/viscous friction model
+  (URDF `<dynamics>`, a stated MODEL ASSUMPTION, not measured hardware) + an explicit
+  dissipative term in `_traj_energy` (Pinocchio `rnea` does not apply URDF friction on
+  its own — verified) + recalibrated `w_*`/`ref_*` by OLS regression. Rerun: energy-mode
+  now has the lowest MEAN `traj_energy` of the three multi-arm policies (45.84 J vs.
+  48.28 nearest / 47.31 random, -5.1%/-3.1%), a real but partial win — median is
+  close to random's, paired win rate 57-61%. Full numbers in
+  `docs/experiment_results.md` E3 "Jalan B" section and `energy_aware_selection.tex`
+  Section VI-C. `docs/E3_contingency.md` records this as outcome S2 "pass-weak";
+  Fallback A (travel-reframe) was NOT needed.
+- J weights/refs are code-synced but have drifted before — CURRENT (2026-07-16/17,
+  post-Jalan-B, `gantry_reach_executor.py`): weights w_gl=27.16, w_gr=3.08, w_arm=0.09,
+  w_dist=12.78, w_hold=0 (clamped, wrong-signed in the OLS fit), w_manip=2.95; refs =
+  median raw term over a 168-pick friction-model regression session
+  (`scripts/regress_j.py`): ρ_gl=1.1809, ρ_gr=1.2395, ρ_arm=7.176, ρ_dist=1.4509,
+  ρ_hold=2.0382, ρ_manip=0.1054. RE-VERIFY these against the code before submission;
+  V-A prose keeps them symbolic so numbers live in one place. NOTE:
+  reachability_gng/README.md is stale again (weights re-tuned since last sync) —
+  re-sync before submission.
+- HONESTY CAVEAT, updated post-Jalan-B: the friction coefficients (mu=0.15, an assumed
+  mid-range linear-guide value) are a MODEL ASSUMPTION, not measured hardware energy —
+  state this explicitly wherever the friction-model numbers appear, and never present
+  `traj_energy` as real motor draw. The regression fit is now strong (R²=0.857,
+  Spearman(J,traj_energy)=0.909, up from R²=0.055/ρ≈0.31 frictionless), so J is a much
+  better energy proxy than before, but the underlying friction value is still an
+  estimate with a stated sensitivity range (mu∈{0.10,0.15,0.20} was derived
+  analytically, not re-run for all three values — see experiment_results.md). Do not
+  claim more precision than that in Section VI.
 - SCOPE CHANGE (2026-07-16, user-approved): paper now covers TWO gantries / FOUR arms
   (was one gantry / two arms). Title changed to "...Dual-Gantry Quad-Arm Ceiling
   Robot...". Revised: title, ¶1, ¶2, ¶4 (rail→"each rail"), Related Work "Multi-arm

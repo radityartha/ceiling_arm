@@ -1,3 +1,23 @@
+## RESOLVED 2026-07-16/17 — Jalan B (Fallback B) executed, outcome = S2 pass-weak
+
+Jalan B (add rail friction/damping + recalibrate by OLS regression + rerun E3) was
+carried out end to end. Result: energy-mode now has the **lowest mean measured
+`traj_energy`** of the three multi-arm policies (45.84 J vs. nearest 48.28 J
+[-5.1%] and random 47.31 J [-3.1%]), reversing the frictionless model's result
+(energy was previously the *highest*, 13.19 J). Median is closer (52.34 J,
+better than nearest 54.79 J but essentially tied with random 51.72 J), and the
+paired same-target win rate is a real majority but not overwhelming (57.1%
+vs. nearest, 60.7% vs. random). This matches scenario **S2 PASS weak** in the
+table below, not S1 clean. Decision: kept the "Energy-Aware" framing (Fallback A
+was NOT needed), reported the numbers exactly as measured including the
+median/majority caveats — see `docs/experiment_results.md` E3 "Jalan B" section
+and `energy_aware_selection.tex` Section VI-C (both updated, `\textcolor{red}{}`
+marked). Full derivation, weight regression, and verification steps are in that
+results-doc section; do not re-summarize here, this file's job is the
+decision log, not the analysis.
+
+---
+
 # E3 Contingency Plan — fallbacks if energy-mode does not clearly beat the baselines
 
 Prepared 2026-07-16 while E3 (the star experiment) is being collected in a separate

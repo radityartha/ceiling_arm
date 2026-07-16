@@ -77,14 +77,15 @@ Robot Using a GNG Capability Map."*
 |-----|-----------|------|------|
 | `Lisondra2025` | M. Lisondra, B. Benhabib, G. Nejat, "Embodied AI with Foundation Models for Mobile Service Robots: A Systematic Review," arXiv:2505.20503. ✅verified | 2025 | domestic service-robot frontier, human environments |
 | `IFR2025` | International Federation of Robotics, *World Robotics 2025 – Service Robots* (Executive Summary). | 2025 | market growth / relevance stat |
-| `Jayathilaka2025` | W. A. D. M. Jayathilaka et al., "A Novel Hybrid Robot Configuration for Enhanced Accessibility and Space Efficiency," Springer *Proceedings in Technology Transfer*, DOI 10.1007/978-981-96-1399-1_22. ✅verified (title/DOI/topic; ⚠full author list + exact year to confirm) | 2025 | ACADEMIC anchor: ceiling-suspended manipulator for ground objects, space efficiency (¶1) — REPLACES ToyotaTRI |
-| ~~`ToyotaTRI2024`~~ | DROPPED as a citation — replaced by academic `Jayathilaka2025` per user. (IEEE Spectrum news; keep only as informal background if ever needed.) | 2024 | — |
+| `Kaluarachchi2025` | Y. P. D. Kaluarachchi, T. D. S. S. Senarathna, A. V. P. Lakshan, Y. W. R. Amarasinghe, W. A. D. M. Jayathilaka, et al., "A Novel Hybrid Robot Configuration for Enhanced Accessibility and Space Efficiency," Springer *Proceedings in Technology Transfer*, DOI 10.1007/978-981-96-1399-1_22. ✅verified (title/DOI/full author list/year 2025, web 2026-07-17). TAG WAS `Jayathilaka2025` → RENAMED: Jayathilaka is the 5th author, first author is Kaluarachchi (fixed per the "tag = first author" rule). | 2025 | ACADEMIC anchor: ceiling-suspended manipulator for ground objects (¶1) — REPLACES ToyotaTRI |
+| ~~`ToyotaTRI2024`~~ | DROPPED as a citation — replaced by academic `Kaluarachchi2025` per user. (IEEE Spectrum news; keep only as informal background if ever needed.) | 2024 | — |
+| `Lalonde2024` | I. Lalonde, J. Denis, M. Lamy, A. Girard, "A Dual-Motor Actuator for Ceiling Robots with High Force and High Speed Capabilities," arXiv:2405.05162. ✅verified (title + 4 authors + id, web 2026-07-17; journal version in *Actuators* 2025, DOI 10.3390/act14020092, title differs "Ceiling Lift"). | 2024 | ceiling-robot motivation (¶1 "elevate off the floor") — REPLACES the fabricated `toyama2002development` from the .tex |
 
 ---
 
 ## Per-section citation plan
 
-**I. Introduction** — `IFR2025`, `Lisondra2025`, `Jayathilaka2025` (¶1); `MoMaPos2024`,
+**I. Introduction** — `IFR2025`, `Lisondra2025`, `Kaluarachchi2025` (¶1); `MoMaPos2024`,
 `BaSeNet2024`, `EnergySLR2024` (¶2); `Zacharias2007`, `Makhal2018`, `MoMaPos2024`,
 `InvReach2022`, `Yoshikawa1985` (¶3); `Fritzke1995`, `Yoshikawa1985`, `Wang2025` (¶4).
 
@@ -120,6 +121,8 @@ in Related Work as capability-map / base-placement contrasts.
 
 ## Still `[NEED CITE]` (find before those sections)
 - (none open — Kinova / MoveIt / OMPL / Pinocchio all resolved into the master list;
-  ceiling-manipulation anchor resolved as `Jayathilaka2025`, replacing `ToyotaTRI2024`.)
-- `Jayathilaka2025` still carries ⚠: confirm full author list + exact year before
-  camera-ready.
+  ceiling-manipulation anchor resolved as `Kaluarachchi2025`, replacing `ToyotaTRI2024`.)
+- `Kaluarachchi2025` ⚠ RESOLVED 2026-07-17: full author list + year 2025 verified; tag
+  renamed from `Jayathilaka2025` (Jayathilaka was the 5th author, not first).
+- `toyama2002development` (was in the .tex only) REPLACED by verified `Lalonde2024`
+  (arXiv:2405.05162, ceiling-robot actuator); the fabricated toyama entry is gone.
