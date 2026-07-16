@@ -101,8 +101,7 @@ A given object can typically be accessed by \textcolor{red}{several arms}, and f
 \textcolor{red}{base} positions. 
 The robot, therefore, confronts two coupled inquiries simultaneously: 
 \textcolor{red}{which arm should execute the task, and where should its base}
-be positioned prior to its arrival? It is important to note that both 
-inquiries are associated with certain costs. 
+be positioned prior to its arrival? Both inquiries carry a cost. 
 Repositioning the heavy base is a significant expense in mobile manipulation, 
 both in terms of time and energy \cite{MoMaPos2024,BaSeNet2024,EnergySLR2024}. 
 The implementation of a straightforward policy of always reaching with 
@@ -238,10 +237,9 @@ These approaches are designed to address the posture of a single arm,
 with each approach focusing on a specific criterion. 
 The subjects do not determine which of the multiple available limbs should act, 
 and they do not consider the base travel that a given posture would require. 
-The inverse kinematics solver is maintained in a standard and classical form, 
-with the capability map utilised to enumerate candidate 8-DOF configurations. 
-Each configuration is characterised by its unique arm and rail placement, 
-with the arm selection and base motion determined by the energy cost.
+We keep the inverse kinematics solver standard and classical, and use the capability
+map to enumerate candidate 8-DOF configurations, each with its own arm and rail
+placement, that the energy cost then ranks to settle the arm choice and the base motion.
 
 \noindent\textit{Multi-arm coordination.}
 The issue of how to distribute tasks among multiple arms is a salient concern 
@@ -272,49 +270,38 @@ the base-aware capability map, to collision-free planning and execution.}
 
 \subsection{Robot Platform and Kinematic Model}
 
-The robot consists of two rails mounted to the ceiling, side by side, with each rail 
-supporting two arms. Each arm is a Kinova Gen3 Lite, a six-joint manipulator 
-with a reach of approximately 0.76 m and a two-finger gripper at its 
-wrist \cite{Kinova}, thus resulting in a total of four arms.  
-It is evident that each rail contributes an additional degree of freedom 
-to the pair of arms, resulting in a prismatic axis that enables horizontal 
-movement of the carriage, and a revolute axis that facilitates rotation. 
-Consequently, with respect to the ground, each arm establishes an 
-8-DOF chain. The configuration of one arm is expressed as follows:
-as $\mathbf{q} = [d,\ \theta,\ q_1,\ \ldots,\ q_6]$, where $d$ and $\theta$ are the translation 
-and rotation of that arm's own rail, and $q_1 \ldots q_6$ the arm joints.  
-The kinematic tree is anchored at a fixed world frame, thereby ensuring stability 
-and reliability throughout the system. It is evident that each rail base is attached 
-to the world, each arm base to its own rail, and a tool frame at the gripper defines 
-the end-effector pose that the task is specified in. It is evident that the configuration 
-of the system is such that the two arms are mounted on a single carriage. Consequently, 
-any movement of the rail effects a simultaneous movement of both arms. This principle 
-governs the relationship between the selection of an arm and the positioning of the base. 
-In contrast, arms affixed to distinct rails exhibit independent movement. Fig.~\ref{fig:overview}
-shows the platform and its frames alongside an overview of the end-to-end pipeline. 
-This encompasses the processes of perception, energy-aware selection, planning 
-and execution.
+The robot consists of two rails mounted to the ceiling, side by side, each carrying
+two arms. Each arm is a Kinova Gen3 Lite, a six-joint manipulator with a reach of
+about 0.76~m and a two-finger gripper at its wrist \cite{Kinova}, for four arms in
+total. Each rail adds two more degrees of freedom that its pair of arms share, a
+prismatic axis that slides the carriage horizontally and a revolute axis that rotates
+it, so relative to the ground each arm forms an 8-DOF chain. We write a configuration
+of one arm as $\mathbf{q} = [d,\ \theta,\ q_1,\ \ldots,\ q_6]$, where $d$ and $\theta$
+are the translation and rotation of that arm's own rail, and $q_1 \ldots q_6$ the arm
+joints. The kinematic tree is anchored at a fixed world frame. Each rail base is
+attached to the world, each arm base to its own rail, and a tool frame at the gripper
+defines the end-effector pose that the task is specified in. Because the two arms are
+mounted on the same carriage, moving the rail moves both of them together, which
+couples the choice of arm to the placement of the base, while arms on different rails
+move independently. Fig.~\ref{fig:overview} shows the platform and its frames
+alongside an overview of the end-to-end pipeline, from perception through
+energy-aware selection to planning and execution.
 
 \subsection{Simulation Environment}
 
-All experiments in this paper are conducted using NVIDIA Isaac Sim, a GPU-accelerated 
-simulator with a physics engine that is well-suited for contact-rich 
-manipulation \cite{IsaacSim2026,Mittal2023}. The simulated robot has been 
-constructed from the same URDF description that defines the physical platform. 
-This ensures that the kinematics and joint limits employed in the simulation 
-are consistent with the real hardware. The scene is characterised by the placement 
-of a set of everyday tabletop objects within the workspace. A number of these 
-objects are positioned within easy reach of several arms, while at least one is 
-deliberately placed near the edge of the workspace (Fig.~\ref{fig:scene}). 
-The scene under consideration is observed by two RGB-D cameras placed 
-above the workspace. These cameras constitute the system's sole exteroceptive 
-sensor. It is evident that the images in question fulfil dual roles. 
-The colour stream is utilised by the object detector, while the depth stream 
-contributes to the construction of the collision octomap, which is employed for 
-the purpose of planning. Consequently, a single sensing rig serves to facilitate 
-both perception and collision avoidance. In this study, the simulator is utilised 
-as the evaluation platform, with the physical robot being employed for validation 
-in subsequent research endeavours.
+All experiments in this paper are carried out in NVIDIA Isaac Sim, a GPU-accelerated
+simulator with a physics engine suitable for contact-rich manipulation
+\cite{IsaacSim2026,Mittal2023}. The simulated robot is built from the same URDF
+description that defines the physical platform, so the kinematics and joint limits
+used in simulation match the real hardware. The scene places a set of everyday
+tabletop objects within the workspace, some within easy reach of several arms and at
+least one deliberately positioned near the edge of the reachable workspace
+(Fig.~\ref{fig:scene}). The scene is observed by two RGB-D cameras placed above the
+workspace, which are the system's only exteroceptive sensor. Their images serve two
+roles at once. The color stream feeds the object detector, and the depth stream builds
+the collision octomap used for planning, so a single sensing rig supports both
+perception and collision avoidance. We treat the simulator as the evaluation platform
+for this work and validate on the physical robot in future work.
 
 \begin{figure}[htbp]
 \centering
@@ -358,10 +345,9 @@ populated from the two cameras' depth images. This ensures that a plan avoids
 both the scene and the robot's own body. The object selected for removal is 
 isolated from the cloud that supplies the octomap, thus enabling its grasping, 
 while the remaining objects and the environment persist as obstacles. 
-The capability map of Section IV is constructed offline with the Pinocchio 
-rigid-body dynamics library \cite{Carpentier2019}, which is employed for the 
-purpose of forward kinematics when sampling configurations and for the gravity 
-torque that imbues each map node with its holding cost. During the execution 
+We build the capability map of Section~IV offline with the Pinocchio rigid-body-dynamics
+library \cite{Carpentier2019}, which we use for forward kinematics when sampling
+configurations and for the gravity torque that gives each map node its holding cost. During the execution 
 phase, a candidate is selected from the map seeds. Subsequently, the inverse-kinematics 
 query is initiated, and the MoveIt software plans a collision-free motion to 
 the selected candidate. This motion can be executed in simulation, depending on 
@@ -443,12 +429,9 @@ they are available at query time at no extra cost.
 
 \section{Energy-Aware Arm and Base Selection}
 
-In the context of the object pose from perception and the two capability maps, 
-the selection stage determines the specific arm to utilise and the precise 
-8-DOF configuration required to achieve the desired outcome. The decision-making 
-process is characterised by the simultaneous consideration of both factors, 
-with the energy cost being evaluated across a range of candidates derived from 
-the available maps.
+Given the object pose from perception and the four capability maps, the selection
+stage decides which arm to use and which 8-DOF configuration to reach with. It makes
+both decisions together, by an energy cost evaluated over candidates drawn from the maps.
 
 \subsection{The Energy Cost}
 
