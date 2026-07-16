@@ -11,10 +11,11 @@ Legend: ⭐ essential · ➕ nice-to-have · 📸 asset already exists · 🎨 n
 ## Fig. 1 — Two-panel teaser: system + end-to-end pipeline  ⭐  (Section III, page-1 teaser)
 A combined page-1 figure that answers both "what is the robot?" and "how does the method
 work?" in one glance.
-- **Left panel — physical system + frames.** Schematic of the ceiling rail carrying the
-  two arms, with world → rail → arm-base → tool frames labelled, the rail's prismatic (d)
-  and revolute (θ) axes drawn, the 8-DOF chain called out, and the two overhead RGB-D
-  cameras with their field of view over the workspace.
+- **Left panel — physical system + frames.** Schematic of the two ceiling rails, each
+  carrying two arms (four arms total), with world → rail → arm-base → tool frames
+  labelled, a rail's prismatic (d) and revolute (θ) axes drawn, the 8-DOF chain called
+  out, and the two overhead RGB-D cameras with their field of view over the shared
+  workspace.
 - **Right panel — end-to-end pipeline.** Three-stage data flow: Perception (two RGB-D
   cameras → YOLOE detect+segment → object pose) ┃ Selection (per-arm capability map →
   pool candidates → score by energy cost J → round-robin IK) ┃ Planning/Execution (MoveIt
@@ -43,7 +44,8 @@ density (hits) is a strong optional add.
   (see experiment_plan.md E0). Just capture cleanly.
 
 ## Fig. 5 — Energy-selection illustration  ⭐  (Section V)
-A concrete top-view: object plus both arms, showing the base travel each would need, and
+A concrete top-view: object plus the candidate arms (can be all four, or the two on the
+nearer rail if that reads more clearly), showing the base travel each would need, and
 J choosing the arm/config with lower energy — ideally the "picks the farther arm because
 it is cheaper" case. Turns the cost function from math into intuition.
 - Asset: 🎨 diagram, values from a real logged pick (E3 CSV) so it is not invented.
@@ -51,7 +53,7 @@ it is cheaper" case. Turns the cost function from math into intuition.
 ## Fig. 6 — Results  ⭐  (Section VI)
 Two plots, likely a 2-panel figure:
 (a) Reachable-workspace gain, rail locked vs active (E1) — bar chart, numbers exist
-    (~5.1× @0.05 m). 📸 data ready.
+    (~4.1× @0.05 m, rail-2.0 rerun; ceiling-capped 4.03×). 📸 data ready.
 (b) Base travel / mechanical energy per selection mode (E3) — boxplot,
     energy vs nearest/fixed/random. 🎨 pending E3 data.
 - Asset: (a) ready now; (b) after E3 run.
@@ -67,13 +69,13 @@ statement (per the sim-only justification in experiment_plan.md).
 IEEE style: caption below the figure, one or two sentences, self-contained. Numbers
 appear only where real data exists.
 
-- **Fig. 1.** Overview of the ceiling-rail dual-arm robot and the proposed pipeline.
-  Left: a rail mounted to the ceiling carries two Kinova Gen3 Lite arms and adds a
-  prismatic axis (d) and a revolute axis (θ) that both arms share, so each arm forms an
-  eight-degree-of-freedom chain q = [d, θ, q₁…q₆]; two overhead RGB-D cameras observe the
-  workspace. Right: the end-to-end pipeline, from open-vocabulary perception, through
-  energy-aware arm-and-base selection over the base-aware capability map, to collision-free
-  planning and execution.
+- **Fig. 1.** Overview of the dual-gantry quad-arm ceiling robot and the proposed
+  pipeline. Left: two rails mounted to the ceiling, each carrying two Kinova Gen3 Lite
+  arms and adding a prismatic axis (d) and a revolute axis (θ) that its pair of arms
+  share, so each arm forms an eight-degree-of-freedom chain q = [d, θ, q₁…q₆]; two
+  overhead RGB-D cameras observe the shared workspace. Right: the end-to-end pipeline,
+  from open-vocabulary perception, through energy-aware arm-and-base selection over the
+  base-aware capability map, to collision-free planning and execution.
 - **Fig. 2.** The simulated workspace in NVIDIA Isaac Sim, viewed from one of the two
   overhead RGB-D cameras, showing the tabletop objects used in the experiments; at least
   one object is placed near the edge of the reachable workspace.

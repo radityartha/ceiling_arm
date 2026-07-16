@@ -1,8 +1,8 @@
 # Paper References — master bibliography + per-section mapping
 
 Companion to [experiment_plan.md](experiment_plan.md). Central citation list for the
-IEEE paper *"Energy-Aware Arm and Base Selection for a Ceiling-Rail Dual-Arm Robot
-Using a Base-Aware GNG Capability Map."*
+IEEE paper *"Energy-Aware Arm and Base Selection for a Dual-Gantry Quad-Arm Ceiling
+Robot Using a GNG Capability Map."*
 
 **Rules for this file**
 - Every entry below appeared in a real web search (July 2026). None are fabricated.
@@ -84,23 +84,23 @@ Using a Base-Aware GNG Capability Map."*
 
 ## Per-section citation plan
 
-**I. Introduction** — `IFR2025`, `Kim2025`, `ToyotaTRI2024` (¶1); `MoMaPos2024`,
+**I. Introduction** — `IFR2025`, `Lisondra2025`, `Jayathilaka2025` (¶1); `MoMaPos2024`,
 `BaSeNet2024`, `EnergySLR2024` (¶2); `Zacharias2007`, `Makhal2018`, `MoMaPos2024`,
-`PlaceNet2025`, `Yoshikawa1985` (¶3); `Fritzke1995`, `Yoshikawa1985`, `Wang2025` (¶4).
+`InvReach2022`, `Yoshikawa1985` (¶3); `Fritzke1995`, `Yoshikawa1985`, `Wang2025` (¶4).
 
 **II. Related Work**
 - *Reachability/capability maps:* `Zacharias2007`, `Makhal2018`, `RM4D2024` — contrast:
   ours carries q+manip+hold per node (not binary voxel) and is base-aware.
-- *Base placement:* `MoMaPos2024`, `BaSeNet2024`, `PlaceNet2025` — contrast: single-arm
+- *Base placement:* `MoMaPos2024`, `BaSeNet2024`, `InvReach2022` — contrast: single-arm
   where-to-stand vs our which-arm-and-base under energy.
-- *Redundancy resolution / manipulability:* `Yoshikawa1985`, `IKReview2024`.
-- *Learned IK:* `IKDiffuser2025`, `IKReview2024` — why lightweight GNG seed over heavy
-  learned IK models.
-- *Dual-arm allocation:* `RoboPARA2025`, `DAGPlan2024` — contrast: task/temporal
+- *Redundancy resolution / manipulability:* `Yoshikawa1985`.
+- *Learned IK:* `IKDiffuser2025` — why lightweight GNG seed over heavy
+  learned IK models. (`IKReview2024` DROPPED — unverified, do not cite.)
+- *Multi-arm coordination:* `RoboPARA2025`, `DAGPlan2024` — contrast: task/temporal
   allocation vs energy-based arm selection.
 
-**III. System** — `IsaacSim2026` / `Mittal2023` (sim), `Wang2025` (perception enabler).
-Kinova Gen3 Lite / MoveIt / OMPL cites still `[NEED CITE]` — add when writing.
+**III. System** — `IsaacSim2026` / `Mittal2023` (sim), `Wang2025` (perception enabler),
+`Kinova` (arm), `Coleman2014` (MoveIt), `Sucan2012` (OMPL), `Carpentier2019` (Pinocchio).
 
 **IV. Base-Aware GNG Capability Map** — `Fritzke1995` (GNG), `Yoshikawa1985` (manip
 layer), `Zacharias2007` (contrast to voxel capability map), `RM4D2024` (recent map alt).
@@ -108,15 +108,18 @@ layer), `Zacharias2007` (contrast to voxel capability map), `RM4D2024` (recent m
 **V. Energy-Aware Selection (J)** — `Yoshikawa1985` (manip term), `EnergySLR2024`
 (energy framing), `MoMaPos2024`/`BaSeNet2024` (base-cost precedent).
 
-**VI. Experiments** — `IsaacSim2026` (platform), `Wang2025` (E4/E5 perception),
-`Makhal2018`/`Zacharias2007` (E2 voxel-seed baseline lineage).
+**VI. Experiments** — `IsaacSim2026` (platform), `Wang2025` (E4/E5 perception).
+NOTE (2026-07-16): the E2 GNG-seeded-IK benchmark was DROPPED (negative result, user
+"E2-a" — GNG seed gives no IK benefit), so its voxel-seed baseline lineage
+(`Makhal2018`/`Zacharias2007`) is no longer needed for Section VI. Those two remain cited
+in Related Work as capability-map / base-placement contrasts.
 
 **VII. Conclusion / Limitations** — reuse `IsaacSim2026` for sim-to-real discussion.
 
 ---
 
 ## Still `[NEED CITE]` (find before those sections)
-- Kinova Gen3 Lite spec / official reference (III).
-- MoveIt 2 (Coleman et al.) + OMPL (Şucan et al. 2012) for planning stack (III/V).
-- Pinocchio (Carpentier et al.) for FK/gravity-torque computation (IV).
-- Optional academic ceiling/overhead-manipulation paper to pair with `ToyotaTRI2024`.
+- (none open — Kinova / MoveIt / OMPL / Pinocchio all resolved into the master list;
+  ceiling-manipulation anchor resolved as `Jayathilaka2025`, replacing `ToyotaTRI2024`.)
+- `Jayathilaka2025` still carries ⚠: confirm full author list + exact year before
+  camera-ready.

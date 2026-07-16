@@ -8,8 +8,9 @@
 
 ## 1. Kesepakatan paper
 
-- **Judul (final):** *Energy-Aware Arm and Base Selection for a Dual-Arm Ceiling
-  Gantry Using a Table-Aware GNG Capability Map*
+- **Judul (final, updated 2026-07-16):** *Energy-Aware Arm and Base Selection for a
+  Dual-Gantry Quad-Arm Ceiling Robot Using a GNG Capability Map*
+  (scope naik: 2 gantry / 4 lengan; lihat paper_draft.md).
 - **Bintang / kontribusi utama:** fungsi biaya energi **J** yang memilih **lengan
   mana + konfigurasi 8-DOF mana** (termasuk perpindahan gantry yang mahal), di atas
   capability map GNG dengan **gantry sebagai DOF kelas-satu**.
@@ -18,11 +19,15 @@
   eksperimen hardware.
 
 ### Klaim yang harus dibela data
-1. Gantry sebagai DOF memperluas reachable workspace (→ E1).
-2. GNG menghasilkan seed IK yang lebih baik dari no-seed, KDL random-restart, dan
-   baseline voxel capability-map ringan (→ E2, sekaligus diskusi "Why GNG").
-3. Pemilihan energi-J mengalahkan nearest-seed / fixed / random dalam
-   travel/energi gantry+lengan (→ E3, **utama**).
+1. Gantry sebagai DOF memperluas reachable workspace (→ E1). **DONE: ~4× @res 0.05**
+   (rail-2.0 rerun; lihat experiment_results.md).
+2. ~~GNG menghasilkan seed IK yang lebih baik dari no-seed/KDL-restart/voxel.~~
+   **DIBATALKAN 2026-07-16 (user "E2-a"): hasil E2 NEGATIF** — GNG seed TIDAK memberi
+   manfaat IK (kalah dari zero-seed di semua regime; E2/E2-b). GNG **bukan** klaim seed
+   IK. Peran GNG = substrat SELEKSI arm+base (klaim 3) + representasi workspace (klaim 1).
+   E2 disimpan sebagai negative result di experiment_results.md, **bukan tabel paper**.
+3. Pemilihan energi-J mengalahkan nearest / fixed / random dalam travel/energi
+   gantry+lengan (→ E3, **utama** — kini memilih dari **4 lengan** di 2 rail).
 4. Pipeline utuh (persepsi→reachability→pick) berjalan di twin (→ E6, + E4/E5 pelengkap).
 
 ### Justifikasi sim-only (untuk Limitations)
@@ -33,25 +38,27 @@ Kinova Gen3 Lite, Livox Mid360) **nyata** dan digerakkan URDF yang sama → sert
 gap diakui eksplisit, tidak disembunyikan.
 
 ### Zacharias
-**Bukan** section/eksperimen terpisah. Turun jadi (a) 1–2 kalimat Related Work yang
-membedakan GNG (membawa `q`+manipulability+`hold` per node) dari voxel biner, dan (b)
-baseline seed **ringan** `voxel` yang dilipat ke E2 (lihat E2). Zacharias penuh
-(sphere-map reachability index) **tidak** diimplementasikan — ROI rendah, arm-only,
-apple-to-oranges dengan base DOF.
+**Bukan** section/eksperimen terpisah. Turun jadi 1–2 kalimat Related Work yang
+membedakan GNG (membawa `q`+manipulability+`hold` per node) dari voxel biner. ~~(b)
+baseline seed ringan `voxel` di E2~~ **DIBATALKAN** bersama E2 (IK-seeding dropped).
+Zacharias penuh (sphere-map reachability index) **tidak** diimplementasikan — ROI rendah,
+arm-only, apple-to-oranges dengan base DOF.
 
-## 2. Struktur paper (6 hlm IEEE)
-1. Introduction — ceiling dual-arm workcell; masalah: lengan mana + base di mana, hemat energi.
-2. Related Work — reachability/capability maps, redundancy resolution, mobile-base placement.
-3. System & Map — GNG `[task | q]`, gantry DOF, boundary-seeding, manipulability layer (**figure + tabel properti map = E0**).
-4. **Energy-Aware Selection** — fungsi J, pooling, round-robin search (inti).
-5. Experiments — **E3 (utama)** → E2 → E1 → E6 → E4/E5.
-6. Conclusion + Limitations (sim-only, hardware future work) + foto workcell asli.
+## 2. Struktur paper (6 hlm IEEE) — draft final di paper_draft.md pakai I–VII
+1. Introduction — ceiling **quad-arm** (2 gantry / 4 lengan) workcell; masalah: lengan mana + base di mana, hemat energi.
+2. Related Work — reachability/capability maps, redundancy resolution, mobile-base placement, multi-arm coordination.
+3. System — platform, sim, persepsi, planning stack.
+4. Base-Aware GNG Capability Map — GNG `[task | q]`, gantry DOF, boundary-seeding, manipulability layer (**figure + tabel properti map = E0**).
+5. **Energy-Aware Selection** — fungsi J, pooling, round-robin search (inti).
+6. Experiments — **E3 (utama)** → E1 → E6 → E4/E5. (~~E2~~ dropped.)
+7. Conclusion + Limitations (sim-only, hardware future work) + foto workcell asli.
 
 ## 3. Matriks eksperimen
 
 | ID | Prioritas | Menjawab klaim | Output paper | Butuh kode baru? |
 |----|-----------|----------------|--------------|------------------|
 | E0 | Karakterisasi map | (menopang judul) | Figure map + tabel properti | tidak |
+| ~~E2~~ | ~~Pendukung inti~~ | ~~2~~ | **DROPPED (negatif)** | — |
 | E3 | **Bintang** | 3 | Tabel + boxplot utama | `selection_mode` (kecil) |
 | E2 | Pendukung inti | 2 | Tabel utama | seed `voxel` (kecil) |
 | E1 | Justifikasi map | 1 | Tabel + bar | tidak |
@@ -97,13 +104,25 @@ apple-to-oranges dengan base DOF.
   (`... | tee /tmp/e1_volume.txt`); catat manual ke tabel.
 - **→ Paper:** Table "Reachable-workspace gain" + bar chart; ablation shortfall di teks/figure.
 
-## E2 — GNG-seeded IK benchmark (+ "Why GNG")
+## E2 — GNG-seeded IK benchmark — ❌ DROPPED (negative result, 2026-07-16)
 
-- **Tujuan:** GNG seed > no-seed, KDL random-restart, dan voxel-map ringan.
-- **Tool:** `python3 -m reachability_gng.eval ik --model /tmp/arm1_model.npz \
+**STATUS: run, negative, cut from the paper (user "E2-a").** Measured against live
+`move_group` on arm_1 + arm_3 (N=500): GNG seed = 78%/75% success vs zero-seed 91%/92%
+vs random-restart 99%, and GNG was slower than zero-seed. Stratified by z-shell and
+node-distance: GNG loses in **every** regime, even for poses sitting ON a node. E2-b
+(pipeline-faithful top-down grasp, target = a node, seed = that node's own q): still
+tied/worse (54–77% vs 57–78%). Root cause: `task_dim=3`, node q matches position but has
+an arbitrary wrist orientation, a worse KDL seed than neutral. **Conclusion: the GNG map
+is NOT an IK accelerator; its value is arm+base selection (E3) + workspace rep (E0/E1).**
+The `voxel` seed baseline (planned §5 code) is therefore also unnecessary — do not build
+it. Full numbers + CSVs in experiment_results.md. Everything below is the ORIGINAL plan,
+kept struck-through for provenance only.
+
+- ~~**Tujuan:** GNG seed > no-seed, KDL random-restart, dan voxel-map ringan.~~
+- ~~**Tool:** `python3 -m reachability_gng.eval ik --model /tmp/arm1_model.npz \
   --dataset /tmp/arm1_dataset.npz --config .../arm1_table1.yaml \
   --methods gng none random voxel --n 500 --csv /tmp/e2_ik.csv`
-  (butuh `move_group` hidup: `gng_moveit.launch.py`.)
+  (butuh `move_group` hidup: `gng_moveit.launch.py`.)~~
 - **Variabel bebas:** metode seed = {`gng`, `none`, `random`(KDL restart), `voxel`(BARU)}.
 - **Sub-analisis:** per **z-shell** {1.2–1.5, 1.5–1.8, 1.8–2.1 m}.
 - **Kondisi tetap:** N=500 target pose acak dari dataset (default); group `gantry_1_with_arm_1`,
@@ -128,10 +147,19 @@ apple-to-oranges dengan base DOF.
 - **Sumber posisi objek (efisien, tanpa relaunch Isaac):** publish grid pose target di
   `/target_object` (PoseStamped, frame `world`) via script driver kecil; executor memilih
   langsung dari `/target_object`. Menghindari memindah objek di `polish.py` + relaunch.
-- **Grid posisi:** dari reachable workspace terukur (arm_1): x∈[−0.4, 3.4], y∈[−0.33, 1.08],
-  z∈[1.22, 2.10]. Usul **≥40 posisi** menyebar (mis. 5×4×2 grid = 40), buang titik di luar hull.
-- **Variabel bebas:** `selection_mode` ∈ {`energy`(usulan), `nearest`(jarak task-space),
-  `fixed`(selalu arm_1), `random`} — **param BARU**.
+- **Grid posisi (REVISED 2026-07-16, scope 4-lengan):** dari **union** reachable hull
+  keempat lengan (ceiling-capped), **simetris di y** supaya arm_3/arm_4 (sisi gantry_2,
+  y<0) benar-benar ikut bersaing — grid arm_1-only lama (y∈[−0.33,1.08]) hampir tak
+  pernah membuat arm_3/4 menang. Union terukur (4 arm, z≤2.05): x∈[−1.10, 3.10],
+  y∈[−1.51, 1.51], z∈[0.95, 2.05]; pita meja z∈[1.0,1.3] terjangkau di x∈[−0.97, 2.87],
+  y∈[−1.36, 1.36]. Usul grid meja: x∈[0.0, 2.8] (6), y∈[−1.2, 1.2] (5), z≈1.05–1.10 (1–2)
+  → **≥60 posisi**, buang titik di luar union hull; sebar kiri/kanan setara.
+- **Variabel bebas:** `selection_mode` ∈ {`energy`(usulan), `nearest`(jarak task-space,
+  di antara 4 lengan), `fixed`, `random`(uniform atas 4 lengan, seed dicatat)} — **param
+  BARU**. **Baseline `fixed` (REVISED): karena kini ada 4 pilihan tetap, jalankan keempat
+  varian `fixed_arm ∈ {1,2,3,4}` dan laporkan BEST & WORST fixed arm** — klaim "J
+  mengalahkan bahkan lengan-tetap terbaik" jauh lebih kuat dan menghindari tuduhan
+  cherry-pick memilih satu lengan tetap. Plan-only → murah menjalankan keempatnya.
 - **Weight study (sub-eksperimen):** di ~10 posisi, sweep `w_manip ∈ {0, 50, 300}` dan
   `w_dist ∈ {0, 1}` (mode `energy`), live via `-p` → tunjukkan pergeseran ranking.
 - **Kondisi tetap & kontrol:** **reset gantry+arm ke home sebelum tiap trial** (karena
@@ -155,8 +183,10 @@ apple-to-oranges dengan base DOF.
 - **Tujuan:** pipeline utuh berjalan; kuantifikasi sukses + kategorisasi gagal.
 - **Setup:** T1 `./isaac_sim/launch_workcell.sh`; T2 `pick_stack.launch.py execute:=true
   box_clearance:=0.15 csv:=/tmp/e6.csv`; T3 `pick_cli`. YOLOE aktif (default).
-- **Desain:** objek reachable (6 dari 7 YCB/IsaacLab; potted_meat_can dikecualikan) ×
-  beberapa penempatan. Usul **20 posisi**, **3 trial** masing-masing.
+- **Desain (REVISED 2026-07-16):** objek reachable (7 dari 8 di scene; **obj_2
+  tomato_soup_can dikecualikan = unreachable-by-design**, gantikan potted_meat_can yang
+  sudah dihapus). Objek: cracker_box, scissors, mustard_bottle, teddy_bear (IsaacLab,
+  non-YCB), banana, mug, bowl. × beberapa penempatan. Usul **20 posisi**, **3 trial**.
 - **Metrik:**
   - Pick success rate (%).
   - Time-to-pick (deteksi→plan→eksekusi selesai).
@@ -186,8 +216,12 @@ apple-to-oranges dengan base DOF.
 ## E5 — Klasifikasi reachable vs unreachable (pelengkap)
 
 - **Tujuan:** map + persepsi menghasilkan keputusan grasp yang benar.
-- **Ground truth biner:** potted_meat_can = unreachable-by-design; sisanya reachable.
-  Verifikasi label "reachable" dengan IK/plan sukses (silang dari E2/E3).
+- **Ground truth biner (REVISED 2026-07-16):** potted_meat_can sudah DIHAPUS dari scene.
+  Objek unreachable-by-design sekarang = **obj_2 (tomato_soup_can @ world (3.25, −0.66,
+  ~1.08))** — DIVERIFIKASI 2026-07-16: node/sampel-FK terdekat ≥0.45 m untuk keempat
+  lengan (di luar jangkauan x + terlalu rendah). Sisanya (cracker_box, scissors,
+  mustard_bottle, teddy_bear, banana, mug, bowl) reachable. Verifikasi label "reachable"
+  dengan IK/plan sukses (silang dari E3).
 - **Metrik:** `% reachable by volume` per objek (`reachability_cloud` voxel mode);
   confusion matrix reachable/unreachable (objek × beberapa posisi); sensitivitas
   `reach_radius` {0.08, 0.12, 0.16}.
@@ -199,8 +233,9 @@ apple-to-oranges dengan base DOF.
 
 ## 4. Urutan pengambilan data (usulan 4–5 hari)
 
-1. **Hari 1 (offline, tanpa Isaac):** E0 (figure+tabel map) + E1 + E2. Bangun map dulu (`build_maps.sh`). Deterministik, langsung tabel inti.
-2. **Hari 2:** E3 plan-only (grid posisi × 4 mode + weight study). Volume CSV terbanyak.
+1. **Hari 1 (offline, tanpa Isaac):** E0 (figure+tabel map) + E1. **DONE 2026-07-16**
+   (rail-2.0 rerun). ~~E2~~ dropped (negative). Bangun map dulu (`build_maps.sh`).
+2. **Hari 2:** E3 plan-only (grid posisi × mode {energy,nearest,fixed×4,random} + weight study).
 3. **Hari 3:** E4 + E5 (scene statik, batch frame).
 4. **Hari 4–5:** E6 eksekusi fisik (paling rapuh/lambat) + ulangan cadangan.
 
@@ -208,9 +243,9 @@ apple-to-oranges dengan base DOF.
 
 | Untuk | Perubahan | Ukuran | File |
 |-------|-----------|--------|------|
-| E3 | Param `selection_mode ∈ {energy,nearest,fixed,random}` + kolom CSV `selection_mode` | ~30–40 baris | `gantry_reach_executor.py` |
+| E3 | Param `selection_mode ∈ {energy,nearest,fixed,random}` (+ `fixed_arm`) + kolom CSV `selection_mode` | ~30–40 baris | `gantry_reach_executor.py` |
 | E3 | Script driver publish grid `/target_object` + reset-home antar trial | ~50 baris | `scripts/` atau node kecil |
-| E2 | Seed method `voxel` (voxelisasi dataset + medoid q) di `seed_for()` + `--voxel-res` | ~60–80 baris | `eval.py` |
+| ~~E2~~ | ~~Seed method `voxel`~~ **DIBATALKAN** — E2 IK-seeding dropped (negative result), voxel baseline tak diperlukan | — | — |
 | E4 | Script localization-error `/detected_objects` vs GT `polish.py` → CSV | ~40–60 baris | `scripts/` |
 
 **Prinsip:** jangan sentuh bobot J default, `grasp_orientation`, atau GNG core. Semua

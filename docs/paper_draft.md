@@ -1,14 +1,27 @@
 # Paper Draft (fixed sections)
 
-Working draft of *"Energy-Aware Arm and Base Selection for a Ceiling-Rail Dual-Arm
-Robot Using a Base-Aware GNG Capability Map."* Only paragraphs the user has signed
-off on live here. Citations use tags from [paper_references.md](paper_references.md);
+Working draft of *"Energy-Aware Arm and Base Selection for a Dual-Gantry Quad-Arm
+Ceiling Robot Using a GNG Capability Map."* (Title shortened 2026-07-16: dropped the
+redundant second "-aware" — the map's base-awareness is stated in the body, not the
+title.) Only paragraphs the user has
+signed off on live here. Citations use tags from [paper_references.md](paper_references.md);
 `[PLACEHOLDER]` = experiment number pending; `[NEED CITE]` = source still to be found
 (never fabricated).
 
-Terminology (locked): single chain = "arm" (a 6-DOF manipulator); whole system =
-"ceiling-mounted dual-arm service robot"; base = "ceiling rail" (one linear + one
-rotational DOF).
+SCOPE (updated 2026-07-16): the paper now covers the FULL system — TWO ceiling
+gantries, each carrying TWO arms, four arms total. This supersedes the earlier
+"one gantry, two arms" scope, following the system's code default
+(`arm_names=[arm_1..arm_4]` across `gantry_1`/`gantry_2`) becoming consistent across
+every relevant file (executor, pick_cli, reachability_check/cloud, SRDF,
+kinematics.yaml, build_maps.sh). Do NOT touch
+docs/IEEE-conference-Energy_Aware/energy_aware_selection.tex — that file belongs to
+a different branch's draft and is off-limits.
+
+Terminology (locked, updated for 4-arm scope): single chain = "arm" (a 6-DOF
+manipulator); whole system = "ceiling-mounted quad-arm service robot"; base = "a
+ceiling rail" — there are TWO rails (one per gantry), each with one linear and one
+rotational DOF; two arms share each rail, so arms on the SAME rail share a base while
+arms on DIFFERENT rails move independently.
 
 ---
 
@@ -25,16 +38,16 @@ ground raises real safety and collision concerns. One way around this is to lift
 robot off the floor entirely. If the arms hang from the ceiling and travel along an
 overhead rail, their working volume stays above everyday human activity, the floor is
 left clear, and objects are approached from above rather than from across the room
-[Jayathilaka2025]. We study a robot of exactly this kind. Two arms, each a 6-DOF
-manipulator, are carried by a single ceiling rail that can both slide and rotate over
-the workspace.
+[Jayathilaka2025]. We study a robot of exactly this kind. Four arms, each a 6-DOF
+manipulator, are carried in pairs by two ceiling rails, each of which can both slide
+and rotate over the workspace.
 
 **¶2 — Specific problem.**
-Because the rail moves the two arms as well, every arm paired with the rail becomes an
-8-DOF redundant chain. A given object can usually be reached by either arm, and from
-many different rail positions. The robot therefore faces two coupled questions at
-once. Which arm should do the task, and where should the base be placed before it
-reaches. Neither question is free of cost. Repositioning the heavy base is one of the
+Because each rail moves its pair of arms as well, every arm paired with its rail
+becomes an 8-DOF redundant chain. A given object can usually be reached by more than
+one arm, possibly on different rails, and from many different rail positions. The
+robot therefore faces two coupled questions at once. Which arm should do the task, and
+where should the base be placed before it reaches. Neither question is free of cost. Repositioning the heavy base is one of the
 dominant expenses in mobile manipulation, both in time and in energy [MoMaPos2024],
 [BaSeNet2024], [EnergySLR2024], so a simple policy that always reaches with the
 closest arm, or that leaves the base wherever it happens to be, can waste a great deal
@@ -67,24 +80,26 @@ paper makes three contributions.
 First, we introduce an energy-aware selection cost J that chooses the arm and the full
 8-DOF configuration together, rail travel included, instead of settling for the
 nearest reachable pose.
-Second, we build a base-aware GNG capability map that treats the ceiling rail as a
-genuine degree of freedom, and that enriches plain reachability with a per-node IK
-seed, a manipulability value, and a holding cost. A boundary-seeding step keeps the
-map accurate right up to the edge of the reachable workspace.
-Third, we evaluate the whole approach in Isaac Sim, characterizing the map,
-benchmarking GNG-seeded IK, and comparing energy-aware selection against nearest,
-fixed, and random baselines. Open-vocabulary perception with YOLOE [Wang2025] provides
-the perception front end, supplying the target objects that the selection pipeline
-then acts on.
+Second, we build a base-aware GNG capability map that treats each ceiling rail as a
+genuine degree of freedom, and that enriches plain reachability with a representative
+8-DOF configuration, a manipulability value, and a holding cost at every node. Because
+that configuration already includes a rail placement, each node is a self-contained
+candidate for the selection stage rather than a bare occupancy bit. A boundary-seeding
+step keeps the map accurate right up to the edge of the reachable workspace.
+Third, we evaluate the whole approach in Isaac Sim, characterizing the map, measuring how
+much the rail as a degree of freedom expands the reachable workspace, and comparing
+energy-aware selection against nearest, fixed, and random baselines. Open-vocabulary
+perception with YOLOE [Wang2025] provides the perception front end, supplying the target
+objects that the selection pipeline then acts on.
 
 **¶5 — Results preview and outline.**
-The simulation results support each claim. Letting the rail act as a degree of freedom
-enlarges the reachable workspace by about five times compared with an arm-only
-baseline. GNG seeding raises IK success and lowers solve time against
-`[PLACEHOLDER: none/KDL/voxel]`, and energy-aware selection cuts base travel and
-mechanical energy relative to the nearest, fixed, and random baselines by
-`[PLACEHOLDER]`. All of these numbers come from Isaac Sim, and validation on the
-physical robot is left for future work. The rest of the paper is organized as follows.
+The simulation results support each claim. Letting a rail act as a degree of freedom
+enlarges the reachable workspace by roughly four times compared with an arm-only
+baseline, and the boundary-seeding step recovers the true reach at the workspace edge to
+within a centimetre. Energy-aware selection cuts base travel and mechanical energy
+relative to the nearest, fixed, and random baselines by `[PLACEHOLDER]`. All of these
+numbers come from Isaac Sim, and validation on the physical robot is left for future
+work. The rest of the paper is organized as follows.
 Section II reviews related work, Section III describes the system, and Section IV
 presents the base-aware GNG capability map. Section V defines the energy cost J and the
 selection procedure, Section VI reports the experiments, and Section VII concludes.
@@ -127,40 +142,43 @@ steering a redundant arm away from singular postures [Yoshikawa1985]. Solving th
 inverse kinematics itself has also seen renewed interest through learning, with recent
 solvers such as IKDiffuser generating configurations from a diffusion model
 [IKDiffuser2025]. These approaches resolve the posture of one arm for one criterion at
-a time. They do not decide which of two arms should act, and they carry no notion of
+a time. They do not decide which arm, among several, should act, and they carry no notion of
 the base travel that a given posture would require. We keep the inverse kinematics
-solver itself lightweight and classical, and instead use the capability map to supply
-a good starting configuration, while the arm choice and the base motion are settled by
-the energy cost.
+solver itself standard and classical, and use the capability map for a different purpose,
+to enumerate candidate 8-DOF configurations, each with its own arm and rail placement,
+that the energy cost then ranks to settle the arm choice and the base motion.
 
-**Dual-arm coordination.**
-Systems with two arms raise the question of how to divide the task between them. Recent
-planners such as DAG-Plan and RoboPARA build dependency graphs over a task and assign
-subtasks to each arm so that the two can act in parallel [DAGPlan2024], [RoboPARA2025].
-Their concern is the temporal and logical structure of a multi-step task. Ours is
-different and complementary. For a single reaching action we ask which arm reaches the
-target for the least energy, given that both arms share one moving base, and we answer
-it with the same map and cost that also place the base.
+**Multi-arm coordination.**
+Systems with several arms raise the question of how to divide the task between them.
+Recent planners such as DAG-Plan and RoboPARA build dependency graphs over a task and
+assign subtasks to each arm so that several arms can act in parallel [DAGPlan2024],
+[RoboPARA2025]. Their concern is the temporal and logical structure of a multi-step
+task. Ours is different and complementary. For a single reaching action we ask which
+arm reaches the target for the least energy, given that arms sharing a rail share one
+moving base while arms on different rails move independently, and we answer it with
+the same map and cost that also place the base.
 
 ---
 
 ## III. System
 
 **III-A. Robot platform and kinematic model.**
-The robot consists of a single rail mounted to the ceiling that carries two arms side
-by side. Each arm is a Kinova Gen3 Lite, a six-joint manipulator with a reach of about
-0.76 m and a two-finger gripper at its wrist [Kinova]. The rail adds two more degrees of
-freedom that both arms share, a prismatic axis that slides the carriage horizontally
-and a revolute axis that rotates it, so relative to the ground each arm forms an
-eight-degree-of-freedom chain. We write a configuration of one arm as
-q = [d, θ, q₁, …, q₆], where d is the rail translation, θ the rail rotation, and
-q₁…q₆ the arm joints. The kinematic tree is anchored at a fixed world frame. The rail
-base is attached to the world, each arm base is attached to the rail, and a tool frame
-at the gripper defines the end-effector pose that the task is specified in. Because the
-two arms are mounted on the same carriage, moving the rail moves both of them together,
-which is what couples the choice of arm to the placement of the base. Figure 1 shows
-the platform and its frames alongside an overview of the end-to-end pipeline, from
-perception through energy-aware selection to planning and execution.
+The robot consists of two rails mounted to the ceiling, arranged side by side, each
+carrying two arms. Each arm is a Kinova Gen3 Lite, a six-joint manipulator with a
+reach of about 0.76 m and a two-finger gripper at its wrist [Kinova], for four arms in
+total. Each rail adds two more degrees of freedom that its pair of arms share, a
+prismatic axis that slides the carriage horizontally and a revolute axis that rotates
+it, so relative to the ground each arm forms an eight-degree-of-freedom chain. We
+write a configuration of one arm as q = [d, θ, q₁, …, q₆], where d and θ are the
+translation and rotation of that arm's own rail, and q₁…q₆ the arm joints. The
+kinematic tree is anchored at a fixed world frame. Each rail base is attached to the
+world, each arm base is attached to its rail, and a tool frame at the gripper defines
+the end-effector pose that the task is specified in. Two arms share each carriage, so
+moving a rail moves its pair of arms together and couples the choice of arm to the
+placement of that base, while arms on different rails move independently of one
+another. Figure 1 shows the platform and its frames alongside an overview of the
+end-to-end pipeline, from perception through energy-aware selection to planning and
+execution.
 
 **III-B. Simulation environment.**
 All experiments in this paper are carried out in NVIDIA Isaac Sim, a GPU-accelerated
@@ -168,10 +186,11 @@ simulator with a physics engine suitable for contact-rich manipulation
 [IsaacSim2026], [Mittal2023]. The simulated robot is built from the same URDF
 description that defines the physical platform, so the kinematics and joint limits used
 in simulation match the real hardware. The scene places a set of everyday tabletop
-objects within the workspace, some within easy reach of both arms and at least one
+objects within the workspace, some within easy reach of several arms and at least one
 deliberately positioned near the edge of the reachable workspace (Fig. 2). The scene is
-observed by two RGB-D cameras placed above the workspace, which are the system's only
-exteroceptive sensor. Their images serve two roles at once. The color stream feeds the
+observed by two RGB-D cameras placed above the workspace, one at each end of the shared
+corridor the two rails run along, which together are the system's only exteroceptive
+sensor for both gantries. Their images serve two roles at once. The color stream feeds the
 object detector, and the depth stream builds the collision octomap used for planning, so
 a single sensing rig supports both perception and collision avoidance. We treat the simulator as the evaluation platform for
 this work and validate on the physical robot in future work.
@@ -211,8 +230,9 @@ end-effector can reach, the map stores a configuration that reaches it and a mea
 how good that configuration is. Unlike a reachability map, which encodes only whether a
 location is attainable, this representation associates each reachable location with a
 concrete configuration and a quality measure, and it is base-aware in that the stored
-configuration incorporates the rail's degrees of freedom. We build one such capability map per arm, so the two
-arms sharing the rail are described by two maps that we query independently in Section V.
+configuration incorporates its rail's degrees of freedom. We build one such capability
+map per arm, so the four arms across the two rails are described by four maps that we
+query independently in Section V.
 
 **IV-A. Sampling reachable configurations.**
 We sample the eight-degree-of-freedom configuration q = [d, θ, q₁, …, q₆] uniformly
@@ -233,11 +253,13 @@ reachable workspace, while adaptation updates the whole vector, so each node's q
 converges to a configuration that is representative of its workspace cell. Edges are
 formed between co-activated nodes by competitive Hebbian learning, giving the map a
 topology over the workspace. Every node is therefore two things at once, a location the
-end-effector can reach and a ready inverse-kinematics seed for reaching it. This is the
-sense in which the map is base-aware. Because q carries the rail translation and
-rotation, two ways of reaching the same point from different base placements settle into
-different nodes, so a node's seed stays a valid single configuration rather than an
-average of incompatible base positions. To keep the map faithful at the reachable
+end-effector can reach and a representative 8-DOF configuration that reaches it, rail
+placement included. This is the sense in which the map is base-aware. Because q carries
+the rail translation and rotation, two ways of reaching the same point from different
+base placements settle into different nodes, so a node's configuration stays a valid
+single posture rather than an average of incompatible base positions. That configuration
+later seeds the inverse-kinematics query for its candidate, but its role in this paper is
+to make each node a self-contained arm-and-base candidate for the energy cost to score. To keep the map faithful at the reachable
 boundary, where nodes grown only from interior samples would otherwise settle inward, we
 pin a shell of nodes on the measured reach surface before growing the interior (Fig. 4),
 and Section VI reports the resulting edge fidelity.
@@ -257,7 +279,7 @@ the node, so they are available at query time at no extra cost.
 
 ## V. Energy-Aware Arm and Base Selection
 
-Given the object pose from perception and the two capability maps, the selection stage
+Given the object pose from perception and the four capability maps, the selection stage
 decides which arm to use and which eight-degree-of-freedom configuration to reach with.
 It makes both decisions together, by an energy cost evaluated over candidates drawn from
 the maps.
@@ -296,23 +318,27 @@ Each reference ρ is the median raw value of its term over the calibration set o
 The terms are proxies for the energy of carrying out the pick. Rail and arm travel are
 the mechanical work of moving each axis, with the heavy rail the dominant cost
 [MoMaPos2024], [BaSeNet2024]; the tool-to-object distance stands for the arm motion still
-needed to reach the object; and the holding term charges for fighting gravity. We do not
-claim that J is the exact energy of a pick, but Section VI shows that minimizing it lowers
-the measured mechanical energy of the executed trajectory relative to the baselines
-[EnergySLR2024].
+needed to reach the object; and the holding term charges for fighting gravity. The weights
+in Table 1 were set from how strongly each raw term correlates with the mechanical energy
+of the executed trajectory, computed by rigid-body inverse dynamics over the full
+gantry-and-arm chain, over a calibration set of picks; arm and rail-rotation travel track
+it most consistently. We do not claim that J equals this mechanical energy exactly, only
+that it is built to move in the same direction, and Section VI reports whether minimizing
+J lowers the measured trajectory energy relative to the baselines [EnergySLR2024].
 
 **V-B. Pooling candidates.**
 For a target object, we gather from each arm's capability map the nodes whose task
 position lies within a radius of the object, which serves as the reachability filter, and
 score each of them with J. The radius scales with the node spacing of the map, so the
 number of pooled candidates stays stable no matter how densely the map was grown. Because
-the two arms have separate maps, the pool holds candidates from both arms at once, each
-carrying its own base placement and full configuration, so scoring the pool compares the
-two arms and their base placements on the same scale.
+all four arms have separate maps, the pool holds candidates from every arm at once, each
+carrying its own base placement and full configuration, so scoring the pool compares all
+four arms — including arms on different rails — and their base placements on the same
+scale.
 
 **V-C. Round-robin selection and execution.**
 We sort the pooled candidates by J and try them in order, but interleave the order across
-the two arms so that one arm cannot consume every attempt before the other is tried; the
+the arms so that no single arm can consume every attempt before the others are tried; the
 arm that holds the overall lowest-J candidate is given a small head start. For each
 candidate in turn we solve inverse kinematics, seeded by the candidate configuration, to a
 pre-grasp pose that stands off a fixed clearance above the top of the object with a
@@ -329,13 +355,42 @@ make.
 ## Open items carried forward
 - ¶4 contribution style: kept as "First/Second/Third" prose; user may still switch to
   a bullet list.
-- ¶5 numeric `[PLACEHOLDER]`s fill from E2/E3 once data is collected.
+- E2 IK-SEEDING DROPPED (2026-07-16, user "E2-a"): the GNG seed gives NO IK benefit —
+  it loses to a neutral zero seed on success and time in every regime (E2), and ties/
+  loses even for the exact top-down grasp on its own node (E2-b). So ¶4 no longer claims
+  "GNG-seeded IK" and ¶5 no longer previews an IK-seeding win. The GNG map is framed as
+  the arm+base SELECTION substrate + workspace representation only. Do NOT reintroduce an
+  IK-speed/success claim for GNG. (E2 kept in experiment_results.md as a negative result,
+  not a paper table.)
+- ¶5 workspace number updated 5×→"roughly four times" (E1 rerun at rail 2.0: 4.11× raw /
+  4.03× ceiling-capped @res 0.05). The remaining ¶5 `[PLACEHOLDER]` (selection vs
+  baselines) fills from E3.
 - Title's "Energy-Aware" leans on the `traj_energy` validation in E3; E3 must show
   actual mechanical-energy reduction vs baselines.
-- J weights/refs are code-synced but have drifted twice — CURRENT (2026-07-07,
+- J weights/refs are code-synced but have drifted before — CURRENT (2026-07-16,
   gantry_reach_executor.py): weights w_gl=2, w_gr=12, w_arm=20, w_dist=3, w_hold=1,
   w_manip=1; refs ρ = median raw term over a 63-pick calib session (ρ_gl=0.95,
   ρ_gr=0.70, ρ_arm=6.0, ρ_dist=1.36, ρ_hold=2.90, ρ_manip=0.145). `hold` IS in J now
   (w_hold=1). RE-VERIFY these against the code before submission; V-A prose keeps them
   symbolic so numbers live in one place. NOTE: reachability_gng/README.md is stale
-  (shows old weights, no hold term) — re-sync.
+  again (weights re-tuned since last sync) — re-sync before submission.
+- HONESTY CAVEAT (found in code comments, 2026-07-16): the weights were derived from
+  Spearman correlation (ρ) between each raw term and measured `traj_energy`; even the
+  best single term (arm travel) only reaches ρ≈0.31 (weak), because the URDF has no
+  joint damping/friction and the rail axes are orthogonal to gravity, so this rigid-body
+  J cannot capture real motor friction/stiction. V-A now hedges this ("built to move in
+  the same direction," not "equals... exactly") — do not strengthen this claim in
+  Section VI beyond what the E3 data actually shows.
+- SCOPE CHANGE (2026-07-16, user-approved): paper now covers TWO gantries / FOUR arms
+  (was one gantry / two arms). Title changed to "...Dual-Gantry Quad-Arm Ceiling
+  Robot...". Revised: title, ¶1, ¶2, ¶4 (rail→"each rail"), Related Work "Multi-arm
+  coordination" (was "Dual-arm coordination"), III-A (two rails, four arms, shared-vs-
+  independent base nuance), III-B (two cameras cover both rails' shared corridor),
+  IV opening (four maps, was two), V opening/V-B/V-C (four arms in the pool and
+  round-robin, was two). E1 data so far (5.10x gain) is still valid — it was measured
+  per-arm (arm_1) and generalizes to "a rail," not tied to arm count. E0 table (Section
+  VI, not yet written) will need arm_3/arm_4 rows added when those maps are built.
+  reachability_gng/README.md, memory (paper-plan.md), and any other paper-scope note
+  should be re-synced to this 4-arm scope. Do NOT propagate this scope change into
+  docs/IEEE-conference-Energy_Aware/energy_aware_selection.tex — that file is
+  off-limits per explicit user instruction.

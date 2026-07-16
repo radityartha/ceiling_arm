@@ -15,3 +15,13 @@ log/
 # Other temp files
 *.swp
 *~
+
+# Large personal binaries (keep on disk, out of git history)
+nando-Thesis_01.pdf
+
+# LaTeX build artifacts (commit the .tex source, not the compiled output)
+docs/IEEE-conference-Energy_Aware/energy_aware_selection.pdf
+docs/IEEE-conference-Energy_Aware/*.aux
+docs/IEEE-conference-Energy_Aware/*.log
+docs/IEEE-conference-Energy_Aware/*.out
+docs/IEEE-conference-Energy_Aware/*.synctex.gz
