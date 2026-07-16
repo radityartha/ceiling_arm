@@ -36,11 +36,22 @@
     </link>
 
     <!-- Linear slide -->
+    <!-- MODEL ASSUMPTION (not measured hardware data, added 2026-07-16 "Jalan B" to
+         give the rigid-body energy model a friction path; report as a sensitivity
+         in the paper, never as real motor energy):
+         Coulomb friction = mu * N, N = carried weight * g. Carried mass = platform
+         (5.0) + rotation_link (3.0) + 2x mount_plate (0.2 each) + 2x Kinova Gen3
+         Lite arm+gripper (~5.19 kg each, from kortex_description link masses)
+         = 18.77 kg -> N = 184.2 N. mu = 0.15 (mid of typical linear-guide range
+         0.10-0.20) -> friction = 27.6 N. Viscous damping set to 5% of the Coulomb
+         term (1.4 N*s/m) as a small secondary term. Sensitivity: mu in {0.10,
+         0.15, 0.20} -> friction in {18.4, 27.6, 36.8} N. -->
     <joint name="${prefix}linear_joint" type="prismatic">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}platform_link"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <axis xyz="1 0 0"/>
+      <dynamics damping="1.4" friction="27.6"/>
       <limit lower="0.0" upper="2.0" effort="1000" velocity="0.5"/>
     </joint>
 
@@ -70,11 +81,19 @@
     </joint> -->
 
     <!-- Rotating joint (instead of fixed) -->
+    <!-- MODEL ASSUMPTION (not measured; same 2026-07-16 "Jalan B" note as above):
+         Coulomb friction torque = mu * N * r_bearing. Carried mass excludes the
+         platform (rotation_link + 2x mount_plate + 2x arm+gripper) = 13.77 kg
+         -> N = 135.1 N. mu = 0.15 (same family as the linear guide). r_bearing =
+         0.10 m, an assumed effective slew-bearing radius (not from any drawing)
+         -> friction = 2.03 Nm. Viscous damping = 5% of that (0.10 Nm*s/rad).
+         Sensitivity: mu in {0.10, 0.15, 0.20} -> friction in {1.35, 2.03, 2.70} Nm. -->
     <joint name="${prefix}rotation_joint" type="revolute">
       <parent link="${prefix}platform_link"/>
       <child link="${prefix}rotation_link"/>
       <origin xyz="0 0 -${0.065/2 + 0.015/2}" rpy="0 0 ${pi/2}"/> <!-- default 90° -->
       <axis xyz="0 0 1"/> <!-- rotate around Z -->
+      <dynamics damping="0.10" friction="2.03"/>
       <limit lower="${-pi}" upper="${pi}" effort="10" velocity="1.0"/> <!-- ±180° travel -->
     </joint>
 
