@@ -1,7 +1,7 @@
 """Energy-aware redundancy resolution + arm selection for the gantry workcell.
 
-Given a detected object, this node decides WHICH arm (arm_1 or arm_2, both
-riding the shared gantry_1) reaches it and at WHICH 8-DOF configuration -- by
+Given a detected object, this node decides WHICH arm (arm_1..arm_4) reaches it
+and at WHICH 8-DOF configuration -- by
 ENERGY, not by nearest seed -- then hands MoveIt a joint-space goal so MoveIt
 does the actual collision-aware planning (and optionally execution) against the
 live octomap.
@@ -29,7 +29,7 @@ Pipeline per pick (`~/pick`):
      configs that fight gravity less. `manip` is the node manipulability. J is
      the OBJECTIVE; arm selection emerges from J.
   4. Evaluate candidates in ascending-J order: IK to the EXACT object pose
-     (seeded by the candidate q) on that arm's `gantry_1_with_arm_<n>` group ->
+     (seeded by the candidate q) on that arm's `gantry_<m>_with_arm_<n>` group ->
      MoveGroup plan (plan_only unless `execute`). Accept the FIRST candidate
      with a collision-free plan; otherwise fall through to the next (robustness).
   5. Log per-pick CSV (chosen arm, J + components, rank-by-J vs rank-by-distance,
@@ -140,16 +140,21 @@ class GantryReachExecutor(Node):
     def __init__(self):
         super().__init__('gantry_reach_executor')
         # --- arms ---
-        self.declare_parameter('arm_names', ['arm_1', 'arm_2'])
+        self.declare_parameter('arm_names', ['arm_1', 'arm_2', 'arm_3', 'arm_4'])
         self.declare_parameter('arm_models',
-                               ['/tmp/arm1_model.npz', '/tmp/arm2_model.npz'])
+                               ['/tmp/arm1_model.npz', '/tmp/arm2_model.npz',
+                               '/tmp/arm3_model.npz', '/tmp/arm4_model.npz'])
         self.declare_parameter('arm_groups',
-                               ['gantry_1_with_arm_1', 'gantry_1_with_arm_2'])
+                               ['gantry_1_with_arm_1', 'gantry_1_with_arm_2',
+                               'gantry_2_with_arm_3', 'gantry_2_with_arm_4'])
         self.declare_parameter('arm_ee_frames',
-                               ['t1_a1_tool_frame', 't1_a2_tool_frame'])
+                               ['t1_a1_tool_frame', 't1_a2_tool_frame',
+                               't2_a1_tool_frame', 't2_a2_tool_frame'])
         self.declare_parameter('gripper_links',
                                ['t1_a1_gripper_base_link',
-                                't1_a2_gripper_base_link'])
+                                't1_a2_gripper_base_link',
+                                't2_a1_gripper_base_link',
+                                't2_a2_gripper_base_link'])
         self.declare_parameter('arm_pin_configs', [''])  # for trajectory energy
         # --- task / pool ---
         self.declare_parameter('task', 'pos')
@@ -221,9 +226,9 @@ class GantryReachExecutor(Node):
         #   hold  rho=0.03 (~no signal)                    -> w_hold=1
         # CAVEAT: even the best achievable combo (arm alone) only reaches
         # rho~0.31 (weak). Root cause (verified): the URDF has NO <dynamics
-        # damping/friction> on any gantry or arm joint, and t1_linear_joint's
-        # axis (1,0,0) / t1_rotation_joint's axis (0,0,1) are both orthogonal to
-        # gravity -- so this idealised rigid-body model can't capture the
+        # damping/friction> on any gantry or arm joint, and each gantry's linear
+        # axis (1,0,0) / rotation axis (0,0,1) are orthogonal to gravity -- so
+        # this idealised rigid-body model can't capture the
         # friction/stiction that likely dominates the REAL gantry motors' energy
         # draw. Treat J as idealised mechanical energy (gravity+inertia only),
         # not real motor energy, when writing this up.
@@ -294,21 +299,35 @@ class GantryReachExecutor(Node):
         self.declare_parameter('acc_scale', 0.2)
         self.declare_parameter('joint_tolerance', 1e-3)
         self.declare_parameter('execute', False)          # plan-only by default
+        # E3 selection-policy ablation. The J score is ALWAYS computed and logged
+        # (so every mode's CSV carries the same J/travel columns for comparison);
+        # `selection_mode` only changes the ORDER candidates are tried in, i.e.
+        # which arm+config actually wins:
+        #   energy  -- lowest-J first, round-robin across arms (the paper method).
+        #   nearest -- smallest task-space node->object `dist` first, across all
+        #              arms (nearest reachable seed, ignores energy).
+        #   fixed   -- only `fixed_arm`'s candidates, its nearest node first
+        #              (a single arm always does the task, no arm choice).
+        #   random  -- arms visited in a seeded-random order, nearest node within
+        #              each (chance arm choice); `random_seed` makes it reproducible.
+        self.declare_parameter('selection_mode', 'energy')
+        self.declare_parameter('fixed_arm', 'arm_1')       # for selection_mode=fixed
+        self.declare_parameter('random_seed', 0)           # for selection_mode=random
         self.declare_parameter('max_attempts', 8)
         # Head start for the allocation winner (overall lowest-J arm): try this
         # many of its nodes BEFORE any other arm gets a turn. 1 = strict
         # round-robin (old behaviour). >1 stops a single un-plannable winner node
         # (e.g. a goal-in-collision -2) from immediately handing the whole task to
         # another arm -- e.g. when the winner arm is already hovering over the
-        # object, let it try its next node in place before a far arm drives the
-        # shared gantry across the workcell. Capped below max_attempts so the
+        # object, let it try its next node in place before a far arm drives its
+        # gantry across the workcell. Capped below max_attempts so the
         # other arm is still guaranteed a shot.
         self.declare_parameter('winner_head_start', 2)
         # In-place re-grasp: when an arm's tool is already essentially over the
         # object (current ee_dist <= this, metres), add a candidate whose IK SEED
         # is the arm's CURRENT config -- so IK re-grasps from where the arm
         # already is (near-zero gantry travel) instead of only re-seeding from GNG
-        # nodes whose stored configs can jump the shared gantry across the
+        # nodes whose stored configs can jump that arm's gantry across the
         # workcell. 0 disables. Default 0.30 m cleanly separates "hovering after a
         # pick" (~0.17 m) from "moved away / far arm" (>0.8 m).
         self.declare_parameter('in_place_radius', 0.30)
@@ -379,6 +398,13 @@ class GantryReachExecutor(Node):
         self.acc_scale = float(g('acc_scale').value)
         self.joint_tol = float(g('joint_tolerance').value)
         self.execute = bool(g('execute').value)
+        self.selection_mode = str(g('selection_mode').value)
+        self.fixed_arm = str(g('fixed_arm').value)
+        self._sel_rng = np.random.default_rng(int(g('random_seed').value))
+        if self.selection_mode not in ('energy', 'nearest', 'fixed', 'random'):
+            raise SystemExit(
+                f'selection_mode "{self.selection_mode}" invalid; use one of '
+                'energy | nearest | fixed | random')
         self.max_attempts = int(g('max_attempts').value)
         self.winner_head_start = max(1, int(g('winner_head_start').value))
         self.in_place_radius = float(g('in_place_radius').value)
@@ -644,6 +670,34 @@ class GantryReachExecutor(Node):
                     order.append(b[i])
         return order
 
+    def _attempt_order(self, cands, by_J, name=''):
+        """Order the pooled candidates to try, per `selection_mode`. Only the
+        ORDER changes across modes; the J score itself is untouched.
+
+        energy  -- lowest-J first, round-robin across arms (paper method).
+        nearest -- smallest node->object task `dist` first, across all arms.
+        fixed   -- only `fixed_arm`'s candidates, nearest node first.
+        random  -- arms in a seeded-random order, nearest node within each.
+        """
+        mode = self.selection_mode
+        if mode == 'energy':
+            return self._interleave_by_arm(by_J, self.winner_head_start)
+        if mode == 'nearest':
+            return sorted(cands, key=lambda c: c['dist'])
+        if mode == 'fixed':
+            return sorted((c for c in cands if c['arm'].name == self.fixed_arm),
+                          key=lambda c: c['dist'])
+        if mode == 'random':
+            # random arm precedence (reproducible via random_seed), nearest node
+            # within each arm so the chosen arm still gets a reachable seed.
+            by_arm = {}
+            for c in sorted(cands, key=lambda c: c['dist']):
+                by_arm.setdefault(c['arm'].name, []).append(c)
+            names = list(by_arm.keys())
+            self._sel_rng.shuffle(names)
+            return [c for n in names for c in by_arm[n]]
+        raise ValueError(mode)   # guarded at construction, defensive here
+
     def _log_j_table(self, name, by_J, dist_rank):
         """Print the full ranked J table -- every pooled candidate in ascending
         J, with each term's weighted contribution (weight*value), so the J
@@ -744,7 +798,7 @@ class GantryReachExecutor(Node):
         # its CURRENT config, scored with ZERO joint travel (it IS the current
         # state, manip unknown -> 0), so J = w_dist*ee_dist leads that arm's
         # bucket and is tried first -- re-grasp in place instead of a far arm
-        # driving the shared gantry to a target this arm is already hovering over.
+        # driving that arm's gantry to a target it is already hovering over.
         if self.in_place_radius > 0.0:
             for arm in self.arms:
                 q_cur = cur_by_arm[arm.name]
@@ -770,27 +824,32 @@ class GantryReachExecutor(Node):
         # rank-by-distance, to later show energy may pick a non-nearest seed
         dist_rank = {id(c): r for r, c in
                      enumerate(sorted(cands, key=lambda c: c['dist']))}
-        # Fallback order: round-robin ACROSS arms (best-per-arm first), keeping
-        # ascending-J WITHIN each arm. Otherwise the lowest-J arm's cluster of
-        # near-identical nodes fills all max_attempts and the other arm is never
-        # tried -- a whole arm's worth of -31s/collisions is spent before the
-        # alternative ever gets a single shot.
-        attempt_order = self._interleave_by_arm(by_J, self.winner_head_start)
+        # Attempt order depends on selection_mode (E3 ablation); `energy` is the
+        # paper method, the rest are baselines. J is computed + logged for every
+        # candidate regardless, so all modes share comparable CSV columns.
+        attempt_order = self._attempt_order(cands, by_J, name)
+        if not attempt_order:
+            self.get_logger().error(
+                f'>>> {name}: FAILED -- selection_mode={self.selection_mode} '
+                f'left no candidate to try (e.g. fixed_arm={self.fixed_arm} has '
+                f'no reachable node in the pool)')
+            return
 
         if self.log_j_table:
             self._log_j_table(name, by_J, dist_rank)
 
-        # Announce the arm the energy allocation chose (lowest-J candidate). This
-        # is the arm that WILL do the task; if its plan fails the executor falls
-        # through to the next-best candidate (possibly the other arm) below.
-        best = by_J[0]
+        # Announce the arm the selection actually chose (first in attempt_order).
+        # For `energy` this is the lowest-J candidate; for a baseline it is that
+        # policy's pick. If its plan fails the executor falls through to the next
+        # candidate (possibly another arm) below.
+        best = attempt_order[0]
         by_arm_bestJ = {}
         for c in by_J:
             by_arm_bestJ.setdefault(c['arm'].name, c['J'])
         summary = ', '.join(f'{n} J={j:.3f}' for n, j in by_arm_bestJ.items())
         self.get_logger().info(
-            f'>>> {name}: allocation -> {best["arm"].name} will do the task '
-            f'(best J={best["J"]:.3f} [gantry_lin={best["d_gantry_lin"]:.3f} '
+            f'>>> {name}: [{self.selection_mode}] -> {best["arm"].name} will do '
+            f'the task (chosen J={best["J"]:.3f} [gantry_lin={best["d_gantry_lin"]:.3f} '
             f'gantry_rot={best["d_gantry_rot"]:.3f} arm={best["d_arm"]:.3f} '
             f'eedist={best["ee_dist"]:.3f} '
             f'manip={best["manip"]:.3f}]; per-arm best: {summary})')
@@ -903,7 +962,9 @@ class GantryReachExecutor(Node):
                     f'candidate')
 
             # Classify WHY every candidate lost so the terminal says it plainly.
-            n_tried = min(len(by_J), self.max_attempts)
+            # Count what was ACTUALLY tried (attempt_order, which a baseline mode
+            # like `fixed` can make shorter than the full pool), not the pool.
+            n_tried = min(len(attempt_order), self.max_attempts)
             n_ik31 = sum(1 for e in fail['ik'] if e == -31)
             if n_tried and n_ik31 == n_tried:
                 why = ('UNREACHABLE -- no IK solution for any candidate; the '
@@ -1175,23 +1236,25 @@ class GantryReachExecutor(Node):
     def _init_csv(self):
         with open(self.csv_log, 'w', newline='') as f:
             csv.writer(f).writerow(
-                ['t', 'obj', 'arm', 'attempt', 'rank_J', 'rank_dist', 'node',
-                 'dist', 'ee_dist', 'd_gantry_lin', 'd_gantry_rot', 'd_arm',
-                 'hold', 'manip', 'J', 'gantry_lin', 'gantry_rot', 'ik_ms',
-                 'plan_time_s', 'plan_ms', 'traj_energy', 'success'])
+                ['t', 'selection_mode', 'obj', 'arm', 'attempt', 'rank_J',
+                 'rank_dist', 'node', 'dist', 'ee_dist', 'd_gantry_lin',
+                 'd_gantry_rot', 'd_arm', 'hold', 'manip', 'J', 'gantry_lin',
+                 'gantry_rot', 'ik_ms', 'plan_time_s', 'plan_ms', 'traj_energy',
+                 'success'])
 
     def _log_csv(self, obj, attempt, rank_dist, c, goal_q, ik_ms, ptime,
                  plan_ms, energy):
         if not self.csv_log:
             return
         if c is None:
-            row = [time.time(), obj, '', -1, -1, -1, -1, '', '', '', '', '',
-                   '', '', '', '', '', ik_ms, ptime, plan_ms, energy, 0]
+            row = [time.time(), self.selection_mode, obj, '', -1, -1, -1, -1, '',
+                   '', '', '', '', '', '', '', '', '', ik_ms, ptime, plan_ms,
+                   energy, 0]
         else:
-            row = [time.time(), obj, c['arm'].name, attempt, attempt, rank_dist,
-                   c['node'], c['dist'], c['ee_dist'], c['d_gantry_lin'],
-                   c['d_gantry_rot'], c['d_arm'], c['hold'], c['manip'], c['J'],
-                   float(goal_q[0]), float(goal_q[1]),
+            row = [time.time(), self.selection_mode, obj, c['arm'].name, attempt,
+                   attempt, rank_dist, c['node'], c['dist'], c['ee_dist'],
+                   c['d_gantry_lin'], c['d_gantry_rot'], c['d_arm'], c['hold'],
+                   c['manip'], c['J'], float(goal_q[0]), float(goal_q[1]),
                    ik_ms, ptime, plan_ms, energy, 1]
         with open(self.csv_log, 'a', newline='') as f:
             csv.writer(f).writerow(row)

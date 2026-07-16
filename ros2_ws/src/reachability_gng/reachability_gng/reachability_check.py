@@ -115,8 +115,10 @@ class ReachabilityCheck(Node):
     def __init__(self):
         super().__init__('reachability_check')
         self.declare_parameter('arm_models',
-                               ['/tmp/arm1_model.npz', '/tmp/arm2_model.npz'])
-        self.declare_parameter('arm_names', ['arm_1', 'arm_2'])
+                               ['/tmp/arm1_model.npz', '/tmp/arm2_model.npz',
+                                '/tmp/arm3_model.npz', '/tmp/arm4_model.npz'])
+        self.declare_parameter('arm_names', ['arm_1', 'arm_2',
+                                             'arm_3', 'arm_4'])
         # reach_radius <= 0 -> density-adaptive (reach_radius_factor * node
         # spacing) so the result is independent of the GNG `lam`; > 0 -> absolute
         # metric radius (legacy).

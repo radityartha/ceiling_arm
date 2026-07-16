@@ -67,8 +67,10 @@ class ReachabilityCloud(Node):
         self.declare_parameter('voxel_ttl', 1.0)      # s a voxel persists unseen
         self.declare_parameter('publish_period', 0.5)
         self.declare_parameter('arm_models',
-                               ['/tmp/arm1_model.npz', '/tmp/arm2_model.npz'])
-        self.declare_parameter('arm_names', ['arm_1', 'arm_2'])
+                               ['/tmp/arm1_model.npz', '/tmp/arm2_model.npz',
+                                '/tmp/arm3_model.npz', '/tmp/arm4_model.npz'])
+        self.declare_parameter('arm_names', ['arm_1', 'arm_2',
+                                             'arm_3', 'arm_4'])
 
         self.world_frame = self.get_parameter('world_frame').value
         self.suffix = self.get_parameter('optical_frame_suffix').value

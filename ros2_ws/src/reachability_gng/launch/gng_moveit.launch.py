@@ -1,4 +1,4 @@
-"""MoveIt MotionPlanning + both GNG reachability clouds in ONE RViz.
+"""MoveIt MotionPlanning + all 4 GNG reachability clouds in ONE RViz.
 
 Brings up, on FAKE/MOCK hardware (no real arms, no Isaac Sim, NO LIDAR):
   - robot_state_publisher + move_group + a ros2_control mock joint_state source
@@ -9,21 +9,23 @@ Brings up, on FAKE/MOCK hardware (no real arms, no Isaac Sim, NO LIDAR):
     that xacro fails ("Invalid parameter gripper"). The flattened urdf is the
     source of truth (same model the GNG clouds use), per the package README.
   - one GNG `visualize` node PER ARM, on distinct node names so each owns its
-    own <node>/gng_markers topic and edge color (arm_1 green, arm_2 orange).
-  - RViz loaded with config/gng_moveit.rviz: MotionPlanning (groups
-    gantry_1_with_arm_1 / gantry_1_with_arm_2) + RobotModel + both GNG clouds.
+    own <node>/gng_markers topic and edge color.
+  - RViz loaded with config/gng_moveit.rviz: MotionPlanning + RobotModel +
+    all 4 GNG clouds.
 
 So you can Plan/Execute in MoveIt and see the reachability maps at the same
 time. Do NOT also start joint_state_publisher_gui (one /joint_states source).
 
 Build the maps first (dense recipe):
   source /opt/ros/humble/setup.bash && source ros2_ws/install/setup.bash
-  ros2_ws/src/reachability_gng/build_maps.sh      # -> /tmp/arm1_model.npz, /tmp/arm2_model.npz
+  ros2_ws/src/reachability_gng/build_maps.sh      # -> /tmp/arm{1,2,3,4}_model.npz
 
 Then:
   ros2 launch reachability_gng gng_moveit.launch.py
   ros2 launch reachability_gng gng_moveit.launch.py \
-       arm1_model:=/tmp/arm1_model.npz arm2_model:=/tmp/arm2_model.npz color_by:=hits
+       arm1_model:=/tmp/arm1_model.npz arm2_model:=/tmp/arm2_model.npz \
+       arm3_model:=/tmp/arm3_model.npz arm4_model:=/tmp/arm4_model.npz \
+       color_by:=hits
 """
 
 import os
@@ -47,6 +49,12 @@ from moveit_configs_utils.launches import (
 _STALE_PATTERNS = [
     'lib/reachability_gng/visualize',   # GNG marker publishers
     'rviz2 -d .*gng_moveit.rviz',       # our RViz instance only
+]
+_ARM_SPECS = [
+    ('arm1_model', '/tmp/arm1_model.npz', 'gng_arm1', [0.0, 1.0, 0.0, 0.6]),    # green
+    ('arm2_model', '/tmp/arm2_model.npz', 'gng_arm2', [1.0, 0.55, 0.0, 0.6]),   # orange
+    ('arm3_model', '/tmp/arm3_model.npz', 'gng_arm3', [0.0, 0.8, 1.0, 0.6]),    # cyan
+    ('arm4_model', '/tmp/arm4_model.npz', 'gng_arm4', [1.0, 0.2, 0.8, 0.6]),    # magenta
 ]
 
 # Same 7 controllers my_workcell.launch.py spawns (the combined arm+table
@@ -73,8 +81,10 @@ def generate_launch_description():
     rviz_cfg = os.path.join(gng_pkg, 'config', 'gng_moveit.rviz')
     workcell_urdf = os.path.join(desc_pkg, 'urdf', 'workcell_full.urdf')
 
-    arm1_model = LaunchConfiguration('arm1_model')
-    arm2_model = LaunchConfiguration('arm2_model')
+    arm_models = {
+        arg_name: LaunchConfiguration(arg_name)
+        for arg_name, _, _, _ in _ARM_SPECS
+    }
     color_by = LaunchConfiguration('color_by')
     frame = LaunchConfiguration('frame')
 
@@ -91,14 +101,13 @@ def generate_launch_description():
     )
     ros2_controllers = str(moveit_config.package_path / 'config' / 'ros2_controllers.yaml')
 
-    ld = LaunchDescription([
-        DeclareLaunchArgument('arm1_model', default_value='/tmp/arm1_model.npz'),
-        DeclareLaunchArgument('arm2_model', default_value='/tmp/arm2_model.npz'),
-        DeclareLaunchArgument('color_by', default_value='manip',
-                              description='manip | hits'),
-        DeclareLaunchArgument('frame', default_value='world'),
-        OpaqueFunction(function=_kill_stale),
-    ])
+    ld = LaunchDescription()
+    ld.add_action(DeclareLaunchArgument('color_by', default_value='manip',
+                                        description='manip | hits'))
+    ld.add_action(DeclareLaunchArgument('frame', default_value='world'))
+    for arg_name, model_path, _, _ in _ARM_SPECS:
+        ld.add_action(DeclareLaunchArgument(arg_name, default_value=model_path))
+    ld.add_action(OpaqueFunction(function=_kill_stale))
 
     # static TF for any SRDF virtual joints (e.g. world -> base).
     for e in generate_static_virtual_joint_tfs_launch(moveit_config).entities:
@@ -124,16 +133,14 @@ def generate_launch_description():
             arguments=[ctrl], output='screen'))
 
     # one GNG cloud per arm, distinct node name -> distinct topic + color.
-    ld.add_action(Node(
-        package='reachability_gng', executable='visualize', name='gng_arm1',
-        output='screen',
-        parameters=[{'model_path': arm1_model, 'color_by': color_by,
-                     'frame': frame, 'edge_color': [0.0, 1.0, 0.0, 0.6]}]))  # green
-    ld.add_action(Node(
-        package='reachability_gng', executable='visualize', name='gng_arm2',
-        output='screen',
-        parameters=[{'model_path': arm2_model, 'color_by': color_by,
-                     'frame': frame, 'edge_color': [1.0, 0.55, 0.0, 0.6]}]))  # orange
+    for arg_name, _, node_name, edge_color in _ARM_SPECS:
+        ld.add_action(Node(
+            package='reachability_gng', executable='visualize', name=node_name,
+            output='screen',
+            parameters=[{
+                'model_path': arm_models[arg_name], 'color_by': color_by,
+                'frame': frame, 'edge_color': edge_color
+            }]))
 
     ld.add_action(Node(
         package='rviz2', executable='rviz2', name='rviz2', output='screen',

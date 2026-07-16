@@ -109,14 +109,24 @@ def knn_edges(P, k=6):
     return list(edges)
 
 
-def annotate(g: GNG, X, manip):
-    """Assign each sample to its BMU and accumulate hits + mean manipulability."""
+def annotate(g: GNG, X, manip, chunk=2000):
+    """Assign each sample to its BMU and accumulate hits + mean manipulability.
+
+    The BMU metric zeroes the q dims (see GNG._w), so it reduces to the nearest
+    node in the leading `task_dim` (xyz) space. That lets the per-sample python
+    loop collapse into a chunked (B, M) distance matrix + argmin, matching the
+    old `argmin(g._dist2(x))` result node-for-node."""
+    W = np.asarray(g.W)[:, :g.task_dim]                 # node task features
+    Xt = np.asarray(X)[:, :g.task_dim]                  # sample task features
     hits = np.zeros(len(g.W))
     manip_sum = np.zeros(len(g.W))
-    for x, mm in zip(X, manip):
-        i = int(np.argmin(g._dist2(x)))
-        hits[i] += 1
-        manip_sum[i] += mm
+    for s in range(0, len(Xt), chunk):
+        xb = Xt[s:s + chunk]                            # (B, t)
+        diff = xb[:, None, :] - W[None, :, :]           # (B, M, t)
+        d2 = np.einsum('ijk,ijk->ij', diff, diff)       # (B, M)
+        bmu = np.argmin(d2, axis=1)                     # (B,)
+        np.add.at(hits, bmu, 1.0)
+        np.add.at(manip_sum, bmu, manip[s:s + chunk])
     node_manip = np.where(hits > 0, manip_sum / np.maximum(hits, 1), 0.0)
     return hits, node_manip
 
@@ -162,10 +172,29 @@ def main():
                     'clearly-outer points flagged as boundary')
     ap.add_argument('--boundary-edges-k', type=int, default=6,
                     help='shell connectivity: edges per boundary node')
+    ap.add_argument('--ceiling', type=float, default=None,
+                    help='drop FK samples whose end-effector world z exceeds '
+                    'this (m) before fitting. The arms hang from the ceiling '
+                    'rail, so poses above it are physically impossible (arm '
+                    'would penetrate the ceiling); removing them keeps the '
+                    'capability map -- nodes, boundary shell and IK seeds -- '
+                    'below the ceiling. Omit to keep all samples.')
     args = ap.parse_args()
 
     data = np.load(args.dataset)
     X, task_dim = build_matrix(data, args.task, args.ori_weight)
+    manip = data['manip']
+
+    if args.ceiling is not None:
+        keep = X[:, 2] <= args.ceiling            # X[:, 2] is EE world z (xyz lead)
+        dropped = int((~keep).sum())
+        X = X[keep]
+        manip = manip[keep]
+        if len(X) == 0:
+            raise SystemExit(f'--ceiling {args.ceiling} dropped every sample; '
+                             'value is below the whole workspace')
+        print(f'ceiling filter: dropped {dropped} samples with EE z > '
+              f'{args.ceiling} m (above the ceiling), {len(X)} remain')
 
     params = GNGParams(max_nodes=args.max_nodes, lam=args.lam, seed=args.seed)
     g = GNG(dim=X.shape[1], task_dim=task_dim, params=params)
@@ -183,7 +212,7 @@ def main():
               f'{len(sel)} shell nodes ({len(edges)} shell edges)')
     g.fit(X, epochs=args.epochs)
 
-    hits, node_manip = annotate(g, X, data['manip'])
+    hits, node_manip = annotate(g, X, manip)
     g.save(args.out)
     # store node stats + joint order alongside the model
     base = args.out[:-4] if args.out.endswith('.npz') else args.out

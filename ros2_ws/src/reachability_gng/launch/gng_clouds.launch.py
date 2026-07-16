@@ -3,8 +3,8 @@
 For wiring the GNG maps into an EXISTING MoveIt/RViz stack — in particular the
 Isaac Sim digital twin (isaac_sim/workcell/ros/bringup.launch.py + rviz.launch.py),
 which runs in its own overlay workspace. Run this from THIS repo's workspace so
-the clouds publish on /gng_arm1/gng_markers and /gng_arm2/gng_markers; the markers
-reach the Isaac RViz over DDS (use the SAME ROS_DOMAIN_ID / RMW on both sides,
+the clouds publish on /gng_arm{1,2,3,4}/gng_markers; the markers reach the Isaac
+RViz over DDS (use the SAME ROS_DOMAIN_ID / RMW on both sides,
 e.g. ROS_DOMAIN_ID=42 RMW_IMPLEMENTATION=rmw_cyclonedds_cpp).
 
 The clouds are in the `world` frame (config-independent union over all configs),
@@ -12,7 +12,7 @@ so they line up with the Isaac-driven robot as long as both share the same
 workcell `world` origin (they do — same URDF definition).
 
   source /opt/ros/humble/setup.bash && source ros2_ws/install/setup.bash
-  ros2 launch reachability_gng gng_clouds.launch.py        # /tmp/arm{1,2}_model.npz
+  ros2 launch reachability_gng gng_clouds.launch.py        # /tmp/arm{1,2,3,4}_model.npz
 """
 
 import subprocess
@@ -24,6 +24,12 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 _STALE_PATTERN = 'lib/reachability_gng/visualize'   # GNG marker publishers
+_ARM_SPECS = [
+    ('arm1_model', '/tmp/arm1_model.npz', 'gng_arm1', [0.0, 1.0, 0.0, 0.6]),    # green
+    ('arm2_model', '/tmp/arm2_model.npz', 'gng_arm2', [1.0, 0.55, 0.0, 0.6]),   # orange
+    ('arm3_model', '/tmp/arm3_model.npz', 'gng_arm3', [0.0, 0.8, 1.0, 0.6]),    # cyan
+    ('arm4_model', '/tmp/arm4_model.npz', 'gng_arm4', [1.0, 0.2, 0.8, 0.6]),    # magenta
+]
 
 
 def _kill_stale(context, *args, **kwargs):
@@ -34,26 +40,31 @@ def _kill_stale(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    arm1_model = LaunchConfiguration('arm1_model')
-    arm2_model = LaunchConfiguration('arm2_model')
+    arm_models = {
+        arg_name: LaunchConfiguration(arg_name)
+        for arg_name, _, _, _ in _ARM_SPECS
+    }
     color_by = LaunchConfiguration('color_by')
     frame = LaunchConfiguration('frame')
 
-    return LaunchDescription([
-        DeclareLaunchArgument('arm1_model', default_value='/tmp/arm1_model.npz'),
-        DeclareLaunchArgument('arm2_model', default_value='/tmp/arm2_model.npz'),
+    actions = [
         DeclareLaunchArgument('color_by', default_value='manip',
                               description='manip | hits'),
         DeclareLaunchArgument('frame', default_value='world'),
+    ]
+    for arg_name, model_path, _, _ in _ARM_SPECS:
+        actions.append(DeclareLaunchArgument(arg_name, default_value=model_path))
 
+    actions.extend([
         OpaqueFunction(function=_kill_stale),
-
-        Node(package='reachability_gng', executable='visualize', name='gng_arm1',
-             output='screen',
-             parameters=[{'model_path': arm1_model, 'color_by': color_by,
-                          'frame': frame, 'edge_color': [0.0, 1.0, 0.0, 0.6]}]),   # green
-        Node(package='reachability_gng', executable='visualize', name='gng_arm2',
-             output='screen',
-             parameters=[{'model_path': arm2_model, 'color_by': color_by,
-                          'frame': frame, 'edge_color': [1.0, 0.55, 0.0, 0.6]}]),  # orange
     ])
+    for arg_name, _, node_name, edge_color in _ARM_SPECS:
+        actions.append(Node(
+            package='reachability_gng', executable='visualize', name=node_name,
+            output='screen',
+            parameters=[{
+                'model_path': arm_models[arg_name], 'color_by': color_by,
+                'frame': frame, 'edge_color': edge_color
+            }]))
+
+    return LaunchDescription(actions)

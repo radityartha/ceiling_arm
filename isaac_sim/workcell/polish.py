@@ -64,18 +64,23 @@ def build_room():
     FixedCuboid(prim_path="/World/room/floor", name="floor",
                 position=np.array([0, 0, -0.05]), scale=np.array([12, 12, 0.1]),
                 visual_material=floor_mat)
-    # Two side walls (y=+-2.5). The back (-x) and front (+x) walls are OMITTED so
-    # nothing occludes the two RGBD cameras, which sit near the rail ends
-    # (rgbd2 at x=-0.6, rgbd at x=4.35) looking in under the arms. X length
-    # widened 6 -> 10 (span -5..5, was -3..3): after the work table moved to
-    # cx=2.9, its farthest object (tomato_soup_can, x=3.05) and the rgbd camera
-    # (x=4.35) both fell OUTSIDE the old wall span, letting light leak in past
-    # the open end and blow out (glare) the now-unshaded objects.
+    # Two side walls, 2.4 m apart (y=+-1.2, narrowed from +-2.5). The front (+x)
+    # wall is still OMITTED so nothing occludes the rgbd camera (x=4.35) looking
+    # in under the arms; the back (-x) side is now CLOSED by wall_back below
+    # (rgbd2 at x=-0.6 sits inside the room, between wall_back and the work
+    # tables, so it keeps its view). X length kept at 10 (span -5..5) so the
+    # walls still run past every table/camera along the rail.
     FixedCuboid(prim_path="/World/room/wall_left", name="wall_left",
-                position=np.array([0, 2.5, 2.0]), scale=np.array([10, 0.1, 4.0]),
+                position=np.array([0, 1.2, 2.0]), scale=np.array([10, 0.1, 4.0]),
                 visual_material=wall_mat)
     FixedCuboid(prim_path="/World/room/wall_right", name="wall_right",
-                position=np.array([0, -2.5, 2.0]), scale=np.array([10, 0.1, 4.0]),
+                position=np.array([0, -1.2, 2.0]), scale=np.array([10, 0.1, 4.0]),
+                visual_material=wall_mat)
+    # Back wall, 2 m behind the gantry bases (world x~0, per CLAUDE.md) closing
+    # the previously-open -X end. Spans slightly past +-1.2 (2.6 vs the 2.4 m
+    # room width) so it seals the two side-wall corners with no gap.
+    FixedCuboid(prim_path="/World/room/wall_back", name="wall_back",
+                position=np.array([-2.0, 0, 2.0]), scale=np.array([0.1, 2.6, 4.0]),
                 visual_material=wall_mat)
 
     # Work table under the ceiling arms. The arms hang from z~2.05 and their
@@ -89,7 +94,10 @@ def build_room():
     # range for J/energy calibration -- the far object (tomato_soup_can, was
     # 1.70) lands at ~3.05, ~0.25 m inside the ~3.6 m reach cap. Object X specs
     # below and the cabinet (cab_x, derived from cx) shift with it.
-    cx, cy, top_z, th = 2.9, 0.0, 1.05, 0.05
+    # cy pushed to -0.80 (was 0.0) so the table's -Y edge sits flush against
+    # wall_right (inner face at y=-1.2+0.05=-1.15): cy = -1.15 + sy/2 = -0.80.
+    # The cabinet shares this `cy` (see below), so it moves to the same wall too.
+    cx, cy, top_z, th = 2.9, -0.80, 1.05, 0.05
     FixedCuboid(prim_path="/World/work_table/top", name="wt_top",
                 position=np.array([cx, cy, top_z]), scale=np.array([0.9, 0.7, th]),
                 visual_material=top_mat)
@@ -99,15 +107,16 @@ def build_room():
                     scale=np.array([0.05, 0.05, top_z]), visual_material=leg_mat)
 
     # Second work table on the +Y side ("left" of the arms), slightly lower than
-    # table 1 (top_z2 0.97 vs 1.05). It is a bench extended in +Y so its far end can
-    # host an object GENUINELY out of reach: gantry_1's reachable cloud spans y up
-    # to ~1.08 m and the pool radius is 0.727 m, so the unreachable crossover is
-    # ~y=1.45. The near end (small y) carries the reachable objects; the far end
-    # (the banana at y=1.60) is the unreachable one. Shortened from sy2=1.5/cy2=1.25
-    # (far edge 2.00) to sy2=1.30/cy2=1.02 (far edge 1.67) since the banana no longer
-    # needs to sit at y=1.85. Table 1 +Y edge = 0.35, table 2 -Y edge = cy2-sy2/2 =
-    # 0.37, so the two tables nearly touch but don't.
-    cx2, cy2, top_z2, sx2, sy2 = 0.75, 1.02, 0.97, 0.75, 1.30
+    # table 1 (top_z2 0.97 vs 1.05). Rotated 90 deg (sx2/sy2 swapped from the
+    # original 0.75/1.30) and pushed flush against wall_left: wall_left's inner
+    # face is at y=1.2-0.05=1.15, so cy2 = 1.15 - sy2/2 = 0.775.
+    # cx2 advanced +0.55 (0.75 -> 1.30) so the bench clears work_table3 below,
+    # which now cuts straight across the room at x~0 (table3's +X edge is 0.375,
+    # so 0.65 near-edge clearance = 0.275 m gap).
+    # cx2 advanced another +0.50 (requested; 1.30 -> 1.80). New x span is
+    # 1.15..2.45, touching table1's -X edge (2.45) exactly but in a disjoint Y
+    # band (table2 y:[0.40,1.15] vs table1 y:[-1.15,-0.45]), so no collision.
+    cx2, cy2, top_z2, sx2, sy2 = 1.80, 0.775, 0.97, 1.30, 0.75
     FixedCuboid(prim_path="/World/work_table2/top", name="wt2_top",
                 position=np.array([cx2, cy2, top_z2]), scale=np.array([sx2, sy2, th]),
                 visual_material=top_mat)
@@ -116,6 +125,23 @@ def build_room():
         FixedCuboid(prim_path=f"/World/work_table2/leg_{i}", name=f"wt2_leg_{i}",
                     position=np.array([cx2 + dx, cy2 + dy, top_z2 / 2]),
                     scale=np.array([0.05, 0.05, top_z2]), visual_material=leg_mat)
+
+    # Third work table: sits under the gantry's rail-start (x=0, the origin of
+    # the 0..2.0 m rail travel) and spans the full room width, wall_left to
+    # wall_right (inner faces at y=+-1.15) -- a cross-bench rather than a
+    # wall-side one. sy3=2.28 leaves a 0.01 m gap to each wall so it doesn't
+    # z-fight the wall geometry. Shallow in X (sx3=0.75, like the other
+    # benches) and centered on x=0 so it clears work_table2 (whose near edge
+    # is now at cx2-sx2/2 = 0.65, a 0.275 m gap from table3's +X edge at 0.375).
+    cx3, cy3, top_z3, sx3, sy3 = 0.0, 0.0, 0.97, 0.75, 2.28
+    FixedCuboid(prim_path="/World/work_table3/top", name="wt3_top",
+                position=np.array([cx3, cy3, top_z3]), scale=np.array([sx3, sy3, th]),
+                visual_material=top_mat)
+    lx3, ly3 = sx3 / 2 - 0.05, sy3 / 2 - 0.05
+    for i, (dx, dy) in enumerate([(lx3, ly3), (lx3, -ly3), (-lx3, ly3), (-lx3, -ly3)]):
+        FixedCuboid(prim_path=f"/World/work_table3/leg_{i}", name=f"wt3_leg_{i}",
+                    position=np.array([cx3 + dx, cy3 + dy, top_z3 / 2]),
+                    scale=np.array([0.05, 0.05, top_z3]), visual_material=leg_mat)
 
     # A cabinet standing beside the table on the -X side (i.e. "before" the table,
     # toward the rail origin) as a static obstacle for collision testing -- the arm
@@ -127,8 +153,11 @@ def build_room():
     # width matched to the table in Y, placed just off the table's -X edge.
     cab_dx, cab_wy, cab_h = 0.4, 0.35, 1.15
     cab_x = cx - 0.45 - 0.07 - cab_dx / 2 - 0.40  # shifted -0.40 m along X (moved back)
+    # Pushed flush against wall_right (own y, decoupled from table1's cy): inner
+    # face at -1.15, so cab_cy = -1.15 + cab_wy/2 = -0.975.
+    cab_cy = -1.15 + cab_wy / 2
     FixedCuboid(prim_path="/World/cabinet/body", name="cabinet",
-                position=np.array([cab_x, cy, cab_h / 2]),
+                position=np.array([cab_x, cab_cy, cab_h / 2]),
                 scale=np.array([cab_dx, cab_wy, cab_h]), visual_material=cab_mat)
 
     # Real YCB objects (cans / bottle / boxes / banana) instead of primitives, so
@@ -142,32 +171,53 @@ def build_room():
     # wants: fixed objects at known poses. Split: physics objects on table 1
     # (surf1), visual-only on table 2 (surf2). (x, y) are spaced >0.25 m apart so
     # no two objects touch.
-    from pxr import Usd, UsdGeom, UsdPhysics
+    from pxr import Usd, UsdGeom, UsdPhysics, UsdShade
     root = get_assets_root_path()
     if root is None:
         root = "https://omniverse-content-production.s3.us-west-2.amazonaws.com/Assets/Isaac/4.5"
     ycb = f"{root}/Isaac/Props/YCB"
     surf1 = top_z + th / 2
     surf2 = top_z2 + th / 2
+    surf3 = top_z3 + th / 2
     # label, usd (relative to ycb), (x, y, surface_z), has_physics_variant
     # table-1 object X shifted +1.35 (was 1.42/1.52/1.70) to follow cx's move
     # to 2.9 -- these are literal coords, NOT derived from cx, so they must be
-    # kept in sync with it by hand.
+    # kept in sync with it by hand. Y shifted -0.80 to follow table1's cy move
+    # (flush to wall_right): -0.16-0.80=-0.96, 0.16-0.80=-0.64.
+    # sugar_box removed (previous request); scissors added in its old slot.
     specs = [
-        ("cracker_box",     "Axis_Aligned_Physics/003_cracker_box.usd",     (2.77, -0.16, surf1), True),
-        ("sugar_box",       "Axis_Aligned_Physics/004_sugar_box.usd",       (2.87,  0.16, surf1), True),
-        ("tomato_soup_can", "Axis_Aligned_Physics/005_tomato_soup_can.usd", (3.05, -0.16, surf1), True),
-        # obj_3 seated on TOP of the cabinet (cab_x, cy, cab top = cab_h).
-        ("mustard_bottle",  "Axis_Aligned_Physics/006_mustard_bottle.usd",  (cab_x, cy,   cab_h), True),
+        ("cracker_box",     "Axis_Aligned_Physics/003_cracker_box.usd",     (2.77, -0.96, surf1), True),
+        # obj_1: scissors, in sugar_box's old slot (requested). Only the
+        # visual-only variant exists (verified via HTTP HEAD; Axis_Aligned_
+        # Physics/037_scissors.usd -> 404), so has_phys=False.
+        ("scissors",        "Axis_Aligned/037_scissors.usd",                (2.87, -0.64, surf1), False),
+        # obj_2 shifted +0.20 x / +0.30 y (requested): (3.05,-0.96) -> (3.25,-0.66).
+        ("tomato_soup_can", "Axis_Aligned_Physics/005_tomato_soup_can.usd", (3.25, -0.66, surf1), True),
+        # obj_3 seated on TOP of the cabinet (cab_x, cab_cy, cab top = cab_h).
+        ("mustard_bottle",  "Axis_Aligned_Physics/006_mustard_bottle.usd",  (cab_x, cab_cy, cab_h), True),
+        # obj_4/5 repositioned to fit work_table2's new footprint (x:[1.15,2.45]
+        # after the +0.55 then +0.50 advances, y:[0.40,1.15] -- see
+        # cx2/cy2/sx2/sy2 above). X shifted +1.05 total to follow table2's cx
+        # move; relative layout (from the earlier rotation remap) is unchanged.
         # obj_4: IsaacLab teddy bear (not YCB) -> full URL, resolved directly below.
-        ("teddy_bear",      f"{root}/Isaac/IsaacLab/Objects/Teddy_Bear/teddy_bear.usd", (0.55,  0.70, surf2), False),
-        # potted_meat_can now holds the unreachable-by-design +Y spot (y=1.60): its
-        # nearest reachable GNG node is ~0.90 m away -- past the 0.727 m pool radius
-        # -- so the reachability check finds NO candidate nodes and reports it
-        # UNREACHABLE on purpose (the ~y=1.45 crossover leaves a ~0.15 m margin).
-        ("potted_meat_can", "Axis_Aligned/010_potted_meat_can.usd",         (0.75,  1.60, surf2), False),
-        # banana swapped to the reachable near end (was at y=1.60).
-        ("banana",          "Axis_Aligned/011_banana.usd",                  (0.87,  0.72, surf2), False),
+        ("teddy_bear",      f"{root}/Isaac/IsaacLab/Objects/Teddy_Bear/teddy_bear.usd", (1.45,  0.59, surf2), False),
+        # potted_meat_can removed (previous request).
+        ("banana",          "Axis_Aligned/011_banana.usd",                  (2.01,  0.60, surf2), False),
+        # obj_6: a second mug on work_table3, replacing the earlier glass
+        # primitive placeholder with the real Isaac/YCB mug asset (requested).
+        # NOTE: the physics variant doesn't exist for this asset (verified via
+        # HTTP HEAD against the Nucleus/S3 fallback: Axis_Aligned_Physics/
+        # 025_mug.usd -> 404) -- that 404 was why the mug rendered "empty" in
+        # the sim. Only Axis_Aligned/025_mug.usd (visual-only, 200 OK) exists,
+        # so has_phys=False here (static convex-hull collider path, like banana).
+        ("mug",             "Axis_Aligned/025_mug.usd",                     (cx3, cy3, surf3), False),
+        # obj_7: bowl on work_table3, near gantry_1's side (gantry_1_base is
+        # at world y=+0.36, per CLAUDE.md) -- placed at (cx3, 0.36), a 0.36 m
+        # separation from the table3 mug at (cx3, cy3=0.0), clear of the
+        # >0.25 m object-spacing convention. Same asset family as the mug:
+        # only the visual-only Axis_Aligned variant exists (verified via HTTP
+        # HEAD; Axis_Aligned_Physics/024_bowl.usd -> 404), so has_phys=False.
+        ("bowl",            "Axis_Aligned/024_bowl.usd",                    (cx3, 0.36, surf3), False),
     ]
     objs = []
     stage = get_current_stage()
@@ -180,9 +230,11 @@ def build_room():
     # mustard bottle came out upside down at +90; -90 (i.e. +180 more) stands it right way up.
     _stand_flip = np.array([0.70710678, -0.70710678, 0.0, 0.0])  # -90 deg about X
     _yaw90 = np.array([0.70710678, 0.0, 0.0, 0.70710678])         # +90 deg about Z (in-plane)
-    # obj_0/obj_1 boxes (-90), obj_2 tomato_soup_can (+90),
-    # obj_3 mustard_bottle (-90), obj_5 potted_meat_can (+90), obj_6 banana (+90 yaw)
-    stand_rot = {0: _stand_flip, 1: _stand_flip, 2: _stand, 3: _stand_flip, 5: _stand, 6: _yaw90}
+    # obj_0 cracker_box (-90), obj_2 tomato_soup_can (+90),
+    # obj_3 mustard_bottle (-90), obj_5 banana (+90 yaw). obj_1 scissors lies
+    # flat as-is (no rotation needed). obj_6/7 mug/bowl came out face-down at
+    # +90 (requested fix) -> switched to _stand_flip (-90, i.e. +180 more).
+    stand_rot = {0: _stand_flip, 2: _stand, 3: _stand_flip, 5: _yaw90, 6: _stand_flip, 7: _stand_flip}
     for i, (label, rel, (ox, oy, surf), has_phys) in enumerate(specs):
         prim_path = f"/World/objects/obj_{i}"
         usd_path = rel if "://" in rel else f"{ycb}/{rel}"
@@ -239,4 +291,14 @@ def build_room():
         # labeled mask + an id->class JSON, so the localizer can name each
         # detected object. Ground-truth seg now; swap source for open-vocab later.
         add_update_semantics(prim, label)
+        if i == 6:
+            # obj_6 (table3 mug): override the asset's baked texture with the
+            # brightest possible color (pure white) as requested. Bound on the
+            # asset root with strongerThanDescendants so it wins over any
+            # material binding on the mesh below it (same pattern as
+            # recolor_tables).
+            bright = _pbr("/World/Looks/MugBright", (1.0, 1.0, 1.0))
+            UsdShade.MaterialBindingAPI.Apply(prim).Bind(
+                UsdShade.Material(stage.GetPrimAtPath(bright.prim_path)),
+                bindingStrength=UsdShade.Tokens.strongerThanDescendants)
     return objs

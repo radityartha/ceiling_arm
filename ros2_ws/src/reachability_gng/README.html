@@ -49,10 +49,10 @@ source /opt/ros/humble/setup.bash
 colcon build --packages-select reachability_gng --symlink-install
 source install/setup.bash
 
-# generate the two GNG maps -> /tmp/arm1_model.npz, /tmp/arm2_model.npz
+# generate all 4 GNG maps -> /tmp/arm{1,2,3,4}_model.npz
 cd ~/arm_WS/ceiling_arm
 ros2_ws/src/reachability_gng/build_maps.sh</code></pre>
-  <p class="note">Adding arm_3/arm_4 later = one line in <code>build_maps.sh</code> + a config YAML.</p>
+  <p class="note">Default build now covers arm_1..arm_4 (both gantries).</p>
   </div>
 
   <div class="card">

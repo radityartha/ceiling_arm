@@ -57,11 +57,23 @@ CAM_RES = (1280, 720)
 # therefore the look-at orientation / TF quaternion) UNCHANGED -- pure
 # translation. Keep launch_workcell.sh's rgbd_camera_optical static TF --x in
 # sync (3.0 -> 4.35); its quaternion does not need to change.
+#
+# Both cameras pushed snug against their nearest side wall (requested), each
+# with a 0.05 m standoff inside the wall's inner face so the camera prim
+# doesn't clip into the wall mesh (wall_left inner face y=1.15, wall_right
+# inner face y=-1.15 -- see polish.py). Again eye+target shifted by the SAME
+# y-delta (pure translation) so the look-at orientation / TF quaternion stays
+# unchanged: rgbd delta -0.10 (1.2->1.10), rgbd2 delta -0.50 (-0.6->-1.10).
+# Keep launch_workcell.sh's --y for both cameras in sync.
+#
+# rgbd2 pulled back (requested) 0.30 m further along -X (-0.6 -> -0.90);
+# again a pure eye+target translation so the quaternion is unchanged. Keep
+# launch_workcell.sh's rgbd2 --x in sync.
 CAMERAS = [
     {"prim": "/World/rgbd_camera",  "ns": "rgbd",  "frame": "rgbd_camera_optical",
-     "eye": (4.35, 1.2, 2.05),  "target": (2.55, 0.30, 1.25), "focal": 17.25},
+     "eye": (4.35, 1.10, 2.05),  "target": (2.55, 0.20, 1.25), "focal": 17.25},
     {"prim": "/World/rgbd2_camera", "ns": "rgbd2", "frame": "rgbd2_camera_optical",
-     "eye": (-0.6, -0.6, 2.05), "target": (1.2, 0.30, 1.25), "focal": 16.42},
+     "eye": (-0.90, -1.10, 2.05), "target": (0.90, -0.20, 1.25), "focal": 16.42},
 ]
 
 import polish  # noqa: E402  (room + lights + work table; same dir)

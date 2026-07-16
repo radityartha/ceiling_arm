@@ -9,12 +9,12 @@ A ROS 2 workspace for controlling an automated workcell consisting of two ceilin
 ```
 Workcell
 ├── Table 1  (linear + rotational, ceiling-mounted)
-│   ├── Arm 1  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.13  (left mount)
-│   └── Arm 2  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.12  (right mount)
+│   ├── Arm 1  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.10  (left mount)
+│   └── Arm 2  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.11  (right mount)
 │
 ├── Table 2  (linear + rotational, ceiling-mounted)
-│   ├── Arm 3  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.11  (left mount)
-│   └── Arm 4  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.10  (right mount)
+│   ├── Arm 3  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.12  (left mount)
+│   └── Arm 4  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.13  (right mount)
 │
 └── Livox Mid360 LIDAR  (overhead, world frame: x=2.3 y=0 z=1.9)
     └── Object detection & MoveIt octomap collision avoidance
@@ -323,12 +323,12 @@ Helper scripts in [scripts/](scripts/) for bringing the system up safely.
 
 ```bash
 python3 scripts/hardware_check.py --preflight \
-    --arm-ips 192.168.2.13 192.168.2.12 192.168.2.11 192.168.2.10
+    --arm-ips 192.168.2.10 192.168.2.11 192.168.2.12 192.168.2.13
 ```
 
 Verifies USB serial ports (`/dev/ttyUSB0`, `/dev/ttyUSB1`) and pings all 4 Kinova arms.
 
-**Confirmed arm IPs:** Arm 1 = `192.168.2.13`, Arm 2 = `192.168.2.12`, Arm 3 = `192.168.2.11`, Arm 4 = `192.168.2.10`.
+**Confirmed arm IPs:** Arm 1 = `192.168.2.10`, Arm 2 = `192.168.2.11`, Arm 3 = `192.168.2.12`, Arm 4 = `192.168.2.13`.
 
 **Note on arm IPs:** The arms live on subnet `192.168.2.x`. If your PC's Ethernet is on a different subnet (e.g. `192.168.2.100`), they're directly reachable. If on `192.168.1.x`, add a secondary IP:
 ```bash
@@ -383,8 +383,8 @@ Test one arm + the tables + MoveIt RViz in **one terminal** — does **not** req
 full workcell launch.
 
 ```bash
-./scripts/start_single_arm.sh 192.168.2.10     # arm 4 (table 2, right)
-./scripts/start_single_arm.sh 192.168.2.11     # arm 3 (table 2, left)
+./scripts/start_single_arm.sh 192.168.2.13     # arm 4 (table 2, right)
+./scripts/start_single_arm.sh 192.168.2.12     # arm 3 (table 2, left)
 ```
 
 The script:

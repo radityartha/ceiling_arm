@@ -9,6 +9,8 @@ Panels:
         - /MotionPlanning1/Planning Request1
         - /GNG arm_1 (green)1
         - /GNG arm_2 (orange)1
+        - /GNG arm_3 (cyan)1
+        - /GNG arm_4 (magenta)1
       Splitter Ratio: 0.5
     Tree Height: 424
   - Class: rviz_common/Views
@@ -656,6 +658,32 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /gng_arm2/gng_markers
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: GNG arm_3 (cyan)
+      Namespaces:
+        gng_edges: true
+        gng_nodes: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /gng_arm3/gng_markers
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: GNG arm_4 (magenta)
+      Namespaces:
+        gng_edges: true
+        gng_nodes: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /gng_arm4/gng_markers
       Value: true
     - Class: rviz_default_plugins/MarkerArray
       Enabled: true

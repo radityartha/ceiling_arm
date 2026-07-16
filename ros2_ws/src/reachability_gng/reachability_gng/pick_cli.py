@@ -55,9 +55,10 @@ class PickCli(Node):
         super().__init__('pick_cli')
         self.declare_parameter('pick_topic', '/gantry_reach_executor/pick')
         # kept in sync with gantry_reach_executor's arm_names / arm_ee_frames
-        self.declare_parameter('arm_names', ['arm_1', 'arm_2'])
+        self.declare_parameter('arm_names', ['arm_1', 'arm_2', 'arm_3', 'arm_4'])
         self.declare_parameter('tool_frames',
-                               ['t1_a1_tool_frame', 't1_a2_tool_frame'])
+                               ['t1_a1_tool_frame', 't1_a2_tool_frame',
+                                't2_a1_tool_frame', 't2_a2_tool_frame'])
         self._topic = self.get_parameter('pick_topic').value
         self.arm_names = list(self.get_parameter('arm_names').value)
         self.tool_frames = list(self.get_parameter('tool_frames').value)
@@ -71,7 +72,8 @@ class PickCli(Node):
         # state topic); starts at the perception.launch.py default so the header
         # is honest before the first y/i/p command.
         self._seg_source = 'yoloe'
-        self._seg_prompts = ['box', 'can', 'bottle', 'banana', 'teddy bear']
+        self._seg_prompts = ['box', 'can', 'bottle', 'banana', 'teddy bear',
+                             'scissors', 'mug', 'bowl']
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)

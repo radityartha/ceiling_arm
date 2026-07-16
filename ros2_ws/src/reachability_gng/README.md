@@ -2,9 +2,9 @@
 
 Growing Neural Gas (GNG) **reachability + capability map** for the redundant
 **arm + table** system, used to **seed MoveIt IK**. It is **arm-list-driven**:
-one separate map is built per arm. `gantry_1` currently carries `arm_1` and
-`arm_2` (each 8 DOF = 2 table + 6 arm joints); adding `arm_3`/`arm_4` later is a
-one-line config addition. Target deliverable: Year-1 conference paper
+one separate map is built per arm. The default `build_maps.sh` now builds all
+four arms (`arm_1`..`arm_4`, each 8 DOF = 2 table + 6 arm joints) across both
+gantries. Target deliverable: Year-1 conference paper
 (IEEE SMC / IAS / SII / AROB).
 
 ## Idea
@@ -64,11 +64,10 @@ flattened file directly for now.
 ### 2. Sample FK data + train (offline, no ROS) — recommended dense recipe
 
 **One map per arm, in one command** — loops over the arm configs and writes
-`/tmp/<name>_model.npz` (+ `_stats.npz`) for each. Adding `arm_3`/`arm_4` later
-is a one-line addition to the `ARMS` array in the script (plus a config):
+`/tmp/<name>_model.npz` (+ `_stats.npz`) for each (arm1..arm4 by default):
 ```bash
 source /opt/ros/humble/setup.bash && source ros2_ws/install/setup.bash
-ros2_ws/src/reachability_gng/build_maps.sh        # -> /tmp/arm1_model.npz, /tmp/arm2_model.npz
+ros2_ws/src/reachability_gng/build_maps.sh        # -> /tmp/arm{1,2,3,4}_model.npz
 # override the dense recipe via env vars, e.g.:  N=20000 LAM=120 build_maps.sh
 ```
 

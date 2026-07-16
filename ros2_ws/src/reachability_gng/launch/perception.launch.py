@@ -101,9 +101,10 @@ def generate_launch_description():
         DeclareLaunchArgument('seg_device', default_value=''),   # '' -> auto
         # Default open-vocab classes for the workcell scene (also the labels you
         # target in pick_cli). Change live with pick_cli `p ...` or /seg_prompts.
+        # scissors/mug/bowl added for the new table3 objects in polish.py.
         DeclareLaunchArgument('seg_prompts',
                               default_value='box,tin can,canned food,bottle,'
-                                            'banana,teddy bear'),
+                                            'banana,teddy bear,scissors,mug,bowl'),
         # 0.25 drops weak/wrong labels; object_localizer's tracking + label
         # voting bridge the rest. Lower toward 0.1 if real objects get missed.
         DeclareLaunchArgument('seg_conf', default_value='0.25'),

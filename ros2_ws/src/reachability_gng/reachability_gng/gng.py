@@ -142,8 +142,14 @@ class GNG:
         """Present a single sample and update the graph."""
         self._step += 1
         d2 = self._dist2(x)
-        order = np.argsort(d2)
-        s1, s2 = int(order[0]), int(order[1])
+        # only the two nearest nodes (BMU + runner-up) are used, so a partial
+        # selection is far cheaper than sorting the whole distance array every
+        # step -- O(n) vs O(n log n) in the innermost loop of fit().
+        part = np.argpartition(d2, 1)[:2]
+        if d2[part[0]] <= d2[part[1]]:
+            s1, s2 = int(part[0]), int(part[1])
+        else:
+            s1, s2 = int(part[1]), int(part[0])
 
         # accumulate error of the BMU (squared task-space distance)
         self.error[s1] += d2[s1]
