@@ -372,18 +372,28 @@ Watch the executor terminal for the chosen arm / plan result.
 
 **Energy weights.** What drives the ranking is each term's *influence* =
 `weight × its spread across the pool`. The calibrated defaults live in one place
-only — the node's `declare_parameter` calls in `gantry_reach_executor.py`:
-`w_gantry_lin=2, w_gantry_rot=12, w_arm=20, w_dist=3, w_hold=1, w_manip=1` (the gantry
-linear and rotation axes are tuned separately; `w_dist` rewards the arm whose current
-end-effector is nearer the object, set `w_dist=0` to disable; `w_hold` charges gravity
-holding torque, set `w_hold=0` to ignore gravity). Each term is first normalised by a
-fixed reference = the **median raw value of that term over a 63-pick calibration session**
-(`ref_gantry_lin=0.95`, `ref_gantry_rot=0.70`, `ref_arm=6.0`, `ref_dist=1.36`,
-`ref_hold=2.90`, `ref_manip=0.145`) before its weight is applied, so every term is
-dimensionless ~O(1) and a weight reads directly as that term's priority (read as
-priorities: arm travel leads, then gantry rotation, dist, gantry linear, hold ≈ manip).
-The `hold` term is now **part of J** (re-added; requires `--config` maps so `hold≠0`).
-The launch does not override them. Override live, e.g. `-p w_manip:=300` → picks more dexterous
+only — the node's `declare_parameter` calls in `gantry_reach_executor.py`. As of
+2026-07-16/17 ("Jalan B": the gantry rail joints gained a Coulomb/viscous friction
+model in the URDF — a stated modelling assumption, not measured hardware — so
+`traj_energy` finally has a real rail-travel signal, and the weights below were
+refit by OLS regression, `scripts/regress_j.py`, not the earlier Spearman
+heuristic): `w_gantry_lin=27.16, w_gantry_rot=3.08, w_arm=0.09, w_dist=12.78,
+w_hold=0, w_manip=2.95` (the gantry linear and rotation axes are tuned separately;
+`w_dist` rewards the arm whose current end-effector is nearer the object, set
+`w_dist=0` to disable; `w_hold` is clamped to 0 — its OLS coefficient came out
+negative/wrong-signed and weak, consistent with an earlier "no signal" finding).
+Each term is first normalised by a fixed reference = the **median raw value of
+that term over the 168-pick friction-model regression session**
+(`ref_gantry_lin=1.1809`, `ref_gantry_rot=1.2395`, `ref_arm=7.176`,
+`ref_dist=1.4509`, `ref_hold=2.0382`, `ref_manip=0.1054`) before its weight is
+applied, so every term is dimensionless ~O(1) and a weight reads directly as
+that term's priority (read as priorities: gantry-linear travel now leads by far
+— rail friction dominates — then dist, gantry rotation, manip; arm travel and
+hold are now near-negligible). This is a large shift from the pre-friction
+defaults (`w_arm=20` used to lead); see `docs/experiment_results.md` E3 "Jalan
+B" section for the full before/after comparison. The `hold` term technically
+remains **part of J** (requires `--config` maps so `hold≠0`) but is inert at
+`w_hold=0`. The launch does not override them. Override live, e.g. `-p w_manip:=300` → picks more dexterous
 configs; `-p w_manip:=0` → flips toward shorter-travel / lower-manip. Naming:
 gantry/arm travel = *minimum-joint-travel* term, optional `∫|τ·q̇|dt` = true
 *mechanical energy* (post-plan, `compute_traj_energy`).

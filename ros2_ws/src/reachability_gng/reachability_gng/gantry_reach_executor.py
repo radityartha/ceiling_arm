@@ -212,60 +212,69 @@ class GantryReachExecutor(Node):
         # you can read and compare directly. Retune priority via w_*, rescale a
         # term via ref_*.
         #
-        # w_*/ref_* below are EMPIRICALLY calibrated (not hand-picked) from a
-        # 63-pick /tmp/calib.csv session: ref_* = each term's median raw value
-        # (analyze_calib.py Tahap 1); w_* = Spearman(term, traj_energy) evidence
-        # (Tahap 4) -- J is meant as an ENERGY proxy here, so priority follows
-        # what actually tracks the executed trajectory's mechanical energy
-        # (Pinocchio rnea over the full 8-DOF gantry+arm chain), not intuition:
-        #   arm   rho=0.308 (strongest, most stable)      -> w_arm=20 (leads)
-        #   grot  rho=0.276 (real, stable)                -> w_gantry_rot=12
-        #   dist  rho=0.18-0.24 (weak, UNSTABLE across n)  -> w_dist=3
-        #   glin  rho=0.15 (weak; adding it LOWERS combined rho) -> w_gantry_lin=2
-        #   manip rho=0.12 (weak, wrong-ish sign)          -> w_manip=1
-        #   hold  rho=0.03 (~no signal)                    -> w_hold=1
-        # CAVEAT: even the best achievable combo (arm alone) only reaches
-        # rho~0.31 (weak). Root cause (verified): the URDF has NO <dynamics
-        # damping/friction> on any gantry or arm joint, and each gantry's linear
-        # axis (1,0,0) / rotation axis (0,0,1) are orthogonal to gravity -- so
-        # this idealised rigid-body model can't capture the
-        # friction/stiction that likely dominates the REAL gantry motors' energy
-        # draw. Treat J as idealised mechanical energy (gravity+inertia only),
-        # not real motor energy, when writing this up.
+        # w_*/ref_* below are EMPIRICALLY calibrated by OLS REGRESSION (not the
+        # older Spearman-heuristic) on 168 successful picks pooled from the
+        # energy/nearest/random E3 sweeps ("Jalan B", 2026-07-16, /tmp/scratchpad
+        # /regress_j.py), AFTER adding rail <dynamics damping/friction> to
+        # moving_table.urdf.xacro (Coulomb+viscous, mu=0.15, see that file's
+        # comments) and an explicit dissipative term in `_traj_energy` (pin.rnea
+        # alone does NOT apply URDF friction/damping -- verified empirically).
+        # ref_* = median raw term over the pooled picks; w_* = OLS coefficient
+        # of traj_energy on each ref-normalised term (sign-matched to the J
+        # formula below). Fit quality: R^2 = 0.857, Spearman(J, traj_energy) =
+        # 0.909 -- both a large jump from the frictionless model's R^2=0.055 /
+        # rho~0.31, confirming the friction model gives J a real energy signal.
+        #   glin  w=27.16 (NOW DOMINANT -- rail linear travel is a real cost
+        #         once friction is modelled, matching the paper's motivating
+        #         claim that repositioning the base is expensive)
+        #   dist  w=12.78 (ee_dist to target, still a strong, expected term)
+        #   grot  w=3.08  (rail rotation travel)
+        #   manip w=2.95  (reward: higher manipulability -> lower energy, sign
+        #         matches convention, enters with a minus below)
+        #   arm   w=0.09  (arm-joint travel is now nearly negligible: friction-
+        #         dominated rail cost swamps the frictionless arm-only signal
+        #         that used to dominate, w_arm=20, when rail motion was ~free)
+        #   hold  w=0     (OLS coefficient came out negative/wrong-signed and
+        #         weak, consistent with the earlier Spearman finding of ~no
+        #         signal -- clamped to 0/inert rather than fit a backwards cost)
         # Override live with -p w_*:=... or -p ref_*:=... (re-run
-        # analyze_calib.py after collecting new picks to re-derive these).
+        # scripts/regress_j.py on fresh picks to re-derive these).
         #
         # The gantry's two DOFs are weighted SEPARATELY because their units and
         # cost differ: w_gantry_lin scores the linear/prismatic axis (metres of
         # heavy-carriage travel), w_gantry_rot the rotation axis (radians).
-        self.declare_parameter('w_gantry_lin', 2.0)
-        self.declare_parameter('w_gantry_rot', 12.0)
-        self.declare_parameter('w_arm', 20.0)
-        self.declare_parameter('w_manip', 1.0)
+        self.declare_parameter('w_gantry_lin', 27.16)
+        self.declare_parameter('w_gantry_rot', 3.08)
+        self.declare_parameter('w_arm', 0.09)
+        self.declare_parameter('w_manip', 2.95)
         # w_hold scores the static gravity load (||generalized gravity torque||,
         # Nm) of holding the candidate config -- a positive cost so J prefers
         # poses that fight gravity less (0 = ignore gravity). Requires maps built
         # with --config so `hold` is non-zero; hold=0 makes this term inert.
-        self.declare_parameter('w_hold', 1.0)
+        # w_hold clamped to 0 (inert): the OLS fit (see above) came out
+        # negative/wrong-signed on this term, weak (small magnitude), and
+        # consistent with the earlier Spearman finding of ~no signal -- rather
+        # than fit a backwards cost, this term is disabled.
+        self.declare_parameter('w_hold', 0.0)
         # w_dist scores the task-space gap (metres) between the candidate node
         # and the object: distance already gates the pool, this also makes a
         # closer seed cheaper inside J (0 = distance only gates, does not rank).
-        self.declare_parameter('w_dist', 3.0)
+        self.declare_parameter('w_dist', 12.78)
         # Fixed normalisation references (representative full-scale of each term):
         # linear travel (m), gantry rotation (rad), summed arm-joint travel (rad),
         # ee->object gap (m), manipulability index. Constants (not pool-relative)
-        # so J stays comparable across picks. Values = median raw term across the
-        # 63-pick calibration session (analyze_calib.py Tahap 1).
-        self.declare_parameter('ref_gantry_lin', 0.95)
-        self.declare_parameter('ref_gantry_rot', 0.70)
-        self.declare_parameter('ref_arm', 6.0)
-        self.declare_parameter('ref_dist', 1.36)
-        self.declare_parameter('ref_manip', 0.145)
+        # so J stays comparable across picks. Values = median raw term over the
+        # 168-pick friction-model regression session (scripts/regress_j.py,
+        # 2026-07-16, "Jalan B" -- see the w_* block above).
+        self.declare_parameter('ref_gantry_lin', 1.1809)
+        self.declare_parameter('ref_gantry_rot', 1.2395)
+        self.declare_parameter('ref_arm', 7.1760)
+        self.declare_parameter('ref_dist', 1.4509)
+        self.declare_parameter('ref_manip', 0.1054)
         # representative full-scale gravity hold torque (Nm): median ||gravity
-        # torque|| across the 63-pick calibration session (was 6.5, a rougher
-        # estimate from the full GNG map rather than the actual in-pool
-        # candidates that J evaluates).
-        self.declare_parameter('ref_hold', 2.90)
+        # torque|| over the same 168-pick session. w_hold=0 makes this inert;
+        # kept non-zero only so the ratio stays well-defined if re-enabled.
+        self.declare_parameter('ref_hold', 2.0382)
         # Print the full ranked J table (every pooled candidate, ascending J,
         # with each term's weighted contribution) to the terminal on each pick.
         self.declare_parameter('log_j_table', True)
@@ -1124,12 +1133,23 @@ class GantryReachExecutor(Node):
 
     def _traj_energy(self, arm, traj):
         """Mechanical energy E = sum |tau . qdot| dt over the planned trajectory
-        via inverse dynamics (Pinocchio). Returns NaN if no pin config / failure."""
+        via inverse dynamics (Pinocchio). Returns NaN if no pin config / failure.
+
+        pin.rnea only returns rigid-body torque (M*a + C*v + g); it does NOT add
+        the URDF's <dynamics damping/friction> even though pin.buildModelFromUrdf
+        populates model.friction/model.damping (verified empirically 2026-07-16:
+        rnea output is identical at v=0 vs v!=0 on the gantry joints). So the
+        Coulomb + viscous dissipation the rail's <dynamics> tags model (added in
+        "Jalan B", see moving_table.urdf.xacro) is added explicitly here as
+        |friction_i * v_i| + damping_i * v_i^2, matching the physical power a
+        Coulomb + viscous friction model would dissipate."""
         try:
             pm = self._pin_model(arm)
             if pm is None or traj is None:
                 return float('nan')
             pin, model, data, order = pm
+            friction = np.asarray(model.friction)
+            damping = np.asarray(model.damping)
             jt = traj.joint_trajectory
             col = [jt.joint_names.index(n) for n in order]
             pts = jt.points
@@ -1146,7 +1166,10 @@ class GantryReachExecutor(Node):
                 acc = np.array([b.accelerations[c] for c in col]) \
                     if b.accelerations else np.zeros(len(order))
                 tau = pin.rnea(model, data, q, v, acc)
-                E += abs(float(tau @ v)) * dt
+                E_rigid = abs(float(tau @ v))
+                E_dissipative = float(np.sum(friction * np.abs(v)) +
+                                       np.sum(damping * v * v))
+                E += (E_rigid + E_dissipative) * dt
             return E
         except Exception as e:                       # energy is optional
             self.get_logger().warn(f'traj energy failed: {e}')
