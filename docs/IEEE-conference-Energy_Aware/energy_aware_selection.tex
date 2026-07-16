@@ -499,7 +499,16 @@ than measured hardware data; Section~VI-C), which is what lets rail-linear trave
 dominate the fitted weights -- under a frictionless rail this same regression
 gave a far weaker fit ($R^2=0.055$) and put nearly all weight on arm travel
 instead. The gravity-holding term's OLS coefficient came out negative and weak,
-so it is disabled ($w_{hold}=0$) rather than fit backwards.} We do not claim that
+so it is disabled ($w_{hold}=0$) rather than fit backwards. \textcolor{red}{This
+is a structural limitation of scoring mechanical work: a purely static hold does
+zero work, so a term for it cannot correlate with measured energy under this
+model. We explored adding a motor copper-loss term ($I^2R$, proportional to
+squared torque, so a static hold costs current even at zero velocity) to give
+this term a path to matter; three independent regression methods (ordinary,
+ridge, and non-negative least squares) still could not attribute it a
+positive, stable weight, because it is collinear with arm travel and
+tool-to-object distance already in $J$. A dedicated motor-loss energy model
+remains future work.}} We do not claim that
 $J$ is the exact energy of a pick, but Section~VI
 shows that minimizing it lowers the measured mechanical energy of the executed
 trajectory relative to the baselines \cite{EnergySLR2024}.

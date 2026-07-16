@@ -16,6 +16,29 @@ marked). Full derivation, weight regression, and verification steps are in that
 results-doc section; do not re-summarize here, this file's job is the
 decision log, not the analysis.
 
+## RESOLVED 2026-07-17 — Jalan C (motor copper-loss for `w_hold`) attempted, REJECTED
+
+Follow-up to Jalan B: `w_hold` (gravity-holding torque term) came out ~0 because
+a static hold does zero mechanical work, so it structurally cannot correlate
+with `traj_energy`. Jalan C added a motor copper-loss term
+(`k_copper*sum(tau^2)*dt`, a stated modelling assumption, k=0.1 W/(N·m)²) to
+`_traj_energy` so static holding costs real energy, on branch `paper/e3-jalanC`.
+The mechanism itself works (verified: static-hold energy scales exactly with
+τ²; univariate Spearman(hold, energy) improved 0.03→0.218), but recalibration by
+three independent regression methods (unconstrained OLS, ridge, non-negative
+least squares) could not give `hold` a positive, stable weight — it is
+collinear with arm travel and tool-distance already in `J` (Spearman with
+`d_arm`=0.72), so those terms already absorb its signal. Energy-mode still won
+on `traj_energy` under the recalibrated weights (even slightly better than
+Jalan B: -6.6%/-5.5% vs nearest/random, vs Jalan B's -5.1%/-3.1%), but per the
+stated AND criterion (`w_hold` meaningful **and** energy still wins), a win on
+only the second half does not justify adopting Jalan C. **Not merged.**
+`paper/e3-energy-aware` (Jalan B) remains the paper's adopted state, unchanged.
+Full triangulated evidence archived at `docs/e3_jalanC_snapshot_2026-07-17/
+SNAPSHOT.md` and on branch `paper/e3-jalanC` (commit `6be07d6`). A one-sentence
+honest note ("a motor copper-loss term was explored... remains future work") is
+in `energy_aware_selection.tex` Section V-A next to the `w_hold=0` explanation.
+
 ---
 
 # E3 Contingency Plan — fallbacks if energy-mode does not clearly beat the baselines
