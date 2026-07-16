@@ -398,29 +398,24 @@ motion provides, not just the reach of a fixed arm.
 
 \subsection{Growing the Map}
 
-The Growing Neural Gas network model proposed by Fritzke \cite{Fritzke1995} 
-was employed to analyse the provided dataset. Each node
+We fit a Growing Neural Gas network \cite{Fritzke1995} to this dataset. Each node
 stores a vector $[\mathbf{x} \mid \mathbf{q}]$ that concatenates the end-effector
 position $\mathbf{x}$, which we call the task part, with the configuration
-$\mathbf{q}$ that produces it. The training is configured in such a manner that 
-the search for the best-matching unit utilises the task part in isolation. This 
-results in the nodes covering the reachable workspace, while adaptation updates 
-the entire vector, thereby ensuring that each node's $\mathbf{q}$ converges to a 
-configuration that is representative of its workspace cell. 
-The formation of edges between co-activated nodes is attributable to 
-competitive Hebbian learning, thereby endowing the map with a topology over 
-the workspace. It can thus be concluded that each node is comprised of two 
-constituent elements: firstly, a location that the end-effector is capable of 
-attaining; and secondly, a representative 8-DOF configuration that achieves this 
-location, including rail placement. This is the sense in which the map is 
-base-aware. It is evident that since the rail translation and rotation are 
-carried by $q$, the paths to a given point from disparate base placements result 
-in different nodes. Consequently, a node's configuration remains a valid posture, 
-rather than an average of incompatible base positions. In order to ensure the map 
-remains faithful at the reachable boundary, where nodes would otherwise settle 
-inward due to growth from interior samples alone, a shell of nodes is attached to 
-the measured reach surface prior to the growth of the interior (Fig.~\ref{fig:gngmap}),
-and Section~VI reports the resulting edge fidelity.
+$\mathbf{q}$ that produces it. Training is arranged so that the best-matching-unit
+search uses the task part alone, which makes the nodes tile the reachable
+workspace, while adaptation updates the whole vector, so each node's $\mathbf{q}$
+converges to a configuration that is representative of its workspace cell. Edges
+are formed between co-activated nodes by competitive Hebbian learning, giving the
+map a topology over the workspace. Every node is therefore two things at once, a
+location the end-effector can reach and a representative 8-DOF configuration that
+reaches it, rail placement included. This is the sense in which the map is
+base-aware. Because $\mathbf{q}$ carries the rail translation and rotation, two ways
+of reaching the same point from different base placements settle into different
+nodes, so a node's configuration stays a valid single posture rather than an average
+of incompatible base positions. To keep the map faithful at the reachable boundary,
+where nodes grown only from interior samples would otherwise settle inward, we pin a
+shell of nodes on the measured reach surface before growing the interior
+(Fig.~\ref{fig:gngmap}), and Section~VI reports the resulting edge fidelity.
 
 \begin{figure}[htbp]
 \centering
@@ -435,21 +430,16 @@ surface.}
 
 \subsection{Capability Layers}
 
-In addition to plain reachability, each node is associated with two quality values, 
-which are utilised in the calculation of energy cost in Section V. 
-The manipulability $w$ \cite{Yoshikawa1985} is indicative of the dexterity of 
-the arm at a given node. Low values of $w$ are observed in the vicinity of the 
-workspace edge and in positions that are singular, whilst high values of $w$ are 
-observed in areas where the arm is able to move freely in any direction. 
-The distinguishing characteristic that differentiates our map from a binary 
-reachability grid, which merely indicates whether a cell is reachable or not, 
-is this quality layer \cite{Zacharias2007}. The holding cost is defined as 
-the norm of the gravity torque at the node's configuration. This measurement
-quantifies the effort required to maintain the specified posture against
-gravity. It is important to note that both values are computed 
-once, offline, with the same Pinocchio model used for sampling 
-\cite{Carpentier2019} and stored on the node. This ensures that 
-they are available at query time without incurring any additional costs.
+Beyond plain reachability, each node carries two quality values that the energy
+cost of Section~V draws on. The manipulability $w$ \cite{Yoshikawa1985} records how
+dexterous the arm is at that node, low near the workspace edge and near singular
+postures and high where the arm can move freely in any direction. This quality
+layer is what separates our map from a binary reachability grid that only marks a
+cell reachable or not \cite{Zacharias2007}. The holding cost, the norm of the
+gravity torque at the node's configuration, records how much effort it takes to hold
+that posture against gravity. Both values are computed once, offline, with the same
+Pinocchio model used for sampling \cite{Carpentier2019} and stored on the node, so
+they are available at query time at no extra cost.
 
 \section{Energy-Aware Arm and Base Selection}
 
