@@ -419,29 +419,20 @@ all weight on arm travel instead.} We do not claim $J$ is the exact pick energy,
 but Section~VI shows minimizing it lowers the measured mechanical energy of the
 executed trajectory relative to the baselines \cite{EnergySLR2024}.
 
-\subsection{Pooling Candidates}
+\subsection{Pooling and Selection}
 
-For a target object, we gather from each arm's capability map the nodes whose task
-position lies within a radius of the object (the reachability filter) and score
-each with $J$. The radius scales with the map's node spacing, so the pool size
-stays stable regardless of map density. Because \textcolor{red}{all four arms} have separate
-maps, the pool holds candidates from \textcolor{red}{every arm} at once, each with its own base
-placement and full configuration, so scoring the pool compares \textcolor{red}{all four arms,
-including arms on different rails,} on the same scale.
-
-\subsection{Round-Robin Selection and Execution}
-
-We sort the pooled candidates by $J$ and try them in order, interleaved across
-\textcolor{red}{the arms so no single arm} can consume every attempt before \textcolor{red}{the others are}
-tried (the arm holding the overall lowest-$J$ candidate gets a small head start).
-For each candidate we solve IK, seeded by the candidate configuration, to a
-top-down pre-grasp pose at a fixed clearance above the object, and ask MoveIt for a
-collision-free plan; this search is plan-only (the arm never moves), and the first
-candidate with a valid plan is selected (Fig.~\ref{fig:selection}). With execution
-enabled, only the selected candidate is planned and executed, falling through to
-the next candidate if execution aborts on a scene change. The winning arm and the
-rail placement its configuration implies \emph{are} the arm-and-base decision this
-paper sets out to make.
+\textcolor{red}{For a target object, we pool the nodes within a map-spacing-scaled
+radius from each of the four arms' capability maps and score every candidate with
+$J$ on the same scale, so the pool always compares all four arms together,
+including arms on different rails. We sort the pool by $J$ and try candidates in
+order, interleaved across arms so no single arm consumes every attempt (the
+overall lowest-$J$ arm gets a small head start); for each candidate we solve IK to
+a top-down pre-grasp pose and ask MoveIt for a collision-free plan, plan-only
+(the arm never moves) until the first valid plan is selected
+(Fig.~\ref{fig:selection}). With execution enabled, only the selected candidate is
+planned and executed, falling through to the next candidate if execution aborts on
+a scene change. The winning arm and its rail placement \emph{are} the
+arm-and-base decision this paper sets out to make.}
 
 \begin{figure}[htbp]
 \centering
