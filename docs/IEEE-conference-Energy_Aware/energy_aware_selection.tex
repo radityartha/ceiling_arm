@@ -545,8 +545,14 @@ falling through to the next arm. Energy-mode distributed the 35 picks arm\_2:10,
 arm\_3:13, arm\_4:12, arm\_1:0 -- the zero for arm\_1 is a property of this fixed
 layout, not the algorithm, which does pick arm\_1 in 12/60 targets of the
 Section~VI-B grid sweep.
-Perception used Isaac ground truth, not YOLOE, matching an earlier finding
-superseded by the model upgrade in \S\ref{sec:perception-accuracy} below.}
+Perception used Isaac ground truth rather than YOLOE for these picks, following
+an earlier finding that YOLOE was unreliable on this simulator's synthetic
+imagery. A separate accuracy check with updated (\texttt{11m}) detector weights
+found this superseded: matched against ground truth over 3864 detections, YOLOE
+reached 100\% detection, 0.023~m mean localization error, and 0\% false
+positives at conf$=0.25$ (rising to 15.2\% false positives at conf$=0.10$), so
+YOLOE-driven end-to-end execution is now plausible future work rather than an
+expected failure.}
 
 \textcolor{red}{\textbf{Reachable-vs-unreachable classification:} the same ground truth (7
 objects picked 35/35 above, plus tomato\_soup\_can re-confirmed unreachable -- IK
@@ -561,23 +567,6 @@ diagnostic-only tool (\texttt{reachability\_cloud} RViz coloring) additionally
 gates on an 8-node one-sided ``enclosure'' check not part of the real decision;
 with it active 2/8 objects read 0\% at every radius (one-sided map fringe), and
 disabling it recovers the 100\% result.}
-
-\subsection{Perception Accuracy}
-\label{sec:perception-accuracy}
-\textcolor{red}{Using the same live pipeline, we captured a stable ground-truth
-reference position for all 8 scene objects from Isaac's own instance
-segmentation, then switched to YOLOE (\texttt{yoloe-11m-seg.pt}, conf$=0.25$, both
-overhead RGB-D cameras) and matched every detection to its nearest ground-truth
-object over a 483-frame / 279.5~s window. \textbf{Detection rate was 100\% for all
-8 objects (3864/3864 matched detections), mean localization error 0.023~m
-(per-object range 0.008--0.070~m, worst on the cracker box), and the
-false-positive rate was 0\% (0/3864)}. Every class label was correct once the
-object track had settled (e.g.\ the tomato soup can as ``canned food''); no
-cross-object confusion was observed. A conf$=0.10$ sensitivity check (150 frames)
-found detection rate and localization error already saturated at conf$=0.25$, but
-false positives rose to 15.2\% (215/1415), confirming conf$=0.25$ as the sound
-operating point -- this revises an earlier, pessimistic YOLOE finding that
-predated the switch to the larger \texttt{11m} detector weights.}
 
 \section{Conclusion}
 
