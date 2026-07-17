@@ -73,8 +73,7 @@ least energy on a redundant ceiling-rail robot.
 **¶4 — Approach and contributions.**
 Our answer is an energy cost function J that operates on a base-aware capability map
 built with Growing Neural Gas (GNG) [Fritzke1995]. Every node in the map keeps a
-representative 8-DOF configuration, along with its manipulability [Yoshikawa1985] and
-the effort needed to hold that posture against gravity. A node is thus two things at
+representative 8-DOF configuration, along with its manipulability [Yoshikawa1985]. A node is thus two things at
 once, a cell of reachable space and a ready starting point for inverse kinematics. The
 paper makes three contributions.
 First, we introduce an energy-aware selection cost J that chooses the arm and the full
@@ -82,7 +81,7 @@ First, we introduce an energy-aware selection cost J that chooses the arm and th
 nearest reachable pose.
 Second, we build a base-aware GNG capability map that treats each ceiling rail as a
 genuine degree of freedom, and that enriches plain reachability with a representative
-8-DOF configuration, a manipulability value, and a holding cost at every node. Because
+8-DOF configuration and a manipulability value at every node. Because
 that configuration already includes a rail placement, each node is a self-contained
 candidate for the selection stage rather than a bare occupancy bit. A boundary-seeding
 step keeps the map accurate right up to the edge of the reachable workspace.
@@ -122,7 +121,7 @@ structure [RM4D2024]. These maps are built for a single arm on a fixed base, and
 usually stores reachability alone. Our map differs on both counts. It treats the
 ceiling rail as part of the configuration, so it records how base motion extends
 reach, and every node carries a ready inverse-kinematics seed together with a
-manipulability and a holding cost rather than a single occupancy bit.
+manipulability rather than a single occupancy bit.
 
 **Base placement for mobile manipulators.**
 Deciding where a mobile base should stop before manipulating is a well-studied problem.
@@ -214,8 +213,7 @@ images, so a plan avoids both the scene and the robot's own body. The object cho
 the target is excluded from the cloud that feeds the octomap so that it can be grasped,
 while the remaining objects and the environment stay as obstacles. The capability map of
 Section IV is built offline with the Pinocchio rigid-body-dynamics library
-[Carpentier2019], which we use for forward kinematics when sampling configurations and
-for the gravity torque that gives each map node its holding cost. At run time a candidate
+[Carpentier2019], which we use for forward kinematics when sampling configurations. At run time a candidate
 drawn from the map seeds the inverse-kinematics query, MoveIt plans a collision-free
 motion to it, and the motion is optionally executed in simulation. The selection
 procedure that decides which candidate to try, and in which order, is the subject of
@@ -238,8 +236,7 @@ query independently in Section V.
 We sample the eight-degree-of-freedom configuration q = [d, θ, q₁, …, q₆] uniformly
 within the joint limits and compute the resulting end-effector pose by forward kinematics
 with the Pinocchio library [Carpentier2019]. For each sample we also record the
-manipulability w = √det(JJᵀ) [Yoshikawa1985] and the gravity torque required to hold the
-configuration. This produces a dataset of (pose, q, manipulability, holding cost) tuples
+manipulability w = √det(JJᵀ) [Yoshikawa1985]. This produces a dataset of (pose, q, manipulability) tuples
 that covers the combined arm-and-rail workspace. Because the rail translation d and
 rotation θ are sampled alongside the arm joints, the dataset already reflects the reach
 that base motion provides, not just the reach of a fixed arm.
@@ -265,15 +262,13 @@ pin a shell of nodes on the measured reach surface before growing the interior (
 and Section VI reports the resulting edge fidelity.
 
 **IV-C. Capability layers.**
-Beyond plain reachability, each node carries two quality values that the energy cost of
-Section V draws on. The manipulability w [Yoshikawa1985] records how dexterous the arm is
-at that node, low near the workspace edge and near singular postures and high where the
-arm can move freely in any direction. This quality layer is what separates our map from a
-binary reachability grid that only marks a cell reachable or not [Zacharias2007]. The
-holding cost, the norm of the gravity torque at the node's configuration, records how
-much effort it takes to hold that posture against gravity. Both values are computed once,
-offline, with the same Pinocchio model used for sampling [Carpentier2019] and stored on
-the node, so they are available at query time at no extra cost.
+Beyond plain reachability, each node carries a quality value. The manipulability w
+[Yoshikawa1985] records how dexterous the arm is at that node, low near the workspace edge
+and near singular postures and high where the arm can move freely in any direction. This
+quality layer is what separates our map from a binary reachability grid that only marks a
+cell reachable or not [Zacharias2007]. It is computed once, offline, with the same
+Pinocchio model used for sampling [Carpentier2019] and stored on the node, so it is
+available at query time at no extra cost.
 
 ---
 
@@ -288,12 +283,11 @@ the maps.
 We score a candidate configuration by a weighted sum of the effort of using it,
 
 J = w_gl·(Δ_lin/ρ_gl) + w_gr·(Δ_rot/ρ_gr) + w_arm·(Δ_arm/ρ_arm)
-    + w_dist·(e/ρ_dist) + w_hold·(h/ρ_hold) − w_manip·(m/ρ_manip),
+    + w_dist·(e/ρ_dist) − w_manip·(m/ρ_manip),
 
 where Δ_lin, Δ_rot, and Δ_arm are the rail-linear, rail-rotation, and summed arm-joint
 travel from the current state to the candidate, e is the distance from the arm's current
-tool frame to the object, h is the gravity torque needed to hold the candidate posture,
-and m is its manipulability [Yoshikawa1985]. The rail's linear and rotational axes carry
+tool frame to the object, and m is its manipulability [Yoshikawa1985]. The rail's linear and rotational axes carry
 separate weights because their units and their cost differ, metres of heavy-carriage
 travel against radians of rotation. Manipulability enters with a minus sign, so a more
 dexterous configuration is cheaper. Each term is divided by a fixed reference ρ before
@@ -303,28 +297,29 @@ median value the term takes over a calibration set of picks, so that no term dom
 the sum merely because of the units it is measured in, and we tune the weights on the
 same set rather than by hand. Table 1 lists the calibrated weights and references.
 
-**Table 1.** Calibrated weights and normalization references for the energy cost J.
+**Table 1.** Weights and normalization references for the energy cost J, fit by OLS
+regression against measured mechanical energy under the rail friction model (Section VI-C).
 Each reference ρ is the median raw value of its term over the calibration set of picks.
 
 | Term | Symbol | Weight | Reference ρ |
 |------|--------|-------:|------------:|
-| Rail linear travel | Δ_lin | 2 | 0.95 |
-| Rail rotation travel | Δ_rot | 12 | 0.70 |
-| Arm joint travel | Δ_arm | 20 | 6.00 |
-| Tool-to-object distance | e | 3 | 1.36 |
-| Gravity holding torque | h | 1 | 2.90 |
-| Manipulability (subtracted) | m | 1 | 0.145 |
+| Rail linear travel | Δ_lin | 27.16 | 1.18 |
+| Tool-to-object distance | e | 12.78 | 1.45 |
+| Rail rotation travel | Δ_rot | 3.08 | 1.24 |
+| Manipulability (subtracted) | m | 2.95 | 0.105 |
+| Arm joint travel | Δ_arm | 0.09 | 7.18 |
 
 The terms are proxies for the energy of carrying out the pick. Rail and arm travel are
 the mechanical work of moving each axis, with the heavy rail the dominant cost
-[MoMaPos2024], [BaSeNet2024]; the tool-to-object distance stands for the arm motion still
-needed to reach the object; and the holding term charges for fighting gravity. The weights
-in Table 1 were set from how strongly each raw term correlates with the mechanical energy
-of the executed trajectory, computed by rigid-body inverse dynamics over the full
-gantry-and-arm chain, over a calibration set of picks; arm and rail-rotation travel track
-it most consistently. We do not claim that J equals this mechanical energy exactly, only
-that it is built to move in the same direction, and Section VI reports whether minimizing
-J lowers the measured trajectory energy relative to the baselines [EnergySLR2024].
+[MoMaPos2024], [BaSeNet2024], and the tool-to-object distance stands for the arm motion
+still needed to reach the object. The weights in Table 1 are fit by ordinary least squares,
+regressing the measured mechanical energy of executed trajectories on the five normalized
+terms over a calibration set of picks. Because the rail joints carry a Coulomb and viscous
+friction model (a stated modelling assumption, not measured hardware data; Section VI-C),
+rail-linear travel dominates the fit; under a frictionless rail the same regression is far
+weaker (R²=0.055) and puts nearly all weight on arm travel instead. We do not claim that J
+equals this mechanical energy exactly, but Section VI shows that minimizing it lowers the
+measured trajectory energy relative to the baselines [EnergySLR2024].
 
 **V-B. Pooling candidates.**
 For a target object, we gather from each arm's capability map the nodes whose task
@@ -380,10 +375,13 @@ make.
   Fallback A (travel-reframe) was NOT needed.
 - J weights/refs are code-synced but have drifted before — CURRENT (2026-07-16/17,
   post-Jalan-B, `gantry_reach_executor.py`): weights w_gl=27.16, w_gr=3.08, w_arm=0.09,
-  w_dist=12.78, w_hold=0 (clamped, wrong-signed in the OLS fit), w_manip=2.95; refs =
-  median raw term over a 168-pick friction-model regression session
-  (`scripts/regress_j.py`): ρ_gl=1.1809, ρ_gr=1.2395, ρ_arm=7.176, ρ_dist=1.4509,
-  ρ_hold=2.0382, ρ_manip=0.1054. RE-VERIFY these against the code before submission;
+  w_dist=12.78, w_manip=2.95; refs = median raw term over a 168-pick friction-model
+  regression session (`scripts/regress_j.py`): ρ_gl=1.1809, ρ_gr=1.2395, ρ_arm=7.176,
+  ρ_dist=1.4509, ρ_manip=0.1054. HOLDING TERM REMOVED from the paper (2026-07-17): w_hold
+  came out 0 across OLS/ridge/NNLS (Jalan C copper-loss confirmed it is structurally
+  redundant — collinear with d_arm/ee_dist), so J is now 5 terms and ALL holding-cost text
+  was deleted from paper_draft.md + energy_aware_selection.tex. The code still declares
+  w_hold=0 (harmless; contributes nothing). RE-VERIFY these against the code before submission;
   V-A prose keeps them symbolic so numbers live in one place. NOTE:
   reachability_gng/README.md is stale again (weights re-tuned since last sync) —
   re-sync before submission.

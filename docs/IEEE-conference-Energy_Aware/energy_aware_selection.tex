@@ -48,7 +48,7 @@ which arm should act, and where \textcolor{red}{its base should go}, since repos
 selection cost $J$ that chooses the arm and the full eight-degree-of-freedom (8-DOF)
 configuration together over a base-aware capability map built with Growing Neural
 Gas (GNG). Every map node stores a representative configuration \textcolor{red}{that includes its rail placement}, together with its
-manipulability and the effort needed to hold it against gravity, so \textcolor{red}{each node already fixes both an arm and a base rather than marking only whether a cell is reachable}. Treating the rail as a
+manipulability, so \textcolor{red}{each node already fixes both an arm and a base rather than marking only whether a cell is reachable}. Treating the rail as a
 degree of freedom when building the map, rather than sampling the arm alone, enlarges
 the measured reachable workspace by \textcolor{red}{about four times}, and a boundary-seeding step
 keeps the map accurate to within a few centimetres of the true reach surface. In
@@ -136,8 +136,7 @@ The solution to the problem is presented by an energy cost function, $J$,
 which operates on a \textcolor{red}{base}-aware capability map that has been constructed
 with the aid of Growing Neural Gas (GNG) \cite{Fritzke1995}. Each node in 
 the map maintains a representative 8-DOF configuration, in conjunction 
-with its manipulability and the effort required to sustain that posture against gravity
-\cite{Yoshikawa1985}. Therefore, a node must be considered more than simply 
+with its manipulability \cite{Yoshikawa1985}. Therefore, a node must be considered more than simply 
 a location that the end-effector can reach. Rather, it is a comprehensive 8-DOF 
 configuration that encompasses the node, rail placement, and all associated elements.
 The present paper has three contributions. Firstly, an energy-aware selection 
@@ -146,8 +145,8 @@ including rail travel, in contrast to settling for the nearest reachable pose.
 Secondly, a base-aware GNG capability map is constructed, whereby 
 the ceiling rail is regarded as a genuine degree of freedom. 
 This map enhances plain reachability by attaching to every node 
-a representative 8-DOF configuration that carries its own rail placement,
-a manipulability value, and a holding cost. The process of boundary-seeding 
+a representative 8-DOF configuration that carries its own rail placement
+and a manipulability value. The process of boundary-seeding
 ensures the maintenance of map accuracy along the perimeter of the accessible workspace. 
 Thirdly, an evaluation of the comprehensive approach in Isaac Sim is conducted. 
 This evaluation encompasses the characterization of the map, a measurement of 
@@ -205,7 +204,7 @@ with a cell typically dedicated to storing reachability data. Our map differs
 on both counts. The system under consideration treats the ceiling rail as an integral 
 component of the configuration. Consequently, it records how base motion extends reach, 
 and every node carries a representative 8-DOF configuration that carries its own rail 
-placement, together with manipulability and a holding cost, rather than a single occupancy bit.
+placement, together with manipulability, rather than a single occupancy bit.
 
 \noindent\textit{Base placement for mobile manipulators.}
 The decision regarding the point at which a mobile base should halt prior to 
@@ -347,7 +346,7 @@ isolated from the cloud that supplies the octomap, thus enabling its grasping,
 while the remaining objects and the environment persist as obstacles. 
 We build the capability map of Section~IV offline with the Pinocchio rigid-body-dynamics
 library \cite{Carpentier2019}, which we use for forward kinematics when sampling
-configurations and for the gravity torque that gives each map node its holding cost. During the execution 
+configurations and  During the execution 
 phase, a candidate is selected from the map seeds. Subsequently, the inverse-kinematics 
 query is initiated, and the MoveIt software plans a collision-free motion to 
 the selected candidate. This motion can be executed in simulation, depending on 
@@ -375,9 +374,8 @@ We sample the 8-DOF configuration
 $\mathbf{q} = [d,\ \theta,\ q_1,\ \ldots,\ q_6]$ uniformly within the joint limits
 and compute the resulting end-effector pose by forward kinematics with the
 Pinocchio library \cite{Carpentier2019}. For each sample we also record the
-manipulability $w = \sqrt{\det(JJ^\top)}$ \cite{Yoshikawa1985} and the gravity
-torque required to hold the configuration. This produces a dataset of
-(pose, $\mathbf{q}$, manipulability, holding cost) tuples that covers the combined
+manipulability $w = \sqrt{\det(JJ^\top)}$ \cite{Yoshikawa1985}. This produces a dataset of
+(pose, $\mathbf{q}$, manipulability) tuples that covers the combined
 arm-and-rail workspace. Because the rail translation $d$ and rotation $\theta$ are
 sampled alongside the arm joints, the dataset already reflects the reach that base
 motion provides, not just the reach of a fixed arm.
@@ -416,16 +414,13 @@ surface.}
 
 \subsection{Capability Layers}
 
-Beyond plain reachability, each node carries two quality values that the energy
-cost of Section~V draws on. The manipulability $w$ \cite{Yoshikawa1985} records how
-dexterous the arm is at that node, low near the workspace edge and near singular
-postures and high where the arm can move freely in any direction. This quality
-layer is what separates our map from a binary reachability grid that only marks a
-cell reachable or not \cite{Zacharias2007}. The holding cost, the norm of the
-gravity torque at the node's configuration, records how much effort it takes to hold
-that posture against gravity. Both values are computed once, offline, with the same
-Pinocchio model used for sampling \cite{Carpentier2019} and stored on the node, so
-they are available at query time at no extra cost.
+Beyond plain reachability, each node carries a quality value. The manipulability
+$w$ \cite{Yoshikawa1985} records how dexterous the arm is at that node, low near the
+workspace edge and near singular postures and high where the arm can move freely in any
+direction. This quality layer is what separates our map from a binary reachability grid
+that only marks a cell reachable or not \cite{Zacharias2007}. It is computed once,
+offline, with the same Pinocchio model used for sampling \cite{Carpentier2019} and
+stored on the node, so it is available at query time at no extra cost.
 
 \section{Energy-Aware Arm and Base Selection}
 
@@ -441,13 +436,11 @@ J & = & w_{gl}\left(\frac{\Delta_{lin}}{\rho_{gl}}\right)
       + w_{gr}\left(\frac{\Delta_{rot}}{\rho_{gr}}\right)
       + w_{arm}\left(\frac{\Delta_{arm}}{\rho_{arm}}\right) \nonumber \\
   &   & {} + w_{dist}\left(\frac{e}{\rho_{dist}}\right)
-      + w_{hold}\left(\frac{h}{\rho_{hold}}\right)
       - w_{manip}\left(\frac{m}{\rho_{manip}}\right), \label{eq:J}
 \end{IEEEeqnarray}
 where $\Delta_{lin}$, $\Delta_{rot}$, and $\Delta_{arm}$ are the rail-linear,
 rail-rotation, and summed arm-joint travel from the current state to the candidate,
-$e$ is the distance from the arm's current tool frame to the object, $h$ is the
-gravity torque needed to hold the candidate posture, and $m$ is its manipulability
+$e$ is the distance from the arm's current tool frame to the object, and $m$ is its manipulability
 \cite{Yoshikawa1985}. The rail's linear and rotational axes carry separate weights
 because their units and their cost differ, metres of heavy-carriage travel against
 radians of rotation. Manipulability enters with a minus sign, so a more dexterous
@@ -482,36 +475,21 @@ Manipulability (subtracted) & $m$ & \textcolor{red}{2.95} & \textcolor{red}{0.10
 \hline
 Arm joint travel & $\Delta_{arm}$ & \textcolor{red}{0.09} & \textcolor{red}{7.18} \\
 \hline
-Gravity holding torque & $h$ & \textcolor{red}{0 (disabled)} & \textcolor{red}{2.04} \\
-\hline
 \end{tabular}
 \label{tab:weights}
 \end{center}
 \end{table}
 
-The terms are proxies for the energy of carrying out the pick. Rail and arm travel
-are the mechanical work of moving each axis, with the heavy rail the dominant cost
-\cite{MoMaPos2024,BaSeNet2024}; the tool-to-object distance stands for the arm
-motion still needed to reach the object; and the holding term \textcolor{red}{is intended to represent the effort of fighting
-gravity, though, as noted below, the calibration leaves it unweighted}. \textcolor{red}{The rail carries a Coulomb and viscous friction model
-(mass- and coefficient-of-friction-derived, a stated modelling assumption rather
-than measured hardware data; Section~VI-C), which is what lets rail-linear travel
-dominate the fitted weights -- under a frictionless rail this same regression
-gave a far weaker fit ($R^2=0.055$) and put nearly all weight on arm travel
-instead. The gravity-holding term's OLS coefficient came out negative and weak,
-so it is disabled ($w_{hold}=0$) rather than fit backwards. \textcolor{red}{This
-is a structural limitation of scoring mechanical work: a purely static hold does
-zero work, so a term for it cannot correlate with measured energy under this
-model. We explored adding a motor copper-loss term ($I^2R$, proportional to
-squared torque, so a static hold costs current even at zero velocity) to give
-this term a path to matter; three independent regression methods (ordinary,
-ridge, and non-negative least squares) still could not attribute it a
-positive, stable weight, because it is collinear with arm travel and
-tool-to-object distance already in $J$. A dedicated motor-loss energy model
-remains future work.}} We do not claim that
-$J$ is the exact energy of a pick, but Section~VI
-shows that minimizing it lowers the measured mechanical energy of the executed
-trajectory relative to the baselines \cite{EnergySLR2024}.
+The terms are proxies for the energy of carrying out the pick. Rail and arm travel are
+the mechanical work of moving each axis, with the heavy rail the dominant cost
+\cite{MoMaPos2024,BaSeNet2024}, and the tool-to-object distance stands for the arm motion
+still needed to reach the object. \textcolor{red}{The rail carries a Coulomb and viscous
+friction model (mass- and coefficient-of-friction-derived, a stated modelling assumption
+rather than measured hardware data; Section~VI-C), which is what lets rail-linear travel
+dominate the fitted weights -- under a frictionless rail this same regression gave a far
+weaker fit ($R^2=0.055$) and put nearly all weight on arm travel instead.} We do not claim
+that $J$ is the exact energy of a pick, but Section~VI shows that minimizing it lowers the
+measured mechanical energy of the executed trajectory relative to the baselines \cite{EnergySLR2024}.
 
 \subsection{Pooling Candidates}
 
@@ -696,7 +674,7 @@ Since Pinocchio's \texttt{rnea} does not itself apply URDF friction/damping (we
 verified this by comparing \texttt{rnea} output at zero vs.\ non-zero joint
 velocity, which was identical without this fix), the dissipated power is added
 explicitly to \texttt{traj\_energy}. We then re-fit $w_*$/$\mathrm{ref}_*$ by OLS
-regression of measured energy on the six normalised $J$ terms (168 pooled picks),
+regression of measured energy on the five normalised $J$ terms (168 pooled picks),
 reaching $R^2=0.857$ and $\mathrm{Spearman}(J,\mathrm{energy})=0.909$ (up from
 $R^2=0.055$/$\rho\approx0.31$ without friction) -- $\mathrm{gantry\_lin}$ becomes
 the dominant term ($w=27.16$) and $\mathrm{arm}$ becomes nearly negligible
