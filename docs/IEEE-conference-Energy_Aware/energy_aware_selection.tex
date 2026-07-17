@@ -80,7 +80,7 @@ there is an increasing demand for assistive technologies that can be utilized in
 the comfort of one's own residence \cite{unitednations2024world,who2025clinical}. 
 One such technology is an assistive robot that traverses a residence, with an 
 increasing number of tasks assigned to it, including the retrieval of objects, 
-the maintenance of order, and the delivery of items to the occupants \cite{IFR2025,Lisondra2025}. 
+the maintenance of order, and the delivery of items to the occupants \cite{IFR2025,Lisondra2026}.
 The utilization of robots within residential environments presents a more substantial 
 set of challenges when compared to their application in Factory facilities or outdoor settings \cite{kemp2007challenges}. 
 Domestic residences generally possess smaller, more cluttered spaces, 
@@ -88,7 +88,7 @@ and robots must also share these spaces with the residents at all times.
 In the case of mobile manipulator robots that traverse the floor, this can impede 
 the mobility of residents, who must exercise caution when walking or performing 
 activities within the residence to avoid collisions with the robot \cite{sisbot2007human}. 
-One potential solution to this problem is to elevate the robot entirely off the floor \cite{Lalonde2024}.
+One potential solution to this problem is to elevate the robot entirely off the floor \cite{Lalonde2025}.
 In the event that the robotic arm is suspended from the ceiling, 
 the floor area will be considered safe for the residents. 
 Consequently, the robot will be able to continue performing its duties 
@@ -247,7 +247,7 @@ The issue of how to distribute tasks among multiple arms is a salient concern
 in such systems. Recent planners, including DAG-Plan and RoboPARA, 
 have been developed to construct dependency graphs over tasks and allocate 
 subtasks to each arm, thereby enabling multiple arms to operate in parallel
-\cite{DAGPlan2024,RoboPARA2025}. Their concern is the temporal and logical structure
+\cite{DAGPlan2024,RoboPARA2026}. Their concern is the temporal and logical structure
 of a multi-step task. Ours is different and complementary. For a single reaching
 action we ask which arm reaches the target for the least energy, given that arms
 sharing a rail share one moving base while arms on different rails move independently, 
@@ -799,14 +799,43 @@ mount than to its neighbours), not of the selection algorithm, which does
 select arm\_1 in 12/60 targets of the broader E3 grid sweep. Full per-object
 table and the raw CSVs are in \texttt{docs/experiment\_results.md} (E6) and
 \texttt{docs/e6\_data\_2026-07-17/}. Perception used Isaac ground-truth
-segmentation, not YOLOE: YOLOE was found unreliable on this simulator's
-synthetic imagery in earlier sessions, so YOLOE hardware/detector-realism
-validation is left as future work (see Limitations, below).}
+segmentation, not YOLOE, matching an earlier finding that YOLOE was
+unreliable on this simulator's synthetic imagery with the detector weights in
+use at the time; \S\ref{sec:e4} below shows this has since been superseded by
+a model upgrade, so YOLOE-driven end-to-end execution is now plausible future
+work rather than an expected failure.}
 
 \subsection{Perception Accuracy (E4, E5)}
-\TODO{Pending. YOLOE detection/localization error against simulator ground truth
-(E4) and reachable-vs-unreachable classification accuracy (E5); see
-docs/experiment\_plan.md.}
+\label{sec:e4}
+\textcolor{red}{\textbf{E4 (YOLOE vs.\ ground truth):} using the same live
+pipeline as E6, we captured a stable ground-truth reference position for all
+8 scene objects from Isaac's own instance segmentation, then switched
+perception to YOLOE (\texttt{yoloe-11m-seg.pt}, conf$=0.25$, both overhead
+RGB-D cameras, the pipeline's default open-vocabulary prompt list) and
+matched every published detection to its nearest ground-truth object over a
+483-frame / 279.5~s window. \textbf{Detection rate was 100\% for all 8
+objects (3864/3864 matched detections), mean localization error 0.019~m
+(range 0.006--0.070~m per object across cameras), and the false-positive
+rate was 0\% (0/3864)} at the default confidence threshold. Every detected
+class label was semantically correct once the underlying object-track had
+settled (e.g.\ the tomato soup can as ``canned food'', the mustard bottle as
+``bottle''); no cross-object confusion was observed. A confidence-threshold
+sensitivity check (conf$=0.10$, 150 frames) found detection rate and
+localization error essentially unchanged -- already saturated at
+conf$=0.25$ -- but false positives rose to 15.2\% (215/1415), confirming
+conf$=0.25$ as a sound operating point. This result revises an earlier,
+pessimistic finding about YOLOE on this simulator: that finding predated a
+switch to the larger \texttt{11m} detector weights, and with the current
+weights YOLOE is a viable perception input on this platform, not merely a
+sim-only crutch. Full per-object table, the raw comparison script
+(\texttt{scripts/e4\_compare.py}), and CSVs are in
+\texttt{docs/experiment\_results.md} (E4) and
+\texttt{docs/e4\_data\_2026-07-17/}.}
+
+\textbf{E5 (reachable vs.\ unreachable):} \TODO{Pending. Reachable-vs-unreachable
+classification accuracy against the GNG capability map, using
+\texttt{tomato\_soup\_can} (\texttt{obj\_2}) as the confirmed
+unreachable-by-design negative example; see docs/experiment\_plan.md.}
 
 \section{Conclusion}
 % DRAFT ONLY -- not yet signed off by the user; written to match the locked
