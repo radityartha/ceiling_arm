@@ -540,31 +540,34 @@ with \texttt{build\_maps.sh} (80{,}000 FK samples, \textcolor{red}{2915 nodes af
 nodes, $\lambda=60$, 2 training epochs).
 
 \begin{table}[htbp]
-\caption{GNG capability map properties, per arm. \textcolor{red}{Updated 2026-07-16 for rail 2.0~m + ceiling filter; arm\_3/arm\_4 are $y$-mirrors of arm\_1/arm\_2 with matching properties.}}
+\caption{\textcolor{red}{GNG capability map properties for all four arms (rail 2.0~m
++ ceiling filter). arm\_1/arm\_3 and arm\_2/arm\_4 are near-identical because gantry\_2
+is a $y$-mirror of gantry\_1.}}
 \begin{center}
-\begin{tabular}{|l|r|r|}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{|l|r|r|r|r|}
 \hline
-\textbf{Property} & \textbf{arm\_1} & \textbf{arm\_2} \\
+\textbf{Property} & \textbf{arm\_1} & \textbf{arm\_2} & \textbf{arm\_3} & \textbf{arm\_4} \\
 \hline
-FK samples & 80{,}000 & 80{,}000 \\
+FK samples & 80{,}000 & 80{,}000 & 80{,}000 & 80{,}000 \\
 \hline
-Surface points detected & \textcolor{red}{7560} & \textcolor{red}{7483} \\
+Surface points detected & 7560 & 7483 & 7560 & 7482 \\
 \hline
-Total nodes & \textcolor{red}{2915} & \textcolor{red}{2915} \\
+Total nodes & 2915 & 2915 & 2915 & 2915 \\
 \hline
-Pinned boundary nodes & 600 & 600 \\
+Pinned boundary nodes & 600 & 600 & 600 & 600 \\
 \hline
-Interior nodes & \textcolor{red}{2315} & \textcolor{red}{2315} \\
+Interior nodes & 2315 & 2315 & 2315 & 2315 \\
 \hline
-Edges & \textcolor{red}{14{,}547} & \textcolor{red}{14{,}562} \\
+Edges & 14{,}547 & 14{,}562 & 14{,}547 & 14{,}562 \\
 \hline
-Median node spacing (m) & \textcolor{red}{0.090} & \textcolor{red}{0.090} \\
+Median node spacing (m) & 0.090 & 0.090 & 0.090 & 0.090 \\
 \hline
-Mean node spacing (m) & \textcolor{red}{0.092} & \textcolor{red}{0.092} \\
+Mean node spacing (m) & 0.092 & 0.092 & 0.092 & 0.092 \\
 \hline
-$q$ DOF per node & 8 (2 rail + 6 arm) & 8 \\
+$q$ DOF per node & 8 & 8 & 8 & 8 \\
 \hline
-\end{tabular}
+\end{tabular}}
 \label{tab:e0}
 \end{center}
 \end{table}
