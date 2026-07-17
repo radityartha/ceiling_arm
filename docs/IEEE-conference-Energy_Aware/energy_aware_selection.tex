@@ -479,42 +479,39 @@ Arm joint travel & $\Delta_{arm}$ & \textcolor{red}{0.09} & \textcolor{red}{7.18
 \end{center}
 \end{table}
 
-The terms are proxies for the energy of carrying out the pick. Rail and arm travel are
-the mechanical work of moving each axis, with the heavy rail the dominant cost
-\cite{MoMaPos2024,BaSeNet2024}, and the tool-to-object distance stands for the arm motion
-still needed to reach the object. \textcolor{red}{The rail carries a Coulomb and viscous
-friction model (mass- and coefficient-of-friction-derived, a stated modelling assumption
-rather than measured hardware data; Section~VI-C), which is what lets rail-linear travel
-dominate the fitted weights -- under a frictionless rail this same regression gave a far
-weaker fit ($R^2=0.055$) and put nearly all weight on arm travel instead.} We do not claim
-that $J$ is the exact energy of a pick, but Section~VI shows that minimizing it lowers the
-measured mechanical energy of the executed trajectory relative to the baselines \cite{EnergySLR2024}.
+The terms are proxies for the energy of the pick: rail and arm travel are the
+mechanical work of moving each axis (the heavy rail dominates
+\cite{MoMaPos2024,BaSeNet2024}), and tool-to-object distance stands for the arm
+motion still needed to reach the object. \textcolor{red}{A Coulomb/viscous friction
+model on the rail (mass- and $\mu$-derived, a stated assumption, not measured
+hardware; Section~VI-C) is what lets rail-linear travel dominate the fitted
+weights -- a frictionless rail gave a far weaker fit ($R^2=0.055$) and put nearly
+all weight on arm travel instead.} We do not claim $J$ is the exact pick energy,
+but Section~VI shows minimizing it lowers the measured mechanical energy of the
+executed trajectory relative to the baselines \cite{EnergySLR2024}.
 
 \subsection{Pooling Candidates}
 
 For a target object, we gather from each arm's capability map the nodes whose task
-position lies within a radius of the object, which serves as the reachability
-filter, and score each of them with $J$. The radius scales with the node spacing of
-the map, so the number of pooled candidates stays stable no matter how densely the
-map was grown. Because \textcolor{red}{all four arms} have separate maps, the pool holds candidates
-from \textcolor{red}{every arm} at once, each carrying its own base placement and full
-configuration, so scoring the pool compares \textcolor{red}{all four arms, including arms on different rails,} and their base placements
-on the same scale.
+position lies within a radius of the object (the reachability filter) and score
+each with $J$. The radius scales with the map's node spacing, so the pool size
+stays stable regardless of map density. Because \textcolor{red}{all four arms} have separate
+maps, the pool holds candidates from \textcolor{red}{every arm} at once, each with its own base
+placement and full configuration, so scoring the pool compares \textcolor{red}{all four arms,
+including arms on different rails,} on the same scale.
 
 \subsection{Round-Robin Selection and Execution}
 
-We sort the pooled candidates by $J$ and try them in order, but interleave the
-order across \textcolor{red}{the arms so that no single arm} can consume every attempt before the
-\textcolor{red}{others are} tried; the arm that holds the overall lowest-$J$ candidate is given a
-small head start. For each candidate in turn we solve inverse kinematics, seeded by
-the candidate configuration, to a pre-grasp pose that stands off a fixed clearance
-above the top of the object with a top-down orientation, and we ask MoveIt for a
-collision-free plan. The search is plan-only, so the arm never moves during
-selection, and the first candidate that yields a valid plan is selected
-(Fig.~\ref{fig:selection}). When execution is enabled, only the selected candidate
-is planned and executed, and if execution is aborted by a change in the scene the
-search falls through to the next candidate. The arm that wins and the rail
-placement its configuration implies are exactly the arm-and-base decision that this
+We sort the pooled candidates by $J$ and try them in order, interleaved across
+\textcolor{red}{the arms so no single arm} can consume every attempt before \textcolor{red}{the others are}
+tried (the arm holding the overall lowest-$J$ candidate gets a small head start).
+For each candidate we solve IK, seeded by the candidate configuration, to a
+top-down pre-grasp pose at a fixed clearance above the object, and ask MoveIt for a
+collision-free plan; this search is plan-only (the arm never moves), and the first
+candidate with a valid plan is selected (Fig.~\ref{fig:selection}). With execution
+enabled, only the selected candidate is planned and executed, falling through to
+the next candidate if execution aborts on a scene change. The winning arm and the
+rail placement its configuration implies \emph{are} the arm-and-base decision this
 paper sets out to make.
 
 \begin{figure}[htbp]
