@@ -233,22 +233,19 @@ the base-aware capability map, to collision-free planning and execution.}
 
 \subsection{Robot Platform and Kinematic Model}
 
-The robot consists of two rails mounted to the ceiling, side by side, each carrying
-two arms. Each arm is a Kinova Gen3 Lite, a six-joint manipulator with a reach of
-about 0.76~m and a two-finger gripper at its wrist \cite{Kinova}, for four arms in
-total. Each rail adds two more degrees of freedom that its pair of arms share, a
-prismatic axis that slides the carriage horizontally and a revolute axis that rotates
-it, so relative to the ground each arm forms an 8-DOF chain. We write a configuration
-of one arm as $\mathbf{q} = [d,\ \theta,\ q_1,\ \ldots,\ q_6]$, where $d$ and $\theta$
-are the translation and rotation of that arm's own rail, and $q_1 \ldots q_6$ the arm
-joints. The kinematic tree is anchored at a fixed world frame. Each rail base is
-attached to the world, each arm base to its own rail, and a tool frame at the gripper
-defines the end-effector pose that the task is specified in. Because the two arms are
-mounted on the same carriage, moving the rail moves both of them together, which
-couples the choice of arm to the placement of the base, while arms on different rails
-move independently. Fig.~\ref{fig:overview} shows the platform and its frames
-alongside an overview of the end-to-end pipeline, from perception through
-energy-aware selection to planning and execution.
+\textcolor{red}{The robot has two ceiling rails side by side, each carrying two
+Kinova Gen3 Lite arms (six joints, $\sim$0.76~m reach, two-finger gripper
+\cite{Kinova}; four arms total). Each rail adds two DOF its pair of arms share -- a
+prismatic axis sliding the carriage horizontally and a revolute axis rotating it --
+so relative to the ground each arm forms an 8-DOF chain, written
+$\mathbf{q} = [d,\ \theta,\ q_1,\ \ldots,\ q_6]$ ($d,\theta$: that arm's own rail
+translation/rotation; $q_1\ldots q_6$: arm joints). The kinematic tree is anchored
+at a fixed world frame, with each rail base attached to the world, each arm base to
+its own rail, and a tool frame at the gripper defining the end-effector pose. Since
+the two arms on one carriage move together, moving the rail couples the arm choice
+to the base placement, while arms on different rails move independently.
+Fig.~\ref{fig:overview} shows the platform, its frames, and the end-to-end pipeline
+from perception through selection to planning and execution.}
 
 \subsection{Simulation Environment}
 
@@ -414,13 +411,13 @@ that no term dominates the sum merely because of the units it is measured in.
 \textcolor{red}{The weights themselves are fit by ordinary least squares,
 regressing the measured mechanical energy of executed trajectories on the six
 normalized terms over a calibration set of picks, rather than set by hand
-(Section~VI-C reports the fit quality).} Table~\ref{tab:weights}
+(Section~VI-B reports the fit quality).} Table~\ref{tab:weights}
 lists the calibrated weights and references.
 
 \begin{table}[htbp]
 \caption{\textcolor{red}{Calibrated weights and normalization references for the
 energy cost $J$, fit by OLS regression against measured mechanical energy under
-the rail friction model (Section~VI-C). Each reference $\rho$ is the median raw
+the rail friction model (Section~VI-B). Each reference $\rho$ is the median raw
 value of its term over the 168-pick calibration set.}}
 \begin{center}
 \begin{tabular}{|l|c|r|r|}
@@ -447,7 +444,7 @@ mechanical work of moving each axis (the heavy rail dominates
 \cite{MoMaPos2024,BaSeNet2024}), and tool-to-object distance stands for the arm
 motion still needed to reach the object. \textcolor{red}{A Coulomb/viscous friction
 model on the rail (mass- and $\mu$-derived, a stated assumption, not measured
-hardware; Section~VI-C) is what lets rail-linear travel dominate the fitted
+hardware; Section~VI-B) is what lets rail-linear travel dominate the fitted
 weights -- a frictionless rail gave a far weaker fit ($R^2=0.055$) and put nearly
 all weight on arm travel instead.} We do not claim $J$ is the exact pick energy,
 but Section~VI shows minimizing it lowers the measured mechanical energy of the
@@ -483,7 +480,7 @@ paper sets out to make.
 \caption{\textcolor{red}{The pipeline executing an energy-aware pick in Isaac Sim:
 \texttt{arm\_2}'s gripper approaches the banana while the other arms hold their
 pose. A concrete logged example of $J$ favoring a farther-but-cheaper arm over the
-nearest one is given in Section~VI-C.}}
+nearest one is given in Section~VI-B.}}
 \label{fig:selection}
 \end{figure}
 
@@ -566,26 +563,21 @@ and plan time.}
 
 \textcolor{red}{\textbf{Rail friction model.} The gantry rail's URDF joints
 originally carried no \texttt{<dynamics>} damping/friction, so this idealised
-rigid-body energy could not see the cost of horizontal rail travel (both rail
-axes are orthogonal to gravity) and $J$'s single-term correlation with measured
-\texttt{traj\_energy} topped out at $\rho\approx0.31$. We add a
-\emph{modelling assumption, not measured hardware data}: Coulomb friction
-$=\mu N$ ($N=$ carried weight $\times g$, mass from the URDF's own link masses)
-plus a small viscous term, on both rail joints ($\mu=0.15$, mid of a typical
-linear-guide range 0.10--0.20; friction $=27.6$~N linear / $2.03$~Nm rotational).
-Since Pinocchio's \texttt{rnea} does not itself apply URDF friction/damping (we
-verified this by comparing \texttt{rnea} output at zero vs.\ non-zero joint
-velocity, which was identical without this fix), the dissipated power is added
-explicitly to \texttt{traj\_energy}. We then re-fit $w_*$/$\mathrm{ref}_*$ by OLS
-regression of measured energy on the five normalised $J$ terms (168 pooled picks),
-reaching $R^2=0.857$ and $\mathrm{Spearman}(J,\mathrm{energy})=0.909$ (up from
-$R^2=0.055$/$\rho\approx0.31$ without friction) -- $\mathrm{gantry\_lin}$ becomes
-the dominant term ($w=27.16$) and $\mathrm{arm}$ becomes nearly negligible
-($w=0.09$), consistent with a friction-dominated rail cost. Notably, the
-calibration recovers from the measured energy alone the Section~I premise that
-repositioning the base is the dominant cost of a pick, which the frictionless rail
-model was structurally unable to represent. Table~\ref{tab:e3}
-reports the rerun under this friction model and the recalibrated weights.}
+energy could not see the cost of horizontal rail travel (both axes orthogonal to
+gravity), and $J$'s best single-term correlation with measured
+\texttt{traj\_energy} topped out at $\rho\approx0.31$. We add a modelling
+assumption, not measured hardware data: Coulomb friction $=\mu N$ ($N=$carried
+weight$\times g$, URDF link masses; $\mu=0.15$, mid of a typical linear-guide
+range) plus a small viscous term on both rail joints (friction $=27.6$~N linear /
+$2.03$~Nm rotational), applied explicitly since Pinocchio's \texttt{rnea} does not
+itself apply URDF friction (verified: \texttt{rnea} output was identical at zero
+vs.\ non-zero joint velocity without this fix). Re-fitting $w_*$/$\mathrm{ref}_*$
+by OLS on the five normalised $J$ terms (168 picks) reaches $R^2=0.857$,
+$\mathrm{Spearman}=0.909$ (up from $R^2=0.055$/$\rho\approx0.31$):
+$\mathrm{gantry\_lin}$ becomes dominant ($w=27.16$), $\mathrm{arm}$ nearly
+negligible ($w=0.09$) -- a friction-dominated rail cost, recovering from the data
+alone the Section~I premise that repositioning the base is the dominant cost.
+Table~\ref{tab:e3} reports the rerun under this model.}
 
 \begin{table}[htbp]
 \caption{\textcolor{red}{E3: selection-policy comparison under the rail-friction
@@ -612,34 +604,26 @@ model, 60 target poses, plan-only (mean / median over successful picks).}}
 \end{table}
 
 \textcolor{red}{The four single-arm \texttt{fixed} baselines cluster at 63--65\%
-success (arm\_1 38/60 WORST; arm\_2, arm\_3, arm\_4 tied at 39/60/65.0\% BEST),
-well below the 93.3\% every multi-arm policy reaches, confirming four-arm
-coverage as the dominant reachability gain (unchanged from the frictionless
-model). The fixed-arm energy figures in Table~\ref{tab:e3} are each computed over
-that arm's own smaller set of reachable targets, so they are not comparable to the
-multi-arm policies evaluated at full 93.3\% coverage; the meaningful energy
-comparison is against \texttt{nearest} and \texttt{random}. Under the
-friction model, \textbf{energy-aware selection has the lowest mean measured
-energy of the three multi-arm policies} (45.84~J vs.\ nearest 48.28~J,
-$-5.1\%$, and random 47.31~J, $-3.1\%$) -- the reversal Table~\ref{tab:e3} was
-built to test for, since under the frictionless model energy-mode's mean energy
-was the \emph{highest} of the three (13.19~J vs.\ 12.01/12.87~J). We report this
-honestly as a real but partial win, not a clean sweep: on \emph{median} energy
-(52.34~J) is clearly better than nearest (54.79~J) but essentially tied with
-random (51.72~J); on a paired, same-target comparison (56 rows where both
-succeeded) energy's measured energy is lower than nearest's in 32/56 (57.1\%) and
-lower than random's in 34/56 (60.7\%) -- a real majority, not overwhelming.
-Energy-mode's summed arm-joint travel is now \emph{higher} than nearest's (8.66
-vs.\ 7.94~rad), the opposite of the frictionless result, because the
-recalibrated weights correctly de-prioritise arm travel once rail friction
-dominates real energy cost -- energy-mode now spends more arm motion to save
-costlier rail travel, the intended trade under a friction-aware objective. In a
-representative case (target $x{=}1.12,y{=}-0.60,z{=}1.15$) energy chose arm\_3
-(0.64~m rail-linear travel, 10.23~rad arm travel, measured energy 42.37~J) over
-nearest's arm\_4 (1.15~m rail travel, 5.71~rad arm travel, 72.47~J) -- accepting
-a larger arm excursion to avoid 0.51~m of friction-costly rail travel, for a
-30.1~J lower realised energy. Fig.~\ref{fig:selection} shows the pipeline executing
-this kind of energy-vs-nearest trade-off end to end.}
+success (arm\_1 38/60 worst; arm\_2/3/4 tied 39/60 best), well below the 93.3\%
+every multi-arm policy reaches -- four-arm coverage is the dominant reachability
+gain (unchanged from the frictionless model). Fixed-arm energy figures are each
+over that arm's own smaller reachable set, so the meaningful energy comparison is
+\texttt{nearest} vs.\ \texttt{random}. Under friction, \textbf{energy-aware
+selection has the lowest mean measured energy of the three multi-arm policies}
+(45.84~J vs.\ nearest 48.28~J, $-5.1\%$, and random 47.31~J, $-3.1\%$) -- a
+reversal from the frictionless model, where energy-mode's mean was
+\emph{highest} (13.19~J vs.\ 12.01/12.87~J). This is a real but partial win: median
+energy (52.34~J) beats nearest (54.79~J) but ties random (51.72~J); a paired,
+same-target comparison (56 rows) has energy beating nearest 57.1\% and random
+60.7\% of the time -- a real majority, not a sweep. Energy-mode's arm travel is
+now \emph{higher} than nearest's (8.66 vs.\ 7.94~rad, opposite of frictionless)
+because the recalibrated weights de-prioritise arm travel once rail friction
+dominates -- more arm motion to save costlier rail travel, the intended
+friction-aware trade. In a representative case (target
+$x{=}1.12,y{=}-0.60,z{=}1.15$) energy chose arm\_3 (0.64~m rail travel, 10.23~rad
+arm, 42.37~J) over nearest's arm\_4 (1.15~m rail, 5.71~rad arm, 72.47~J) --
+0.51~m less rail travel for 30.1~J lower energy. Fig.~\ref{fig:selection} shows
+this trade-off executing end to end.}
 
 \subsection{End-to-End Pick and Reachability Classification (E5, E6)}
 \textcolor{red}{We validated the full perception-to-execution pipeline (Isaac
@@ -697,24 +681,25 @@ table, the comparison script (\texttt{scripts/e4\_compare.py}), and CSVs are in
 \texttt{docs/experiment\_results.md} (E4) and \texttt{docs/e4\_data\_2026-07-17/}.}
 
 \section{Conclusion}
-% DRAFT ONLY -- not yet signed off by the user; written to match the locked
-% framing in docs/SCIS-ISIS_paper/IEEEconference-latex-template/paper_draft.md
-% and should be revisited once E2/E3/E6 results are in.
 
-We presented an energy-aware selection cost that chooses both the arm and the full
-8-DOF configuration, rail travel included, on a \textcolor{red}{ceiling-mounted
-dual-gantry quad-arm robot}, built
-on top of a base-aware GNG capability map that treats the rail as a first-class
-degree of freedom. Sampling and growing the map with the rail active, rather than
-holding it fixed, is what lets a single representation answer both which arm and
-where the base should be, and a boundary-seeding step keeps that map accurate to
-within centimetres of the true reach surface. The results measured so far show
-that the rail contributes the majority of the reachable-workspace gain over an
-arm-only baseline; the remaining \textcolor{red}{comparison of energy-aware selection
-against the nearest, fixed, and random baselines is ongoing} (Section~VI) and will
-complete the case for the energy cost $J$. All results in this paper come from Isaac Sim; validating the
-approach on the physical ceiling-rail platform, and studying how sim-to-real gap
-affects the calibrated weights of $J$, is left for future work.
+\textcolor{red}{We presented an energy-aware selection cost $J$ that chooses both
+the arm and the full 8-DOF configuration, rail travel included, on a
+ceiling-mounted dual-gantry quad-arm robot, built on a base-aware GNG capability
+map that treats the rail as a first-class degree of freedom. Sampling and growing
+the map with the rail active, rather than holding it fixed, lets a single
+representation answer both which arm and where the base should be, and
+boundary-seeding keeps the map accurate to within centimetres of the true reach
+surface. In simulation, treating the rail as a DOF gives a $\sim$4$\times$
+reachable-workspace gain over an arm-only baseline, and under a rail-friction
+model energy-aware selection reaches the lowest mean measured mechanical energy of
+the three multi-arm policies compared (nearest, random, fixed) -- a real but
+partial win, reported with its median and pairwise caveats (Section~VI-B). The
+full perception-to-execution pipeline, driven by open-vocabulary YOLOE perception
+fused across two overhead cameras, executed 35/35 end-to-end picks and classified
+reachable-vs-unreachable objects at 100\% accuracy from the same capability map.
+All results in this paper come from Isaac Sim; validating the approach on the
+physical ceiling-rail platform, and studying how the sim-to-real gap affects the
+calibrated weights of $J$, is left for future work.}
 
 \section*{Acknowledgment}
 \TODO{Funding / acknowledgment text, or delete this section.}
