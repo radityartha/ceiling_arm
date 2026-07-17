@@ -95,10 +95,14 @@ objects that the selection pipeline then acts on.
 The simulation results support each claim. Letting a rail act as a degree of freedom
 enlarges the reachable workspace by roughly four times compared with an arm-only
 baseline, and the boundary-seeding step recovers the true reach at the workspace edge to
-within a centimetre. Energy-aware selection cuts base travel and mechanical energy
-relative to the nearest, fixed, and random baselines by `[PLACEHOLDER]`. All of these
-numbers come from Isaac Sim, and validation on the physical robot is left for future
-work. The rest of the paper is organized as follows.
+within a centimetre. Under a rail dynamics model that charges rail motion a friction
+energy cost (a stated modelling assumption, not measured hardware data), energy-aware
+selection reaches the lowest mean measured mechanical energy of the three multi-arm
+policies, 5.1% below nearest and 3.1% below random, and lowers rail travel; all three
+multi-arm policies reach 93.3% plan success against 63–65% for any single fixed arm. This
+gain is real but partial — the same-target pairwise win rate is a majority (57–61%) and
+the median is closer. All of these numbers come from Isaac Sim, and validation on the
+physical robot is left for future work. The rest of the paper is organized as follows.
 Section II reviews related work, Section III describes the system, and Section IV
 presents the base-aware GNG capability map. Section V defines the energy cost J and the
 selection procedure, Section VI reports the experiments, and Section VII concludes.
