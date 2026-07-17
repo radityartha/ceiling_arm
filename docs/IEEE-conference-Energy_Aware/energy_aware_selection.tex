@@ -669,13 +669,8 @@ recovery along the rail's travel axis (\textcolor{red}{$x$: 0.501~m~$\to$~0.017~
 
 \begin{figure}[htbp]
 \centering
-\FIGPLACEHOLDER{3.5cm}{(a) bar chart: reachable volume, rail locked vs. active
-(Table~\ref{tab:e1}, data ready); (b) boxplot: rail-linear/rail-rotation/arm travel
-and traj\_energy per selection mode, friction-model data ready (Table~\ref{tab:e3},
-\texttt{/tmp/e3b\_\{energy\_v2\_clean,nearest,random,fixed\_arm1..4\}.csv})}
-\caption{Results. (a) Reachable-workspace volume with the rail locked versus
-active, showing the gain from treating the base as a DOF. (b) Rail travel and
-mechanical energy per selection mode (energy-aware vs. nearest, fixed, random).}
+\includegraphics[width=\linewidth]{figure/results.pdf}
+\caption{\textcolor{red}{Results. (a)~Reachable-workspace volume with the rail locked versus active (0.05~m resolution): treating the rail as a degree of freedom gives a $\sim$4$\times$ gain. (b)~Distribution of measured trajectory energy per multi-arm selection policy under the rail-friction model ($\diamond$~=~mean); energy-aware selection attains the lowest mean, though the distributions overlap heavily -- a real but partial improvement.}}
 \label{fig:results}
 \end{figure}
 
