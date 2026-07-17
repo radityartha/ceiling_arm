@@ -255,8 +255,13 @@ and we answer it with the same map and cost that also place the base.
 
 \begin{figure}[htbp]
 \centering
-\FIGPLACEHOLDER{4.5cm}{two-panel teaser: rail+arm frames/DOF (left) and the
-perception$\to$selection$\to$planning pipeline (right)}
+\begin{minipage}{0.52\linewidth}\centering
+  \includegraphics[width=\linewidth]{figure/Env_Isaac.png}\\
+  {\footnotesize (a) system and workspace}
+\end{minipage}\hfill
+\begin{minipage}{0.45\linewidth}\centering
+  \FIGPLACEHOLDER{3.0cm}{(b) pipeline diagram: perception $\to$ energy-aware selection $\to$ planning/execution}
+\end{minipage}
 \caption{Overview of the \textcolor{red}{dual-gantry quad-arm ceiling} robot and the proposed pipeline.
 Left: \textcolor{red}{two rails mounted to the ceiling, each carrying two Kinova Gen3 Lite arms and each adding a
 prismatic axis ($d$) and a revolute axis ($\theta$) that its two arms share}, so each
@@ -411,12 +416,12 @@ shell of nodes on the measured reach surface before growing the interior
 
 \begin{figure}[htbp]
 \centering
-\FIGPLACEHOLDER{4cm}{RViz node cloud colored by manipulability, boundary shell
-visible -- \texttt{view\_gng.launch.py model\_path:=/tmp/arm1\_model.npz}}
-\caption{The base-aware GNG capability map for one arm, rendered in RViz. Nodes
-are colored by manipulability (blue near the workspace edge, red where the arm is
-dexterous); the pinned boundary shell reaches the true rail-extended reach
-surface.}
+\includegraphics[width=\linewidth]{figure/gng_capability.png}
+\caption{\textcolor{red}{The base-aware GNG capability map for one arm, rendered in
+RViz: the node cloud (colored by a per-node manipulability value) and the pinned
+boundary shell -- the outer wireframe hull -- reaching the true rail-extended reach
+surface. The elongated extent is the rail sweeping the $x$-axis; the two arms appear
+at left.}}
 \label{fig:gngmap}
 \end{figure}
 
