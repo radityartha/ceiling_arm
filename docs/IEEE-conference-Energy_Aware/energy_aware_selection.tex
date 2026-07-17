@@ -616,58 +616,22 @@ $q$ DOF per node & 8 & 8 & 8 & 8 \\
 We compare the reachable volume with the rail locked at a fixed pose (6 arm DOF
 only) against the rail sampled over its full travel (rail \textcolor{red}{0--2.0~m}, rotation
 $\pm180^{\circ}$), matching FK sample \emph{density} rather than raw sample count
-between the two conditions to avoid an under-sampling bias. Table~\ref{tab:e1}
-reports the reachable volume at two saturated voxel resolutions.
-
-\begin{table}[htbp]
-\caption{Reachable volume, rail locked vs. rail active (arm\_1).}
-\begin{center}
-\begin{tabular}{|c|c|c|c|}
-\hline
-\textbf{Res. (m)} & \textbf{Locked (m$^3$)} & \textbf{Active (m$^3$)} & \textbf{Gain} \\
-\hline
-0.08 & 2.127 & \textcolor{red}{9.807} & \textcolor{red}{4.61$\times$} \\
-\hline
-0.05 & 1.920 & \textcolor{red}{7.899} & \textcolor{red}{\textbf{4.11$\times$}} \\
-\hline
-\end{tabular}
-\label{tab:e1}
-\end{center}
-\end{table}
-
-Treating the rail as a degree of freedom expands the reachable workspace by about
-\textcolor{red}{$4\times$ (4.11$\times$ at 0.05~m resolution, robust bracket 4.0--4.6$\times$ over
-saturated resolutions; 4.03$\times$ when both volumes are restricted below the ceiling)}.
+between the two conditions to avoid an under-sampling bias. \textcolor{red}{Treating the
+rail as a degree of freedom expands the reachable volume from 1.920~m$^3$ to
+7.899~m$^3$ at 0.05~m voxel resolution (Fig.~\ref{fig:results}a) -- about $4\times$
+(4.11$\times$ at 0.05~m, robust bracket 4.0--4.6$\times$ across saturated
+resolutions; 4.03$\times$ when both volumes are restricted below the ceiling).}
 
 \subsubsection{Boundary-Seeding Ablation (E1b)}
 
-Table~\ref{tab:e1b} measures how far the GNG node hull's outer extent falls short
-of the true FK-sampled reach surface, with and without the pinned boundary shell of
-Section~IV-B, using extent metrics (max reach radius and per-axis bounding-box
-extent) rather than a centroid-radial metric, since the rail-swept workspace is not
-star-convex about its centroid.
-
-\begin{table}[htbp]
-\caption{Reachable-edge shortfall with and without boundary seeding (arm\_1).}
-\begin{center}
-\begin{tabular}{|l|c|c|c|}
-\hline
-\textbf{Model} & \textbf{\#Nodes} & \textbf{Max radius (m)} & \textbf{Shortfall (m)} \\
-\hline
-True surface & --- & \textcolor{red}{2.102} & --- \\
-\hline
-Boundary = 600 & \textcolor{red}{2915} & \textcolor{red}{2.094} & \textcolor{red}{\textbf{0.008}} \\
-\hline
-Boundary = 0 & \textcolor{red}{2317} & \textcolor{red}{1.882} & \textcolor{red}{0.221} \\
-\hline
-\end{tabular}
-\label{tab:e1b}
-\end{center}
-\end{table}
-
-Pinning a boundary shell before growing the interior cuts the reachable-edge
-shortfall from \textcolor{red}{0.22~m to under 1~cm} at the maximum reach radius, with the largest
-recovery along the rail's travel axis (\textcolor{red}{$x$: 0.501~m~$\to$~0.017~m bounding-box shortfall}).
+\textcolor{red}{Pinning a boundary shell of nodes before growing the interior (Section~IV-B)
+closes most of the gap between the GNG node hull's outer extent and the true
+FK-sampled reach surface (max radius 2.102~m): the shortfall drops from 0.221~m
+(no boundary seeding, 2317 nodes) to 0.008~m (600-node boundary shell, 2915 nodes
+total), with the largest recovery along the rail's travel axis ($x$:
+0.501~m~$\to$~0.017~m bounding-box shortfall). We use extent metrics (max reach
+radius and per-axis bounding-box extent) rather than a centroid-radial metric,
+since the rail-swept workspace is not star-convex about its centroid.}
 
 \begin{figure}[htbp]
 \centering
@@ -787,9 +751,8 @@ time, so we ran 7 objects $\times$ 5 trials $=$ 35 picks in round-robin order
 (rather than the originally planned 20-position grid, which would have
 required a full simulator relaunch per position) as a pipeline-integration
 demo, not a positional-sensitivity study -- that role is filled by the E3
-grid sweep. \textbf{Result: 35/35 (100\%) pick success, 0 failures in every
-requested category} (no-detection: 0, IK $-31$/unreachable: 0, no
-collision-free plan: 0, unrecovered execution-abort: 0). Mean time-to-pick
+grid sweep. \textbf{Result: 35/35 (100\%) pick success}, zero failures across every category
+(detection, IK/unreachable, planning, unrecovered execution-abort). Mean time-to-pick
 (detection $\to$ selection $\to$ plan $\to$ executed \& settled) was 39.6~s
 (median 28.1~s) across all objects, ranging from 10.5--184.4~s; scissors had
 the widest spread (mean 110.4~s) because 3/5 of its trials hit a transient
@@ -823,15 +786,13 @@ objects (3864/3864 matched detections), mean localization error 0.023~m
 rate was 0\% (0/3864)} at the default confidence threshold. Every detected
 class label was semantically correct once the underlying object-track had
 settled (e.g.\ the tomato soup can as ``canned food'', the mustard bottle as
-``bottle''); no cross-object confusion was observed. A confidence-threshold
-sensitivity check (conf$=0.10$, 150 frames) found detection rate and
-localization error essentially unchanged -- already saturated at
-conf$=0.25$ -- but false positives rose to 15.2\% (215/1415), confirming
-conf$=0.25$ as a sound operating point. This result revises an earlier,
-pessimistic finding about YOLOE on this simulator: that finding predated a
-switch to the larger \texttt{11m} detector weights, and with the current
-weights YOLOE is a viable perception input on this platform, not merely a
-sim-only crutch. Full per-object table, the raw comparison script
+``bottle''); no cross-object confusion was observed. A confidence-threshold sensitivity check (conf$=0.10$, 150 frames) found
+detection rate and localization error already saturated at conf$=0.25$, but
+false positives rose to 15.2\% (215/1415), confirming conf$=0.25$ as the sound
+operating point. This revises an earlier, pessimistic finding about YOLOE on
+this simulator that predated a switch to the larger \texttt{11m} detector
+weights; with the current weights YOLOE is a viable perception input here, not
+merely a sim-only crutch. Full per-object table, the raw comparison script
 (\texttt{scripts/e4\_compare.py}), and CSVs are in
 \texttt{docs/experiment\_results.md} (E4) and
 \texttt{docs/e4\_data\_2026-07-17/}.}
@@ -851,21 +812,14 @@ any radius. This is the number that reflects the map's actual reachability
 signal, the same one \texttt{gantry\_reach\_executor} uses when it queries
 nearby nodes as IK candidates.}
 
-\textcolor{red}{A secondary note on a diagnostic tool: the live \texttt{reachability\_cloud}
-RViz coloring utility additionally gates on an 8-node ``enclosure'' check
-(rejects a point that only has map nodes approaching from one side, a
-boundary-safety heuristic pre-dating this experiment, documented in the
-source). With that extra gate active, 2 of the 8 objects (cracker\_box,
-scissors) read 0\% reachable at \emph{every} radius tested, even beyond
-their true nearest-node distance, because they sit at a one-sided-density
-fringe of this particular map. That gate is not part of the pipeline's real
-reachability decision -- disabling it (a supported, pre-existing mode, not a
-tuned parameter) recovers the 100\% result above -- but its blind spot is
-itself a useful diagnostic for where this map's node sampling is
-asymmetric, a direction for future map-density work. Full confusion-matrix
-tables (with and without the enclosure gate), the nearest-node distance
-computation, and raw logs are in \texttt{docs/experiment\_results.md} (E5)
-and \texttt{docs/e5\_data\_2026-07-17/}.}
+\textcolor{red}{A pre-existing diagnostic-only tool, the \texttt{reachability\_cloud}
+RViz coloring utility, additionally gates on an 8-node one-sided ``enclosure''
+check that is \emph{not} part of the pipeline's actual reachability decision; with
+it active, 2 of the 8 objects read 0\% at every radius because they sit at a
+one-sided-density fringe of this map, and disabling that gate recovers the 100\%
+result above. Full confusion-matrix tables (with and without the gate) and raw
+logs are in \texttt{docs/experiment\_results.md} (E5) and
+\texttt{docs/e5\_data\_2026-07-17/}.}
 
 \section{Conclusion}
 % DRAFT ONLY -- not yet signed off by the user; written to match the locked
