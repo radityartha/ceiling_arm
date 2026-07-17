@@ -348,24 +348,42 @@ at least one object sits near the edge of the reachable workspace.}}
 
 \subsection{Perception Front End}
 
-The target objects are supplied to the pipeline by an open-vocabulary perception 
-module based on YOLOE, a real-time model that detects and segments objects 
-from free-form text prompts \cite{Wang2025}. The colour image from each of 
-the two overhead cameras is processed to generate a segmentation mask for 
-each object. These masks are then back-projected with the aligned depth data 
-and combined across the two viewpoints to estimate the object's position in 
-the world frame. This facilitates the operator's ability to request an object 
-by name and enable the system to localise it in the absence of a fixed object 
-database (Fig.~\ref{fig:perception}). In this context, perception functions 
-as the enabling front end, providing the target on which the capability map 
-and the energy cost are subsequently based.
+The target objects are supplied to the pipeline by an open-vocabulary perception
+module based on YOLOE, a real-time model that detects and segments objects
+from free-form text prompts \cite{Wang2025}. \textcolor{red}{Each of the two overhead
+cameras is processed independently. The colour image yields a per-object
+segmentation mask; the masked pixels of the aligned depth image are back-projected
+into a 3D point set, which is carried into the world frame through the fixed
+camera-to-world transform. We take the \emph{median} of those world points as the
+object's centroid, which rejects the depth outliers that occur along the mask
+border. The two cameras' detections are then fused: two centroids that fall within
+a small merge radius (0.10~m) are taken to be the same physical object, their
+positions are averaged, and the higher of the two observed object tops is kept
+(each camera sees only part of a top). A lightweight track layer with majority
+label voting removes any remaining cross-camera duplicate and stabilises the class
+label across frames. The result is a single world-frame position per named object,
+robust to a partial or one-sided view, obtained without a fixed object database, so
+the operator can request an object by name (Fig.~\ref{fig:perception}).} In this
+context, perception functions as the enabling front end, providing the target on
+which the capability map and the energy cost are subsequently based.
 
 \begin{figure}[htbp]
 \centering
-\FIGPLACEHOLDER{3.5cm}{YOLOE mask+label overlay and back-projected object point}
-\caption{Open-vocabulary perception. YOLOE detects and segments the requested
-object from a text prompt (masks and labels shown); the mask is back-projected
-with depth to localize the object in the world frame.}
+\begin{minipage}{0.49\linewidth}\centering
+  \includegraphics[width=\linewidth]{figure/perception_rgbd_20260717_162902.png}\\
+  {\footnotesize (a) camera~1}
+\end{minipage}\hfill
+\begin{minipage}{0.49\linewidth}\centering
+  \includegraphics[width=\linewidth]{figure/perception_rgbd2_20260717_163458.png}\\
+  {\footnotesize (b) camera~2}
+\end{minipage}
+\caption{\textcolor{red}{Open-vocabulary perception from the two overhead cameras.
+YOLOE detects and segments each object from a text prompt (coloured masks with
+class label and confidence). For every mask, the aligned depth is back-projected
+and its median taken as a world-frame centroid (yellow cross-hair). Detections
+from the two viewpoints (a)~camera~1 and (b)~camera~2 are fused by centroid
+proximity and majority label voting, giving one localised position per named
+object with no fixed object database.}}
 \label{fig:perception}
 \end{figure}
 
