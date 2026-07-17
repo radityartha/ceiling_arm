@@ -75,183 +75,125 @@ base placement, energy-aware planning
 
 \section{Introduction}
 
-As global demographic shifts persist, particularly the accelerated growth of the aging population, 
-there is an increasing demand for assistive technologies that can be utilized in 
-the comfort of one's own residence \cite{unitednations2024world,who2025clinical}. 
-One such technology is an assistive robot that traverses a residence, with an 
-increasing number of tasks assigned to it, including the retrieval of objects, 
-the maintenance of order, and the delivery of items to the occupants \cite{IFR2025,Lisondra2026}.
-The utilization of robots within residential environments presents a more substantial 
-set of challenges when compared to their application in Factory facilities or outdoor settings \cite{kemp2007challenges}. 
-Domestic residences generally possess smaller, more cluttered spaces, 
-and robots must also share these spaces with the residents at all times. 
-In the case of mobile manipulator robots that traverse the floor, this can impede 
-the mobility of residents, who must exercise caution when walking or performing 
-activities within the residence to avoid collisions with the robot \cite{sisbot2007human}. 
-One potential solution to this problem is to elevate the robot entirely off the floor \cite{Lalonde2025}.
-In the event that the robotic arm is suspended from the ceiling, 
-the floor area will be considered safe for the residents. 
-Consequently, the robot will be able to continue performing its duties 
-as an in-home assistant from above without interfering with the residents' activities \cite{Kaluarachchi2025}.
-The present study focuses on the analysis of a ceiling robot equipped with a \textcolor{red}{dual-gantry} system.
-Each gantry is equipped with two six-degree-of-freedom (6 DOF) arms, 
-thereby constituting a quad-arm cooperative overhead manipulator.
+\textcolor{red}{An aging global population is driving demand for assistive robots that
+can operate inside the home \cite{unitednations2024world,who2025clinical}, taking on
+tasks such as retrieving objects, tidying, and delivering items to occupants
+\cite{IFR2025,Lisondra2026}. Residential deployment is harder than factory or outdoor
+use \cite{kemp2007challenges}: homes are small and cluttered, and a floor-traversing
+mobile manipulator shares that space with residents, who must stay alert to avoid it
+\cite{sisbot2007human}. Lifting the robot off the floor entirely \cite{Lalonde2025}
+removes this conflict -- a ceiling-mounted arm keeps the floor free while still
+serving as an in-home assistant from above \cite{Kaluarachchi2025}. We study such a
+ceiling robot: a dual-gantry system in which each gantry carries two 6-DOF arms,
+forming a quad-arm cooperative overhead manipulator.}
 
-Each gantry is characterized by two distinct types of motion: linear and rotational. 
-Consequently, each arm possesses eight degrees of freedom (8-DOF).
-A given object can typically be accessed by \textcolor{red}{several arms}, and from a multitude of
-\textcolor{red}{base} positions. 
-The robot, therefore, confronts two coupled inquiries simultaneously: 
-\textcolor{red}{which arm should execute the task, and where should its base}
-be positioned prior to its arrival? Both inquiries carry a cost. 
-Repositioning the heavy base is a significant expense in mobile manipulation, 
-both in terms of time and energy \cite{MoMaPos2024,BaSeNet2024,EnergySLR2024}. 
-The implementation of a straightforward policy of always reaching with 
-the nearest arm or leaving the \textcolor{red}{base} in its current position may not be the optimal decision.
-This policy has the potential to result in a substantial waste of \textcolor{red}{base travel}. 
-The objective of this study was to identify a solution to the problem of 
-selecting the arm and \textcolor{red}{base} placement that would result in a low energy output.
+\textcolor{red}{Each gantry moves both linearly and rotationally, giving each arm 8~DOF
+in total. Most objects are reachable by several arms from a range of base positions,
+so the robot faces two coupled questions: which arm should act, and where should its
+base be positioned first? Both are costly -- repositioning the heavy base costs time
+and energy \cite{MoMaPos2024,BaSeNet2024,EnergySLR2024} -- and naive policies (nearest
+arm, or leaving the base where it is) can waste base travel. We address the problem
+of selecting the arm and base placement that minimizes energy.}
 
-Reachability and capability maps are a common means of depicting the reachable 
-regions and the mobility capabilities of an arm. These maps are extensively 
-employed in determining the optimal positioning of a robot \cite{Zacharias2007,Makhal2018}. 
-Two assumptions constrain the analysis within the confines of our specific setting. 
-Firstly, the majority of maps designed for arm robots are constructed with a fixed base. 
-Consequently, they fail to account for the novel reachable space that emerges when the base 
-itself is mobile. Secondly, the records are typically limited to indicating 
-whether a cell is reachable, without incorporating the cost of accessing it 
-or a configuration from which inverse kinematics can initiate \cite{Zacharias2007}. 
-Recent methodologies have been developed that augment operators' situational awareness 
-with respect to obstacles and proximate objects
-\cite{MoMaPos2024,InvReach2022}. Nevertheless, these approaches continue to 
-prioritize the determination of the optimal placement of a single arm over 
-the selection of the most suitable arm(s) to utilize within the confines 
-of an energy budget.
-Redundancy-resolution work has been shown to optimize a single arm's 
-posture for measures such as manipulability \cite{Yoshikawa1985}. 
-However, it does not select between arms or consider the costly base degree of freedom. 
-A crucial element is absent from the current discourse: a representation that 
-directly addresses the question of which arm and which \textcolor{red}{base} placement result
-in the least energy expenditure on a ceiling-rail robot.
+\textcolor{red}{Reachability and capability maps are the standard tool for depicting an
+arm's reachable regions and mobility, and for placing a robot optimally
+\cite{Zacharias2007,Makhal2018}, but two assumptions limit them here. Most are built
+for a fixed base, so they miss the reachable space a mobile base opens up; and they
+typically record only whether a cell is reachable, not the cost of reaching it or an
+IK-ready configuration \cite{Zacharias2007}. Recent work improves operator awareness
+of obstacles and nearby objects \cite{MoMaPos2024,InvReach2022}, and
+redundancy-resolution methods optimize a single arm's posture for manipulability
+\cite{Yoshikawa1985}, but neither selects between multiple arms nor accounts for the
+base's own cost. What is missing is a representation that answers, directly, which
+arm and which base placement minimize energy on a ceiling-rail robot.}
 
-The solution to the problem is presented by an energy cost function, $J$, 
-which operates on a \textcolor{red}{base}-aware capability map that has been constructed
-with the aid of Growing Neural Gas (GNG) \cite{Fritzke1995}. Each node in 
-the map maintains a representative 8-DOF configuration, in conjunction 
-with its manipulability \cite{Yoshikawa1985}. Therefore, a node must be considered more than simply 
-a location that the end-effector can reach. Rather, it is a comprehensive 8-DOF 
-configuration that encompasses the node, rail placement, and all associated elements.
-The present paper has three contributions. Firstly, an energy-aware selection 
-cost $J$ is introduced. This cost selects the arm and the full 8-DOF configuration, 
-including rail travel, in contrast to settling for the nearest reachable pose. 
-Secondly, a base-aware GNG capability map is constructed, whereby 
-the ceiling rail is regarded as a genuine degree of freedom. 
-This map enhances plain reachability by attaching to every node 
-a representative 8-DOF configuration that carries its own rail placement
-and a manipulability value. The process of boundary-seeding
-ensures the maintenance of map accuracy along the perimeter of the accessible workspace. 
-Thirdly, an evaluation of the comprehensive approach in Isaac Sim is conducted. 
-This evaluation encompasses the characterization of the map, a measurement of 
-how much treating the rail as a degree of freedom expands the reachable workspace, 
-and a comparison of energy-aware selection against nearest, fixed, and random baselines.
-Open-vocabulary perception with YOLOE provides the perception front end, supplying the target objects
-that the selection pipeline then acts on \cite{Wang2025}.
+\textcolor{red}{We address this with an energy cost $J$ that operates on a base-aware
+capability map built with Growing Neural Gas (GNG) \cite{Fritzke1995}: each node
+stores a representative 8-DOF configuration and its manipulability
+\cite{Yoshikawa1985}, so a node is a full configuration -- rail placement included --
+not just a reachable point. This paper makes three contributions. First, the
+energy-aware selection cost $J$, which chooses the arm and the full 8-DOF
+configuration (rail travel included) rather than settling for the nearest reachable
+pose. Second, the base-aware GNG capability map itself, which treats the ceiling rail
+as a genuine DOF and attaches a representative configuration and manipulability value
+to every node, with boundary-seeding preserving accuracy at the workspace edge.
+Third, an evaluation in Isaac Sim that characterizes the map, measures how much the
+rail DOF expands the reachable workspace, and compares energy-aware selection against
+nearest, fixed, and random baselines. Open-vocabulary perception with YOLOE supplies
+the target objects the selection pipeline acts on \cite{Wang2025}.}
 
-The simulation results substantiate each claim. The implementation of the rail as 
-a degree of freedom has been demonstrated to result in an expansion of the reachable 
-workspace. This increase is estimated to be approximately four times that of the baseline, 
-which utilizes only the arm. The subsequent step in the process, known as "boundary-seeding," 
-has been demonstrated to effectively recover the true reach at the workspace edge, 
-with an accuracy of approximately one centimeter relative to the forward-kinematics 
-reach surface. Furthermore, the employment of energy-aware
-selection, together with the other multi-arm baselines, has been shown to raise
-plan success from 63--65\% (any single fixed arm) to 93.3\%, and under a rail
-dynamics model with assumed Coulomb/viscous friction (a modelling assumption,
-not measured hardware data, so that rail travel carries a real energy cost)
-energy-aware selection reaches the lowest mean measured mechanical energy of the
-three multi-arm policies \textcolor{red}{(45.84~J mean vs.\ 48.28~J nearest,
-$-5.1\%$, and 47.31~J random, $-3.1\%$; a majority same-target pairwise win rate
-of 57--61\% against each baseline, though the median result is closer to
-random's -- see Section~VI-C for the full, honestly-reported comparison)}. In
-order to ground these findings, our simulation in NVIDIA Isaac Sim \cite{IsaacSim2026}
-is modeled as a high fidelity digital twin of our physical trailer living laboratory 
-and ceiling-mounted robot system \cite{Kubota2022}. 
-While the physical integration and real-world validation of this dual-gantry quad-arm 
-framework are reserved for future work, the actual existence of both the physical 
-trailer lab and the ceiling robotic hardware in our facility ensures the direct 
-feasibility and translatability of our simulated controller.
+\textcolor{red}{Our simulation results support each claim. Treating the rail as a DOF
+expands the reachable workspace roughly $4\times$ over an arm-only baseline, and
+boundary-seeding recovers the true reach at the workspace edge to within about one
+centimeter of the forward-kinematics surface. Energy-aware selection, alongside the
+other multi-arm baselines, raises plan success from 63--65\% (any single fixed arm)
+to 93.3\%; under a rail-dynamics model with assumed Coulomb/viscous friction (a
+modelling assumption, not measured hardware data, so rail travel carries a real
+energy cost), it also attains the lowest mean measured mechanical energy of the
+three multi-arm policies (45.84~J mean vs.\ 48.28~J nearest, $-5.1\%$, and 47.31~J
+random, $-3.1\%$; a majority same-target pairwise win rate of 57--61\% against each
+baseline, though the median result is closer to random's -- see Section~VI-C for the
+full, honestly-reported comparison). We ground these results by modeling NVIDIA
+Isaac Sim \cite{IsaacSim2026} as a high-fidelity digital twin of our physical trailer
+living laboratory and ceiling-mounted robot system \cite{Kubota2022}; physical
+integration and real-world validation are future work, but both the trailer lab and
+the ceiling hardware already exist in our facility, supporting the feasibility of
+transferring the simulated controller.}
 
-The remainder of the paper is structured in the following manner. In Section II, 
-the extant literature is reviewed. In Section III, the system is described, and 
-in Section IV, the base-aware GNG capability map is presented. As delineated in Section V, 
-the energy cost, designated as $J$, is defined, along with the selection procedure. 
-The experiments are reported in Section VI, and Section VII offers a conclusion.
+\textcolor{red}{The rest of the paper is organized as follows. Section~II reviews
+related work; Section~III describes the system; Section~IV presents the base-aware
+GNG capability map; Section~V defines the energy cost $J$ and the selection
+procedure; Section~VI reports experiments; Section~VII concludes.}
 
 \section{Related Work}
 
 \noindent\textit{Reachability and capability maps.}
-A series of tasks constitutes the range of potential outcomes that can be 
-achieved through discretization of the workspace and subsequent recording of 
-the viability of placement of the end effector within each cell. Zacharias et al. 
-transformed this concept into a capability map that also captures the arm's orientation 
-at each location, providing a more comprehensive representation than a simple binary 
-occupancy grid \cite{Zacharias2007}. Reuleaux extended this principle to base placement 
-by inverting the reachability map, enabling the robot to determine the optimal 
-standing position to serve a target \cite{Makhal2018}. Contemporary representations 
-prioritize the reduction of costs associated with map construction and querying. 
-RM4D, for instance, reduces the discretization from six dimensions to four and 
-serves both reachability and inverse-reachability queries from a single structure \cite{RM4D2024}. 
-These maps are constructed for a single arm affixed to a stationary base, 
-with a cell typically dedicated to storing reachability data. Our map differs 
-on both counts. The system under consideration treats the ceiling rail as an integral 
-component of the configuration. Consequently, it records how base motion extends reach, 
-and every node carries a representative 8-DOF configuration that carries its own rail 
-placement, together with manipulability, rather than a single occupancy bit.
+\textcolor{red}{A workspace can be discretized into cells and each cell labelled with
+whether the end effector can reach it. Zacharias et al.\ extended this to a
+capability map that also captures reach orientation, richer than a binary occupancy
+grid \cite{Zacharias2007}. Reuleaux inverted the reachability map for base placement,
+letting the robot pick a standing position for a target \cite{Makhal2018}. Recent
+work targets construction and query cost: RM4D reduces the discretization from six
+dimensions to four and serves both reachability and inverse-reachability from one
+structure \cite{RM4D2024}. All of these are built for a single arm on a stationary
+base, storing one reachability bit per cell. Our map differs on both counts: the
+ceiling rail is a first-class part of the configuration, so it records how base
+motion extends reach, and every node carries a representative 8-DOF configuration
+(rail placement included) and a manipulability value, not a single bit.}
 
 \noindent\textit{Base placement for mobile manipulators.}
-The decision regarding the point at which a mobile base should halt prior to 
-manipulation constitutes a well-studied problem. Sandakalum et al. have developed an 
-inverse-reachability network that places the platform for a given task while accounting 
-for obstacles \cite{InvReach2022}.
-MoMa-Pos employs a method of base placement optimization that is predicated on a 
-rational consideration of the kinematic properties of the objects to be manipulated \cite{MoMaPos2024}. 
-BaSeNet, on the other hand, utilizes a sequence planning algorithm that encompasses 
-a series of base poses, thereby enabling a robot to pick up multiple objects in 
-succession \cite{BaSeNet2024}. The extant literature provides comprehensive guidance 
-on the optimal positioning of the single arm in these instances. It is notable that 
-none of the subjects opts for a particular option among a range of available options, 
-and they do not evaluate the candidate placements based on the energy expenditure 
-required to reach them. The present study contributes to the field by providing 
-the missing components necessary for the operation of a redundant ceiling-rail robot. 
+\textcolor{red}{Where a mobile base should stop before manipulating is a well-studied
+problem. Sandakalum et al.\ learn an inverse-reachability network that places the
+platform for a task while accounting for obstacles \cite{InvReach2022}. MoMa-Pos
+optimizes base placement from the kinematics of the objects to manipulate
+\cite{MoMaPos2024}, and BaSeNet plans a sequence of base poses so a robot can pick up
+multiple objects in succession \cite{BaSeNet2024}. This line of work is thorough on
+placing a single arm well, but none of it chooses \emph{among} several arms or scores
+candidate placements by the energy needed to reach them -- the gap our work fills for
+a redundant ceiling-rail robot.}
 
 \noindent\textit{Redundancy resolution and inverse kinematics.}
-In instances where a chain contains more joints than is necessary for 
-the task at hand, the additional freedom afforded by this configuration can be 
-exploited to enhance a secondary objective. Yoshikawa's manipulability measure 
-constitutes a classic choice in the field, as it is demonstrated to be effective 
-in steering a redundant arm away from singular postures \cite{Yoshikawa1985}.
-The field of inverse kinematics has witnessed a resurgence of interest in recent times, 
-largely driven by advancements in the realm of learning. This has led to the 
-development of sophisticated solvers, such as IKDiffuser, which are capable of 
-generating configurations from a diffusion model. \cite{IKDiffuser2025}. 
-These approaches are designed to address the posture of a single arm, 
-with each approach focusing on a specific criterion. 
-The subjects do not determine which of the multiple available limbs should act, 
-and they do not consider the base travel that a given posture would require. 
-We keep the inverse kinematics solver standard and classical, and use the capability
-map to enumerate candidate 8-DOF configurations, each with its own arm and rail
-placement, that the energy cost then ranks to settle the arm choice and the base motion.
+\textcolor{red}{A kinematic chain with more joints than the task strictly needs can use
+the spare freedom for a secondary objective; Yoshikawa's manipulability measure is
+the classic choice, steering a redundant arm away from singular postures
+\cite{Yoshikawa1985}. Learning-driven IK has since produced solvers such as
+IKDiffuser, which generates configurations with a diffusion model
+\cite{IKDiffuser2025}. Each of these optimizes the posture of a single, already-chosen
+arm for one criterion -- none decides which of several limbs should act, or accounts
+for the base travel a given posture would require. We keep the IK solver standard and
+classical, and instead use the capability map to enumerate candidate 8-DOF
+configurations, each with its own arm and rail placement, which the energy cost then
+ranks to settle both the arm choice and the base motion.}
 
 \noindent\textit{Multi-arm coordination.}
-The issue of how to distribute tasks among multiple arms is a salient concern 
-in such systems. Recent planners, including DAG-Plan and RoboPARA, 
-have been developed to construct dependency graphs over tasks and allocate 
-subtasks to each arm, thereby enabling multiple arms to operate in parallel
-\cite{DAGPlan2024,RoboPARA2026}. Their concern is the temporal and logical structure
-of a multi-step task. Ours is different and complementary. For a single reaching
-action we ask which arm reaches the target for the least energy, given that arms
-sharing a rail share one moving base while arms on different rails move independently, 
-and we answer it with the same map and cost that also place the base.
+\textcolor{red}{Distributing tasks across multiple arms is a related concern; recent
+planners such as DAG-Plan and RoboPARA build dependency graphs over tasks and
+allocate subtasks to each arm so multiple arms can work in parallel
+\cite{DAGPlan2024,RoboPARA2026}. Their focus is the temporal and logical structure of
+a multi-step task. Ours is different and complementary: for a single reaching action,
+we ask which arm reaches the target for the least energy -- arms sharing a rail share
+one moving base, while arms on different rails move independently -- and answer it
+with the same map and cost that also place the base.}
 
 \section{System}
 
