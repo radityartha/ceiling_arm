@@ -43,28 +43,26 @@ Email: \textsuperscript{1}rochmanto-artha@ed.tmu.ac.jp, \textsuperscript{2}achma
 \begin{abstract}
 % DRAFT -- not yet signed off; follows the "Approach and contributions" (I-¶4) and
 % "Results preview" (I-¶5) paragraphs below.
-The two ceiling-mounted \textcolor{red}{rails} carrying four arms \textcolor{red}{turn} every pick into two coupled decisions:
-which arm should act, and where \textcolor{red}{its base should go}, since repositioning the
-\textcolor{red}{base} is one of the dominant costs of the motion. We propose an energy-aware
-selection cost $J$ that chooses the arm and the full eight-degree-of-freedom (8-DOF)
-configuration together over a base-aware capability map built with Growing Neural
-Gas (GNG). Every map node stores a representative configuration \textcolor{red}{that includes its rail placement}, together with its
-manipulability, so \textcolor{red}{each node already fixes both an arm and a base rather than marking only whether a cell is reachable}. Treating the rail as a
-degree of freedom when building the map, rather than sampling the arm alone, enlarges
-the measured reachable workspace by \textcolor{red}{about four times}, and a boundary-seeding step
-keeps the map accurate to within a few centimetres of the true reach surface. In
-simulation on NVIDIA Isaac Sim, \textcolor{red}{energy-aware
-selection is evaluated} against \textcolor{red}{nearest, fixed, and random baseline} policies for
-arm and base choice, using a rail dynamics model with an assumed Coulomb/viscous
-friction (a modelling assumption, not measured hardware data) so that
-repositioning the rail carries a real energy cost; \textcolor{red}{over a
-60-position grid, the multi-arm policies (energy-aware, nearest, random) each
-reach 93.3\% plan success, versus 63--65\% for any single fixed arm, and
-energy-aware selection reaches the lowest mean measured mechanical energy of the
-three multi-arm policies (5.1\% below nearest, 3.1\% below random), with a
-majority (57--61\%) same-target pairwise win rate against each baseline, though
-the median result is closer -- a real but partial improvement, not a uniform win
-on every metric}.
+\textcolor{red}{The two ceiling-mounted rails carrying four arms turn every pick into two
+coupled decisions -- which arm should act, and where its base should go -- since
+repositioning the base is a dominant cost of the motion. We propose an
+energy-aware selection cost $J$ that chooses the arm and the full
+eight-degree-of-freedom (8-DOF) configuration together over a base-aware
+capability map built with Growing Neural Gas (GNG): every node stores a
+representative configuration, rail placement included, and its manipulability, so
+it already fixes both an arm and a base rather than marking only whether a cell is
+reachable. Treating the rail as a degree of freedom when building the map enlarges
+the measured reachable workspace by about four times, and boundary-seeding keeps
+the map accurate to within a few centimetres of the true reach surface. In
+simulation on NVIDIA Isaac Sim, energy-aware selection is evaluated against
+nearest, fixed, and random baselines under a rail dynamics model with assumed
+Coulomb/viscous friction (a modelling assumption, not measured hardware data) so
+repositioning the rail carries a real energy cost: over a 60-position grid, the
+multi-arm policies each reach 93.3\% plan success versus 63--65\% for any single
+fixed arm, and energy-aware selection attains the lowest mean measured mechanical
+energy of the three (5.1\% below nearest, 3.1\% below random), with a majority
+(57--61\%) same-target pairwise win rate against each baseline -- a real but
+partial improvement, not a uniform win on every metric.}
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -138,23 +136,18 @@ exist in our facility, demonstrating the feasibility of transferring the simulat
 \section{Related Work}
 
 \noindent\textit{Capability maps and base placement.}
-\textcolor{red}{A workspace can be discretized into cells and each cell labelled with
-whether the end effector can reach it. Zacharias et al.\ extended this to a
-capability map that also captures reach orientation, richer than a binary occupancy
-grid \cite{Zacharias2007}, and Reuleaux inverted the reachability map for base
-placement, letting the robot pick a standing position for a target \cite{Makhal2018}.
-MoMa-Pos instead
-optimizes base placement from the kinematics of the objects to manipulate
-\cite{MoMaPos2024}, and BaSeNet plans a sequence of base poses so a robot can pick up
-multiple objects in succession \cite{BaSeNet2024}. This body
-of work is thorough on placing a \emph{single} arm well from a stationary-base map
-that stores one reachability bit per cell, but none of it chooses \emph{among}
-several arms or scores candidate placements by the energy needed to reach them --
-the gap our work fills for a redundant ceiling-rail robot. Our map differs on both
-counts: the ceiling rail is a first-class part of the configuration, so it records
-how base motion extends reach, and every node carries a representative 8-DOF
-configuration (rail placement included) and a manipulability value, not a single
-bit.}
+\textcolor{red}{Zacharias et al.\ extended binary reachability grids to a
+capability map that also captures reach orientation \cite{Zacharias2007}, and
+Reuleaux inverted this to pick a standing position for a target
+\cite{Makhal2018}. MoMa-Pos optimizes base placement from object kinematics
+\cite{MoMaPos2024}, and BaSeNet plans a sequence of base poses for successive
+pick-ups \cite{BaSeNet2024}. This body of work places a \emph{single} arm well
+from a stationary-base map storing one reachability bit per cell, but none
+chooses \emph{among} several arms or scores placements by energy -- the gap our
+work fills. Our map differs on both counts: the ceiling rail is a first-class
+part of the configuration, so it records how base motion extends reach, and
+every node carries a representative 8-DOF configuration and manipulability
+value, not a single bit.}
 
 \noindent\textit{Redundancy resolution and inverse kinematics.}
 \textcolor{red}{A kinematic chain with more joints than the task strictly needs can use
@@ -181,15 +174,15 @@ with the same map and cost that also place the base.}
 
 \begin{figure*}[t]
 \centering
-\begin{minipage}{0.10\textwidth}\centering
+\begin{minipage}{0.085\textwidth}\centering
   \includegraphics[width=\linewidth]{figure/ceilingarm_tll-edit.jpg}\\
   {\footnotesize (a) physical platform}
 \end{minipage}\hfill
-\begin{minipage}{0.19\textwidth}\centering
+\begin{minipage}{0.16\textwidth}\centering
   \includegraphics[width=\linewidth]{figure/Env_Isaac.png}\\
   {\footnotesize (b) Isaac Sim twin}
 \end{minipage}\hfill
-\begin{minipage}{0.60\textwidth}\centering
+\begin{minipage}{0.54\textwidth}\centering
   \resizebox{\linewidth}{!}{%
   \begin{tikzpicture}[>=Stealth, thick, font=\footnotesize,
     box/.style={draw=blue!45!black, fill=blue!72!black, text=white, rounded corners,
@@ -295,14 +288,12 @@ in simulation. Section~V covers which candidate is selected and in what order.}
 
 \section{Base-Aware GNG Capability Map}
 
-\textcolor{red}{Our core idea is a per-arm capability map: for each location the
-end-effector can reach, the map stores a configuration that achieves it and a
-quality measure for that configuration. Unlike a plain reachability map, which only
-encodes whether a location is attainable, ours attaches a concrete configuration and
-a quality value to every reachable location, and it is base-aware because the stored
-configuration includes the rail's degrees of freedom. We build one such map per arm,
-so the four arms across the two rails are described by four independently-queried
-maps (Section~V).}
+\textcolor{red}{Our core idea is a per-arm capability map: for each reachable
+location, the map stores a configuration that achieves it and a quality measure,
+rather than just a reachability bit. It is base-aware because the stored
+configuration includes the rail's degrees of freedom. We build one such map per
+arm, so the four arms across the two rails are described by four
+independently-queried maps (Section~V).}
 
 \subsection{Sampling Reachable Configurations}
 
@@ -310,33 +301,32 @@ maps (Section~V).}
 $\mathbf{q} = [d,\ \theta,\ q_1,\ \ldots,\ q_6]$ uniformly within the joint limits
 and compute the end-effector pose by forward kinematics with Pinocchio
 \cite{Carpentier2019}, recording the manipulability $w = \sqrt{\det(JJ^\top)}$
-\cite{Yoshikawa1985} for each sample. This produces a (pose, $\mathbf{q}$,
-manipulability) dataset covering the combined arm-and-rail workspace; because $d$
-and $\theta$ are sampled alongside the arm joints, the dataset already reflects the
-reach that base motion provides, not just a fixed arm's.}
+\cite{Yoshikawa1985} for each sample. Because $d$ and $\theta$ are sampled
+alongside the arm joints, the resulting (pose, $\mathbf{q}$, manipulability)
+dataset already reflects the reach that base motion provides, not just a fixed
+arm's.}
 
 \subsection{Growing the Map}
 
 \textcolor{red}{We fit a Growing Neural Gas network \cite{Fritzke1995} to this
 dataset. Each node stores $[\mathbf{x} \mid \mathbf{q}]$, concatenating the
 end-effector position $\mathbf{x}$ (the task part) with the configuration
-$\mathbf{q}$ that produces it. The best-matching-unit search uses the task part
-alone, tiling the nodes over the reachable workspace, while adaptation updates the
+$\mathbf{q}$ that produces it: the best-matching-unit search uses the task part
+alone, tiling nodes over the reachable workspace, while adaptation updates the
 whole vector, so each node's $\mathbf{q}$ converges to a representative
 configuration for its cell; edges form between co-activated nodes by competitive
-Hebbian learning, giving the map a topology. Every node is thus both a reachable
-location and a representative 8-DOF configuration (rail placement included) --
-this is the sense in which the map is base-aware. Because $\mathbf{q}$ carries the
-rail translation and rotation, two ways of reaching the same point from different
-base placements settle into different nodes, keeping each configuration a valid
-single posture rather than an average of incompatible base positions. To stay
-faithful at the reachable boundary, where interior-only samples would settle
-inward, we pin a shell of nodes on the measured reach surface before growing the
-interior (Fig.~\ref{fig:gngmap}); Section~VI reports the resulting edge fidelity.}
+Hebbian learning. Every node is thus both a reachable location and a
+representative 8-DOF configuration (rail placement included) -- the sense in
+which the map is base-aware, since $\mathbf{q}$'s rail translation/rotation keeps
+different base placements of the same point in different nodes rather than
+averaged together. To stay faithful at the reachable boundary, where
+interior-only samples would settle inward, we pin a shell of nodes on the
+measured reach surface before growing the interior (Fig.~\ref{fig:gngmap});
+Section~VI reports the resulting edge fidelity.}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\linewidth]{figure/gng_capability.png}
+\includegraphics[width=0.85\linewidth]{figure/gng_capability.png}
 \caption{\textcolor{red}{The base-aware GNG capability map for one arm, rendered in
 RViz.}}
 \label{fig:gngmap}
@@ -346,10 +336,9 @@ RViz.}}
 
 \textcolor{red}{Beyond plain reachability, each node also carries a quality value:
 manipulability $w$ \cite{Yoshikawa1985}, low near the workspace edge and singular
-postures, high where the arm moves freely in any direction -- the layer that
-separates our map from a binary reachability grid \cite{Zacharias2007}. It is
-computed once offline with the same Pinocchio model used for sampling
-\cite{Carpentier2019} and stored on the node, available at query time at no extra
+postures, high where the arm moves freely -- the layer separating our map from a
+binary reachability grid \cite{Zacharias2007}, computed once offline with the same
+Pinocchio model \cite{Carpentier2019} and available at query time at no extra
 cost.}
 
 \section{Energy-Aware Arm and Base Selection}
@@ -518,14 +507,13 @@ selection has the lowest mean measured energy of the three multi-arm policies}
 (45.84~J vs.\ nearest 48.28~J, $-5.1\%$, and random 47.31~J, $-3.1\%$;
 Fig.~\ref{fig:results}) -- a
 reversal from the frictionless model, where energy-mode's mean was
-\emph{highest} (13.19~J vs.\ 12.01/12.87~J). This is a real but partial win: median
-energy (52.34~J) beats nearest (54.79~J) but ties random (51.72~J); a paired,
+\emph{highest} (13.19~J vs.\ 12.01/12.87~J). A real but partial win: median
+energy (52.34~J) beats nearest (54.79~J) but ties random (51.72~J), and a paired
 same-target comparison (56 rows) has energy beating nearest 57.1\% and random
-60.7\% of the time -- a real majority, not a sweep. Energy-mode's arm travel is
-now \emph{higher} than nearest's (8.66 vs.\ 7.94~rad, opposite of frictionless)
+60.7\% of the time -- a real majority, not a sweep. Arm travel is now
+\emph{higher} than nearest's (8.66 vs.\ 7.94~rad, opposite of frictionless)
 because the recalibrated weights de-prioritise arm travel once rail friction
-dominates -- more arm motion to save costlier rail travel, the intended
-friction-aware trade. In a representative case (target
+dominates -- the intended friction-aware trade. In a representative case (target
 $x{=}1.12,y{=}-0.60,z{=}1.15$) energy chose arm\_3 (0.64~m rail travel, 10.23~rad
 arm, 42.37~J) over nearest's arm\_4 (1.15~m rail, 5.71~rad arm, 72.47~J) --
 0.51~m less rail travel for 30.1~J lower energy. Fig.~\ref{fig:selection} shows
@@ -596,21 +584,18 @@ predated the switch to the larger \texttt{11m} detector weights.}
 \textcolor{red}{We presented an energy-aware selection cost $J$ that chooses both
 the arm and the full 8-DOF configuration, rail travel included, on a
 ceiling-mounted dual-gantry quad-arm robot, built on a base-aware GNG capability
-map that treats the rail as a first-class degree of freedom. Sampling and growing
-the map with the rail active, rather than holding it fixed, lets a single
-representation answer both which arm and where the base should be, and
-boundary-seeding keeps the map accurate to within centimetres of the true reach
-surface. In simulation, treating the rail as a DOF gives a $\sim$4$\times$
+map that treats the rail as a first-class degree of freedom, with boundary-seeding
+keeping the map accurate to within centimetres of the true reach surface. In
+simulation, treating the rail as a DOF gives a $\sim$4$\times$
 reachable-workspace gain over an arm-only baseline, and under a rail-friction
 model energy-aware selection reaches the lowest mean measured mechanical energy of
-the three multi-arm policies compared (nearest, random, fixed) -- a real but
+the three multi-arm policies compared -- a real but
 partial win, reported with its median and pairwise caveats (Section~VI-B). The
-full perception-to-execution pipeline, driven by open-vocabulary YOLOE perception
-fused across two overhead cameras, executed 35/35 end-to-end picks and classified
-reachable-vs-unreachable objects at 100\% accuracy from the same capability map.
-All results in this paper come from Isaac Sim; validating the approach on the
-physical ceiling-rail platform, and studying how the sim-to-real gap affects the
-calibrated weights of $J$, is left for future work.}
+full perception-to-execution pipeline executed 35/35 end-to-end picks and
+classified reachable-vs-unreachable objects at 100\% accuracy from the same
+capability map. All results come from Isaac Sim; validating on the physical
+ceiling-rail platform, and studying the sim-to-real gap in the calibrated weights
+of $J$, is left for future work.}
 
 \section*{Acknowledgment}
 \TODO{Funding / acknowledgment text, or delete this section.}
