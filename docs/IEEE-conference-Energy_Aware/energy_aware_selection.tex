@@ -814,8 +814,8 @@ perception to YOLOE (\texttt{yoloe-11m-seg.pt}, conf$=0.25$, both overhead
 RGB-D cameras, the pipeline's default open-vocabulary prompt list) and
 matched every published detection to its nearest ground-truth object over a
 483-frame / 279.5~s window. \textbf{Detection rate was 100\% for all 8
-objects (3864/3864 matched detections), mean localization error 0.019~m
-(range 0.006--0.070~m per object across cameras), and the false-positive
+objects (3864/3864 matched detections), mean localization error 0.023~m
+(per-object range 0.008--0.070~m, worst on the cracker box), and the false-positive
 rate was 0\% (0/3864)} at the default confidence threshold. Every detected
 class label was semantically correct once the underlying object-track had
 settled (e.g.\ the tomato soup can as ``canned food'', the mustard bottle as
