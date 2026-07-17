@@ -633,9 +633,7 @@ reports the reachable volume at two saturated voxel resolutions.
 
 Treating the rail as a degree of freedom expands the reachable workspace by about
 \textcolor{red}{$4\times$ (4.11$\times$ at 0.05~m resolution, robust bracket 4.0--4.6$\times$ over
-saturated resolutions; 4.03$\times$ when both volumes are restricted below the ceiling)}. The locked bounding box measures approximately
-$1.51\times1.52\times1.49$~m; the active bounding box measures approximately
-\textcolor{red}{$4.20\times2.31\times1.49$~m}, reflecting the rail sweeping the $x$-axis.
+saturated resolutions; 4.03$\times$ when both volumes are restricted below the ceiling)}.
 
 \subsubsection{Boundary-Seeding Ablation (E1b)}
 
@@ -834,34 +832,91 @@ affects the calibrated weights of $J$, is left for future work.
 \TODO{Funding / acknowledgment text, or delete this section.}
 
 \begin{thebibliography}{00}
-\bibitem{Zacharias2007} F. Zacharias, C. Borst, and G. Hirzinger, ``Capturing robot workspace structure: representing robot capabilities,'' in \textit{Proc. IEEE/RSJ Int. Conf. Intelligent Robots and Systems (IROS)}, 2007, pp. 3229--3236, doi: 10.1109/IROS.2007.4399105.
-\bibitem{Yoshikawa1985} T. Yoshikawa, ``Manipulability of robotic mechanisms,'' \textit{Int. J. Robotics Research}, vol. 4, no. 2, pp. 3--9, 1985.
-\bibitem{Fritzke1995} B. Fritzke, ``A growing neural gas network learns topologies,'' in \textit{Advances in Neural Information Processing Systems 7 (NIPS)}, MIT Press, 1995, pp. 625--632.
-\bibitem{Makhal2018} A. Makhal and A. K. Goins, ``Reuleaux: robot base placement by reachability analysis,'' in \textit{Proc. IEEE Int. Conf. Robotic Computing (IRC)}, 2018, arXiv:1710.01328.
-\bibitem{MoMaPos2024} B. Shao, N. Cao, Y. Ding, X. Wang, F. Gu, and C. Chen, ``MoMa-Pos: an efficient object-kinematic-aware base placement optimization framework for mobile manipulation,'' arXiv:2403.19940, 2024.
-\bibitem{BaSeNet2024} L. Naik, S. Kalkan, S. L. S{\o}rensen, M. B. Kj{\ae}rgaard, and N. Kr{\"u}ger, ``BaSeNet: a learning-based mobile manipulator base pose sequence planning for pickup tasks,'' in \textit{Proc. IEEE/RSJ Int. Conf. Intelligent Robots and Systems (IROS)}, 2024, arXiv:2406.08653.
-\bibitem{InvReach2022} T. Sandakalum, N. X. Yao, and M. H. Ang, ``Inv-Reach Net: deciding mobile platform placement for a given task,'' in \textit{Proc. IEEE-RAS Int. Conf. Humanoid Robots (Humanoids)}, 2022.
-\bibitem{RM4D2024} M. Rudorfer, ``RM4D: a combined reachability and inverse reachability map for common 6-/7-axis robot arms by dimensionality reduction to 4D,'' arXiv:2410.06968, 2024.
-\bibitem{EnergySLR2024} A. Gupta, ``Energy efficiency in robotics software: a systematic literature review (2020--2024),'' arXiv:2508.12170, 2025.
-\bibitem{Wang2025} A. Wang, L. Liu, H. Chen, Z. Lin, J. Han, and G. Ding, ``YOLOE: real-time seeing anything,'' in \textit{Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV)}, 2025, arXiv:2503.07465.
-\bibitem{IsaacSim2026} S. Gao, M. Pagnucco, T. Bednarz, and Y. Song, ``NVIDIA Isaac Sim: enabling scalable, GPU-accelerated simulation for robotics,'' arXiv:2606.03551, 2026.
-\bibitem{Mittal2023} M. Mittal, C. Yu, Q. Yu, J. Liu, N. Rudin, D. Hoeller, \textit{et al.}, ``Orbit: a unified simulation framework for interactive robot learning environments,'' \textit{IEEE Robotics and Automation Letters}, vol. 8, no. 6, 2023.
-\bibitem{Coleman2014} D. Coleman, I. {\c{S}}ucan, S. Chitta, and N. Correll, ``Reducing the barrier to entry of complex robotic software: a MoveIt! case study,'' arXiv:1404.3785, 2014.
-\bibitem{Sucan2012} I. A. {\c{S}}ucan, M. Moll, and L. E. Kavraki, ``The open motion planning library,'' \textit{IEEE Robotics \& Automation Magazine}, vol. 19, no. 4, pp. 72--82, 2012.
-\bibitem{Carpentier2019} J. Carpentier, G. Saurel, G. Buondonno, J. Mirabel, F. Lamiraux, O. Stasse, and N. Mansard, ``The Pinocchio C++ library: a fast and flexible implementation of rigid body dynamics algorithms and their analytical derivatives,'' in \textit{Proc. IEEE/SICE Int. Symp. System Integration (SII)}, 2019, pp. 614--619, doi: 10.1109/SII.2019.8700380.
-\bibitem{Kinova} Kinova Robotics, ``Gen3 lite robot -- user guide / product specifications,'' [Online]. Available: https://www.kinovarobotics.com
-\bibitem{IKDiffuser2025} Z. Zhang and Z. Jiao, ``IKDiffuser: a diffusion-based generative inverse kinematics solver for kinematic trees,'' arXiv:2506.13087, 2025.
-\bibitem{RoboPARA2025} S. Duan, P. Ren, N. Jiang, Z. Che, J. Tang, Z. Fan, Y. Sun, and W. Wu, ``RoboPARA: dual-arm robot planning with parallel allocation and recomposition across tasks,'' arXiv:2506.06683, 2025.
-\bibitem{DAGPlan2024} Z. Gao, Y. Mu, J. Qu, M. Hu, S. Peng, C. Hou, L. Guo, P. Luo, S. Zhang, and Y. Lu, ``DAG-Plan: generating directed acyclic dependency graphs for dual-arm cooperative planning,'' arXiv:2406.09953, 2024.
-\bibitem{Lisondra2025} M. Lisondra, B. Benhabib, and G. Nejat, ``Embodied AI with foundation models for mobile service robots: a systematic review,'' arXiv:2505.20503, 2025.
-\bibitem{unitednations2024world} United Nations, Department of Economic and Social Affairs, Population Division, ``World Population Prospects 2024: Summary of Results,'' United Nations, New York, NY, USA, 2024.
-\bibitem{who2025clinical} World Health Organization, ``WHO Clinical Consortium on Healthy Ageing 2024: Meeting Report,'' World Health Organization, Geneva, Switzerland, 2025.
-\bibitem{IFR2025} International Federation of Robotics, \textit{World Robotics 2025 -- Service Robots} (Executive Summary), 2025.
-\bibitem{Kaluarachchi2025} Y. P. D. Kaluarachchi, T. D. S. S. Senarathna, A. V. P. Lakshan, \textit{et al.}, ``A novel hybrid robot configuration for enhanced accessibility and space efficiency,'' in \textit{Proceedings in Technology Transfer}, Springer, 2025, doi: 10.1007/978-981-96-1399-1\_22.
-\bibitem{kemp2007challenges} C. C. Kemp, A. Edsinger, and E. Torres-Jara, \textcolor{red}{``Challenges for robot manipulation in human environments [Grand Challenges of Robotics],''} \textit{IEEE Robotics \& Automation Magazine}, vol. 14, no. 1, \textcolor{red}{pp. 20--29}, 2007, \textcolor{red}{doi: 10.1109/MRA.2007.339604}.
-\bibitem{sisbot2007human} E. A. Sisbot, L. F. Marin-Urias, R. Alami, and T. Sim{\'e}on, ``A human-aware mobile robot motion planner,'' \textit{IEEE Transactions on Robotics}, vol. 23, no. 5, pp. 874--883, 2007, doi: 10.1109/TRO.2007.904911.
-\bibitem{Lalonde2024} I. Lalonde, J. Denis, M. Lamy, and A. Girard, ``A dual-motor actuator for ceiling robots with high force and high speed capabilities,'' arXiv:2405.05162, 2024.
-\bibitem{Kubota2022} N. Kubota, ``Multiscopic topological twin in trailer living laboratory: Plenary talk,'' in \textit{Proc. IEEE 22nd Int. Symp. Computational Intelligence and Informatics and 8th IEEE Int. Conf. Recent Achievements in Mechatronics, Automation, Computer Science and Robotics (CINTI-MACRo)}, 2022, pp. 11--12.
+
+\bibitem{Zacharias2007} 
+F. Zacharias, C. Borst, and G. Hirzinger, ``Capturing robot workspace structure: representing robot capabilities,'' in \textit{Proc. IEEE/RSJ Int. Conf. Intelligent Robots and Systems (IROS)}, 2007, pp. 3229--3236, doi: 10.1109/IROS.2007.4399105.
+
+\bibitem{Yoshikawa1985} 
+T. Yoshikawa, ``Manipulability of robotic mechanisms,'' \textit{Int. J. Robotics Research}, vol. 4, no. 2, pp. 3--9, 1985.
+
+\bibitem{Fritzke1995} 
+B. Fritzke, ``A growing neural gas network learns topologies,'' in \textit{Advances in Neural Information Processing Systems 7 (NIPS)}, MIT Press, 1995, pp. 625--632.
+
+\bibitem{Makhal2018} 
+A. Makhal and A. K. Goins, ``Reuleaux: robot base placement by reachability analysis,'' in \textit{Proc. IEEE Int. Conf. Robotic Computing (IRC)}, 2018, pp. 137--142, doi: 10.1109/IRC.2018.00028.
+
+\bibitem{MoMaPos2024} 
+B. Shao, N. Cao, Y. Ding, X. Wang, F. Gu, and C. Chen, ``MoMa-Pos: an efficient object-kinematic-aware base placement optimization framework for mobile manipulation,'' arXiv:2403.19940, 2024.
+
+\bibitem{BaSeNet2024} 
+L. Naik, S. Kalkan, S. L. S{\o}rensen, M. B. Kj{\ae}rgaard, and N. Kr{\"u}ger, ``BaSeNet: a learning-based mobile manipulator base pose sequence planning for pickup tasks,'' in \textit{Proc. IEEE/RSJ Int. Conf. Intelligent Robots and Systems (IROS)}, 2024, pp. 3666--3673, doi: 10.1109/IROS58592.2024.10802615.
+
+\bibitem{InvReach2022} 
+T. Sandakalum, N. X. Yao, and M. H. Ang, ``Inv-Reach Net: deciding mobile platform placement for a given task,'' in \textit{Proc. IEEE-RAS Int. Conf. Humanoid Robots (Humanoids)}, 2022, pp. 127--133, doi: 10.1109/Humanoids53995.2022.10000186.
+
+\bibitem{RM4D2024} 
+M. Rudorfer, ``RM4D: a combined reachability and inverse reachability map for common 6-/7-axis robot arms by dimensionality reduction to 4D,'' arXiv:2410.06968, 2024.
+
+\bibitem{EnergySLR2024} 
+A. Gupta, ``Energy efficiency in robotics software: a systematic literature review (2020--2024),'' arXiv:2508.12170, 2025.
+
+\bibitem{Wang2025} 
+A. Wang, L. Liu, H. Chen, Z. Lin, J. Han, and G. Ding, ``YOLOE: real-time seeing anything,'' in \textit{Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV)}, 2025, pp. 24591--24602, doi: 10.1109/ICCV51701.2025.02280.
+
+\bibitem{IsaacSim2026} 
+S. Gao, M. Pagnucco, T. Bednarz, and Y. Song, ``NVIDIA Isaac Sim: enabling scalable, GPU-accelerated simulation for robotics,'' arXiv:2606.03551, 2026.
+
+\bibitem{Mittal2023} 
+M. Mittal, C. Yu, Q. Yu, J. Liu, N. Rudin, D. Hoeller, \textit{et al.}, ``Orbit: a unified simulation framework for interactive robot learning environments,'' \textit{IEEE Robotics and Automation Letters}, vol. 8, no. 6, pp. 3740--3747, June 2023, doi: 10.1109/LRA.2023.3270034.
+
+\bibitem{Coleman2014} 
+D. Coleman, I. A. {\c{S}}ucan, S. Chitta, and N. Correll, ``Reducing the barrier to entry of complex robotic software: a MoveIt! case study,'' \textit{Journal of Software Engineering for Robotics}, vol. 5, no. 1, pp. 3--16, May 2014, doi: 10.6092/JOSER\_2014\_05\_01\_p3.
+
+\bibitem{Sucan2012} 
+I. A. {\c{S}}ucan, M. Moll, and L. E. Kavraki, ``The Open Motion Planning Library,'' \textit{IEEE Robotics \& Automation Magazine}, vol. 19, no. 4, pp. 72--82, Dec. 2012, doi: 10.1109/MRA.2012.2205651.
+
+\bibitem{Carpentier2019} 
+J. Carpentier, G. Saurel, G. Buondonno, J. Mirabel, F. Lamiraux, O. Stasse, and N. Mansard, ``The Pinocchio C++ library: a fast and flexible implementation of rigid body dynamics algorithms and their analytical derivatives,'' in \textit{Proc. IEEE/SICE Int. Symp. System Integration (SII)}, 2019, pp. 614--619, doi: 10.1109/SII.2019.8700380.
+
+\bibitem{Kinova} 
+Kinova Robotics, ``Gen3 lite robot -- user guide / product specifications,'' [Online]. Available: https://www.kinovarobotics.com
+
+\bibitem{IKDiffuser2025} 
+Z. Zhang and Z. Jiao, ``IKDiffuser: a diffusion-based generative inverse kinematics solver for kinematic trees,'' arXiv:2506.13087, 2025.
+
+\bibitem{RoboPARA2026} 
+S. Duan, P. Ren, N. Jiang, Z. Che, J. Tang, Z. Fan, Y. Sun, and W. Wu, ``RoboPARA: Dual-Arm Robot Planning with Parallel Allocation and Recomposition Across Tasks,'' in \textit{Proc. Int. Conf. Learning Representations (ICLR)}, 2026. [Online]. Available: https://openreview.net/forum?id=b9GH5mMBfG
+
+\bibitem{DAGPlan2024} 
+Z. Gao, Y. Mu, J. Qu, M. Hu, S. Peng, C. Hou, L. Guo, P. Luo, S. Zhang, and Y. Lu, ``DAG-Plan: generating directed acyclic dependency graphs for dual-arm cooperative planning,'' arXiv:2406.09953, 2024.
+
+\bibitem{Lisondra2026} 
+M. Lisondra, B. Benhabib, and G. Nejat, ``Embodied AI with foundation models for mobile service robots: a systematic review,'' \textit{Robotics}, vol. 15, no. 3, p. 55, Mar. 2026, doi: 10.3390/robotics15030055.
+
+\bibitem{unitednations2024world} 
+United Nations, Department of Economic and Social Affairs, Population Division, ``World Population Prospects 2024: Summary of Results,'' United Nations, New York, NY, USA, 2024.
+
+\bibitem{who2025clinical} 
+World Health Organization, ``WHO Clinical Consortium on Healthy Ageing 2024: Meeting Report,'' World Health Organization, Geneva, Switzerland, 2025.
+
+\bibitem{IFR2025} 
+International Federation of Robotics, \textit{World Robotics 2025 -- Service Robots} (Executive Summary), 2025.
+
+\bibitem{Kaluarachchi2025} 
+Y. P. D. Kaluarachchi, T. D. S. S. Senarathna, A. V. P. Lakshan, H. A. G. C. Premachandra, Y. W. R. Amarasinghe, and W. A. D. M. Jayathilaka, ``A Novel Hybrid Robot Configuration for Enhanced Accessibility and Space Efficiency,'' in \textit{Selected Proceedings of the 2nd International Engineering Research Symposium (IERS 2024)}, Springer, 2025, doi: 10.1007/978-981-96-1399-1\_22.
+
+\bibitem{kemp2007challenges} 
+C. C. Kemp, A. Edsinger, and E. Torres-Jara, ``Challenges for robot manipulation in human environments [Grand Challenges of Robotics],'' \textit{IEEE Robotics \& Automation Magazine}, vol. 14, no. 1, pp. 20--29, 2007, doi: 10.1109/MRA.2007.339604.
+
+\bibitem{sisbot2007human} 
+E. A. Sisbot, L. F. Marin-Urias, R. Alami, and T. Sim{\'e}on, ``A human-aware mobile robot motion planner,'' \textit{IEEE Transactions on Robotics}, vol. 23, no. 5, pp. 874--883, 2007, doi: 10.1109/TRO.2007.904911.
+
+\bibitem{Lalonde2025} 
+I. Lalonde, J. Denis, M. Lamy, and A. Girard, ``A Dual-Motor Actuator for Ceiling Lift with High-Force and High-Speed Capabilities,'' \textit{Actuators}, vol. 14, no. 2, p. 92, Feb. 2025, doi: 10.3390/act14020092.
+
+\bibitem{Kubota2022} 
+N. Kubota, ``Multiscopic Topological Twin in Trailer Living Laboratory: Plenary Talk,'' in \textit{Proc. IEEE 22nd Int. Symp. Computational Intelligence and Informatics and 8th IEEE Int. Conf. Recent Achievements in Mechatronics, Automation, Computer Science and Robotics (CINTI-MACRo)}, 2022, pp. 11--12, doi: 10.1109/CINTI-MACRo57952.2022.10029665.
+
 \end{thebibliography}
 
 \end{document}
