@@ -322,29 +322,12 @@ description that defines the physical platform, so the kinematics and joint limi
 used in simulation match the real hardware. The scene places a set of everyday
 tabletop objects within the workspace, some within easy reach of several arms and at
 least one deliberately positioned near the edge of the reachable workspace
-(Fig.~\ref{fig:scene}). The scene is observed by two RGB-D cameras placed above the
+(Fig.~\ref{fig:perception}). The scene is observed by two RGB-D cameras placed above the
 workspace, which are the system's only exteroceptive sensor. Their images serve two
 roles at once. The color stream feeds the object detector, and the depth stream builds
 the collision octomap used for planning, so a single sensing rig supports both
 perception and collision avoidance. We treat the simulator as the evaluation platform
 for this work and validate on the physical robot in future work.
-
-\begin{figure}[htbp]
-\centering
-\begin{minipage}{0.49\linewidth}\centering
-  \includegraphics[width=\linewidth]{figure/RGBD_cam.png}\\
-  {\footnotesize (a) camera~1}
-\end{minipage}\hfill
-\begin{minipage}{0.49\linewidth}\centering
-  \includegraphics[width=\linewidth]{figure/RGBD2_cam.png}\\
-  {\footnotesize (b) camera~2}
-\end{minipage}
-\caption{\textcolor{red}{The simulated workspace in NVIDIA Isaac Sim as seen by the two
-overhead RGB-D cameras placed at the two ends of the corridor the rails run along:
-(a) camera~1 and (b) camera~2. The tabletop objects used in the experiments are visible;
-at least one object sits near the edge of the reachable workspace.}}
-\label{fig:scene}
-\end{figure}
 
 \subsection{Perception Front End}
 
@@ -377,13 +360,16 @@ which the capability map and the energy cost are subsequently based.
   \includegraphics[width=\linewidth]{figure/perception_rgbd2_20260717_163458.png}\\
   {\footnotesize (b) camera~2}
 \end{minipage}
-\caption{\textcolor{red}{Open-vocabulary perception from the two overhead cameras.
-YOLOE detects and segments each object from a text prompt (coloured masks with
-class label and confidence). For every mask, the aligned depth is back-projected
-and its median taken as a world-frame centroid (yellow cross-hair). Detections
-from the two viewpoints (a)~camera~1 and (b)~camera~2 are fused by centroid
-proximity and majority label voting, giving one localised position per named
-object with no fixed object database.}}
+\caption{\textcolor{red}{The simulated workspace in NVIDIA Isaac Sim and the
+open-vocabulary perception, seen by the two overhead RGB-D cameras placed at the
+two ends of the corridor the rails run along: (a)~camera~1 and (b)~camera~2. The
+tabletop objects used in the experiments are visible, at least one near the edge of
+the reachable workspace. YOLOE detects and segments each object from a text prompt
+(coloured masks with class label and confidence); for every mask the aligned depth
+is back-projected and its median taken as a world-frame centroid (yellow
+cross-hair). Detections from the two viewpoints are fused by centroid proximity and
+majority label voting, giving one localised position per named object with no fixed
+object database.}}
 \label{fig:perception}
 \end{figure}
 
