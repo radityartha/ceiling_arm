@@ -220,17 +220,9 @@ with the same map and cost that also place the base.}
   \end{tikzpicture}}\\
   {\footnotesize (c) end-to-end pipeline}
 \end{minipage}
-\caption{\textcolor{red}{Overview of the dual-gantry quad-arm ceiling robot and the
-proposed pipeline. (a) The physical ceiling-mounted platform in our trailer living
-laboratory -- the hardware that motivates this work; \emph{all experiments in this
-paper are in simulation}, hardware validation is future work (Section~VII). (b) The
-same platform modeled as its Isaac Sim digital twin: two rails mounted to the
-ceiling, each carrying two Kinova Gen3 Lite arms and each adding a prismatic axis
-($d$) and a revolute axis ($\theta$) that its two arms share, so each arm forms an
-8-DOF chain $\mathbf{q}=[d,\theta,q_1 \ldots q_6]$; two overhead RGB-D cameras
-observe the workspace. (c) The end-to-end pipeline, from open-vocabulary
-perception, through energy-aware arm-and-base selection over the base-aware
-capability map, to collision-free planning and execution.}}
+\caption{\textcolor{red}{Overview of the robot and pipeline. (a) Physical platform
+in our trailer living laboratory (\emph{all experiments in this paper are in
+simulation}). (b) Isaac Sim digital twin. (c) End-to-end pipeline.}}
 \label{fig:overview}
 \end{figure*}
 
@@ -297,10 +289,7 @@ which the capability map and the energy cost are subsequently based.
   \includegraphics[width=\linewidth]{figure/perception_rgbd2_20260717_163458.png}\\
   {\footnotesize (b) camera~2}
 \end{minipage}
-\caption{The simulated workspace in NVIDIA Isaac Sim and the 
-open-vocabulary perception, 
-as viewed by the two overhead RGB-D cameras placed at diagonally opposite ends of 
-the corridor along which the rails run: (a)~camera~1 and (b)~camera~2.}
+\caption{Open-vocabulary perception, viewed from (a) camera~1 and (b) camera~2.}
 \label{fig:perception}
 \end{figure}
 
@@ -365,10 +354,7 @@ interior (Fig.~\ref{fig:gngmap}); Section~VI reports the resulting edge fidelity
 \centering
 \includegraphics[width=\linewidth]{figure/gng_capability.png}
 \caption{\textcolor{red}{The base-aware GNG capability map for one arm, rendered in
-RViz: the node cloud (colored by a per-node manipulability value) and the pinned
-boundary shell -- the outer wireframe hull -- reaching the true rail-extended reach
-surface. The elongated extent is the rail sweeping the $x$-axis; the two arms appear
-at left.}}
+RViz.}}
 \label{fig:gngmap}
 \end{figure}
 
@@ -416,10 +402,7 @@ normalized terms over a calibration set of picks, rather than set by hand
 lists the calibrated weights and references.
 
 \begin{table}[htbp]
-\caption{\textcolor{red}{Calibrated weights and normalization references for the
-energy cost $J$, fit by OLS regression against measured mechanical energy under
-the rail friction model (Section~VI-B). Each reference $\rho$ is the median raw
-value of its term over the 168-pick calibration set.}}
+\caption{\textcolor{red}{Calibrated weights and normalization references for $J$.}}
 \begin{center}
 \footnotesize
 \begin{tabular}{|l|c|r|r|}
@@ -479,10 +462,8 @@ paper sets out to make.
 \begin{figure}[htbp]
 \centering
 \includegraphics[height=3.3cm,keepaspectratio]{figure/fig5-pick_banana.png}
-\caption{\textcolor{red}{The pipeline executing an energy-aware pick in Isaac Sim:
-\texttt{arm\_2}'s gripper approaches the banana while the other arms hold their
-pose. A concrete logged example of $J$ favoring a farther-but-cheaper arm over the
-nearest one is given in Section~VI-B.}}
+\caption{\textcolor{red}{The pipeline executing an energy-aware pick in Isaac Sim
+(\texttt{arm\_2} approaching the banana).}}
 \label{fig:selection}
 \end{figure}
 
@@ -498,9 +479,7 @@ with \texttt{build\_maps.sh} (80{,}000 FK samples, \textcolor{red}{2915 nodes af
 nodes, $\lambda=60$, 2 training epochs).
 
 \begin{table}[htbp]
-\caption{\textcolor{red}{GNG capability map properties for all four arms (rail 2.0~m
-+ ceiling filter). arm\_1/arm\_3 and arm\_2/arm\_4 are near-identical because gantry\_2
-is a $y$-mirror of gantry\_1.}}
+\caption{\textcolor{red}{GNG capability map properties, all four arms.}}
 \begin{center}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|}
@@ -575,8 +554,7 @@ alone the Section~I premise that repositioning the base is the dominant cost.
 Table~\ref{tab:e3} reports the rerun under this model.}
 
 \begin{table}[htbp]
-\caption{\textcolor{red}{E3: selection-policy comparison under the rail-friction
-model, 60 target poses, plan-only (mean / median over successful picks).}}
+\caption{\textcolor{red}{E3: selection-policy comparison under the rail-friction model.}}
 \begin{center}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|}
@@ -624,10 +602,7 @@ this trade-off executing end to end.}
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.85\linewidth]{figure/results_energy_only.pdf}
-\caption{\textcolor{red}{Distribution of measured trajectory energy per multi-arm
-selection policy under the rail-friction model ($\diamond$~=~mean); energy-aware
-selection attains the lowest mean, though the distributions overlap heavily -- a
-real but partial improvement.}}
+\caption{\textcolor{red}{Measured trajectory energy per selection policy ($\diamond$~=~mean).}}
 \label{fig:results}
 \end{figure}
 
