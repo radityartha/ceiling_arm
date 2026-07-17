@@ -15,6 +15,8 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc,arrows.meta}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
@@ -253,24 +255,44 @@ and we answer it with the same map and cost that also place the base.
 
 \section{System}
 
-\begin{figure}[htbp]
+\begin{figure*}[t]
 \centering
-\begin{minipage}{0.52\linewidth}\centering
+\begin{minipage}{0.34\textwidth}\centering
   \includegraphics[width=\linewidth]{figure/Env_Isaac.png}\\
   {\footnotesize (a) system and workspace}
 \end{minipage}\hfill
-\begin{minipage}{0.45\linewidth}\centering
-  \FIGPLACEHOLDER{3.0cm}{(b) pipeline diagram: perception $\to$ energy-aware selection $\to$ planning/execution}
+\begin{minipage}{0.63\textwidth}\centering
+  \resizebox{\linewidth}{!}{%
+  \begin{tikzpicture}[>=Stealth, thick, font=\footnotesize,
+    box/.style={draw=blue!45!black, fill=blue!72!black, text=white, rounded corners,
+                align=center, minimum height=9mm, text width=15mm, inner sep=2pt},
+    arr/.style={-{Stealth[length=2mm]}, line width=0.9pt, draw=gray!55!black}]
+    \node[box] (cam) {2 RGB-D\\cameras};
+    \node[box, below=3mm of cam] (query) {Text\\query};
+    \coordinate (m) at ($(cam.east)!0.5!(query.east)$);
+    \node[box, right=10mm of m, anchor=west] (yolo) {YOLOE};
+    \node[box, right=9mm of yolo] (sel) {Energy-\\Aware\\Selection};
+    \node[box, below=8mm of sel] (gng) {Base-Aware\\GNG\\Capability Map};
+    \node[box, right=9mm of sel] (arm) {Selected\\arm\,+\,base};
+    \node[box, right=9mm of arm] (mv) {MoveIt~2};
+    \draw[arr] (cam.east)   -- ([yshift=2mm]yolo.west);
+    \draw[arr] (query.east) -- ([yshift=-2mm]yolo.west);
+    \draw[arr] (yolo) -- node[above, font=\scriptsize, text=black] {pose} (sel);
+    \draw[arr] (gng)  -- (sel);
+    \draw[arr] (sel)  -- (arm);
+    \draw[arr] (arm)  -- (mv);
+  \end{tikzpicture}}\\
+  {\footnotesize (b) end-to-end pipeline}
 \end{minipage}
 \caption{Overview of the \textcolor{red}{dual-gantry quad-arm ceiling} robot and the proposed pipeline.
-Left: \textcolor{red}{two rails mounted to the ceiling, each carrying two Kinova Gen3 Lite arms and each adding a
+(a) \textcolor{red}{Two rails mounted to the ceiling, each carrying two Kinova Gen3 Lite arms and each adding a
 prismatic axis ($d$) and a revolute axis ($\theta$) that its two arms share}, so each
 arm forms an 8-DOF chain $\mathbf{q}=[d,\theta,q_1 \ldots q_6]$;
-two overhead RGB-D cameras observe the workspace. Right: the end-to-end pipeline,
+two overhead RGB-D cameras observe the workspace. (b) The end-to-end pipeline,
 from open-vocabulary perception, through energy-aware arm-and-base selection over
 the base-aware capability map, to collision-free planning and execution.}
 \label{fig:overview}
-\end{figure}
+\end{figure*}
 
 \subsection{Robot Platform and Kinematic Model}
 
@@ -755,8 +777,38 @@ a larger arm excursion to avoid 0.51~m of friction-costly rail travel, for a
 Fig.~\ref{fig:selection}.}
 
 \subsection{End-to-End Pick (E6)}
-\TODO{Pending. Full perception-to-execution pick success rate and failure-mode
-breakdown in Isaac Sim (see docs/experiment\_plan.md, Section E6).}
+\textcolor{red}{We validated the full perception-to-execution pipeline (Isaac
+ground-truth segmentation $\rightarrow$ object localization $\rightarrow$
+energy-aware arm/base selection $\rightarrow$ IK $\rightarrow$ planning
+$\rightarrow$ real Isaac-physics execution, \texttt{execute:=true}) on the
+7 of 8 scene objects that are reachable-by-design (cracker\_box, scissors,
+mustard\_bottle, teddy\_bear, banana, mug, bowl; the 8th, a tomato\_soup\_can,
+is the unreachable-by-design object planned as the negative example for the
+reachable-vs-unreachable classification study, E5, below). Object poses in
+this scene are fixed at asset-import
+time, so we ran 7 objects $\times$ 5 trials $=$ 35 picks in round-robin order
+(rather than the originally planned 20-position grid, which would have
+required a full simulator relaunch per position) as a pipeline-integration
+demo, not a positional-sensitivity study -- that role is filled by the E3
+grid sweep. \textbf{Result: 35/35 (100\%) pick success, 0 failures in every
+requested category} (no-detection: 0, IK $-31$/unreachable: 0, no
+collision-free plan: 0, unrecovered execution-abort: 0). Mean time-to-pick
+(detection $\to$ selection $\to$ plan $\to$ executed \& settled) was 39.6~s
+(median 28.1~s) across all objects, ranging from 10.5--184.4~s; scissors had
+the widest spread (mean 110.4~s) because 3/5 of its trials hit a transient
+mid-execution settle mismatch on the first-choice candidate that the
+executor's own per-candidate retry loop silently recovered by falling
+through to the next arm -- a real robustness behaviour worth reporting, but
+not a terminal failure. Energy-mode distributed the 35 picks arm\_2:10,
+arm\_3:13, arm\_4:12, arm\_1:0; the zero count for arm\_1 is a property of
+this particular fixed object layout (nothing sits closer to gantry\_1's left
+mount than to its neighbours), not of the selection algorithm, which does
+select arm\_1 in 12/60 targets of the broader E3 grid sweep. Full per-object
+table and the raw CSVs are in \texttt{docs/experiment\_results.md} (E6) and
+\texttt{docs/e6\_data\_2026-07-17/}. Perception used Isaac ground-truth
+segmentation, not YOLOE: YOLOE was found unreliable on this simulator's
+synthetic imagery in earlier sessions, so YOLOE hardware/detector-realism
+validation is left as future work (see Limitations, below).}
 
 \subsection{Perception Accuracy (E4, E5)}
 \TODO{Pending. YOLOE detection/localization error against simulator ground truth
