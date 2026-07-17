@@ -28,41 +28,22 @@
 
 \begin{document}
 
-\title{Energy-Aware Arm and Base Selection for a Dual-Gantry Quad-Arm Ceiling Robot Using a GNG Capability Map}
+\title{Energy-Aware Arm and Base Selection for a Dual-Gantry Quad-Arm Ceiling Robot Using a GNG Capability Map\\}
 
 \author{
-\IEEEauthorblockN{1\textsuperscript{st} Raditya Artha Rochmanto\textsuperscript{1,2}}
-\IEEEauthorblockA{\textsuperscript{1}\textit{Department of Mechanical Systems Engineering, Graduate School of Systems Design} \\
+\IEEEauthorblockN{Raditya Artha Rochmanto\textsuperscript{1,7}, Achmad Fahrul Aji\textsuperscript{2,7}, Anhar Risnumawan\textsuperscript{3,8}, Teuku Zikri \textsuperscript{4},}  
+\IEEEauthorblockN{Alfin Junaedy \textsuperscript{5}, Naoyuki Kubota\textsuperscript{6}}
+\IEEEauthorblockA{\textsuperscript{1,2,3,4,5,6}\textit{Department of Mechanical Systems Engineering, Graduate School of Systems Design} \\
 \textit{Tokyo Metropolitan University}\\
-6-6 Asahigaoka, Hino, Tokyo 191-0065, Japan \\
-rochmanto-artha@ed.tmu.ac.jp}
-\IEEEauthorblockA{\textsuperscript{2}\textit{Department of Electrical Engineering} \\
+Tokyo, Japan \\
+\IEEEauthorblockA{\textsuperscript{7}\textit{Department of Electrical Engineering} \\
 \textit{Politeknik Negeri Semarang}\\
-Indonesia}
-\and
-\IEEEauthorblockN{2\textsuperscript{nd} Anhar Risnumawan\textsuperscript{1,2}}
-\IEEEauthorblockA{\textsuperscript{1}\textit{Department of Mechanical Systems Engineering, Graduate School of Systems Design} \\
-\textit{Tokyo Metropolitan University}\\
-6-6 Asahigaoka, Hino, Tokyo 191-0065, Japan \\
-risnumawan-anhar@ed.tmu.ac.jp}
-\IEEEauthorblockA{\textsuperscript{2}\textit{Mechatronics Engineering Division} \\
+Semarang, Indonesia}
+\IEEEauthorblockA{\textsuperscript{8}\textit{Mechatronics Engineering Division} \\
 \textit{Politeknik Elektronika Negeri Surabaya}\\
-Indonesia}
-\and
-\IEEEauthorblockN{3\textsuperscript{rd} Achmad Fahrul Aji\textsuperscript{1,2}}
-\IEEEauthorblockA{\textsuperscript{1}\textit{Department of Mechanical Systems Engineering, Graduate School of Systems Design} \\
-\textit{Tokyo Metropolitan University}\\
-6-6 Asahigaoka, Hino, Tokyo 191-0065, Japan \\
-achmad-aji@ed.tmu.ac.jp}
-\IEEEauthorblockA{\textsuperscript{2}\textit{Department of Electrical Engineering} \\
-\textit{Politeknik Negeri Semarang}\\
-Indonesia}
-\and
-\IEEEauthorblockN{4\textsuperscript{th} Naoyuki Kubota}
-\IEEEauthorblockA{\textit{Department of Mechanical Systems Engineering, Graduate School of Systems Design} \\
-\textit{Tokyo Metropolitan University}\\
-6-6 Asahigaoka, Hino, Tokyo 191-0065, Japan \\
-kubota@tmu.ac.jp}
+Surabaya, Indonesia}
+Email: \textsuperscript{1}rochmanto-artha@ed.tmu.ac.jp, \textsuperscript{2}achmad-aji@ed.tmu.ac.jp, \textsuperscript{3}risnumawan-anhar@ed.tmu.ac.jp,\\
+ \textsuperscript{4}teuku-fatahillah@ed.tmu.ac.jp, \textsuperscript{5}alfin@tmu.ac.jp, \textsuperscript{6}kubota@tmu.ac.jp}
 }
 
 \maketitle
@@ -101,75 +82,66 @@ base placement, energy-aware planning
 
 \section{Introduction}
 
-\textcolor{red}{An aging global population is driving demand for assistive robots that
+An aging global population is driving demand for assistive robots that
 can operate inside the home \cite{unitednations2024world,who2025clinical}, taking on
 tasks such as retrieving objects, tidying, and delivering items to occupants
-\cite{IFR2025,Lisondra2026}. Residential deployment is harder than factory or outdoor
-use \cite{kemp2007challenges}: homes are small and cluttered, and a floor-traversing
-mobile manipulator shares that space with residents, who must stay alert to avoid it
+\cite{IFR2025,Lisondra2026}. Residential deployment is more challenging than factory or outdoor
+use \cite{kemp2007challenges}, because homes are small and cluttered. A mobile manipulator 
+shares that space with residents, who must stay alert to avoid it
 \cite{sisbot2007human}. Lifting the robot off the floor entirely \cite{Lalonde2025}
-removes this conflict -- a ceiling-mounted arm keeps the floor free while still
+removes this conflict. A ceiling-mounted arm keeps the floor unobstructed while still
 serving as an in-home assistant from above \cite{Kaluarachchi2025}. We study such a
-ceiling robot: a dual-gantry system in which each gantry carries two 6-DOF arms,
-forming a quad-arm cooperative overhead manipulator.}
+ceiling robot with a dual-gantry system in which each gantry carries two 6-DOF arms,
+forming a quad-arm cooperative overhead manipulator.
 
-\textcolor{red}{Each gantry moves both linearly and rotationally, giving each arm 8~DOF
+Each gantry moves both linearly and rotationally, giving each arm 8~DOF
 in total. Most objects are reachable by several arms from a range of base positions,
 so the robot faces two coupled questions: which arm should act, and where should its
-base be positioned first? Both are costly -- repositioning the heavy base costs time
-and energy \cite{MoMaPos2024,BaSeNet2024,EnergySLR2024} -- and naive policies (nearest
+base be positioned first? Both are costly because repositioning the heavy base costs time
+and energy \cite{MoMaPos2024,BaSeNet2024,EnergySLR2024} and naive policies (nearest
 arm, or leaving the base where it is) can waste base travel. We address the problem
-of selecting the arm and base placement that minimizes energy.}
+of selecting the arm and base placement that minimizes energy.
 
-\textcolor{red}{Reachability and capability maps are the standard tool for depicting an
+Reachability and capability maps are the standard tool for depicting an
 arm's reachable regions and mobility, and for placing a robot optimally
 \cite{Zacharias2007,Makhal2018}, but two assumptions limit them here. Most are built
-for a fixed base, so they miss the reachable space a mobile base opens up; and they
+for a fixed base, so they miss the reachable space a mobile base opens up. Also, they
 typically record only whether a cell is reachable, not the cost of reaching it or an
 IK-ready configuration \cite{Zacharias2007}. Recent work improves operator awareness
 of obstacles and nearby objects \cite{MoMaPos2024,InvReach2022}, and
 redundancy-resolution methods optimize a single arm's posture for manipulability
 \cite{Yoshikawa1985}, but neither selects between multiple arms nor accounts for the
 base's own cost. What is missing is a representation that answers, directly, which
-arm and which base placement minimize energy on a ceiling-rail robot.}
+arm and which base placement minimize energy on a ceiling-rail robot.
 
-\textcolor{red}{We address this with an energy cost $J$ that operates on a base-aware
-capability map built with Growing Neural Gas (GNG) \cite{Fritzke1995}: each node
+We address this with an energy cost $J$ that operates on a base-aware
+capability map built with Growing Neural Gas (GNG) \cite{Fritzke1995}. Each node in this GNG map
 stores a representative 8-DOF configuration and its manipulability
-\cite{Yoshikawa1985}, so a node is a full configuration -- rail placement included --
-not just a reachable point. This paper makes three contributions. First, the
-energy-aware selection cost $J$, which chooses the arm and the full 8-DOF
-configuration (rail travel included) rather than settling for the nearest reachable
-pose. Second, the base-aware GNG capability map itself, which treats the ceiling rail
-as a genuine DOF and attaches a representative configuration and manipulability value
-to every node, with boundary-seeding preserving accuracy at the workspace edge.
-Third, an evaluation in Isaac Sim that characterizes the map, measures how much the
-rail DOF expands the reachable workspace, and compares energy-aware selection against
-nearest, fixed, and random baselines. Open-vocabulary perception with YOLOE supplies
-the target objects the selection pipeline acts on \cite{Wang2025}.}
+\cite{Yoshikawa1985}, so a node is a full configuration of base and arm
+not just a reachable point. This paper makes three primary contributions:
+\begin{itemize}
+    \item \textbf{An energy-aware selection cost $J$} that optimizes the choice of arm and the complete 8-DOF configuration (including rail travel), rather than relying on the nearest reachable pose.
+    \item \textbf{A base-aware GNG capability map} that treats the ceiling rail as an active DOF and associates a representative configuration and manipulability value with every node, using a boundary-seeding technique to preserve accuracy at the workspace edge.
+    \item \textbf{A comprehensive evaluation in Isaac Sim} that characterizes the map, quantifies the workspace expansion enabled by the rail DOF, and compares our energy-aware selection policy against nearest, fixed, and random baselines.
+\end{itemize}
+Additionally, an open-vocabulary perception pipeline utilizing YOLOE provides the target objects for the selection framework \cite{Wang2025}.
 
-\textcolor{red}{Our simulation results support each claim. Treating the rail as a DOF
-expands the reachable workspace roughly $4\times$ over an arm-only baseline, and
-boundary-seeding recovers the true reach at the workspace edge to within about one
-centimeter of the forward-kinematics surface. Energy-aware selection, alongside the
-other multi-arm baselines, raises plan success from 63--65\% (any single fixed arm)
-to 93.3\%; under a rail-dynamics model with assumed Coulomb/viscous friction (a
-modelling assumption, not measured hardware data, so rail travel carries a real
-energy cost), it also attains the lowest mean measured mechanical energy of the
-three multi-arm policies (45.84~J mean vs.\ 48.28~J nearest, $-5.1\%$, and 47.31~J
-random, $-3.1\%$; a majority same-target pairwise win rate of 57--61\% against each
-baseline, though the median result is closer to random's -- see Section~VI-C for the
-full, honestly-reported comparison). We ground these results by modeling NVIDIA
-Isaac Sim \cite{IsaacSim2026} as a high-fidelity digital twin of our physical trailer
-living laboratory and ceiling-mounted robot system \cite{Kubota2022}; physical
-integration and real-world validation are future work, but both the trailer lab and
-the ceiling hardware already exist in our facility, supporting the feasibility of
-transferring the simulated controller.}
-
-\textcolor{red}{The rest of the paper is organized as follows. Section~II reviews
-related work; Section~III describes the system; Section~IV presents the base-aware
-GNG capability map; Section~V defines the energy cost $J$ and the selection
-procedure; Section~VI reports experiments; Section~VII concludes.}
+Our simulation results validate these claims. Treating the rail as an active DOF 
+expands the reachable workspace by approximately $4\times$ compared to an arm-only 
+baseline, while boundary-seeding recovers the true reach at the workspace edge to 
+within about one centimeter of the forward-kinematics surface. Energy-aware selection, 
+alongside the other multi-arm baselines, increases planning success from 63--65\% 
+(for any single fixed arm) to 93.3\%. Under a rail-dynamics model with assumed 
+Coulomb and viscous friction---where rail travel carries a realistic energy cost---our 
+policy attains the lowest mean mechanical energy among the three multi-arm strategies 
+(45.84~J vs.\ 48.28~J for the nearest baseline [$-5.1\%$], and 47.31~J for the random 
+baseline [$-3.1\%$]). This yields a majority same-target pairwise win rate of 57--61\% 
+against each baseline, although the median performance remains closer to the random policy. 
+We ground these results by utilizing NVIDIA Isaac Sim \cite{IsaacSim2026} as a 
+high-fidelity digital twin of our physical trailer living laboratory and ceiling-mounted 
+robot system \cite{Kubota2022}. While physical integration and real-world validation 
+are reserved for future work, both the trailer lab and the ceiling hardware already 
+exist in our facility, demonstrating the feasibility of transferring the simulated controller.
 
 \section{Related Work}
 
@@ -301,9 +273,9 @@ for this work and validate on the physical robot in future work.
 
 The target objects are supplied to the pipeline by an open-vocabulary perception
 module based on YOLOE, a real-time model that detects and segments objects
-from free-form text prompts \cite{Wang2025}. \textcolor{red}{Each of the two overhead
+from free-form text prompts \cite{Wang2025}. Each of the two overhead
 cameras is processed independently. The colour image yields a per-object
-segmentation mask; the masked pixels of the aligned depth image are back-projected
+segmentation mask. The masked pixels of the aligned depth image are back-projected
 into a 3D point set, which is carried into the world frame through the fixed
 camera-to-world transform. We take the \emph{median} of those world points as the
 object's centroid, which rejects the depth outliers that occur along the mask
@@ -314,7 +286,7 @@ positions are averaged, and the higher of the two observed object tops is kept
 label voting removes any remaining cross-camera duplicate and stabilises the class
 label across frames. The result is a single world-frame position per named object,
 robust to a partial or one-sided view, obtained without a fixed object database, so
-the operator can request an object by name (Fig.~\ref{fig:perception}).} In this
+the operator can request an object by name (Fig.~\ref{fig:perception}). In this
 context, perception functions as the enabling front end, providing the target on
 which the capability map and the energy cost are subsequently based.
 
@@ -328,16 +300,10 @@ which the capability map and the energy cost are subsequently based.
   \includegraphics[width=\linewidth]{figure/perception_rgbd2_20260717_163458.png}\\
   {\footnotesize (b) camera~2}
 \end{minipage}
-\caption{\textcolor{red}{The simulated workspace in NVIDIA Isaac Sim and the
-open-vocabulary perception, seen by the two overhead RGB-D cameras placed at the
-two ends of the corridor the rails run along: (a)~camera~1 and (b)~camera~2. The
-tabletop objects used in the experiments are visible, at least one near the edge of
-the reachable workspace. YOLOE detects and segments each object from a text prompt
-(coloured masks with class label and confidence); for every mask the aligned depth
-is back-projected and its median taken as a world-frame centroid (yellow
-cross-hair). Detections from the two viewpoints are fused by centroid proximity and
-majority label voting, giving one localised position per named object with no fixed
-object database.}}
+\caption{The simulated workspace in NVIDIA Isaac Sim and the 
+open-vocabulary perception, 
+as viewed by the two overhead RGB-D cameras placed at diagonally opposite ends of 
+the corridor along which the rails run: (a)~camera~1 and (b)~camera~2.}
 \label{fig:perception}
 \end{figure}
 
@@ -517,10 +483,10 @@ paper sets out to make.
 \begin{figure}[htbp]
 \centering
 \includegraphics[height=3.3cm,keepaspectratio]{figure/fig5-pick_banana.png}
-\caption{\textcolor{red}{The pipeline executing an energy-aware pick during the E6
-end-to-end trials: the winning candidate's gripper approaches the banana while the
-other arms hold their pose. A concrete logged example of $J$ favoring a
-farther-but-cheaper arm over the nearest one is given in Section~VI-C.}}
+\caption{\textcolor{red}{The pipeline executing an energy-aware pick in Isaac Sim:
+\texttt{arm\_2}'s gripper approaches the banana while the other arms hold their
+pose. A concrete logged example of $J$ favoring a farther-but-cheaper arm over the
+nearest one is given in Section~VI-C.}}
 \label{fig:selection}
 \end{figure}
 
