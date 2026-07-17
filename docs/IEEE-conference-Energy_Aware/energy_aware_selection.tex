@@ -643,9 +643,9 @@ falling through to the next arm. Energy-mode distributed the 35 picks arm\_2:10,
 arm\_3:13, arm\_4:12, arm\_1:0 -- the zero for arm\_1 is a property of this fixed
 layout, not the algorithm, which does pick arm\_1 in 12/60 targets of the E3 grid.
 Perception used Isaac ground truth, not YOLOE, matching an earlier finding
-superseded by the model upgrade in \S\ref{sec:e4} below.
+superseded by the model upgrade in \S\ref{sec:e4} below.}
 
-\textbf{Reachable-vs-unreachable classification (E5):} the same ground truth (7
+\textcolor{red}{\textbf{Reachable-vs-unreachable classification (E5):} the same ground truth (7
 objects picked 35/35 above, plus tomato\_soup\_can re-confirmed unreachable -- IK
 error $-31$ on all 4 arms) was compared against the GNG map's
 nearest-node-distance reachability test, swept over
@@ -704,6 +704,7 @@ calibrated weights of $J$, is left for future work.}
 \section*{Acknowledgment}
 \TODO{Funding / acknowledgment text, or delete this section.}
 
+{\footnotesize
 \begin{thebibliography}{00}
 
 \bibitem{Zacharias2007} 
@@ -791,5 +792,6 @@ I. Lalonde, J. Denis, M. Lamy, and A. Girard, ``A Dual-Motor Actuator for Ceilin
 N. Kubota, ``Multiscopic Topological Twin in Trailer Living Laboratory: Plenary Talk,'' in \textit{Proc. IEEE 22nd Int. Symp. Computational Intelligence and Informatics and 8th IEEE Int. Conf. Recent Achievements in Mechatronics, Automation, Computer Science and Robotics (CINTI-MACRo)}, 2022, pp. 11--12, doi: 10.1109/CINTI-MACRo57952.2022.10029665.
 
 \end{thebibliography}
+}
 
 \end{document}
