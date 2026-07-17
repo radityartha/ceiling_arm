@@ -194,11 +194,15 @@ with the same map and cost that also place the base.}
 
 \begin{figure*}[t]
 \centering
-\begin{minipage}{0.34\textwidth}\centering
-  \includegraphics[width=\linewidth]{figure/Env_Isaac.png}\\
-  {\footnotesize (a) system and workspace}
+\begin{minipage}{0.10\textwidth}\centering
+  \includegraphics[width=\linewidth]{figure/ceilingarm_tll-edit.jpg}\\
+  {\footnotesize (a) physical platform}
 \end{minipage}\hfill
-\begin{minipage}{0.63\textwidth}\centering
+\begin{minipage}{0.19\textwidth}\centering
+  \includegraphics[width=\linewidth]{figure/Env_Isaac.png}\\
+  {\footnotesize (b) Isaac Sim twin}
+\end{minipage}\hfill
+\begin{minipage}{0.60\textwidth}\centering
   \resizebox{\linewidth}{!}{%
   \begin{tikzpicture}[>=Stealth, thick, font=\footnotesize,
     box/.style={draw=blue!45!black, fill=blue!72!black, text=white, rounded corners,
@@ -219,15 +223,19 @@ with the same map and cost that also place the base.}
     \draw[arr] (sel)  -- (arm);
     \draw[arr] (arm)  -- (mv);
   \end{tikzpicture}}\\
-  {\footnotesize (b) end-to-end pipeline}
+  {\footnotesize (c) end-to-end pipeline}
 \end{minipage}
-\caption{Overview of the \textcolor{red}{dual-gantry quad-arm ceiling} robot and the proposed pipeline.
-(a) \textcolor{red}{Two rails mounted to the ceiling, each carrying two Kinova Gen3 Lite arms and each adding a
-prismatic axis ($d$) and a revolute axis ($\theta$) that its two arms share}, so each
-arm forms an 8-DOF chain $\mathbf{q}=[d,\theta,q_1 \ldots q_6]$;
-two overhead RGB-D cameras observe the workspace. (b) The end-to-end pipeline,
-from open-vocabulary perception, through energy-aware arm-and-base selection over
-the base-aware capability map, to collision-free planning and execution.}
+\caption{\textcolor{red}{Overview of the dual-gantry quad-arm ceiling robot and the
+proposed pipeline. (a) The physical ceiling-mounted platform in our trailer living
+laboratory -- the hardware that motivates this work; \emph{all experiments in this
+paper are in simulation}, hardware validation is future work (Section~VII). (b) The
+same platform modeled as its Isaac Sim digital twin: two rails mounted to the
+ceiling, each carrying two Kinova Gen3 Lite arms and each adding a prismatic axis
+($d$) and a revolute axis ($\theta$) that its two arms share, so each arm forms an
+8-DOF chain $\mathbf{q}=[d,\theta,q_1 \ldots q_6]$; two overhead RGB-D cameras
+observe the workspace. (c) The end-to-end pipeline, from open-vocabulary
+perception, through energy-aware arm-and-base selection over the base-aware
+capability map, to collision-free planning and execution.}}
 \label{fig:overview}
 \end{figure*}
 
@@ -309,7 +317,8 @@ Library \cite{Sucan2012}. Inverse kinematics requests are answered by MoveIt aga
 the current robot state, and collisions are checked against an octomap populated
 from the two cameras' depth images, so a plan avoids both the scene and the robot's
 own body; the object selected for removal is isolated from the octomap's source
-cloud so it can be grasped, while the remaining objects and the environment stay as
+cloud so it can be grasped, while the remaining ob
+jects and the environment stay as
 obstacles. We build the capability map of Section~IV offline with the Pinocchio
 rigid-body-dynamics library \cite{Carpentier2019}, which is also used for forward
 kinematics when sampling configurations. At execution time, a candidate is drawn
@@ -417,6 +426,7 @@ energy cost $J$, fit by OLS regression against measured mechanical energy under
 the rail friction model (Section~VI-B). Each reference $\rho$ is the median raw
 value of its term over the 168-pick calibration set.}}
 \begin{center}
+\footnotesize
 \begin{tabular}{|l|c|r|r|}
 \hline
 \textbf{Term} & \textbf{Symbol} & \textbf{Weight} & \textbf{Reference $\rho$} \\
@@ -701,7 +711,7 @@ calibrated weights of $J$, is left for future work.}
 \section*{Acknowledgment}
 \TODO{Funding / acknowledgment text, or delete this section.}
 
-{\footnotesize
+{\scriptsize
 \begin{thebibliography}{00}
 
 \bibitem{Zacharias2007} 
