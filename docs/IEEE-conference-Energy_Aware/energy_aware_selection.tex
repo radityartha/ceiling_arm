@@ -1,13 +1,5 @@
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
-% Ported from docs/SCIS-ISIS_paper/IEEEconference-latex-template/paper_draft.md
-% (Sections I-V are the user-signed-off text, converted verbatim to LaTeX).
-% Section VI carries measured E0/E1/E1b/E3 data (as of 2026-07-16); E4/E5/E6 are
-% marked PENDING per the project's "never fabricate a number" rule -- fill in from
-% docs/experiment_results.md as those experiments complete.
-% Abstract, Keywords, and Section VII are DRAFT ONLY and still need user sign-off,
-% consistent with docs/SCIS-ISIS_paper/IEEEconference-latex-template/paper_draft.md's
-% "only paragraphs the user has signed off on" rule.
 
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
@@ -260,24 +252,16 @@ for this work and validate on the physical robot in future work.
 
 \subsection{Perception Front End}
 
-The target objects are supplied to the pipeline by an open-vocabulary perception
-module based on YOLOE, a real-time model that detects and segments objects
-from free-form text prompts \cite{Wang2025}. Each of the two overhead
-cameras is processed independently. The colour image yields a per-object
-segmentation mask. The masked pixels of the aligned depth image are back-projected
-into a 3D point set, which is carried into the world frame through the fixed
-camera-to-world transform. We take the \emph{median} of those world points as the
-object's centroid, which rejects the depth outliers that occur along the mask
-border. The two cameras' detections are then fused: two centroids that fall within
-a small merge radius (0.10~m) are taken to be the same physical object, their
-positions are averaged, and the higher of the two observed object tops is kept
-(each camera sees only part of a top). A lightweight track layer with majority
-label voting removes any remaining cross-camera duplicate and stabilises the class
-label across frames. The result is a single world-frame position per named object,
-robust to a partial or one-sided view, obtained without a fixed object database, so
-the operator can request an object by name (Fig.~\ref{fig:perception}). In this
-context, perception functions as the enabling front end, providing the target on
-which the capability map and the energy cost are subsequently based.
+\textcolor{red}{The target objects are supplied by an open-vocabulary perception
+module based on YOLOE \cite{Wang2025}. Each overhead camera is processed
+independently: a per-object mask's depth pixels are back-projected to a 3D point
+set in the world frame, and we take the \emph{median} of those points as the
+object's centroid (robust to mask-border depth outliers). Detections from the two
+cameras are fused by centroid proximity (0.10~m merge radius, positions averaged,
+higher observed top kept) and stabilised by a track layer with majority label
+voting, giving a single world-frame position per named object without a fixed
+object database (Fig.~\ref{fig:perception}). Perception is the enabling front end
+that supplies the target for the capability map and energy cost.}
 
 \begin{figure}[htbp]
 \centering
@@ -468,63 +452,20 @@ paper sets out to make.
 \end{figure}
 
 \section{Experiments}
-% E0/E1/E1b/E3 have measured data as of 2026-07-16 (docs/experiment_results.md).
-% E4/E5/E6 are NOT yet run -- left as explicit PENDING placeholders rather
-% than invented numbers, per the project rule "never fabricate a number".
 
-\subsection{Map Characterization (E0)}
+\subsection{Capability Map Characterization}
 
-Table~\ref{tab:e0} summarizes the base-aware GNG capability map built for each arm
-with \texttt{build\_maps.sh} (80{,}000 FK samples, \textcolor{red}{2915 nodes after a ceiling-height filter drops the FK samples whose end-effector lies above the rail}, 600 pinned boundary
-nodes, $\lambda=60$, 2 training epochs).
+\textcolor{red}{Each arm's base-aware GNG capability map, built with 80{,}000 FK
+samples and a ceiling-height filter (2915 nodes: 600 pinned boundary, 2315
+interior; $\lambda=60$, 2 training epochs), has near-identical statistics across
+all four arms (median node spacing 0.090~m, mean 0.092~m, $\sim$14{,}500 edges, 8
+DOF per node) -- expected, since gantry\_2 is a $y$-mirror of gantry\_1. Treating
+the rail as a DOF expands the reachable volume from 1.920~m$^3$ to 7.899~m$^3$ at
+0.05~m voxel resolution (about $4\times$, as reported in Section~I), and pinning a
+boundary shell before growing the interior cuts the reachable-edge shortfall from
+0.221~m to 0.008~m.}
 
-\begin{table}[htbp]
-\caption{\textcolor{red}{GNG capability map properties, all four arms.}}
-\begin{center}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{|l|r|r|r|r|}
-\hline
-\textbf{Property} & \textbf{arm\_1} & \textbf{arm\_2} & \textbf{arm\_3} & \textbf{arm\_4} \\
-\hline
-FK samples & 80{,}000 & 80{,}000 & 80{,}000 & 80{,}000 \\
-\hline
-Surface points detected & 7560 & 7483 & 7560 & 7482 \\
-\hline
-Total nodes & 2915 & 2915 & 2915 & 2915 \\
-\hline
-Pinned boundary nodes & 600 & 600 & 600 & 600 \\
-\hline
-Interior nodes & 2315 & 2315 & 2315 & 2315 \\
-\hline
-Edges & 14{,}547 & 14{,}562 & 14{,}547 & 14{,}562 \\
-\hline
-Median node spacing (m) & 0.090 & 0.090 & 0.090 & 0.090 \\
-\hline
-Mean node spacing (m) & 0.092 & 0.092 & 0.092 & 0.092 \\
-\hline
-$q$ DOF per node & 8 & 8 & 8 & 8 \\
-\hline
-\end{tabular}}
-\label{tab:e0}
-\end{center}
-\end{table}
-
-\textcolor{red}{This confirms the reachable-workspace gain from treating the rail
-as a DOF and the boundary-seeding accuracy already reported in Section~I
-(1.920~m$^3$ locked vs.\ 7.899~m$^3$ active at 0.05~m voxel resolution; edge
-shortfall 0.221~m~$\to$~0.008~m with boundary seeding); see
-\texttt{docs/experiment\_results.md} (E1, E1b) for the full sweep and ablation.}
-
-% \textcolor{red}{E2 SUBSECTION DROPPED (2026-07-16). We ran the GNG-seeded-IK
-% benchmark and it is a NEGATIVE result: the GNG seed does not beat a neutral zero
-% seed on IK success or solve time, in any workspace region, and it ties/loses even
-% for the exact top-down grasp on its own node. We therefore no longer claim GNG
-% improves IK; the map's value is arm+base selection (E3) and workspace
-% representation (E0/E1). This subsection is removed from the paper. Numbers are kept
-% in docs/experiment_results.md as a documented negative result. If a reviewer asks,
-% add one honest sentence in Limitations rather than a results table.}
-
-\subsection{Energy-Aware Arm and Base Selection (E3)}
+\subsection{Selection-Policy Comparison}
 
 \textcolor{red}{We compare \texttt{selection\_mode} $\in\{$energy, nearest, fixed,
 random$\}$ over a 60-position grid of target poses spanning both rails
@@ -606,7 +547,7 @@ this trade-off executing end to end.}
 \label{fig:results}
 \end{figure}
 
-\subsection{End-to-End Pick and Reachability Classification (E5, E6)}
+\subsection{End-to-End Pick and Reachability Classification}
 \textcolor{red}{We validated the full perception-to-execution pipeline (Isaac
 ground-truth segmentation $\rightarrow$ localization $\rightarrow$ energy-aware
 arm/base selection $\rightarrow$ IK $\rightarrow$ planning $\rightarrow$ real
@@ -615,18 +556,20 @@ Isaac-physics execution) on the 7 of 8 scene objects reachable-by-design
 8th, tomato\_soup\_can, is the unreachable-by-design negative example used below.
 With object poses fixed at asset-import time, we ran 7 objects $\times$ 5 trials
 $=$ 35 picks in round-robin order as a pipeline-integration demo, not a
-positional-sensitivity study (that role is filled by the E3 grid). \textbf{Result:
+positional-sensitivity study (that role is filled by the selection-policy grid
+sweep of Section~VI-B). \textbf{Result:
 35/35 (100\%) pick success}, zero failures in any category (detection,
 IK/unreachable, planning, execution). Mean time-to-pick was 39.6~s (median 28.1~s,
 range 10.5--184.4~s); scissors had the widest spread (110.4~s mean) from a
 transient settle mismatch that the executor's retry loop silently recovered by
 falling through to the next arm. Energy-mode distributed the 35 picks arm\_2:10,
 arm\_3:13, arm\_4:12, arm\_1:0 -- the zero for arm\_1 is a property of this fixed
-layout, not the algorithm, which does pick arm\_1 in 12/60 targets of the E3 grid.
+layout, not the algorithm, which does pick arm\_1 in 12/60 targets of the
+Section~VI-B grid sweep.
 Perception used Isaac ground truth, not YOLOE, matching an earlier finding
-superseded by the model upgrade in \S\ref{sec:e4} below.}
+superseded by the model upgrade in \S\ref{sec:perception-accuracy} below.}
 
-\textcolor{red}{\textbf{Reachable-vs-unreachable classification (E5):} the same ground truth (7
+\textcolor{red}{\textbf{Reachable-vs-unreachable classification:} the same ground truth (7
 objects picked 35/35 above, plus tomato\_soup\_can re-confirmed unreachable -- IK
 error $-31$ on all 4 arms) was compared against the GNG map's
 nearest-node-distance reachability test, swept over
@@ -638,12 +581,10 @@ signal \texttt{gantry\_reach\_executor} uses for IK candidates. A pre-existing
 diagnostic-only tool (\texttt{reachability\_cloud} RViz coloring) additionally
 gates on an 8-node one-sided ``enclosure'' check not part of the real decision;
 with it active 2/8 objects read 0\% at every radius (one-sided map fringe), and
-disabling it recovers the 100\% result. Full tables and CSVs are in
-\texttt{docs/experiment\_results.md} (E5, E6), \texttt{docs/e5\_data\_2026-07-17/},
-and \texttt{docs/e6\_data\_2026-07-17/}.}
+disabling it recovers the 100\% result.}
 
-\subsection{Perception Accuracy (E4)}
-\label{sec:e4}
+\subsection{Perception Accuracy}
+\label{sec:perception-accuracy}
 \textcolor{red}{Using the same live pipeline, we captured a stable ground-truth
 reference position for all 8 scene objects from Isaac's own instance
 segmentation, then switched to YOLOE (\texttt{yoloe-11m-seg.pt}, conf$=0.25$, both
@@ -657,9 +598,7 @@ cross-object confusion was observed. A conf$=0.10$ sensitivity check (150 frames
 found detection rate and localization error already saturated at conf$=0.25$, but
 false positives rose to 15.2\% (215/1415), confirming conf$=0.25$ as the sound
 operating point -- this revises an earlier, pessimistic YOLOE finding that
-predated the switch to the larger \texttt{11m} detector weights. Full per-object
-table, the comparison script (\texttt{scripts/e4\_compare.py}), and CSVs are in
-\texttt{docs/experiment\_results.md} (E4) and \texttt{docs/e4\_data\_2026-07-17/}.}
+predated the switch to the larger \texttt{11m} detector weights.}
 
 \section{Conclusion}
 
