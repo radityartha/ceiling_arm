@@ -373,19 +373,19 @@ at left.}}
 
 \subsection{Capability Layers}
 
-Beyond plain reachability, each node carries a quality value. The manipulability
-$w$ \cite{Yoshikawa1985} records how dexterous the arm is at that node, low near the
-workspace edge and near singular postures and high where the arm can move freely in any
-direction. This quality layer is what separates our map from a binary reachability grid
-that only marks a cell reachable or not \cite{Zacharias2007}. It is computed once,
-offline, with the same Pinocchio model used for sampling \cite{Carpentier2019} and
-stored on the node, so it is available at query time at no extra cost.
+\textcolor{red}{Beyond plain reachability, each node also carries a quality value:
+manipulability $w$ \cite{Yoshikawa1985}, low near the workspace edge and singular
+postures, high where the arm moves freely in any direction -- the layer that
+separates our map from a binary reachability grid \cite{Zacharias2007}. It is
+computed once offline with the same Pinocchio model used for sampling
+\cite{Carpentier2019} and stored on the node, available at query time at no extra
+cost.}
 
 \section{Energy-Aware Arm and Base Selection}
 
-Given the object pose from perception and the four capability maps, the selection
-stage decides which arm to use and which 8-DOF configuration to reach with. It makes
-both decisions together, by an energy cost evaluated over candidates drawn from the maps.
+\textcolor{red}{Given the object pose from perception and the four capability maps,
+the selection stage decides which arm and which 8-DOF configuration to reach with,
+both together, via an energy cost evaluated over candidates drawn from the maps.}
 
 \subsection{The Energy Cost}
 
