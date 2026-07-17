@@ -448,3 +448,110 @@ z=1.15): **energy → arm_4** (rail-linear 0.086 m, arm 9.500 rad, energy=**6.92
 J**) vs **nearest → arm_2** (rail-linear 0.092 m, arm 12.219 rad, energy=**24.85
 J**) — here rail travel is nearly identical for both, and energy's win comes
 purely from picking the arm with the smaller joint excursion.
+
+---
+
+## E6 — End-to-end pick (Isaac digital twin) — DONE 2026-07-17
+
+**Setup:** `launch_workcell.sh full` (4-arm workcell + move\_group), then
+`ros2 launch reachability_gng pick_stack.launch.py execute:=true box_clearance:=0.15
+csv:=/tmp/e6.csv seg_source:=isaac`. Perception source = **Isaac ground truth**
+(`seg_source:=isaac`), not YOLOE: per `yoloe-sim-unreliable-use-gt` (prior finding),
+YOLOE is unreliable on this sim's synthetic imagery (flicker/blind on small/far
+objects); GT detects all objects stably and is the right choice for a sim-only
+paper where pose reliability matters more than detector realism. **YOLOE
+hardware/detector-realism validation is left as future work.** `selection_mode`
+left at its default (`energy`) — E6 is a pipeline-integration demo, not a repeat
+of E3's mode comparison.
+
+**Objects (7 of 8 in the scene; obj\_2 excluded):** cracker\_box, scissors,
+mustard\_bottle, teddy\_bear (IsaacLab asset, non-YCB), banana, mug, bowl —
+GT labels arrive as prim-path stubs `obj_0,1,3,4,5,6,7` (`obj_2`=tomato\_soup\_can
+is the unreachable-by-design object confirmed in E3/E5 prep, excluded here by
+design, not by failure). Picks were fired programmatically over ROS topics
+(`/grasp_target` then `gantry_reach_executor/pick 'target'`) rather than the
+interactive `pick_cli`, to script a repeatable batch.
+
+**Scale (revised down from the original 20-position × 3-trial plan, user-approved
+2026-07-17):** the scene's 8 objects are at **fixed** poses baked into
+`isaac_sim/workcell/polish.py` — `/target_object` only overrides the executor's
+*planning* target, it does not move the physical Isaac object, so genuine
+positional diversity would require editing `polish.py` and a full Isaac relaunch
+per position group (~2–3 min each), impractical for 20 positions in one session.
+Ran instead: **7 objects × 5 trials = 35 picks**, **round-robin** order (round 1:
+obj\_0..obj\_7 skip obj\_2, then repeat 4 more rounds) rather than 5 consecutive
+repeats per object, specifically to avoid the known "re-targeting an object the
+arm is already parked at → transient −4 CONTROL\_FAILED" artifact
+(`stable-track-identity-implemented` memory) that consecutive same-target repeats
+would trigger. Preceded by 2 manual smoke-test picks (obj\_0, obj\_3) to validate
+the pipeline before batching — both succeeded and are **not** counted in the 35.
+This is a demo-scale pipeline-integration result, not a positional-sensitivity
+study (that role belongs to E3's grid sweep).
+
+**Result: 35/35 SUCCESS (100%), 0 FAILED, all 7 objects 5/5.** (37/37 including
+the 2 pre-batch smoke picks — arm/CSV rows for those two are the first two rows of
+`docs/e6_data_2026-07-17/e6.csv`.) Cross-checked three independent ways: the
+driver's own trial log (`e6_trials.csv`, 35/35 `SUCCESS`), the executor's CSV
+`success` column (37/37 rows `success=1`), and a raw grep of the executor's own
+terminal log for its `>>> objN: SUCCESS`/`FAILED` lines (37 SUCCESS, 0 FAILED) —
+all three agree.
+
+| object | class | n | success | mean (s) | median (s) | min (s) | max (s) |
+|---|---|---:|---:|---:|---:|---:|---:|
+| obj\_0 | cracker\_box | 5 | 5/5 | 36.4 | 40.0 | 28.1 | 42.0 |
+| obj\_1 | scissors | 5 | 5/5 | 110.4 | 150.1 | 23.3 | 184.4 |
+| obj\_3 | mustard\_bottle | 5 | 5/5 | 26.0 | 23.1 | 16.7 | 35.6 |
+| obj\_4 | teddy\_bear | 5 | 5/5 | 23.3 | 24.9 | 10.5 | 31.3 |
+| obj\_5 | banana | 5 | 5/5 | 20.8 | 19.6 | 13.2 | 28.1 |
+| obj\_6 | mug | 5 | 5/5 | 34.4 | 29.0 | 23.6 | 55.2 |
+| obj\_7 | bowl | 5 | 5/5 | 25.8 | 22.4 | 17.4 | 33.9 |
+| **overall** | | **35** | **35/35** | **39.6** | **28.1** | **10.5** | **184.4** |
+
+Time-to-pick = pick-request timestamp to the executor's own `>>> objN: SUCCESS`
+log line (grasp-target announce → J-ranking → IK → plan → execute → settle-wait
+confirm against `/joint_states`), independently re-derived from the raw executor
+log, not read off the driver's self-reported timers.
+
+**Arm/gantry selection (35 batch picks, energy-mode):** arm\_2: 10 (mug, bowl —
+both near table3/world-origin, always cheapest via gantry\_1's right arm),
+arm\_3: 13, arm\_4: 12 (cracker\_box, scissors, mustard\_bottle, teddy\_bear,
+banana — all closer to gantry\_2 or split between arm\_3/arm\_4 trial-to-trial
+depending on the arm's current parked state feeding `d_arm`), **arm\_1: 0**.
+Report honestly: arm\_1 was never selected across all 37 picks in this run — an
+artifact of *this* 8-object layout (no object sits closer to gantry\_1's left
+mount than to arm\_2 or gantry\_2), not a general claim that arm\_1 is
+disadvantaged; E3's full-grid sweep (union reachable hull, symmetric-y, 60
+positions) already shows arm\_1 winning 12/60 targets under energy-mode, so the
+zero count here is a property of the fixed scene, not the selection algorithm.
+
+**Failure-mode breakdown:** terminal failures — **0** in every category
+(no-detection: 0, IK −31: 0, plan-fail: 0, execution-abort-that-was-never-
+recovered: 0). **Transient, self-recovered exec-aborts: 3** (all on obj\_1
+[scissors], all cand#0=arm\_4 returning `exec err=1` mid-motion — a joint-state
+settle mismatch, not a planning or IK problem — with the executor's own
+candidate-fallback loop retrying and succeeding on cand#1=arm\_3 every time; this
+is the mechanism previously documented in `reach-fusion-tick-blocking-ik`/
+`settle-false-negative-progress-based`, still present but still correctly
+self-healed by the executor's per-candidate retry, hence 3/35 trials with inflated
+time-to-pick (150–185 s) but zero terminal failures). 1 transient IK failure was
+also logged (part of one of those same 3 retry chains — a discarded candidate,
+not a terminal outcome). 0 plan failures across all 37 picks.
+
+**Data:** `docs/e6_data_2026-07-17/e6.csv` (raw executor CSV, 37 rows, includes
+the 2 pre-batch smoke picks as rows 1-2), `docs/e6_data_2026-07-17/e6_trials.csv`
+(driver's own per-trial log: round, object, timestamps, result, detail string
+scraped from the executor's terminal SUCCESS/FAILED line), `e6_batch_driver.py`
+(the round-robin driver script, for reproducibility). Executor terminal log was
+not archived (too large / ephemeral `/tmp` path) — the SUCCESS/FAILED/`did NOT
+reach` counts above were grepped live and are reproducible by rerunning the
+driver against a fresh `pick_stack.launch.py ... csv:=/tmp/e6.csv`.
+
+**→ Paper (Section VI-D):** per-object success table + the failure-breakdown
+paragraph above (0 across all 4 categories asked for; the 3 self-recovered
+exec-aborts are reported as a qualitative retry-robustness note, not a failure
+category, since they never surface as a terminal `FAILED`). HRI natural-language
+fetch table was **not** run this session (optional per the plan; `target_cli.py`'s
+NL-fetch path exists and was smoke-tested in a prior session per
+`stable-track-identity-implemented`, but that was on a different branch/pipeline
+— left as future work here rather than reported without a fresh check on this
+branch).
