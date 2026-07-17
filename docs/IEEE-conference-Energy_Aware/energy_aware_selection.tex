@@ -145,30 +145,27 @@ exist in our facility, demonstrating the feasibility of transferring the simulat
 
 \section{Related Work}
 
-\noindent\textit{Reachability and capability maps.}
+\noindent\textit{Capability maps and base placement.}
 \textcolor{red}{A workspace can be discretized into cells and each cell labelled with
 whether the end effector can reach it. Zacharias et al.\ extended this to a
 capability map that also captures reach orientation, richer than a binary occupancy
-grid \cite{Zacharias2007}. Reuleaux inverted the reachability map for base placement,
-letting the robot pick a standing position for a target \cite{Makhal2018}. Recent
-work targets construction and query cost: RM4D reduces the discretization from six
-dimensions to four and serves both reachability and inverse-reachability from one
-structure \cite{RM4D2024}. All of these are built for a single arm on a stationary
-base, storing one reachability bit per cell. Our map differs on both counts: the
-ceiling rail is a first-class part of the configuration, so it records how base
-motion extends reach, and every node carries a representative 8-DOF configuration
-(rail placement included) and a manipulability value, not a single bit.}
-
-\noindent\textit{Base placement for mobile manipulators.}
-\textcolor{red}{Where a mobile base should stop before manipulating is a well-studied
-problem. Sandakalum et al.\ learn an inverse-reachability network that places the
-platform for a task while accounting for obstacles \cite{InvReach2022}. MoMa-Pos
+grid \cite{Zacharias2007}, and Reuleaux inverted the reachability map for base
+placement, letting the robot pick a standing position for a target \cite{Makhal2018}.
+Sandakalum et al.\ instead learn an inverse-reachability network that places the
+platform for a task while accounting for obstacles \cite{InvReach2022}; MoMa-Pos
 optimizes base placement from the kinematics of the objects to manipulate
-\cite{MoMaPos2024}, and BaSeNet plans a sequence of base poses so a robot can pick up
-multiple objects in succession \cite{BaSeNet2024}. This line of work is thorough on
-placing a single arm well, but none of it chooses \emph{among} several arms or scores
-candidate placements by the energy needed to reach them -- the gap our work fills for
-a redundant ceiling-rail robot.}
+\cite{MoMaPos2024}; BaSeNet plans a sequence of base poses so a robot can pick up
+multiple objects in succession \cite{BaSeNet2024}; and RM4D targets query cost,
+reducing the discretization from six dimensions to four and serving both
+reachability and inverse-reachability from one structure \cite{RM4D2024}. This body
+of work is thorough on placing a \emph{single} arm well from a stationary-base map
+that stores one reachability bit per cell, but none of it chooses \emph{among}
+several arms or scores candidate placements by the energy needed to reach them --
+the gap our work fills for a redundant ceiling-rail robot. Our map differs on both
+counts: the ceiling rail is a first-class part of the configuration, so it records
+how base motion extends reach, and every node carries a representative 8-DOF
+configuration (rail placement included) and a manipulability value, not a single
+bit.}
 
 \noindent\textit{Redundancy resolution and inverse kinematics.}
 \textcolor{red}{A kinematic chain with more joints than the task strictly needs can use
@@ -534,27 +531,11 @@ $q$ DOF per node & 8 & 8 & 8 & 8 \\
 \end{center}
 \end{table}
 
-\subsection{Reachable-Workspace Gain from the Rail DOF (E1)}
-
-We compare the reachable volume with the rail locked at a fixed pose (6 arm DOF
-only) against the rail sampled over its full travel (rail \textcolor{red}{0--2.0~m}, rotation
-$\pm180^{\circ}$), matching FK sample \emph{density} rather than raw sample count
-between the two conditions to avoid an under-sampling bias. \textcolor{red}{Treating the
-rail as a degree of freedom expands the reachable volume from 1.920~m$^3$ to
-7.899~m$^3$ at 0.05~m voxel resolution (Fig.~\ref{fig:results}a) -- about $4\times$
-(4.11$\times$ at 0.05~m, robust bracket 4.0--4.6$\times$ across saturated
-resolutions; 4.03$\times$ when both volumes are restricted below the ceiling).}
-
-\subsubsection{Boundary-Seeding Ablation (E1b)}
-
-\textcolor{red}{Pinning a boundary shell of nodes before growing the interior (Section~IV-B)
-closes most of the gap between the GNG node hull's outer extent and the true
-FK-sampled reach surface (max radius 2.102~m): the shortfall drops from 0.221~m
-(no boundary seeding, 2317 nodes) to 0.008~m (600-node boundary shell, 2915 nodes
-total), with the largest recovery along the rail's travel axis ($x$:
-0.501~m~$\to$~0.017~m bounding-box shortfall). We use extent metrics (max reach
-radius and per-axis bounding-box extent) rather than a centroid-radial metric,
-since the rail-swept workspace is not star-convex about its centroid.}
+\textcolor{red}{Fig.~\ref{fig:results}a confirms the reachable-workspace gain from
+treating the rail as a DOF and the boundary-seeding accuracy already reported in
+Section~I (1.920~m$^3$ locked vs.\ 7.899~m$^3$ active at 0.05~m voxel resolution;
+edge shortfall 0.221~m~$\to$~0.008~m with boundary seeding); see
+\texttt{docs/experiment\_results.md} (E1, E1b) for the full sweep and ablation.}
 
 \begin{figure}[htbp]
 \centering
@@ -660,89 +641,60 @@ a larger arm excursion to avoid 0.51~m of friction-costly rail travel, for a
 30.1~J lower realised energy. Fig.~\ref{fig:selection} shows the pipeline executing
 this kind of energy-vs-nearest trade-off end to end.}
 
-\subsection{End-to-End Pick (E6)}
+\subsection{End-to-End Pick and Reachability Classification (E5, E6)}
 \textcolor{red}{We validated the full perception-to-execution pipeline (Isaac
-ground-truth segmentation $\rightarrow$ object localization $\rightarrow$
-energy-aware arm/base selection $\rightarrow$ IK $\rightarrow$ planning
-$\rightarrow$ real Isaac-physics execution, \texttt{execute:=true}) on the
-7 of 8 scene objects that are reachable-by-design (cracker\_box, scissors,
-mustard\_bottle, teddy\_bear, banana, mug, bowl; the 8th, a tomato\_soup\_can,
-is the unreachable-by-design object planned as the negative example for the
-reachable-vs-unreachable classification study, E5, below). Object poses in
-this scene are fixed at asset-import
-time, so we ran 7 objects $\times$ 5 trials $=$ 35 picks in round-robin order
-(rather than the originally planned 20-position grid, which would have
-required a full simulator relaunch per position) as a pipeline-integration
-demo, not a positional-sensitivity study -- that role is filled by the E3
-grid sweep. \textbf{Result: 35/35 (100\%) pick success}, zero failures across every category
-(detection, IK/unreachable, planning, unrecovered execution-abort). Mean time-to-pick
-(detection $\to$ selection $\to$ plan $\to$ executed \& settled) was 39.6~s
-(median 28.1~s) across all objects, ranging from 10.5--184.4~s; scissors had
-the widest spread (mean 110.4~s) because 3/5 of its trials hit a transient
-mid-execution settle mismatch on the first-choice candidate that the
-executor's own per-candidate retry loop silently recovered by falling
-through to the next arm -- a real robustness behaviour worth reporting, but
-not a terminal failure. Energy-mode distributed the 35 picks arm\_2:10,
-arm\_3:13, arm\_4:12, arm\_1:0; the zero count for arm\_1 is a property of
-this particular fixed object layout (nothing sits closer to gantry\_1's left
-mount than to its neighbours), not of the selection algorithm, which does
-select arm\_1 in 12/60 targets of the broader E3 grid sweep. Full per-object
-table and the raw CSVs are in \texttt{docs/experiment\_results.md} (E6) and
-\texttt{docs/e6\_data\_2026-07-17/}. Perception used Isaac ground-truth
-segmentation, not YOLOE, matching an earlier finding that YOLOE was
-unreliable on this simulator's synthetic imagery with the detector weights in
-use at the time; \S\ref{sec:e4} below shows this has since been superseded by
-a model upgrade, so YOLOE-driven end-to-end execution is now plausible future
-work rather than an expected failure.}
+ground-truth segmentation $\rightarrow$ localization $\rightarrow$ energy-aware
+arm/base selection $\rightarrow$ IK $\rightarrow$ planning $\rightarrow$ real
+Isaac-physics execution) on the 7 of 8 scene objects reachable-by-design
+(cracker\_box, scissors, mustard\_bottle, teddy\_bear, banana, mug, bowl); the
+8th, tomato\_soup\_can, is the unreachable-by-design negative example used below.
+With object poses fixed at asset-import time, we ran 7 objects $\times$ 5 trials
+$=$ 35 picks in round-robin order as a pipeline-integration demo, not a
+positional-sensitivity study (that role is filled by the E3 grid). \textbf{Result:
+35/35 (100\%) pick success}, zero failures in any category (detection,
+IK/unreachable, planning, execution). Mean time-to-pick was 39.6~s (median 28.1~s,
+range 10.5--184.4~s); scissors had the widest spread (110.4~s mean) from a
+transient settle mismatch that the executor's retry loop silently recovered by
+falling through to the next arm. Energy-mode distributed the 35 picks arm\_2:10,
+arm\_3:13, arm\_4:12, arm\_1:0 -- the zero for arm\_1 is a property of this fixed
+layout, not the algorithm, which does pick arm\_1 in 12/60 targets of the E3 grid.
+Perception used Isaac ground truth, not YOLOE, matching an earlier finding
+superseded by the model upgrade in \S\ref{sec:e4} below.
 
-\subsection{Perception Accuracy (E4, E5)}
+\textbf{Reachable-vs-unreachable classification (E5):} the same ground truth (7
+objects picked 35/35 above, plus tomato\_soup\_can re-confirmed unreachable -- IK
+error $-31$ on all 4 arms) was compared against the GNG map's
+nearest-node-distance reachability test, swept over
+\texttt{reach\_radius}$\in\{0.08,0.12,0.16\}$~m. \textbf{Accuracy reached 100\%
+(8/8) at \texttt{reach\_radius}$\,\geq\,0.12$~m} (87.5\% at 0.08~m), matching the
+independently-computed nearest-node distances exactly (0.120/0.152~m for the two
+boundary-closest objects) with zero false positives at any radius -- the same
+signal \texttt{gantry\_reach\_executor} uses for IK candidates. A pre-existing
+diagnostic-only tool (\texttt{reachability\_cloud} RViz coloring) additionally
+gates on an 8-node one-sided ``enclosure'' check not part of the real decision;
+with it active 2/8 objects read 0\% at every radius (one-sided map fringe), and
+disabling it recovers the 100\% result. Full tables and CSVs are in
+\texttt{docs/experiment\_results.md} (E5, E6), \texttt{docs/e5\_data\_2026-07-17/},
+and \texttt{docs/e6\_data\_2026-07-17/}.}
+
+\subsection{Perception Accuracy (E4)}
 \label{sec:e4}
-\textcolor{red}{\textbf{E4 (YOLOE vs.\ ground truth):} using the same live
-pipeline as E6, we captured a stable ground-truth reference position for all
-8 scene objects from Isaac's own instance segmentation, then switched
-perception to YOLOE (\texttt{yoloe-11m-seg.pt}, conf$=0.25$, both overhead
-RGB-D cameras, the pipeline's default open-vocabulary prompt list) and
-matched every published detection to its nearest ground-truth object over a
-483-frame / 279.5~s window. \textbf{Detection rate was 100\% for all 8
-objects (3864/3864 matched detections), mean localization error 0.023~m
-(per-object range 0.008--0.070~m, worst on the cracker box), and the false-positive
-rate was 0\% (0/3864)} at the default confidence threshold. Every detected
-class label was semantically correct once the underlying object-track had
-settled (e.g.\ the tomato soup can as ``canned food'', the mustard bottle as
-``bottle''); no cross-object confusion was observed. A confidence-threshold sensitivity check (conf$=0.10$, 150 frames) found
-detection rate and localization error already saturated at conf$=0.25$, but
+\textcolor{red}{Using the same live pipeline, we captured a stable ground-truth
+reference position for all 8 scene objects from Isaac's own instance
+segmentation, then switched to YOLOE (\texttt{yoloe-11m-seg.pt}, conf$=0.25$, both
+overhead RGB-D cameras) and matched every detection to its nearest ground-truth
+object over a 483-frame / 279.5~s window. \textbf{Detection rate was 100\% for all
+8 objects (3864/3864 matched detections), mean localization error 0.023~m
+(per-object range 0.008--0.070~m, worst on the cracker box), and the
+false-positive rate was 0\% (0/3864)}. Every class label was correct once the
+object track had settled (e.g.\ the tomato soup can as ``canned food''); no
+cross-object confusion was observed. A conf$=0.10$ sensitivity check (150 frames)
+found detection rate and localization error already saturated at conf$=0.25$, but
 false positives rose to 15.2\% (215/1415), confirming conf$=0.25$ as the sound
-operating point. This revises an earlier, pessimistic finding about YOLOE on
-this simulator that predated a switch to the larger \texttt{11m} detector
-weights; with the current weights YOLOE is a viable perception input here, not
-merely a sim-only crutch. Full per-object table, the raw comparison script
-(\texttt{scripts/e4\_compare.py}), and CSVs are in
-\texttt{docs/experiment\_results.md} (E4) and
-\texttt{docs/e4\_data\_2026-07-17/}.}
-
-\textbf{E5 (reachable vs.\ unreachable):} \textcolor{red}{Ground truth (7
-reachable objects picked 35/35 in E6, plus \texttt{tomato\_soup\_can}/
-\texttt{obj\_2} freshly re-confirmed live as unreachable -- IK error $-31$ on
-all 4 arms) was compared against the GNG map's nearest-node-distance
-reachability test (a point is reachable iff a map node lies within
-\texttt{reach\_radius}), swept over
-\texttt{reach\_radius}$\in\{0.08,0.12,0.16\}$~m. \textbf{Classification
-accuracy reached 100\% (8/8) at \texttt{reach\_radius}$\,\geq\,0.12$~m}
-(87.5\% at the tighter 0.08~m), matching the independently-computed
-ground-truth nearest-node distances exactly (0.120~m and 0.152~m for the two
-objects nearest the classification boundary) with zero false positives at
-any radius. This is the number that reflects the map's actual reachability
-signal, the same one \texttt{gantry\_reach\_executor} uses when it queries
-nearby nodes as IK candidates.}
-
-\textcolor{red}{A pre-existing diagnostic-only tool, the \texttt{reachability\_cloud}
-RViz coloring utility, additionally gates on an 8-node one-sided ``enclosure''
-check that is \emph{not} part of the pipeline's actual reachability decision; with
-it active, 2 of the 8 objects read 0\% at every radius because they sit at a
-one-sided-density fringe of this map, and disabling that gate recovers the 100\%
-result above. Full confusion-matrix tables (with and without the gate) and raw
-logs are in \texttt{docs/experiment\_results.md} (E5) and
-\texttt{docs/e5\_data\_2026-07-17/}.}
+operating point -- this revises an earlier, pessimistic YOLOE finding that
+predated the switch to the larger \texttt{11m} detector weights. Full per-object
+table, the comparison script (\texttt{scripts/e4\_compare.py}), and CSVs are in
+\texttt{docs/experiment\_results.md} (E4) and \texttt{docs/e4\_data\_2026-07-17/}.}
 
 \section{Conclusion}
 % DRAFT ONLY -- not yet signed off by the user; written to match the locked
