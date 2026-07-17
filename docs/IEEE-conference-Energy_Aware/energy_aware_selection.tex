@@ -236,8 +236,13 @@ description that defines the physical platform, so the kinematics and joint limi
 used in simulation match the real hardware. The scene places a set of everyday
 tabletop objects within the workspace, some within easy reach of several arms and at
 least one deliberately positioned near the edge of the reachable workspace
-(Fig.~\ref{fig:perception}). The scene is observed by two RGB-D cameras placed above the
-workspace, which are the system's only exteroceptive sensor. Their images serve two
+(Fig.~\ref{fig:perception}). \textcolor{red}{The scene is observed by two RGB-D
+cameras mounted near the ceiling at diagonally opposite corners of the room, each
+aimed down and across the workspace toward the tables under the arms; the two
+viewpoints overlap in the middle of the pick area, so an object occluded from one
+camera is usually still visible from the other (Fig.~\ref{fig:perception} shows
+the resulting views).} These
+cameras are the system's only exteroceptive sensor, and their images serve two
 roles at once. The color stream feeds the object detector, and the depth stream builds
 the collision octomap used for planning, so a single sensing rig supports both
 perception and collision avoidance. We treat the simulator as the evaluation platform
