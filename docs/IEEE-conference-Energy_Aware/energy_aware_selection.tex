@@ -329,36 +329,33 @@ maps (Section~V).}
 
 \subsection{Sampling Reachable Configurations}
 
-We sample the 8-DOF configuration
+\textcolor{red}{We sample the 8-DOF configuration
 $\mathbf{q} = [d,\ \theta,\ q_1,\ \ldots,\ q_6]$ uniformly within the joint limits
-and compute the resulting end-effector pose by forward kinematics with the
-Pinocchio library \cite{Carpentier2019}. For each sample we also record the
-manipulability $w = \sqrt{\det(JJ^\top)}$ \cite{Yoshikawa1985}. This produces a dataset of
-(pose, $\mathbf{q}$, manipulability) tuples that covers the combined
-arm-and-rail workspace. Because the rail translation $d$ and rotation $\theta$ are
-sampled alongside the arm joints, the dataset already reflects the reach that base
-motion provides, not just the reach of a fixed arm.
+and compute the end-effector pose by forward kinematics with Pinocchio
+\cite{Carpentier2019}, recording the manipulability $w = \sqrt{\det(JJ^\top)}$
+\cite{Yoshikawa1985} for each sample. This produces a (pose, $\mathbf{q}$,
+manipulability) dataset covering the combined arm-and-rail workspace; because $d$
+and $\theta$ are sampled alongside the arm joints, the dataset already reflects the
+reach that base motion provides, not just a fixed arm's.}
 
 \subsection{Growing the Map}
 
-We fit a Growing Neural Gas network \cite{Fritzke1995} to this dataset. Each node
-stores a vector $[\mathbf{x} \mid \mathbf{q}]$ that concatenates the end-effector
-position $\mathbf{x}$, which we call the task part, with the configuration
-$\mathbf{q}$ that produces it. Training is arranged so that the best-matching-unit
-search uses the task part alone, which makes the nodes tile the reachable
-workspace, while adaptation updates the whole vector, so each node's $\mathbf{q}$
-converges to a configuration that is representative of its workspace cell. Edges
-are formed between co-activated nodes by competitive Hebbian learning, giving the
-map a topology over the workspace. Every node is therefore two things at once, a
-location the end-effector can reach and a representative 8-DOF configuration that
-reaches it, rail placement included. This is the sense in which the map is
-base-aware. Because $\mathbf{q}$ carries the rail translation and rotation, two ways
-of reaching the same point from different base placements settle into different
-nodes, so a node's configuration stays a valid single posture rather than an average
-of incompatible base positions. To keep the map faithful at the reachable boundary,
-where nodes grown only from interior samples would otherwise settle inward, we pin a
-shell of nodes on the measured reach surface before growing the interior
-(Fig.~\ref{fig:gngmap}), and Section~VI reports the resulting edge fidelity.
+\textcolor{red}{We fit a Growing Neural Gas network \cite{Fritzke1995} to this
+dataset. Each node stores $[\mathbf{x} \mid \mathbf{q}]$, concatenating the
+end-effector position $\mathbf{x}$ (the task part) with the configuration
+$\mathbf{q}$ that produces it. The best-matching-unit search uses the task part
+alone, tiling the nodes over the reachable workspace, while adaptation updates the
+whole vector, so each node's $\mathbf{q}$ converges to a representative
+configuration for its cell; edges form between co-activated nodes by competitive
+Hebbian learning, giving the map a topology. Every node is thus both a reachable
+location and a representative 8-DOF configuration (rail placement included) --
+this is the sense in which the map is base-aware. Because $\mathbf{q}$ carries the
+rail translation and rotation, two ways of reaching the same point from different
+base placements settle into different nodes, keeping each configuration a valid
+single posture rather than an average of incompatible base positions. To stay
+faithful at the reachable boundary, where interior-only samples would settle
+inward, we pin a shell of nodes on the measured reach surface before growing the
+interior (Fig.~\ref{fig:gngmap}); Section~VI reports the resulting edge fidelity.}
 
 \begin{figure}[htbp]
 \centering
