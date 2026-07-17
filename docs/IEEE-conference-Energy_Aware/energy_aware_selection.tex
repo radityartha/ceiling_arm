@@ -31,12 +31,38 @@
 \title{Energy-Aware Arm and Base Selection for a Dual-Gantry Quad-Arm Ceiling Robot Using a GNG Capability Map}
 
 \author{
-\IEEEauthorblockN{1\textsuperscript{st} \TODO{Given Name Surname}}
-\IEEEauthorblockA{\textit{\TODO{dept. name of organization}} \\
-\textit{\TODO{name of organization}}\\
-\TODO{City, Country} \\
-\TODO{email address or ORCID}}
-% Duplicate this \and + \IEEEauthorblockN{...}\IEEEauthorblockA{...} block per co-author.
+\IEEEauthorblockN{1\textsuperscript{st} Raditya Artha Rochmanto\textsuperscript{1,2}}
+\IEEEauthorblockA{\textsuperscript{1}\textit{Department of Mechanical Systems Engineering, Graduate School of Systems Design} \\
+\textit{Tokyo Metropolitan University}\\
+6-6 Asahigaoka, Hino, Tokyo 191-0065, Japan \\
+rochmanto-artha@ed.tmu.ac.jp}
+\IEEEauthorblockA{\textsuperscript{2}\textit{Department of Electrical Engineering} \\
+\textit{Politeknik Negeri Semarang}\\
+Indonesia}
+\and
+\IEEEauthorblockN{2\textsuperscript{nd} Anhar Risnumawan\textsuperscript{1,2}}
+\IEEEauthorblockA{\textsuperscript{1}\textit{Department of Mechanical Systems Engineering, Graduate School of Systems Design} \\
+\textit{Tokyo Metropolitan University}\\
+6-6 Asahigaoka, Hino, Tokyo 191-0065, Japan \\
+risnumawan-anhar@ed.tmu.ac.jp}
+\IEEEauthorblockA{\textsuperscript{2}\textit{Mechatronics Engineering Division} \\
+\textit{Politeknik Elektronika Negeri Surabaya}\\
+Indonesia}
+\and
+\IEEEauthorblockN{3\textsuperscript{rd} Achmad Fahrul Aji\textsuperscript{1,2}}
+\IEEEauthorblockA{\textsuperscript{1}\textit{Department of Mechanical Systems Engineering, Graduate School of Systems Design} \\
+\textit{Tokyo Metropolitan University}\\
+6-6 Asahigaoka, Hino, Tokyo 191-0065, Japan \\
+achmad-aji@ed.tmu.ac.jp}
+\IEEEauthorblockA{\textsuperscript{2}\textit{Department of Electrical Engineering} \\
+\textit{Politeknik Negeri Semarang}\\
+Indonesia}
+\and
+\IEEEauthorblockN{4\textsuperscript{th} Naoyuki Kubota}
+\IEEEauthorblockA{\textit{Department of Mechanical Systems Engineering, Graduate School of Systems Design} \\
+\textit{Tokyo Metropolitan University}\\
+6-6 Asahigaoka, Hino, Tokyo 191-0065, Japan \\
+kubota@tmu.ac.jp}
 }
 
 \maketitle
@@ -493,11 +519,11 @@ paper sets out to make.
 
 \begin{figure}[htbp]
 \centering
-\FIGPLACEHOLDER{4cm}{top-view diagram, object + candidate arms' base travel, J picks
-the cheaper (not nearest) arm -- values from a logged E3 pick}
-\caption{Energy-aware selection in a representative pick (values from a logged
-trial). The cost $J$ prefers the arm and base placement with lower total energy,
-which here is not the arm whose end-effector is nearest the object.}
+\includegraphics[height=3.3cm,keepaspectratio]{figure/fig5-pick_banana.png}
+\caption{\textcolor{red}{The pipeline executing an energy-aware pick during the E6
+end-to-end trials: the winning candidate's gripper approaches the banana while the
+other arms hold their pose. A concrete logged example of $J$ favoring a
+farther-but-cheaper arm over the nearest one is given in Section~VI-C.}}
 \label{fig:selection}
 \end{figure}
 
@@ -668,8 +694,8 @@ representative case (target $x{=}1.12,y{=}-0.60,z{=}1.15$) energy chose arm\_3
 (0.64~m rail-linear travel, 10.23~rad arm travel, measured energy 42.37~J) over
 nearest's arm\_4 (1.15~m rail travel, 5.71~rad arm travel, 72.47~J) -- accepting
 a larger arm excursion to avoid 0.51~m of friction-costly rail travel, for a
-30.1~J lower realised energy. This is the case plotted in
-Fig.~\ref{fig:selection}.}
+30.1~J lower realised energy. Fig.~\ref{fig:selection} shows the pipeline executing
+this kind of energy-vs-nearest trade-off end to end.}
 
 \subsection{End-to-End Pick (E6)}
 \textcolor{red}{We validated the full perception-to-execution pipeline (Isaac
