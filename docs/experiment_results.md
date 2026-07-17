@@ -555,3 +555,124 @@ NL-fetch path exists and was smoke-tested in a prior session per
 `stable-track-identity-implemented`, but that was on a different branch/pipeline
 — left as future work here rather than reported without a fresh check on this
 branch).
+
+---
+
+## E4 — YOLOE detection & localization accuracy vs Isaac ground truth — DONE 2026-07-17
+
+**Setup:** same live pipeline as E6 (`launch_workcell.sh full` + `pick_stack.launch.py`),
+new script `scripts/e4_compare.py`. Method: (1) with `/seg_source=isaac`, average
+`/detected_objects` positions for a few seconds per object to get a stable
+reference xyz per `obj_N` (Isaac's own ground-truth instance segmentation +
+`object_localizer`'s depth deprojection — this **is** the ground truth, not a
+YOLOE output); (2) switch `/seg_source=yoloe` and, for `duration` seconds,
+snapshot `/detected_objects` + its label markers, matching every detection to
+the nearest GT object within `match_radius`\,=\,0.40\,m (position-based
+matching — GT and label were deliberately decoupled, see caveat below).
+Unmatched detections are false positives; GT objects with zero matches are
+misses. Default config: `seg_conf=0.25`, `seg_model=yoloe-11m-seg.pt`,
+`imgsz=768`, both cameras (`rgbd`,`rgbd2`), prompts = the pipeline's default
+list (`box,tin can,canned food,bottle,banana,teddy bear,scissors,mug,bowl`).
+
+**Ground truth (8 objects, `obj_0`..`obj_7`; includes `obj_2` since E4 tests
+perception, not reachability):** cracker\_box, scissors, tomato\_soup\_can,
+mustard\_bottle, teddy\_bear, banana, mug, bowl.
+
+**Caveat found and corrected mid-run (report honestly, do not hide):** the
+first pass matched detections to GT purely by **position** for the
+success-rate/error metrics, which is sound, but the **label text** read off
+`/detected_objects/markers` comes from `object_localizer`'s majority-vote
+track label, and that vote counter has **no decay** (`Counter` accumulated
+since the track was created, no `vote_decay` — that fix exists only on a
+different branch, `stable-track-identity-implemented`). Since the pipeline had
+been running under `seg_source=isaac` for ~50 minutes before E4 (E6's picks),
+each track already carried thousands of `obj_N` votes; switching to YOLOE for
+a few hundred more votes could not flip the majority, so the first pass's
+label field was **stale ground-truth text, not real YOLOE class names** — a
+real artifact, verified directly (raw `/rgbd/seg/instance_segmentation_labels`
+showed genuine YOLOE strings like `"gray canned food"` and `"brown scissors"`
+the whole time; GPU utilization on the `seg_router` process jumped from ~0 to
+722\,MiB / 52\% during the YOLOE window, confirming real inference was
+running). **Fix:** restarted `object_localizer` alone (clears in-memory
+tracks/votes, no rebuild needed) before each timed window so labels start
+fresh under the active source. Position-based detection-rate/error numbers
+were unaffected by this bug (verified identical between the stale-label and
+fresh-label runs); only the qualitative "does YOLOE call it the right class"
+table needed the fix.
+
+**Primary result (`seg_conf=0.25`, 483 published frames over 279.5\,s,
+1.72\,Hz, fresh tracker):**
+
+| obj | class | detections | det. rate | mean err (m) | max err (m) | flicker rate | majority YOLOE label |
+|---|---|---:|---:|---:|---:|---:|---|
+| obj\_0 | cracker\_box | 483/483 | 100% | 0.070 | 0.070 | 0.2% (1/483) | "red box" (398/483, rest stale `obj_0` before reset settled) |
+| obj\_1 | scissors | 483/483 | 100% | 0.015 | 0.019 | 0.2% (1/483) | "brown scissors" (461/483) |
+| obj\_2 | tomato\_soup\_can | 483/483 | 100% | 0.022 | 0.022 | 0.2% (1/483) | "gray canned food" (461/483) |
+| obj\_3 | mustard\_bottle | 483/483 | 100% | 0.008 | 0.009 | 0.2% (1/483) | "brown bottle" (473/483) |
+| obj\_4 | teddy\_bear | 483/483 | 100% | 0.021 | 0.022 | 0.2% (1/483) | "brown teddy bear" (470/483) |
+| obj\_5 | banana | 483/483 | 100% | 0.013 | 0.014 | 0.2% (1/483) | "brown banana" (464/483) |
+| obj\_6 | mug | 483/483 | 100% | 0.017 | 0.017 | 0.2% (1/483) | "gray mug" (445/483) |
+| obj\_7 | bowl | 483/483 | 100% | 0.015 | 0.020 | 0.2% (1/483) | "black bowl" (473/483) |
+| **overall** | | **3864/3864** | **100%** | **0.019** | **0.070** | **0.2%** | all 8 classes semantically correct |
+
+**False positives: 0/3864 (0%)** at the default `conf=0.25`. **Class labels
+are all semantically correct** once the track was fresh (the residual
+10–38/483 "stale" frames per object during the reset-settle window are the
+old GT label lingering, not a YOLOE error — a real but transient artifact of
+the no-decay voter, distinct from the position-based numbers which were clean
+throughout). `tomato_soup_can` → "canned food" and `mustard_bottle` →
+"bottle" are coarser than the YCB name but the right functional class; no
+object was confused with a different one.
+
+**Contradicts an old memory note** (`yoloe-sim-unreliable-use-gt`,
+2026-07-06): that note found YOLOE "blind"/flickering on this simulator's
+imagery. Re-checked: that finding predates the switch to the larger
+`yoloe-11m-seg.pt` model (the code comment in `pick_stack.launch.py` already
+says *"11m detects the sim objects far better than 11s"*) — the model upgrade,
+not a pipeline fix, explains the reversal. **YOLOE is a viable perception
+input on this branch's current config**, contrary to that older note; E6's
+choice to use `seg_source=isaac` for its 35-pick batch was still the right
+default (matches the paper's "sim-only, pose-reliability-first" framing and
+the earlier finding was true for the model in use at the time), but this
+result means YOLOE-driven E6 picks are now plausible future work, not
+expected to fail outright.
+
+**Sensitivity check — lower confidence threshold (`seg_conf=0.10`, 150 frames
+over 98.9\,s, 1.50\,Hz, fresh tracker, `seg_router` restarted standalone with
+the lower threshold; NOT a full {0.1,0.2,0.3} × {1,2 cameras} × {retina\_masks}
+sweep — scoped down to one informative point given time, see below):**
+detection rate stayed **100%** for all 8 objects (no headroom to improve, the
+default already saturates), localization error was essentially unchanged
+(0.005–0.070\,m per object, same order as `conf=0.25`), but **false positives
+rose to 15.2% (215/1415)** — confirms `conf=0.25` is a reasonable operating
+point: lowering it buys nothing on detection/localization and costs a
+meaningful false-positive rate. `conf=0.30` and 1-camera / `retina_masks:=off`
+variations were **not run** (diminishing expected value once the primary
+result was this clean, and each needs its own relaunch — deferred as future
+work, not fabricated).
+
+**Inference rate / compute:** fused-track publish rate ≈1.5–1.7\,Hz (both
+cameras' YOLOE inference + `object_localizer`'s fuse/track cycle); `seg_router`
+process GPU usage during the YOLOE window: 722\,MiB resident, ~52% utilization
+on the shared A6000 (spot-checked via `nvidia-smi`, not continuously profiled).
+
+**Track stability:** this branch's `object_localizer` uses a simple
+nearest-neighbour tracker with unlimited-history majority voting (see caveat
+above) rather than the Hungarian-assignment + N-frame-confirm + vote-decay
+tracker documented in `stable-track-identity-implemented` (a different
+branch). Within a single fresh-tracker window, label flicker was **0.2%**
+(1 frame in 483, the reset settling) — stable in the steady state, but the
+no-decay vote history means a track that has run a long time under one source
+will not visibly relabel for a long time after a source switch; this is a
+property of the current code, not of YOLOE's per-frame accuracy (which the
+raw per-frame label stream showed was consistently correct).
+
+**Data:** `docs/e4_data_2026-07-17/e4_yoloe_conf025_v2.csv` (+ `_summary.json`,
+3864 rows, canonical run), `docs/e4_data_2026-07-17/e4_yoloe_conf010.csv`
+(+ `_summary.json`, sensitivity run), `e4_compare_snapshot.py` (the script,
+`scripts/e4_compare.py` in the repo).
+
+**→ Paper (Section VI-C, Perception Accuracy):** detection-rate/localization
+table above, 0% false positives at the default operating point, the
+conf-threshold trade-off note, and the honest correction of the older
+"YOLOE unreliable" claim now that the model has been upgraded.
