@@ -317,37 +317,29 @@ object database.}}
 
 \subsection{Planning and Execution Stack}
 
-Given a target and a candidate configuration, the motion layer is built on MoveIt~2
-\cite{Coleman2014} with planners from the Open Motion Planning Library
-\cite{Sucan2012}.  Inverse kinematics requests are answered by MoveIt against 
-the current robot state. Collisions are checked against an octomap that is 
-populated from the two cameras' depth images. This ensures that a plan avoids 
-both the scene and the robot's own body. The object selected for removal is 
-isolated from the cloud that supplies the octomap, thus enabling its grasping, 
-while the remaining objects and the environment persist as obstacles. 
-We build the capability map of Section~IV offline with the Pinocchio rigid-body-dynamics
-library \cite{Carpentier2019}, which we use for forward kinematics when sampling
-configurations and  During the execution 
-phase, a candidate is selected from the map seeds. Subsequently, the inverse-kinematics 
-query is initiated, and the MoveIt software plans a collision-free motion to 
-the selected candidate. This motion can be executed in simulation, depending on 
-the user's preference. The selection procedure that determines which candidate is 
-to be selected, as well as the order in which they are to be selected, is the 
-subject of Section V.
+\textcolor{red}{Given a target and a candidate configuration, the motion layer is
+built on MoveIt~2 \cite{Coleman2014} with planners from the Open Motion Planning
+Library \cite{Sucan2012}. Inverse kinematics requests are answered by MoveIt against
+the current robot state, and collisions are checked against an octomap populated
+from the two cameras' depth images, so a plan avoids both the scene and the robot's
+own body; the object selected for removal is isolated from the octomap's source
+cloud so it can be grasped, while the remaining objects and the environment stay as
+obstacles. We build the capability map of Section~IV offline with the Pinocchio
+rigid-body-dynamics library \cite{Carpentier2019}, which is also used for forward
+kinematics when sampling configurations. At execution time, a candidate is drawn
+from the map, MoveIt plans a collision-free motion to it, and the motion is executed
+in simulation. Section~V covers which candidate is selected and in what order.}
 
 \section{Base-Aware GNG Capability Map}
 
-The fundamental principle of our methodology is the creation of a capability map 
-of a single arm. For each location at which the end-effector has the capacity 
-to reach, the map retains a configuration that enables access, in addition to a 
-measurement of the efficacy of that configuration. In contradistinction to a 
-reachability map, which encodes solely whether a location is attainable, 
-this representation associates each reachable location with a concrete 
-configuration and a quality measure. Furthermore, it is base-aware in 
-that the stored configuration incorporates the rail's degrees of freedom. 
-The construction of a capability map is undertaken for each arm; consequently, 
-the four red arms that traverse the two rails are delineated by four maps 
-that are queried independently in Section V.
+\textcolor{red}{Our core idea is a per-arm capability map: for each location the
+end-effector can reach, the map stores a configuration that achieves it and a
+quality measure for that configuration. Unlike a plain reachability map, which only
+encodes whether a location is attainable, ours attaches a concrete configuration and
+a quality value to every reachable location, and it is base-aware because the stored
+configuration includes the rail's degrees of freedom. We build one such map per arm,
+so the four arms across the two rails are described by four independently-queried
+maps (Section~V).}
 
 \subsection{Sampling Reachable Configurations}
 
