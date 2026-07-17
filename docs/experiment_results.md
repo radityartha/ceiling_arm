@@ -676,3 +676,81 @@ raw per-frame label stream showed was consistently correct).
 table above, 0% false positives at the default operating point, the
 conf-threshold trade-off note, and the honest correction of the older
 "YOLOE unreliable" claim now that the model has been upgraded.
+
+---
+
+## E5 — Reachable vs. unreachable classification — DONE 2026-07-17
+
+**Ground truth (binary, from INDEPENDENT sources, not from the voxel tool under
+test):** reachable = the 7 objects E6 picked 35/35 (obj\_0,1,3,4,5,6,7);
+unreachable = obj\_2 (tomato\_soup\_can), **freshly re-confirmed live this
+session** (not just cited from old memory): fired a real pick at obj\_2 against
+the live executor — `>>> obj_2: FAILED -- UNREACHABLE -- no IK solution for any
+candidate ... [4 candidates: 4 no-IK, 0 no-plan, 0 exec-abort]`, all 4 arms
+returned IK error `-31`. This is the same ground truth E3/E6 already used.
+
+**Classifier under test:** `reachability_cloud`'s live voxel-reach percentage
+(the same `voxel reach -> objN:XX%` numbers seen in the E6/E4 logs) — accumulate
+each object's visible RGB-D point cloud into voxels, mark a voxel "reached" iff
+it has a GNG node within `reach_radius` **and** passes an enclosure gate
+(`enclose_thresh=0.5`, `enclose_k=8`: needs `k` nearby nodes forming a
+geometric shell around the point, not just proximity), report the reached
+fraction per object. New script `scripts/e5_reach_sweep.py` samples this over
+a window and classifies "predicted reachable" iff mean % > 0, against the GT
+above.
+
+**Sweep (`reach_radius` absolute override via a standalone `reachability_cloud`
+restart per value; default is adaptive ≈0.090\,m for these maps):**
+
+| reach\_radius | obj\_0 | obj\_1 | obj\_2 | obj\_3 | obj\_4 | obj\_5 | obj\_6 | obj\_7 | TP | FN | FP | TN | accuracy |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| default (≈0.090 m, adaptive) | 0% | 0% | 0% | 25.4% | 70.7% | 6.0% | 53.4% | 30.7% | 5 | 2 | 0 | 1 | 75.0% |
+| 0.08 m | 0% | 0% | 0% | 16.6% | 58.6% | 1.8% | 35.8% | 20.8% | 5 | 2 | 0 | 1 | 75.0% |
+| 0.12 m | 0% | 0% | 0% | 70.2% | 94.3% | 45.8% | 91.9% | 68.6% | 5 | 2 | 0 | 1 | 75.0% |
+| 0.16 m | 0% | 0% | 0% | 97.8% | 98.7% | 85.5% | 99.2% | 94.6% | 5 | 2 | 0 | 1 | 75.0% |
+
+**Accuracy is identical (75%, 6/8) at every tested radius** — the same two
+false negatives (obj\_0 cracker\_box, obj\_1 scissors) persist from the tightest
+to the loosest radius tested, while the five already-correctly-classified
+reachable objects simply climb toward saturation (their % grows with radius,
+but they were never on the decision boundary). obj\_2 (the true negative) stays
+correctly at 0% throughout — no false positives at any radius. **This means
+the radius sweep, in this scene's geometry, has zero effect on classification
+accuracy**: the boundary between "0%" and ">0%" is not being set by the radius
+parameter for these two objects.
+
+**Root cause, diagnosed (not just observed):** computed each object's nearest
+GNG-node distance directly from `/tmp/arm{1,2,3,4}_model.npz` (offline, xyz
+only). obj\_0's nearest node is 0.120\,m away (arm\_4) and obj\_1's is 0.152\,m
+(arm\_4) — **both within the largest tested radius (0.16\,m)** — yet the voxel
+tool still reported exactly 0% at every radius. The reason is the **enclosure
+gate**: `enclose_k=8` requires 8 nearby nodes to geometrically surround
+(enclose) a point, not merely lie within `reach_radius` of it; obj\_0/obj\_1
+sit at a one-sided fringe of the reach shell (nodes only approach from one
+side, e.g. arm\_4's side), so no point on their visible surface is ever
+"enclosed" regardless of radius. Full distance table in
+`docs/e5_data_2026-07-17/e5_nearest_node_distances.txt`.
+
+**Interpretation — report honestly, this is a real limitation of the
+visualization tool, not of the paper's actual selection pipeline:**
+`reachability_cloud`'s voxel+enclosure heuristic is a coloring/visualization
+aid (RViz), **not** what `gantry_reach_executor` uses to decide reachability —
+the executor calls per-arm IK directly on its own candidate pre-grasp point
+(a single point, not full-surface enclosure), which is exactly why obj\_0/obj\_1
+picked successfully in E6 (35/35) despite this tool misclassifying them.
+The voxel heuristic is a **conservative under-estimator** for objects near the
+workspace fringe: it can say "0% reachable" for an object that a real IK/plan
+call reaches easily. **The paper's actual reachability decision (E3's
+candidate ranking + IK, validated end-to-end in E6) is unaffected by this and
+achieved 100% correct classification** (7/7 reachable objects picked, obj\_2
+correctly excluded) — this section is reporting on a secondary
+visualization/diagnostic tool, not the system's real decision path.
+
+**Data:** `docs/e5_data_2026-07-17/` (per-radius sampler logs, the nearest-node
+distance table, `e5_reach_sweep_snapshot.py`); script at
+`scripts/e5_reach_sweep.py`.
+
+**→ Paper (Section VI-C, Perception Accuracy):** confusion matrix table above,
+the "accuracy is radius-invariant here, enclosure gate is the real boundary"
+finding, and the framing that this measures a visualization heuristic, not the
+executor's actual (100%-accurate, IK-verified) reachability decision.

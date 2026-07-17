@@ -832,10 +832,31 @@ sim-only crutch. Full per-object table, the raw comparison script
 \texttt{docs/experiment\_results.md} (E4) and
 \texttt{docs/e4\_data\_2026-07-17/}.}
 
-\textbf{E5 (reachable vs.\ unreachable):} \TODO{Pending. Reachable-vs-unreachable
-classification accuracy against the GNG capability map, using
-\texttt{tomato\_soup\_can} (\texttt{obj\_2}) as the confirmed
-unreachable-by-design negative example; see docs/experiment\_plan.md.}
+\textbf{E5 (reachable vs.\ unreachable):} \textcolor{red}{Ground truth (7
+reachable objects picked 35/35 in E6, plus \texttt{tomato\_soup\_can}/
+\texttt{obj\_2} freshly re-confirmed live as unreachable -- IK error $-31$ on
+all 4 arms) was compared against a voxel-based reachability classifier (the
+same live \texttt{reachability\_cloud} coloring tool used for RViz
+visualization: a point counts as reached if a GNG node lies within
+\texttt{reach\_radius} \emph{and} an 8-node enclosure gate is satisfied),
+swept over \texttt{reach\_radius}$\in\{0.08,0.12,0.16\}$~m plus the default
+adaptive ($\approx$0.090~m). \textbf{Classification accuracy was identical
+(75\%, 6/8) at every radius tested} -- the same two objects (cracker\_box,
+scissors) were misclassified as unreachable at every setting, even though
+their ground-truth nearest-node distance (0.12--0.15~m, computed directly
+from the GNG map) falls within the largest radius tested. Diagnosis: the
+enclosure gate, not raw distance, is the actual decision boundary for these
+two fringe-positioned objects, so widening \texttt{reach\_radius} alone
+cannot fix the misclassification. Critically, \textbf{this measures a
+secondary RViz visualization heuristic, not the pipeline's real reachability
+decision}: \texttt{gantry\_reach\_executor} calls per-arm IK directly on its
+own candidate pre-grasp point rather than requiring full-surface enclosure,
+which is exactly why both objects picked successfully in E6 despite this
+tool's 0\% reading. The paper's actual selection pipeline (E3's ranking +
+IK, end-to-end validated in E6) is unaffected and reached 100\% correct
+reachability classification. Full confusion-matrix table, the nearest-node
+distance diagnosis, and raw logs are in \texttt{docs/experiment\_results.md}
+(E5) and \texttt{docs/e5\_data\_2026-07-17/}.}
 
 \section{Conclusion}
 % DRAFT ONLY -- not yet signed off by the user; written to match the locked

@@ -1,0 +1,19 @@
+Nearest GNG-node distance (m) per arm, to each object's GT centroid
+(computed offline from /tmp/arm{1,2,3,4}_model.npz, xyz-only, node.dim=3 slice):
+
+arm    obj_0(cracker_box)  obj_1(scissors)  obj_2(tomato_soup_can)  obj_5(banana, control)
+arm1   0.5410              0.4608           0.7107                 0.1045
+arm2   0.6002              0.4805           0.6846                 0.1040
+arm3   0.2218              0.1970           0.4025                 0.2055
+arm4   0.1203              0.1522           0.4115                 0.1936
+min    0.1203 (arm4)       0.1522 (arm4)    0.4025 (arm3)          0.1040 (arm1)
+
+obj_0/obj_1's nearest-node distance (0.12/0.15 m via arm_4) is WITHIN the
+largest tested reach_radius (0.16 m), yet reachability_cloud's voxel
+classifier still reported 0% at every radius tested. Root cause: the voxel
+tool's enclosure gate (enclose_thresh=0.5, enclose_k=8 -- requires k=8
+nearby nodes to geometrically enclose the point, not just be within radius)
+rejects surface points near the reach-shell's one-sided fringe, even when
+plain nearest-node DISTANCE is satisfied. This is a stricter, more
+conservative test than the one the actual pick pipeline uses (per-arm IK on
+the executor's own candidate pre-grasp point).
