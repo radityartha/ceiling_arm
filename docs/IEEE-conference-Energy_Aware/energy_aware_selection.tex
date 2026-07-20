@@ -22,21 +22,23 @@
 
 \title{Energy-Aware Arm and Base Selection for a Dual-Gantry Quad-Arm Ceiling Robot Using a GNG Capability Map\\}
 
-\author{
-\IEEEauthorblockN{Raditya Artha Rochmanto\textsuperscript{1,7}, Achmad Fahrul Aji\textsuperscript{2,7}, Anhar Risnumawan\textsuperscript{3,8}, Teuku Zikri Fatahillah\textsuperscript{4},}  
-\IEEEauthorblockN{Alfin Junaedy \textsuperscript{5}, Naoyuki Kubota\textsuperscript{6}}
-\IEEEauthorblockA{\textsuperscript{1,2,3,4,5,6}\textit{Department of Mechanical Systems Engineering, Graduate School of Systems Design} \\
-\textit{Tokyo Metropolitan University}\\
-Tokyo, Japan \\
-\IEEEauthorblockA{\textsuperscript{7}\textit{Department of Electrical Engineering} \\
-\textit{Politeknik Negeri Semarang}\\
-Semarang, Indonesia}
-\IEEEauthorblockA{\textsuperscript{8}\textit{Mechatronics Engineering Division} \\
-\textit{Politeknik Elektronika Negeri Surabaya}\\
-Surabaya, Indonesia}
-Email: \textsuperscript{1}rochmanto-artha@ed.tmu.ac.jp, \textsuperscript{2}achmad-aji@ed.tmu.ac.jp, \textsuperscript{3}risnumawan-anhar@ed.tmu.ac.jp,\\
- \textsuperscript{4}teuku-fatahillah@ed.tmu.ac.jp, \textsuperscript{5}alfin@tmu.ac.jp, \textsuperscript{6}kubota@tmu.ac.jp}
-}
+% --- Author block hidden for blind review; restore for camera-ready ---
+% \author{
+% \IEEEauthorblockN{Raditya Artha Rochmanto\textsuperscript{1,7}, Achmad Fahrul Aji\textsuperscript{2,7}, Anhar Risnumawan\textsuperscript{3,8}, Teuku Zikri Fatahillah\textsuperscript{4},}
+% \IEEEauthorblockN{Alfin Junaedy \textsuperscript{5}, Naoyuki Kubota\textsuperscript{6}}
+% \IEEEauthorblockA{\textsuperscript{1,2,3,4,5,6}\textit{Department of Mechanical Systems Engineering, Graduate School of Systems Design} \\
+% \textit{Tokyo Metropolitan University}\\
+% Tokyo, Japan \\
+% \IEEEauthorblockA{\textsuperscript{7}\textit{Department of Electrical Engineering} \\
+% \textit{Politeknik Negeri Semarang}\\
+% Semarang, Indonesia}
+% \IEEEauthorblockA{\textsuperscript{8}\textit{Mechatronics Engineering Division} \\
+% \textit{Politeknik Elektronika Negeri Surabaya}\\
+% Surabaya, Indonesia}
+% Email: \textsuperscript{1}rochmanto-artha@ed.tmu.ac.jp, \textsuperscript{2}achmad-aji@ed.tmu.ac.jp, \textsuperscript{3}risnumawan-anhar@ed.tmu.ac.jp,\\
+%  \textsuperscript{4}teuku-fatahillah@ed.tmu.ac.jp, \textsuperscript{5}alfin@tmu.ac.jp, \textsuperscript{6}kubota@tmu.ac.jp}
+% }
+\author{\IEEEauthorblockN{Anonymous Author(s)}\\Submission for blind review}
 
 \maketitle
 
@@ -134,7 +136,7 @@ exist in our facility, demonstrating the feasibility of transferring the simulat
 
 \section{Related Work}
 
-\noindent\textit{Capability maps and base placement.}
+\noindent\textbf{Capability maps and base placement.}
 Zacharias et al.\ extended binary reachability grids to a
 capability map that also captures reach orientation \cite{Zacharias2007}, and
 Reuleaux inverted this to pick a standing position for a target
@@ -148,7 +150,7 @@ part of the configuration, so it records how base motion extends reach, and
 every node carries a representative 8-DOF configuration and manipulability
 value, not a single bit.
 
-\noindent\textit{Redundancy resolution and inverse kinematics.}
+\noindent\textbf{Redundancy resolution and inverse kinematics.}
 A kinematic chain with more joints than the task strictly needs can use
 the spare freedom for a secondary objective; Yoshikawa's manipulability measure is
 the classic choice, steering a redundant arm away from singular postures
@@ -159,7 +161,7 @@ classical, and instead use the capability map to enumerate candidate 8-DOF
 configurations, each with its own arm and rail placement, which the energy cost then
 ranks to settle both the arm choice and the base motion.
 
-\noindent\textit{Multi-arm coordination.}
+\noindent\textbf{Multi-arm coordination.}
 Distributing tasks across multiple arms is a related concern; recent
 planners such as RoboPARA build dependency graphs over tasks and
 allocate subtasks to each arm so multiple arms can work in parallel
@@ -587,10 +589,11 @@ capability map. All results come from Isaac Sim; validating on the physical
 ceiling-rail platform, and studying the sim-to-real gap in the calibrated weights
 of $J$, is left for future work.
 
-\section*{Acknowledgment}
-This work was partially supported by Japan Science and Technology Agency (JST),
-Moonshot R\&D, with grant number JPMJMS2034 and TMU local 5G research support.
-The authors used Claude Code (Anthropic) to assist with software implementation.
+% --- Acknowledgment hidden for blind review; restore for camera-ready ---
+% \section*{Acknowledgment}
+% This work was partially supported by Japan Science and Technology Agency (JST),
+% Moonshot R\&D, with grant number JPMJMS2034 and TMU local 5G research support.
+% The authors used Claude Code (Anthropic) to assist with software implementation.
 
 {\scriptsize
 \begin{thebibliography}{00}
