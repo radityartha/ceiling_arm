@@ -1,0 +1,47 @@
+commands:
+  stop:
+    phrases:
+      - "stop"
+      - "cancel"
+      - "halt"
+    service: "/task/stop"
+    require_confirmation: false
+
+  open_curtain:
+    phrases:
+      - "open"
+      - "open curtain"
+    service: "/task/open_curtain"
+    require_confirmation: false
+
+  close_curtain:
+    phrases:
+      - "close"
+      - "close curtain"
+    service: "/task/close_curtain"
+    require_confirmation: false
+
+  bring_bag:
+    phrases:
+      - "bag"
+      - "back"
+      - "bring bag"
+    service: "/task/bring_bag"
+    require_confirmation: false
+
+  bring_bottle:
+    phrases:
+      - "bottle"
+      - "bring bottle"
+    service: "/task/bring_bottle"
+    require_confirmation: false
+
+  unitree_collab:
+    phrases:
+      - "unitree"
+      - "handoff"
+      - "collab"
+      - "collaborate"
+      - "unitree handoff"
+    service: "/task/unitree_collab"
+    require_confirmation: false
