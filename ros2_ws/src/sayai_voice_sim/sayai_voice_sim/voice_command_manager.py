@@ -45,9 +45,9 @@ class VoiceCommandManager(Node):
         ("close_curtain", {"close"}),
         ("bring_bag", {"bag", "back"}),
         ("bring_bottle", {"bottle"}),
-        ("unitree_collab", {"unitree", "handoff", "collab"}),
         ("move_forward", {"forward"}),
         ("move_backward", {"backward", "back"}),
+        ("go_home", {"home"}),
     )
 
     def __init__(self):

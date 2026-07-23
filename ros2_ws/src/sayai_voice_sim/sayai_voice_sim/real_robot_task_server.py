@@ -14,13 +14,20 @@ already running -- same as launching the demos by hand.
 import os
 import signal
 import subprocess
+import time
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
+from std_msgs.msg import Bool
 from std_srvs.srv import Trigger
 
 
 class RealRobotTaskServer(Node):
+    # How long to wait after the sequence process exits for its /task/result
+    # message to arrive before giving up on it.
+    RESULT_GRACE_S = 2.0
+
     # service name -> demo launch command (workcell_moveit_config)
     TASKS = {
         "/task/open_curtain": [
@@ -35,8 +42,8 @@ class RealRobotTaskServer(Node):
         "/task/bring_bottle": [
             "ros2", "launch", "workcell_moveit_config", "take_bottle_demo.launch.py"
         ],
-        "/task/unitree_collab": [
-            "ros2", "launch", "workcell_moveit_config", "unitree_collab_demo.launch.py"
+        "/task/go_home": [
+            "ros2", "launch", "workcell_moveit_config", "go_home_demo.launch.py"
         ],
     }
 
@@ -45,6 +52,23 @@ class RealRobotTaskServer(Node):
 
         self._proc = None          # running sequence subprocess, or None
         self._active_service = ""  # which task is running, for logging
+
+        # Authoritative outcome of the running sequence, or None until it
+        # reports. `ros2 launch` always exits 0 even when the runner it
+        # launched exits non-zero, so the subprocess exit code cannot tell a
+        # failed sequence from a successful one -- only this topic can.
+        self._result = None
+        self._exit_time = None
+        self.create_subscription(
+            Bool,
+            "/task/result",
+            self._on_result,
+            QoSProfile(
+                depth=1,
+                reliability=QoSReliabilityPolicy.RELIABLE,
+                durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            ),
+        )
 
         self._services = []
         for service_name in self.TASKS:
@@ -77,6 +101,10 @@ class RealRobotTaskServer(Node):
 
             command = self.TASKS[service_name]
             self.get_logger().info("Starting %s" % service_name)
+            # Drop any result left over from the previous sequence, or it would
+            # be reported as this one's outcome.
+            self._result = None
+            self._exit_time = None
             try:
                 # Own session so /task/stop can SIGINT the whole launch tree,
                 # and so a Ctrl-C on this server does not kill the sequence.
@@ -113,20 +141,46 @@ class RealRobotTaskServer(Node):
     def _is_busy(self):
         return self._proc is not None and self._proc.poll() is None
 
+    def _on_result(self, msg):
+        self._result = bool(msg.data)
+
     def _reap(self):
         if self._proc is None:
             return
         code = self._proc.poll()
         if code is None:
             return
-        if code == 0:
-            self.get_logger().info("%s finished OK." % self._active_service)
+
+        # The runner publishes /task/result just before exiting, so the message
+        # can still be in flight here. Give it a short grace period before
+        # falling back to the (unreliable) exit code.
+        if self._exit_time is None:
+            self._exit_time = time.time()
+        if self._result is None and (time.time() - self._exit_time) < self.RESULT_GRACE_S:
+            return
+
+        if self._result is not None:
+            if self._result:
+                self.get_logger().info("%s finished OK." % self._active_service)
+            else:
+                self.get_logger().error(
+                    "%s FAILED: sequence did not complete." % self._active_service
+                )
+        elif code == 0:
+            # Launch succeeded but the runner never reported. Do not claim
+            # success -- an aborted sequence looks exactly like this.
+            self.get_logger().warn(
+                "%s: process exited 0 but never reported a result; "
+                "outcome unknown (runner may have crashed)." % self._active_service
+            )
         else:
             self.get_logger().error(
                 "%s exited with code %d." % (self._active_service, code)
             )
         self._proc = None
         self._active_service = ""
+        self._result = None
+        self._exit_time = None
 
     def _terminate(self):
         if self._proc is None:
@@ -142,6 +196,8 @@ class RealRobotTaskServer(Node):
             pass
         self._proc = None
         self._active_service = ""
+        self._result = None
+        self._exit_time = None
 
 
 def main(args=None):

@@ -45,6 +45,7 @@ install(PROGRAMS
   scripts/run_take_bottle.py
   scripts/run_close_curtain.py
   scripts/run_open_curtain.py
+  scripts/run_go_home.py
   DESTINATION lib/${PROJECT_NAME}
 )
 # --- End Corrected Install Section ---

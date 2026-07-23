@@ -19,10 +19,13 @@ Sequence:
   16 table1 + table2 home
 """
 import math
+import sys
 import time
 
 import rclpy
 from rclpy.node import Node
+from std_msgs.msg import Bool
+from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
 from rclpy.action import ActionClient
 from rclpy.executors import SingleThreadedExecutor
 
@@ -58,6 +61,19 @@ TABLE_JOINTS = {
 class TakeBottleRunner(Node):
     def __init__(self):
         super().__init__("take_bottle_runner")
+
+        # Final outcome for real_robot_task_server. `ros2 launch` does not
+        # propagate a child's exit code, so sys.exit() alone never reaches the
+        # task server -- this topic is what tells it the sequence failed.
+        self._result_pub = self.create_publisher(
+            Bool,
+            "/task/result",
+            QoSProfile(
+                depth=1,
+                reliability=QoSReliabilityPolicy.RELIABLE,
+                durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            ),
+        )
 
         self.gripper_grip_deg = self.declare_parameter("gripper_grip_deg", 45.0).value
         self.gripper_open_deg = self.declare_parameter("gripper_open_deg", 0.0).value
@@ -281,6 +297,31 @@ class TakeBottleRunner(Node):
         return True
 
 
+
+    def publish_result(self, ok: bool) -> None:
+        """Publish the sequence outcome, then spin briefly so it goes out.
+
+        The process exits right after this; without the short spin the sample
+        can be dropped before the task server ever sees it.
+        """
+        msg = Bool()
+        msg.data = bool(ok)
+        # Wait for the task server to actually match this publisher first. The
+        # process exits right after publishing, and a sample sent before the
+        # subscriber has discovered us is simply dropped -- TRANSIENT_LOCAL
+        # only replays to subscribers that find us while we are still alive.
+        end = time.time() + 2.0
+        while time.time() < end and self._result_pub.get_subscription_count() == 0:
+            rclpy.spin_once(self, timeout_sec=0.05)
+        if self._result_pub.get_subscription_count() == 0:
+            self.get_logger().warn(
+                "No subscriber on /task/result; outcome may not reach the task server."
+            )
+        self._result_pub.publish(msg)
+        end = time.time() + 0.5
+        while time.time() < end:
+            rclpy.spin_once(self, timeout_sec=0.05)
+
 def main(args=None):
     rclpy.init(args=args)
     node = None
@@ -304,6 +345,10 @@ def main(args=None):
             print(f"Fatal error before node init: {e}")
     finally:
         if node is not None:
+            try:
+                node.publish_result(ok)
+            except Exception as e:  # never mask the real outcome
+                node.get_logger().error(f"Failed to publish result: {e}")
             node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
@@ -311,4 +356,4 @@ def main(args=None):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

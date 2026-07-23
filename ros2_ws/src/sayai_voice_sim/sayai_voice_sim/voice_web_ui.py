@@ -96,7 +96,7 @@ HTML_PAGE = """<!doctype html>
       <button onclick="task('close_curtain')">Close Curtain</button>
       <button onclick="task('bring_bag')">Bring Bag</button>
       <button onclick="task('bring_bottle')">Bring Bottle</button>
-      <button onclick="task('unitree_collab')" style="grid-column:1/-1;background:#7c3aed;">Unitree Collab Handoff</button>
+      <button onclick="task('go_home')" style="grid-column:1/-1;background:#0f766e;">Go Home (arms + gantries)</button>
       <button class="stop" onclick="task('stop')">STOP</button>
     </div>
   </section>
@@ -120,6 +120,7 @@ HTML_PAGE = """<!doctype html>
     <div class="status-row"><span class="label">close</span><span class="value">close curtain</span></div>
     <div class="status-row"><span class="label">bag</span><span class="value">bring bag</span></div>
     <div class="status-row"><span class="label">bottle</span><span class="value">bring bottle</span></div>
+    <div class="status-row"><span class="label">home</span><span class="value">go home</span></div>
     <div class="status-row"><span class="label">stop</span><span class="value">cancel / halt</span></div>
     <p style="color:#64748b;font-size:12px;margin:10px 0 0;">
       Only one sequence runs at a time — say/type "stop" before starting another.
@@ -242,7 +243,7 @@ class VoiceWebUi(Node):
             "close_curtain": self.create_client(Trigger, "/task/close_curtain"),
             "bring_bag":     self.create_client(Trigger, "/task/bring_bag"),
             "bring_bottle":   self.create_client(Trigger, "/task/bring_bottle"),
-            "unitree_collab": self.create_client(Trigger, "/task/unitree_collab"),
+            "go_home":        self.create_client(Trigger, "/task/go_home"),
             "stop":           self.create_client(Trigger, "/task/stop"),
         }
         self._active_task = ""

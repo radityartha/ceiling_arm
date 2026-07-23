@@ -36,12 +36,9 @@ commands:
     service: "/task/bring_bottle"
     require_confirmation: false
 
-  unitree_collab:
+  go_home:
     phrases:
-      - "unitree"
-      - "handoff"
-      - "collab"
-      - "collaborate"
-      - "unitree handoff"
-    service: "/task/unitree_collab"
+      - "home"
+      - "go home"
+    service: "/task/go_home"
     require_confirmation: false
