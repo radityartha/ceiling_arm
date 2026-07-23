@@ -113,6 +113,21 @@ HTML_PAGE = """<!doctype html>
       <input id="textCmd" placeholder="e.g. open  /  bag  /  stop">
     </form>
   </section>
+
+  <section>
+    <h2>Phrases</h2>
+    <div class="status-row"><span class="label">open</span><span class="value">open curtain</span></div>
+    <div class="status-row"><span class="label">close</span><span class="value">close curtain</span></div>
+    <div class="status-row"><span class="label">bag</span><span class="value">bring bag</span></div>
+    <div class="status-row"><span class="label">bottle</span><span class="value">bring bottle</span></div>
+    <div class="status-row"><span class="label">stop</span><span class="value">cancel / halt</span></div>
+    <p style="color:#64748b;font-size:12px;margin:10px 0 0;">
+      Only one sequence runs at a time — say/type "stop" before starting another.
+      Mic button needs Chrome/Chromium (Web Speech API). If commands arrive over the
+      real microphone (Whisper pipeline, not this page), a wake word like "hey robot"
+      is required first.
+    </p>
+  </section>
 </main>
 <script>
   // --- mic (Web Speech API — works in Chrome/Chromium) ---

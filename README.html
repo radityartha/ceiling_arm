@@ -74,7 +74,7 @@
         <div class="cmd-block" onclick="copy(this)">
           <span class="copy-hint">click to copy</span>
           <pre>source /opt/ros/humble/setup.bash
-source ~/Documents/moonshot_project/ros2_ws/install/setup.bash</pre>
+source ~/Documents/ceiling_arm/ros2_ws/install/setup.bash</pre>
         </div>
       </div>
     </div>
@@ -225,7 +225,7 @@ source ~/Documents/moonshot_project/ros2_ws/install/setup.bash</pre>
         <div class="cmd-label">Terminal A — start controller</div>
         <div class="cmd-block" onclick="copy(this)">
           <span class="copy-hint">click to copy</span>
-          <pre>source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
+          <pre>source ~/Documents/ceiling_arm/ros2_ws/install/setup.bash
 ros2 run moving_table_pkg dual_table_controller \
   --ros-args -p use_fake_hardware:=false</pre>
         </div>
@@ -237,7 +237,7 @@ ros2 run moving_table_pkg dual_table_controller \
         <div class="cmd-label">Terminal B — keyboard remote</div>
         <div class="cmd-block" onclick="copy(this)">
           <span class="copy-hint">click to copy</span>
-          <pre>source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
+          <pre>source ~/Documents/ceiling_arm/ros2_ws/install/setup.bash
 python3 scripts/table_keyboard.py</pre>
         </div>
       </div>
@@ -378,6 +378,76 @@ python3 scripts/table_keyboard.py</pre>
     </div>
   </div>
 
+  <!-- VOICE & WEB CONTROL -->
+  <div class="card wide">
+    <h2><span>🎙️</span> Voice &amp; Web Control</h2>
+    <p class="desc" style="margin-bottom:12px;">Package <code>sayai_voice_sim</code> triggers the four sequence demos above from spoken commands and/or a local HTTPS web page. Depends on the <code>whisper_ros</code> / <code>audio_common</code> submodules.</p>
+
+    <div class="cmd-label">Quick start — 1 terminal (table controller + MoveIt/RViz + voice pipeline)</div>
+    <div class="cmd-block" onclick="copy(this)">
+      <span class="copy-hint">click to copy</span>
+      <pre>./scripts/start_voice_demo.sh</pre>
+    </div>
+    <p class="desc" style="margin:4px 0 14px;">Backgrounds all 3 pieces, tails their logs here, <kbd>Ctrl+C</kbd> stops everything. Use the manual 3-terminal steps below instead when you need to restart just one piece.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+
+      <div>
+        <div class="cmd-label">Terminal 1 — table controller</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 run moving_table_pkg dual_table_controller \
+  --ros-args -p use_fake_hardware:=false</pre>
+        </div>
+        <div class="cmd-label">Terminal 2 — MoveIt + RViz, all 4 arms real hardware</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>./scripts/start_single_rviz.sh</pre>
+        </div>
+        <div class="warn">⚠ Use <code>start_single_rviz.sh</code> here, <strong>not</strong> <code>my_workcell.launch.py</code> — its default <code>use_fake_hardware</code> is <code>true</code>, and even overridden, its default arm IP mapping is reversed vs. the confirmed real IPs. Since a voice/web command can fire any of the four sequences (each driving all four arms), the wrong mapping means <code>arm_1</code> in software could command the wrong physical arm.</div>
+      </div>
+
+      <div>
+        <div class="cmd-label">Terminal 3 — voice + web pipeline</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch sayai_voice_sim workcell_voice.launch.py</pre>
+        </div>
+        <div class="cmd-label">Dry-run (speech/web only, no robot motion)</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>ros2 launch sayai_voice_sim workcell_voice.launch.py use_mock:=true</pre>
+        </div>
+        <div class="cmd-label">Web UI (phone/browser, same LAN)</div>
+        <div class="cmd-block" onclick="copy(this)">
+          <span class="copy-hint">click to copy</span>
+          <pre>https://&lt;PC-LAN-IP&gt;:8080</pre>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="divider">
+
+    <div class="cmd-label">Say / type → triggers</div>
+    <table class="key-table">
+      <tr><td><kbd>open</kbd> / <kbd>open curtain</kbd></td><td class="desc">open_curtain_demo.launch.py</td></tr>
+      <tr><td><kbd>close</kbd> / <kbd>close curtain</kbd></td><td class="desc">close_curtain_demo.launch.py</td></tr>
+      <tr><td><kbd>bag</kbd> / <kbd>bring bag</kbd></td><td class="desc">take_bag_demo.launch.py</td></tr>
+      <tr><td><kbd>bottle</kbd> / <kbd>bring bottle</kbd></td><td class="desc">take_bottle_demo.launch.py</td></tr>
+      <tr><td><kbd>stop</kbd> / <kbd>cancel</kbd> / <kbd>halt</kbd></td><td class="desc">SIGINT the running sequence</td></tr>
+    </table>
+    <p class="desc" style="margin-top:8px;">Only one sequence runs at a time. Mic button needs Chrome/Chromium (Web Speech API). Commands over the real Whisper mic pipeline need a wake word first (default <code>hey robot</code>, 30 s window) — see <code>whisper_transcript_bridge.py</code>.</p>
+
+    <hr class="divider">
+
+    <div class="cmd-label">Troubleshooting</div>
+    <table class="key-table">
+      <tr><td>Web page unreachable, node still running</td><td class="desc"><code>voice_web_ui.py</code> wraps stdlib <code>http.server</code> with SSL by hand — a connection that never completes the TLS handshake (raw probe, <code>http://</code> instead of <code>https://</code>) can wedge its single-threaded <code>accept()</code> forever. <code>ss -tlnp | grep 8080</code> still shows LISTEN but every request times out. Fix: find the PID, <code>kill -9 &lt;pid&gt;</code>, then <code>ros2 run sayai_voice_sim voice_web_ui</code> again — the other 3 nodes don't need restarting.</td></tr>
+      <tr><td>UI says "finished OK" but arms didn't move / log shows ABORTING</td><td class="desc"><code>real_robot_task_server</code> only reports failure if the demo subprocess exits non-zero — check the matching <code>run_*.py</code> ends with <code>sys.exit(main())</code>, not a bare <code>main()</code> call.</td></tr>
+    </table>
+  </div>
+
   <!-- OTHER LAUNCHES -->
   <div class="card">
     <h2><span>⚙️</span> Other Launch Modes</h2>
@@ -415,7 +485,7 @@ python3 scripts/table_keyboard.py</pre>
     <div class="cmd-block" onclick="copy(this)">
       <span class="copy-hint">click to copy</span>
       <pre>source /opt/ros/humble/setup.bash
-cd ~/Documents/moonshot_project/ros2_ws
+cd ~/Documents/ceiling_arm/ros2_ws
 ./build_all.sh
 source install/setup.bash</pre>
     </div>
@@ -423,7 +493,7 @@ source install/setup.bash</pre>
     <div class="cmd-label">Docker build</div>
     <div class="cmd-block" onclick="copy(this)">
       <span class="copy-hint">click to copy</span>
-      <pre>cd ~/Documents/moonshot_project
+      <pre>cd ~/Documents/ceiling_arm
 ./scripts/build.sh    # build image
 ./scripts/run.sh      # run container</pre>
     </div>

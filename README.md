@@ -28,7 +28,7 @@ Each arm connects to the Kinova API over Ethernet.
 ## Repository Layout
 
 ```
-moonshot_project/
+ceiling_arm/
 ├── Dockerfile                    # ROS 2 Humble image build
 ├── docker-compose.yml
 ├── scripts/
@@ -188,7 +188,7 @@ source /opt/ros/humble/setup.bash
 source ~/rviz2_ws/install/setup.bash       # if separate rviz2 ws
 source ~/moveit2_ws/install/setup.bash     # if separate moveit2 ws
 
-cd ~/Documents/moonshot_project/ros2_ws
+cd ~/Documents/ceiling_arm/ros2_ws
 ./build_all.sh
 source install/setup.bash
 ```
@@ -198,7 +198,7 @@ source install/setup.bash
 ### Option B — Docker
 
 ```bash
-cd ~/Documents/moonshot_project
+cd ~/Documents/ceiling_arm
 
 # Build image (requires kortex_api wheel in dependencies/)
 ./scripts/build.sh
@@ -215,7 +215,7 @@ cd ~/Documents/moonshot_project
 
 ```bash
 source /opt/ros/humble/setup.bash
-source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
+source ~/Documents/ceiling_arm/ros2_ws/install/setup.bash
 
 ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false
 ```
@@ -315,6 +315,93 @@ ros2 launch workcell_moveit_config take_bottle_demo.launch.py start_table_contro
 
 ---
 
+## Voice & Web Control
+
+Package [`sayai_voice_sim`](ros2_ws/src/sayai_voice_sim/) triggers the four sequence demos above from spoken commands and/or a local HTTPS web page — no need to type `ros2 launch` by hand. It depends on the `whisper_ros` and `audio_common` submodules (speech-to-text, TTS, audio capture).
+
+### Quick start (1 terminal)
+
+```bash
+./scripts/start_voice_demo.sh
+```
+Runs all 3 pieces below as background jobs with logs under `/tmp/voice_demo_logs.*`, tailing
+them to this terminal. `Ctrl+C` stops everything (table controller, MoveIt/RViz, voice pipeline).
+Use the manual 3-terminal setup instead when you need to restart just one piece (e.g. after the
+`voice_web_ui` wedge issue below) without tearing down the others.
+
+### Setup (3 terminals)
+
+```bash
+# Terminal 1 — base/table controller (same as any sequence demo)
+ros2 run moving_table_pkg dual_table_controller --ros-args -p use_fake_hardware:=false
+
+# Terminal 2 — MoveIt + RViz, all 4 arms on real hardware
+./scripts/start_single_rviz.sh
+```
+> **Use `start_single_rviz.sh` / `single_rviz_workcell.launch.py` here, not `my_workcell.launch.py`.**
+> `my_workcell.launch.py` defaults to `use_fake_hardware:=true`, and even when overridden its
+> default `arm1_ip..arm4_ip` mapping is reversed against the confirmed real IPs (see
+> [Pre-flight check](#1-pre-flight-check--verify-everything-is-wired-and-online)). Since a voice/web command can fire any of
+> the four sequences — each of which drives all four arms — the wrong mapping means the
+> software group `arm_1` could end up commanding the wrong physical arm.
+
+```bash
+# Terminal 3 — voice + web pipeline
+ros2 launch sayai_voice_sim workcell_voice.launch.py
+# dry-run the speech/web layer without moving the robot:
+ros2 launch sayai_voice_sim workcell_voice.launch.py use_mock:=true
+```
+
+This starts 4 nodes: `whisper_transcript_bridge` (wake-word gate), `voice_command_manager`
+(phrase → `/task/*` Trigger service), `real_robot_task_server` (runs the matching
+`*_demo.launch.py` as a subprocess), and `voice_web_ui` (the web page below).
+
+### Web UI
+
+Open `https://<PC-LAN-IP>:8080` from a phone or browser on the same network (find the IP with
+`ip -4 -brief addr show`; use the WiFi/Ethernet interface's `192.168.0.x` address, **not** the
+`192.168.2.x` arm subnet). The page serves a self-signed cert, so click through the browser's
+"not secure" warning once.
+
+The page has: task buttons (Open/Close Curtain, Bring Bag, Bring Bottle, Stop), a browser mic
+button (Web Speech API — Chrome/Chromium only, sends recognized text straight to
+`/api/transcript`), and a text box for typing a command directly. All three paths land on the
+same `/voice/transcript` topic that `voice_command_manager` listens to.
+
+### Voice / typed command phrases
+
+From [`config/voice_commands.yaml`](ros2_ws/src/sayai_voice_sim/config/voice_commands.yaml):
+
+| Say / type | Triggers |
+|---|---|
+| `open`, `open curtain` | `open_curtain_demo.launch.py` |
+| `close`, `close curtain` | `close_curtain_demo.launch.py` |
+| `bag`, `bring bag` | `take_bag_demo.launch.py` |
+| `bottle`, `bring bottle` | `take_bottle_demo.launch.py` |
+| `stop`, `cancel`, `halt` | SIGINT the currently running sequence |
+
+Only one sequence runs at a time — a command that arrives while another is still executing is
+rejected (say "stop" first). If audio comes through the real Whisper mic pipeline (not the
+browser mic or text box), spoken commands are ignored unless preceded by a wake word (default
+`require_wake_word:=true`) — see `whisper_transcript_bridge.py` for the wake-word list and the
+30 s listening window.
+
+### Troubleshooting
+
+- **Web page unreachable even though the node is running** — the bundled `voice_web_ui.py`
+  wraps Python's stdlib `http.server` with SSL by hand; a client that opens a TCP connection
+  without completing the TLS handshake (a raw port probe, or `http://` instead of `https://`)
+  can wedge its single-threaded `accept()` forever, silently queuing out every future
+  connection. Symptom: `ss -tlnp | grep 8080` still shows `LISTEN`, but every request times out.
+  Fix: find the PID (`ss -tlnp | grep 8080`), `kill -9 <pid>`, then
+  `ros2 run sayai_voice_sim voice_web_ui` again — the other 3 nodes don't need restarting.
+- **A sequence silently "succeeds" in the UI but the arms didn't move / an ABORTING line is in
+  the log** — `real_robot_task_server` only reports failure if the `*_demo.launch.py` subprocess
+  exits non-zero; check each `run_*.py` script actually does `sys.exit(main())`, not a bare
+  `main()` call, or a failed sequence will still report `finished OK`.
+
+---
+
 ## Hardware Check & Manual Control
 
 Helper scripts in [scripts/](scripts/) for bringing the system up safely.
@@ -341,13 +428,13 @@ A terminal-based "remote control" for the two motorized tables. Used for manual 
 
 **Start the table controller** (one-time, in its own terminal):
 ```bash
-source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
+source ~/Documents/ceiling_arm/ros2_ws/install/setup.bash
 ros2 run moving_table_pkg dual_table_controller --ros-args -p use_fake_hardware:=false
 ```
 
 **Run the keyboard remote** (in a second terminal):
 ```bash
-source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
+source ~/Documents/ceiling_arm/ros2_ws/install/setup.bash
 python3 scripts/table_keyboard.py
 ```
 
