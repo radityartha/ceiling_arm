@@ -20,11 +20,11 @@ export PYTHONPATH="$(strip "${PYTHONPATH:-}")"
 export CMAKE_PREFIX_PATH="$(strip "${CMAKE_PREFIX_PATH:-}")"
 
 source /opt/ros/humble/setup.bash
-source "$HOME/Documents/moonshot_project/ros2_ws/install/setup.bash"
+source "$HOME/Documents/ceiling_arm/ros2_ws/install/setup.bash"
 
 echo "Using rviz2: $(command -v rviz2)"   # should be /opt/ros/humble/bin/rviz2
 
-RVIZ_CONFIG="$HOME/Documents/moonshot_project/ros2_ws/install/kinova_gen3_lite_moveit_config/share/kinova_gen3_lite_moveit_config/config/moveit.rviz"
+RVIZ_CONFIG="$HOME/Documents/ceiling_arm/ros2_ws/install/kinova_gen3_lite_moveit_config/share/kinova_gen3_lite_moveit_config/config/moveit.rviz"
 
 exec ros2 launch kinova_gen3_lite_moveit_config moveit_rviz.launch.py \
     rviz_config:="$RVIZ_CONFIG"

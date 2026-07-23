@@ -151,7 +151,7 @@ def run_preflight(arm_ips: list):
         ok("Workspace is sourced (workcell_description visible)")
     else:
         warn("Workspace may not be sourced")
-        info("Run:  source ~/Documents/moonshot_project/ros2_ws/install/setup.bash")
+        info("Run:  source ~/Documents/ceiling_arm/ros2_ws/install/setup.bash")
 
     print()
     info("To test real hardware next, start the table controller in a NEW terminal:")

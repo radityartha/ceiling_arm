@@ -9,6 +9,7 @@ Assumes `my_workcell.launch.py` is already running (MoveIt, controllers, table n
 Runs the steps in order, aborting if any step fails, then exits.
 """
 import math
+import sys
 import time
 
 import rclpy
@@ -430,4 +431,4 @@ def main(args=None):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

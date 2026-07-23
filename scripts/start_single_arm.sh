@@ -14,7 +14,7 @@
 set -e
 
 ROBOT_IP="${1:-192.168.2.10}"
-WS="$HOME/Documents/moonshot_project/ros2_ws"
+WS="$HOME/Documents/ceiling_arm/ros2_ws"
 
 # strip the broken custom overlays from this shell's environment
 strip() { echo "$1" | tr ':' '\n' | grep -vE 'rviz2_ws|moveit2_ws' | paste -sd: -; }
