@@ -20,6 +20,13 @@ port), not port order.
     ros2 launch reachability_gng realsense_dual.launch.py
     ros2 launch reachability_gng realsense_dual.launch.py \\
         serial1:=234222303079 serial2:=241122302297
+    ros2 launch reachability_gng realsense_dual.launch.py enable1:=false  # cam1 cable bad
+
+** enable1/enable2 (default true): fully skip a camera. ** A camera node that
+never finds its serial retries enumeration forever, which contends for the
+USB bus and can knock the OTHER camera offline ("Device or resource busy").
+If one camera's cable/hardware is known bad, disable it here rather than
+leaving it running -- otherwise the working camera degrades too.
 
 ** world->camera TF is a PLACEHOLDER (identity) until calibrated. ** Override
 per camera with tf1_x/y/z/roll/pitch/yaw (and tf2_*), in meters/radians, using
@@ -29,7 +36,8 @@ the camera sat at the world origin looking down +Z -- fine for smoke-testing
 YOLOE detection on /rgbd/seg/debug_image, NOT valid for reachability/grasping.
 """
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, GroupAction
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
@@ -98,6 +106,12 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('serial1', default_value='234222303079'),
         DeclareLaunchArgument('serial2', default_value='241122302297'),
+        # A camera node that never finds its serial keeps retrying enumeration
+        # forever, which contends for the USB bus and can knock the OTHER
+        # camera offline ("Device or resource busy"). Set enable1/2:=false to
+        # fully skip a camera whose cable/hardware is known bad.
+        DeclareLaunchArgument('enable1', default_value='true'),
+        DeclareLaunchArgument('enable2', default_value='true'),
         DeclareLaunchArgument('color_profile', default_value='1280x720x30'),
         DeclareLaunchArgument('depth_profile', default_value='848x480x30'),
         # PLACEHOLDER world->camera extrinsics -- calibrate then override, see
@@ -115,12 +129,20 @@ def generate_launch_description():
         DeclareLaunchArgument('tf2_pitch', default_value='0.0'),
         DeclareLaunchArgument('tf2_yaw', default_value='-1.5708'),
 
-        *_camera_nodes('rgbd', serial1, color_profile, depth_profile),
-        *_camera_nodes('rgbd2', serial2, color_profile, depth_profile),
-        _static_tf('rgbd', LaunchConfiguration('tf1_x'), LaunchConfiguration('tf1_y'),
-                  LaunchConfiguration('tf1_z'), LaunchConfiguration('tf1_roll'),
-                  LaunchConfiguration('tf1_pitch'), LaunchConfiguration('tf1_yaw')),
-        _static_tf('rgbd2', LaunchConfiguration('tf2_x'), LaunchConfiguration('tf2_y'),
-                  LaunchConfiguration('tf2_z'), LaunchConfiguration('tf2_roll'),
-                  LaunchConfiguration('tf2_pitch'), LaunchConfiguration('tf2_yaw')),
+        GroupAction(
+            condition=IfCondition(LaunchConfiguration('enable1')),
+            actions=[
+                *_camera_nodes('rgbd', serial1, color_profile, depth_profile),
+                _static_tf('rgbd', LaunchConfiguration('tf1_x'), LaunchConfiguration('tf1_y'),
+                          LaunchConfiguration('tf1_z'), LaunchConfiguration('tf1_roll'),
+                          LaunchConfiguration('tf1_pitch'), LaunchConfiguration('tf1_yaw')),
+            ]),
+        GroupAction(
+            condition=IfCondition(LaunchConfiguration('enable2')),
+            actions=[
+                *_camera_nodes('rgbd2', serial2, color_profile, depth_profile),
+                _static_tf('rgbd2', LaunchConfiguration('tf2_x'), LaunchConfiguration('tf2_y'),
+                          LaunchConfiguration('tf2_z'), LaunchConfiguration('tf2_roll'),
+                          LaunchConfiguration('tf2_pitch'), LaunchConfiguration('tf2_yaw')),
+            ]),
     ])

@@ -37,10 +37,24 @@ the same node then feeds the identical contract downstream.
 """
 from __future__ import annotations
 
+import array
 import colorsys
 import json
 
 import numpy as np
+
+
+def _set_image_data(msg, buf):
+    """Assign raw bytes to an Image.data field WITHOUT rclpy's per-element check.
+
+    The generated `Image.data` setter validates every byte in pure Python
+    (`all(isinstance(v, int) ...)` + range check) whenever `__debug__` is on,
+    which is O(n) over the whole image -- multiple seconds per 720p frame here,
+    starving the executor so downstream sees almost no frames. The setter's only
+    real action is `self._data = array.array('B', value)`, so we build that array
+    directly and bypass the validation. `buf` must already be valid uint8 bytes.
+    """
+    msg._data = array.array('B', buf)
 
 
 def name_color(r, g, b):
@@ -155,6 +169,18 @@ class SegRouter(Node):
         self.get_logger().info(
             f'seg_router up; source={self.source}, cameras={nss}, '
             f'prompts={self.prompts}')
+
+        # Load YOLOE (CUDA context init + first-time cuDNN kernel selection)
+        # BEFORE rclpy.spin() starts servicing the live camera subscriptions.
+        # Doing this lazily on the first /<ns>/rgb callback instead measured as
+        # a multi-minute hang here: CUDA context creation contends badly with
+        # the DDS/rmw threads already busy on 2 live camera streams, whereas
+        # the identical load is a ~4s no-op done up front in a quiet process.
+        if self.source == 'yoloe':
+            try:
+                self._ensure_model()
+            except Exception as e:
+                self.get_logger().warn(f'YOLOE warm-up load failed: {e}')
 
     # ---- runtime control ----------------------------------------------------
     def _on_source(self, msg):
@@ -281,7 +307,7 @@ class SegRouter(Node):
         out.encoding = 'bgr8'
         out.is_bigendian = 0
         out.step = w * 3
-        out.data = bgr.tobytes()
+        _set_image_data(out, bgr.tobytes())
         self._dbg_pub[ns].publish(out)
 
     def _publish_seg(self, ns, seg, header):
@@ -294,7 +320,7 @@ class SegRouter(Node):
         out.encoding = '32SC1'
         out.is_bigendian = 0
         out.step = w * 4
-        out.data = np.ascontiguousarray(seg, np.int32).tobytes()
+        _set_image_data(out, np.ascontiguousarray(seg, np.int32).tobytes())
         self._seg_pub[ns].publish(out)
 
 

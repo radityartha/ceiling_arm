@@ -42,6 +42,7 @@ setup(
             'seg_cloud = reachability_gng.seg_cloud:main',
             'env_gng = reachability_gng.env_gng:main',
             'depth_cloud = reachability_gng.depth_cloud:main',
+            'color_cloud = reachability_gng.color_cloud:main',
             'map_topo_static = reachability_gng.map_topo_static:main',
             'topo_static_pub = reachability_gng.topo_static_pub:main',
             'reach_fusion = reachability_gng.reach_fusion:main',
