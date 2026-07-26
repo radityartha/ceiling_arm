@@ -14,7 +14,7 @@
 #   ./scripts/start_single_rviz.sh arm1_ip:=0.0.0.0 arm2_ip:=0.0.0.0   # or use_fake_hardware:=true
 set -e
 
-WS="$HOME/Documents/moonshot_project/ros2_ws"
+WS="$HOME/Documents/ceiling_arm/ros2_ws"
 
 strip() { echo "$1" | tr ':' '\n' | grep -vE 'rviz2_ws|moveit2_ws' | paste -sd: -; }
 export PATH="$(strip "$PATH")"
