@@ -27,6 +27,12 @@ JOG_DIRECTIONS = {
     13: 'rotate_ccw',
 }
 
+# How often to retry a table whose _initialize_table*() failed at startup
+# (e.g. motor driver / RS-485 wasn't powered yet). Retries run in a
+# background thread so a slow Modbus timeout (seen up to ~12s per table)
+# never blocks joint_state publishing or the move service.
+RETRY_INTERVAL_S = 15.0
+
 # operation_type for home/preset
 OP_PRESET_HOME = 99
 OP_GOTO_HOME   = 98   # move to absolute encoder 0 (server-side, no client position needed)
@@ -94,10 +100,19 @@ class DualTableController(Node):
         self.table2_stop_event = threading.Event()
 
         # --- Initialize Tables using Parameters ---
+        self._retrying = False
         self._initialize_tables()
         # Seed joint positions from hardware immediately so the first published
         # joint_states reflect the real encoder position, not the 0.0 default.
         self._update_joint_positions()
+
+        # Retry whichever table(s) failed to init above (e.g. motor driver
+        # power / RS-485 wasn't ready yet) instead of staying dead forever.
+        if not self.use_fake_hardware and (self.table1 is None or self.table2 is None):
+            self.retry_timer = self.create_timer(
+                RETRY_INTERVAL_S, self._retry_failed_tables_timer_cb)
+        else:
+            self.retry_timer = None
 
         # ------------------- Create ROS 2 Service -------------------
         self.srv = self.create_service(
@@ -137,6 +152,36 @@ class DualTableController(Node):
             self.table2 = "fake"  # Set fake flag
             return  # Skip all real hardware initialization
 
+        self._initialize_table1()
+        self._initialize_table2()
+
+    def _retry_failed_tables_timer_cb(self):
+        """Timer callback: only KICKS OFF a retry in a background thread (must
+        stay non-blocking -- publish_joint_states shares this node's default
+        callback group, and a Modbus timeout here has taken ~12s per table)."""
+        if self.table1 is not None and self.table2 is not None:
+            self.retry_timer.cancel()
+            return
+        if self._retrying:
+            return  # previous retry attempt still in flight
+        self._retrying = True
+        threading.Thread(target=self._retry_failed_tables, daemon=True).start()
+
+    def _retry_failed_tables(self):
+        # Only touches a table that is currently None -- never re-inits a
+        # table that's already up, so this can't yank the port out from
+        # under an in-flight move.
+        try:
+            if self.table1 is None:
+                self.get_logger().info("Retrying Table 1 initialization...")
+                self._initialize_table1()
+            if self.table2 is None:
+                self.get_logger().info("Retrying Table 2 initialization...")
+                self._initialize_table2()
+        finally:
+            self._retrying = False
+
+    def _initialize_table1(self):
         # --- Initialize Table 1 (Real Hardware) ---
         try:
             port1 = self.get_parameter("table1.port").value
@@ -166,6 +211,7 @@ class DualTableController(Node):
                 self.comm_table1.client.close()
                 self.comm_table1 = None
 
+    def _initialize_table2(self):
         # --- Initialize Table 2 (Real Hardware) ---
         try:
             port2 = self.get_parameter("table2.port").value
