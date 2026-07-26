@@ -39,7 +39,7 @@ from rclpy.qos import qos_profile_sensor_data
 from scipy.spatial.transform import Rotation
 from sensor_msgs.msg import CameraInfo, Image
 
-from charuco_common import build_board
+from charuco_common import SQUARES_X, SQUARES_Y, build_board
 
 NAMESPACES = ['rgbd', 'rgbd2']
 CAPTURE_TIMEOUT_S = 15.0
@@ -97,41 +97,117 @@ def capture_frames(namespaces, timeout_s):
         rclpy.shutdown()
 
 
-def solve_camera_pose(rgb, cam_info, board, ns):
-    """Returns (R_cam_board, t_cam_board, reproj_rms_px) or raises ValueError."""
+def _flip_to_drawing_frame(obj_pts):
+    """Raw OpenCV chessboard/ChArUco object points have +Y toward the viewer
+    (down the printed page) and +Z therefore INTO the page when the board is
+    face-up -- backwards from the ORIGIN/+X/+Y printout convention this
+    script's board-xyz/board-rpy are documented in. Flip Y,Z (proper 180 deg
+    rotation about X, det=+1) into that frame."""
+    obj_pts = obj_pts.copy()
+    obj_pts[:, 1] *= -1
+    obj_pts[:, 2] *= -1
+    return obj_pts
+
+
+def _solve_pnp_charuco(gray, K, dist, board):
+    detector = aruco.CharucoDetector(board)
+    charuco_corners, charuco_ids, marker_corners, marker_ids = detector.detectBoard(gray)
+    if charuco_corners is None or len(charuco_corners) < 6:
+        n_markers = 0 if marker_ids is None else len(marker_ids)
+        n_corners = 0 if charuco_corners is None else len(charuco_corners)
+        return None, (n_corners, n_markers, marker_corners, marker_ids)
+
+    obj_pts, img_pts = board.matchImagePoints(charuco_corners, charuco_ids)
+    obj_pts = _flip_to_drawing_frame(obj_pts)
+    ok, rvec, tvec = cv2.solvePnP(obj_pts, img_pts, K, dist)
+    if not ok:
+        return None, None
+
+    def draw(rgb):
+        debug = aruco.drawDetectedCornersCharuco(
+            rgb.copy(), charuco_corners.reshape(-1, 1, 2), charuco_ids.reshape(-1, 1))
+        cv2.drawFrameAxes(debug, K, dist, rvec, tvec, 0.05)
+        return debug
+
+    return (rvec, tvec, obj_pts, img_pts, draw), None
+
+
+def _solve_pnp_plain_chessboard(gray, K, dist, board, board_xyz, board_rpy):
+    """Fallback for when the board is too small in-frame for ArUco marker
+    bit-pattern decoding (needs only a resolvable corner, not a decoded
+    marker -- works at far lower px/square than ChArUco). A PLAIN
+    checkerboard can't self-identify which physical corner is the ORIGIN, so
+    try both possible 180 deg-rotated corner labelings and keep whichever
+    places the camera on the physically sane side (above the board, for a
+    ceiling camera looking down)."""
+    pattern_size = (SQUARES_X - 1, SQUARES_Y - 1)
+    found, corners = cv2.findChessboardCorners(
+        gray, pattern_size,
+        flags=cv2.CALIB_CB_ADAPTIVE_THRESH | cv2.CALIB_CB_NORMALIZE_IMAGE)
+    if not found:
+        return None
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+    corners = cv2.cornerSubPix(gray, corners, (5, 5), (-1, -1), criteria)
+    img_pts = corners.reshape(-1, 2)
+
+    obj_raw = _flip_to_drawing_frame(board.getChessboardCorners())
+    candidates = []
+    for obj_try in (obj_raw, obj_raw[::-1]):  # the 2nd is the 180 deg relabeling
+        ok, rvec, tvec = cv2.solvePnP(obj_try, img_pts, K, dist)
+        if not ok:
+            continue
+        R_cb, _ = cv2.Rodrigues(rvec)
+        t_wc, _ = world_from_camera(R_cb, tvec.flatten(), board_xyz, board_rpy)
+        candidates.append((t_wc[2], rvec, tvec, obj_try))
+    if not candidates:
+        return None
+    # camera above the board (larger world Z) is the physically sane pick
+    _, rvec, tvec, obj_pts = max(candidates, key=lambda c: c[0])
+
+    def draw(rgb):
+        debug = cv2.drawChessboardCorners(rgb.copy(), pattern_size, corners, found)
+        cv2.drawFrameAxes(debug, K, dist, rvec, tvec, 0.05)
+        return debug
+
+    return rvec, tvec, obj_pts, img_pts, draw
+
+
+def solve_camera_pose(rgb, cam_info, board, ns, board_xyz, board_rpy):
+    """Returns (R_cam_board, t_cam_board, reproj_rms_px, debug_image_path) or
+    raises ValueError. Tries ChArUco (self-identifying corners) first, falls
+    back to a plain chessboard-corner fit if the board is too small/far for
+    ArUco's marker bit-patterns to resolve."""
     gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
     K = np.array(cam_info.k, dtype=np.float64).reshape(3, 3)
     dist = np.array(cam_info.d, dtype=np.float64)
 
-    detector = aruco.CharucoDetector(board)
-    charuco_corners, charuco_ids, marker_corners, marker_ids = detector.detectBoard(gray)
-    if charuco_corners is None or len(charuco_corners) < 6:
-        n = 0 if charuco_corners is None else len(charuco_corners)
+    result, fail_info = _solve_pnp_charuco(gray, K, dist, board)
+    method = 'charuco'
+    if result is None:
+        fallback = _solve_pnp_plain_chessboard(gray, K, dist, board, board_xyz, board_rpy)
+        if fallback is not None:
+            result, method = fallback, 'plain-chessboard'
+
+    if result is None:
+        raw_path = f'/tmp/calib_debug_{ns}_raw.png'
+        annotated = rgb.copy()
+        if fail_info is not None:
+            n_corners, n_markers, marker_corners, marker_ids = fail_info
+            if marker_ids is not None and n_markers > 0:
+                aruco.drawDetectedMarkers(annotated, marker_corners, marker_ids)
+        cv2.imwrite(raw_path, cv2.cvtColor(annotated, cv2.COLOR_RGB2BGR))
         raise ValueError(
-            f'[{ns}] only {n} ChArUco corners detected (need >=6) -- check '
-            'the board is fully visible, in focus, and well lit')
+            f'[{ns}] neither ChArUco nor plain-chessboard corners were '
+            f'detected -- check the board is fully visible, in focus, and '
+            f'well lit. Raw capture saved: {raw_path}')
 
-    obj_pts, img_pts = board.matchImagePoints(charuco_corners, charuco_ids)
-    # OpenCV's raw ChArUco object frame has +Y running toward the viewer
-    # (down the printed page) and +Z therefore pointing INTO the page when
-    # the board is face-up -- both backwards from the "+X/+Y arrows on the
-    # printout, Z up when face-up" convention this script's board-xyz/
-    # board-rpy are documented in. Flip Y and Z (a proper 180 deg rotation
-    # about X, det=+1) so solvePnP's R_cb is expressed in THAT frame instead.
-    obj_pts = obj_pts.copy()
-    obj_pts[:, 1] *= -1
-    obj_pts[:, 2] *= -1
-    ok, rvec, tvec = cv2.solvePnP(obj_pts, img_pts, K, dist)
-    if not ok:
-        raise ValueError(f'[{ns}] solvePnP failed')
-
+    rvec, tvec, obj_pts, img_pts, draw = result
     proj, _ = cv2.projectPoints(obj_pts, rvec, tvec, K, dist)
     rms_px = float(np.sqrt(np.mean(np.sum((proj.reshape(-1, 2) - img_pts.reshape(-1, 2)) ** 2, axis=1))))
 
-    debug = cv2.aruco.drawDetectedCornersCharuco(rgb.copy(), charuco_corners, charuco_ids)
-    cv2.drawFrameAxes(debug, K, dist, rvec, tvec, 0.05)
     out_path = f'/tmp/calib_debug_{ns}.png'
-    cv2.imwrite(out_path, cv2.cvtColor(debug, cv2.COLOR_RGB2BGR))
+    cv2.imwrite(out_path, cv2.cvtColor(draw(rgb), cv2.COLOR_RGB2BGR))
+    print(f'[{ns}] solved via {method}')
 
     R_cb, _ = cv2.Rodrigues(rvec)
     return R_cb, tvec.flatten(), rms_px, out_path
@@ -170,7 +246,8 @@ def main():
     for i, ns in enumerate(args.namespaces, start=1):
         rgb, cam_info = frames[ns]
         try:
-            R_cb, t_cb, rms_px, debug_path = solve_camera_pose(rgb, cam_info, board, ns)
+            R_cb, t_cb, rms_px, debug_path = solve_camera_pose(
+                rgb, cam_info, board, ns, args.board_xyz, args.board_rpy)
         except ValueError as e:
             print(f'\n{e}')
             continue

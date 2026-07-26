@@ -1,0 +1,69 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Plane Cell Count: 20
+      Reference Frame: world
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+      Show Names: true
+      Show Axes: true
+      Show Arrows: false
+      Marker Scale: 0.6
+      Frame Timeout: 999
+      Frames:
+        All Enabled: false
+        world:
+          Value: true
+        t1_base_link:
+          Value: true
+        t2_base_link:
+          Value: true
+        rgbd_camera_optical:
+          Value: true
+        rgbd2_camera_optical:
+          Value: true
+    - Class: rviz_default_plugins/PointCloud2
+      Name: rgbd_color_cloud
+      Enabled: true
+      Topic:
+        Value: /rgbd/color_cloud
+        Depth: 5
+        Reliability Policy: Best Effort
+      Style: Points
+      Size (Pixels): 2
+    - Class: rviz_default_plugins/PointCloud2
+      Name: rgbd2_color_cloud
+      Enabled: true
+      Topic:
+        Value: /rgbd2/color_cloud
+        Depth: 5
+        Reliability Policy: Best Effort
+      Style: Points
+      Size (Pixels): 2
+  Global Options:
+    Fixed Frame: world
+    Background Color: 40; 40; 40
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      Distance: 9
+      Focal Point:
+        X: 0.6
+        Y: 0.3
+        Z: 1.2
+      Pitch: 0.65
+      Yaw: 2.2
+Window Geometry:
+  Height: 900
+  Width: 1450

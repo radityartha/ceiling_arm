@@ -118,7 +118,8 @@ def generate_launch_description():
         # target in pick_cli). Change live with pick_cli `p ...` or /seg_prompts.
         DeclareLaunchArgument('seg_prompts',
                               default_value='box,tin can,canned food,bottle,'
-                                            'banana,teddy bear,mug,glass beaker'),
+                                            'banana,teddy bear,mug,glass beaker,'
+                                            'paper bag,bowl,doll,pan'),
         # 0.25 drops weak/wrong labels; object_localizer's tracking + label
         # voting bridge the rest. Lower toward 0.1 if real objects get missed.
         DeclareLaunchArgument('seg_conf', default_value='0.25'),

@@ -110,7 +110,8 @@ class SegRouter(Node):
         self.declare_parameter('out_debug_topic', '{ns}/seg/debug_image')
         # YOLOE settings
         self.declare_parameter('model_path', 'yoloe-11s-seg.pt')
-        self.declare_parameter('prompts', 'bottle,cup,box')   # comma-separated
+        self.declare_parameter(
+            'prompts', 'bottle,cup,box,paper bag,bowl,doll,pan')  # comma-separated
         self.declare_parameter('conf', 0.25)
         self.declare_parameter('imgsz', 640)
         self.declare_parameter('device', '')               # '' -> auto

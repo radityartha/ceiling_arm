@@ -42,7 +42,11 @@ from charuco_common import (DICT_NAME, MARKER_LENGTH_M, SQUARE_LENGTH_M,
                             SQUARES_X, SQUARES_Y, build_board)
 
 DPI = 300
-_MARGIN_SQUARES = 1.3  # room for the ORIGIN/+X/+Y annotation
+# Room for the ORIGIN/+X/+Y annotation, in squares. Kept small because the
+# A4 portrait layout (charuco_common.py) already uses nearly the whole sheet:
+# at 35 mm squares this is ~10 mm, which clears the arrow tips (they reach
+# ~0.15 squares past the pattern edge) and still leaves a printable border.
+_MARGIN_SQUARES = 0.29
 
 
 def _annotate_axes(board, gray_img):
@@ -88,23 +92,29 @@ def render_png(board, out_path):
 def render_pdf(png_path, out_path):
     # total printed size = pattern + the annotation margin baked into render_png's
     # PNG -- MUST match that image's physical extent exactly, or the PDF stretches
-    # it and the 28mm squares no longer print at 28mm.
+    # it and the squares no longer print at SQUARE_LENGTH_M.
     page_w, page_h = A4
     board_w_mm = (SQUARES_X + 2 * _MARGIN_SQUARES) * SQUARE_LENGTH_M * 1000
     board_h_mm = (SQUARES_Y + 2 * _MARGIN_SQUARES) * SQUARE_LENGTH_M * 1000
     x0 = (page_w - board_w_mm * mm) / 2
-    y0 = page_h - 30 * mm - board_h_mm * mm  # top margin 30mm for the label
+    # 20mm reserved at the top for the label. The A4 portrait layout leaves
+    # little slack (~12mm at the bottom with the 35mm board), so don't grow
+    # this without re-checking the board still clears the page edge.
+    y0 = page_h - 20 * mm - board_h_mm * mm
 
     c = canvas.Canvas(out_path, pagesize=A4)
     c.drawImage(png_path, x0, y0, width=board_w_mm * mm, height=board_h_mm * mm)
-    c.setFont('Helvetica', 10)
-    label_y = page_h - 15 * mm
-    c.drawString(15 * mm, label_y,
+    c.setFont('Helvetica', 9)
+    label_y = page_h - 9 * mm
+    c.drawString(12 * mm, label_y,
                  f'ChArUco {SQUARES_X}x{SQUARES_Y}  square={SQUARE_LENGTH_M*1000:.1f}mm  '
                  f'marker={MARKER_LENGTH_M*1000:.1f}mm  dict={DICT_NAME}')
-    c.drawString(15 * mm, label_y - 5 * mm,
-                 'PRINT AT 100% / ACTUAL SIZE (no "fit to page"). '
-                 'Verify with a ruler: one square must measure 28.0 mm.')
+    # Quote the real square size -- this line is the printed sanity check, so a
+    # stale hardcoded number here would have the user validate against the
+    # wrong value and silently scale every downstream extrinsic.
+    c.drawString(12 * mm, label_y - 5 * mm,
+                 'PRINT AT 100% / ACTUAL SIZE (no "fit to page"). Verify with a '
+                 f'ruler: one square must measure {SQUARE_LENGTH_M*1000:.1f} mm.')
     c.save()
 
 

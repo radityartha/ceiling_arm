@@ -15,11 +15,13 @@ converts that to the 32FC1-meters contract this repo's nodes decode directly
 1:1 onto the neutral topic names via `topic_tools relay` (cheap, no recompute).
 
 Camera identity is pinned by USB serial number (stable across replug/USB
-port), not port order.
+port), not port order. `rgbd` (serial1) is the gantry_1-side (+Y) camera,
+`rgbd2` (serial2) the gantry_2-side (-Y) one -- matches the Isaac twin's
+convention (ros2_bridge_gui.py CAMERAS list), keep them in sync.
 
     ros2 launch reachability_gng realsense_dual.launch.py
     ros2 launch reachability_gng realsense_dual.launch.py \\
-        serial1:=234222303079 serial2:=241122302297
+        serial1:=241122302297 serial2:=234222303079
     ros2 launch reachability_gng realsense_dual.launch.py enable1:=false  # cam1 cable bad
 
 ** enable1/enable2 (default true): fully skip a camera. ** A camera node that
@@ -28,12 +30,14 @@ USB bus and can knock the OTHER camera offline ("Device or resource busy").
 If one camera's cable/hardware is known bad, disable it here rather than
 leaving it running -- otherwise the working camera degrades too.
 
-** world->camera TF is a PLACEHOLDER (identity) until calibrated. ** Override
-per camera with tf1_x/y/z/roll/pitch/yaw (and tf2_*), in meters/radians, using
-the ROS optical-frame convention (x right, y down, z forward out of the lens).
-Until it's calibrated, depth_cloud/object_localizer will place points as if
-the camera sat at the world origin looking down +Z -- fine for smoke-testing
-YOLOE detection on /rgbd/seg/debug_image, NOT valid for reachability/grasping.
+** world->camera TF defaults come from calibrate_extrinsics.py (2026-07-25
+first pass, see that script + charuco_common.py / generate_charuco_board.py
+in this package). ** Override per camera with tf1_x/y/z/roll/pitch/yaw (and
+tf2_*), in meters/radians, using the ROS optical-frame convention (x right,
+y down, z forward out of the lens), if you re-run the calibration. rgbd2
+(tf2)'s fit was marginal (~2.2px reprojection RMS, board was small/blurry in
+that camera's view) -- good enough for a first pass, re-calibrate with the
+board bigger/closer in rgbd2's frame for reachability/grasping precision.
 """
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction
@@ -104,8 +108,28 @@ def generate_launch_description():
     depth_profile = LaunchConfiguration('depth_profile')
 
     return LaunchDescription([
-        DeclareLaunchArgument('serial1', default_value='234222303079'),
-        DeclareLaunchArgument('serial2', default_value='241122302297'),
+        # serial1/2 -> ns rgbd/rgbd2, matching the Isaac twin's layout
+        # (ros2_bridge_gui.py CAMERAS) so sim and real agree. The two sit at
+        # DIAGONALLY OPPOSITE corners of the work area (rail spans x: 0..2.0,
+        # so the gantry START is x=0):
+        #   rgbd  (serial1) = 241122302297 -> (+X, +Y), past the rail end,
+        #                     gantry_1 side: ACROSS from the gantry start.
+        #   rgbd2 (serial2) = 234222303079 -> (-X, -Y), before the rail start,
+        #                     gantry_2 side: NEAR the gantry start.
+        # Established 2026-07-26 by solving each camera's pose RELATIVE TO THE
+        # BOARD (PnP only, independent of the broken world extrinsics) once
+        # both cameras were finally on USB3 at 1280x720: 241122302297 came out
+        # at board-frame Y=+0.69 (RMS 0.31px) = the +Y side, so it is `rgbd`.
+        # The earlier opposite pairing was solved when one camera was stuck at
+        # 640x480 and its fit was junk (RMS 2.2px) -- do not trust that run.
+        # Verify by eye after any change (rqt_image_view on /rgbd/rgb and
+        # /rgbd2/rgb) rather than trusting this comment -- and if the LAYOUT
+        # looks wrong in RViz while the raw images look right, suspect stale
+        # static_transform_publisher processes first (see below), not this.
+        # INTRINSICS never need swapping: they ride with each device via
+        # camera_info.
+        DeclareLaunchArgument('serial1', default_value='241122302297'),
+        DeclareLaunchArgument('serial2', default_value='234222303079'),
         # A camera node that never finds its serial keeps retrying enumeration
         # forever, which contends for the USB bus and can knock the OTHER
         # camera offline ("Device or resource busy"). Set enable1/2:=false to
@@ -114,20 +138,40 @@ def generate_launch_description():
         DeclareLaunchArgument('enable2', default_value='true'),
         DeclareLaunchArgument('color_profile', default_value='1280x720x30'),
         DeclareLaunchArgument('depth_profile', default_value='848x480x30'),
-        # PLACEHOLDER world->camera extrinsics -- calibrate then override, see
-        # module docstring above.
-        DeclareLaunchArgument('tf1_x', default_value='0.0'),
-        DeclareLaunchArgument('tf1_y', default_value='0.0'),
-        DeclareLaunchArgument('tf1_z', default_value='2.0'),
-        DeclareLaunchArgument('tf1_roll', default_value='-1.5708'),
-        DeclareLaunchArgument('tf1_pitch', default_value='0.0'),
-        DeclareLaunchArgument('tf1_yaw', default_value='-1.5708'),
-        DeclareLaunchArgument('tf2_x', default_value='0.0'),
-        DeclareLaunchArgument('tf2_y', default_value='0.0'),
-        DeclareLaunchArgument('tf2_z', default_value='2.0'),
-        DeclareLaunchArgument('tf2_roll', default_value='-1.5708'),
-        DeclareLaunchArgument('tf2_pitch', default_value='0.0'),
-        DeclareLaunchArgument('tf2_yaw', default_value='-1.5708'),
+        # world->camera extrinsics, from calibrate_extrinsics.py (2026-07-25
+        # first pass, ChArUco board pinned via t1_a1_tool_frame + tape-measure
+        # deltas -- see memory/reachability_gng notes).
+        #
+        # ** THESE ARE KNOWN-INACCURATE, RE-CALIBRATION PENDING. ** A live
+        # cross-camera overlap check (deproject both depth images to `world`,
+        # symmetric nearest-neighbour on the shared floor/wall surfaces)
+        # scored ~36 cm median disagreement -- the solve itself is off, so
+        # do not trust these for reachability/grasping. Re-run
+        # calibrate_extrinsics.py with the board large and sharp in BOTH
+        # views (the 28 mm board is only ~18 px/square at the ~2 m ceiling
+        # distance, too small for ArUco marker decoding -- print a bigger
+        # one, constants live in charuco_common.py).
+        #
+        # Which solve belongs to which physical camera is NOT reliably known:
+        # the original run happened while the serial->ns mapping was itself
+        # wrong, so the two results cannot be attributed with confidence.
+        # They are ordered here so each camera's frame lands on the side it
+        # actually occupies -- rgbd (+Y, beside t1_base_link) and rgbd2 (-Y,
+        # beside t2_base_link) -- confirmed both in RViz against the gantry
+        # base frames and by the board-relative PnP (241122302297 solved to
+        # board-frame Y=+0.69). Treat the numbers themselves as placeholders.
+        DeclareLaunchArgument('tf1_x', default_value='0.9339'),
+        DeclareLaunchArgument('tf1_y', default_value='1.9872'),
+        DeclareLaunchArgument('tf1_z', default_value='2.2075'),
+        DeclareLaunchArgument('tf1_roll', default_value='-2.4072'),
+        DeclareLaunchArgument('tf1_pitch', default_value='0.3226'),
+        DeclareLaunchArgument('tf1_yaw', default_value='2.4601'),
+        DeclareLaunchArgument('tf2_x', default_value='0.0855'),
+        DeclareLaunchArgument('tf2_y', default_value='-0.6396'),
+        DeclareLaunchArgument('tf2_z', default_value='2.0485'),
+        DeclareLaunchArgument('tf2_roll', default_value='-2.3216'),
+        DeclareLaunchArgument('tf2_pitch', default_value='-0.1442'),
+        DeclareLaunchArgument('tf2_yaw', default_value='-0.9436'),
 
         GroupAction(
             condition=IfCondition(LaunchConfiguration('enable1')),

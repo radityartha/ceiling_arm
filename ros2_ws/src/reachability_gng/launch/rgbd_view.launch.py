@@ -41,7 +41,9 @@ def generate_launch_description():
         DeclareLaunchArgument('seg_model', default_value=os.path.expanduser(
             '~/Documents/ceiling_arm/ros2_ws/yoloe-11m-seg.pt')),
         DeclareLaunchArgument('seg_device', default_value='cuda:0'),
-        DeclareLaunchArgument('seg_prompts', default_value='box,bottle,cup,person'),
+        DeclareLaunchArgument('seg_prompts',
+                              default_value='box,bottle,cup,person,'
+                                            'paper bag,bowl,doll,pan'),
         DeclareLaunchArgument('seg_conf', default_value='0.25'),
         DeclareLaunchArgument('seg_imgsz', default_value='768'),
         DeclareLaunchArgument('image_topic',

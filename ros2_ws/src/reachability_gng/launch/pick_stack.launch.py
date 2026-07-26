@@ -62,7 +62,8 @@ def generate_launch_description():
                                           '(ground truth)'),
         DeclareLaunchArgument('seg_prompts',
                               default_value='box,tin can,canned food,bottle,'
-                                            'banana,teddy bear',
+                                            'banana,teddy bear,paper bag,bowl,'
+                                            'doll,pan',
                               description='YOLOE open-vocab classes'),
         DeclareLaunchArgument('seg_model', default_value='yoloe-11m-seg.pt',
                               description='YOLOE weights (11m detects the sim '

@@ -25,6 +25,12 @@
   <!-- object_localizer perception node -->
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>message_filters</exec_depend>
+  <!-- extrinsics_view.launch.py expands the workcell URDF (for the gantry
+       base frames the camera frames get judged against) and runs RViz. -->
+  <exec_depend>workcell_description</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>rviz2</exec_depend>
 
   <!-- realsense_dual.launch.py: physical RGBD camera bringup -->
   <exec_depend>realsense2_camera</exec_depend>

@@ -58,8 +58,13 @@ def generate_launch_description():
     seg_imgsz = ParameterValue(LaunchConfiguration('seg_imgsz'), value_type=int)
 
     return LaunchDescription([
-        DeclareLaunchArgument('serial1', default_value='234222303079'),
-        DeclareLaunchArgument('serial2', default_value='241122302297'),
+        # NOTE: serial1/serial2 are deliberately NOT declared here. They used
+        # to be, with their own hardcoded defaults, which silently OVERRODE
+        # realsense_dual.launch.py's -- so fixing the serial<->namespace
+        # mapping there had no effect when coming through this file (the two
+        # copies had drifted to opposite pairings). realsense_dual.launch.py
+        # is the single source of truth for which camera is `rgbd`; override
+        # there, or launch it directly.
         DeclareLaunchArgument('enable1', default_value='true'),
         DeclareLaunchArgument('enable2', default_value='true'),
         DeclareLaunchArgument('with_depth_cloud', default_value='true'),
@@ -68,16 +73,16 @@ def generate_launch_description():
         DeclareLaunchArgument('seg_model', default_value=_DEFAULT_MODEL),
         DeclareLaunchArgument('seg_device', default_value='cuda:0'),
         DeclareLaunchArgument('seg_prompts',
-                              default_value='box,bottle,cup,person'),
+                              default_value='box,bottle,cup,person,'
+                                            'paper bag,bowl,doll,pan'),
         DeclareLaunchArgument('seg_conf', default_value='0.25'),
         DeclareLaunchArgument('seg_imgsz', default_value='768'),
 
-        # 1) cameras (+ world->camera static TF), pass serials through.
+        # 1) cameras (+ world->camera static TF). Serials intentionally not
+        # forwarded -- see the note above; realsense_dual owns them.
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(realsense_launch),
-            launch_arguments={'serial1': LaunchConfiguration('serial1'),
-                              'serial2': LaunchConfiguration('serial2'),
-                              'enable1': LaunchConfiguration('enable1'),
+            launch_arguments={'enable1': LaunchConfiguration('enable1'),
                               'enable2': LaunchConfiguration('enable2')}.items()),
 
         # 2) YOLOE segmentation -> /<ns>/seg/debug_image + instance masks.
