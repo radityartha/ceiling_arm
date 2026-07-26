@@ -204,6 +204,18 @@ If you genuinely think a convention is harmful, surface it. Don't fork silently.
 "Tests pass" is wrong if any were skipped.
 Default to surfacing uncertainty, not hiding it.
 
+### Rule 13 — Plan, then stop for go-ahead before executing
+Once design/scope questions are answered, do not chain straight into running
+scripts, generating artifacts, or long autonomous execution. Stop and present
+the concrete execution plan (what will run, what it costs, what it produces)
+as its own step. Proceed only after the user confirms.
+This applies per phase, not just once per task: locking one decision (e.g. a
+data layout) does not pre-authorize the next phase (e.g. training runs,
+figure generation). Each expensive or hard-to-reverse phase gets its own
+checkpoint.
+Prefer the cheaper/default model for mechanical execution once a plan is
+approved; reserve escalating model effort for the planning/judgment step.
+
 ---
 
 ### Secondary Rules — apply only when condition is met

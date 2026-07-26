@@ -46,7 +46,10 @@ def main():
     d = np.load(args.npz)
     gx, gy, length = d['gx'], d['gy'], float(d['length'])
 
-    keys = [k for k in d.files if k.startswith('z') and not k.endswith(('_g1', '_g2'))]
+    # '_raw' holds the kinematics-only mask (before the arm-crossing proxy); it is
+    # a companion series, not a cell, so it is excluded from the panel grid here.
+    keys = [k for k in d.files
+            if k.startswith('z') and not k.endswith(('_g1', '_g2', '_raw'))]
     zs = sorted({float(k.split('_')[0][1:]) for k in keys})
     yaws = sorted({float(k.split('yaw')[1]) for k in keys})
 
@@ -89,7 +92,13 @@ def main():
                         for s, l in zip(SHADES, LABELS)],
                loc='lower center', ncol=3, frameon=False, fontsize=9,
                bbox_to_anchor=(0.5, -0.04), labelcolor=INK)
-    fig.suptitle(f'Co-manipulation capability map — {length:.1f} m beam, 4 arms, '
+    # Name the actual handle layout: a 0.25 m block gripped at its top-face
+    # corners and a 1.2 m beam gripped along its axis are different tasks, and a
+    # figure labelled only "beam" would misreport the block run.
+    handles = str(d['handles']) if 'handles' in d.files else 'line'
+    what = (f'{length:.2f} m block, top-face corners' if handles == 'corners'
+            else f'{length:.1f} m beam, handles along the axis')
+    fig.suptitle(f'Co-manipulation capability map — {what}, 4 arms, '
                  '2 shared gantries', fontsize=12, color=INK)
 
     for ext in ('png', 'pdf'):
