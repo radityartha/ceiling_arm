@@ -140,6 +140,14 @@ def _add_rgbd_cameras():
 _raise_table_drive_force()
 _objs = polish.build_room()
 polish.add_lights()
+# A REAL liftable object for pick-place testing -- obj_0/obj_1 (cracker_box/
+# sugar_box) in build_room() are deliberately STATIC (never fall/move, for the
+# perception/reachability task) and cannot be lifted. See polish.add_pick_cube.
+_objs.append(polish.add_pick_cube())
+# 25 cm / 1.8 kg box for the 4-arm SIMULTANEOUS lift test
+# (coalition_reach_executor.py); see polish.add_coalition_box for the verified
+# centre position + why it needs a pedestal (it floats above work_table3).
+_objs.append(polish.add_coalition_box())
 for _o in _objs:
     world.scene.add(_o)
 world.reset()

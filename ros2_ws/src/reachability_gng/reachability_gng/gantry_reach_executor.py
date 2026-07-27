@@ -1,7 +1,8 @@
 """Energy-aware redundancy resolution + arm selection for the gantry workcell.
 
-Given a detected object, this node decides WHICH arm (arm_1 or arm_2, both
-riding the shared gantry_1) reaches it and at WHICH 8-DOF configuration -- by
+Given a detected object, this node decides WHICH arm (any configured subset of
+arm_1..arm_4, each pair riding a shared gantry) reaches it and at WHICH 8-DOF
+configuration -- by
 ENERGY, not by nearest seed -- then hands MoveIt a joint-space goal so MoveIt
 does the actual collision-aware planning (and optionally execution) against the
 live octomap.
@@ -51,6 +52,7 @@ import time
 
 import numpy as np
 import rclpy
+from control_msgs.action import GripperCommand
 from geometry_msgs.msg import PoseArray, PoseStamped
 from rcl_interfaces.msg import SetParametersResult
 from moveit_msgs.action import MoveGroup
@@ -328,6 +330,33 @@ class GantryReachExecutor(Node):
         self.declare_parameter('grasp_match_radius', 0.12)
         self.declare_parameter('compute_traj_energy', False)
         self.declare_parameter('csv_log', '')
+        # --- full pick-place cycle (opt-in; False = old approach+auto_attach-only
+        # behaviour, unchanged) ---
+        self.declare_parameter('do_grasp', False)
+        # gripper_names/gripper_joints are index-aligned with arm_names, same
+        # convention as arm_groups/arm_ee_frames/gripper_links above.
+        self.declare_parameter('gripper_names', ['gripper_1', 'gripper_2'])
+        self.declare_parameter('gripper_joints',
+                               ['t1_a1_right_finger_bottom_joint',
+                                't1_a2_right_finger_bottom_joint'])
+        # Isaac-verified (isaac_sim/gripper.py, isaac_sim/workcell/grasp_verify.txt:
+        # PASS, pad gap 0.085->0.020, drop 0.000m): increasing master joint OPENS
+        # the gripper in THIS sim. CONFLICTS with run_take_bottle.py's real-Kortex-
+        # hardware convention (degrees, increasing = CLOSES) -- do not reuse those
+        # values here without re-verifying direction on the target platform.
+        self.declare_parameter('gripper_open_pos', 0.96)
+        self.declare_parameter('gripper_closed_pos', -0.09)
+        self.declare_parameter('gripper_max_effort', 50.0)
+        # How far (m, world -Z) to lower the EE from the reached pre-grasp pose
+        # to actually enclose the object -- independent of box_clearance /
+        # approach_offset so it is tunable without moving the pre-grasp aim point.
+        self.declare_parameter('grasp_descend', 0.05)
+        self.declare_parameter('lift_height', 0.15)   # m, world +Z rise after grasp
+        self.declare_parameter('grasp_settle_s', 0.5)  # pause after close, before lift
+        # Optional world (x, y, z) drop point. Empty = no place: hold the object
+        # at lift height above the pick point (still a full grasp+lift cycle).
+        self.declare_parameter('place_xyz', [0.0])
+        self.declare_parameter('place_enabled', False)
 
         g = self.get_parameter
         names = list(g('arm_names').value)
@@ -390,6 +419,23 @@ class GantryReachExecutor(Node):
         self.grasp_match_radius = float(g('grasp_match_radius').value)
         self.compute_traj_energy = bool(g('compute_traj_energy').value)
         self.csv_log = g('csv_log').value
+        self.do_grasp = bool(g('do_grasp').value)
+        self.gripper_names = list(g('gripper_names').value)
+        self.gripper_joints = list(g('gripper_joints').value)
+        self.gripper_open_pos = float(g('gripper_open_pos').value)
+        self.gripper_closed_pos = float(g('gripper_closed_pos').value)
+        self.gripper_max_effort = float(g('gripper_max_effort').value)
+        self.grasp_descend = float(g('grasp_descend').value)
+        self.lift_height = float(g('lift_height').value)
+        self.grasp_settle_s = float(g('grasp_settle_s').value)
+        self.place_enabled = bool(g('place_enabled').value)
+        self.place_xyz = (np.array([float(v) for v in g('place_xyz').value])
+                          if self.place_enabled else None)
+        if self.place_enabled and (self.place_xyz is None or len(self.place_xyz) != 3):
+            self.get_logger().error(
+                'place_enabled=true but place_xyz is not a 3-vector -- place step '
+                'will be skipped')
+            self.place_enabled = False
 
         self.arms = []
         for nm, mp, grp, ee, gl in zip(names, models, groups, ees, grips):
@@ -397,6 +443,11 @@ class GantryReachExecutor(Node):
                 arm = ArmModel(nm, mp, grp, ee, gl)
                 arm.eff_radius = (self.pool_radius if self.pool_radius > 0.0
                                   else self.pool_radius_factor * arm.spacing)
+                idx = len(self.arms)
+                arm.gripper_name = (self.gripper_names[idx]
+                                    if idx < len(self.gripper_names) else None)
+                arm.gripper_joint = (self.gripper_joints[idx]
+                                     if idx < len(self.gripper_joints) else None)
                 self.arms.append(arm)
                 self.get_logger().info(
                     f'loaded {nm}: {mp} -> group {grp}, ee {ee} '
@@ -406,6 +457,13 @@ class GantryReachExecutor(Node):
                 self.get_logger().error(f'could not load {nm} ({mp}): {e}')
         if not self.arms:
             raise SystemExit('no arm models loaded; nothing to do')
+        if self.do_grasp:
+            missing = [a.name for a in self.arms if not a.gripper_name]
+            if missing:
+                self.get_logger().error(
+                    f'do_grasp=true but gripper_names has no entry for {missing} '
+                    f'-- grasp will fail for those arms (check gripper_names/'
+                    f'gripper_joints list length vs arm_names)')
 
         self._pin_cache = {}            # arm name -> (pin, model, data, order)
         self._latest_objects = None
@@ -455,6 +513,15 @@ class GantryReachExecutor(Node):
             ApplyPlanningScene, '/apply_planning_scene', callback_group=cb)
         self.move_cli = ActionClient(self, MoveGroup, 'move_action',
                                      callback_group=cb)
+        # One GripperCommand client per arm that has a gripper_name, action name
+        # convention confirmed against moveit_controllers.yaml + the existing
+        # take_bottle_demo runner (workcell_description/scripts/run_take_bottle.py):
+        # /<gripper_name>_controller/gripper_cmd.
+        self.gripper_clients = {
+            a.name: ActionClient(self, GripperCommand,
+                                 f'/{a.gripper_name}_controller/gripper_cmd',
+                                 callback_group=cb)
+            for a in self.arms if a.gripper_name}
 
         if self.csv_log:
             self._init_csv()
@@ -885,22 +952,34 @@ class GantryReachExecutor(Node):
                     self._wait_until_reached(
                         arm, goal_q, self.reach_tol, self.exec_wait)
                     if ex_ok else (False, float('inf')))
-                if reached:
-                    if self.auto_attach and self.attach_object_id:
-                        self._attach(arm, self.attach_object_id)
+                grasp_ok, grasp_fail_reason = True, ''
+                if reached and self.do_grasp:
+                    # ps.pose.orientation is still the orientation _solve_ik just
+                    # solved (it returns immediately on the first hit, so nothing
+                    # has mutated ps since) -- reuse it rather than re-deriving.
+                    quat = (ps.pose.orientation.x, ps.pose.orientation.y,
+                           ps.pose.orientation.z, ps.pose.orientation.w)
+                    grasp_ok = self._grasp_sequence(
+                        arm, (px, py, pz), quat, goal_q, self.attach_object_id)
+                    grasp_fail_reason = ' (approach OK, grasp sequence failed)'
+                elif reached and self.auto_attach and self.attach_object_id:
+                    self._attach(arm, self.attach_object_id)
+                if reached and grasp_ok:
                     self.get_logger().info(
                         f'>>> {name}: SUCCESS -- {arm.name} reached the '
-                        f'target (max joint err={err:.3f} <= {self.reach_tol})')
+                        f'target (max joint err={err:.3f} <= {self.reach_tol})'
+                        + (' and completed the full grasp cycle'
+                           if self.do_grasp else ''))
                     self._log_csv(idx, attempt, dist_rank[id(c)], c, goal_q,
                                   ik_ms, ptime, plan_ms, energy)
                     return
-                # Execution failed (e.g. -3 env change): fall through and try the
-                # next candidate so the arm keeps trying to reach the target.
+                # Execution (or the grasp sequence) failed: fall through and try
+                # the next candidate so the arm keeps trying to reach the target.
                 fail['exec'] += 1
                 self.get_logger().warn(
                     f'{name} cand#{attempt} {arm.name}: did NOT reach '
-                    f'(exec err={eperr}, joint err={err:.3f}) -- trying next '
-                    f'candidate')
+                    f'(exec err={eperr}, joint err={err:.3f}){grasp_fail_reason} '
+                    f'-- trying next candidate')
 
             # Classify WHY every candidate lost so the terminal says it plainly.
             n_tried = min(len(by_J), self.max_attempts)
@@ -1171,6 +1250,137 @@ class GantryReachExecutor(Node):
         msg.data = f'attach {object_id} {arm.gripper_link}'
         self.attach_pub.publish(msg)
         self.get_logger().info(f'sent: {msg.data}')
+
+    def _detach(self, object_id):
+        msg = String()
+        msg.data = f'detach {object_id}'
+        self.attach_pub.publish(msg)
+        self.get_logger().info(f'sent: {msg.data}')
+
+    def _move_gripper(self, arm, position):
+        """Send `position` (rad, master finger joint) to arm's gripper.
+
+        True if the goal was reached OR the joint stalled while having moved
+        (an object between the fingers stops it short of `position` -- that IS
+        the grasp, not a failure), mirroring run_take_bottle.py's move_gripper
+        confirmation heuristic. False on a genuine no-motion stall (nothing
+        between the fingers / hardware not actuating)."""
+        client = self.gripper_clients.get(arm.name)
+        if client is None:
+            self.get_logger().error(f'{arm.name}: no gripper client (gripper_name '
+                                    'missing for this arm)')
+            return False, None
+        if not client.wait_for_server(timeout_sec=5.0):
+            self.get_logger().error(f'{arm.name}: gripper action server not ready')
+            return False, None
+        start_pos = self._joints.get(arm.gripper_joint)
+        goal = GripperCommand.Goal()
+        goal.command.position = float(position)
+        goal.command.max_effort = self.gripper_max_effort
+        gh = self._wait(client.send_goal_async(goal), 15.0)
+        if gh is None or not gh.accepted:
+            self.get_logger().error(f'{arm.name}: gripper goal rejected')
+            return False, None
+        result = self._wait(gh.get_result_async(), 15.0)
+        if result is None:
+            self.get_logger().error(f'{arm.name}: gripper action timed out')
+            return False, None
+        r = result.result
+        end_pos = float(r.position)
+        if r.reached_goal:
+            return True, end_pos
+        moved = start_pos is not None and abs(end_pos - start_pos) > 0.02
+        if r.stalled and moved:
+            self.get_logger().info(
+                f'{arm.name}: gripper stalled on object (pos={end_pos:.3f}) '
+                '-- treating as grasped')
+            return True, end_pos
+        self.get_logger().error(
+            f'{arm.name}: gripper did not actuate (stalled={r.stalled}, '
+            f'start={start_pos}, end={end_pos:.4f})')
+        return False, end_pos
+
+    def _move_to_pose(self, arm, xyz, quat, seed_q):
+        """IK (seeded, single orientation -- a small local correction, not a
+        fresh search) -> plan+execute -> wait for the live arm to converge.
+        Returns (ok, goal_q, err)."""
+        ps = PoseStamped()
+        ps.header.frame_id = self.world_frame
+        ps.pose.position.x, ps.pose.position.y, ps.pose.position.z = (
+            float(xyz[0]), float(xyz[1]), float(xyz[2]))
+        ok, js, ikerr = self._solve_ik(arm, ps, seed_q, [tuple(quat)])
+        if not ok:
+            self.get_logger().error(f'{arm.name}: no IK to {np.round(xyz, 3)} '
+                                    f'(err={ikerr})')
+            return False, None, float('inf')
+        goal_q = self._extract(js, arm.joint_names)
+        if goal_q is None:
+            return False, None, float('inf')
+        ex_ok, _, eperr, _ = self._plan(arm, goal_q, do_execute=True)
+        if not ex_ok:
+            self.get_logger().error(f'{arm.name}: plan/execute to '
+                                    f'{np.round(xyz, 3)} failed (err={eperr})')
+            return False, goal_q, float('inf')
+        reached, err = self._wait_until_reached(
+            arm, goal_q, self.reach_tol, self.exec_wait)
+        if not reached:
+            self.get_logger().error(f'{arm.name}: did not converge to '
+                                    f'{np.round(xyz, 3)} (joint err={err:.3f})')
+        return reached, goal_q, err
+
+    def _grasp_sequence(self, arm, pregrasp_xyz, quat, seed_q, object_id):
+        """Full cycle from the reached pre-grasp pose: descend, close, attach,
+        lift, optional transport+place, retreat. Returns True only if every
+        stage that was attempted succeeded; logs plainly which stage failed
+        otherwise (Rule 12 -- no silent partial "success").
+
+        `object_id` may be '' (no scene CollisionObject to attach/detach --
+        still runs the physical grasp, just without MoveIt attach bookkeeping).
+        """
+        px, py, pz = pregrasp_xyz
+        grasp_xyz = (px, py, pz - self.grasp_descend)
+        self.get_logger().info(f'{arm.name}: descending {self.grasp_descend:.3f} m '
+                               'to grasp height')
+        ok, goal_q, _ = self._move_to_pose(arm, grasp_xyz, quat, seed_q)
+        if not ok:
+            return False
+
+        self.get_logger().info(f'{arm.name}: closing gripper')
+        ok, _ = self._move_gripper(arm, self.gripper_closed_pos)
+        if not ok:
+            return False
+        if self.grasp_settle_s > 0:
+            time.sleep(self.grasp_settle_s)
+        if object_id:
+            self._attach(arm, object_id)
+
+        lift_xyz = (px, py, pz + self.lift_height)
+        self.get_logger().info(f'{arm.name}: lifting {self.lift_height:.3f} m')
+        ok, goal_q, _ = self._move_to_pose(arm, lift_xyz, quat, goal_q)
+        if not ok:
+            return False
+
+        if self.place_enabled:
+            place_above = (self.place_xyz[0], self.place_xyz[1],
+                           self.place_xyz[2] + self.lift_height)
+            self.get_logger().info(f'{arm.name}: transporting to '
+                                   f'{np.round(self.place_xyz, 3)}')
+            ok, goal_q, _ = self._move_to_pose(arm, place_above, quat, goal_q)
+            if not ok:
+                return False
+            ok, goal_q, _ = self._move_to_pose(arm, tuple(self.place_xyz), quat, goal_q)
+            if not ok:
+                return False
+            self.get_logger().info(f'{arm.name}: opening gripper (place)')
+            ok, _ = self._move_gripper(arm, self.gripper_open_pos)
+            if not ok:
+                return False
+            if object_id:
+                self._detach(object_id)
+            ok, goal_q, _ = self._move_to_pose(arm, place_above, quat, goal_q)
+            if not ok:
+                return False
+        return True
 
     def _init_csv(self):
         with open(self.csv_log, 'w', newline='') as f:

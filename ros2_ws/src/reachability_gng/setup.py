@@ -58,6 +58,8 @@ setup(
             'static_collision = reachability_gng.static_collision:main',
             'gantry_reach_executor = '
             'reachability_gng.gantry_reach_executor:main',
+            'coalition_reach_executor = '
+            'reachability_gng.coalition_reach_executor:main',
             'pick_cli = reachability_gng.pick_cli:main',
         ],
     },

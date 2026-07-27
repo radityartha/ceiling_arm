@@ -327,11 +327,95 @@ def build_room():
         UsdSkel.BindingAPI.Apply(skel).CreateAnimationSourceRel().SetTargets(
             [anim.GetPrim().GetPath()])
     # The character's own forward (foot->toe) is -Y. A -90 deg rotation about Z
-    # swings that forward from -Y to -X, so the person faces "backward" toward the
-    # rail origin (-X). The person is scene geometry; MoveIt sees it, if at all,
-    # through the camera->octomap path, like the cabinet. quat is (w,x,y,z),
-    # scalar-first.
+    # swings that forward from -Y to -X. The person is scene geometry; MoveIt
+    # sees it, if at all, through the camera->octomap path, like the cabinet.
+    # quat is (w,x,y,z), scalar-first.
+    #
+    # Positioned beside work_table2 (cx2=1.6, cy2=0.775, y span [0.4, 1.15]),
+    # on its OPEN -Y side (the +Y side is flush against wall_left, no room to
+    # stand there) facing +Y toward the table -- so a place point on table2 in
+    # front of them is a real "hand the object to the person" gesture, not an
+    # arbitrary drop point. Rz(180) about Z takes the raw forward (-Y, see
+    # above) to +Y: (w,x,y,z) = (0,0,0,1). Verified in reach: (1.6, 0.775,
+    # ~1.0-1.2) is within arm1/arm2's FK reach map (nearest-sample <= 0.046 m).
+    # This REPLACES the old far-away (3.7, 0, 0) placement, which was ~1 m past
+    # every arm's reach fringe (max reachable x at y=0 is ~2.5-2.75 m) and could
+    # never actually receive a delivered object.
     SingleXFormPrim(prim_path=person_path, name="person",
-                    position=np.array([3.7, 0.0, 0.0]),
-                    orientation=np.array([0.70710678, 0.0, 0.0, -0.70710678]))
+                    position=np.array([1.6, -0.15, 0.0]),
+                    orientation=np.array([0.0, 0.0, 0.0, 1.0]))
     return objs
+
+
+def add_pick_cube(prim_path="/World/pick_cube", position=(0.45, 0.60, 1.105),
+                  size=0.06, mass=0.15, color=(0.90, 0.20, 0.10)):
+    """A REAL liftable object for pick-place testing -- unlike obj_0/obj_1
+    (cracker_box/sugar_box in build_room, above), which are deliberately STATIC
+    colliders (RigidBodyEnabled=False) for the perception/reachability task and
+    physically CANNOT be lifted.
+
+    DynamicCuboid + friction PhysicsMaterial, same recipe verified in
+    grasp_test.py/grasp_verify.txt (static/dynamic friction 1.2, restitution 0
+    -> pad gap 0.085->0.020 m, cube held with 0.000 m drop). size=0.06 m clears
+    the ~0.085 m open pad gap with margin; mass=0.15 kg is well inside the Gen3
+    Lite's 0.5 kg payload (single-arm test object, not the 4-arm 1.8 kg block).
+
+    Default position: on work_table3 (cx3=0.2, top_z3=1.05, surf3=1.075) near
+    gantry_1's rail start, offset from the existing banana (0.2, 0.4, surf3) and
+    beaker (0.2, -0.3, surf3) by >0.25 m so nothing overlaps.
+    """
+    from isaacsim.core.api.objects import DynamicCuboid
+    from isaacsim.core.api.materials import PhysicsMaterial
+
+    mat = PhysicsMaterial(prim_path=f"{prim_path}_mat", static_friction=1.2,
+                          dynamic_friction=1.2, restitution=0.0)
+    cube = DynamicCuboid(prim_path=prim_path, name="pick_cube",
+                        position=np.array(position, dtype=float), size=size,
+                        color=np.array(color, dtype=float), mass=mass)
+    cube.apply_physics_material(mat)
+    add_update_semantics(get_current_stage().GetPrimAtPath(prim_path), "pick_cube")
+    return cube
+
+
+def add_coalition_box(prim_path="/World/coalition_box", centre=(0.5, 0.0, 1.5),
+                      size=0.25, mass=1.8, color=(0.15, 0.45, 0.95)):
+    """The 25 cm / ~1.8 kg box for the 4-arm SIMULTANEOUS lift test
+    (coalition_reach_executor.py) -- exceeds one arm's 0.5 kg payload by
+    design, matching the project brief's co-manipulation test object.
+
+    `centre` is verified feasible against data/maps: nearest-FK-sample
+    residual 0.016 m (gantry_1) + 0.017 m (gantry_2) combined over all 4 top
+    corners (see coalition_reach_executor's module docstring / the 2026-07-27
+    reachability check). Do not move this without re-running that check --
+    corners.py's handle_corners() puts the GRASP corners size/2 ABOVE `centre`,
+    so a moved centre can silently fall outside the reach fringe.
+
+    `centre` sits ~0.30 m ABOVE work_table3's surface (surf3=1.075 m,
+    centre[2] - size/2 = 1.375 m) -- open air, so a bare DynamicCuboid would
+    free-fall before the arms arrive. A thin static pedestal (6x6 cm
+    cross-section, well clear of the box's corners at +-size/2 = +-0.125 m,
+    so the 4 grippers never approach it) bridges that gap, resting on the
+    table like every other static prop in this file.
+    """
+    from isaacsim.core.api.objects import DynamicCuboid, FixedCuboid
+    from isaacsim.core.api.materials import PhysicsMaterial
+
+    cx, cy, cz = centre
+    surf3 = 1.05 + 0.05 / 2   # work_table3 top_z3 + th/2, see build_room()
+    box_bottom = cz - size / 2.0
+    pedestal_h = box_bottom - surf3
+    if pedestal_h > 0.0:
+        FixedCuboid(prim_path=f"{prim_path}_pedestal", name="coalition_box_pedestal",
+                    position=np.array([cx, cy, surf3 + pedestal_h / 2.0]),
+                    scale=np.array([0.06, 0.06, pedestal_h]),
+                    visual_material=OmniPBR(prim_path=f"{prim_path}_pedestal_mat",
+                                            name="pedestal_mat", color=np.array([0.4, 0.4, 0.4])))
+
+    mat = PhysicsMaterial(prim_path=f"{prim_path}_mat", static_friction=1.2,
+                          dynamic_friction=1.2, restitution=0.0)
+    box = DynamicCuboid(prim_path=prim_path, name="coalition_box",
+                        position=np.array(centre, dtype=float), size=size,
+                        color=np.array(color, dtype=float), mass=mass)
+    box.apply_physics_material(mat)
+    add_update_semantics(get_current_stage().GetPrimAtPath(prim_path), "coalition_box")
+    return box
