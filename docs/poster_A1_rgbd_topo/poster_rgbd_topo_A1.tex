@@ -48,10 +48,10 @@
 \graphicspath{{figure/}}
 
 % ------------------------------------------------------------- knobs
-\newcommand{\bodysize}{17}
-\newcommand{\bodyskip}{21}
-\newcommand{\pillsize}{25}
-\def\figscale{0.95}
+\newcommand{\bodysize}{14}
+\newcommand{\bodyskip}{18.5}
+\newcommand{\pillsize}{23}
+\def\figscale{0.84}
 \newcommand{\IG}[2]{\includegraphics[width=\figscale\dimexpr#1\linewidth\relax]{#2}}
 
 % ---------------------------------------------------------------- colors
@@ -141,11 +141,12 @@
    2026 The Term-End Evaluation, Department of Mechanical Systems Engineering, TMU.\par}
   \vspace{2mm}
   {\bfseries\fontsize{36}{42}\selectfont
-   \TODO{poster title, line 1}\\
-   \TODO{poster title, line 2}\par}
+   Two-Layer Topological Mapping for\\
+   Energy-Aware Arm and Base Selection\\
+   on a Dual-Gantry Quad-Arm Ceiling Robot\par}
   \vspace{2.5mm}
   {\bfseries\fontsize{22}{26}\selectfont
-   Naoyuki Kubota Laboratory, D2, Raditya Artha Rochmanto\par}
+   Naoyuki Kubota Laboratory, D1, Raditya Artha Rochmanto\par}
   {\fontsize{18}{22}\selectfont
    email: rochmanto-artha@ed.tmu.ac.jp\par}
 \end{minipage}%
@@ -159,8 +160,8 @@
 % ------------------------------------------------------------- tagline
 \begin{center}
   \bfseries\fontsize{23}{27}\selectfont
-  \TODO{one-sentence claim of the poster, first half}\\
-  \TODO{second half --- keep it to two lines}
+  One topological representation, two layers:\\
+  the room the robot sees, and the reach each arm owns, priced in energy.
 \end{center}
 
 \vspace{-1mm}
@@ -172,72 +173,140 @@
 \begin{minipage}[t]{0.487\linewidth}
 % ================================================= LEFT COLUMN =======
 
-\psection{Background}
+\psection{Social Background}
 
-\begin{minipage}[t]{0.40\linewidth}
-  \vspace{0pt}
-  \FIGBOX{62mm}{workspace / robot photo}
+\begin{minipage}[c]{0.27\linewidth}
+  \centering
+  \IG{1.0}{ceilingarm_tll-edit.jpg}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.57\linewidth}
-  \vspace{0pt}\RaggedRight
-  \TODO{2--3 sentences: why a ceiling robot in a home, and why it needs a map
-  of its surroundings rather than a raw point cloud.}
-\end{minipage}
+\begin{minipage}[c]{0.70\linewidth}
+  \RaggedRight
+  An aging population is driving demand for assistive robots that work
+  \textbf{inside the home}: fetching, tidying, delivering.
 
-\vspace{1.5mm}
-\lead{Platform.} Two ceiling rails (gantries), two Kinova Gen3 Lite arms each,
-so every arm is an \textbf{8-DOF} chain $\mathbf{q}=[d,\theta,q_1\ldots q_6]$
-sharing one moving base with its neighbour. Sensing is \textbf{RGB-D only} ---
-no LIDAR.
+  \vspace{2mm}
+  Homes are small, cluttered, and \textbf{shared with residents}, so a
+  floor-driving mobile manipulator gets in the way.
+
+  \vspace{2mm}
+  \textbf{Putting the robot on the ceiling} keeps the floor free: it assists
+  from above without blocking the occupant.
+
+  \vspace{2mm}
+  \lead{Platform.} Two ceiling rails (gantries), \textbf{two Kinova Gen3 Lite
+  arms each} $\rightarrow$ four arms. Each rail adds a prismatic axis $d$ and a
+  revolute axis $\theta$ that its two arms \emph{share}, so every arm is an
+  \textbf{8-DOF} chain $\mathbf{q}=[d,\theta,q_1\ldots q_6]$ and moving the base
+  moves two arms at once. Sensing is \textbf{RGB-D only}: no LIDAR.
+\end{minipage}
 
 \psection{Problems}
 
 \begin{itemize}
-  \item \lead{P1 --- \TODO{name the first problem}.} \TODO{one or two lines.}
-  \item \lead{P2 --- A raw octomap has no structure.} Occupancy alone gives no
-        topology: no notion of which regions connect, and every frame is paid
-        for again.
-  \item \lead{P3 --- Static and dynamic obstacles are mixed.} With a single
-        live map, the fixed structure of the room and a person walking through
-        it are indistinguishable, so the map is never reproducible between runs.
+  \item \lead{P1 --- Two coupled decisions.} Each pick asks \emph{which arm}
+        acts \emph{and where its base stops}. Moving the heavy base is a
+        dominant energy cost.
+  \item \lead{P2 --- Maps assume a fixed base.} Classic reachability/capability
+        maps are built for one arm on a stationary base, so they never see the
+        workspace that base motion creates --- and a cell stores only
+        \emph{whether} it is reachable, not at what cost or from which
+        configuration.
+  \item \lead{P3 --- Occupancy is not a map of the room.} A raw octomap carries
+        no topology, and in a single live layer the fixed structure of the room
+        and a person walking through it are indistinguishable, so the scene is
+        never reproducible between runs.
 \end{itemize}
 
-\psection{RGB-D Sensing and Extrinsic Calibration}
+\psection{Core Idea: One GNG, Two Layers}
+
+\begin{keybox}
+The \emph{same} \textbf{Growing Neural Gas} representation is fitted twice:
+to \textbf{what the cameras see} (environment layer) and to \textbf{what each arm
+can reach} (capability layer). Planning collides against the first; energy-aware
+selection scores candidates on the second. Nodes are the common currency: a node
+is a place, plus whatever the robot needs to know about it.
+\end{keybox}
+
+\psection{Layer 1: Environment GNG from RGB-D}
 
 \begin{itemize}
-  \item Two overhead RGB-D cameras are the \emph{only} exteroceptive sensor;
-        their extrinsics are recovered with a \textbf{ChArUco} board and
-        published as \texttt{world}\,$\rightarrow$\,camera static transforms.
-  \item \texttt{depth\_cloud} deprojects each depth image into world-frame
-        points \textbf{without any segmentation gate}, so the map keeps building
-        even when the detector is blind.
-  \item \TODO{calibration residual / reprojection error, once measured.}
+  \item Two overhead RGB-D cameras are the \emph{only} exteroceptive sensor
+        (\textbf{no LIDAR}); their extrinsics are known from the simulated scene
+        and published as \texttt{world}\,$\rightarrow$\,camera static transforms.
+        On hardware the same transforms come from a \textbf{ChArUco} board;
+        the calibration path is prepared, not yet exercised.
+  \item \texttt{depth\_cloud} deprojects each depth image into world-frame points
+        \textbf{without any segmentation gate}, so the map keeps building even
+        when the detector is blind.
+  \item A GNG is fitted to that cloud: nodes tile the observed geometry and
+        competitive Hebbian edges give the scene a \emph{topology}, not just
+        occupancy.
+  \item \lead{Static sub-layer:} captured once on a cleared scene and frozen
+        to a file: a backbone that is \emph{identical every run}.
+        \lead{Dynamic sub-layer:} live points within \texttt{bg\_dist} of a
+        static node are subtracted, so the live map carries only the genuinely
+        moving remainder (a person, a displaced object).
+  \item Both are unioned into the planning scene, so MoveIt~2 plans against fixed
+        structure and dynamic obstacles at once. Object identity is kept separate
+        and label-free at the geometry level: tracks are associated by
+        \textbf{Hungarian matching} with an \textbf{N-frame confirmation} and
+        voting hysteresis, and only the confirmed target is carved out of the
+        collision map.
 \end{itemize}
 
-\FIGBOX{55mm}{ChArUco calibration + the two camera views}
+\vspace{1mm}
+{\centering
+\includegraphics[trim=0 0 0 34, clip, width=0.487\linewidth]{view_rgbd1.png}\hfill
+\includegraphics[trim=0 0 0 36, clip, width=0.487\linewidth]{view_rgbd2.png}\par}
+\figcap{The two overhead RGB-D views that are the entire input: camera~1 (left)
+and camera~2 (right), which also sees the person: fixed structure for the
+static sub-layer, the person and moved objects for the dynamic one. Everything
+runs in \textbf{NVIDIA Isaac Sim}, a digital twin of our trailer living
+laboratory built from the \emph{same URDF} as the real robot.}
 
-\psection{Two-Layer Topological Map (GNG)}
+\vspace{1.5mm}
+{\centering
+\includegraphics[height=80mm]{GNG_static3.png}\hspace{5mm}
+\includegraphics[height=80mm]{GNG_dynamic3.png}\par}
+\figcap{The resulting two-layer map (RViz, same viewpoint). \textbf{Left:} the
+frozen \textcolor{blue!70!black}{static} backbone: walls, tables, the fixed
+structure of the room. \textbf{Right:} the same backbone with the
+\textcolor{green!45!black}{dynamic} remainder after subtraction: here a person
+who entered the cell, the only thing the live layer has to carry.}
+
+\psection{Layer 2: Base-Aware Capability GNG}
 
 \begin{itemize}
-  \item A \textbf{Growing Neural Gas} network is fitted to the live depth cloud:
-        nodes tile the observed geometry and competitive Hebbian edges give the
-        scene a \emph{topology}, not just occupancy.
-  \item \lead{Static layer} --- captured once on a cleared scene and frozen to a
-        file, giving a backbone that is \emph{identical every run}.
-  \item \lead{Dynamic layer} --- live points within \texttt{bg\_dist} of a static
-        node are subtracted, so the live map carries only the genuinely moving
-        remainder (a person, a displaced object).
-  \item Both layers are unioned into the planning scene, so MoveIt~2 plans
-        against fixed structure and dynamic obstacles at once.
+  \item Sample the \textbf{full 8-DOF} $\mathbf{q}=[d,\theta,q_1\ldots q_6]$
+        inside joint limits, take forward kinematics (Pinocchio), record
+        manipulability $w=\sqrt{\det(JJ^{\!\top})}$.
+  \item Each node stores $[\,\mathbf{x}\mid\mathbf{q}\,]$: a reachable point
+        \emph{and} a representative configuration reaching it, \textbf{rail
+        placement included}. Winner search uses the \emph{task} part only, so a
+        node's $\mathbf{q}$ stays one valid posture, not an average of
+        incompatible base positions.
+  \item \textbf{Boundary seeding}: a shell of nodes is pinned on the measured
+        reach surface \emph{before} the interior grows, keeping the map faithful
+        at the workspace edge. One map per arm $\rightarrow$ four maps.
 \end{itemize}
 
-\FIGBOX{60mm}{RViz: blue static backbone vs.\ green dynamic remainder}
+\vspace{1mm}
+{\centering\includegraphics[trim=95 45 90 45, clip,
+   width=\figscale\dimexpr0.78\linewidth\relax]{gng_capability.png}\par}
+\figcap{Capability layer of one arm (RViz): nodes coloured by manipulability plus
+the pinned boundary shell. The elongated extent is the rail sweeping $x$.}
+
+\begin{keybox}
+\lead{Map size, per arm:} 80{,}000 FK samples $\rightarrow$
+\num{2915 nodes} (600 pinned on the boundary shell), 14{,}547 edges, median node
+spacing \num{0.090~m}, and a full \num{8-DOF} $\mathbf{q}$ stored on every node.
+\end{keybox}
 
 \end{minipage}\hfill
 % ================================================= RIGHT COLUMN ======
 \begin{minipage}[t]{0.487\linewidth}
 
-\psection{Pipeline}
+\psection{System and Pipeline}
 
 {\centering
 \resizebox{\linewidth}{!}{%
@@ -245,81 +314,160 @@ no LIDAR.
   box/.style={draw=pgoldd, fill=pgold, text=black, rounded corners=2mm,
               align=center, minimum height=15mm, text width=34mm, inner sep=3pt,
               font=\bfseries\footnotesize},
+  lay/.style={font=\bfseries\footnotesize, text=pgrey},
   arr/.style={-{Stealth[length=3mm]}, line width=1.3pt, draw=pgrey}]
-  % --- geometry path (top row)
-  \node[box] (cam) at (0,0)      {2 RGB-D\\cameras};
-  \node[box] (dc)  at (4.6,0)    {\texttt{depth\_cloud}\\(no seg.\ gate)};
-  \node[box] (gng) at (9.2,0)    {\texttt{env\_gng}\\live layer};
-  \node[box] (col) at (13.8,0)   {\texttt{gng\_collision}\\planning scene};
-  % --- static layer feeding the live map from below
-  \node[box] (stat) at (9.2,-3.4) {static layer\\frozen GNG};
-  % --- identity path (bottom row)
-  \node[box] (seg) at (0,-5.4)   {YOLOE\\segmentation};
-  \node[box] (fus) at (13.8,-3.4) {\texttt{reach\_fusion}\\arm + base};
-  \node[box] (mv)  at (18.4,-1.7) {MoveIt~2};
+  % --- geometry path (top row): Layer 1
+  \node[box] (cam)  at (0,0)      {2 RGB-D\\cameras};
+  \node[box] (dc)   at (4.8,0)    {\texttt{depth\_cloud}\\(no seg.\ gate)};
+  \node[box] (env)  at (9.6,0)    {\texttt{env\_gng}\\dynamic layer};
+  \node[box] (col)  at (14.4,0)   {\texttt{gng\_collision}\\planning scene};
+  \node[box] (stat) at (4.8,-3.6) {static layer\\frozen GNG};
+  % --- identity + decision path (bottom row): Layer 2
+  \node[box] (seg)  at (4.8,-7.2) {YOLOE\\(text prompt)};
+  \node[box] (sel)  at (9.6,-7.2) {Energy-Aware\\Selection $J$};
+  \node[box] (cap)  at (9.6,-10.8){Capability GNG\\4 maps, 8-DOF $\mathbf{q}$};
+  \node[box] (arm)  at (14.4,-7.2){Selected\\arm + base};
+  \node[box] (mv)   at (19.2,-3.6){MoveIt~2};
+  \node[lay, anchor=east] at (-2.4,0)     {Layer 1};
+  \node[lay, anchor=east] at (-2.4,-7.2)  {Layer 2};
   \draw[arr] (cam)  -- (dc);
-  \draw[arr] (dc)   -- (gng);
-  \draw[arr] (gng)  -- (col);
-  \draw[arr] (stat) -- (gng);
-  \draw[arr] (col)  -- (fus);
-  \draw[arr] (seg)  -| (fus.south);
-  \draw[arr] (col.east) -- (mv.west);
-  \draw[arr] (fus.east) -- (mv.south west);
+  \draw[arr] (dc)   -- (env);
+  \draw[arr] (env)  -- (col);
+  \draw[arr] (stat) -| (env);
+  \draw[arr] (cam.south) |- (seg.west);
+  \draw[arr] (seg)  -- node[above, font=\scriptsize] {pose} (sel);
+  \draw[arr] (cap)  -- (sel);
+  \draw[arr] (sel)  -- (arm);
+  \draw[arr] (col.east) -- (mv.north west);
+  \draw[arr] (arm.east) -- (mv.south west);
 \end{tikzpicture}}\par}
-\figcap{Geometry (top path) is decoupled from identity (bottom path): the
-topological map builds from \texttt{depth\_cloud} alone, so it survives a
-detector that sees nothing.}
+\figcap{Geometry (Layer 1) is decoupled from identity and decision (Layer 2): the
+environment map builds from \texttt{depth\_cloud} alone, so it survives a detector
+that sees nothing, while selection queries the capability maps.}
 
-\psection{Object Identity and Tracking}
+\psection{Energy-Aware Selection Cost $J$}
+
+\begin{keybox}
+\centering
+$\displaystyle
+J = w_{gl}\frac{\Delta_{lin}}{\rho_{gl}}
+  + w_{gr}\frac{\Delta_{rot}}{\rho_{gr}}
+  + w_{arm}\frac{\Delta_{arm}}{\rho_{arm}}
+  + w_{dist}\frac{e}{\rho_{dist}}
+  - w_{manip}\frac{m}{\rho_{manip}}$
+\end{keybox}
 
 \begin{itemize}
-  \item Detections are associated across frames by \textbf{Hungarian matching}
-        with a distance gate and a class-consistency cost, so an object keeps
-        one stable track handle.
-  \item A track is only published after an \textbf{N-frame confirmation}, and
-        its class label is decided by \textbf{majority voting with hysteresis},
-        which removes the frame-to-frame label flipping.
-  \item Safety is \textbf{geometry-based}: the collision map does not depend on
-        labels, and only the confirmed target is carved out of it.
-  \item \TODO{state which detector the final results use (YOLOE or the
-        simulator's ground-truth segmentation) and why.}
+  \item $\Delta_{lin},\Delta_{rot},\Delta_{arm}$: rail-linear, rail-rotation and
+        summed arm-joint travel from the current state; $e$: tool-to-object
+        distance; $m$: manipulability, entering \emph{negatively}. Each term is
+        divided by a reference $\rho$ (its median), so a weight reads as a
+        priority, not a unit artefact.
+  \item Weights are \textbf{fit by OLS} against the \emph{measured} mechanical
+        energy of 168 executed picks, not hand-tuned
+        ($R^2=0.857$, Spearman$(J,E)=0.909$): $\Delta_{lin}$ \num{27.16},
+        $e$ 12.78, $\Delta_{rot}$ 3.08, $m$ 2.95, $\Delta_{arm}$ 0.09.
+        Rail travel dominates once rail friction is modelled; the calibration
+        \emph{recovers} the premise that moving the base is the dominant cost.
+  \item \lead{Selection.} Pool capability-layer nodes within a spacing-scaled
+        radius of the target \emph{from all four arms}, score with $J$, and try
+        them \textbf{round-robin across arms}. Each candidate seeds IK from its
+        own $\mathbf{q}$; MoveIt~2 plans against the environment layer; the first
+        collision-free plan wins. The search is \textbf{plan-only}: the arm
+        never moves while deciding.
 \end{itemize}
 
-\psection{Experiments}
+\psection{Experiments and Results}
 
-\lead{E\TODO{n} --- \TODO{experiment name}.} \TODO{one sentence on the setup:
-what was varied, how many trials, what was measured.}
+\lead{Workspace gain: the rail is worth $4\times$ the reachable volume.} Rail locked (6 arm DOF)
+vs.\ rail sampled over its full travel, at matched sample \emph{density}:
+reachable volume grows \num{1.920$\rightarrow$7.899~m$^3$} at 0.05~m voxels.
+\lead{Boundary seeding} cuts the node-hull shortfall against the true FK
+reach surface from \num{0.221~m to 0.008~m}.
+
+\vspace{1mm}
+{\centering\IG{1.0}{results.pdf}\par}
+\figcap{(a) Reachable volume, rail locked vs.\ active. (b) Measured trajectory
+energy per multi-arm policy ($\diamond$ = mean).}
+
+\vspace{1mm}
+\lead{Selection policies}, 60 target poses, plan-only, mean/median over
+successful picks, under an assumed rail friction model.
 
 \vspace{1mm}
 {\centering\fontsize{16}{20}\selectfont
 \begin{tabular}{@{}l c c c@{}}
 \toprule
-\textbf{Condition} & \textbf{\TODO{metric 1}} & \textbf{\TODO{metric 2}} & \textbf{\TODO{metric 3}}\\
+\textbf{Mode} & \textbf{Success} & \textbf{Rail lin. (m)} & \textbf{Energy (J)}\\
 \midrule
-\TODO{baseline} & --- & --- & ---\\
-\TODO{ours}     & --- & --- & ---\\
+\textbf{energy (ours)} & \num{56/60 (93.3\%)} & \textbf{0.97}/1.01 & \num{\textbf{45.84}}/52.34\\
+nearest                & 56/60 (93.3\%) & 1.19/1.41 & 48.28/54.79\\
+random                 & 56/60 (93.3\%) & 1.17/1.28 & 47.31/51.72\\
+fixed (best, arm\_4)   & 39/60 (65.0\%) & 1.14/1.21 & 49.79/55.78\\
 \bottomrule
 \end{tabular}\par}
-\figcap{\TODO{table caption: state the sample size and what "---" will become.}}
+\figcap{Fixed-arm energies are computed over that arm's own smaller reachable
+set, so they are not comparable at equal coverage.}
 
-\FIGBOX{62mm}{results plot}
+\begin{itemize}
+  \item \lead{Coverage:} every multi-arm policy reaches \num{93.3\%} plan success
+        vs.\ \num{63--65\%} for any single fixed arm.
+  \item \lead{Energy:} ours has the \textbf{lowest mean measured energy} of the
+        multi-arm policies (\num{45.84~J} vs.\ 48.28~J nearest, $-5.1\%$),
+        winning \num{57--61\%} of same-target pairwise comparisons, a real but
+        \emph{partial} win: medians are closer and the distributions overlap.
+  \item \lead{The intended trade appears:} ours spends \emph{more} arm travel to
+        avoid costlier rail travel; one logged pick took arm\_3 (0.64~m rail,
+        42.4~J) over the nearest arm\_4 (1.15~m rail, 72.5~J): \num{30.1~J} saved.
+\end{itemize}
 
-\begin{keybox}
-\TODO{the single headline result, with its number and its honest caveat ---
-write it only once it is measured.}
-\end{keybox}
+\psection{End-to-End Validation}
+
+\begin{minipage}[c]{0.42\linewidth}
+  \centering
+  \IG{0.98}{fig5-pick_banana.png}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.55\linewidth}
+  \RaggedRight
+  \lead{Full pipeline:} perception $\rightarrow$ environment layer $\rightarrow$
+  energy-aware selection $\rightarrow$ IK $\rightarrow$ planning $\rightarrow$
+  real Isaac physics execution, on 7 objects $\times$ 5 trials:
+  \num{35/35 (100\%)} picks, mean time-to-pick \num{39.6~s}.
+
+  \vspace{1.5mm}
+  \lead{Perception:} YOLOE vs.\ ground truth (8 objects, 483 frames): \num{100\%}
+  detection, \num{0.023~m} mean localization error.
+  \lead{Reachability screening:} the capability layer's nearest-node test classifies reachable
+  vs.\ unreachable objects \num{100\% (8/8)}.
+
+  \vspace{1.5mm}
+  \lead{Environment layer (measured live in Isaac):} static backbone
+  \num{1800 nodes}, \num{3569 edges}, frozen once on the empty scene;
+  the live layer fills to its \num{800-node} cap (the objects on the tables plus
+  the person are all new relative to that empty backbone) within under a minute,
+  publishing at \num{$\sim$1~Hz}.
+\end{minipage}
 
 \psection{Summary and Contributions}
 
 \begin{keybox}
 \begin{itemize}[leftmargin=6mm, topsep=0pt]
-  \item \TODO{contribution 1 --- the representation.}
-  \item \TODO{contribution 2 --- the static/dynamic split.}
-  \item \TODO{contribution 3 --- what the evaluation shows.}
+  \item \textbf{One GNG, two layers}: a single topological representation for the
+        \emph{environment} (RGB-D only, static backbone + dynamic remainder,
+        reproducible between runs) and for each arm's \emph{capability}.
+  \item A \textbf{base-aware capability layer} treating the ceiling rail as a
+        genuine DOF: every node carries its own rail placement, posture and
+        manipulability, accurate to \textbf{centimetres} at the workspace edge.
+  \item An \textbf{energy-aware cost $J$}, calibrated against measured energy,
+        that picks the arm \emph{and} its full 8-DOF configuration:
+        $\approx4\times$ workspace gain, 93.3\% vs.\ 63--65\% plan success,
+        lowest mean energy among multi-arm policies, 35/35 end-to-end picks.
 \end{itemize}
 \end{keybox}
 
-\lead{Future work.} \TODO{one or two sentences.}
+\lead{Future work.} All results are in simulation. Next: validation on the
+physical ceiling-rail platform, and a dynamic-scene study where the environment
+layer changes and the cheapest arm changes with it.
 
 \end{minipage}
 
@@ -327,8 +475,15 @@ write it only once it is measured.}
 {\fontsize{13}{15.5}\selectfont\color{pgrey}
 \textbf{References.}
 [1]~Fritzke, NIPS 1995 (GNG).
-[2]~\TODO{add the references this poster actually cites, in the order they are
-cited above; keep the bracket numbers consistent with the body text.}
+[2]~Zacharias \textit{et al.}, IROS 2007.
+[3]~Makhal \& Goins, IRC 2018 (Reuleaux).
+[4]~Yoshikawa, IJRR 1985.
+[5]~Sandakalum \textit{et al.}, Humanoids 2022.
+[6]~Shao \textit{et al.}, arXiv:2403.19940 (MoMa-Pos).
+[7]~Naik \textit{et al.}, IROS 2024 (BaSeNet).
+[8]~Wang \textit{et al.}, ICCV 2025 (YOLOE).
+[9]~Carpentier \textit{et al.}, SII 2019 (Pinocchio).
+[10]~Coleman \textit{et al.}, JOSER 2014 (MoveIt).
 \par}
 
 \end{document}
