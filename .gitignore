@@ -20,3 +20,16 @@ log/
 /Macro-HSR/
 /Meso-HSR/
 /nando-Thesis_01.pdf
+
+# Model weights (multi-hundred-MB, download/derive instead of versioning)
+ros2_ws/src/reachability_gng/*.pt
+ros2_ws/src/reachability_gng/*.ts
+
+# Poster LaTeX build artifacts (the poster PDF itself IS tracked)
+docs/poster_A1_energy_aware/*.aux
+docs/poster_A1_energy_aware/*.log
+docs/poster_A1_energy_aware/*.out
+docs/poster_A1_energy_aware/*.synctex.gz
+docs/poster_A1_energy_aware/*.fdb_latexmk
+docs/poster_A1_energy_aware/*.fls
+docs/poster_A1_energy_aware/poster_preview.png
