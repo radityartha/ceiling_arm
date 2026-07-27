@@ -1,0 +1,5 @@
+=== [arm4] data_gen (80000 samples) -> data/maps/arm4_dataset.npz ===
+Wrote data/maps/arm4_dataset.npz: 80000 samples, joints=['t2_linear_joint', 't2_rotation_joint', 't2_a2_joint_1', 't2_a2_joint_2', 't2_a2_joint_3', 't2_a2_joint_4', 't2_a2_joint_5', 't2_a2_joint_6'], manip[min/mean/max]=0.0012/0.1782/0.7267
+=== [arm4] train (max-nodes=3000 lam=60 epochs=2 boundary=600) -> data/maps/arm4_model.npz ===
+boundary: 8252 surface pts detected, pinned 600 shell nodes (2075 shell edges)
+Trained GNG: 3000 nodes (600 pinned boundary), 15867 edges, task_dim=3. Saved data/maps/arm4_model.npz (+ _stats, hold=computed).
