@@ -133,14 +133,7 @@
 \end{minipage}%
 \begin{minipage}[c]{0.125\linewidth}
   \centering
-  % Drop the TMU logo here, e.g.:
-  % \includegraphics[width=0.62\linewidth]{tmu_logo.png}
-  \begin{tikzpicture}
-    \draw[pgrey!45, line width=1.2pt, rounded corners=3mm]
-      (0,0) rectangle (3.4,3.4);
-    \node[align=center, text=pgrey, font=\fontsize{14}{16}\selectfont]
-      at (1.7,1.7) {TMU\\logo};
-  \end{tikzpicture}\\[1.5mm]
+  \includegraphics[width=1\linewidth]{tmu_logo.jpg}\\[1.5mm]
   {\bfseries\fontsize{14}{16}\selectfont\color{pgrey} CONFIDENTIAL}
 \end{minipage}
 \end{tcolorbox}
@@ -163,11 +156,11 @@
 
 \psection{Social Background}
 
-\begin{minipage}[t]{0.42\linewidth}
+\begin{minipage}[t]{0.33\linewidth}
   \vspace{0pt}
   \IG{1.0}{ceilingarm_tll-edit.jpg}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.55\linewidth}
+\begin{minipage}[t]{0.64\linewidth}
   \vspace{0pt}\RaggedRight
   An aging population is driving demand for assistive robots that work
   \textbf{inside the home}: fetching, tidying, delivering.
@@ -225,7 +218,8 @@ $\mathbf{q}=[d,\theta,q_1\ldots q_6]$ and moving the base moves two arms at once
 \end{itemize}
 
 \vspace{1mm}
-{\centering\IG{0.92}{gng_capability.png}\par}
+{\centering\includegraphics[trim=95 45 90 45, clip,
+   width=\figscale\dimexpr0.62\linewidth\relax]{gng_capability.png}\par}
 \figcap{Base-aware GNG map of one arm (RViz): nodes coloured by manipulability
 plus the pinned boundary shell on the true rail-extended reach surface. The
 elongated extent is the rail sweeping $x$.}
@@ -275,12 +269,42 @@ Arm joint travel        & $\Delta_{arm}$ & 0.09  & 7.18\\
 \figcap{Calibrated weights: $R^2=0.857$, Spearman$(J,E)=0.909$. Rail travel
 dominates once rail friction is modelled.}
 
+\begin{keybox}
+\fontsize{15}{18}\selectfont
+\lead{Why friction matters.} The rail joints originally carried no
+\texttt{<dynamics>}, so an idealised rigid-body energy could not see horizontal
+rail travel (both rail axes are orthogonal to gravity) and $J$ correlated with
+measured energy only at $\rho\approx0.31$. We add Coulomb\,+\,viscous friction
+on both rail joints (\num{$\mu=0.15$}, 27.6~N / 2.03~N$\cdot$m) as an explicit
+\emph{modelling assumption}, adding the dissipated power by hand since
+Pinocchio's \texttt{rnea} ignores URDF friction. Re-fitting lifts $R^2$ from
+\num{0.055 to 0.857} and shifts the dominant weight from arm travel to rail
+travel: the calibration \emph{recovers} the premise that moving the base is the
+dominant cost.
+\end{keybox}
+
 \vspace{0.5mm}
 \lead{Selection.} Pool map nodes within a spacing-scaled radius of the target
 \emph{from all four arms}, score with $J$, sort, and try them
 \textbf{round-robin across arms}. Each candidate seeds IK from its own
 $\mathbf{q}$; MoveIt~2 plans; the first collision-free plan wins. The search is
 \textbf{plan-only} --- the arm never moves while deciding.
+
+\psection{Related Work: What Is Missing}
+
+{\fontsize{15}{18}\selectfont
+\begin{itemize}[leftmargin=6mm]
+  \item \lead{Capability maps} [1,\,2] are built for one arm on a \emph{fixed}
+        base and store reachability per cell: no rail DOF, and no configuration
+        to seed IK from.
+  \item \lead{Base placement} for mobile manipulators [5--7] places a
+        \emph{single} platform for a task; it never chooses among arms, nor ranks
+        candidate placements by energy.
+  \item \lead{Redundancy resolution} [4] optimises one arm's posture, leaving
+        out the costly base DOF; \lead{multi-arm planners} allocate subtasks over
+        \emph{time}. Ours is complementary: for one reach, which arm does it for
+        the least energy?
+\end{itemize}}
 
 \end{minipage}\hfill
 % ================================================= RIGHT COLUMN ======
@@ -314,7 +338,7 @@ $\mathbf{q}$; MoveIt~2 plans; the first collision-free plan wins. The search is
 
 \begin{minipage}[t]{0.53\linewidth}
   \vspace{0pt}
-  \IG{0.92}{Env_Isaac.png}
+  \IG{0.78}{Env_Isaac.png}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.44\linewidth}
   \vspace{0pt}\RaggedRight
@@ -328,7 +352,7 @@ $\mathbf{q}$; MoveIt~2 plans; the first collision-free plan wins. The search is
 
 \begin{minipage}[t]{0.50\linewidth}
   \vspace{0pt}
-  \IG{0.85}{Fig3YOLOE_RGBD.png}
+  \IG{0.82}{Fig3YOLOE_RGBD.png}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.47\linewidth}
   \vspace{0pt}\RaggedRight
@@ -354,7 +378,7 @@ shortfall against the true FK reach surface from \num{0.221~m to 0.008~m}
 (along the rail axis 0.501~m~$\rightarrow$~0.017~m).
 
 \vspace{1mm}
-{\centering\IG{0.78}{results.pdf}\par}
+{\centering\IG{0.80}{results.pdf}\par}
 \figcap{(a) Reachable volume, rail locked vs.\ active. (b) Measured trajectory
 energy per multi-arm policy ($\diamond$ = mean).}
 
@@ -434,5 +458,20 @@ physical ceiling-rail platform, and how the sim-to-real gap shifts the
 calibrated weights of $J$.
 
 \end{minipage}
+
+\vspace{3mm}
+{\fontsize{13}{15.5}\selectfont\color{pgrey}
+\textbf{References.}
+[1]~Zacharias \textit{et al.}, IROS 2007.
+[2]~Makhal \& Goins, IRC 2018 (Reuleaux).
+[3]~Fritzke, NIPS 1995 (GNG).
+[4]~Yoshikawa, IJRR 1985.
+[5]~Sandakalum \textit{et al.}, Humanoids 2022.
+[6]~Shao \textit{et al.}, arXiv:2403.19940 (MoMa-Pos).
+[7]~Naik \textit{et al.}, IROS 2024 (BaSeNet).
+[8]~Wang \textit{et al.}, ICCV 2025 (YOLOE).
+[9]~Carpentier \textit{et al.}, SII 2019 (Pinocchio).
+[10]~Coleman \textit{et al.}, JOSER 2014 (MoveIt).
+\par}
 
 \end{document}
