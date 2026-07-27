@@ -14,8 +14,16 @@
 # never gets meaningful text -- the web UI's mic button works independently
 # via the browser's Web Speech API.
 #
-# Usage:  ./scripts/start_voice_demo.sh
+# Whisper is SKIPPED BY DEFAULT (see SKIP_WHISPER below) -- a previous
+# audio_capturer_node got stuck in kernel D-state (uninterruptible, survives
+# even SIGKILL -- a sign of a wedged sof-hda-dsp driver) and won't clear until
+# reboot, so defaulting to "on" would block every startup with the stray-node
+# check below until that's fixed.
+#
+# Usage:  ./scripts/start_voice_demo.sh                  # Whisper skipped
+#         SKIP_WHISPER=0 ./scripts/start_voice_demo.sh   # include Whisper
 set -e
+SKIP_WHISPER="${SKIP_WHISPER:-1}"
 
 WS="$HOME/Documents/ceiling_arm/ros2_ws"
 source /opt/ros/humble/setup.bash
@@ -41,7 +49,11 @@ WHISPER_NODES="(whisper_ros/(whisper_node|whisper_server_node|silero_vad_node)|a
 # Refuse to start on top of a previous run. Two real_robot_task_servers each
 # enforce "one sequence at a time" only within their own process, so a single
 # button press can start the same sequence twice on real hardware.
-STRAY="$(pgrep -f "$VOICE_NODES" || true; pgrep -f "$MOVEIT_NODES" || true; pgrep -f "$WHISPER_NODES" || true)"
+if [ "$SKIP_WHISPER" = "1" ]; then
+    STRAY="$(pgrep -f "$VOICE_NODES" || true; pgrep -f "$MOVEIT_NODES" || true)"
+else
+    STRAY="$(pgrep -f "$VOICE_NODES" || true; pgrep -f "$MOVEIT_NODES" || true; pgrep -f "$WHISPER_NODES" || true)"
+fi
 if [ -n "$STRAY" ]; then
     echo "ERROR: nodes from a previous run are still running:" >&2
     ps -o pid,lstart,cmd -p $(echo "$STRAY" | tr '\n' ',' | sed 's/,$//') >&2
@@ -75,19 +87,23 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-echo "[1/4] Starting Whisper STT driver (mic capture + transcription)..."
-ros2 launch whisper_bringup whisper.launch.py \
-    > "$LOG_DIR/whisper_driver.log" 2>&1 &
-PIDS+=($!)
+if [ "$SKIP_WHISPER" = "1" ]; then
+    echo "[1/4] SKIP_WHISPER=1 -- skipping Whisper STT driver."
+else
+    echo "[1/4] Starting Whisper STT driver (mic capture + transcription)..."
+    ros2 launch whisper_bringup whisper.launch.py \
+        > "$LOG_DIR/whisper_driver.log" 2>&1 &
+    PIDS+=($!)
 
-echo "Waiting for /whisper/whisper_node (model load can take a while)..."
-for i in $(seq 1 90); do
-    if ros2 node list 2>/dev/null | grep -q "^/whisper/whisper_node$"; then
-        echo "Whisper node is up."
-        break
-    fi
-    sleep 1
-done
+    echo "Waiting for /whisper/whisper_node (model load can take a while)..."
+    for i in $(seq 1 90); do
+        if ros2 node list 2>/dev/null | grep -q "^/whisper/whisper_node$"; then
+            echo "Whisper node is up."
+            break
+        fi
+        sleep 1
+    done
+fi
 
 echo "[2/4] Starting table controller..."
 ros2 run moving_table_pkg dual_table_controller --ros-args -p use_fake_hardware:=false \
@@ -127,7 +143,11 @@ sleep 2
 # subnet and won't be reachable from anything but this PC.
 LAN_IP="$(hostname -I | tr ' ' '\n' | grep -v '^192\.168\.2\.' | grep -E '^[0-9]+\.' | head -1)"
 echo
-echo "All 4 subsystems running."
+if [ "$SKIP_WHISPER" = "1" ]; then
+    echo "3/4 subsystems running (Whisper skipped)."
+else
+    echo "All 4 subsystems running."
+fi
 echo "Web UI:  https://${LAN_IP:-<this-PC-LAN-IP>}:8080"
 echo "Logs:    tail -f $LOG_DIR/*.log"
 echo "Ctrl+C to stop everything."
