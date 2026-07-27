@@ -4,6 +4,9 @@
 Drives the workcell through a fixed sequence:
   - tables via the `move_dual_table` service (moving_table_interfaces/srv/MovingTable)
   - arms + grippers via MoveIt's `move_action` (joint-space goals)
+  - arm4 lift + arm3 pre-approach, and the final arm1/2/3/4 home, run in
+    PARALLEL via plan_kinematic_path + per-arm controllers (see
+    move_arms_parallel) since move_action only accepts one goal at a time.
 
 Assumes `my_workcell.launch.py` is already running (MoveIt, controllers, table node).
 Runs the steps in order, aborting if any step fails, then exits.
@@ -21,8 +24,9 @@ from rclpy.executors import SingleThreadedExecutor
 
 from sensor_msgs.msg import JointState
 from moveit_msgs.action import MoveGroup
-from moveit_msgs.msg import Constraints, JointConstraint
-from control_msgs.action import GripperCommand
+from moveit_msgs.srv import GetMotionPlan
+from moveit_msgs.msg import Constraints, JointConstraint, MotionPlanRequest
+from control_msgs.action import GripperCommand, FollowJointTrajectory
 
 from moving_table_interfaces.srv import MovingTable
 
@@ -38,6 +42,15 @@ ARM_JOINTS = {
     "arm_2": [f"t1_a2_joint_{i}" for i in range(1, 7)],
     "arm_3": [f"t2_a1_joint_{i}" for i in range(1, 7)],
     "arm_4": [f"t2_a2_joint_{i}" for i in range(1, 7)],
+}
+# Planning group -> the FollowJointTrajectory controller that executes it.
+# Used for parallel motion; move_action takes one goal at a time (see
+# move_arms_parallel).
+ARM_CONTROLLER = {
+    "arm_1": "arm_1_controller",
+    "arm_2": "arm_2_controller",
+    "arm_3": "arm_3_controller",
+    "arm_4": "arm_4_controller",
 }
 GRIPPER_JOINT = {
     "gripper_1": "t1_a1_right_finger_bottom_joint",
@@ -95,6 +108,10 @@ class SequenceRunner(Node):
         # WRONG_SERVOING_MODE until the hardware transitions. 1.5 s is enough
         # in practice; lower if grippers feel sluggish.
         self.gripper_pre_delay_s = self.declare_parameter("gripper_pre_delay_s", 1.5).value
+        # Escape hatch: run the parallel steps one arm at a time through MoveIt
+        # instead. Slower, but arm-vs-arm collisions are then impossible.
+        self.sequential_arms = self.declare_parameter("sequential_arms", False).value
+        self.arm_exec_timeout_s = self.declare_parameter("arm_exec_timeout_s", 120.0).value
 
         # Latest /joint_states sample (name -> position)
         self._joint_state = {}
@@ -105,6 +122,12 @@ class SequenceRunner(Node):
         self.get_logger().info("Waiting for MoveGroup action server (move_action)...")
         if not self._move_client.wait_for_server(timeout_sec=15.0):
             raise RuntimeError("MoveGroup action server not available.")
+
+        # Planning-only service, for parallel arm motion (see move_arms_parallel).
+        self._plan_client = self.create_client(GetMotionPlan, "plan_kinematic_path")
+        self.get_logger().info("Waiting for plan_kinematic_path service...")
+        if not self._plan_client.wait_for_service(timeout_sec=15.0):
+            raise RuntimeError("plan_kinematic_path service not available.")
 
         # Table service client
         self._table_client = self.create_client(MovingTable, "move_dual_table")
@@ -118,6 +141,14 @@ class SequenceRunner(Node):
         self._gripper_clients = {
             g: ActionClient(self, GripperCommand, f"/{g}_controller/gripper_cmd")
             for g in GRIPPER_JOINT
+        }
+
+        # Per-arm trajectory controllers, for parallel execution.
+        self._traj_clients = {
+            group: ActionClient(
+                self, FollowJointTrajectory, f"/{ctrl}/follow_joint_trajectory"
+            )
+            for group, ctrl in ARM_CONTROLLER.items()
         }
 
         self.get_logger().info("Connected. Demo runner ready.")
@@ -136,23 +167,7 @@ class SequenceRunner(Node):
     # ------------------------------------------------------------------
     # Arm / gripper motion via MoveIt joint-space goal
     # ------------------------------------------------------------------
-    def move_joints(self, group_name, joint_names, degrees_list) -> bool:
-        if len(joint_names) != len(degrees_list):
-            self.get_logger().error(
-                f"{group_name}: joint/value count mismatch "
-                f"({len(joint_names)} vs {len(degrees_list)})."
-            )
-            return False
-
-        goal = MoveGroup.Goal()
-        goal.request.group_name = group_name
-        goal.request.num_planning_attempts = 5
-        goal.request.allowed_planning_time = float(self.planning_time)
-        # Cap speed: a 0.0 scaling factor is treated as full speed by MoveIt,
-        # which trips the Kinova protective stop on large swings.
-        goal.request.max_velocity_scaling_factor = float(self.vel_scale)
-        goal.request.max_acceleration_scaling_factor = float(self.acc_scale)
-
+    def _joint_goal_constraints(self, joint_names, degrees_list) -> Constraints:
         constraints = Constraints()
         constraints.name = "goal"
         for name, deg in zip(joint_names, degrees_list):
@@ -163,7 +178,31 @@ class SequenceRunner(Node):
             jc.tolerance_below = 0.01
             jc.weight = 1.0
             constraints.joint_constraints.append(jc)
-        goal.request.goal_constraints.append(constraints)
+        return constraints
+
+    def _build_joint_goal(self, group_name, joint_names, degrees_list) -> MoveGroup.Goal:
+        goal = MoveGroup.Goal()
+        goal.request.group_name = group_name
+        goal.request.num_planning_attempts = 5
+        goal.request.allowed_planning_time = float(self.planning_time)
+        # Cap speed: a 0.0 scaling factor is treated as full speed by MoveIt,
+        # which trips the Kinova protective stop on large swings.
+        goal.request.max_velocity_scaling_factor = float(self.vel_scale)
+        goal.request.max_acceleration_scaling_factor = float(self.acc_scale)
+        goal.request.goal_constraints.append(
+            self._joint_goal_constraints(joint_names, degrees_list)
+        )
+        return goal
+
+    def move_joints(self, group_name, joint_names, degrees_list) -> bool:
+        if len(joint_names) != len(degrees_list):
+            self.get_logger().error(
+                f"{group_name}: joint/value count mismatch "
+                f"({len(joint_names)} vs {len(degrees_list)})."
+            )
+            return False
+
+        goal = self._build_joint_goal(group_name, joint_names, degrees_list)
 
         self.get_logger().info(f"→ {group_name}: {degrees_list}")
         # Brief settle so joint states are stable after any prior move
@@ -184,6 +223,116 @@ class SequenceRunner(Node):
             self.get_logger().error(f"{group_name}: planning/execution failed (code {code}).")
             return False
         return True
+
+    def move_arms_parallel(self, targets) -> bool:
+        """Move several arms to joint targets at the SAME time.
+
+        `targets` is a list of (group_name, joint_names, degrees_list).
+
+        move_action accepts one goal at a time (a second goal preempts the
+        first), so this plans each arm through `plan_kinematic_path` (planning
+        only, no motion) and then sends the trajectories straight to the per-arm
+        controllers. If any plan fails nothing has moved yet and we abort.
+
+        Collision caveat: each plan is checked against the scene as it is BEFORE
+        the batch starts; arms executing concurrently are NOT checked against
+        each other. Only pair arms/targets that have been verified collision-free
+        against each other's start AND end poses (e.g. via /check_state_validity)
+        before adding a pairing here.
+        """
+        # Phase 1: plan everything first.
+        plans = []
+        for group_name, joint_names, degrees_list in targets:
+            if len(joint_names) != len(degrees_list):
+                self.get_logger().error(
+                    f"{group_name}: joint/value count mismatch "
+                    f"({len(joint_names)} vs {len(degrees_list)})."
+                )
+                return False
+
+            req = GetMotionPlan.Request()
+            mpr = MotionPlanRequest()
+            mpr.group_name = group_name
+            mpr.num_planning_attempts = 5
+            mpr.allowed_planning_time = float(self.planning_time)
+            mpr.max_velocity_scaling_factor = float(self.vel_scale)
+            mpr.max_acceleration_scaling_factor = float(self.acc_scale)
+            # is_diff with no joint values = "start from the current state".
+            mpr.start_state.is_diff = True
+            mpr.goal_constraints.append(
+                self._joint_goal_constraints(joint_names, degrees_list)
+            )
+            req.motion_plan_request = mpr
+
+            self.get_logger().info(f"→ planning {group_name}: {degrees_list}")
+            result = self._spin_until(
+                self._plan_client.call_async(req),
+                timeout_sec=float(self.planning_time) + 15.0,
+            )
+            if result is None:
+                self.get_logger().error(f"{group_name}: planning call timed out.")
+                return False
+            code = result.motion_plan_response.error_code.val
+            if code != 1:
+                self.get_logger().error(f"{group_name}: planning failed (code {code}).")
+                return False
+            traj = result.motion_plan_response.trajectory.joint_trajectory
+            if not traj.points:
+                self.get_logger().error(f"{group_name}: planner returned an empty trajectory.")
+                return False
+            plans.append((group_name, traj))
+
+        # Phase 2a: fire every trajectory. Controllers are independent (one per
+        # arm), so these run concurrently.
+        if self.arm_settle_s > 0:
+            time.sleep(self.arm_settle_s)
+        handles = []
+        for group_name, traj in plans:
+            client = self._traj_clients[group_name]
+            if not client.wait_for_server(timeout_sec=15.0):
+                self.get_logger().error(
+                    f"{group_name}: {ARM_CONTROLLER[group_name]} action server not available."
+                )
+                return False
+            goal = FollowJointTrajectory.Goal()
+            goal.trajectory = traj
+            self.get_logger().info(f"→ executing {group_name} (parallel)")
+            goal_handle = self._spin_until(client.send_goal_async(goal))
+            if goal_handle is None or not goal_handle.accepted:
+                self.get_logger().error(f"{group_name}: trajectory goal rejected.")
+                self.get_logger().error(
+                    "Some arms may still be executing — issue a stop if needed."
+                )
+                return False
+            handles.append((group_name, goal_handle))
+
+        # Phase 2b: wait for all of them. They are already moving, so waiting one
+        # after another still costs only the slowest arm.
+        ok = True
+        for group_name, goal_handle in handles:
+            result = self._spin_until(
+                goal_handle.get_result_async(), timeout_sec=self.arm_exec_timeout_s
+            )
+            if result is None:
+                self.get_logger().error(f"{group_name}: execution timed out.")
+                ok = False
+                continue
+            err = result.result.error_code
+            if err != FollowJointTrajectory.Result.SUCCESSFUL:
+                self.get_logger().error(
+                    f"{group_name}: execution failed (error_code {err}, "
+                    f"{result.result.error_string})."
+                )
+                ok = False
+        return ok
+
+    def _run_parallel_or_sequential(self, targets) -> bool:
+        if self.sequential_arms:
+            for group, joints, degs in targets:
+                if not self.move_joints(group, joints, degs):
+                    return False
+            return True
+        return self.move_arms_parallel(targets)
 
     def move_gripper(self, gripper_group, degrees) -> bool:
         """Drive a gripper via its GripperCommand action.
@@ -353,10 +502,11 @@ class SequenceRunner(Node):
         (table_tol_mm / table_tol_deg) and timeout (table_timeout_s); aborts on
         timeout rather than letting the arm move into a mis-positioned table.
 
-        NOTE: this reads /joint_states, the same source step 11 already waited on.
-        If the table's absolute encoder origin is not set (ppreset / 'H' in
-        table_keyboard.py), /joint_states can report home while the table is not
-        physically home — this guard cannot catch that case. Zero the encoder first.
+        NOTE: this reads /joint_states, the same source the table-move step
+        already waited on. If the table's absolute encoder origin is not set
+        (ppreset / 'H' in table_keyboard.py), /joint_states can report home
+        while the table is not physically home — this guard cannot catch that
+        case. Zero the encoder first.
         """
         self.get_logger().info(
             f"GUARD: blocking until {table_id} is home (0 mm / 0 deg) before arm2 moves..."
@@ -372,39 +522,70 @@ class SequenceRunner(Node):
 
         # (label, callable) — executed in order; abort on first failure.
         steps = [
-            ("01 tables -> staging (t1 0/0, t2 650/90)",
+            ("arm4 approach 1",            lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -43, -56, -90, 76, 0])),
+            ("tables -> staging (t1 0/0, t2 650/90)",
                                            lambda: self.move_tables_parallel(
                                                [("table1", 0.0, 0.0), ("table2", 650.0, 90.0)])),
-            ("02 gripper1 open",           lambda: self.move_gripper("gripper_1", opn)),
-            ("03 gripper2 open",           lambda: self.move_gripper("gripper_2", opn)),
-            ("04 gripper3 open",           lambda: self.move_gripper("gripper_3", opn)),
-            ("05 gripper4 open",           lambda: self.move_gripper("gripper_4", opn)),
-            ("06 arm4 approach 1",         lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -43, -56, -90, 76, 0])),
-            ("07 arm4 approach 2",         lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -10, -63, -90, 35, 0])),
-            ("08 gripper4 grip",           lambda: self.move_gripper("gripper_4", grip)),
-            ("09 arm4 reach",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -75, -130, -90, 30, 2])),
-            ("10 arm4 lift",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, -60, -115, -90, 30, 2])),
-            ("11 arm4 carry",              lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, 78, -5, -90, -86, 0])),
-            ("12 arm3 pre-approach",       lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [0, -55, -95, 90, -44, 90])),
-            ("13 arm3 approach",           lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [4, -20, -81, 101, -29, 79])),
-            ("14 gripper3 grip",           lambda: self.move_gripper("gripper_3", grip)),
-            ("15 gripper4 release",        lambda: self.move_gripper("gripper_4", 20.0)),
-            ("16 arm4 retreat",            lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, 86, -10, -90, -99, 0])),
-            ("17 arm3 move",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [88, 94, -14, -93, -95, 24])),
-            ("18 table1 -> home",          lambda: self.move_table("table1", 0.0, 0.0)),
-            ("19 GUARD table1 home",       lambda: self.require_table_home("table1")),
-            ("20 arm2 approach 1",         lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, -47, -129, 90, -9, -91])),
-            ("21 arm2 approach 2",         lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, 21, -86, 90, 16, -90])),
-            ("22 gripper2 grip",           lambda: self.move_gripper("gripper_2", grip)),
-            ("23 gripper3 loosen",         lambda: self.move_gripper("gripper_3", opn)),
-            ("24 arm2 place",              lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [0, -45, -99, 90, 55, -90])),
-            ("25 gripper2 release",        lambda: self.move_gripper("gripper_2", opn)),
-            ("26 arm2 home",               lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [0, 150, 150, 0, 0, 0])),
-            ("27 arm3 home",               lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [90, -150, -150, 0, 0, 0])),
-            ("28 arm4 home",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -150, -150, 0, 0, 0])),
-            ("29 arm1 home",               lambda: self.move_joints("arm_1", ARM_JOINTS["arm_1"], [0, 150, 150, 0, 0, 0])),
-            ("30 table1 -> home",          lambda: self.move_table("table1", 0.0, 0.0)),
-            ("31 table2 -> home",          lambda: self.move_table("table2", 0.0, 0.0)),
+            ("gripper1 open",              lambda: self.move_gripper("gripper_1", opn)),
+            ("gripper2 open",              lambda: self.move_gripper("gripper_2", opn)),
+            ("gripper3 open",              lambda: self.move_gripper("gripper_3", opn)),
+            ("gripper4 open",              lambda: self.move_gripper("gripper_4", opn)),
+            ("arm4 approach 2",            lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -10, -63, -90, 35, 0])),
+            ("gripper4 grip",              lambda: self.move_gripper("gripper_4", grip)),
+            ("arm4 reach",                 lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [90, -75, -130, -90, 30, 2])),
+            # arm4 lift + arm3 pre-approach, IN PARALLEL. Endpoints verified
+            # collision-free against each other via /check_state_validity (arm3
+            # pre-approach target vs arm4 at "reach" and vs arm4 at "lift").
+            # NOT verified for the swept path while both arms move at once —
+            # plan_kinematic_path only checks each plan against the scene as it
+            # stood before this step started. arm_3's home->pre-approach is also
+            # a large swing on joints 2/3 (~205/245 deg); a direct one-shot plan
+            # here has previously produced an OMPL post-processed trajectory that
+            # clipped through arm_4's wrist on real hardware. Run with
+            # sequential_arms:=true to fall back to one-at-a-time via MoveIt if
+            # this step collides again.
+            ("arm4 lift + arm3 pre-approach (parallel)",
+                                           lambda: self._run_parallel_or_sequential([
+                                               ("arm_4", ARM_JOINTS["arm_4"], [0, -60, -115, -90, 30, 2]),
+                                               ("arm_3", ARM_JOINTS["arm_3"], [0, -55, -95, 90, -44, 90]),
+                                           ])),
+            ("arm4 carry",                 lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, 78, -5, -90, -86, 0])),
+            ("arm3 approach",              lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [4, -20, -81, 101, -29, 79])),
+            ("gripper3 grip",              lambda: self.move_gripper("gripper_3", grip)),
+            ("gripper4 release",           lambda: self.move_gripper("gripper_4", 20.0)),
+            ("arm4 retreat",               lambda: self.move_joints("arm_4", ARM_JOINTS["arm_4"], [0, 86, -10, -90, -99, 0])),
+            ("arm3 move",                  lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [88, 94, -14, -93, -95, 24])),
+            ("table1 -> home",             lambda: self.move_table("table1", 0.0, 0.0)),
+            ("GUARD table1 home",          lambda: self.require_table_home("table1")),
+            ("arm2 approach 1",            lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, -47, -129, 90, -9, -91])),
+            ("arm2 approach 2",            lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [28, 21, -86, 90, 16, -90])),
+            ("gripper2 grip",              lambda: self.move_gripper("gripper_2", grip)),
+            ("gripper3 loosen",            lambda: self.move_gripper("gripper_3", opn)),
+            # Single-joint lift (joint_2, +10.75deg) so gripper_3 clears the bag
+            # after releasing it. Verified via /compute_fk against the "arm3 move"
+            # pose [88, 94, -14, -93, -95, 24]: dz=+0.0999m, xy drift <9mm.
+            ("arm3 gripper lift ~10cm",    lambda: self.move_joints("arm_3", ARM_JOINTS["arm_3"], [88, 104.75, -14, -93, -95, 24])),
+            ("arm2 place",                 lambda: self.move_joints("arm_2", ARM_JOINTS["arm_2"], [0, -45, -99, 90, 55, -90])),
+            ("gripper2 release",           lambda: self.move_gripper("gripper_2", opn)),
+            # Same home as arms 1/2 and as run_go_home.py: arm_1/arm_3 and
+            # arm_2/arm_4 share mounting rpy, so [90, -150, -150, ...] was a
+            # choreography leftover, not a kinematic requirement.
+            #
+            # arm1/2/3/4 -> home, IN PARALLEL. Verified via /check_state_validity:
+            # both the pre-step start state (arm1 already tucked, arm2 at "arm2
+            # place", arm3 at "gripper lift", arm4 at "arm4 retreat") and the
+            # all-home end state are collision-free. Mid-motion overlap while all
+            # 4 arms move at once is NOT verified — see move_arms_parallel's
+            # docstring. Run with sequential_arms:=true to fall back to
+            # one-at-a-time via MoveIt.
+            ("arm1/2/3/4 home (parallel)", lambda: self._run_parallel_or_sequential([
+                                               ("arm_2", ARM_JOINTS["arm_2"], [0, 150, 150, 0, 0, 0]),
+                                               ("arm_3", ARM_JOINTS["arm_3"], [0, 150, 150, 0, 0, 0]),
+                                               ("arm_4", ARM_JOINTS["arm_4"], [0, 150, 150, 0, 0, 0]),
+                                               ("arm_1", ARM_JOINTS["arm_1"], [0, 150, 150, 0, 0, 0]),
+                                           ])),
+            ("table1 -> home",             lambda: self.move_table("table1", 0.0, 0.0)),
+            ("table2 -> home",             lambda: self.move_table("table2", 0.0, 0.0)),
         ]
 
         for label, action in steps:
