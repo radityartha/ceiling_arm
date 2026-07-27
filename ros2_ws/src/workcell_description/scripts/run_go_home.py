@@ -79,11 +79,15 @@ TABLE_JOINTS = {
 }
 
 # Home joint angles (deg), same values the take-bag sequence homes to.
+# arm_1/arm_3 and arm_2/arm_4 share mounting rpy, so all four arms share the
+# same home pose (see run_take_bag.py's "arm1/2/3/4 home (parallel)" step —
+# [90, -150, -150, ...] for arm_3/arm_4 was a choreography leftover, not a
+# kinematic requirement).
 ARM_HOME = {
     "arm_1": [0, 150, 150, 0, 0, 0],
     "arm_2": [0, 150, 150, 0, 0, 0],
-    "arm_3": [90, -150, -150, 0, 0, 0],
-    "arm_4": [90, -150, -150, 0, 0, 0],
+    "arm_3": [0, 150, 150, 0, 0, 0],
+    "arm_4": [0, 150, 150, 0, 0, 0],
 }
 
 
@@ -336,17 +340,19 @@ class SequenceRunner(Node):
         """Drive a gripper via its GripperCommand action.
 
         Success = reached the goal, OR stalled after actually moving. A stall
-        with no movement means the gripper hardware did not actuate — reported
-        as failure. If skip_grippers is set, the step is a no-op."""
+        with no movement means the gripper hardware did not actuate — retried
+        once (a single transient comm/stall hiccup shouldn't abort the whole
+        go-home sequence), then reported as failure. If skip_grippers is set,
+        the step is a no-op."""
         if self.skip_grippers:
             self.get_logger().warn(f"{gripper_group}: skip_grippers set — skipping.")
             return True
 
         joint = GRIPPER_JOINT[gripper_group]
-        start_pos = self._joint_state.get(joint)
 
         # If already at target (within ~3°), skip — sending the goal would stall
         # immediately with no movement, which the driver reports as failure.
+        start_pos = self._joint_state.get(joint)
         if start_pos is not None and abs(start_pos - math.radians(degrees)) <= 0.05:
             self.get_logger().info(f"{gripper_group}: already at {degrees}°, skipping.")
             return True
@@ -356,39 +362,50 @@ class SequenceRunner(Node):
             self.get_logger().error(f"{gripper_group}: gripper action server not available.")
             return False
 
-        goal = GripperCommand.Goal()
-        goal.command.position = math.radians(degrees)
-        goal.command.max_effort = float(self.gripper_max_effort)
+        for attempt in (1, 2):
+            start_pos = self._joint_state.get(joint)
 
-        self.get_logger().info(f"→ {gripper_group}: {degrees}°")
-        if self.gripper_pre_delay_s > 0:
-            time.sleep(self.gripper_pre_delay_s)
-        goal_handle = self._spin_until(client.send_goal_async(goal))
-        if goal_handle is None or not goal_handle.accepted:
-            self.get_logger().error(f"{gripper_group}: goal rejected.")
+            goal = GripperCommand.Goal()
+            goal.command.position = math.radians(degrees)
+            goal.command.max_effort = float(self.gripper_max_effort)
+
+            self.get_logger().info(f"→ {gripper_group}: {degrees}° (attempt {attempt}/2)")
+            if self.gripper_pre_delay_s > 0:
+                time.sleep(self.gripper_pre_delay_s)
+            goal_handle = self._spin_until(client.send_goal_async(goal))
+            if goal_handle is None or not goal_handle.accepted:
+                self.get_logger().error(f"{gripper_group}: goal rejected.")
+                return False
+
+            result = self._spin_until(goal_handle.get_result_async())
+            if result is None:
+                self.get_logger().error(f"{gripper_group}: no result returned.")
+                return False
+
+            r = result.result
+            if r.reached_goal:
+                return True
+            # Opening onto nothing should reach the goal. A stall that still moved
+            # the finger means it opened as far as it could — good enough for a
+            # release.
+            end_pos = r.position
+            moved = (start_pos is not None and abs(end_pos - start_pos) > 0.02)
+            if r.stalled and moved:
+                self.get_logger().info(f"{gripper_group}: stalled after moving (pos={end_pos:.3f}).")
+                return True
+            if attempt == 1:
+                self.get_logger().warn(
+                    f"{gripper_group}: did not actuate on attempt 1 "
+                    f"(stalled={r.stalled}, start={start_pos}, end={end_pos:.4f}) — retrying once."
+                )
+                continue
+            self.get_logger().error(
+                f"{gripper_group}: did not actuate after retry (stalled={r.stalled}, "
+                f"reached={r.reached_goal}, start={start_pos}, end={end_pos:.4f}). "
+                f"Gripper is not responding to commands — check for a mechanical jam or a "
+                f"gripper-level fault on this arm, or run with skip_grippers:=true."
+            )
             return False
-
-        result = self._spin_until(goal_handle.get_result_async())
-        if result is None:
-            self.get_logger().error(f"{gripper_group}: no result returned.")
-            return False
-
-        r = result.result
-        if r.reached_goal:
-            return True
-        # Opening onto nothing should reach the goal. A stall that still moved the
-        # finger means it opened as far as it could — good enough for a release.
-        end_pos = r.position
-        moved = (start_pos is not None and abs(end_pos - start_pos) > 0.02)
-        if r.stalled and moved:
-            self.get_logger().info(f"{gripper_group}: stalled after moving (pos={end_pos:.3f}).")
-            return True
-        self.get_logger().error(
-            f"{gripper_group}: did not actuate (stalled={r.stalled}, "
-            f"reached={r.reached_goal}, start={start_pos}, end={end_pos:.4f}). "
-            f"Check gripper hardware/driver, or run with skip_grippers:=true."
-        )
-        return False
 
     # ------------------------------------------------------------------
     # Table motion via service (absolute target + wait for completion)

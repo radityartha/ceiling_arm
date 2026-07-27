@@ -66,6 +66,17 @@
         <group name="arm_1"/>
         <group name="arm_2"/>
     </group>
+    <!-- arm_1 + arm_2 only, no gantry_1 joints: t1_linear_joint/t1_rotation_joint
+         have no ros2_control FollowJointTrajectory controller (the gantry is
+         driven separately over Modbus by dual_table_controller), so a combined
+         goal that includes them can never be dispatched to a controller. This
+         group lets both arms be commanded in one synchronized MoveGroup goal
+         while the gantry_1_with_arm_controller entry in moveit_controllers.yaml
+         is matched by the union of arm_1_controller + arm_2_controller. -->
+    <group name="arm_1_and_arm_2">
+        <group name="arm_1"/>
+        <group name="arm_2"/>
+    </group>
     <!--Single redundant arm+table chains (8 DOF) for GNG-seeded IK-->
     <group name="gantry_1_with_arm_1">
         <group name="gantry_1"/>

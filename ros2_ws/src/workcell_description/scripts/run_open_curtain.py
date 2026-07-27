@@ -2,27 +2,33 @@
 """One-shot runner for the open-curtain choreography.
 
 Sequence:
-  1  gripper1 open
-  2  gripper2 open
-  3  table1 → 1268 mm / 0 deg
-  4  arm1 pre-approach
-  5  arm1 approach
-  6  gripper1 grip (40 deg)
-  7  arm1 open-curtain swing
-  8  table1 → 1352 mm
-  9  gripper1 open
-  10 arm1 retreat + table1 → 1268 mm (parallel)
-  11 arm1 home
-  12 table1 → 1268 mm / 0 deg
-  13 arm2 pre-approach
-  14 arm2 approach
-  15 gripper2 grip (40 deg)
-  16 arm2 open-curtain swing
-  17 table1 → 1170 mm
-  18 gripper2 open
-  19 arm2 joint1 clear (rotate to +120 deg)
-  20 arm2 lift
-  21 arm2 home
+  1       gripper1 open
+  2       gripper2 open
+  3       table1 → 1268 mm / 0 deg
+  4a+13a  dual joint1 rotate (arm1 + arm2, combined; joints 2-6 held at home)
+  4b+13b  dual pre-approach (arm1 + arm2, combined; remaining joints move)
+  5+14    dual approach (arm1 + arm2, combined)
+  6+15    dual grip (gripper1 + gripper2, fired concurrently)
+  7+16    dual open-curtain swing (arm1 + arm2, combined) —
+          if use_compliant_pull: arm1 swings (joint-space), then arm2 pulls via
+          Cartesian twist control instead, run sequentially (can't be combined
+          with a joint-space goal)
+  8       table1 → 1352 mm
+  9       gripper1 open
+  10      arm1 retreat + table1 → 1268 mm (parallel)
+  12      table1 → 1268 mm / 0 deg
+  17      table1 → 1170 mm
+  18      gripper2 open
+  20      arm2 lift
+  11+21   dual arms home (arm1 + arm2, combined; arm1 goes home from its
+          step-10 retreat pose, arm2 from its lift pose)
+
+arm1 and arm2 are both mounted on gantry_1/table1, and move_action only runs
+one goal at a time, so steps 4-7 and 13-16 from the original sequential
+choreography are combined into single goals on the "arm_1_and_arm_2" planning
+group (see move_dual_arms()) rather than sent as two separate, mutually-
+preempting goals. That group deliberately excludes the gantry_1 joints, which
+have no ros2_control controller and would make execution fail outright.
 """
 import math
 import sys
@@ -191,6 +197,128 @@ class OpenCurtainRunner(Node):
             return False
         return True
 
+    def move_dual_arms(self, a1_joint_names, a1_degrees, a2_joint_names, a2_degrees) -> bool:
+        """Move arm_1 and arm_2 in one MoveGroup goal so they execute simultaneously.
+
+        arm_1 and arm_2 share the same move_action server, which only runs one
+        goal at a time — sending two separate arm goals back-to-back would have
+        the second preempt the first. Planning both arms as one goal on the
+        "arm_1_and_arm_2" group (arm joints only, no gantry_1) lets MoveIt
+        dispatch the resulting trajectory to arm_1_controller and arm_2_controller
+        together. It deliberately excludes t1_linear_joint/t1_rotation_joint:
+        those have no ros2_control FollowJointTrajectory controller (the gantry
+        is driven separately over Modbus), so a goal that includes them can
+        never be matched to a controller and execution fails outright.
+        """
+        joint_names = list(a1_joint_names) + list(a2_joint_names)
+        radians_list = (
+            [math.radians(d) for d in a1_degrees]
+            + [math.radians(d) for d in a2_degrees]
+        )
+
+        goal = MoveGroup.Goal()
+        goal.request.group_name = "arm_1_and_arm_2"
+        goal.request.num_planning_attempts = 5
+        goal.request.allowed_planning_time = float(self.planning_time)
+        goal.request.max_velocity_scaling_factor = float(self.vel_scale)
+        goal.request.max_acceleration_scaling_factor = float(self.acc_scale)
+
+        constraints = Constraints()
+        constraints.name = "goal"
+        for name, rad in zip(joint_names, radians_list):
+            jc = JointConstraint()
+            jc.joint_name = name
+            jc.position = rad
+            jc.tolerance_above = 0.01
+            jc.tolerance_below = 0.01
+            jc.weight = 1.0
+            constraints.joint_constraints.append(jc)
+        goal.request.goal_constraints.append(constraints)
+
+        self.get_logger().info(
+            f"→ arm_1_and_arm_2 (dual): arm1={a1_degrees} arm2={a2_degrees}")
+        if self.arm_settle_s > 0:
+            time.sleep(self.arm_settle_s)
+        send_future = self._move_client.send_goal_async(goal)
+        goal_handle = self._spin_until(send_future)
+        if goal_handle is None or not goal_handle.accepted:
+            self.get_logger().error(f"arm_1_and_arm_2: dual goal rejected by move_action.")
+            return False
+
+        result = self._spin_until(goal_handle.get_result_async())
+        if result is None:
+            self.get_logger().error(f"arm_1_and_arm_2: no result returned.")
+            return False
+        code = result.result.error_code.val
+        if code != 1:
+            self.get_logger().error(
+                f"arm_1_and_arm_2: dual planning/execution failed (code {code}).")
+            return False
+        return True
+
+    def _eval_gripper_result(self, gripper_group, joint, start_pos, result) -> bool:
+        r = result.result
+        if r.reached_goal:
+            return True
+        end_pos = self._joint_state.get(joint, start_pos)
+        moved = (start_pos is not None and end_pos is not None
+                 and abs(end_pos - start_pos) > 0.02)
+        if r.stalled and moved:
+            self.get_logger().info(f"{gripper_group}: stalled on object (pos={r.position:.3f}).")
+            return True
+        self.get_logger().error(
+            f"{gripper_group}: did not actuate (stalled={r.stalled}, "
+            f"reached={r.reached_goal}, start={start_pos}, end={end_pos}). "
+            f"Check gripper hardware/driver, or run with skip_grippers:=true."
+        )
+        return False
+
+    def move_grippers_parallel(self, commands) -> bool:
+        """Send several gripper goals concurrently, then wait for all results.
+
+        commands: list of (gripper_group, degrees) pairs.
+        """
+        if self.skip_grippers:
+            self.get_logger().warn("skip_grippers set — skipping parallel grip.")
+            return True
+
+        pending = []  # (gripper_group, joint, start_pos, goal_handle_future)
+        for gripper_group, degrees in commands:
+            joint = GRIPPER_JOINT[gripper_group]
+            start_pos = self._joint_state.get(joint)
+            if start_pos is not None and abs(start_pos - math.radians(degrees)) < 0.05:
+                self.get_logger().info(f"→ {gripper_group}: already at {degrees}° — skipping.")
+                continue
+            client = self._gripper_clients[gripper_group]
+            if not client.wait_for_server(timeout_sec=15.0):
+                self.get_logger().error(f"{gripper_group}: gripper action server not available.")
+                return False
+            goal = GripperCommand.Goal()
+            goal.command.position = math.radians(degrees)
+            goal.command.max_effort = float(self.gripper_max_effort)
+            self.get_logger().info(f"→ {gripper_group}: {degrees}° (parallel)")
+            pending.append((gripper_group, joint, start_pos, client.send_goal_async(goal)))
+
+        ok = True
+        result_futures = []
+        for gripper_group, joint, start_pos, send_future in pending:
+            goal_handle = self._spin_until(send_future)
+            if goal_handle is None or not goal_handle.accepted:
+                self.get_logger().error(f"{gripper_group}: goal rejected.")
+                ok = False
+                continue
+            result_futures.append((gripper_group, joint, start_pos, goal_handle.get_result_async()))
+
+        for gripper_group, joint, start_pos, result_future in result_futures:
+            result = self._spin_until(result_future)
+            if result is None:
+                self.get_logger().error(f"{gripper_group}: no result returned.")
+                ok = False
+                continue
+            if not self._eval_gripper_result(gripper_group, joint, start_pos, result):
+                ok = False
+        return ok
+
     def move_gripper(self, gripper_group, degrees) -> bool:
         if self.skip_grippers:
             self.get_logger().warn(f"{gripper_group}: skip_grippers set — skipping.")
@@ -223,21 +351,7 @@ class OpenCurtainRunner(Node):
             self.get_logger().error(f"{gripper_group}: no result returned.")
             return False
 
-        r = result.result
-        if r.reached_goal:
-            return True
-        end_pos = self._joint_state.get(joint, start_pos)
-        moved = (start_pos is not None and end_pos is not None
-                 and abs(end_pos - start_pos) > 0.02)
-        if r.stalled and moved:
-            self.get_logger().info(f"{gripper_group}: stalled on object (pos={r.position:.3f}).")
-            return True
-        self.get_logger().error(
-            f"{gripper_group}: did not actuate (stalled={r.stalled}, "
-            f"reached={r.reached_goal}, start={start_pos}, end={end_pos}). "
-            f"Check gripper hardware/driver, or run with skip_grippers:=true."
-        )
-        return False
+        return self._eval_gripper_result(gripper_group, joint, start_pos, result)
 
     def move_table(self, table_id, target_mm, target_deg) -> bool:
         # Send the ABSOLUTE target. The controller reads the motor encoder
@@ -408,29 +522,44 @@ class OpenCurtainRunner(Node):
             # Ensure grippers open before moving
             ("1  gripper1 open",                           lambda: self.move_gripper("gripper_1", opn)),
             ("2  gripper2 open",                           lambda: self.move_gripper("gripper_2", opn)),
-            # Position table before arm1 approaches
+            # Position table before arms approach
             ("3  table1 -> 1268mm / 0deg",                 lambda: self.move_table("table1", 1268.0, 0.0)),
-            # arm1 grabs and sweeps curtain open first
-            ("4  arm1 pre-approach",                       lambda: self.move_joints("arm_1", a1, [55, 0, -90, 0, 0, 0])),
-            ("5  arm1 approach",                           lambda: self.move_joints("arm_1", a1, [55, 50, -30, 0, 0, 0])),
-            ("6  gripper1 grip",                           lambda: self.move_gripper("gripper_1", grip)),
-            ("7  arm1 open-curtain swing",                 lambda: self.move_joints("arm_1", a1, [115, 50, -30, 0, 0, 0])),
+            # arm1 + arm2 approach and grip the curtain together, one combined
+            # MoveGroup goal per pose so both arms execute simultaneously.
+            # joint_1 rotates into position first (arms start from home, joints
+            # 2-6 held at their home values), then the remaining joints move.
+            ("4a+13a dual joint1 rotate",                  lambda: self.move_dual_arms(
+                a1, [55, 150, 150, 0, 0, 0], a2, [-60, 150, 150, 0, 0, 0])),
+            ("4b+13b dual pre-approach",                   lambda: self.move_dual_arms(
+                a1, [55, 0, -90, 0, 0, 0], a2, [-60, 0, -90, 0, 0, 0])),
+            ("5+14 dual approach",                         lambda: self.move_dual_arms(
+                a1, [55, 50, -30, 0, 0, 0], a2, [-60, 50, -40, 0, 0, 0])),
+            ("6+15 dual grip",                              lambda: self.move_grippers_parallel(
+                [("gripper_1", grip), ("gripper_2", grip)])),
+        ]
+
+        if self.use_compliant_pull:
+            # compliant_pull_arm2 drives arm_2 via Cartesian twist control, not a
+            # joint-space MoveGroup goal, so it cannot be folded into a combined
+            # dual-arm goal — arm1's swing and arm2's pull run sequentially here.
+            steps.append(("7  arm1 open-curtain swing", lambda: self.move_joints("arm_1", a1, [115, 50, -30, 0, 0, 0])))
+            steps.append(("16 arm2 open-curtain swing (compliant pull)", lambda: self.compliant_pull_arm2()))
+        else:
+            steps.append(("7+16 dual open-curtain swing", lambda: self.move_dual_arms(
+                a1, [115, 50, -30, 0, 0, 0], a2, [-120, 50, -40, 0, 0, 0])))
+
+        steps += [
             ("8  table1 -> 1352mm",                        lambda: self.move_table("table1", 1352.0, 0.0)),
             ("9  gripper1 open",                           lambda: self.move_gripper("gripper_1", opn)),
             ("10 arm1 retreat + table1 -> 1268mm",         lambda: self.move_joints_and_table("arm_1", a1, [115, 0, 0, 0, 0, 0], "table1", 1268.0, 0.0)),
-            ("11 arm1 home",                               lambda: self.move_joints("arm_1", a1, [0, 150, 150, 0, 0, 0])),
-            # Confirm table position before arm2
             ("12 table1 -> 1268mm / 0deg",                 lambda: self.move_table("table1", 1268.0, 0.0)),
-            # arm2 grabs and sweeps curtain open
-            ("13 arm2 pre-approach",                       lambda: self.move_joints("arm_2", a2, [-60, 0, -90, 0, 0, 0])),
-            ("14 arm2 approach",                           lambda: self.move_joints("arm_2", a2, [-60, 50, -40, 0, 0, 0])),
-            ("15 gripper2 grip",                           lambda: self.move_gripper("gripper_2", grip)),
-            ("16 arm2 open-curtain swing",                 lambda: self.compliant_pull_arm2() if self.use_compliant_pull
-                                                                   else self.move_joints("arm_2", a2, [-120, 50, -40, 0, 0, 0])),
-            ("17 table1 -> 1110mm",                        lambda: self.move_table("table1", 1110.0, 0.0)),
+            ("17 table1 -> 1170mm",                        lambda: self.move_table("table1", 1170.0, 0.0)),
             ("18 gripper2 open",                           lambda: self.move_gripper("gripper_2", opn)),
             ("20 arm2 lift",                               lambda: self.move_joints("arm_2", a2, [-120, 150, 150, 0, 0, 0])),
-            ("21 arm2 home",                               lambda: self.move_joints("arm_2", a2, [0, 150, 150, 0, 0, 0])),
+            # arm1 (still retreated at [115,0,0,0,0,0] since step 10) and arm2
+            # both go home together, one combined MoveGroup goal
+            ("11+21 dual arms home",                       lambda: self.move_dual_arms(
+                a1, [0, 150, 150, 0, 0, 0], a2, [0, 150, 150, 0, 0, 0])),
         ]
 
         for label, action in steps:

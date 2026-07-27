@@ -140,6 +140,12 @@ class TakeBottleRunner(Node):
         self.gripper_max_effort = self.declare_parameter("gripper_max_effort", 50.0).value
         self.skip_grippers = self.declare_parameter("skip_grippers", False).value
         self.arm_settle_s = self.declare_parameter("arm_settle_s", 0.5).value
+        # Extra delay inside move_gripper before sending the goal. After an arm
+        # trajectory the Kortex hardware stays in high-level servoing mode; the
+        # gripper controller uses low-level BaseCyclic API and gets
+        # WRONG_SERVOING_MODE until the hardware transitions. 1.5 s is enough
+        # in practice; lower if grippers feel sluggish.
+        self.gripper_pre_delay_s = self.declare_parameter("gripper_pre_delay_s", 1.5).value
         # Escape hatch: home/move the arms one at a time through MoveIt instead
         # of running the parallel steps all at once. Slower, but arm-vs-arm
         # collisions are then impossible.
@@ -375,6 +381,8 @@ class TakeBottleRunner(Node):
         goal.command.max_effort = float(self.gripper_max_effort)
 
         self.get_logger().info(f"→ {gripper_group}: {degrees}°")
+        if self.gripper_pre_delay_s > 0:
+            time.sleep(self.gripper_pre_delay_s)
         goal_handle = self._spin_until(client.send_goal_async(goal))
         if goal_handle is None or not goal_handle.accepted:
             self.get_logger().error(f"{gripper_group}: goal rejected.")
