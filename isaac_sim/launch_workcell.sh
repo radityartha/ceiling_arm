@@ -5,9 +5,10 @@
 #   Terminal 3) RViz MotionPlanning            (default; or `demo` to script the arms)
 #
 # Usage:
-#   ./launch_workcell.sh            # bridge + bringup + RViz
+#   ./launch_workcell.sh            # bridge + bringup + RViz  (4 arms, both gantries)
 #   ./launch_workcell.sh demo       # bridge + bringup + looping 4-arm demo (no RViz)
 #   ./launch_workcell.sh headless   # bridge + bringup only (no RViz, no demo)
+#   ./launch_workcell.sh table1     # gantry_1 only (gantry_2/arm_3/arm_4 hidden)
 #
 # Ctrl-C stops everything. Watch it in noVNC: http://<server>:22380/vnc.html
 set -u
@@ -22,16 +23,17 @@ LOG=/tmp/workcell_launch; mkdir -p "$LOG"
 MODE="${1:-gng}"
 PIDS=()
 
-# Mode -> model scope. Default/gng/headless use the TABLE_1-ONLY model so
-# gantry_2/arm_3/arm_4 are absent in move_group + RViz AND hidden in Isaac
-# (GNG_HIDE_T2=1). full/demo keep the original 4-arm workcell.
+# Mode -> model scope. Every mode now uses the full 4-arm workcell (both
+# gantries visible in Isaac and present in move_group + RViz). Pass `table1` to
+# get the old gantry_1-only view, which hides all t2_ prims (GNG_HIDE_T2=1) and
+# loads the TABLE_1-ONLY move_group model.
 case "$MODE" in
-  full|demo) export GNG_HIDE_T2=0
-             BRINGUP="isaac_sim/workcell/ros/bringup.launch.py"
-             RVIZ_LAUNCH="isaac_sim/workcell/ros/rviz.launch.py";;
-  *)         export GNG_HIDE_T2=1
-             BRINGUP="isaac_sim/workcell/ros/bringup_table1.launch.py"
-             RVIZ_LAUNCH="isaac_sim/workcell/ros/rviz_table1.launch.py";;
+  table1|gng1) export GNG_HIDE_T2=1
+               BRINGUP="isaac_sim/workcell/ros/bringup_table1.launch.py"
+               RVIZ_LAUNCH="isaac_sim/workcell/ros/rviz_table1.launch.py";;
+  *)           export GNG_HIDE_T2=0
+               BRINGUP="isaac_sim/workcell/ros/bringup.launch.py"
+               RVIZ_LAUNCH="isaac_sim/workcell/ros/rviz.launch.py";;
 esac
 
 cleanup() { echo; echo ">>> stopping..."; kill -9 "${PIDS[@]}" 2>/dev/null; exit 0; }
@@ -128,8 +130,8 @@ echo
 echo "=================================================================="
 echo " Workcell running. Open noVNC: http://<server>:22380/vnc.html"
 case "$MODE" in
-  full|demo) echo " 4-arm workcell. RViz: Planning Group -> arm_1..4 / gantry_1/2 -> Plan & Execute";;
-  *)         echo " TABLE_1 GNG view (gantry_2/arm_3/4 hidden). RViz: Planning Group -> gantry_1_with_arm_1/_2 -> Plan & Execute";;
+  table1|gng1) echo " TABLE_1 GNG view (gantry_2/arm_3/4 hidden). RViz: Planning Group -> gantry_1_with_arm_1/_2 -> Plan & Execute";;
+  *)           echo " 4-arm workcell. RViz: Planning Group -> arm_1..4 / gantry_1/2 -> Plan & Execute";;
 esac
 echo " Logs: $LOG/   |   Press Ctrl-C here to stop everything."
 echo "=================================================================="

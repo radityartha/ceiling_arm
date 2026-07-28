@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Build a STATIC GNG topo map from ONE RGBD camera.
+# Build a STATIC GNG topo map, fusing BOTH RGBD cameras by default.
 #
 #   ros2_ws/src/reachability_gng/build_topo.sh [camera_ns]
 #
-#   camera_ns : rgbd (default) | rgbd2   -- which camera to capture from.
-#               (fusion of both is deferred until the cameras are mounted +
-#                calibrated; when ready:  CAMS="['rgbd','rgbd2']" build_topo.sh)
+#   camera_ns : if passed, capture from THIS SINGLE camera only (rgbd | rgbd2)
+#               instead of the default two-camera fusion. CAMS=... overrides
+#               the namespace LIST directly regardless of $1.
 #
-# Output: /tmp/topo_static_<camera_ns>.npz  (override with OUT=...)
+# Output: /tmp/topo_static.npz  (single-camera runs: /tmp/topo_static_<ns>.npz;
+#         override with OUT=...)
 #
 # Prereq: cameras up (realsense_dual.launch.py). depth_cloud is auto-started here
 # if it is not already running (it publishes /<ns>/depth_cloud for BOTH cameras).
@@ -19,11 +20,15 @@
 #   ros2 run reachability_gng topo_static_pub --ros-args -p map_file:=<OUT>
 set -euo pipefail
 
-NS="${1:-rgbd}"
-# CAMS lets you override the namespace LIST directly (for the future 2-cam fusion
-# build); by default it is just the single NS passed as $1.
-CAMS="${CAMS:-['$NS']}"
-OUT="${OUT:-/tmp/topo_static_${NS}.npz}"
+NS="${1:-}"
+if [ -n "$NS" ]; then
+  CAMS="${CAMS:-['$NS']}"
+  OUT="${OUT:-/tmp/topo_static_${NS}.npz}"
+else
+  NS="rgbd"                          # used only for the depth_cloud probe below
+  CAMS="${CAMS:-['rgbd','rgbd2']}"
+  OUT="${OUT:-/tmp/topo_static.npz}"
+fi
 CAPTURE="${CAPTURE:-8.0}"
 MAX_NODES="${MAX_NODES:-1800}"
 MAX_Z="${MAX_Z:-1.75}"

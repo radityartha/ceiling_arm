@@ -480,6 +480,17 @@ into two layers:
    way). `epochs` auto-scales to fill `max_nodes`; the fit pool is capped
    (`fit_max_points`) so it stays fast.
 
+   `build_topo.sh` wraps this and is usually simpler: it auto-starts
+   `depth_cloud` itself (no need to bring up `topo_fusion` first, so it doesn't
+   disturb another perception stack you may have running, e.g. `pick_stack`),
+   and **fuses both cameras by default**:
+   ```bash
+   ros2_ws/src/reachability_gng/build_topo.sh          # rgbd + rgbd2 -> /tmp/topo_static.npz
+   ros2_ws/src/reachability_gng/build_topo.sh rgbd2     # single camera -> /tmp/topo_static_rgbd2.npz
+   ```
+   Knobs are env vars: `CAMS`, `OUT`, `CAPTURE`, `MAX_NODES`, `MAX_Z`,
+   `SELF_FILTER` (defaults to `false` here, vs. the node's own `true`).
+
 2. **Run two-layer:** pass `static_map:=` — `topo_static_pub` republishes it on
    `/topo_map/static/markers` (blue, latched), and `env_gng` subtracts live
    points within `bg_dist` of a static node, so the green `/topo_map/markers`

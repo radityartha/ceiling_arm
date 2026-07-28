@@ -173,7 +173,7 @@
 \begin{minipage}[t]{0.487\linewidth}
 % ================================================= LEFT COLUMN =======
 
-\psection{Social Background}
+\psection{Background}
 
 \begin{minipage}[c]{0.27\linewidth}
   \centering
@@ -268,7 +268,7 @@ laboratory built from the \emph{same URDF} as the real robot.}
 {\centering
 \includegraphics[height=80mm]{GNG_static3.png}\hspace{5mm}
 \includegraphics[height=80mm]{GNG_dynamic3.png}\par}
-\figcap{The resulting two-layer map (RViz, same viewpoint). \textbf{Left:} the
+\figcap{The resulting two-layer map. \textbf{Left:} the
 frozen \textcolor{blue!70!black}{static} backbone: walls, tables, the fixed
 structure of the room. \textbf{Right:} the same backbone with the
 \textcolor{green!45!black}{dynamic} remainder after subtraction: here a person
@@ -365,7 +365,7 @@ J = w_{gl}\frac{\Delta_{lin}}{\rho_{gl}}
         priority, not a unit artefact.
   \item Weights are \textbf{fit by OLS} against the \emph{measured} mechanical
         energy of 168 executed picks, not hand-tuned
-        ($R^2=0.857$, Spearman$(J,E)=0.909$): $\Delta_{lin}$ \num{27.16},
+        ($R^2=0.857$): $\Delta_{lin}$ \num{27.16},
         $e$ 12.78, $\Delta_{rot}$ 3.08, $m$ 2.95, $\Delta_{arm}$ 0.09.
         Rail travel dominates once rail friction is modelled; the calibration
         \emph{recovers} the premise that moving the base is the dominant cost.

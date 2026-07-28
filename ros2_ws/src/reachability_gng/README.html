@@ -104,10 +104,18 @@ ros2 topic pub --once /reach_fusion/execute    std_msgs/msg/Empty  "{}"</code></
      <span class="green">dynamic</span> remainder so the map stops changing every
      run yet still tracks moving obstacles.</p>
 <pre><code># 1) capture the STATIC layer once (arms may stay — they are TF self-filtered;
-#    clear movable objects for a clean map). Needs depth_cloud running (via B).
+#    clear movable objects for a clean map). Needs depth_cloud running (via B) --
+#    or just use build_topo.sh below, which starts depth_cloud itself.
 ros2 run reachability_gng map_topo_static \
   --ros-args -p max_nodes:=1800 -p max_z:=1.75 -p capture_seconds:=8.0
 #    -> /tmp/topo_static.npz
+
+# ...or the wrapper: auto-starts depth_cloud, fuses BOTH cameras by default
+# (doesn't disturb another perception stack, e.g. pick_stack, that's already up)
+ros2_ws/src/reachability_gng/build_topo.sh
+#    -> /tmp/topo_static.npz
+ros2_ws/src/reachability_gng/build_topo.sh rgbd2   # single camera instead
+#    -> /tmp/topo_static_rgbd2.npz
 
 # 2) run two-layer (blue = fixed backbone, green = only dynamic obstacles)
 ros2 launch reachability_gng topo_fusion.launch.py \
