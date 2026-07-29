@@ -45,6 +45,12 @@ SEARCH_SECS = 10.0      # re-scan window for a requested object before giving up
 # default 0.5 s publish period so the window reliably samples several cycles.
 VOTE_WINDOW = 3.0
 VOTE_POLL = 0.4
+# After 'g' the menu waits on /reach_fusion/result instead of redrawing the
+# object list (see _wait_result). RESULT_TIMEOUT is only a backstop for a dead
+# reach_fusion -- its own busy watchdog already ends any stuck chain.
+RESULT_POLL = 0.2
+RESULT_NUDGE = 15.0     # "still running" heartbeat
+RESULT_TIMEOUT = 600.0
 
 
 def _label_matches(label, aliases, color):
@@ -80,6 +86,13 @@ class TargetCli(Node):
         self.pub = self.create_publisher(
             String, self.get_parameter('set_target_topic').value, 1)
         self.exec_pub = self.create_publisher(Empty, '/reach_fusion/execute', 1)
+        # reach_fusion announces the end of every approach chain here (exactly
+        # one message per execute, success or failure). The robot runs one chain
+        # at a time, so this is what tells the menu it may show the object list
+        # again -- see _wait_result.
+        self._result = None
+        self.create_subscription(String, '/reach_fusion/result',
+                                 self._on_result, 1)
 
     def _on_objects(self, msg):
         with self._lock:
@@ -94,6 +107,24 @@ class TargetCli(Node):
             return
         with self._lock:
             self.tracks = arr
+
+    def _on_result(self, msg):
+        try:
+            res = json.loads(msg.data)
+        except (ValueError, TypeError):
+            res = {'status': 'unknown', 'detail': msg.data}
+        with self._lock:
+            self._result = res
+
+    def take_result(self):
+        """Pop the pending approach result (None if the chain is still running)."""
+        with self._lock:
+            res, self._result = self._result, None
+        return res
+
+    def clear_result(self):
+        with self._lock:
+            self._result = None
 
     def track_list(self):
         with self._lock:
@@ -114,7 +145,11 @@ class TargetCli(Node):
         self.pending_confirm = False
 
     def execute(self):
+        self.clear_result()          # never mistake the previous run's result
         self.exec_pub.publish(Empty())
+
+    def result_publisher_count(self):
+        return self.count_publishers('/reach_fusion/result')
 
 
 def _fetch(node: TargetCli, sentence):
@@ -207,33 +242,77 @@ def _fetch(node: TargetCli, sentence):
     print('  (type g to take the default, or another #id first)')
 
 
+def _print_objects(node: TargetCli):
+    tracks = node.track_list()
+    objn, n = node.objn_map()
+    cur = f'  [current: {node.last_sent}]' if node.last_sent else ''
+    print(f'\nDetected objects ({n} total){cur}')
+    npub = node.tracks_publisher_count()
+    if npub > 1:
+        print(f'  !! WARNING: {npub} object_localizer instances publishing '
+              'tracks -- #id may target the WRONG object. Kill the stale '
+              'topo_fusion launch and keep exactly one.')
+    # Stable tracks are the source-agnostic handle (work for Isaac GT AND
+    # YOLOE); a #<id> follows one physical object through label flicker.
+    if tracks:
+        print('  stable tracks (target by #id):')
+        for t in tracks:
+            print(f"    #{t['tid']}  {t['label']:<16}"
+                  f"  x={t['x']:+.2f} y={t['y']:+.2f} z={t['z']:+.2f}")
+    elif not objn:
+        print('  (no tracks/obj_N yet -- is perception up?)')
+    for name in sorted(objn):
+        i, p = objn[name]
+        print(f'  {name}  (index {i})  x={p[0]:+.2f} y={p[1]:+.2f} z={p[2]:+.2f}')
+
+
+def _wait_result(node: TargetCli):
+    """Block until the approach chain reports back; True if the list should be
+    reprinted with a fresh scene.
+
+    The robot executes one chain at a time, so there is nothing useful to type
+    while it runs -- and reprinting the (unchanged) object list right after
+    'execute sent' just looked like the command did nothing. Wait here instead
+    and let the outcome be what brings the list back.
+    """
+    if node.result_publisher_count() == 0:
+        print('  (no /reach_fusion/result publisher -- old reach_fusion still '
+              'running? watch its log for the outcome)')
+        return True
+    t0 = time.time()
+    nudge = t0 + RESULT_NUDGE
+    try:
+        while rclpy.ok():
+            res = node.take_result()
+            if res is not None:
+                status = str(res.get('status', 'unknown')).upper()
+                detail = res.get('detail', '')
+                print(f"\n  == {status} after {time.time() - t0:.1f}s"
+                      + (f": {detail}" if detail else '') + ' ==')
+                return True
+            if time.time() - t0 > RESULT_TIMEOUT:
+                print(f'  ! no result after {RESULT_TIMEOUT:g}s -- giving up on '
+                      'waiting (reach_fusion may be stuck); check its log')
+                return True
+            if time.time() >= nudge:
+                print(f'  ... still running ({time.time() - t0:.0f}s)')
+                nudge = time.time() + RESULT_NUDGE
+            time.sleep(RESULT_POLL)
+    except KeyboardInterrupt:
+        print('\n  (stopped waiting -- the arm keeps going; watch reach_fusion)')
+    return True
+
+
 def _loop(node: TargetCli):
     print('\n=== target_cli ===  (Enter=refresh, g/go=execute approach, q=quit)')
     print('type #<id> (STABLE track, preferred) / obj_N / an index -> set target,')
     print('OR a natural request e.g. "please bring a teddy bear" / "get a can";')
     print('then g (or go) -> move the winning arm to approach it')
+    show_list = True
     while rclpy.ok():
-        tracks = node.track_list()
-        objn, n = node.objn_map()
-        cur = f'  [current: {node.last_sent}]' if node.last_sent else ''
-        print(f'\nDetected objects ({n} total){cur}')
-        npub = node.tracks_publisher_count()
-        if npub > 1:
-            print(f'  !! WARNING: {npub} object_localizer instances publishing '
-                  'tracks -- #id may target the WRONG object. Kill the stale '
-                  'topo_fusion launch and keep exactly one.')
-        # Stable tracks are the source-agnostic handle (work for Isaac GT AND
-        # YOLOE); a #<id> follows one physical object through label flicker.
-        if tracks:
-            print('  stable tracks (target by #id):')
-            for t in tracks:
-                print(f"    #{t['tid']}  {t['label']:<16}"
-                      f"  x={t['x']:+.2f} y={t['y']:+.2f} z={t['z']:+.2f}")
-        elif not objn:
-            print('  (no tracks/obj_N yet -- is perception up?)')
-        for name in sorted(objn):
-            i, p = objn[name]
-            print(f'  {name}  (index {i})  x={p[0]:+.2f} y={p[1]:+.2f} z={p[2]:+.2f}')
+        if show_list:
+            _print_objects(node)
+        show_list = False
         try:
             raw = input('target> ').strip()
         except (EOFError, KeyboardInterrupt):
@@ -268,8 +347,9 @@ def _loop(node: TargetCli):
             node.execute()
             node.pending_confirm = False
             print('  -> execute sent (watch reach_fusion for the plan/execute result)')
+            show_list = _wait_result(node)   # list comes back with the outcome
         elif not raw:
-            continue
+            show_list = True                 # bare Enter = refresh the list
         elif raw.startswith('#') or _OBJN_RE.match(low) or low.lstrip('-').isdigit():
             # explicit handle: stable track #id, obj_N, or list index -> as-is
             node.send(raw)

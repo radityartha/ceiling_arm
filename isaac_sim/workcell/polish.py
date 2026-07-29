@@ -295,43 +295,70 @@ def build_room():
     # asset. A relaxed idle normally needs the omni.anim.people retarget +
     # AnimationGraph (heavyweight, interactive; the character's 101-joint Reallusion
     # skeleton does not even match the 81-joint Isaac animation clips). Instead we
-    # drop the arms into a static A-pose with a tiny 2-joint UsdSkel animation that
-    # rotates only the shoulders (L/R_Upperarm) from horizontal to ~68 deg down and
-    # slightly outward. The local rotations below were computed offline from this
-    # rig's bind transforms (verified: arm dir (+-1,0,0) -> (+-0.38,0.01,-0.93)) and
-    # are reused across every People character since they share the RL skeleton. To
-    # raise/lower the arms, regenerate the two quats at a different down-angle.
+    # pose the character with a tiny sparse UsdSkel animation that rotates only a
+    # handful of joints; UsdSkel keeps every other joint at its rest transform.
+    #
+    # The character is meant to read as an ELDERLY person. Isaac ships no elderly
+    # asset -- all 22 People/Characters are "adult" (construction/police/medical/
+    # business), and there is no cane or walker prop either -- so age is faked from
+    # posture on a plain-clothed adult: a forward stoop (kyphosis) down the spine +
+    # neck, and a slightly reduced stature via the xform scale below.
+    #
+    # Two joint groups move. (a) Shoulders (L/R_Upperarm): T-pose -> A-pose, arms
+    # ~68 deg down and slightly outward. (b) Spine chain (Waist..Head): cumulative
+    # forward tilt about world +X, which leans the character's up-axis (+Z) toward
+    # its own forward (-Y): 8/18/28/36/42 deg at Waist/Spine01/Spine02/NeckTwist01/
+    # NeckTwist02, then the head pitches back 12 deg so the gaze is not straight at
+    # the floor. Net effect is the head carried ~0.20 m forward of the hips.
+    # All local rotations were computed offline from this rig's bind transforms
+    # (arms verified: dir (+-1,0,0) -> (+-0.38,0.01,-0.93); spine verified by FK on
+    # the world tilt angles above) and are reused across every People character
+    # since they share the RL skeleton. To change the stoop, regenerate the quats
+    # at different per-joint angles.
     from pxr import UsdSkel, Gf, Vt
-    person_char = "original_male_adult_construction_05/male_adult_construction_05.usd"
+    person_char = "original_female_adult_business_02/female_adult_business_02.usd"
     person_usd = f"{root}/Isaac/People/Characters/{person_char}"
     person_path = "/World/person/body"
     add_reference_to_stage(usd_path=person_usd, prim_path=person_path)
     person_prim = stage.GetPrimAtPath(person_path)
-    L_ARM = "RL_BoneRoot/Hip/Waist/Spine01/Spine02/L_Clavicle/L_Upperarm"
-    R_ARM = "RL_BoneRoot/Hip/Waist/Spine01/Spine02/R_Clavicle/R_Upperarm"
+    SPINE = "RL_BoneRoot/Hip/Waist"
+    S1, S2 = f"{SPINE}/Spine01", f"{SPINE}/Spine01/Spine02"
+    N1 = f"{S2}/NeckTwist01"
+    N2 = f"{N1}/NeckTwist02"
+    L_ARM = f"{S2}/L_Clavicle/L_Upperarm"
+    R_ARM = f"{S2}/R_Clavicle/R_Upperarm"
+    # (joint, local rotation quat (w,x,y,z) scalar-first, rest bone offset)
+    pose = [
+        (L_ARM, (0.826161, 0.121839, 0.083670, -0.543703), (0.0, 0.14946, 0.0)),
+        (R_ARM, (0.825552, 0.121207, -0.083080, 0.544859), (0.0, 0.14953, 0.0)),
+        (SPINE, (0.973090, 0.230424, -0.000011, 0.000050), (-0.00003, 0.06638, 0.01962)),
+        (S1, (0.988857, -0.148870, 0.000023, 0.000077), (0.0, 0.03902, 0.0)),
+        (S2, (0.997886, 0.064996, -0.000018, 0.000063), (0.0, 0.13252, 0.0)),
+        (N1, (0.946700, 0.322082, 0.001299, -0.004532), (0.0, 0.24776, 0.0)),
+        (N2, (0.997972, 0.063645, 0.000288, -0.001082), (0.0, 0.03038, 0.0)),
+        (f"{N2}/Head", (0.961603, -0.274387, -0.001083, 0.005518), (0.0, 0.03335, 0.0)),
+    ]
     skel = next((p for p in Usd.PrimRange(person_prim)
                  if p.GetTypeName() == "Skeleton"), None)
     sj = list(UsdSkel.Skeleton(skel).GetJointsAttr().Get() or []) if skel else []
-    if L_ARM in sj and R_ARM in sj:
-        # Sparse animation: only the two shoulders move; UsdSkel keeps every other
-        # joint at its rest transform. Translations are the rest bone offsets (only
-        # rotation changes). quat is (w, x, y, z), scalar-first.
-        anim = UsdSkel.Animation.Define(stage, f"{person_path}/ArmsDown")
-        anim.CreateJointsAttr(Vt.TokenArray([L_ARM, R_ARM]))
-        anim.CreateTranslationsAttr(Vt.Vec3fArray([Gf.Vec3f(0.0, 0.14946, 0.0),
-                                                   Gf.Vec3f(0.0, 0.14953, 0.0)]))
-        anim.CreateRotationsAttr(Vt.QuatfArray([
-            Gf.Quatf(0.826161, 0.121839, 0.083670, -0.543703),    # L_Upperarm
-            Gf.Quatf(0.825552, 0.121207, -0.083080, 0.544859)]))  # R_Upperarm
-        anim.CreateScalesAttr(Vt.Vec3hArray([Gf.Vec3h(1, 1, 1), Gf.Vec3h(1, 1, 1)]))
+    pose = [e for e in pose if e[0] in sj]
+    if pose:
+        anim = UsdSkel.Animation.Define(stage, f"{person_path}/ElderlyPose")
+        anim.CreateJointsAttr(Vt.TokenArray([j for j, _, _ in pose]))
+        anim.CreateTranslationsAttr(Vt.Vec3fArray(
+            [Gf.Vec3f(*t) for _, _, t in pose]))
+        anim.CreateRotationsAttr(Vt.QuatfArray([Gf.Quatf(*q) for _, q, _ in pose]))
+        anim.CreateScalesAttr(Vt.Vec3hArray([Gf.Vec3h(1, 1, 1)] * len(pose)))
         UsdSkel.BindingAPI.Apply(skel).CreateAnimationSourceRel().SetTargets(
             [anim.GetPrim().GetPath()])
     # The character's own forward (foot->toe) is -Y. A -90 deg rotation about Z
     # swings that forward from -Y to -X, so the person faces "backward" toward the
-    # rail origin (-X). The person is scene geometry; MoveIt sees it, if at all,
-    # through the camera->octomap path, like the cabinet. quat is (w,x,y,z),
-    # scalar-first.
+    # rail origin (-X). The 0.93 uniform scale shortens the character by ~7 % for a
+    # more elderly stature; the origin is at the feet, so the soles stay on z=0.
+    # The person is scene geometry; MoveIt sees it, if at all, through the
+    # camera->octomap path, like the cabinet. quat is (w,x,y,z), scalar-first.
     SingleXFormPrim(prim_path=person_path, name="person",
                     position=np.array([3.7, 0.0, 0.0]),
-                    orientation=np.array([0.70710678, 0.0, 0.0, -0.70710678]))
+                    orientation=np.array([0.70710678, 0.0, 0.0, -0.70710678]),
+                    scale=np.array([0.93, 0.93, 0.93]))
     return objs

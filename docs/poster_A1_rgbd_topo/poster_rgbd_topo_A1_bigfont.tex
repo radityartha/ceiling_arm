@@ -53,9 +53,9 @@
 \graphicspath{{figure/}}
 
 % ------------------------------------------------------------- knobs
-\newcommand{\bodysize}{22}
-\newcommand{\bodyskip}{27}
-\newcommand{\pillsize}{30}
+\newcommand{\bodysize}{21}
+\newcommand{\bodyskip}{25.5}
+\newcommand{\pillsize}{28}
 \def\figscale{0.92}
 \newcommand{\IG}[2]{\includegraphics[width=\figscale\dimexpr#1\linewidth\relax]{#2}}
 
@@ -68,7 +68,7 @@
 
 \color{pbody}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{3pt}
+\setlength{\parskip}{1pt}
 \renewcommand{\arraystretch}{1.12}
 
 % ------------------------------------------------- outer rounded frame
@@ -88,7 +88,7 @@
   arc=8mm, boxrule=0pt,
   left=4mm, right=4mm, top=1.2mm, bottom=1.2mm,
   halign=flush center, valign=center,
-  before skip=5mm, after skip=2.5mm
+  before skip=3.5mm, after skip=1.8mm
 }
 \newcommand{\psection}[1]{%
   \begin{sectionpill}\bfseries\fontsize{\pillsize}{\pillsize}\selectfont #1\end{sectionpill}}
@@ -98,15 +98,15 @@
   enhanced, width=\linewidth,
   colback=pgold!16!white, colframe=pgold,
   arc=4mm, boxrule=1.4pt,
-  left=4mm, right=4mm, top=2.5mm, bottom=2.5mm,
-  before skip=3mm, after skip=3mm
+  left=4mm, right=4mm, top=1.8mm, bottom=1.8mm,
+  before skip=2mm, after skip=2mm
 }
 
 % ------------------------------------------------------ list styles
-\setlist[itemize,1]{leftmargin=6.5mm, topsep=1pt, itemsep=2pt,
-                    parsep=0pt, label=\textcolor{pgoldd}{$\bullet$}}
-\setlist[itemize,2]{leftmargin=6mm, topsep=1pt, itemsep=1pt,
-                    parsep=0pt, label=\textcolor{pgoldd}{$\circ$}}
+\setlist[itemize,1]{leftmargin=6mm, itemindent=0mm, topsep=1pt, itemsep=2pt,
+                    parsep=0pt, label=\small\textcolor{pgoldd}{$\bullet$}}
+\setlist[itemize,2]{leftmargin=6mm, itemindent=0mm, topsep=1pt, itemsep=1pt,
+                    parsep=0pt, label=\small\textcolor{pgoldd}{$\circ$}}
 
 % ------------------------------------------------------ helpers
 \newcommand{\figcap}[1]{{\par\vspace{0.8mm}\centering
@@ -177,6 +177,7 @@
 \noindent
 \begin{minipage}[t]{0.487\linewidth}
 % ================================================= LEFT COLUMN =======
+\fontsize{22.5}{27}\selectfont
 
 \psection{Background}
 
@@ -214,6 +215,8 @@
 
 \begin{itemize}
   \item 2 overhead RGB-D cameras, \textbf{no LIDAR}
+  \item \lead{Placement:} ceiling-mounted ($z\approx2.05$~m), diagonally
+        opposite corners, angled down/inward at the table
   \item \texttt{depth\_cloud}: depth $\rightarrow$ world points, no seg.\ gate
   \item GNG on the cloud $\rightarrow$ scene \emph{topology}
   \item \lead{Static:} frozen once. \lead{Dynamic:} live remainder only
@@ -228,10 +231,17 @@
 
 \vspace{1.5mm}
 {\centering
-\includegraphics[height=95mm]{GNG_static3.png}\hspace{5mm}
-\includegraphics[height=95mm]{GNG_dynamic3.png}\par}
+\includegraphics[height=78mm]{GNG_static3.png}\hspace{5mm}
+\includegraphics[height=78mm]{GNG_dynamic3.png}\par}
 \figcap{Left: frozen \textcolor{blue!70!black}{static} backbone. Right: plus
 \textcolor{green!45!black}{dynamic} remainder (a person).}
+
+\begin{keybox}
+\lead{Static vs.\ dynamic budget:} \num{1800}-node static backbone
+(offline, multi-epoch, captured once) vs.\ \num{800}-node live cap
+(online, single pass per frame) --- same GNG, different node budget
+\& training regime per layer.
+\end{keybox}
 
 \psection{Layer 2: Base-Aware Capability GNG}
 
@@ -245,7 +255,7 @@
 
 \vspace{1mm}
 {\centering\includegraphics[trim=95 45 90 45, clip,
-   width=\figscale\dimexpr0.86\linewidth\relax]{gng_capability.png}\par}
+   width=\figscale\dimexpr0.78\linewidth\relax]{gng_capability.png}\par}
 \figcap{Capability layer of one arm (RViz), coloured by manipulability.}
 
 \begin{keybox}
@@ -307,17 +317,20 @@ J = w_{gl}\frac{\Delta_{lin}}{\rho_{gl}}
 \end{keybox}
 
 \begin{itemize}
-  \item Rail travel, arm travel, tool distance, manipulability
-  \item \textbf{Fit by OLS} on 168 measured picks ($R^2=0.857$):
-        rail travel dominates
-  \item \lead{Selection:} pool all 4 arms' nodes, score by $J$,
-        \textbf{plan-only} round-robin
+  \item Rail/arm travel, tool distance, manipulability ---
+        \textbf{fit by OLS} on 168 picks ($R^2=0.857$): rail dominates
+  \item \lead{GNG $\rightarrow$ $J$:} every \textbf{capability-layer node}
+        near the target (all 4 arms) scored by $J$ from its own $\mathbf{q}$
+  \item \lead{Selection:} \textbf{lowest-$J$ first}, \textbf{plan-only};
+        first collision-free plan wins
 \end{itemize}
 
 \psection{Experiments and Results}
 
 \begin{itemize}
-  \item \lead{Workspace gain:} rail active $\rightarrow$ \textbf{$4\times$}
+  \item \lead{Feasibility, not just efficiency:} \num{93.3\%} multi-arm
+        success vs.\ \num{63--65\%} for any single fixed arm
+  \item \lead{Why:} rail active $\rightarrow$ \textbf{$4\times$}
         reachable volume (\num{1.9$\rightarrow$7.9~m$^3$})
   \item \lead{Boundary seeding:} reach-surface error \num{0.221~m
         $\rightarrow$ 0.008~m}
@@ -345,10 +358,10 @@ fixed (best, arm\_4)   & 39/60 (65.0\%) & 1.14/1.21 & 49.79/55.78\\
 \figcap{Fixed-arm energies use that arm's own smaller reachable set.}
 
 \begin{itemize}
-  \item \lead{Coverage:} \num{93.3\%} multi-arm vs.\ \num{63--65\%} fixed arm
-  \item \lead{Energy:} \textbf{lowest mean} of multi-arm policies
-        (\num{45.84~J} vs.\ 48.28~J nearest, $-5.1\%$)
-  \item \lead{Trade-off:} more arm travel, less costly rail travel
+  \item \lead{Energy (secondary):} lowest mean, but modest
+        (\num{45.84~J} vs.\ 48.28~J, $-5.1\%$)
+  \item \lead{Trade-off confirmed:} arm\_3 (0.64~m rail) chosen over
+        nearest arm\_4 (1.15~m rail): rail cost avoided
 \end{itemize}
 
 \psection{End-to-End Validation}
@@ -372,11 +385,15 @@ fixed (best, arm\_4)   & 39/60 (65.0\%) & 1.14/1.21 & 49.79/55.78\\
 \psection{Summary and Contributions}
 
 \begin{keybox}
-\begin{itemize}[leftmargin=6mm, topsep=0pt]
-  \item \textbf{One GNG, two layers}: environment + per-arm capability
-  \item \textbf{Base-aware capability layer}: rail as a genuine DOF
-  \item \textbf{Energy-aware cost $J$}: $\approx4\times$ workspace,
-        93.3\% success, lowest energy, 35/35 picks
+\begin{itemize}[leftmargin=6mm, topsep=0pt, itemsep=1.5pt]
+  \item \textbf{Feasibility over efficiency:} \num{93.3\%} vs.\
+        \num{63--65\%} success 
+  \item \textbf{Base as a genuine DOF:} $\approx4\times$ reachable volume
+        
+  \item \textbf{Coupling, correctly priced:} $J$ fit on measured energy
+        ($R^2=0.857$) 
+  \item \textbf{One GNG, two layers:} one representation for collision
+        \emph{and} capability
 \end{itemize}
 \end{keybox}
 
@@ -384,7 +401,7 @@ fixed (best, arm\_4)   & 39/60 (65.0\%) & 1.14/1.21 & 49.79/55.78\\
 
 \end{minipage}
 
-\vspace{3mm}
+\vspace{0.5mm}
 {\fontsize{15}{18}\selectfont\color{pgrey}
 \textbf{References.}
 [1]~Fritzke, NIPS 1995 (GNG).

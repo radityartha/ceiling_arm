@@ -119,7 +119,16 @@ class ReachFusion(Node):
         # overhang) showed 0.30 leaves the arm's forearm/wrist in collision for
         # ~half the orientations (6-9/16 valid), while 0.35 is collision-free for
         # ALL 16 on BOTH arms yet still within reach (0.40 already exceeds arm1).
-        p('grasp_standoff', 0.35)
+        # ...but 0.35 is a WORST-CASE clearance: on an open target the EE ends up
+        # much further above the object than it needs to be. So treat 0.35 as the
+        # CEILING of a ladder instead of a fixed value: start as close as
+        # standoff_min and only back off by standoff_step when the WHOLE sweep
+        # (all orientations x seeds x arms) fails at that height. The cheap
+        # goal-validity gate (_on_state_valid, ~10 ms) rejects a too-close
+        # stand-off without ever planning to it, so the close rungs are fast.
+        p('grasp_standoff', 0.35)       # ladder ceiling (last resort)
+        p('standoff_min', 0.15)         # first (closest) rung tried
+        p('standoff_step', 0.04)        # back off this much per failed rung
         p('approach_tol', 0.12)         # EE this close to the stand-off = success
         # MoveGroup returns code=1 as soon as it finishes STREAMING the trajectory
         # to Isaac's topic_based_ros2_control bridge, but Isaac physics (finite PD
@@ -167,6 +176,10 @@ class ReachFusion(Node):
         # order is [j1..j6]. Set retreat_to_ready:=false to disable.
         p('retreat_to_ready', True)
         p('ready_arm_joints', [0.0, 2.6, 2.6, 0.0, 0.0, 0.0])   # tuck up
+        # Dwell at ready, in seconds, before accepting the next execute: Isaac's
+        # physics damps out and the GNG scene re-observes the arm in its parked
+        # pose before the next pick starts planning. 0 disables.
+        p('ready_dwell', 20.0)
         # Last-resort backstop: if an approach chain stays busy longer than this
         # (a hung/errored async future that skipped its busy-release), force it to
         # fail cleanly so the node never wedges and ignores all future executes.
@@ -238,7 +251,15 @@ class ReachFusion(Node):
         self.grasp_ori = [float(v) for v in g('grasp_orientation')]
         self.ik_avoid = bool(g('ik_avoid_collisions'))
         self.ik_timeout = float(g('ik_timeout'))
-        self.standoff = float(g('grasp_standoff'))
+        self.standoff_max = float(g('grasp_standoff'))
+        # rungs: standoff_min, +step, ... capped by (and always ending at) the max
+        step = max(1e-3, float(g('standoff_step')))
+        lo = min(float(g('standoff_min')), self.standoff_max)
+        n = int(np.floor((self.standoff_max - lo) / step))
+        self.standoff_ladder = [round(lo + k * step, 4) for k in range(n + 1)]
+        if self.standoff_ladder[-1] < self.standoff_max - 1e-6:
+            self.standoff_ladder.append(self.standoff_max)
+        self.standoff = self.standoff_ladder[0]   # current rung (set per attempt)
         self.approach_tol = float(g('approach_tol'))
         self.settle_tol = float(g('settle_tol'))
         self.settle_timeout = float(g('settle_timeout'))
@@ -254,6 +275,8 @@ class ReachFusion(Node):
         self.execute_wait = float(g('execute_wait'))
         self.retreat_to_ready = bool(g('retreat_to_ready'))
         self.ready_arm_joints = [float(v) for v in g('ready_arm_joints')]
+        self.ready_dwell = float(g('ready_dwell'))
+        self._ready_timer = None
         self.busy_timeout = float(g('busy_timeout'))
         self._exec_wait_timer = None
         self._exec_wait_t0 = 0.0
@@ -269,6 +292,10 @@ class ReachFusion(Node):
         # plan a collision-free config.
         self.sv_cli = self.create_client(GetStateValidity, '/check_state_validity')
         self.hold_pub = self.create_publisher(Bool, '/gng_collision/hold', 1)
+        # One message per finished approach chain (success or failure) so an
+        # operator UI (target_cli) knows the robot is idle again -- execution is
+        # never parallel, so this is the "you may pick the next object" signal.
+        self.result_pub = self.create_publisher(String, '/reach_fusion/result', 1)
 
         self.env_pts = np.empty((0, 3))
         self.poses = np.empty((0, 3))
@@ -582,12 +609,23 @@ class ReachFusion(Node):
         if self._busy and time.monotonic() - self._busy_since > self.busy_timeout:
             self.get_logger().error(
                 f'watchdog: approach stuck > {self.busy_timeout:.0f}s -- force reset')
-            for t in (self._settle_timer, self._exec_wait_timer):
+            for t in (self._settle_timer, self._exec_wait_timer, self._ready_timer):
                 if t is not None:
                     t.cancel()
-            self._settle_timer = self._exec_wait_timer = None
+            self._settle_timer = self._exec_wait_timer = self._ready_timer = None
             self._hold(False)
-            self._busy = False
+            self._finish('failed', f'watchdog reset after {self.busy_timeout:.0f}s')
+
+    def _finish(self, status, detail=''):
+        """End the approach chain: release busy AND announce the outcome.
+
+        Every path that clears _busy goes through here so /reach_fusion/result
+        fires exactly once per execute -- a UI that waits on it can never hang.
+        status: 'success' | 'failed'.
+        """
+        self._busy = False
+        self.result_pub.publish(String(data=json.dumps(
+            {'status': status, 'detail': detail, 'target': self.target_label})))
 
     def _hold(self, on):
         self.hold_pub.publish(Bool(data=bool(on)))   # freeze GNG collision scene
@@ -637,24 +675,27 @@ class ReachFusion(Node):
                 f'execute: no reachable arm / target after {self.execute_wait:.0f}s '
                 f'-- {self._target_diag()} -- target unresolved (detection/bookkeeping) '
                 'if target=None, else 0 arms can reach it collision-free')
-            self._busy = False
+            self._finish('failed', 'no reachable arm / target')
             return
         self._cancel_exec_wait()
         if not self.ik_cli.service_is_ready():
             self.get_logger().error('execute: /compute_ik not ready')
-            self._busy = False
+            self._finish('failed', '/compute_ik not ready')
             return
         self._hold(True)                          # scene stays put through execution
         self._exec_ranked = list(self._ranked)   # freeze arm order for this attempt
         self._exec_target = self._target.copy()
         self._oris = self._grasp_orientations()
         self._ai = 0
+        self._sti = 0                             # stand-off rung: closest first
+        self.standoff = self.standoff_ladder[0]
         self._t_attempt = time.monotonic()
         self._ik_calls = 0
         self._ik_time = 0.0
         self.get_logger().info(
             f"=== TIMING: attempt start, {len(self._exec_ranked)} arm(s) ranked, "
-            f"{len(self._oris)} orientations/arm ===")
+            f"{len(self._oris)} orientations/arm, stand-off ladder "
+            f"{'/'.join(f'{s:.2f}' for s in self.standoff_ladder)} m ===")
         self._try_arm()
 
     def _exec_wait_poll(self):
@@ -665,11 +706,28 @@ class ReachFusion(Node):
         dt = time.monotonic() - self._t_attempt if hasattr(self, '_t_attempt') else -1.0
         self.get_logger().error(f"=== APPROACH FAILED: {reason} ({dt:.3f}s total) ===")
         self._hold(False)
-        self._busy = False
+        self._finish('failed', reason)
 
     def _try_arm(self):
         if self._ai >= len(self._exec_ranked):
-            self._approach_failed('no arm can reach the target (IK/plan)')
+            # Every arm x seed x orientation failed AT THIS STAND-OFF. Rather than
+            # give up, step one rung further from the object (more clearance for
+            # the wrist/forearm) and re-run the sweep; only the top rung failing
+            # is a real failure. Closest-first means the EE ends up as near the
+            # object as the scene actually allows.
+            if self._sti + 1 < len(self.standoff_ladder):
+                self._sti += 1
+                prev, self.standoff = self.standoff, self.standoff_ladder[self._sti]
+                self.get_logger().warn(
+                    f'no arm succeeded at stand-off {prev:.2f} m -> backing off to '
+                    f'{self.standoff:.2f} m (rung {self._sti + 1}/'
+                    f'{len(self.standoff_ladder)}) and re-running the sweep')
+                self._ai = 0
+                self._try_arm()
+                return
+            self._approach_failed(
+                f'no arm can reach the target (IK/plan) at any stand-off '
+                f'{self.standoff_ladder[0]:.2f}-{self.standoff_max:.2f} m')
             return
         self._exec_arm, self._exec_gi = self._exec_ranked[self._ai]
         arm, tgt = self._exec_arm, self._exec_target
@@ -841,7 +899,7 @@ class ReachFusion(Node):
         if not self.move_cli.server_is_ready():
             self.get_logger().error('execute: move_action server not ready')
             self._hold(False)
-            self._busy = False
+            self._finish('failed', 'move_action server not ready')
             return
         self._t_plan = time.monotonic()
         grp = set(arm['jnames'] if 'gantry' in arm['group'] else arm['jnames'][2:])
@@ -986,7 +1044,7 @@ class ReachFusion(Node):
             self.get_logger().info(
                 f"=== APPROACH DONE: {arm['lab']} (EE pose unavailable to verify) ===")
             self._hold(False)
-            self._busy = False
+            self._finish('success', f"{arm['lab']} done (EE pose unavailable to verify)")
             return
         err = float(np.linalg.norm(np.array([t.x, t.y, t.z]) - goal))
         total_dt = time.monotonic() - self._t_attempt
@@ -1005,12 +1063,15 @@ class ReachFusion(Node):
         if err <= self.approach_tol:
             self.get_logger().info(
                 f"=== APPROACH SUCCESS: {arm['lab']} is above the object "
-                f"(EE {err:.3f} m from the stand-off, {total_dt:.3f}s total) ===")
+                f"(stand-off {self.standoff:.2f} m, rung {self._sti + 1}/"
+                f"{len(self.standoff_ladder)}; EE {err:.3f} m from the stand-off, "
+                f"{total_dt:.3f}s total) ===")
             if self.retreat_to_ready:
-                self._retreat(arm)     # park at ready; releases hold + busy when done
+                self._start_retreat_dwell(arm)   # wait, THEN retreat to ready
             else:
                 self._hold(False)
-                self._busy = False
+                self._finish('success',
+                             f"{arm['lab']} above the object (EE {err:.3f} m)")
         elif not settled:
             self.get_logger().warn(
                 f"{arm['lab']} executed but the arm STALLED short of the IK "
@@ -1023,21 +1084,135 @@ class ReachFusion(Node):
                 f"=== APPROACH FAILED: {arm['lab']} reached its goal but EE is "
                 f"{err:.2f} m from the stand-off (object drifted / not there) ===")
             self._hold(False)
-            self._busy = False
+            self._finish('failed',
+                         f"{arm['lab']} reached its goal but EE is {err:.2f} m off")
 
-    # ---- retreat: lift the EE clear after a successful approach --------------
+    # ---- retreat: dwell, then lift + tuck the EE clear after a successful
+    # ---- approach --------------------------------------------------------
+    def _start_retreat_dwell(self, arm):
+        """After APPROACH SUCCESS, hold ready_dwell seconds BEFORE retreating.
+
+        The EE stays parked right at the stand-off during the dwell (scene still
+        HELD), then _retreat runs. This is the requested order: approach ->
+        wait -> retreat, not approach -> retreat -> wait."""
+        dwell = max(0.0, self.ready_dwell)
+        if dwell < 0.05:
+            self._retreat(arm)
+            return
+        self.get_logger().info(
+            f'=== dwelling {dwell:.1f}s at the stand-off before retreat ===')
+        if self._ready_timer is not None:
+            self._ready_timer.cancel()
+        self._ready_timer = self.create_timer(
+            dwell, lambda a=arm: self._dwell_done(a))
+
+    def _dwell_done(self, arm):
+        if self._ready_timer is not None:
+            self._ready_timer.cancel()     # one-shot
+            self._ready_timer = None
+        self._retreat(arm)
+
     def _end_retreat(self, msg):
-        """Release the scene + busy flag and log why the retreat ended."""
+        """Release the scene + busy once the arm has parked at ready."""
         self.get_logger().info(f"=== retreat: {msg}; arm parked, ready for next ===")
         self._hold(False)
-        self._busy = False
+        self._finish('success', 'approach done, arm parked at ready')
+
+    def _joint_goal(self, arm, pairs):
+        """MoveGroup joint-space goal for (joint_name, position) pairs."""
+        con = Constraints()
+        for n, v in pairs:
+            con.joint_constraints.append(JointConstraint(
+                joint_name=n, position=float(v), tolerance_above=self.joint_tol,
+                tolerance_below=self.joint_tol, weight=1.0))
+        req = MotionPlanRequest(group_name=arm['group'])
+        req.goal_constraints = [con]
+        req.num_planning_attempts = self.plan_attempts
+        req.allowed_planning_time = self.plan_time
+        req.max_velocity_scaling_factor = self.vel_scale
+        req.max_acceleration_scaling_factor = self.acc_scale
+        return MoveGroup.Goal(request=req,
+                              planning_options=PlanningOptions(plan_only=False))
 
     def _retreat(self, arm):
-        """Park the arm at its READY (tuck) config so it clears the object it just
-        approached; the next pick then starts from a collision-free pose. This is
-        a JOINT-space goal (no IK): the 6 arm joints go to ready_arm_joints, the
-        gantry (if part of the group) is held at its current value so it does not
-        traverse. Any failure just parks as-is -- it must never wedge busy."""
+        """Stage 1 of the retreat: LIFT the EE straight up before tucking.
+
+        At a close rung (0.15 m) the EE hovers just above the object, and the
+        direct joint-space path to ready sweeps the arm THROUGH it: the tuck plan
+        came back -2 and the arm stayed parked over the object (observed live).
+        So first raise the EE to the ladder ceiling at the SAME grasp orientation
+        -- a short, near-vertical move that clears the object -- and only then
+        tuck. Anything unsolvable here just falls through to the tuck; retreat
+        must never wedge busy."""
+        lift_z = self.standoff_max - self.standoff
+        if (lift_z < 0.02 or not self.ik_cli.service_is_ready()
+                or not self.move_cli.server_is_ready()):
+            self._retreat_tuck(arm)
+            return
+        cur = self._current_q(arm['jnames'])
+        if cur is None:
+            self._retreat_tuck(arm)
+            return
+        tgt = self._exec_target
+        ps = PoseStamped()
+        ps.header.frame_id = self.world_frame
+        ps.pose.position = Point(x=float(tgt[0]), y=float(tgt[1]),
+                                 z=float(tgt[2] + self.standoff_max))
+        ox, oy, oz, ow = self._oris[self._oi]
+        ps.pose.orientation.x, ps.pose.orientation.y = float(ox), float(oy)
+        ps.pose.orientation.z, ps.pose.orientation.w = float(oz), float(ow)
+        coupled = 'gantry' in arm['group']
+        seed_names = arm['jnames'] if coupled else arm['jnames'][2:]
+        seed_pos = cur if coupled else cur[2:]
+        self.get_logger().info(
+            f"retreat: lifting {arm['lab']} +{lift_z:.2f} m clear of the object "
+            f"before the tuck")
+        self.ik_cli.call_async(
+            build_ik_request(arm['group'], arm['ee_frame'], ps, seed_names,
+                             seed_pos, timeout_s=self.ik_timeout,
+                             avoid_collisions=self.ik_avoid)
+        ).add_done_callback(lambda f, a=arm: self._on_lift_ik(f, a))
+
+    def _on_lift_ik(self, fut, arm):
+        try:
+            res = fut.result()
+        except Exception:  # noqa: BLE001
+            res = None
+        if res is None or res.error_code.val != 1:
+            self.get_logger().warn(
+                f"retreat: no IK for the lift (code="
+                f"{res.error_code.val if res else None}) -> tuck directly")
+            self._retreat_tuck(arm)
+            return
+        grp = set(arm['jnames'] if 'gantry' in arm['group'] else arm['jnames'][2:])
+        js = res.solution.joint_state
+        pairs = [(n, v) for n, v in zip(js.name, js.position) if n in grp]
+        self.move_cli.send_goal_async(self._joint_goal(arm, pairs)).add_done_callback(
+            lambda f, a=arm: self._on_lift_goal(f, a))
+
+    def _on_lift_goal(self, fut, arm):
+        gh = fut.result()
+        if gh is None or not gh.accepted:
+            self.get_logger().warn('retreat: lift goal rejected -> tuck directly')
+            self._retreat_tuck(arm)
+            return
+        gh.get_result_async().add_done_callback(
+            lambda f, a=arm: self._on_lift_done(f, a))
+
+    def _on_lift_done(self, fut, arm):
+        try:
+            code = fut.result().result.error_code.val
+        except Exception:  # noqa: BLE001
+            code = None
+        self.get_logger().info(f'retreat: lift clear (code={code}) -> tuck')
+        self._retreat_tuck(arm)
+
+    def _retreat_tuck(self, arm):
+        """Stage 2: park the arm at its READY (tuck) config so it clears the
+        object it just approached; the next pick then starts from a collision-free
+        pose. This is a JOINT-space goal (no IK): the 6 arm joints go to
+        ready_arm_joints, the gantry (if part of the group) is held at its current
+        value so it does not traverse. Any failure just parks as-is."""
         if not self.move_cli.server_is_ready():
             self._end_retreat('move_action unavailable, no retreat')
             return
