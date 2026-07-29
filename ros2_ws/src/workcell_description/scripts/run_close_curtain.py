@@ -9,7 +9,7 @@ Sequence:
   2/10  arm2 + arm1 pre-approach, IN PARALLEL   [-105,0,-90,0,0,0] / [106,-39,-112,24,-35,-29]
   3/11  arm2 + arm1 approach, IN PARALLEL       [-105,35,-76,0,0,0] / [106,30,-60,0,0,0]
   4/12  gripper2 + gripper1 grip (40 deg), IN PARALLEL
-  5/13  arm2 swing + arm1 close curtain swing, IN PARALLEL   [-45,35,-76,0,0,0] / [30,30,-60,0,0,0]
+  5/13  arm2 swing + arm1 close curtain swing, IN PARALLEL   [-60,35,-76,0,0,0] / [35,30,-60,0,0,0]
   7   gripper2 open (20 deg)
   15  gripper1 open (20 deg)
   *   arm2 + arm1 all joints zero, IN PARALLEL   [0,0,0,0,0,0] / [0,0,0,0,0,0]
@@ -661,8 +661,8 @@ class CloseCurtainRunner(Node):
         a1_pre = [106, -39, -112, 24, -35, -29]
         a2_approach = [-105, 35, -76, 0, 0, 0]
         a1_approach = [106, 30, -60, 0, 0, 0]
-        a2_swing = [-45, 35, -76, 0, 0, 0]
-        a1_swing = [30, 30, -60, 0, 0, 0]
+        a2_swing = [-60, 35, -76, 0, 0, 0]
+        a1_swing = [35, 30, -60, 0, 0, 0]
 
         steps = [
             ("0a    gripper1 open",              lambda: self.move_gripper("gripper_1", opn)),
