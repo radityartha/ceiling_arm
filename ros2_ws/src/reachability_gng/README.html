@@ -152,9 +152,9 @@ for f in t1_a1_tool_frame t1_a2_tool_frame t2_a1_tool_frame t2_a2_tool_frame; do
   ros2 run tf2_ros tf2_echo world $f 2&gt;&amp;1 | grep -A1 Translation | head -2
 done
 
-# 5) capture (dual-camera fusion, self-filter on)
+# 5) capture (dual-camera fusion + self-filter are the script's defaults)
 cd ros2_ws/src/reachability_gng
-CAMS="['rgbd','rgbd2']" OUT=/tmp/topo_static.npz SELF_FILTER=true ./build_topo.sh rgbd
+./build_topo.sh
 
 # 6) view
 ros2 launch reachability_gng view_topo_static.launch.py map_file:=/tmp/topo_static.npz</code></pre>

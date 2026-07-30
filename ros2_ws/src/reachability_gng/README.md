@@ -597,14 +597,14 @@ objects/people do need to be out of frame, OR far enough that
 not a fixed world-X band) crops them out. Check with a live snapshot if unsure
 (`/rgbd/rgb`, `/rgbd2/rgb`).
 
-**5. Capture (dual-camera fusion, self-filter on):**
+**5. Capture** (dual-camera fusion + self-filter are the script's defaults):
 ```bash
 cd ros2_ws/src/reachability_gng
-CAMS="['rgbd','rgbd2']" OUT=/tmp/topo_static.npz SELF_FILTER=true ./build_topo.sh rgbd
+./build_topo.sh
 ```
-(`SELF_FILTER=true` overrides the script's own default of `false`, which
-assumes the arms are tucked away physically — not needed once TF self-filter
-works.)
+(Override with env vars if needed, e.g. `OUT=/tmp/other.npz ./build_topo.sh`;
+pass a single `camera_ns` arg like `./build_topo.sh rgbd2` for a single-camera
+capture instead.)
 
 **6. View:**
 ```bash
