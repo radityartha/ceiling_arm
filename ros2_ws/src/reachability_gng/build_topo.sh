@@ -1,36 +1,63 @@
 #!/usr/bin/env bash
-# Build a STATIC GNG topo map from ONE RGBD camera.
+# Build a STATIC GNG topo map -- dual-camera fusion + TF self-filter by default
+# (validated procedure, 2026-07-30 -- see README.md section 8b).
 #
-#   ros2_ws/src/reachability_gng/build_topo.sh [camera_ns]
+#   ros2_ws/src/reachability_gng/build_topo.sh
 #
-#   camera_ns : rgbd (default) | rgbd2   -- which camera to capture from.
-#               (fusion of both is deferred until the cameras are mounted +
-#                calibrated; when ready:  CAMS="['rgbd','rgbd2']" build_topo.sh)
+# Prereq: both cameras up + calibrated (realsense_dual.launch.py /
+# extrinsics_view.launch.py) AND the real arm+gantry bringup up with live
+# joint_states (my_workcell.launch.py use_fake_hardware:=false) so self-filter
+# TF resolves for all 4 arms -- see README.md section 8b for the full checklist
+# (duplicate-process check, gantry initial_positions sanity, etc.) before
+# trusting a capture. depth_cloud is auto-started here if not already running.
 #
-# Output: /tmp/topo_static_<camera_ns>.npz  (override with OUT=...)
+# Output: /tmp/topo_static.npz (override with OUT=...)
 #
-# Prereq: cameras up (realsense_dual.launch.py). depth_cloud is auto-started here
-# if it is not already running (it publishes /<ns>/depth_cloud for BOTH cameras).
+# Single-camera capture is still available for a quick/degraded check:
+#   ./build_topo.sh rgbd2                # -> /tmp/topo_static_rgbd2.npz, single cam
+#   CAMS="['rgbd']" ./build_topo.sh       # explicit single-cam override
 #
-# Knobs via env vars (defaults match map_topo_static / README section 8a):
-#   CAPTURE=8.0  MAX_NODES=1800  MAX_Z=1.75  SELF_FILTER=false
+# Other knobs via env vars (defaults match map_topo_static):
+#   CAPTURE=8.0  MAX_NODES=1800  MAX_Z=1.75  MAX_X_FROM_CAMERA=2.5  SELF_FILTER=true
+# MAX_X_FROM_CAMERA: drop points farther than this (m) from EACH camera's own
+# world-X position (not a fixed world-X band); <=0 disables.
 #
 # Then view it in RViz:
 #   ros2 run reachability_gng topo_static_pub --ros-args -p map_file:=<OUT>
 set -euo pipefail
 
-NS="${1:-rgbd}"
-# CAMS lets you override the namespace LIST directly (for the future 2-cam fusion
-# build); by default it is just the single NS passed as $1.
-CAMS="${CAMS:-['$NS']}"
-OUT="${OUT:-/tmp/topo_static_${NS}.npz}"
+# No arg -> dual-camera fusion (the default, validated procedure). A camera_ns
+# arg switches to single-camera capture (old behaviour) unless CAMS/OUT
+# explicitly override it.
+NS="${1:-}"
+if [ -n "$NS" ]; then
+  CAMS="${CAMS:-['$NS']}"
+  OUT="${OUT:-/tmp/topo_static_${NS}.npz}"
+else
+  NS="rgbd"   # still used below to pick which namespace's depth_cloud to check
+  CAMS="${CAMS:-['rgbd','rgbd2']}"
+  OUT="${OUT:-/tmp/topo_static.npz}"
+fi
 CAPTURE="${CAPTURE:-8.0}"
 MAX_NODES="${MAX_NODES:-1800}"
 MAX_Z="${MAX_Z:-1.75}"
-SELF_FILTER="${SELF_FILTER:-false}"
+SELF_FILTER="${SELF_FILTER:-true}"
+MAX_X_FROM_CAMERA="${MAX_X_FROM_CAMERA:-2.5}"
 
-# Auto-start depth_cloud if no /<ns>/depth_cloud publisher is up yet.
-if ! ros2 topic info "/${NS}/depth_cloud" 2>/dev/null | grep -q 'Publisher count: [1-9]'; then
+# Auto-start depth_cloud if no /<ns>/depth_cloud publisher is up yet. A single
+# `ros2 topic info` call can false-negative on a busy graph (each invocation
+# re-does DDS discovery from scratch, which takes a moment) -- seen in practice
+# spawning a DUPLICATE depth_cloud alongside an already-running one. Retry a
+# few times before concluding it's really not there.
+depth_cloud_up() {
+  for _ in $(seq 1 5); do
+    ros2 topic info "/${NS}/depth_cloud" 2>/dev/null | grep -q 'Publisher count: [1-9]' && return 0
+    sleep 1
+  done
+  return 1
+}
+
+if ! depth_cloud_up; then
   echo "=== depth_cloud not publishing on /${NS}/depth_cloud -- starting it ==="
   ros2 run reachability_gng depth_cloud > /tmp/depth_cloud.log 2>&1 &
   # give it a moment to latch camera_info + start deprojecting
@@ -47,6 +74,7 @@ ros2 run reachability_gng map_topo_static --ros-args \
   -p "capture_seconds:=${CAPTURE}" \
   -p "max_nodes:=${MAX_NODES}" \
   -p "max_z:=${MAX_Z}" \
+  -p "max_x_from_camera:=${MAX_X_FROM_CAMERA}" \
   -p "output:=${OUT}"
 
 echo "=== done -> ${OUT} ==="

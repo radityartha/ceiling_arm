@@ -28,14 +28,23 @@ def generate_launch_description():
         'launch', 'rgbd_perception.launch.py')
 
     # Pass-through args to rgbd_perception (so this wrapper stays a superset).
-    _passthrough = ['serial1', 'serial2', 'with_depth_cloud', 'seg_source',
+    # serial1/serial2 deliberately NOT declared/forwarded here -- this file
+    # used to redeclare them with defaults that were REVERSED relative to
+    # realsense_dual.launch.py's (241122302297/234222303079), and because
+    # DeclareLaunchArgument only applies its default when the launch
+    # configuration isn't already set, that wrong pair silently leaked down
+    # through rgbd_perception.launch.py's include of realsense_dual.launch.py
+    # -- same bug class already fixed once in rgbd_perception.launch.py itself
+    # (see its comment). realsense_dual.launch.py is the single source of
+    # truth for which camera is `rgbd`; override there, or pass serial1/serial2
+    # straight through to THIS launch file's own IncludeLaunchDescription below
+    # if you ever need a one-off override.
+    _passthrough = ['with_depth_cloud', 'seg_source',
                     'seg_model', 'seg_device', 'seg_prompts', 'seg_conf',
                     'seg_imgsz']
     fwd = {k: LaunchConfiguration(k) for k in _passthrough}
 
     return LaunchDescription([
-        DeclareLaunchArgument('serial1', default_value='234222303079'),
-        DeclareLaunchArgument('serial2', default_value='241122302297'),
         DeclareLaunchArgument('with_depth_cloud', default_value='true'),
         DeclareLaunchArgument('seg_source', default_value='yoloe'),
         DeclareLaunchArgument('seg_model', default_value=os.path.expanduser(

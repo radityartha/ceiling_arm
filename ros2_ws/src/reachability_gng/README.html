@@ -130,6 +130,49 @@ ros2 launch reachability_gng topo_fusion.launch.py \
   </div>
 
   <div class="card">
+  <h2>B3 · Static topo map on REAL RGBD hardware <span class="pill">validated 2026-07-30</span></h2>
+  <p>Same idea as B2 but for the real 2-camera RealSense rig + real Kinova
+     arms, not the Isaac twin. Use <code>build_topo.sh</code>, not
+     <code>topo_fusion.launch.py</code>, for the capture step.</p>
+<pre><code># 0) check for stray duplicate processes FIRST (biggest source of "looks wrong")
+for pid in /proc/[0-9]*; do tr '\0' ' ' &lt; "$pid/cmdline" 2&gt;/dev/null; echo; done \
+  | grep -E "realsense2_camera_node|static_transform_publisher|depth_cloud"
+# expect exactly 2 camera nodes, 2 camera static_transform_publishers, <=1 depth_cloud
+
+# 1) cameras up + calibrated
+ros2 launch reachability_gng extrinsics_view.launch.py with_robot_tf:=false
+
+# 2) real arm+gantry bringup, for self-filter TF -- NOT single_rviz_workcell.launch.py
+#    (that one leaves t*_a*_tool_frame disconnected from world entirely)
+ros2 launch workcell_moveit_config my_workcell.launch.py \
+  use_sim_time:=false use_fake_hardware:=false
+
+# 3) verify self-filter TF resolves for all 4 arms before trusting a capture
+for f in t1_a1_tool_frame t1_a2_tool_frame t2_a1_tool_frame t2_a2_tool_frame; do
+  ros2 run tf2_ros tf2_echo world $f 2&gt;&amp;1 | grep -A1 Translation | head -2
+done
+
+# 5) capture (dual-camera fusion, self-filter on)
+cd ros2_ws/src/reachability_gng
+CAMS="['rgbd','rgbd2']" OUT=/tmp/topo_static.npz SELF_FILTER=true ./build_topo.sh rgbd
+
+# 6) view
+ros2 launch reachability_gng view_topo_static.launch.py map_file:=/tmp/topo_static.npz</code></pre>
+  <p class="note">Gantry joints have <b>no live encoder feed</b> in
+     <code>my_workcell.launch.py</code> (real Modbus table controller isn't
+     started by it) — they come from <code>config/initial_positions.yaml</code>
+     mock defaults. Confirm those match the gantries' actual physical position
+     (<code>ros2 topic echo --once /joint_states | grep -A1 -E "linear|rotation"</code>)
+     before capturing, or that gantry's 2 arms get silently mis-placed in TF
+     and self-filter fails for them with no error. Arms do <b>not</b> need to
+     be tucked away physically — self-filter removes them via TF regardless of
+     pose; movable objects/people do need to be out of frame or beyond
+     <code>MAX_X_FROM_CAMERA</code> (default 2.5 m from each camera's own
+     world-X position). Full detail + troubleshooting: <code>README.md</code>
+     section 8b.</p>
+  </div>
+
+  <div class="card">
   <h2>C · Perception → energy-aware pick (octomap executor)</h2>
   <p>The Section-7 pick path (octomap collision instead of the GNG env map).</p>
 <pre><code># Terminal 2: perception + executor together

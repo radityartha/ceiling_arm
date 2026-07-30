@@ -27,7 +27,8 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import PointCloud2
-from tf2_ros import Buffer, TransformListener
+from tf2_ros import (Buffer, ConnectivityException, ExtrapolationException,
+                     LookupException, TransformListener)
 
 from reachability_gng.env_gng import (_cloud_xyz, _radius_outlier_removal,
                                       _voxel_downsample, apply_self_filter)
@@ -46,6 +47,13 @@ class MapTopoStatic(Node):
         p('min_z', 0.02)
         p('max_z', 1.75)              # match topo_fusion.launch.py default (crops
         #                              the overhead gantry/arm-mount)
+        # Bound each camera's contribution to its own immediate work area:
+        # drop points farther than this from THAT camera's own world-X position
+        # (not a fixed world-X band -- rgbd and rgbd2 sit at very different X).
+        # Keeps far-room clutter (walls, furniture, people outside the work
+        # cell) out of the static map. <=0 disables.
+        p('max_x_from_camera', 2.5)
+        p('optical_frame_suffix', '_camera_optical')
         p('leaf_size', 0.02)
         p('outlier_radius', 0.05)
         p('outlier_min_neighbors', 3)
@@ -75,6 +83,8 @@ class MapTopoStatic(Node):
         self.suffix = g('cloud_topic_suffix')
         self.world_frame = g('world_frame')
         self.min_z, self.max_z = float(g('min_z')), float(g('max_z'))
+        self.max_x_from_camera = float(g('max_x_from_camera'))
+        self.optical_suffix = g('optical_frame_suffix')
         self.leaf = float(g('leaf_size'))
         self.outlier_r = float(g('outlier_radius'))
         self.outlier_min = int(g('outlier_min_neighbors'))
@@ -102,13 +112,14 @@ class MapTopoStatic(Node):
         self._cb_group = MutuallyExclusiveCallbackGroup()
         for ns in list(g('camera_namespaces')):
             self.create_subscription(PointCloud2, f'/{ns}/{self.suffix}',
-                                     self._on_cloud, qos_profile_sensor_data,
+                                     lambda m, ns=ns: self._on_cloud(ns, m),
+                                     qos_profile_sensor_data,
                                      callback_group=self._cb_group)
         self.get_logger().info(
             f'map_topo_static capturing {self.capture_s}s of static scene -- '
             'keep it CLEAR of movable objects and tuck the arms away')
 
-    def _on_cloud(self, msg):
+    def _on_cloud(self, ns, msg):
         # The capture deadline is checked HERE, not on a timer: the per-cloud
         # processing keeps the single-threaded executor busy on this callback, so
         # a timer would be starved and never fire (the node would capture forever
@@ -119,6 +130,16 @@ class MapTopoStatic(Node):
         pts = _cloud_xyz(msg)          # seg_cloud is already world-frame
         if len(pts) == 0:
             return
+        if self.max_x_from_camera > 0:
+            try:
+                tf = self.tf_buffer.lookup_transform(
+                    self.world_frame, f'{ns}{self.optical_suffix}', rclpy.time.Time())
+            except (LookupException, ConnectivityException, ExtrapolationException):
+                return  # can't bound without knowing this camera's position -- drop the frame
+            cam_x = tf.transform.translation.x
+            pts = pts[np.abs(pts[:, 0] - cam_x) <= self.max_x_from_camera]
+            if len(pts) == 0:
+                return
         z = pts[:, 2]
         pts = _voxel_downsample(pts[(z >= self.min_z) & (z <= self.max_z)],
                                 self.leaf)

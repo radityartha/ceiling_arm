@@ -138,40 +138,34 @@ def generate_launch_description():
         DeclareLaunchArgument('enable2', default_value='true'),
         DeclareLaunchArgument('color_profile', default_value='1280x720x30'),
         DeclareLaunchArgument('depth_profile', default_value='848x480x30'),
-        # world->camera extrinsics, from calibrate_extrinsics.py (2026-07-25
-        # first pass, ChArUco board pinned via t1_a1_tool_frame + tape-measure
-        # deltas -- see memory/reachability_gng notes).
+        # world->camera extrinsics, from calibrate_extrinsics.py (2026-07-30
+        # re-calibration, board anchored via t1_a1_tool_frame + tape-measure
+        # deltas, verified physical board size 35mm -- see memory/reachability_gng
+        # notes). Reprojection RMS: rgbd 0.29px, rgbd2 0.37px (plain-chessboard
+        # fallback -- ArUco marker decoding is out of range at this ceiling
+        # distance, see charuco_common.py).
         #
-        # ** THESE ARE KNOWN-INACCURATE, RE-CALIBRATION PENDING. ** A live
-        # cross-camera overlap check (deproject both depth images to `world`,
-        # symmetric nearest-neighbour on the shared floor/wall surfaces)
-        # scored ~36 cm median disagreement -- the solve itself is off, so
-        # do not trust these for reachability/grasping. Re-run
-        # calibrate_extrinsics.py with the board large and sharp in BOTH
-        # views (the 28 mm board is only ~18 px/square at the ~2 m ceiling
-        # distance, too small for ArUco marker decoding -- print a bigger
-        # one, constants live in charuco_common.py).
-        #
-        # Which solve belongs to which physical camera is NOT reliably known:
-        # the original run happened while the serial->ns mapping was itself
-        # wrong, so the two results cannot be attributed with confidence.
-        # They are ordered here so each camera's frame lands on the side it
-        # actually occupies -- rgbd (+Y, beside t1_base_link) and rgbd2 (-Y,
-        # beside t2_base_link) -- confirmed both in RViz against the gantry
-        # base frames and by the board-relative PnP (241122302297 solved to
-        # board-frame Y=+0.69). Treat the numbers themselves as placeholders.
-        DeclareLaunchArgument('tf1_x', default_value='0.9339'),
-        DeclareLaunchArgument('tf1_y', default_value='1.9872'),
-        DeclareLaunchArgument('tf1_z', default_value='2.2075'),
-        DeclareLaunchArgument('tf1_roll', default_value='-2.4072'),
-        DeclareLaunchArgument('tf1_pitch', default_value='0.3226'),
-        DeclareLaunchArgument('tf1_yaw', default_value='2.4601'),
-        DeclareLaunchArgument('tf2_x', default_value='0.0855'),
-        DeclareLaunchArgument('tf2_y', default_value='-0.6396'),
-        DeclareLaunchArgument('tf2_z', default_value='2.0485'),
-        DeclareLaunchArgument('tf2_roll', default_value='-2.3216'),
-        DeclareLaunchArgument('tf2_pitch', default_value='-0.1442'),
-        DeclareLaunchArgument('tf2_yaw', default_value='-0.9436'),
+        # The plain-chessboard fallback has an inherent 180-degree corner-
+        # labeling ambiguity (a flat/face-up board's two candidate poses
+        # differ only by a rotation about the board's own vertical normal,
+        # so they land at the SAME height -- calibrate_extrinsics.py's old
+        # "pick the higher camera" tiebreak was degenerate here and picked
+        # wrong for both cameras, swapping them onto the opposite sides of
+        # the confirmed rgbd(+Y,near t1)/rgbd2(-Y,near t2) mapping). Re-run
+        # with --camera-hint-xyz (rough expected position per camera, just
+        # needs the right quadrant) to disambiguate correctly.
+        DeclareLaunchArgument('tf1_x', default_value='1.8081'),
+        DeclareLaunchArgument('tf1_y', default_value='0.8124'),
+        DeclareLaunchArgument('tf1_z', default_value='2.0746'),
+        DeclareLaunchArgument('tf1_roll', default_value='-2.3436'),
+        DeclareLaunchArgument('tf1_pitch', default_value='-0.1488'),
+        DeclareLaunchArgument('tf1_yaw', default_value='2.1784'),
+        DeclareLaunchArgument('tf2_x', default_value='-0.0496'),
+        DeclareLaunchArgument('tf2_y', default_value='-1.1302'),
+        DeclareLaunchArgument('tf2_z', default_value='2.0767'),
+        DeclareLaunchArgument('tf2_roll', default_value='-2.2369'),
+        DeclareLaunchArgument('tf2_pitch', default_value='-0.1285'),
+        DeclareLaunchArgument('tf2_yaw', default_value='-0.8962'),
 
         GroupAction(
             condition=IfCondition(LaunchConfiguration('enable1')),

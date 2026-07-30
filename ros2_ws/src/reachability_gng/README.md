@@ -525,6 +525,94 @@ Notes:
   updates driven off the cloud callback (a `create_timer` was starved by the /tf
   firehose); always-publish so RViz/collision clear when nothing is dynamic.
 
+### 8b. Static topo map from REAL RGBD hardware (`build_topo.sh`)
+
+Section 8a's `topo_fusion.launch.py` path assumes the Isaac twin. On the real
+2-camera RealSense rig + real Kinova arms, use this validated procedure
+instead (last confirmed working 2026-07-30).
+
+**0. Check for stray duplicate processes first** — the single biggest source
+of "it looks wrong but the config is right" on this rig. Two nodes can claim
+the same name / same physical camera serial, or two `static_transform_publisher`s
+can publish different values to the same frame, and `ros2` will silently pick
+one:
+```bash
+for pid in /proc/[0-9]*; do tr '\0' ' ' < "$pid/cmdline" 2>/dev/null; echo; done \
+  | grep -E "realsense2_camera_node|static_transform_publisher|depth_cloud"
+```
+Expect exactly 2 `realsense2_camera_node`, 2 camera `static_transform_publisher`
+(`world`→`rgbd_camera_optical`/`rgbd2_camera_optical`), and at most 1
+`depth_cloud`. Kill any extras by PID before continuing.
+
+**1. Cameras up + calibrated.** If not already running:
+```bash
+ros2 launch reachability_gng extrinsics_view.launch.py with_robot_tf:=false
+```
+`tf1_*`/`tf2_*` extrinsics defaults in `launch/realsense_dual.launch.py` are
+the current calibration (see `calibrate_extrinsics.py` — pass
+`--camera-hint-xyz` when re-calibrating, the plain-chessboard fallback's
+180°-flip disambiguation is degenerate for a flat board without it).
+
+**2. Real arm + gantry bringup, for self-filter TF.** Use
+`my_workcell.launch.py`, **not** `single_rviz_workcell.launch.py` — the latter
+doesn't spawn any gantry controller, so `t*_a*_tool_frame` TF is disconnected
+from `world` entirely ("Tf has two or more unconnected trees") and self-filter
+can't find the arms at all:
+```bash
+ros2 launch workcell_moveit_config my_workcell.launch.py \
+  use_sim_time:=false use_fake_hardware:=false
+```
+If this errors on `livox_ros_driver2` not found: that submodule may not be
+checked out on this machine. The launch file now degrades gracefully (skips
+the LIDAR driver with a warning) instead of failing the whole bringup — pull
+latest and rebuild `workcell_moveit_config` if you still see a hard crash.
+
+Gantry joints (`t1_linear`/`t1_rotation`/`t2_linear`/`t2_rotation`) have **no
+live encoder feed** in this launch file (`moving_table_pkg`'s real Modbus
+controller isn't started by it) — they come from the mock defaults in
+`config/initial_positions.yaml`. **Before capturing, confirm those defaults
+match the gantries' actual physical position** (home = 0 for both, normally):
+```bash
+ros2 topic echo --once /joint_states | grep -A1 -E "linear|rotation"
+```
+If a gantry has been moved off home, either move it back or edit
+`initial_positions.yaml` to match and rebuild — a stale default here silently
+mis-places that gantry's 2 arms in TF, which breaks self-filter for them
+without any error.
+
+**3. Verify self-filter TF before trusting a capture:**
+```bash
+for f in t1_a1_tool_frame t1_a2_tool_frame t2_a1_tool_frame t2_a2_tool_frame; do
+  ros2 run tf2_ros tf2_echo world $f 2>&1 | grep -A1 Translation | head -2
+done
+```
+All 4 should resolve to plausible positions. A `tf2_echo` on a fresh TF
+listener sometimes needs ~5-10s to warm up before a chain resolves — a single
+quick failure isn't proof the frame is broken, retry with a longer wait.
+
+**4. Clear the scene / know your crop.** Arms do **not** need to be tucked
+away physically — self-filter removes them via TF regardless of pose. Movable
+objects/people do need to be out of frame, OR far enough that
+`max_x_from_camera` (default 2.5 m from each camera's own world-X position,
+not a fixed world-X band) crops them out. Check with a live snapshot if unsure
+(`/rgbd/rgb`, `/rgbd2/rgb`).
+
+**5. Capture (dual-camera fusion, self-filter on):**
+```bash
+cd ros2_ws/src/reachability_gng
+CAMS="['rgbd','rgbd2']" OUT=/tmp/topo_static.npz SELF_FILTER=true ./build_topo.sh rgbd
+```
+(`SELF_FILTER=true` overrides the script's own default of `false`, which
+assumes the arms are tucked away physically — not needed once TF self-filter
+works.)
+
+**6. View:**
+```bash
+ros2 launch reachability_gng view_topo_static.launch.py map_file:=/tmp/topo_static.npz
+```
+Add MarkerArray on `/topo_map/static/markers` if reusing an already-open
+RViz instead of a new one.
+
 ## Status
 
 **Phase 1 (done):** GNG core (`gng.py`, unit-tested; incremental adjacency

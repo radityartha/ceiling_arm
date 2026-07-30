@@ -132,14 +132,24 @@ def _solve_pnp_charuco(gray, K, dist, board):
     return (rvec, tvec, obj_pts, img_pts, draw), None
 
 
-def _solve_pnp_plain_chessboard(gray, K, dist, board, board_xyz, board_rpy):
+def _solve_pnp_plain_chessboard(gray, K, dist, board, board_xyz, board_rpy, camera_hint_xyz=None):
     """Fallback for when the board is too small in-frame for ArUco marker
     bit-pattern decoding (needs only a resolvable corner, not a decoded
     marker -- works at far lower px/square than ChArUco). A PLAIN
     checkerboard can't self-identify which physical corner is the ORIGIN, so
-    try both possible 180 deg-rotated corner labelings and keep whichever
-    places the camera on the physically sane side (above the board, for a
-    ceiling camera looking down)."""
+    try both possible 180 deg-rotated corner labelings.
+
+    The 2 candidates are related by a 180 deg rotation about the BOARD's own
+    normal. When the board is flat/face-up (the common case here) that
+    normal is vertical, so the rotation does NOT change camera height --
+    "pick the higher camera" is degenerate and effectively arbitrary in that
+    orientation (verified: candidate heights matched to <1mm on real
+    captures). It only discriminates when the board itself is tilted enough
+    that "above vs below the board" is a meaningful distinction. Prefer a
+    caller-supplied rough expected camera position (camera_hint_xyz) instead
+    -- it only needs to be in the right quadrant/side, not precise, since it
+    is merely breaking a symmetry, not replacing the PnP solve. Falls back to
+    the old height heuristic when no hint is given."""
     pattern_size = (SQUARES_X - 1, SQUARES_Y - 1)
     found, corners = cv2.findChessboardCorners(
         gray, pattern_size,
@@ -158,11 +168,15 @@ def _solve_pnp_plain_chessboard(gray, K, dist, board, board_xyz, board_rpy):
             continue
         R_cb, _ = cv2.Rodrigues(rvec)
         t_wc, _ = world_from_camera(R_cb, tvec.flatten(), board_xyz, board_rpy)
-        candidates.append((t_wc[2], rvec, tvec, obj_try))
+        candidates.append((t_wc, rvec, tvec, obj_try))
     if not candidates:
         return None
-    # camera above the board (larger world Z) is the physically sane pick
-    _, rvec, tvec, obj_pts = max(candidates, key=lambda c: c[0])
+    if camera_hint_xyz is not None:
+        hint = np.array(camera_hint_xyz, dtype=np.float64)
+        _, rvec, tvec, obj_pts = min(candidates, key=lambda c: np.linalg.norm(c[0] - hint))
+    else:
+        # degenerate fallback, kept for boards mounted at an angle
+        _, rvec, tvec, obj_pts = max(candidates, key=lambda c: c[0][2])
 
     def draw(rgb):
         debug = cv2.drawChessboardCorners(rgb.copy(), pattern_size, corners, found)
@@ -172,7 +186,7 @@ def _solve_pnp_plain_chessboard(gray, K, dist, board, board_xyz, board_rpy):
     return rvec, tvec, obj_pts, img_pts, draw
 
 
-def solve_camera_pose(rgb, cam_info, board, ns, board_xyz, board_rpy):
+def solve_camera_pose(rgb, cam_info, board, ns, board_xyz, board_rpy, camera_hint_xyz=None):
     """Returns (R_cam_board, t_cam_board, reproj_rms_px, debug_image_path) or
     raises ValueError. Tries ChArUco (self-identifying corners) first, falls
     back to a plain chessboard-corner fit if the board is too small/far for
@@ -184,7 +198,7 @@ def solve_camera_pose(rgb, cam_info, board, ns, board_xyz, board_rpy):
     result, fail_info = _solve_pnp_charuco(gray, K, dist, board)
     method = 'charuco'
     if result is None:
-        fallback = _solve_pnp_plain_chessboard(gray, K, dist, board, board_xyz, board_rpy)
+        fallback = _solve_pnp_plain_chessboard(gray, K, dist, board, board_xyz, board_rpy, camera_hint_xyz)
         if fallback is not None:
             result, method = fallback, 'plain-chessboard'
 
@@ -235,8 +249,25 @@ def main():
                     help='measured world-frame orientation of the board (rad, '
                          'fixed-axis xyz); default 0 0 0 = flat, face-up')
     ap.add_argument('--namespaces', nargs='+', default=NAMESPACES)
+    ap.add_argument('--camera-hint-xyz', nargs='+', type=float, default=None,
+                    metavar='X1 Y1 Z1 X2 Y2 Z2 ...',
+                    help='rough expected world-frame camera position, 3 floats per '
+                         'namespace (same order as --namespaces). Only used to break '
+                         'the plain-chessboard 180-degree corner-labeling ambiguity '
+                         '(pick the candidate closest to this hint) -- does not need '
+                         'to be precise, just in the right quadrant/side. Omit to fall '
+                         'back to the (degenerate, for flat boards) height heuristic.')
     ap.add_argument('--timeout', type=float, default=CAPTURE_TIMEOUT_S)
     args = ap.parse_args()
+
+    camera_hints = {}
+    if args.camera_hint_xyz is not None:
+        if len(args.camera_hint_xyz) != 3 * len(args.namespaces):
+            ap.error(f'--camera-hint-xyz needs 3 floats per namespace '
+                     f'({len(args.namespaces)} namespaces -> '
+                     f'{3 * len(args.namespaces)} floats), got {len(args.camera_hint_xyz)}')
+        for i, ns in enumerate(args.namespaces):
+            camera_hints[ns] = tuple(args.camera_hint_xyz[3 * i:3 * i + 3])
 
     board = build_board()
     frames = capture_frames(args.namespaces, args.timeout)
@@ -247,7 +278,8 @@ def main():
         rgb, cam_info = frames[ns]
         try:
             R_cb, t_cb, rms_px, debug_path = solve_camera_pose(
-                rgb, cam_info, board, ns, args.board_xyz, args.board_rpy)
+                rgb, cam_info, board, ns, args.board_xyz, args.board_rpy,
+                camera_hints.get(ns))
         except ValueError as e:
             print(f'\n{e}')
             continue
