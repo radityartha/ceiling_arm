@@ -58,6 +58,13 @@ ros2_ws/src/reachability_gng/build_maps.sh</code></pre>
      <code>PARALLEL=0</code> forces sequential; <code>JOB_THREADS</code> bounds
      each job's threads. <code>/tmp</code> is wiped periodically — rebuild when a
      node logs <code>cannot load /tmp/armN_model.npz</code>.</p>
+  <p class="note"><b>Must run from the repo root</b> — the <code>config:</code>
+     paths in <code>build_maps.sh</code>'s <code>ARMS</code> array are
+     repo-root-relative. Also, <code>urdf:</code> inside each
+     <code>config/arm*.yaml</code> must be repo-root-relative
+     (<code>ros2_ws/src/workcell_description/urdf/workcell_full.urdf</code>) —
+     an absolute, machine-specific path there fails <code>pin.buildModelFromUrdf</code>
+     with a misleading "does not contain a valid URDF model" error.</p>
   </div>
 
   <div class="card">

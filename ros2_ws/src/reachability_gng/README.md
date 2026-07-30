@@ -71,6 +71,19 @@ source /opt/ros/humble/setup.bash && source ros2_ws/install/setup.bash
 ros2_ws/src/reachability_gng/build_maps.sh        # -> /tmp/arm{1..4}_model.npz
 # override the dense recipe via env vars, e.g.:  N=20000 LAM=120 build_maps.sh
 ```
+**Must be run from the repo root** — the `config:` paths inside `ARMS` in
+`build_maps.sh` are repo-root-relative (`ros2_ws/src/reachability_gng/config/...`),
+so running it from inside `ros2_ws/src/reachability_gng` (e.g. `./build_maps.sh`)
+fails with `FileNotFoundError` on the config yaml.
+
+**`urdf:` inside each `config/arm*.yaml` must also be repo-root-relative**
+(`ros2_ws/src/workcell_description/urdf/workcell_full.urdf`), matching how
+`arm1_locked.yaml` has it — an absolute, machine-specific path there (e.g.
+copied from another checkout) fails `pin.buildModelFromUrdf` with `does not
+contain a valid URDF model` even though the file exists, because pinocchio
+reports a bogus "file does not exist" for the wrong absolute path rather than
+erroring on the mismatch directly.
+
 The arm maps are independent, so the script builds all of them **in parallel**
 (byte-identical output, ~11 min → ~3 min). `PARALLEL=0` forces the old sequential
 build; `JOB_THREADS` (default 4) bounds each job's BLAS threads so the concurrent
