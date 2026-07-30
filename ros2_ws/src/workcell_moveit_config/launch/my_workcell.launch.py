@@ -1,5 +1,6 @@
 import os
-from ament_index_python.packages import get_package_share_directory
+from ament_index_python.packages import (PackageNotFoundError,
+                                         get_package_share_directory)
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -13,18 +14,23 @@ def generate_launch_description():
 
     # Arm IP arguments — confirmed IPs on 192.168.2.x subnet
     # Override example: ros2 launch workcell_moveit_config my_workcell.launch.py \
-    #            use_fake_hardware:=false arm1_ip:=192.168.2.10
+    #            use_fake_hardware:=false arm1_ip:=192.168.2.13
     declared_hw_args = [
         DeclareLaunchArgument("use_fake_hardware", default_value="true",
                               description="Use mock hardware interfaces (false = real arms)"),
-        DeclareLaunchArgument("arm1_ip", default_value="192.168.2.10",
-                              description="IP of Arm 1 (Table-1 Left)"),
-        DeclareLaunchArgument("arm2_ip", default_value="192.168.2.11",
-                              description="IP of Arm 2 (Table-1 Right)"),
-        DeclareLaunchArgument("arm3_ip", default_value="192.168.2.12",
-                              description="IP of Arm 3 (Table-2 Left)"),
-        DeclareLaunchArgument("arm4_ip", default_value="192.168.2.13",
-                              description="IP of Arm 4 (Table-2 Right)"),
+        # Fixed 2026-07-30: these 4 defaults were reversed (arm1<->arm4,
+        # arm2<->arm3) relative to CLAUDE.md's documented wiring and
+        # single_rviz_workcell.launch.py's (correct) defaults -- verified via
+        # workcell.urdf.xacro's arm1_ip->t1_a1 / arm2_ip->t1_a2 /
+        # arm3_ip->t2_a1 / arm4_ip->t2_a2 mapping.
+        DeclareLaunchArgument("arm1_ip", default_value="192.168.2.13",
+                              description="IP of Arm 1 / t1_a1 (gantry_1, mount_right)"),
+        DeclareLaunchArgument("arm2_ip", default_value="192.168.2.12",
+                              description="IP of Arm 2 / t1_a2 (gantry_1, mount_left)"),
+        DeclareLaunchArgument("arm3_ip", default_value="192.168.2.11",
+                              description="IP of Arm 3 / t2_a1 (gantry_2, mount_right)"),
+        DeclareLaunchArgument("arm4_ip", default_value="192.168.2.10",
+                              description="IP of Arm 4 / t2_a2 (gantry_2, mount_left)"),
     ]
 
     # 1. MoveIt Config
@@ -115,45 +121,59 @@ def generate_launch_description():
         )
     )
 
-    # 5. Livox Driver (Direct Node)
-    livox_pkg = get_package_share_directory("livox_ros_driver2")
-    config_path = os.path.join(livox_pkg, "config", "MID360_config.json")
+    # 5. Livox Driver (Direct Node) -- degrade gracefully if the livox_ros_driver2
+    # submodule source isn't checked out (empty dir with no .gitmodules mapping is
+    # a known state on some checkouts). Without this, get_package_share_directory
+    # raises and the WHOLE bringup (arms, gantries, MoveIt) fails to launch, even
+    # though none of that needs the LIDAR. Skipping just means no LIDAR collision
+    # sensing this run -- surfaced loudly below, not silently dropped.
+    try:
+        livox_pkg = get_package_share_directory("livox_ros_driver2")
+    except PackageNotFoundError:
+        livox_pkg = None
+        print("[my_workcell.launch.py] WARNING: livox_ros_driver2 package not "
+              "found -- skipping the LIDAR driver + filter. No LIDAR collision "
+              "sensing this run; check out the submodule source and rebuild to "
+              "restore it.")
 
-    ld.add_action(
-        Node(
-            package="livox_ros_driver2",
-            executable="livox_ros_driver2_node",
-            name="livox_lidar_publisher",
-            output="screen",
-            parameters=[
-                {
-                    "xfer_format": 0,  # Standard PointCloud2
-                    "publish_freq": 20.0,
-                    "multi_topic": 0,
-                    "data_src": 0,
-                    "output_data_type": 0,
-                    "frame_id": "livox_frame",
-                    "lvx_file_path": "/home/livox/livox_test.lvx",
-                    "user_config_path": config_path,
-                    "cmdline_input_bd_code": "livox0000000001",
-                    "use_sim_time": use_sim_time_config,
-                }
-            ],
-            # REMAP to a unique topic to avoid conflicts
-            remappings=[("/livox/lidar", "/livox/points")],
-        )
-    )
+    if livox_pkg is not None:
+        config_path = os.path.join(livox_pkg, "config", "MID360_config.json")
 
-    # 6. Python Filter
-    ld.add_action(
-        Node(
-            package="workcell_description",
-            executable="lidar_filter.py",
-            name="lidar_filter",
-            output="screen",
-            parameters=[{"use_sim_time": use_sim_time_config}],
+        ld.add_action(
+            Node(
+                package="livox_ros_driver2",
+                executable="livox_ros_driver2_node",
+                name="livox_lidar_publisher",
+                output="screen",
+                parameters=[
+                    {
+                        "xfer_format": 0,  # Standard PointCloud2
+                        "publish_freq": 20.0,
+                        "multi_topic": 0,
+                        "data_src": 0,
+                        "output_data_type": 0,
+                        "frame_id": "livox_frame",
+                        "lvx_file_path": "/home/livox/livox_test.lvx",
+                        "user_config_path": config_path,
+                        "cmdline_input_bd_code": "livox0000000001",
+                        "use_sim_time": use_sim_time_config,
+                    }
+                ],
+                # REMAP to a unique topic to avoid conflicts
+                remappings=[("/livox/lidar", "/livox/points")],
+            )
         )
-    )
+
+        # 6. Python Filter
+        ld.add_action(
+            Node(
+                package="workcell_description",
+                executable="lidar_filter.py",
+                name="lidar_filter",
+                output="screen",
+                parameters=[{"use_sim_time": use_sim_time_config}],
+            )
+        )
 
     # Prepend the hardware args so they appear in --show-args
     for arg in reversed(declared_hw_args):

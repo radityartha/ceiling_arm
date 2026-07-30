@@ -16,7 +16,9 @@ initial_positions:
   t1_a2_joint_6: 0
   t1_a2_right_finger_bottom_joint: 0
   t1_linear_joint: 0
-  t1_rotation_joint: -1.5708   # home at -90° (-pi/2); travel ±180°
+  t1_rotation_joint: 0   # home at 0 (matches t2_rotation_joint convention and
+                         # the gantry's actual physical home, confirmed 2026-07-30
+                         # -- the old -1.5708 default didn't match reality)
   t2_a1_joint_1: 0
   t2_a1_joint_2: 2.60   # ~149 deg tuck (joint limit 2.61)
   t2_a1_joint_3: 2.60   # ~149 deg tuck (joint limit 2.61)
