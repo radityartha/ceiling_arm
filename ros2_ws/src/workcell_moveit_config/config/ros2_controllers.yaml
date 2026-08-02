@@ -170,6 +170,11 @@ gantry_1_with_arm_controller:
     state_interfaces:
       - position
       - velocity
+    # reach_fusion/GNG IK plans+executes on the single-arm+gantry subgroups
+    # (gantry_1_with_arm_1/_2, 8 of these 14 joints) -- without this, JTC
+    # rejects the goal with "Joints on incoming trajectory don't match the
+    # controller joints." (every execute failed, code -4/CONTROL_FAILED).
+    allow_partial_joints_goal: true
 t1_a1_twist_controller:
   ros__parameters:
     # "joint" is the prefixed tcp interface name exported by the patched Kortex
@@ -204,3 +209,4 @@ gantry_2_with_arm_controller:
     state_interfaces:
       - position
       - velocity
+    allow_partial_joints_goal: true

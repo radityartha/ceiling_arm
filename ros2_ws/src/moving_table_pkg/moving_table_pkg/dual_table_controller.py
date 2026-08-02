@@ -68,6 +68,20 @@ class DualTableController(Node):
         self.declare_parameter("motor_config.current", 1000)
         self.declare_parameter("publish_rate", 10.0)
 
+        # --- ros2_control bridge (topic_based_ros2_control real-hardware path) ---
+        # Off by default: this lets MoveIt/reach_fusion drive the real table via
+        # JointTrajectory goals instead of only the move_dual_table service. A
+        # FollowJointTrajectory goal streams the target at controller_manager's
+        # update rate (~100Hz); Modbus AZ motors take one absolute-move command
+        # and ramp to it on their own, so we debounce to "target moved more than
+        # tol" and only issue a new go_to_absolute when the previous one (if any)
+        # has finished -- never stream raw setpoints onto the RS-485 bus.
+        self.declare_parameter("bridge.enable", False)
+        self.declare_parameter("bridge.linear_speed", 3000)
+        self.declare_parameter("bridge.rotate_speed", 1000)
+        self.declare_parameter("bridge.pos_tol_mm", 1.0)
+        self.declare_parameter("bridge.rot_tol_deg", 0.3)
+
         self.add_on_set_parameters_callback(self.parameters_callback)
 
         # Initialize attributes
@@ -123,12 +137,22 @@ class DualTableController(Node):
         # ------------------- Create Joint State Publisher ---------------
         qos_profile = QoSProfile(depth=10)
         self.joint_pub = self.create_publisher(JointState, "joint_states", qos_profile)
+        # Dedicated feed for topic_based_ros2_control -- NOT "joint_states":
+        # joint_state_broadcaster also publishes /joint_states once these
+        # joints are wired into ros2_control, and two publishers on the same
+        # topic race (~5:1, whichever fires last wins a given HUD read).
+        self.hw_state_pub = self.create_publisher(JointState, "table_hw_states", qos_profile)
         self.publish_timer = self.create_timer(
             1.0 / self.get_parameter("publish_rate").value, self.publish_joint_states
         )
         self.get_logger().info(
             f"Publishing joint states at {self.get_parameter('publish_rate').value} Hz."
         )
+
+        # ------------------- ros2_control bridge subscriber ---------------
+        self._bridge_target_mm = {"table1": None, "table2": None}   # last dispatched, mm/deg
+        self._bridge_target_deg = {"table1": None, "table2": None}
+        self.create_subscription(JointState, "table_hw_commands", self._on_hw_command, qos_profile)
 
     def parameters_callback(self, params):
         result = SetParametersResult(successful=True)
@@ -355,6 +379,59 @@ class DualTableController(Node):
             msg.name = list(self.joint_positions.keys())
             msg.position = list(self.joint_positions.values())
         self.joint_pub.publish(msg)
+        hw_msg = JointState()
+        hw_msg.header.stamp = msg.header.stamp
+        hw_msg.name, hw_msg.position = msg.name, msg.position
+        self.hw_state_pub.publish(hw_msg)
+
+    def _on_hw_command(self, msg):
+        """topic_based_ros2_control command callback (real-hardware bridge).
+
+        msg carries the FollowJointTrajectory controller's per-cycle setpoint
+        for ALL claimed joints (arms included, since gantry_N_with_arm_controller
+        is one 14-joint controller) -- only look at the 2 table joints per
+        table, and only act if bridge.enable is on."""
+        if not self.get_parameter("bridge.enable").value:
+            return
+        pos = dict(zip(msg.name, msg.position))
+        lin_speed = int(self.get_parameter("bridge.linear_speed").value)
+        rot_speed = int(self.get_parameter("bridge.rotate_speed").value)
+        pos_tol = float(self.get_parameter("bridge.pos_tol_mm").value)
+        rot_tol = float(self.get_parameter("bridge.rot_tol_deg").value)
+        for table_id, lin_j, rot_j, table, thread_attr in (
+            ("table1", self.t1_linear_joint, self.t1_rotation_joint, self.table1, "table1_thread"),
+            ("table2", self.t2_linear_joint, self.t2_rotation_joint, self.table2, "table2_thread"),
+        ):
+            if lin_j not in pos or rot_j not in pos or table is None:
+                continue
+            target_mm = pos[lin_j] * 1000.0
+            target_deg = pos[rot_j] * 180.0 / 3.14159265359
+            last_mm, last_deg = self._bridge_target_mm[table_id], self._bridge_target_deg[table_id]
+            if (last_mm is not None
+                    and abs(target_mm - last_mm) < pos_tol
+                    and abs(target_deg - last_deg) < rot_tol):
+                continue   # same target already dispatched (or within noise) -- skip
+            active_thread = getattr(self, thread_attr)
+            if active_thread is not None and active_thread.is_alive():
+                continue   # a move is already in flight -- pick this target up once it finishes
+            self._bridge_target_mm[table_id] = target_mm
+            self._bridge_target_deg[table_id] = target_deg
+            req = MovingTable.Request()
+            req.table_id = table_id
+            req.distance_mm = target_mm
+            req.angle_deg = target_deg
+            req.linear_speed = lin_speed
+            req.rotate_speed = rot_speed
+            req.operation_type = OP_GOTO_ABS
+            stop_event = self.table1_stop_event if table_id == "table1" else self.table2_stop_event
+            stop_event.clear()
+            self.get_logger().info(
+                f"bridge: {table_id} -> distance_mm={target_mm:.1f} angle_deg={target_deg:.1f}")
+            new_thread = threading.Thread(
+                target=self._background_move_task,
+                args=(table_id, table, req, stop_event), daemon=True)
+            setattr(self, thread_attr, new_thread)
+            new_thread.start()
 
     def _background_move_task(self, table_id, table_controller, request, stop_event):
         self.get_logger().info(f"Background thread started for {table_id}")

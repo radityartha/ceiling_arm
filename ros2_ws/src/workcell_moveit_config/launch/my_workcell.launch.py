@@ -3,6 +3,7 @@ from ament_index_python.packages import (PackageNotFoundError,
                                          get_package_share_directory)
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -18,6 +19,17 @@ def generate_launch_description():
     declared_hw_args = [
         DeclareLaunchArgument("use_fake_hardware", default_value="true",
                               description="Use mock hardware interfaces (false = real arms)"),
+        # Default false: reachability_gng's gng_collision node now feeds
+        # /planning_scene from the GNG env map instead (see
+        # reachability_gng/launch/topo_fusion.launch.py). Raw livox_ros_driver2
+        # still runs below either way (e.g. for visualization); this only gates
+        # the lidar_filter.py node that used to feed the octomap's livox_lidar
+        # sensor plugin via /livox/filtered. Pass true to restore the old
+        # octomap-from-LIDAR collision path.
+        DeclareLaunchArgument("enable_lidar_octomap_filter", default_value="false",
+                              description="Publish /livox/filtered for the "
+                                          "octomap livox_lidar sensor (legacy; "
+                                          "GNG collision replaces this)"),
         # Fixed 2026-07-30: these 4 defaults were reversed (arm1<->arm4,
         # arm2<->arm3) relative to CLAUDE.md's documented wiring and
         # single_rviz_workcell.launch.py's (correct) defaults -- verified via
@@ -31,6 +43,17 @@ def generate_launch_description():
                               description="IP of Arm 3 / t2_a1 (gantry_2, mount_right)"),
         DeclareLaunchArgument("arm4_ip", default_value="192.168.2.10",
                               description="IP of Arm 4 / t2_a2 (gantry_2, mount_left)"),
+        # Real-hardware gantry bridge (see workcell.urdf.xacro's TableRealTopicBased
+        # block + dual_table_controller.py's bridge.* params). Two gates, both
+        # must be true to actually drive the steppers from a MoveIt trajectory:
+        # dual_table_controller must be running (it isn't in fake-hardware mode,
+        # since the table joints are covered by mock_components/FakeSystem then)
+        # AND enable_gantry_bridge:=true. Defaults to false even on real hardware
+        # so a first real-mode launch doesn't move the tables until reviewed.
+        DeclareLaunchArgument("enable_gantry_bridge", default_value="false",
+                              description="Let MoveIt trajectories drive the real "
+                                          "Modbus table via dual_table_controller's "
+                                          "topic_based_ros2_control bridge"),
     ]
 
     # 1. MoveIt Config
@@ -44,10 +67,10 @@ def generate_launch_description():
                 "arm2_ip":           LaunchConfiguration("arm2_ip"),
                 "arm3_ip":           LaunchConfiguration("arm3_ip"),
                 "arm4_ip":           LaunchConfiguration("arm4_ip"),
+                "enable_gantry_bridge": LaunchConfiguration("enable_gantry_bridge"),
                 "use_sim_time":      "false",
             },
         )
-        .sensors_3d(file_path="config/sensors_3d.yaml")
         .to_moveit_configs()
     )
 
@@ -164,7 +187,10 @@ def generate_launch_description():
             )
         )
 
-        # 6. Python Filter
+        # 6. Python Filter -- feeds the octomap's livox_lidar sensor plugin via
+        # /livox/filtered. Off by default: reachability_gng's gng_collision now
+        # publishes GNG-derived CollisionObjects to /planning_scene instead (see
+        # enable_lidar_octomap_filter above).
         ld.add_action(
             Node(
                 package="workcell_description",
@@ -172,8 +198,28 @@ def generate_launch_description():
                 name="lidar_filter",
                 output="screen",
                 parameters=[{"use_sim_time": use_sim_time_config}],
+                condition=IfCondition(LaunchConfiguration("enable_lidar_octomap_filter")),
             )
         )
+
+    # 7. Real Modbus table driver -- only meaningful on real hardware; in
+    # fake-hardware mode the table joints are served by mock_components/
+    # FakeSystem (see workcell.urdf.xacro) and this node would just fight it
+    # over the "joint_states" topic name.
+    ld.add_action(
+        Node(
+            package="moving_table_pkg",
+            executable="dual_table_controller",
+            name="dual_table_controller",
+            output="screen",
+            parameters=[{
+                "use_fake_hardware": False,
+                "bridge.enable": LaunchConfiguration("enable_gantry_bridge"),
+                "use_sim_time": use_sim_time_config,
+            }],
+            condition=UnlessCondition(LaunchConfiguration("use_fake_hardware")),
+        )
+    )
 
     # Prepend the hardware args so they appear in --show-args
     for arg in reversed(declared_hw_args):

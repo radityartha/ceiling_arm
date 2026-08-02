@@ -14,7 +14,7 @@ Visualization Manager:
       Name: Grid
       Value: true
     - Class: moveit_rviz_plugin/MotionPlanning
-      Name: MotionPlanning
+      Name: MotionPlanning (Scene Geometry = GNG collision union, all green)
       Planned Path:
         Loop Animation: true
         State Display Time: 0.05 s
@@ -23,8 +23,33 @@ Visualization Manager:
       Robot Description: robot_description
       Scene Geometry:
         Scene Alpha: 1
+        Show Scene Geometry: false
       Scene Robot:
         Robot Alpha: 0.5
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: GNG Static (blue, fixed backbone)
+      Namespaces:
+        {}
+      Topic:
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /topo_map/static/markers
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: GNG Live (green, dynamic remainder)
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /topo_map/markers
       Value: true
   Global Options:
     Fixed Frame: world

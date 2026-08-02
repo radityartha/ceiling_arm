@@ -21,6 +21,15 @@
   <xacro:arg name="arm2_fake"         default="$(arg use_fake_hardware)"/>
   <xacro:arg name="arm3_fake"         default="$(arg use_fake_hardware)"/>
   <xacro:arg name="arm4_fake"         default="$(arg use_fake_hardware)"/>
+  <!-- Real-hardware gantry bridge (dual_table_controller to ros2_control via
+       topic_based_ros2_control). Requires the topic_based_ros2_control
+       package to actually be built in this workspace, NOT currently the
+       case (checked: `ros2 pkg prefix topic_based_ros2_control` fails), so
+       this defaults off. Flipping it on before that package exists makes
+       resource_manager fail to load the plugin and the WHOLE ros2_control_node
+       aborts (breaks real arm control too, not just the table): vendor and
+       colcon build topic_based_ros2_control first. -->
+  <xacro:arg name="enable_gantry_bridge" default="false"/>
 
   <!-- ============================ -->
   <!-- Include table and Kinova URDF -->
@@ -125,6 +134,42 @@
       </joint>
     </ros2_control>
   </xacro:if>
+
+  <!-- Real hardware, non-Isaac: drive the table joints through
+       topic_based_ros2_control against dual_table_controller's bridge
+       topics (table_hw_commands / table_hw_states), which translate goal
+       setpoints into real Modbus RTU go_to_absolute() calls. See
+       dual_table_controller.py's bridge.* params: bridge.enable must be
+       true (off by default) for this to actually drive the steppers. -->
+  <xacro:unless value="$(arg use_fake_hardware)">
+    <xacro:unless value="$(arg sim_isaac)">
+    <xacro:if value="$(arg enable_gantry_bridge)">
+      <ros2_control name="TableRealTopicBased" type="system">
+        <hardware>
+          <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+          <param name="joint_commands_topic">table_hw_commands</param>
+          <param name="joint_states_topic">table_hw_states</param>
+        </hardware>
+        <joint name="t1_linear_joint">
+          <command_interface name="position" />
+          <state_interface name="position" />
+        </joint>
+        <joint name="t1_rotation_joint">
+          <command_interface name="position" />
+          <state_interface name="position" />
+        </joint>
+        <joint name="t2_linear_joint">
+          <command_interface name="position" />
+          <state_interface name="position" />
+        </joint>
+        <joint name="t2_rotation_joint">
+          <command_interface name="position" />
+          <state_interface name="position" />
+        </joint>
+      </ros2_control>
+    </xacro:if>
+    </xacro:unless>
+  </xacro:unless>
 
   <!-- ==================================== -->
   <!-- Arms Mounted on Table 1 -->

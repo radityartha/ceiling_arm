@@ -180,6 +180,51 @@ ros2 launch reachability_gng view_topo_static.launch.py map_file:=/tmp/topo_stat
   </div>
 
   <div class="card">
+  <h2>B4 · Live GNG collision on real hardware <span class="pill">4 terminals</span></h2>
+  <p>Once B3's static map exists, run the <b>same</b> <code>topo_fusion.launch.py</code>
+     pipeline used for Isaac Sim (B) against the real arms + real cameras instead
+     of the Isaac bridge — no code differs, only what feeds <code>/rgbd*</code>.
+     Replaces octomap with <code>gng_collision</code>'s GNG-derived
+     <code>CollisionObject</code> spheres on <code>/planning_scene</code>.</p>
+<pre><code># Terminal 1: real arm + gantry bringup + move_group
+#   (lidar_filter.py, which fed the old octomap via /livox/filtered, is OFF
+#   by default now — pass enable_lidar_octomap_filter:=true to restore it)
+ros2 launch workcell_moveit_config my_workcell.launch.py \
+  use_sim_time:=false use_fake_hardware:=false
+
+# Terminal 2: real RealSense cameras (replaces the Isaac bridge)
+#   check `ps aux | grep realsense` first -- a leftover extrinsics_view.launch.py
+#   or earlier instance already holding both D455s is the #1 cause of
+#   "Device or resource busy" reconnect-error spam here
+ros2 launch reachability_gng realsense_dual.launch.py
+
+# Terminal 3: GNG env map + fusion + gng_collision -> /planning_scene
+#   (static_map already defaults to /tmp/topo_static.npz, no need to pass it)
+ros2 launch reachability_gng topo_fusion.launch.py
+
+# Terminal 4: target picker (optional, interactive)
+ros2 run reachability_gng target_cli</code></pre>
+  <p class="note"><b>Bring-up order:</b> 1 → 2 → wait for <code>/rgbd/rgb</code> and
+     <code>/rgbd2/rgb</code> to actually publish (<code>ros2 topic hz /rgbd/rgb</code>)
+     → 3 → 4.</p>
+  <p class="note"><b>Verify it's GNG, not octomap</b> (run after Terminal 3 is up):</p>
+<pre><code># these must all show NO publisher:
+ros2 topic info /livox/filtered
+ros2 topic info /rgbd/collision_cloud
+ros2 topic info /rgbd2/collision_cloud
+# this must show the GNG collision object:
+ros2 topic echo /planning_scene --once | grep -A2 "id: gng_obstacles"</code></pre>
+  <p class="note"><b>RViz</b> (<code>workcell_moveit_config/config/moveit.rviz</code>,
+     real-hw only — Isaac Sim keeps using <code>gng_moveit.rviz</code>, untouched):
+     ships <span class="green">GNG Static</span> (blue, <code>/topo_map/static/markers</code>)
+     and <span class="green">GNG Live</span> (green, <code>/topo_map/markers</code>) on by
+     default, and <code>MotionPlanning → Scene Geometry</code> (the GNG collision
+     union, all green) <b>hidden</b> by default — tick it back on to inspect the raw
+     collision spheres MoveIt actually plans against. Full detail:
+     <code>README.md</code> section 8c.</p>
+  </div>
+
+  <div class="card">
   <h2>C · Perception → energy-aware pick (octomap executor)</h2>
   <p>The Section-7 pick path (octomap collision instead of the GNG env map).</p>
 <pre><code># Terminal 2: perception + executor together

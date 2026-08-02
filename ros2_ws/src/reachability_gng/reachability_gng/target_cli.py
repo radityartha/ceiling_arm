@@ -13,7 +13,6 @@ import json
 import re
 import threading
 import time
-from collections import Counter
 
 import numpy as np
 import rclpy
@@ -29,29 +28,15 @@ from reachability_gng.objn_localizer import ObjnLocalizer
 from reachability_gng.pick_cli import parse_object, split_color, _alias_group
 
 _OBJN_RE = re.compile(r'^obj_\d+$')
-SEARCH_SECS = 10.0      # re-scan window for a requested object before giving up
-# object_localizer's vote-hysteresis (label_hysteresis_margin/vote_decay) is meant
-# to reject 1-frame label flicker, but a SUSTAINED run of wrong YOLOE classifications
-# can still out-vote it -- observed LIVE: a track's committed label flipped from
-# 'brown teddy bear' to 'red box' (its POSITION stayed anchored on the physical
-# teddy bear the whole time -- identity/position tracking is fine, only the class
-# label mis-committed). How many publish cycles a flip like that persists for is
-# NOT known/bounded, so a natural-language match cannot just trust one snapshot, or
-# even trust that a SECOND read shortly after will have reverted. Instead _fetch
-# samples the live tracks for VOTE_WINDOW seconds and matches by MAJORITY vote
-# across that window: a genuinely, stably labelled object dominates the window
-# regardless of how long any one flip lasts, whereas a flip that never becomes the
-# majority can never be selected. VOTE_POLL is finer than object_localizer's
-# default 0.5 s publish period so the window reliably samples several cycles.
-VOTE_WINDOW = 3.0
-VOTE_POLL = 0.4
+STATUS_TIMEOUT = 60.0   # how long to wait for a mission result after 'g' before giving up
+STATUS_POLL = 0.3
 
 
 def _label_matches(label, aliases, color):
     """True if `label` still satisfies an NL match's (aliases, color) criteria.
 
-    Shared by _fetch's live sampling and the execute-time drift re-check in
-    _loop, so 'still the same match' means the same thing in both places.
+    Shared by _fetch's current-track matching and the execute-time drift
+    re-check in _loop, so 'still the same match' means the same thing in both.
     """
     lab = str(label).lower()
     return bool(lab) and any(a in lab for a in aliases) and (not color or color in lab)
@@ -70,6 +55,7 @@ class TargetCli(Node):
         # phrase to drift-check against). See execute-time guard in _loop.
         self.last_match = None
         self.pending_confirm = False
+        self.status = None          # last unconsumed /reach_fusion/status message
         self.objn = ObjnLocalizer(self)
         self.create_subscription(PoseArray, '/detected_objects',
                                  self._on_objects, 1)
@@ -77,6 +63,8 @@ class TargetCli(Node):
         tq.durability = QoSDurabilityPolicy.TRANSIENT_LOCAL
         self.create_subscription(String, '/detected_objects/tracks',
                                  self._on_tracks, tq)
+        self.create_subscription(String, '/reach_fusion/status',
+                                 self._on_status, 1)
         self.pub = self.create_publisher(
             String, self.get_parameter('set_target_topic').value, 1)
         self.exec_pub = self.create_publisher(Empty, '/reach_fusion/execute', 1)
@@ -114,19 +102,35 @@ class TargetCli(Node):
         self.pending_confirm = False
 
     def execute(self):
+        with self._lock:
+            self.status = None
         self.exec_pub.publish(Empty())
+
+    def _on_status(self, msg):
+        with self._lock:
+            self.status = msg.data
+
+    def pop_status(self):
+        with self._lock:
+            s = self.status
+            self.status = None
+            return s
 
 
 def _fetch(node: TargetCli, sentence):
     """Natural-language fetch -> a STABLE track handle (#tid).
 
     Deterministically parses the object phrase ('please bring a teddy bear' ->
-    'teddy bear'), then matches it against the current confirmed tracks by class
-    (color optional), sampling over VOTE_WINDOW and picking the MAJORITY-vote tid
-    (see module docstring on VOTE_WINDOW for why a single snapshot is not trusted).
-    One candidate -> targets its #tid; several -> the most-voted one, listing the
-    candidate #ids so the user can override. Identity is the persistent track
-    (position-anchored), so this works under Isaac GT and YOLOE alike.
+    'teddy bear'), then matches it against the tracks already known right now
+    (the same snapshot just printed to the user) by class (color optional).
+    Does NOT re-poll perception over a multi-second window: a track that was
+    just shown on screen and then re-searched live could churn (drop / get a
+    new tid) before the search finished, making a just-visible object look
+    like it "disappeared" -- confusing since the user picked exactly what they
+    saw. Using the known snapshot directly avoids that. One candidate ->
+    targets its #tid; several -> the first, listing all #ids so the user can
+    override. Identity is the persistent track (position-anchored), so this
+    works under Isaac GT and YOLOE alike.
     """
     phrase = parse_object(sentence)
     if not phrase:
@@ -134,106 +138,78 @@ def _fetch(node: TargetCli, sentence):
         return
     color, cls = split_color(phrase)
     aliases = _alias_group(cls or phrase)
-
-    def _match(tracks):
-        return [t for t in tracks if _label_matches(t.get('label', ''), aliases, color)]
-
-    # Perception can miss the object on the FIRST frames (label flicker / a track
-    # not confirmed yet), so don't reject on an empty snapshot -- keep sampling for
-    # up to SEARCH_SECS before giving up. Once ANY sample matches, collect votes
-    # for VOTE_WINDOW seconds (across >= 2 publish cycles) and pick the tid with
-    # the most matching samples, not just whichever tid the FIRST or LATEST sample
-    # happened to carry -- that is what makes a transient mislabel (a minority of
-    # samples) lose to the genuinely, stably labelled object (the majority).
-    deadline = time.time() + SEARCH_SECS
-    votes = Counter()
-    latest = {}   # tid -> most recent matching track dict (for display + position)
-    window_end = None
-    printed_looking = False
-    while rclpy.ok():
-        matches = _match(node.track_list())
-        for t in matches:
-            votes[t['tid']] += 1
-            latest[t['tid']] = t
-        if matches and window_end is None:
-            window_end = time.time() + VOTE_WINDOW
-        if window_end is not None and time.time() >= window_end:
-            break
-        if window_end is None:
-            if time.time() >= deadline:
-                break
-            if not printed_looking:
-                print(f"  -> looking for '{phrase}' "
-                      f"(re-checking tracks for {SEARCH_SECS:g}s)...")
-                printed_looking = True
-        time.sleep(VOTE_POLL)
-    if not votes:
-        seen = sorted({str(t.get('label', '')) for t in node.track_list()})
-        print(f"  ! no '{phrase}' among current tracks after {SEARCH_SECS:g}s "
+    tracks = node.track_list()
+    matches = [t for t in tracks if _label_matches(t.get('label', ''), aliases, color)]
+    if not matches:
+        seen = sorted({str(t.get('label', '')) for t in tracks})
+        print(f"  ! no '{phrase}' among currently known tracks "
               f"(seen: {seen or '(none)'})")
         return
-    total = sum(votes.values())
-    ranked = votes.most_common()
-    best_tid, best_n = ranked[0]
-    # A thin plurality (the winner didn't dominate the window) means the label was
-    # genuinely unstable during the sample -- still act on the best evidence
-    # available (majority vote beats a single snapshot either way), but say so
-    # loudly rather than silently presenting it as a clean match (Rule: fail loud).
-    shaky = best_n < total / 2 or (len(ranked) > 1 and best_n - ranked[1][1] <= 1)
-    stability = f"{best_n}/{total} samples" + (' -- UNSTABLE, verify below' if shaky else '')
-    if len(ranked) == 1:
-        t = latest[best_tid]
-        node.send(f"#{best_tid}")
+    if len(matches) == 1:
+        t = matches[0]
+        node.send(f"#{t['tid']}")
         node.last_match = {'phrase': phrase, 'aliases': aliases, 'color': color,
-                           'tid': best_tid, 'label_at_select': t['label']}
-        print(f"  -> understood '{phrase}' = track #{best_tid} ({t['label']}), "
-              f"{stability}; type g to execute the approach")
+                           'tid': t['tid'], 'label_at_select': t['label']}
+        print(f"  -> understood '{phrase}' = track #{t['tid']} ({t['label']}); "
+              "type g to execute the approach")
         return
-    # Several candidate tids got votes (either genuinely distinct objects of the
-    # same class, or one is a flicker artifact) -- default to the majority-vote
-    # one so typing g straight away executes it; list all so the user can verify
-    # and override with another #id if the vote was close.
-    node.send(f"#{best_tid}")
+    # Several tracks currently match (either genuinely distinct objects of the
+    # same class, or a duplicate) -- default to the first so typing g straight
+    # away executes it; list all so the user can verify and override with
+    # another #id.
+    best = matches[0]
+    node.send(f"#{best['tid']}")
     node.last_match = {'phrase': phrase, 'aliases': aliases, 'color': color,
-                       'tid': best_tid, 'label_at_select': latest[best_tid]['label']}
-    print(f"  understood '{phrase}', {len(ranked)} tracks matched over the "
-          f"sample window -- defaulting to #{best_tid} ({stability}):")
-    for tid, n in ranked:
-        t = latest[tid]
-        mark = '  <- default' if tid == best_tid else ''
-        print(f"    #{tid}  {t['label']}"
-              f"  x={t['x']:+.2f} y={t['y']:+.2f} z={t['z']:+.2f}"
-              f"  votes={n}/{total}{mark}")
+                       'tid': best['tid'], 'label_at_select': best['label']}
+    print(f"  understood '{phrase}', {len(matches)} known tracks match -- "
+          f"defaulting to #{best['tid']}:")
+    for t in matches:
+        mark = '  <- default' if t is best else ''
+        print(f"    #{t['tid']}  {t['label']}"
+              f"  x={t['x']:+.2f} y={t['y']:+.2f} z={t['z']:+.2f}{mark}")
     print('  (type g to take the default, or another #id first)')
 
 
 def _loop(node: TargetCli):
     print('\n=== target_cli ===  (Enter=refresh, g/go=execute approach, q=quit)')
-    print('type #<id> (STABLE track, preferred) / obj_N / an index -> set target,')
+    print('type the list number / #<id> (STABLE track, preferred) / obj_N -> set target,')
     print('OR a natural request e.g. "please bring a teddy bear" / "get a can";')
     print('then g (or go) -> move the winning arm to approach it')
+    # Once a target is picked, the full list is noise on every prompt -- only
+    # dump it again when there's something new to look at: nothing selected
+    # yet, the user explicitly asks (blank Enter), or a mission just ended.
+    show_list = True
+    display_map = {}   # '1'..'N' (as last printed) -> tid, for picking by list number
     while rclpy.ok():
-        tracks = node.track_list()
-        objn, n = node.objn_map()
-        cur = f'  [current: {node.last_sent}]' if node.last_sent else ''
-        print(f'\nDetected objects ({n} total){cur}')
         npub = node.tracks_publisher_count()
         if npub > 1:
             print(f'  !! WARNING: {npub} object_localizer instances publishing '
                   'tracks -- #id may target the WRONG object. Kill the stale '
                   'topo_fusion launch and keep exactly one.')
-        # Stable tracks are the source-agnostic handle (work for Isaac GT AND
-        # YOLOE); a #<id> follows one physical object through label flicker.
-        if tracks:
-            print('  stable tracks (target by #id):')
-            for t in tracks:
-                print(f"    #{t['tid']}  {t['label']:<16}"
-                      f"  x={t['x']:+.2f} y={t['y']:+.2f} z={t['z']:+.2f}")
-        elif not objn:
-            print('  (no tracks/obj_N yet -- is perception up?)')
-        for name in sorted(objn):
-            i, p = objn[name]
-            print(f'  {name}  (index {i})  x={p[0]:+.2f} y={p[1]:+.2f} z={p[2]:+.2f}')
+        if show_list:
+            tracks = node.track_list()
+            objn, n = node.objn_map()
+            cur = f'  [current: {node.last_sent}]' if node.last_sent else ''
+            print(f'\nDetected objects ({n} total){cur}')
+            # Stable tracks are the source-agnostic handle (work for Isaac GT AND
+            # YOLOE); a #<id> follows one physical object through label flicker.
+            # tid values can have big gaps/jump around as tracks churn, which
+            # reads as "out of order" -- number the printed list 1..N instead so
+            # it's always a clean, readable sequence; #<tid> still works too.
+            display_map = {str(i): t['tid'] for i, t in enumerate(tracks, start=1)}
+            if tracks:
+                print('  stable tracks (target by number or #id):')
+                for i, t in enumerate(tracks, start=1):
+                    print(f"    {i}) #{t['tid']}  {t['label']:<16}"
+                          f"  x={t['x']:+.2f} y={t['y']:+.2f} z={t['z']:+.2f}")
+            elif not objn:
+                print('  (no tracks/obj_N yet -- is perception up?)')
+            for name in sorted(objn):
+                i, p = objn[name]
+                print(f'  {name}  (index {i})  x={p[0]:+.2f} y={p[1]:+.2f} z={p[2]:+.2f}')
+        else:
+            print(f'\n[current: {node.last_sent}]  (Enter to see the full list)')
+        show_list = False
         try:
             raw = input('target> ').strip()
         except (EOFError, KeyboardInterrupt):
@@ -267,9 +243,34 @@ def _loop(node: TargetCli):
                     continue
             node.execute()
             node.pending_confirm = False
-            print('  -> execute sent (watch reach_fusion for the plan/execute result)')
+            print('  -> execute sent, waiting for result...')
+            # Don't reprint the object list while the approach is in flight --
+            # only show it again once the mission actually succeeds or fails,
+            # so the list isn't re-dumped on every loop tick during a long move.
+            waited, status = 0.0, None
+            try:
+                while rclpy.ok() and waited < STATUS_TIMEOUT:
+                    status = node.pop_status()
+                    if status is not None:
+                        break
+                    time.sleep(STATUS_POLL)
+                    waited += STATUS_POLL
+            except KeyboardInterrupt:
+                break
+            if status is not None:
+                print(f'  ==> mission {status}')
+            else:
+                print(f'  !! no result after {STATUS_TIMEOUT:g}s -- '
+                      'check reach_fusion log (may still be running)')
+            show_list = True   # mission ended (success/failed/timeout) -- show it again
         elif not raw:
-            continue
+            show_list = True   # explicit Enter=refresh
+        elif low in display_map:
+            # plain number -> the list position from the last printed listing,
+            # translated to its real #tid (list order can differ from tid order)
+            tid = display_map[low]
+            node.send(f"#{tid}")
+            print(f'  -> target set to #{tid} (list {low})  (type g to execute)')
         elif raw.startswith('#') or _OBJN_RE.match(low) or low.lstrip('-').isdigit():
             # explicit handle: stable track #id, obj_N, or list index -> as-is
             node.send(raw)

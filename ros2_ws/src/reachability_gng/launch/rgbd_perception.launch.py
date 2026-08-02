@@ -76,7 +76,7 @@ def generate_launch_description():
                               default_value='box,bottle,cup,person,'
                                             'paper bag,bowl,doll,pan'),
         DeclareLaunchArgument('seg_conf', default_value='0.25'),
-        DeclareLaunchArgument('seg_imgsz', default_value='768'),
+        DeclareLaunchArgument('seg_imgsz', default_value='512'),
 
         # 1) cameras (+ world->camera static TF). Serials intentionally not
         # forwarded -- see the note above; realsense_dual owns them.

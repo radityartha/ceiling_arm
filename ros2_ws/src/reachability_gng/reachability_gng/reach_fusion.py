@@ -295,6 +295,9 @@ class ReachFusion(Node):
         self.create_subscription(Empty, '/reach_fusion/execute',
                                  self._on_execute, 1)
         self.pub = self.create_publisher(MarkerArray, '/reach_fusion/markers', 1)
+        # target_cli waits on this to know when an approach is actually done
+        # (success or failed), rather than guessing from the log stream.
+        self.status_pub = self.create_publisher(String, '/reach_fusion/status', 1)
         self.create_timer(1.0 / max(float(g('publish_hz')), 0.5), self._tick)
         self.create_timer(2.0, self._busy_watchdog)   # never wedge on a hung chain
 
@@ -489,11 +492,18 @@ class ReachFusion(Node):
         markers, mid, now = [], 0, self.get_clock().now().to_msg()
         target = self._resolve_target()
         self._target = target         # latched for IK on /reach_fusion/execute
+        # Reachability/energy must be judged against the actual commanded EE
+        # point (object + grasp_standoff, same as _try_ik's IK pose), not the
+        # raw object centroid: the GNG reach nodes sit at arm/gantry height and
+        # rarely extend down to table height, so gating on the raw centroid
+        # made every low-sitting object look unreachable (ranked=0 forever)
+        # even though the actual stand-off approach point was well within reach.
+        approach = target + np.array([0.0, 0.0, self.standoff]) if target is not None else None
         energies = {}                 # lab -> (J, grasp_idx)
         for a in self.arms:
             lab, R, S = a['lab'], a['R'], a['S']
-            danger, cfree = self._classify(R, S, target)
-            e = self._arm_energy(a, target, danger)
+            danger, cfree = self._classify(R, S, approach)
+            e = self._arm_energy(a, approach, danger)
             if e is not None:
                 energies[lab] = e
             cr, cg, cb = _ARM_COLORS.get(lab, (0.6, 0.6, 0.6))
@@ -638,11 +648,13 @@ class ReachFusion(Node):
                 f'-- {self._target_diag()} -- target unresolved (detection/bookkeeping) '
                 'if target=None, else 0 arms can reach it collision-free')
             self._busy = False
+            self._publish_status(False, 'no reachable arm / target resolved in time')
             return
         self._cancel_exec_wait()
         if not self.ik_cli.service_is_ready():
             self.get_logger().error('execute: /compute_ik not ready')
             self._busy = False
+            self._publish_status(False, '/compute_ik not ready')
             return
         self._hold(True)                          # scene stays put through execution
         self._exec_ranked = list(self._ranked)   # freeze arm order for this attempt
@@ -661,11 +673,16 @@ class ReachFusion(Node):
         self._cancel_exec_wait()      # one-shot: re-check now that a tick may have run
         self._attempt()
 
+    def _publish_status(self, ok, detail=''):
+        self.status_pub.publish(String(
+            data=('success' if ok else 'failed') + (f': {detail}' if detail else '')))
+
     def _approach_failed(self, reason):
         dt = time.monotonic() - self._t_attempt if hasattr(self, '_t_attempt') else -1.0
         self.get_logger().error(f"=== APPROACH FAILED: {reason} ({dt:.3f}s total) ===")
         self._hold(False)
         self._busy = False
+        self._publish_status(False, reason)
 
     def _try_arm(self):
         if self._ai >= len(self._exec_ranked):
@@ -987,6 +1004,7 @@ class ReachFusion(Node):
                 f"=== APPROACH DONE: {arm['lab']} (EE pose unavailable to verify) ===")
             self._hold(False)
             self._busy = False
+            self._publish_status(False, f"{arm['lab']} EE pose unavailable to verify")
             return
         err = float(np.linalg.norm(np.array([t.x, t.y, t.z]) - goal))
         total_dt = time.monotonic() - self._t_attempt
@@ -1006,6 +1024,7 @@ class ReachFusion(Node):
             self.get_logger().info(
                 f"=== APPROACH SUCCESS: {arm['lab']} is above the object "
                 f"(EE {err:.3f} m from the stand-off, {total_dt:.3f}s total) ===")
+            self._publish_status(True, f"{arm['lab']} above object, err={err:.3f}m")
             if self.retreat_to_ready:
                 self._retreat(arm)     # park at ready; releases hold + busy when done
             else:
@@ -1024,6 +1043,8 @@ class ReachFusion(Node):
                 f"{err:.2f} m from the stand-off (object drifted / not there) ===")
             self._hold(False)
             self._busy = False
+            self._publish_status(False,
+                f"{arm['lab']} reached goal but EE {err:.2f}m off (object drifted)")
 
     # ---- retreat: lift the EE clear after a successful approach --------------
     def _end_retreat(self, msg):
