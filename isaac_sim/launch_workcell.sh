@@ -48,7 +48,7 @@ wait_for() {  # wait_for <logfile> <pattern> <timeout_s>
 
 # Self-clean: kill any leftovers from a previous run so we never double-start
 # (no need to run stop.sh first). Same pattern as stop.sh.
-_STALE='ros2_bridge_gui.py|ros2_bridge.py|ros2 launch isaac|ros2_control_node|move_group|rviz2|moveit_demo.py|robot_state_publisher|controller_manager/spawner|lib/reachability_gng/visualize|gng_clouds.launch.py|rgbd2?_camera_optical|perception.launch.py|lib/reachability_gng/object_localizer|lib/reachability_gng/reachability_check|lib/reachability_gng/reachability_cloud|lib/reachability_gng/collision_cloud|lib/reachability_gng/object_collision|lib/reachability_gng/octomap_refresher|lib/reachability_gng/seg_cloud|lib/reachability_gng/seg_router|lib/reachability_gng/static_collision|lib/reachability_gng/table_slab'
+_STALE='ros2_bridge_gui.py|ros2_bridge.py|ros2 launch isaac|ros2_control_node|move_group|rviz2|moveit_demo.py|robot_state_publisher|controller_manager/spawner|lib/reachability_gng/visualize|gng_clouds.launch.py|rgbd2?_camera_optical|wrist[0-9]*_camera_optical|perception.launch.py|lib/reachability_gng/object_localizer|lib/reachability_gng/reachability_check|lib/reachability_gng/reachability_cloud|lib/reachability_gng/collision_cloud|lib/reachability_gng/object_collision|lib/reachability_gng/octomap_refresher|lib/reachability_gng/seg_cloud|lib/reachability_gng/seg_router|lib/reachability_gng/static_collision|lib/reachability_gng/table_slab'
 echo ">>> [0/3] clearing any previous session..."
 _old=$(pgrep -f "$_STALE" 2>/dev/null | tr '\n' ' ')
 [ -n "$_old" ] && { kill -9 $_old 2>/dev/null; sleep 2; echo "    cleared."; } || echo "    nothing running."
@@ -93,6 +93,21 @@ PIDS+=($!)
     --x -0.6 --y -1.10 --z 2.05 \
     --qx -0.703886 --qy 0.435026 --qz -0.295205 --qw 0.477652 \
     --frame-id world --child-frame-id rgbd2_camera_optical ) > "$LOG/camera2_tf.log" 2>&1 &
+PIDS+=($!)
+# arm_1's hand-in-eye wrist camera: parent frame is the LINK (not world) since
+# the mount offset is fixed but the link itself moves with the arm --
+# robot_state_publisher (started by MoveIt bringup, step 2 above) already
+# publishes t1_a1_gripper_base_link's TF from /joint_states, this just adds
+# the last rigid hop. Offset/quat computed from ros2_bridge_gui.py's
+# _add_wrist_camera() local-frame eye/target (see its docstring for how the
+# mount geometry was chosen) -- KEEP IN SYNC if that function's eye/target move.
+( set +u; source /opt/ros/humble/setup.bash
+  export ROS_DOMAIN_ID RMW_IMPLEMENTATION
+  exec ros2 run tf2_ros static_transform_publisher \
+    --x 0.035 --y 0.0 --z -0.03 \
+    --qx 0.0 --qy 0.997151 --qz 0.0 --qw 0.075436 \
+    --frame-id t1_a1_gripper_base_link --child-frame-id wrist1_camera_optical \
+    ) > "$LOG/wrist1_camera_tf.log" 2>&1 &
 PIDS+=($!)
 
 case "$MODE" in

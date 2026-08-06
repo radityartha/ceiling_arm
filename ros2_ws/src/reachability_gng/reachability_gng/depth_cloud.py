@@ -82,10 +82,23 @@ class DepthCloud(Node):
             depth = self._decode(depth_msg, np.float32)
         except ValueError:
             return
+        # Look up TF at the depth image's OWN stamp, not "latest" -- for a fixed
+        # camera these never differ, but a moving (e.g. wrist-mounted) camera's
+        # world pose changes between capture and lookup, and "latest" would
+        # deproject this frame's pixels through a stale/future transform.
         try:
             tf = self.tf_buffer.lookup_transform(
-                self.world_frame, ns + self.suffix, rclpy.time.Time())
-        except (LookupException, ConnectivityException, ExtrapolationException):
+                self.world_frame, ns + self.suffix, depth_msg.header.stamp)
+        except ExtrapolationException:
+            # TF for this exact stamp isn't buffered yet (e.g. the TF
+            # publisher briefly lags the image) -- fall back to latest rather
+            # than dropping the frame outright.
+            try:
+                tf = self.tf_buffer.lookup_transform(
+                    self.world_frame, ns + self.suffix, rclpy.time.Time())
+            except (LookupException, ConnectivityException, ExtrapolationException):
+                return
+        except (LookupException, ConnectivityException):
             return
         t = tf.transform.translation
         q = tf.transform.rotation

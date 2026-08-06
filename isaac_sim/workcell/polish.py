@@ -2,6 +2,8 @@
 a work surface with objects, and grey materials on the otherwise-uncolored tables.
 The arm links already carry colors from the URDF, so only the 8 table links need it.
 """
+import os
+
 import numpy as np
 
 from isaacsim.core.api.objects import FixedCuboid
@@ -10,6 +12,24 @@ from isaacsim.core.prims import SingleXFormPrim
 from isaacsim.core.utils.stage import get_current_stage, add_reference_to_stage
 from isaacsim.core.utils.nucleus import get_assets_root_path
 from isaacsim.core.utils.semantics import add_update_semantics
+
+# GRASP_OBJECTS=1 turns the 8 build_room() objects (below) from static
+# reachability-task colliders into dynamic, liftable rigid bodies -- for the
+# Isaac grasping work. Default 0 keeps the reachability/GNG scene exactly as
+# it has always been (E0-E5 reproducibility). See build_room()'s object loop.
+GRASP_OBJECTS = os.environ.get("GRASP_OBJECTS", "0") == "1"
+
+# Per-label mass (kg) applied via UsdPhysics.MassAPI when GRASP_OBJECTS=1.
+# cracker_box/sugar_box/tomato_soup_can/mustard_bottle are published YCB
+# dataset masses. teddy_bear/mug/beaker are not YCB objects (IsaacLab /
+# Isaac Props assets) -- their masses are rough real-world estimates, not
+# measured. mustard_bottle (0.603 kg) exceeds the Gen3 Lite's 0.5 kg payload
+# on purpose -- an expected-fail grasp case, not a bug.
+GRASP_MASS = {
+    "cracker_box": 0.411, "sugar_box": 0.514, "tomato_soup_can": 0.349,
+    "mustard_bottle": 0.603, "teddy_bear": 0.20, "mug": 0.25,
+    "banana": 0.066, "beaker": 0.05,
+}
 
 TABLE_LINKS = [
     "t1_platform_link", "t1_rotation_link", "t1_mount_plate_left", "t1_mount_plate_right",
@@ -154,15 +174,26 @@ def build_room():
     # Real YCB objects (cans / bottle / boxes / banana) instead of primitives, so
     # segmentation + localization + reachability run against realistic geometry.
     # Two asset variants are mixed: 4 ship as *physics* USDs (RigidBodyAPI +
-    # ConvexHull collision baked in), the other 4 are visual-only meshes. We turn
-    # ALL of them into STATIC colliders -- they never fall, never move, and carry
-    # no rigid-body dynamics, so World.reset() never tries to zero a velocity on
-    # them (that was the "PxRigidDynamic::setLinearVelocity: Body must be
-    # non-kinematic" spam). Static is also what the perception/reachability task
-    # wants: fixed objects at known poses. Split: physics objects on table 1
-    # (surf1), visual-only on tables 2 & 3 (surf2/surf3). (x, y) are spaced >0.25 m
-    # apart so no two objects touch.
-    from pxr import Usd, UsdGeom, UsdPhysics
+    # ConvexHull collision baked in), the other 4 are visual-only meshes.
+    #
+    # By default (GRASP_OBJECTS=0) ALL of them become STATIC colliders -- they
+    # never fall, never move, and carry no rigid-body dynamics, so World.reset()
+    # never tries to zero a velocity on them (that was the "PxRigidDynamic::
+    # setLinearVelocity: Body must be non-kinematic" spam). Static is also what
+    # the perception/reachability task (E0-E5) wants: fixed objects at known
+    # poses -- this is the path every past reach-map/GNG run used, unchanged.
+    #
+    # GRASP_OBJECTS=1 (isaac_sim grasping work) instead makes them dynamic:
+    # RigidBodyEnabled=True (kinematicEnabled explicitly False -- that's what
+    # caused the old warning above, not the wrapper class), MassAPI with
+    # GRASP_MASS[label], collision approximation swapped ConvexHull ->
+    # ConvexDecomposition (a hull would smooth over the mug handle / banana
+    # curve / bottle neck into an easy-to-grasp blob), and the shared
+    # 1.2/1.2/0 friction PhysicsMaterial verified in grasp_test.py /
+    # add_pick_cube. Split: physics objects on table 1 (surf1), visual-only on
+    # tables 2 & 3 (surf2/surf3). (x, y) are spaced >0.25 m apart so no two
+    # objects touch.
+    from pxr import Usd, UsdGeom, UsdPhysics, UsdShade
     root = get_assets_root_path()
     if root is None:
         root = "https://omniverse-content-production.s3.us-west-2.amazonaws.com/Assets/Isaac/4.5"
@@ -212,6 +243,20 @@ def build_room():
     # obj_3 mustard_bottle (-90), obj_6 banana (+90 yaw). obj_5 (mug), obj_7 (beaker)
     # ship upright -> no entry.
     stand_rot = {0: _stand_flip, 1: _stand_flip, 2: _stand, 3: _stand_flip, 6: _yaw90}
+
+    if GRASP_OBJECTS:
+        # One shared friction material for every graspable object -- same
+        # 1.2/1.2/0 recipe verified in grasp_test.py/add_pick_cube (pad gap
+        # 0.085->0.020 m, 0.000 m drop). Bound below with materialPurpose=
+        # "physics" per isaacsim.core.prims.GeometryPrim's own binding idiom
+        # (source-inspected: geometry_prim.py apply_physics_material), since
+        # these are multi-mesh referenced assets, not the single-shape prim
+        # the high-level apply_physics_material() helper expects.
+        from isaacsim.core.api.materials import PhysicsMaterial
+        grasp_mat = PhysicsMaterial(prim_path="/World/Looks/GraspFriction",
+                                    name="grasp_friction", static_friction=1.2,
+                                    dynamic_friction=1.2, restitution=0.0)
+
     for i, (label, rel, (ox, oy, surf), has_phys) in enumerate(specs):
         prim_path = f"/World/objects/obj_{i}"
         usd_path = rel if "://" in rel else f"{ycb}/{rel}"
@@ -245,22 +290,43 @@ def build_room():
             pos = np.array([ox - 0.5 * (mn[0] + mx[0]),
                             oy - 0.5 * (mn[1] + mx[1]),
                             surf - mn[2]])
+        approx = "convexDecomposition" if GRASP_OBJECTS else "convexHull"
         if has_phys:
-            # disable the asset's baked rigid-body dynamics -> static collider.
-            UsdPhysics.RigidBodyAPI(prim).CreateRigidBodyEnabledAttr(False)
+            rigid = UsdPhysics.RigidBodyAPI(prim)
+            rigid.CreateRigidBodyEnabledAttr(GRASP_OBJECTS)
+            if GRASP_OBJECTS:
+                # explicitly non-kinematic -- a kinematicEnabled=True body is
+                # what triggered the old "must be non-kinematic" setLinearVelocity
+                # warning referenced above, not the SingleXFormPrim wrapper.
+                rigid.CreateKinematicEnabledAttr(False)
+                UsdPhysics.MassAPI.Apply(prim).CreateMassAttr(GRASP_MASS[label])
+            # baked collision (ConvexHull) lives on descendant mesh prims --
+            # swap the approximation in place rather than re-applying CollisionAPI.
+            for d in Usd.PrimRange(prim):
+                if d.HasAPI(UsdPhysics.MeshCollisionAPI):
+                    UsdPhysics.MeshCollisionAPI(d).CreateApproximationAttr(approx)
         else:
-            # visual-only mesh -> add a static convex-hull collider on each mesh.
+            # visual-only mesh -> add a collider on each mesh (static unless
+            # GRASP_OBJECTS, see approx/RigidBodyAPI below).
             for d in Usd.PrimRange(prim):
                 # The IsaacLab teddy bear ships as a DEFORMABLE (soft) body, which
                 # PhysX only supports on GPU ("enable GPU dynamics flag" warning).
-                # We want a static collider like every other object, so strip any
-                # deformable-body API before adding the convex hull below.
+                # We want a rigid collider like every other object, so strip any
+                # deformable-body API before adding the collision below.
                 for s in list(d.GetAppliedSchemas()):
                     if "Deformable" in s:
                         d.RemoveAppliedSchema(s)
                 if d.IsA(UsdGeom.Mesh):
                     UsdPhysics.CollisionAPI.Apply(d)
-                    UsdPhysics.MeshCollisionAPI.Apply(d).CreateApproximationAttr("convexHull")
+                    UsdPhysics.MeshCollisionAPI.Apply(d).CreateApproximationAttr(approx)
+            if GRASP_OBJECTS:
+                rigid = UsdPhysics.RigidBodyAPI.Apply(prim)
+                rigid.CreateRigidBodyEnabledAttr(True)
+                rigid.CreateKinematicEnabledAttr(False)
+                UsdPhysics.MassAPI.Apply(prim).CreateMassAttr(GRASP_MASS[label])
+        if GRASP_OBJECTS:
+            UsdShade.MaterialBindingAPI.Apply(prim).Bind(
+                grasp_mat.material, materialPurpose="physics")
         obj = SingleXFormPrim(prim_path=prim_path, name=f"obj_{i}",
                               position=pos, orientation=quat)
         objs.append(obj)

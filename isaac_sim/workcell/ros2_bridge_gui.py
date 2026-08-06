@@ -56,6 +56,11 @@ ROBOT = "/World/workcell"
 # To revert to the both-on--Y baseline: cam1 eye -> (2.8, -0.6, 2.05) and its TF
 # quat -> (-0.722084, -0.422309, 0.27663, 0.472996).
 CAM_RES = (1280, 720)
+# Hand-in-eye camera on arm_1's gripper (see _add_wrist_camera() below). Lower
+# res + fewer helper streams (no instance_segmentation) than the 2 fixed
+# ceiling cams -- a render product per camera is expensive and this is the
+# FIRST wrist cam added (plan: validate with 1 before considering more).
+WRIST_CAM_RES = (640, 360)
 # rgbd (cam1) eye+target both shifted +1.35 in X to follow polish.py's work
 # table move (cx 1.55 -> 2.9, for the wider pick-distance calibration range).
 # Shifting eye AND target by the SAME delta leaves the target-eye vector (and
@@ -137,6 +142,62 @@ def _add_rgbd_cameras():
               f"-> look {c['target']}", flush=True)
 
 
+def _add_wrist_camera(arm_prefix="t1_a1_", ns="wrist1"):
+    """Hand-in-eye camera on arm_1's gripper, parented UNDER the
+    t1_a1_gripper_base_link prim -- as a child of an articulated link it moves
+    with the arm for free; the only extra plumbing needed is the ONE static
+    TF t1_a1_gripper_base_link -> wrist1_camera_optical in launch_workcell.sh
+    (the link's own TF already comes from robot_state_publisher / the existing
+    URDF FK chain, same as every other link).
+
+    Mount geometry below was chosen from LIVE link poses (see
+    query_gripper_frame.py / query_gripper_frame.txt), not guessed: in
+    gripper_base_link's own local frame, local +Z points toward the
+    fingertips (measured offset +0.116 m) and local Y is the finger-spread
+    axis (right/left fingers measured at local Y = -0.010/+0.010). The exact
+    stand-off distance and tilt angle ARE a design choice (no spec to measure
+    against) -- camera sits 3.5 cm forward (local +X, clear of the wrist
+    body) and 3 cm back from the gripper base (local -Z, before the finger
+    pivots), tilted to look at a point 0.20 m down the approach axis (a
+    plausible pre-grasp stand-off) so the object stays in frame through final
+    approach instead of being centred on the fingers.
+    """
+    from pxr import Gf, UsdGeom
+    stage = get_current_stage()
+    link_name = arm_prefix + "gripper_base_link"
+    link_path = next((str(p.GetPath()) for p in stage.Traverse()
+                      if p.GetName() == link_name), None)
+    if link_path is None:
+        print(f">>> WARNING: {link_name} not found -- skipping wrist camera", flush=True)
+        return None
+
+    up = np.array([0.0, 1.0, 0.0])           # local finger-spread axis as camera "up"
+    eye = np.array([0.035, 0.0, -0.03])      # local frame (see docstring)
+    target = np.array([0.0, 0.0, 0.20])      # local frame, pre-grasp stand-off point
+    f = target - eye; f /= np.linalg.norm(f)
+    r = np.cross(f, up); r /= np.linalg.norm(r)
+    u = np.cross(r, f)
+    z = -f
+    M = Gf.Matrix4d(1.0)
+    M.SetRow(0, Gf.Vec4d(float(r[0]), float(r[1]), float(r[2]), 0.0))
+    M.SetRow(1, Gf.Vec4d(float(u[0]), float(u[1]), float(u[2]), 0.0))
+    M.SetRow(2, Gf.Vec4d(float(z[0]), float(z[1]), float(z[2]), 0.0))
+    M.SetRow(3, Gf.Vec4d(float(eye[0]), float(eye[1]), float(eye[2]), 1.0))
+
+    prim_path = f"{link_path}/wrist1_camera"
+    cam = UsdGeom.Camera.Define(stage, prim_path)
+    cam.AddTransformOp().Set(M)
+    # focal -> ~87 deg HFOV, matching the planned RealSense D405 wrist camera's
+    # near-field FOV; vertical aperture matches WRIST_CAM_RES aspect.
+    cam.CreateFocalLengthAttr(11.0)
+    cam.CreateHorizontalApertureAttr(20.955)
+    cam.CreateVerticalApertureAttr(20.955 * WRIST_CAM_RES[1] / WRIST_CAM_RES[0])
+    cam.CreateClippingRangeAttr(Gf.Vec2f(0.05, 1.5))
+    print(f">>> added wrist camera prim {prim_path} (child of {link_name})", flush=True)
+    return {"prim": prim_path, "ns": ns, "frame": f"{ns}_camera_optical",
+            "res": WRIST_CAM_RES, "keys": ("rgb", "depth", "info")}  # no seg (perf)
+
+
 _raise_table_drive_force()
 _objs = polish.build_room()
 polish.add_lights()
@@ -170,6 +231,9 @@ if os.environ.get("GNG_HIDE_T2", "1") != "0":
     print(f">>> GNG view: hid {_hidden} t2_ prims (gantry_2 + arm_3/arm_4)", flush=True)
 
 _add_rgbd_cameras()
+_wrist_cam = _add_wrist_camera()
+if _wrist_cam is not None:
+    CAMERAS.append(_wrist_cam)
 
 ART = next((str(p.GetPath()) for p in get_current_stage().Traverse()
             if p.HasAPI(UsdPhysics.ArticulationRootAPI)), ROBOT)
@@ -196,24 +260,25 @@ for i, nm in enumerate(names):
 wc.get_articulation_controller().set_gains(kps=kps, kds=kds)
 
 # Build the OmniGraph nodes/connections/values for every camera in CAMERAS: one
-# render product per camera feeding RGB + depth + camera_info + instance-
-# segmentation ROS publishers, all ticking off the same OnPlaybackTick/Context as
-# the joint-state publishers. Topic suffix per helper key:
+# render product per camera feeding RGB + depth + camera_info + (optionally)
+# instance-segmentation ROS publishers, all ticking off the same
+# OnPlaybackTick/Context as the joint-state publishers. Topic suffix per
+# helper key (the master key->type map; a camera dict's own "keys" subsets
+# this -- e.g. the wrist camera skips "seg", see _add_wrist_camera()):
 _cam_topics = {"rgb": "rgb", "depth": "depth", "info": "camera_info",
                "seg": "instance_segmentation"}
 _cam_nodes, _cam_connects, _cam_setvals = [], [], []
 for _c in CAMERAS:
     _ns = _c["ns"]
     _rp = f"RP_{_ns}"
-    # key -> ROS2CameraHelper `type`
-    _helpers = {"rgb": "rgb", "depth": "depth", "info": "camera_info",
-                "seg": "instance_segmentation"}
+    _res = _c.get("res", CAM_RES)
+    _helpers = {k: _cam_topics[k] for k in _c.get("keys", _cam_topics)}
     _cam_nodes.append((_rp, "isaacsim.core.nodes.IsaacCreateRenderProduct"))
     _cam_connects.append(("OnPlaybackTick.outputs:tick", f"{_rp}.inputs:execIn"))
     _cam_setvals += [
         (f"{_rp}.inputs:cameraPrim", [usdrt.Sdf.Path(_c["prim"])]),
-        (f"{_rp}.inputs:width", CAM_RES[0]),
-        (f"{_rp}.inputs:height", CAM_RES[1]),
+        (f"{_rp}.inputs:width", _res[0]),
+        (f"{_rp}.inputs:height", _res[1]),
     ]
     for _key, _type in _helpers.items():
         _h = f"Cam_{_ns}_{_key}"

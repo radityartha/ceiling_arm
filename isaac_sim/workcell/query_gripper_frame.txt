@@ -1,0 +1,20 @@
+gripper_base_link: world pos=[0.4566 0.37   1.0792] quat(wxyz)=[ 0.e+00  1.e+00  2.e-04 -4.e-04]
+right_finger_dist_link: world pos=[0.4565 0.38   0.9636] quat(wxyz)=[0.0025 0.7074 0.0027 0.7068]
+left_finger_dist_link: world pos=[0.4566 0.3599 0.9636] quat(wxyz)=[-0.0034  0.7074 -0.0032  0.7068]
+right_finger_prox_link: world pos=[0.4565 0.4005 1.0092] quat(wxyz)=[-1.000e-04  7.074e-01  1.000e-04  7.068e-01]
+left_finger_prox_link: world pos=[0.4565 0.3395 1.0092] quat(wxyz)=[-1.000e-04  7.074e-01  1.000e-04  7.068e-01]
+end_effector_link: world pos=[0.4566 0.37   1.0792] quat(wxyz)=[ 0.e+00  1.e+00  2.e-04 -4.e-04]
+lower_wrist_link: world pos=[0.3998 0.37   1.2892] quat(wxyz)=[ 0.e+00  1.e+00 -2.e-04 -4.e-04]
+
+--- same points in gripper_base_link's LOCAL frame ---
+gripper_base_link: local offset from gripper_base_link = [0. 0. 0.]
+right_finger_dist_link: local offset from gripper_base_link = [ 0.     -0.0101  0.1156]
+left_finger_dist_link: local offset from gripper_base_link = [1.000e-04 1.010e-02 1.156e-01]
+right_finger_prox_link: local offset from gripper_base_link = [ 0.     -0.0305  0.07  ]
+left_finger_prox_link: local offset from gripper_base_link = [0.     0.0305 0.07  ]
+end_effector_link: local offset from gripper_base_link = [ 0.  0. -0.]
+lower_wrist_link: local offset from gripper_base_link = [-0.057 -0.    -0.21 ]
+
+finger midpoint (grasp point), world = [0.4565 0.37   0.9636]
+finger midpoint, gripper_base_link-local = [ 0.     -0.      0.1156]
+pad gap (open) = 0.0202 m
