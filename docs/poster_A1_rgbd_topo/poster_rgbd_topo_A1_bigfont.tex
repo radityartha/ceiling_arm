@@ -88,7 +88,7 @@
   arc=8mm, boxrule=0pt,
   left=4mm, right=4mm, top=1.2mm, bottom=1.2mm,
   halign=flush center, valign=center,
-  before skip=3.5mm, after skip=1.8mm
+  before skip=5.2mm, after skip=2.4mm
 }
 \newcommand{\psection}[1]{%
   \begin{sectionpill}\bfseries\fontsize{\pillsize}{\pillsize}\selectfont #1\end{sectionpill}}
@@ -138,7 +138,7 @@
   left=6mm, right=6mm, top=2mm, bottom=2mm]
 \begin{minipage}[c]{0.085\linewidth}
   \centering
-  \bfseries\fontsize{38}{38}\selectfont P-XX
+  \bfseries\fontsize{38}{38}\selectfont P-65
 \end{minipage}%
 \begin{minipage}[c]{0.79\linewidth}
   \centering
@@ -146,9 +146,8 @@
    2026 The Term-End Evaluation, Department of Mechanical Systems Engineering, TMU.\par}
   \vspace{2mm}
   {\bfseries\fontsize{40}{46}\selectfont
-   Two-Layer Topological Mapping for\\
-   Energy-Aware Arm and Base Selection\\
-   on a Dual-Gantry Quad-Arm Ceiling Robot\par}
+    Topological Coordination for\\
+    a Dual-Gantry Quad-Arm Ceiling Manipulation\par}
   \vspace{2.5mm}
   {\bfseries\fontsize{30}{34}\selectfont
    Naoyuki Kubota Laboratory, D1, Raditya Artha Rochmanto\par}
@@ -231,8 +230,8 @@
 
 \vspace{1.5mm}
 {\centering
-\includegraphics[height=78mm]{GNG_static3.png}\hspace{5mm}
-\includegraphics[height=78mm]{GNG_dynamic3.png}\par}
+\includegraphics[height=82mm]{GNG_static3.png}\hspace{5mm}
+\includegraphics[height=82mm]{GNG_dynamic3.png}\par}
 \figcap{Left: frozen \textcolor{blue!70!black}{static} backbone. Right: plus
 \textcolor{green!45!black}{dynamic} remainder (a person).}
 
@@ -255,7 +254,7 @@
 
 \vspace{1mm}
 {\centering\includegraphics[trim=95 45 90 45, clip,
-   width=\figscale\dimexpr0.78\linewidth\relax]{gng_capability.png}\par}
+   width=\figscale\dimexpr0.84\linewidth\relax]{gng_capability.png}\par}
 \figcap{Capability layer of one arm (RViz), coloured by manipulability.}
 
 \begin{keybox}
@@ -337,7 +336,7 @@ J = w_{gl}\frac{\Delta_{lin}}{\rho_{gl}}
 \end{itemize}
 
 \vspace{1mm}
-{\centering\IG{1.0}{results.pdf}\par}
+{\centering\includegraphics[width=\linewidth]{results.pdf}\par}
 \figcap{(a) Reachable volume. (b) Trajectory energy per policy ($\diamond$=mean).}
 
 \vspace{1mm}
