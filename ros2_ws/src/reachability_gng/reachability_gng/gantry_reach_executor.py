@@ -71,6 +71,7 @@ from tf2_ros import (Buffer, ConnectivityException, ExtrapolationException,
                      LookupException, TransformListener)
 
 from reachability_gng.gng import GNG
+from reachability_gng.object_localizer import quat_to_R
 from reachability_gng.pause_gate import PAUSE_TOPIC, latched_qos
 from reachability_gng.seed_ik import build_ik_request
 
@@ -83,6 +84,65 @@ def quat_mul(a, b):
             aw * by - ax * bz + ay * bw + az * bx,
             aw * bz + ax * by - ay * bx + az * bw,
             aw * bw - ax * bx - ay * by - az * bz)
+
+
+def R_to_quat(R):
+    """Rotation matrix (3x3) -> (x, y, z, w) quaternion (Shepperd's method: pick
+    the branch with the largest divisor so no near-180-deg rotation divides by
+    ~0). Inverse of object_localizer.quat_to_R."""
+    R = np.asarray(R, float)
+    t = R[0, 0] + R[1, 1] + R[2, 2]
+    if t > 0.0:
+        s = np.sqrt(t + 1.0) * 2.0
+        q = (R[2, 1] - R[1, 2]) / s, (R[0, 2] - R[2, 0]) / s, \
+            (R[1, 0] - R[0, 1]) / s, 0.25 * s
+    elif R[0, 0] >= R[1, 1] and R[0, 0] >= R[2, 2]:
+        s = np.sqrt(1.0 + R[0, 0] - R[1, 1] - R[2, 2]) * 2.0
+        q = 0.25 * s, (R[0, 1] + R[1, 0]) / s, (R[0, 2] + R[2, 0]) / s, \
+            (R[2, 1] - R[1, 2]) / s
+    elif R[1, 1] >= R[2, 2]:
+        s = np.sqrt(1.0 + R[1, 1] - R[0, 0] - R[2, 2]) * 2.0
+        q = (R[0, 1] + R[1, 0]) / s, 0.25 * s, (R[1, 2] + R[2, 1]) / s, \
+            (R[0, 2] - R[2, 0]) / s
+    else:
+        s = np.sqrt(1.0 + R[2, 2] - R[0, 0] - R[1, 1]) * 2.0
+        q = (R[0, 2] + R[2, 0]) / s, (R[1, 2] + R[2, 1]) / s, 0.25 * s, \
+            (R[1, 0] - R[0, 1]) / s
+    q = np.array(q, float)
+    return tuple(q / np.linalg.norm(q))
+
+
+def look_camera_pose(obj_xyz, distance, roll, tilt=0.0, azimuth=0.0):
+    """Desired WORLD pose of the wrist camera's OPTICAL frame staring at
+    `obj_xyz` from `distance` metres away. Returns (p_cam (3,), R_cam (3,3)),
+    R_cam holding the optical axes as COLUMNS.
+
+    The view direction here is the unit vector object -> camera: straight up
+    (world +Z, i.e. the camera looks straight DOWN) at tilt=0 -- the nadir tier,
+    the only one wired up so far -- swung `tilt` rad off vertical toward compass
+    direction `azimuth` for the later oblique tiers.
+
+    Optical-frame convention, matching what Isaac publishes on
+    <ns>_camera_optical and what object_localizer.deproject assumes: +Z forward
+    along the view ray, +X right, +Y down. Rotation ABOUT that ray leaves the
+    view unchanged (same pixels, rotated image), so it is a free DOF -- `roll`
+    parametrizes it, and it is the only handle for making an otherwise-identical
+    view reachable by IK.
+    """
+    n = np.array([np.sin(tilt) * np.cos(azimuth),
+                  np.sin(tilt) * np.sin(azimuth),
+                  np.cos(tilt)], float)
+    p_cam = np.asarray(obj_xyz, float) + float(distance) * n
+    z_c = -n                                   # optical +Z looks AT the object
+    ref = np.array([1.0, 0.0, 0.0])
+    if abs(float(np.dot(ref, z_c))) > 0.95:    # ref ~parallel to the ray
+        ref = np.array([0.0, 1.0, 0.0])
+    x0 = ref - float(np.dot(ref, z_c)) * z_c
+    x0 /= np.linalg.norm(x0)
+    y0 = np.cross(z_c, x0)
+    x_c = np.cos(roll) * x0 + np.sin(roll) * y0
+    y_c = np.cross(z_c, x_c)
+    return p_cam, np.column_stack((x_c, y_c, z_c))
 
 
 class ArmModel:
@@ -319,6 +379,19 @@ class GantryReachExecutor(Node):
         # plan (-3/-2). gate_settle lets the last in-flight update land first.
         self.declare_parameter('gate_perception', True)
         self.declare_parameter('gate_settle', 0.5)
+        # --- wrist-camera look poses (grasp geometry comes from the WRIST
+        # camera only; the ceiling RGBDs keep their localization/collision role
+        # and are never used for grasp geometry) ---
+        # Index-aligned with arm_names, same convention as arm_groups /
+        # arm_ee_frames / gripper_links above; '' (or a short list) = that arm
+        # has no wrist camera, so no look pose can be computed for it.
+        self.declare_parameter('wrist_frames', ['wrist1_camera_optical'])
+        # Camera-to-object distance at the look pose (m). 0.25 sits mid-range of
+        # the planned RealSense D405's 0.07-0.5 m sweet spot.
+        self.declare_parameter('look_distance', 0.25)
+        # Roll about the view ray is free (see look_camera_pose): sample this
+        # many, all giving the SAME view, so IK has several tool poses to try.
+        self.declare_parameter('look_roll_samples', 8)
         # --- grasp / logging ---
         self.declare_parameter('auto_attach', False)
         self.declare_parameter('attach_object_id', '')
@@ -428,6 +501,9 @@ class GantryReachExecutor(Node):
         self.grasp_descend = float(g('grasp_descend').value)
         self.lift_height = float(g('lift_height').value)
         self.grasp_settle_s = float(g('grasp_settle_s').value)
+        self.wrist_frames = list(g('wrist_frames').value)
+        self.look_distance = float(g('look_distance').value)
+        self.look_roll_samples = int(g('look_roll_samples').value)
         self.place_enabled = bool(g('place_enabled').value)
         self.place_xyz = (np.array([float(v) for v in g('place_xyz').value])
                           if self.place_enabled else None)
@@ -448,6 +524,9 @@ class GantryReachExecutor(Node):
                                     if idx < len(self.gripper_names) else None)
                 arm.gripper_joint = (self.gripper_joints[idx]
                                      if idx < len(self.gripper_joints) else None)
+                arm.wrist_frame = (self.wrist_frames[idx]
+                                   if idx < len(self.wrist_frames) else '')
+                arm.wrist_tf = None          # cached T_tool<-camera, see below
                 self.arms.append(arm)
                 self.get_logger().info(
                     f'loaded {nm}: {mp} -> group {grp}, ee {ee} '
@@ -1008,6 +1087,78 @@ class GantryReachExecutor(Node):
                           float('nan'), float('nan'), float('nan'))
         finally:
             self._set_perception_pause(False)
+
+    # ---- wrist-camera look poses --------------------------------------------
+    def _tool_from_camera(self, arm):
+        """T_tool<-camera as (R, p), read from TF -- deliberately NOT hardcoded.
+
+        The mount geometry already lives in exactly one place: the static TF
+        <gripper_base_link> -> <wrist>_camera_optical published by
+        launch_workcell.sh (itself derived from ros2_bridge_gui.py's
+        _add_wrist_camera()). The IK goal, however, is the arm's tool_frame,
+        which is a DIFFERENT link -- so the numbers measured against
+        gripper_base_link cannot be used here as-is. Composing the hop through
+        TF keeps this in sync with the mount automatically instead of
+        duplicating measured constants that would silently rot.
+
+        Both hops are rigid, so the lookup is cached after the first success.
+        Returns None (and logs) when the arm has no wrist camera or the TF is
+        not up yet -- no fallback guess (Rule 12).
+        """
+        if arm.wrist_tf is not None:
+            return arm.wrist_tf
+        if not arm.wrist_frame:
+            self.get_logger().error(
+                f'{arm.name}: no wrist camera frame configured (wrist_frames) '
+                '-- cannot compute a look pose for this arm')
+            return None
+        try:
+            t = self._tf_buffer.lookup_transform(arm.ee_frame, arm.wrist_frame,
+                                                 Time())
+        except (LookupException, ConnectivityException,
+                ExtrapolationException) as e:
+            self.get_logger().error(
+                f'{arm.name}: TF {arm.ee_frame}->{arm.wrist_frame} unavailable '
+                f'({e}) -- is the wrist camera static TF publisher running?')
+            return None
+        tr, q = t.transform.translation, t.transform.rotation
+        R = quat_to_R(q.x, q.y, q.z, q.w)
+        p = np.array([tr.x, tr.y, tr.z])
+        arm.wrist_tf = (R, p)
+        self.get_logger().info(
+            f'{arm.name}: T_{arm.ee_frame}<-{arm.wrist_frame} '
+            f'p={np.round(p, 4)} q={np.round([q.x, q.y, q.z, q.w], 4)} (cached)')
+        return arm.wrist_tf
+
+    def _look_poses(self, arm, obj_xyz, tilt=0.0, azimuth=0.0):
+        """Ordered tool-frame goals [(xyz (3,), quat (x,y,z,w))] that put this
+        arm's WRIST CAMERA `look_distance` m from `obj_xyz`, staring at it:
+
+            T_world<-tool = T_world<-camera o (T_tool<-camera)^-1
+
+        One entry per sampled roll about the view ray. Every entry gives the
+        SAME camera view (only the image rotates), so the caller may simply take
+        the first one that IK solves -- roll is a redundancy handle, not a
+        preference order. Empty list = no wrist camera / TF missing.
+
+        tilt/azimuth stay 0 for now: only the nadir tier is wired up. They are
+        arguments rather than constants because the oblique tiers 2/3 differ
+        from this ONLY in those two numbers.
+        """
+        tc = self._tool_from_camera(arm)
+        if tc is None:
+            return []
+        R_tc, p_tc = tc
+        out = []
+        n = max(1, self.look_roll_samples)
+        for i in range(n):
+            roll = 2.0 * np.pi * i / n
+            p_wc, R_wc = look_camera_pose(obj_xyz, self.look_distance, roll,
+                                          tilt, azimuth)
+            R_wt = R_wc @ R_tc.T
+            p_wt = p_wc - R_wt @ p_tc
+            out.append((p_wt, R_to_quat(R_wt)))
+        return out
 
     # ---- IK / planning ------------------------------------------------------
     def _grasp_ori_candidates(self):
