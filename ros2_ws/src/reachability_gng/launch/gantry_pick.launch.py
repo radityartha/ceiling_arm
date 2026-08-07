@@ -22,9 +22,18 @@ from typing import List
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
+
+# Per-frame numpy point-cloud work spawns one BLAS thread per host core if left
+# uncapped -- see topo_fusion.launch.py's _THREAD_CAP comment for the full story
+# (72 threads/process measured, starved move_group's IK/plan calls). Same fix,
+# applied only to the wrist depth_cloud instance added below.
+_THREAD_CAP = {'additional_env': {
+    'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1',
+    'MKL_NUM_THREADS': '1', 'NUMEXPR_NUM_THREADS': '1'}}
 
 _STALE = 'lib/reachability_gng/gantry_reach_executor'
 
@@ -50,6 +59,7 @@ def generate_launch_description():
     place_x = LaunchConfiguration('place_x')
     place_y = LaunchConfiguration('place_y')
     place_z = LaunchConfiguration('place_z')
+    wrist_cloud = LaunchConfiguration('wrist_cloud')
 
     return LaunchDescription([
         DeclareLaunchArgument('execute', default_value='false',
@@ -97,6 +107,15 @@ def generate_launch_description():
                               description='world y (m) drop point'),
         DeclareLaunchArgument('place_z', default_value='0.0',
                               description='world z (m) drop point'),
+        DeclareLaunchArgument('wrist_cloud', default_value='false',
+                              description='true = also start a depth_cloud '
+                                          'instance for wrist1 (session A2 '
+                                          "~/look acquisition; SEPARATE from "
+                                          "topo_fusion's ceiling-camera "
+                                          'depth_cloud, tuned for the D405 '
+                                          "close-range sweet spot). Requires "
+                                          'launch_workcell.sh with the wrist '
+                                          'camera (grasping-phase-1 checkout).'),
         OpaqueFunction(function=_kill_stale),
         Node(
             package='reachability_gng',
@@ -172,5 +191,23 @@ def generate_launch_description():
                 'place_xyz': ParameterValue(
                     [[place_x], [place_y], [place_z]], value_type=List[float]),
             }],
+        ),
+        # wrist1 geometry feed for ~/look (session A2). min_depth/max_depth
+        # mirror the wrist camera's OWN clipping range (0.05-1.5 m, see
+        # ros2_bridge_gui.py's _add_wrist_camera) rather than the ceiling
+        # depth_cloud's defaults (0.1-12.0 m, sized for the whole room).
+        Node(
+            package='reachability_gng',
+            executable='depth_cloud',
+            name='depth_cloud_wrist',
+            output='screen',
+            condition=IfCondition(wrist_cloud),
+            parameters=[{
+                'camera_namespaces': ['wrist1'],
+                'min_depth': 0.05,
+                'max_depth': 1.5,
+                'stride': 2,
+            }],
+            **_THREAD_CAP,
         ),
     ])

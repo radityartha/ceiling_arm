@@ -63,8 +63,9 @@ from moveit_msgs.srv import ApplyPlanningScene, GetPlanningScene, GetPositionIK
 from rclpy.action import ActionClient
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from rclpy.time import Time
-from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState, PointCloud2
 from std_msgs.msg import Bool, String
 from visualization_msgs.msg import MarkerArray
 from tf2_ros import (Buffer, ConnectivityException, ExtrapolationException,
@@ -74,6 +75,16 @@ from reachability_gng.gng import GNG
 from reachability_gng.object_localizer import quat_to_R
 from reachability_gng.pause_gate import PAUSE_TOPIC, latched_qos
 from reachability_gng.seed_ik import build_ik_request
+
+
+def _cloud_xyz(msg):
+    """Finite (x, y, z) rows of an xyz-float32 PointCloud2 as (N,3) float64.
+    Same 12-byte-stride layout depth_cloud.py publishes -- identical helper to
+    env_gng._cloud_xyz, duplicated rather than imported so grasp geometry does
+    not depend on the (unrelated) topo-map module."""
+    a = np.frombuffer(bytes(msg.data), dtype=np.uint8)
+    a = a.reshape(-1, msg.point_step)[:, :12].copy().view(np.float32)
+    return a[np.isfinite(a).all(axis=1)].astype(np.float64)
 
 
 def quat_mul(a, b):
@@ -122,18 +133,32 @@ def look_camera_pose(obj_xyz, distance, roll, tilt=0.0, azimuth=0.0):
     the only one wired up so far -- swung `tilt` rad off vertical toward compass
     direction `azimuth` for the later oblique tiers.
 
-    Optical-frame convention, matching what Isaac publishes on
-    <ns>_camera_optical and what object_localizer.deproject assumes: +Z forward
-    along the view ray, +X right, +Y down. Rotation ABOUT that ray leaves the
-    view unchanged (same pixels, rotated image), so it is a free DOF -- `roll`
-    parametrizes it, and it is the only handle for making an otherwise-identical
-    view reachable by IK.
+    Optical-frame convention for the CEILING cameras (rgbd/rgbd2, what
+    object_localizer.deproject assumes): +Z forward along the view ray, +X
+    right, +Y down -- standard ROS/REP-103. The WRIST camera's PUBLISHED
+    `_optical` TF does NOT follow that convention: a captured /wrist1/rgb
+    frame during Isaac grasping session A2 showed the sensor actually renders
+    down its optical frame's LOCAL -Z, not +Z -- a structural mismatch
+    between the USD Camera prim (always renders -Z, fixed Pixar/Hydra
+    convention) and what Isaac's ROS2 bridge labels as `_optical`'s +Z (see
+    ros2_bridge_gui.py's _add_wrist_camera docstring; it is NOT fixable by
+    changing the mount's own construction, since the mismatch is the same for
+    either sign there). So `z_c` here is the desired TF optical+Z, which must
+    be pointed AWAY from the object (matching `n`, object->camera) for the
+    ACTUAL render (the opposite axis) to look AT it. Rotation ABOUT that ray
+    leaves the view unchanged (same pixels, rotated image), so it is a free
+    DOF -- `roll` parametrizes it, and it is the only handle for making an
+    otherwise-identical view reachable by IK.
     """
     n = np.array([np.sin(tilt) * np.cos(azimuth),
                   np.sin(tilt) * np.sin(azimuth),
                   np.cos(tilt)], float)
     p_cam = np.asarray(obj_xyz, float) + float(distance) * n
-    z_c = -n                                   # optical +Z looks AT the object
+    # optical +Z points AWAY from the object (n): the wrist camera's ACTUAL
+    # render direction is the opposite of its published optical+Z -- see
+    # docstring above. (Ceiling-camera code elsewhere is untouched: this
+    # function is only ever used for the wrist camera's look poses.)
+    z_c = n
     ref = np.array([1.0, 0.0, 0.0])
     if abs(float(np.dot(ref, z_c))) > 0.95:    # ref ~parallel to the ray
         ref = np.array([0.0, 1.0, 0.0])
@@ -386,12 +411,28 @@ class GantryReachExecutor(Node):
         # arm_ee_frames / gripper_links above; '' (or a short list) = that arm
         # has no wrist camera, so no look pose can be computed for it.
         self.declare_parameter('wrist_frames', ['wrist1_camera_optical'])
+        # Index-aligned wrist depth_cloud topic per arm (empty = no wrist camera
+        # / not captured for that arm). A SEPARATE depth_cloud instance from the
+        # one env_gng/topo map uses (see gantry_pick.launch.py wrist_cloud:=true)
+        # -- different min_depth/stride tuned for the D405's close-range sweet
+        # spot, not the ceiling cameras'.
+        self.declare_parameter('wrist_cloud_topics', ['/wrist1/depth_cloud'])
         # Camera-to-object distance at the look pose (m). 0.25 sits mid-range of
         # the planned RealSense D405's 0.07-0.5 m sweet spot.
         self.declare_parameter('look_distance', 0.25)
         # Roll about the view ray is free (see look_camera_pose): sample this
         # many, all giving the SAME view, so IK has several tool poses to try.
         self.declare_parameter('look_roll_samples', 8)
+        # Stop-and-stare acquisition (session A2): after the arm reaches the
+        # look pose, wait this long (settle, like grasp_settle_s) before
+        # accepting any wrist cloud, then collect this many FRESH captures
+        # (buffer cleared at settle-end, so no frame from mid-motion can sneak
+        # in) within look_timeout seconds, cropped to look_roi metres around the
+        # object for the drift/point-count report.
+        self.declare_parameter('look_captures', 5)
+        self.declare_parameter('look_settle_s', 0.5)
+        self.declare_parameter('look_timeout', 5.0)
+        self.declare_parameter('look_roi', 0.15)
         # --- grasp / logging ---
         self.declare_parameter('auto_attach', False)
         self.declare_parameter('attach_object_id', '')
@@ -502,8 +543,13 @@ class GantryReachExecutor(Node):
         self.lift_height = float(g('lift_height').value)
         self.grasp_settle_s = float(g('grasp_settle_s').value)
         self.wrist_frames = list(g('wrist_frames').value)
+        self.wrist_cloud_topics = list(g('wrist_cloud_topics').value)
         self.look_distance = float(g('look_distance').value)
         self.look_roll_samples = int(g('look_roll_samples').value)
+        self.look_captures = int(g('look_captures').value)
+        self.look_settle_s = float(g('look_settle_s').value)
+        self.look_timeout = float(g('look_timeout').value)
+        self.look_roi = float(g('look_roi').value)
         self.place_enabled = bool(g('place_enabled').value)
         self.place_xyz = (np.array([float(v) for v in g('place_xyz').value])
                           if self.place_enabled else None)
@@ -527,6 +573,13 @@ class GantryReachExecutor(Node):
                 arm.wrist_frame = (self.wrist_frames[idx]
                                    if idx < len(self.wrist_frames) else '')
                 arm.wrist_tf = None          # cached T_tool<-camera, see below
+                arm.wrist_cloud_topic = (self.wrist_cloud_topics[idx]
+                                         if idx < len(self.wrist_cloud_topics)
+                                         else '')
+                arm.wrist_lock = threading.Lock()
+                arm.wrist_buf = []           # msgs collected during a capture
+                arm.wrist_capturing = False
+                arm.wrist_target_n = 0
                 self.arms.append(arm)
                 self.get_logger().info(
                     f'loaded {nm}: {mp} -> group {grp}, ee {ee} '
@@ -577,6 +630,17 @@ class GantryReachExecutor(Node):
                                  self._on_joints, 10, callback_group=cb)
         self.create_subscription(String, '~/pick', self._on_pick, 1,
                                  callback_group=cb)
+        # session A2: stop-and-stare wrist-camera acquisition, same arg format
+        # as ~/pick (index into /detected_objects, or blank for /target_object).
+        self.create_subscription(String, '~/look', self._on_look, 1,
+                                 callback_group=cb)
+        for arm in self.arms:
+            if not arm.wrist_cloud_topic:
+                continue
+            self.create_subscription(
+                PointCloud2, arm.wrist_cloud_topic,
+                lambda m, a=arm: self._on_wrist_cloud(a, m),
+                qos_profile_sensor_data, callback_group=cb)
         self.attach_pub = self.create_publisher(
             String, '/object_collision/command', 1)
         self.pause_pub = self.create_publisher(Bool, PAUSE_TOPIC, latched_qos())
@@ -646,6 +710,19 @@ class GantryReachExecutor(Node):
         for n, p in zip(msg.name, msg.position):
             self._joints[n] = p
 
+    def _on_wrist_cloud(self, arm, msg):
+        """Append to `arm`'s capture buffer ONLY while a `~/look` stop-and-stare
+        capture is active (see _do_look) -- a no-op the rest of the time, so
+        this camera's normal ~10 Hz stream costs one lock+bool check per frame
+        when idle. Runs on whichever MultiThreadedExecutor thread rclpy assigns
+        this callback (ReentrantCallbackGroup, same as every other subscription
+        on this node), concurrently with _do_look's blocking poll -- that
+        concurrency is exactly why the capture is buffered here instead of
+        _do_look reaching into a subscription itself."""
+        with arm.wrist_lock:
+            if arm.wrist_capturing and len(arm.wrist_buf) < arm.wrist_target_n:
+                arm.wrist_buf.append(msg)
+
     def _on_pick(self, msg):
         if not self._busy.acquire(blocking=False):
             self.get_logger().warn('pick already in progress; ignoring')
@@ -654,6 +731,21 @@ class GantryReachExecutor(Node):
             self._do_pick(msg.data.strip())
         except Exception as e:                       # never die on one pick
             self.get_logger().error(f'pick failed: {e}')
+        finally:
+            self._busy.release()
+
+    def _on_look(self, msg):
+        # Shares _busy with ~/pick: both drive the arm through _move_to_pose /
+        # _wait_until_reached, which poll the same live joint-state state --
+        # letting a pick and a look race would be a live-arm collision hazard,
+        # not just a logic bug.
+        if not self._busy.acquire(blocking=False):
+            self.get_logger().warn('pick/look already in progress; ignoring')
+            return
+        try:
+            self._do_look(msg.data.strip())
+        except Exception as e:                       # never die on one look
+            self.get_logger().error(f'look failed: {e}')
         finally:
             self._busy.release()
 
@@ -821,15 +913,19 @@ class GantryReachExecutor(Node):
                         f'(raise log_j_table_max to see all)')
         self.get_logger().info('\n'.join(rows))
 
-    # ---- main pick ----------------------------------------------------------
-    def _do_pick(self, arg):
-        # Resolve the grasp target. Prefer the explicit index the caller sent
-        # against the LIVE /detected_objects -- that is exactly what pick_cli
-        # listed and the user just selected, so each pick hits the object chosen.
-        # Only fall back to the /target_object topic when no usable index was
-        # given (e.g. a bare `ros2 topic pub` in target_label mode): that topic
-        # is refreshed on object_localizer's timer and lags a fresh selection, so
-        # preferring it would re-pick the PREVIOUS object (the bug this fixes).
+    # ---- target resolution ---------------------------------------------------
+    def _resolve_target(self, arg, verb='pick'):
+        """Resolve a `~/pick` / `~/look` string arg to (target Pose, idx, name),
+        or (None, None, None) on failure (already logged). Shared so `~/look`
+        (session A2) picks the SAME object `~/pick` would for the same arg.
+
+        Prefer the explicit index the caller sent against the LIVE
+        /detected_objects -- that is exactly what pick_cli listed and the user
+        just selected, so each request hits the object chosen. Only fall back to
+        the /target_object topic when no usable index was given (e.g. a bare
+        `ros2 topic pub` in target_label mode): that topic is refreshed on
+        object_localizer's timer and lags a fresh selection, so preferring it
+        would re-select the PREVIOUS object (the bug this fixes)."""
         objs = self._latest_objects
         target, idx = None, None
         if arg.isdigit() and objs is not None and objs.poses:
@@ -839,17 +935,23 @@ class GantryReachExecutor(Node):
             else:
                 self.get_logger().warn(
                     f'object index {i} out of range (have {len(objs.poses)})')
-                return
+                return None, None, None
         if target is None:
             if self._latest_target is not None:
                 target, idx = self._latest_target.pose, 'target'
             else:
                 self.get_logger().warn(
-                    f'pick arg "{arg}": no matching /detected_objects index and '
-                    f'no /target_object yet')
-                return
+                    f'{verb} arg "{arg}": no matching /detected_objects index '
+                    f'and no /target_object yet')
+                return None, None, None
+        return target, idx, self._obj_name(idx)
+
+    # ---- main pick ----------------------------------------------------------
+    def _do_pick(self, arg):
+        target, idx, name = self._resolve_target(arg)
+        if target is None:
+            return
         p = target.position
-        name = self._obj_name(idx)      # class/color label for terminal output
         self.get_logger().info(
             f'>>> NEW TARGET {name}: pick requested at '
             f'x={p.x:+.3f} y={p.y:+.3f} z={p.z:+.3f} (world) -- allocating arm')
@@ -1159,6 +1261,144 @@ class GantryReachExecutor(Node):
             p_wt = p_wc - R_wt @ p_tc
             out.append((p_wt, R_to_quat(R_wt)))
         return out
+
+    def _finger_link_names(self, arm):
+        """This arm's 4 finger-tip/proximal link names, derived from its
+        configured gripper_link (e.g. 't1_a1_gripper_base_link' ->
+        't1_a1_left_finger_dist_link', ...) -- same suffixes measured in
+        query_gripper_frame.txt. Diagnostic-only (see _do_look): whether the
+        wrist cloud's own gripper contaminates the capture is an explicitly
+        open question, not yet answered either way."""
+        prefix = arm.gripper_link.rsplit('gripper_base_link', 1)[0]
+        return [prefix + s for s in
+               ('left_finger_prox_link', 'left_finger_dist_link',
+                'right_finger_prox_link', 'right_finger_dist_link')]
+
+    def _do_look(self, arg):
+        """Session A2: move `arm`'s wrist camera to the nadir look pose for the
+        resolved target, then stop-and-stare -- wait for the arm to settle,
+        THEN collect `look_captures` fresh wrist-cloud frames (the capture
+        buffer is cleared right before this, so nothing from mid-motion can be
+        counted) and report per-capture point count / centroid plus the
+        across-capture drift, so a live Isaac run can be checked against the
+        pass bar (drift, point count, wrist-vs-ceiling agreement) rather than
+        eyeballed.
+
+        Deliberately NOT going through the J/pool arm-selection machinery
+        _do_pick uses -- this is perception instrumentation, not the pick
+        decision, so it just tries every arm that HAS a wrist camera, in
+        arm_names order, and stops at the first that reaches a look pose.
+        """
+        target, idx, name = self._resolve_target(arg, verb='look')
+        if target is None:
+            return
+        obj_xyz = np.array([target.position.x, target.position.y,
+                            target.position.z])
+        cams = [a for a in self.arms if a.wrist_frame and a.wrist_cloud_topic]
+        if not cams:
+            self.get_logger().error(
+                'no arm has both wrist_frame and wrist_cloud_topic configured '
+                '-- nothing can look')
+            return
+        self.get_logger().info(
+            f'>>> LOOK {name}: x={obj_xyz[0]:+.3f} y={obj_xyz[1]:+.3f} '
+            f'z={obj_xyz[2]:+.3f} (world), trying {[a.name for a in cams]}')
+
+        arm = reached = None
+        for cand in cams:
+            seed_q = self._current_q(cand)
+            cand_poses = self._look_poses(cand, obj_xyz)
+            if not cand_poses:
+                continue                      # _tool_from_camera already logged
+            for xyz, quat in cand_poses:
+                ok, _, _ = self._move_to_pose(cand, xyz, quat, seed_q)
+                if ok:
+                    arm, reached = cand, True
+                    break
+            if reached:
+                break
+        if not reached:
+            self.get_logger().error(
+                f'{name}: no arm reached a nadir look pose '
+                f'({self.look_roll_samples} roll(s) tried per candidate arm)')
+            return
+
+        self.get_logger().info(
+            f'{arm.name}: look pose reached, settling {self.look_settle_s:.2f}s')
+        if self.look_settle_s > 0:
+            time.sleep(self.look_settle_s)
+
+        with arm.wrist_lock:
+            arm.wrist_buf = []
+            arm.wrist_target_n = self.look_captures
+            arm.wrist_capturing = True
+        deadline = time.time() + self.look_timeout
+        while time.time() < deadline:
+            with arm.wrist_lock:
+                n = len(arm.wrist_buf)
+            if n >= self.look_captures:
+                break
+            time.sleep(0.05)
+        with arm.wrist_lock:
+            arm.wrist_capturing = False
+            msgs = list(arm.wrist_buf)
+        if len(msgs) < self.look_captures:
+            self.get_logger().error(
+                f'{arm.name}: only {len(msgs)}/{self.look_captures} wrist '
+                f'captures arrived within {self.look_timeout:.1f}s '
+                f'(topic {arm.wrist_cloud_topic}) -- reporting what came in')
+        if not msgs:
+            return
+
+        finger_pts = []
+        for link in self._finger_link_names(arm):
+            try:
+                t = self._tf_buffer.lookup_transform(
+                    self.world_frame, link, Time())
+            except (LookupException, ConnectivityException,
+                    ExtrapolationException):
+                continue
+            tr = t.transform.translation
+            finger_pts.append([tr.x, tr.y, tr.z])
+        finger_pts = np.array(finger_pts) if finger_pts else np.zeros((0, 3))
+
+        centroids, counts = [], []
+        for i, msg in enumerate(msgs):
+            pts = _cloud_xyz(msg)
+            d = np.linalg.norm(pts - obj_xyz, axis=1)
+            roi = pts[d <= self.look_roi]
+            n_roi = len(roi)
+            counts.append(n_roi)
+            centroid = roi.mean(axis=0) if n_roi else None
+            centroids.append(centroid)
+            n_finger = 0
+            if n_roi and len(finger_pts):
+                fd = np.linalg.norm(
+                    roi[:, None, :] - finger_pts[None, :, :], axis=2)
+                n_finger = int((fd.min(axis=1) <= 0.03).sum())
+            stamp = f'{msg.header.stamp.sec}.{msg.header.stamp.nanosec:09d}'
+            off = (f'{np.round(centroid - obj_xyz, 4)}'
+                  if centroid is not None else 'n/a')
+            self.get_logger().info(
+                f'{arm.name}: capture {i}: stamp={stamp} n_roi={n_roi} '
+                f'centroid_offset={off} n_within_3cm_of_finger={n_finger}')
+
+        valid = [c for c in centroids if c is not None]
+        if len(valid) >= 2:
+            V = np.array(valid)
+            drift = np.linalg.norm(
+                V[:, None, :] - V[None, :, :], axis=2).max()
+        else:
+            drift = float('nan')
+        wrist_vs_ceiling = (float(np.linalg.norm(np.mean(valid, axis=0)
+                                                  - obj_xyz))
+                           if valid else float('nan'))
+        self.get_logger().info(
+            f'>>> {arm.name}: LOOK {name} summary -- {len(valid)}/'
+            f'{len(msgs)} captures with points in ROI, max pairwise centroid '
+            f'drift={drift:.4f} m, mean-centroid-vs-ceiling={wrist_vs_ceiling:.4f} m, '
+            f'n_roi min/max={min(counts) if counts else 0}/'
+            f'{max(counts) if counts else 0}')
 
     # ---- IK / planning ------------------------------------------------------
     def _grasp_ori_candidates(self):

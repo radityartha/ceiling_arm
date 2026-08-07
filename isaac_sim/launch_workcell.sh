@@ -101,11 +101,17 @@ PIDS+=($!)
 # the last rigid hop. Offset/quat computed from ros2_bridge_gui.py's
 # _add_wrist_camera() local-frame eye/target (see its docstring for how the
 # mount geometry was chosen) -- KEEP IN SYNC if that function's eye/target move.
+# Values updated (Isaac grasping session A2): eye pushed further out (was
+# sitting inside the wrist's own collision mesh -- a captured /wrist1/rgb
+# frame showed the arm body, not the scene) and the construction reverted to
+# z = -f (the OTHER sign was tried and tested WORSE -- see _add_wrist_camera's
+# docstring for why the published optical +Z is unavoidably the opposite of
+# the actual render direction, for either sign of z).
 ( set +u; source /opt/ros/humble/setup.bash
   export ROS_DOMAIN_ID RMW_IMPLEMENTATION
   exec ros2 run tf2_ros static_transform_publisher \
-    --x 0.035 --y 0.0 --z -0.03 \
-    --qx 0.0 --qy 0.997151 --qz 0.0 --qw 0.075436 \
+    --x 0.06 --y 0.0 --z -0.05 \
+    --qx 0.0 --qy 0.993073 --qz 0.0 --qw 0.117500 \
     --frame-id t1_a1_gripper_base_link --child-frame-id wrist1_camera_optical \
     ) > "$LOG/wrist1_camera_tf.log" 2>&1 &
 PIDS+=($!)

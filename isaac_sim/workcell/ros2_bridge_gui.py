@@ -156,11 +156,34 @@ def _add_wrist_camera(arm_prefix="t1_a1_", ns="wrist1"):
     fingertips (measured offset +0.116 m) and local Y is the finger-spread
     axis (right/left fingers measured at local Y = -0.010/+0.010). The exact
     stand-off distance and tilt angle ARE a design choice (no spec to measure
-    against) -- camera sits 3.5 cm forward (local +X, clear of the wrist
-    body) and 3 cm back from the gripper base (local -Z, before the finger
-    pivots), tilted to look at a point 0.20 m down the approach axis (a
-    plausible pre-grasp stand-off) so the object stays in frame through final
-    approach instead of being centred on the fingers.
+    against) -- camera sits forward (local +X, clear of the wrist body) and
+    back from the gripper base (local -Z, before the finger pivots), tilted
+    to look at a point 0.20 m down the approach axis (a plausible pre-grasp
+    stand-off) so the object stays in frame through final approach instead of
+    being centred on the fingers. Pushed further out than the first cut
+    (Isaac grasping session A2, live wrist1/rgb inspection): the original
+    3.5/3 cm offsets sat the camera's near-clip plane inside the wrist's own
+    collision mesh (the captured frame was a close-up of the arm body, not
+    the scene) -- this should read as "mounted at the wrist", protruding
+    clear of it, not embedded in it.
+
+    IMPORTANT, learned the hard way in the same session: a USD Camera prim
+    ALWAYS renders down its own LOCAL -Z (fixed Pixar/Hydra convention,
+    independent of this transform) while Isaac's ROS2 bridge publishes the
+    prim's LOCAL +Z as the `_optical` frame's forward axis (ROS/REP-103
+    convention) -- so the published TF's +Z is ALWAYS the exact opposite of
+    what the camera actually renders, for ANY M built here. That mismatch is
+    NOT fixed by picking a different sign for `z` below (verified by trying
+    exactly that: forcing Row2 = +f, i.e. away from -f, produced a valid
+    rotation -- det=+1 -- but a captured /wrist1/rgb frame showed the arm's
+    own body, i.e. the render direction flipped WITH the TF, confirming
+    render = -Row2 structurally). The fix for downstream consumers of this
+    TF (gantry_reach_executor.py's wrist-camera look-pose math) is to target
+    the OPPOSITE of the intuitive "optical +Z at the object" and is applied
+    there, not here -- this function only needs to get the RENDER pointed at
+    `target`, which is what `z = -f` below does (`f` itself points AT
+    target; the render direction is confirmed empirically, see above, to be
+    -Row2, so Row2 must be -f for the render to be +f).
     """
     from pxr import Gf, UsdGeom
     stage = get_current_stage()
@@ -172,12 +195,12 @@ def _add_wrist_camera(arm_prefix="t1_a1_", ns="wrist1"):
         return None
 
     up = np.array([0.0, 1.0, 0.0])           # local finger-spread axis as camera "up"
-    eye = np.array([0.035, 0.0, -0.03])      # local frame (see docstring)
+    eye = np.array([0.06, 0.0, -0.05])       # local frame (see docstring)
     target = np.array([0.0, 0.0, 0.20])      # local frame, pre-grasp stand-off point
     f = target - eye; f /= np.linalg.norm(f)
     r = np.cross(f, up); r /= np.linalg.norm(r)
     u = np.cross(r, f)
-    z = -f
+    z = -f                                   # render direction = -Row2, see docstring
     M = Gf.Matrix4d(1.0)
     M.SetRow(0, Gf.Vec4d(float(r[0]), float(r[1]), float(r[2]), 0.0))
     M.SetRow(1, Gf.Vec4d(float(u[0]), float(u[1]), float(u[2]), 0.0))
