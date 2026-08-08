@@ -75,6 +75,7 @@ from reachability_gng.gng import GNG
 from reachability_gng.object_localizer import quat_to_R
 from reachability_gng.pause_gate import PAUSE_TOPIC, latched_qos
 from reachability_gng.seed_ik import build_ik_request
+from reachability_gng_interfaces.srv import SampleGrasps
 
 
 def _cloud_xyz(msg):
@@ -428,6 +429,17 @@ class GantryReachExecutor(Node):
         self.declare_parameter('look_settle_s', 0.5)
         self.declare_parameter('look_timeout', 5.0)
         self.declare_parameter('look_roi', 0.15)
+        # Progress-based settle (replaces relying on look_settle_s alone):
+        # after the minimum look_settle_s wait, keep probing wrist frames until
+        # the ROI centroid stops moving between consecutive frames -- Isaac's
+        # rendered cloud can lag physics by more than a fixed sleep covers (a
+        # capture straight after a real move can come back with ZERO ROI
+        # points even though the object is plainly in the RGB frame; see
+        # memory look-settle-race-and-cube-occlusion). Only the OFFICIAL
+        # look_captures window (started once settled) is reported/used.
+        self.declare_parameter('look_settle_tol', 0.01)
+        self.declare_parameter('look_settle_consec', 3)
+        self.declare_parameter('look_settle_timeout', 3.0)
         # --- grasp / logging ---
         self.declare_parameter('auto_attach', False)
         self.declare_parameter('attach_object_id', '')
@@ -466,6 +478,21 @@ class GantryReachExecutor(Node):
         # at lift height above the pick point (still a full grasp+lift cycle).
         self.declare_parameter('place_xyz', [0.0])
         self.declare_parameter('place_enabled', False)
+        # --- session C: sampler-driven grasp cycle (~/grasp) ---
+        # How far (m) to back off along the grasp pose's own approach axis
+        # (local +Z, points at the fingertips) before descending open-loop --
+        # the D405 is blind under ~0.07 m, matches approach_offset's role for
+        # the old naive-descent cycle.
+        self.declare_parameter('grasp_standoff', 0.10)
+        # ~/sample_grasps call budget (<=0 in the request means "use the
+        # node's own param" -- see reachability_gng_interfaces/srv/SampleGrasps).
+        self.declare_parameter('sample_grasps_timeout', 15.0)
+        # Achieved pad gap (from the gripper's closed joint position) vs the
+        # sampler's predicted width[0] must agree within this margin (m) for
+        # the grasp to count as success -- "closed on something" alone is not
+        # enough (a stall a few cm off the real object would also report
+        # closed). See isaac-grasping-wrist-only-plan Session C item 4.
+        self.declare_parameter('grasp_width_tol', 0.015)
 
         g = self.get_parameter
         names = list(g('arm_names').value)
@@ -545,6 +572,12 @@ class GantryReachExecutor(Node):
         self.look_settle_s = float(g('look_settle_s').value)
         self.look_timeout = float(g('look_timeout').value)
         self.look_roi = float(g('look_roi').value)
+        self.look_settle_tol = float(g('look_settle_tol').value)
+        self.grasp_standoff = float(g('grasp_standoff').value)
+        self.sample_grasps_timeout = float(g('sample_grasps_timeout').value)
+        self.grasp_width_tol = float(g('grasp_width_tol').value)
+        self.look_settle_consec = int(g('look_settle_consec').value)
+        self.look_settle_timeout = float(g('look_settle_timeout').value)
         self.place_enabled = bool(g('place_enabled').value)
         self.place_xyz = (np.array([float(v) for v in g('place_xyz').value])
                           if self.place_enabled else None)
@@ -568,6 +601,7 @@ class GantryReachExecutor(Node):
                 arm.wrist_frame = (self.wrist_frames[idx]
                                    if idx < len(self.wrist_frames) else '')
                 arm.wrist_tf = None          # cached T_tool<-camera, see below
+                arm.tool_from_gripper = None  # cached T_tool<-gripper_base_link
                 arm.wrist_cloud_topic = (self.wrist_cloud_topics[idx]
                                          if idx < len(self.wrist_cloud_topics)
                                          else '')
@@ -629,6 +663,11 @@ class GantryReachExecutor(Node):
         # as ~/pick (index into /detected_objects, or blank for /target_object).
         self.create_subscription(String, '~/look', self._on_look, 1,
                                  callback_group=cb)
+        # session C: sampler-driven grasp cycle (look -> sample_grasps ->
+        # stand-off -> open-loop descend -> close -> check -> lift), same arg
+        # format as ~/pick / ~/look.
+        self.create_subscription(String, '~/grasp', self._on_grasp, 1,
+                                 callback_group=cb)
         for arm in self.arms:
             if not arm.wrist_cloud_topic:
                 continue
@@ -649,6 +688,8 @@ class GantryReachExecutor(Node):
             GetPlanningScene, '/get_planning_scene', callback_group=cb)
         self.apply_scene_cli = self.create_client(
             ApplyPlanningScene, '/apply_planning_scene', callback_group=cb)
+        self.sample_grasps_cli = self.create_client(
+            SampleGrasps, '/grasp_sampler/sample_grasps', callback_group=cb)
         self.move_cli = ActionClient(self, MoveGroup, 'move_action',
                                      callback_group=cb)
         # One GripperCommand client per arm that has a gripper_name, action name
@@ -744,6 +785,20 @@ class GantryReachExecutor(Node):
         finally:
             self._busy.release()
 
+    def _on_grasp(self, msg):
+        # Shares _busy with ~/pick and ~/look for the same reason: all three
+        # drive the arm through _move_to_pose, and a collision hazard on a
+        # live arm is not something to risk on a logic race.
+        if not self._busy.acquire(blocking=False):
+            self.get_logger().warn('pick/look/grasp already in progress; ignoring')
+            return
+        try:
+            self._do_grasp(msg.data.strip())
+        except Exception as e:                       # never die on one grasp
+            self.get_logger().error(f'grasp failed: {e}')
+        finally:
+            self._busy.release()
+
     def _on_set_params(self, params):
         """Apply live `ros2 param set` for the tunable stand-off knobs so they
         take effect on the NEXT pick without a restart."""
@@ -757,6 +812,8 @@ class GantryReachExecutor(Node):
                 self.box_clearance = float(p.value)
             elif p.name == 'approach_offset':
                 self.approach_offset = float(p.value)
+            elif p.name == 'grasp_width_tol':
+                self.grasp_width_tol = float(p.value)
             elif p.name in live:
                 setattr(self, p.name, float(p.value))
         return SetParametersResult(successful=True)
@@ -1227,6 +1284,49 @@ class GantryReachExecutor(Node):
             f'p={np.round(p, 4)} q={np.round([q.x, q.y, q.z, q.w], 4)} (cached)')
         return arm.wrist_tf
 
+    def _tool_from_gripper(self, arm):
+        """T_tool<-gripper_base_link as (R, p), read from TF -- same reasoning
+        as _tool_from_camera. ~/sample_grasps poses are for `arm.gripper_link`
+        (e.g. t1_a1_gripper_base_link, see reachability_gng_interfaces/srv/
+        SampleGrasps), but IK targets `arm.ee_frame` (tool_frame), a DIFFERENT
+        link -- using a sampler pose as the _move_to_pose target directly
+        would silently offset every grasp by the tool<->gripper mount
+        distance (~0.116 m, measured in isaac-grasping-wrist-only-plan).
+        Cached after the first success (rigid transform)."""
+        if arm.tool_from_gripper is not None:
+            return arm.tool_from_gripper
+        try:
+            t = self._tf_buffer.lookup_transform(arm.ee_frame, arm.gripper_link,
+                                                 Time())
+        except (LookupException, ConnectivityException,
+                ExtrapolationException) as e:
+            self.get_logger().error(
+                f'{arm.name}: TF {arm.ee_frame}->{arm.gripper_link} unavailable '
+                f'({e}) -- cannot convert a sampler grasp pose to an IK target')
+            return None
+        tr, q = t.transform.translation, t.transform.rotation
+        R = quat_to_R(q.x, q.y, q.z, q.w)
+        p = np.array([tr.x, tr.y, tr.z])
+        arm.tool_from_gripper = (R, p)
+        self.get_logger().info(
+            f'{arm.name}: T_{arm.ee_frame}<-{arm.gripper_link} '
+            f'p={np.round(p, 4)} q={np.round([q.x, q.y, q.z, q.w], 4)} (cached)')
+        return arm.tool_from_gripper
+
+    def _gripper_pose_to_tool(self, arm, p_wg, R_wg):
+        """World-frame (gripper_base_link position, rotation) -> world-frame
+        (tool_frame xyz, quat) for _move_to_pose, via T_world<-tool =
+        T_world<-gripper o (T_tool<-gripper)^-1 -- same composition
+        _look_poses uses for the wrist camera. Returns (None, None) if the
+        tool<-gripper TF isn't available (already logged)."""
+        tg = self._tool_from_gripper(arm)
+        if tg is None:
+            return None, None
+        R_tg, p_tg = tg
+        R_wt = R_wg @ R_tg.T
+        p_wt = p_wg - R_wt @ p_tg
+        return p_wt, R_to_quat(R_wt)
+
     def _look_poses(self, arm, obj_xyz, tilt=0.0, azimuth=0.0):
         """Ordered tool-frame goals [(xyz (3,), quat (x,y,z,w))] that put this
         arm's WRIST CAMERA `look_distance` m from `obj_xyz`, staring at it:
@@ -1269,35 +1369,30 @@ class GantryReachExecutor(Node):
                ('left_finger_prox_link', 'left_finger_dist_link',
                 'right_finger_prox_link', 'right_finger_dist_link')]
 
-    def _do_look(self, arg):
-        """Session A2: move `arm`'s wrist camera to the nadir look pose for the
-        resolved target, then stop-and-stare -- wait for the arm to settle,
-        THEN collect `look_captures` fresh wrist-cloud frames (the capture
-        buffer is cleared right before this, so nothing from mid-motion can be
-        counted) and report per-capture point count / centroid plus the
-        across-capture drift, so a live Isaac run can be checked against the
-        pass bar (drift, point count, wrist-vs-ceiling agreement) rather than
-        eyeballed.
+    def _reach_look_and_settle(self, obj_xyz, name):
+        """Move a wrist-camera arm to the nadir look pose for `obj_xyz`, then
+        block until the wrist cloud's ROI centroid stabilizes (progress-based
+        settle: joints reaching goal_q does not mean the RENDERED cloud has
+        caught up -- Isaac's render can lag physics under load). Probes
+        frames until the ROI centroid stops moving between consecutive
+        frames, instead of trusting a fixed sleep. See memory
+        look-settle-race-and-cube-occlusion (a real capture came back 0/5
+        empty right after a move, clean on immediate retry with no motion).
 
-        Deliberately NOT going through the J/pool arm-selection machinery
-        _do_pick uses -- this is perception instrumentation, not the pick
-        decision, so it just tries every arm that HAS a wrist camera, in
-        arm_names order, and stops at the first that reaches a look pose.
+        Shared by `~/look` (session A2, which then does its own diagnostic
+        capture window) and `~/grasp` (session C, which then calls
+        ~/sample_grasps trusting the cloud is actually stable). Deliberately
+        NOT going through the J/pool arm-selection machinery _do_pick uses --
+        this just tries every arm that HAS a wrist camera, in arm_names
+        order, and stops at the first that reaches a look pose. Returns the
+        arm on success, or None (already logged) on failure.
         """
-        target, idx, name = self._resolve_target(arg, verb='look')
-        if target is None:
-            return
-        obj_xyz = np.array([target.position.x, target.position.y,
-                            target.position.z])
         cams = [a for a in self.arms if a.wrist_frame and a.wrist_cloud_topic]
         if not cams:
             self.get_logger().error(
                 'no arm has both wrist_frame and wrist_cloud_topic configured '
                 '-- nothing can look')
-            return
-        self.get_logger().info(
-            f'>>> LOOK {name}: x={obj_xyz[0]:+.3f} y={obj_xyz[1]:+.3f} '
-            f'z={obj_xyz[2]:+.3f} (world), trying {[a.name for a in cams]}')
+            return None
 
         arm = reached = None
         for cand in cams:
@@ -1316,12 +1411,74 @@ class GantryReachExecutor(Node):
             self.get_logger().error(
                 f'{name}: no arm reached a nadir look pose '
                 f'({self.look_roll_samples} roll(s) tried per candidate arm)')
-            return
+            return None
 
         self.get_logger().info(
-            f'{arm.name}: look pose reached, settling {self.look_settle_s:.2f}s')
+            f'{arm.name}: look pose reached, waiting {self.look_settle_s:.2f}s '
+            f'min then polling for a settled cloud (tol={self.look_settle_tol:.3f} m, '
+            f'{self.look_settle_consec} consecutive, timeout='
+            f'{self.look_settle_timeout:.1f}s)')
         if self.look_settle_s > 0:
             time.sleep(self.look_settle_s)
+
+        probe_cap = self.look_captures + self.look_settle_consec + 20
+        with arm.wrist_lock:
+            arm.wrist_buf = []
+            arm.wrist_target_n = probe_cap
+            arm.wrist_capturing = True
+        settle_deadline = time.time() + self.look_settle_timeout
+        settled, last_centroid, stable, seen = False, None, 0, 0
+        while time.time() < settle_deadline:
+            with arm.wrist_lock:
+                probe_msgs = list(arm.wrist_buf)
+            for m in probe_msgs[seen:]:
+                pts = _cloud_xyz(m)
+                d = np.linalg.norm(pts - obj_xyz, axis=1)
+                roi = pts[d <= self.look_roi]
+                c = roi.mean(axis=0) if len(roi) else None
+                if c is not None and last_centroid is not None and \
+                        np.linalg.norm(c - last_centroid) <= self.look_settle_tol:
+                    stable += 1
+                else:
+                    stable = 0
+                last_centroid = c
+                if stable >= self.look_settle_consec:
+                    settled = True
+                    break
+            seen = len(probe_msgs)
+            if settled:
+                break
+            time.sleep(0.05)
+        with arm.wrist_lock:
+            arm.wrist_capturing = False
+        if not settled:
+            self.get_logger().warn(
+                f'{arm.name}: cloud never settled within '
+                f'{self.look_settle_timeout:.1f}s (tol={self.look_settle_tol:.3f} m) '
+                '-- proceeding anyway, results may reflect a still-moving scene')
+        return arm
+
+    def _do_look(self, arg):
+        """Session A2: move `arm`'s wrist camera to the nadir look pose for the
+        resolved target, settle (see _reach_look_and_settle), THEN collect
+        `look_captures` fresh wrist-cloud frames (the capture buffer is
+        cleared right before this, so nothing from the settle probe can be
+        counted) and report per-capture point count / centroid plus the
+        across-capture drift, so a live Isaac run can be checked against the
+        pass bar (drift, point count, wrist-vs-ceiling agreement) rather than
+        eyeballed.
+        """
+        target, idx, name = self._resolve_target(arg, verb='look')
+        if target is None:
+            return
+        obj_xyz = np.array([target.position.x, target.position.y,
+                            target.position.z])
+        self.get_logger().info(
+            f'>>> LOOK {name}: x={obj_xyz[0]:+.3f} y={obj_xyz[1]:+.3f} '
+            f'z={obj_xyz[2]:+.3f} (world)')
+        arm = self._reach_look_and_settle(obj_xyz, name)
+        if arm is None:
+            return
 
         with arm.wrist_lock:
             arm.wrist_buf = []
@@ -1394,6 +1551,233 @@ class GantryReachExecutor(Node):
             f'drift={drift:.4f} m, mean-centroid-vs-ceiling={wrist_vs_ceiling:.4f} m, '
             f'n_roi min/max={min(counts) if counts else 0}/'
             f'{max(counts) if counts else 0}')
+
+    def _finger_roi_count(self, arm, obj_xyz, n_captures=3, timeout=2.0):
+        """Fresh wrist-cloud probe: median (across n_captures frames) count of
+        points near the object's ROI that sit within 3cm of a finger link --
+        i.e. is something still between the fingers. Post-grasp visual check:
+        Gen3 Lite has no torque sensor (see gen3-lite-no-torque-sensor), so
+        this plus the pad-gap check is the closest thing to a force signal
+        available. Returns 0 (with a warning, not a silent pass) if finger TF
+        is unavailable."""
+        finger_pts = []
+        for link in self._finger_link_names(arm):
+            try:
+                t = self._tf_buffer.lookup_transform(
+                    self.world_frame, link, Time())
+            except (LookupException, ConnectivityException,
+                    ExtrapolationException):
+                continue
+            tr = t.transform.translation
+            finger_pts.append([tr.x, tr.y, tr.z])
+        finger_pts = np.array(finger_pts) if finger_pts else np.zeros((0, 3))
+        if not len(finger_pts):
+            self.get_logger().warn(
+                f'{arm.name}: no finger TF available -- post-grasp visual '
+                'check cannot run (reporting 0, do NOT treat as a pass)')
+            return 0
+
+        with arm.wrist_lock:
+            arm.wrist_buf = []
+            arm.wrist_target_n = n_captures
+            arm.wrist_capturing = True
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            with arm.wrist_lock:
+                n = len(arm.wrist_buf)
+            if n >= n_captures:
+                break
+            time.sleep(0.05)
+        with arm.wrist_lock:
+            arm.wrist_capturing = False
+            msgs = list(arm.wrist_buf)
+        if not msgs:
+            self.get_logger().warn(
+                f'{arm.name}: no wrist frames arrived for the post-grasp '
+                'check within {timeout:.1f}s')
+            return 0
+        counts = []
+        for msg in msgs:
+            pts = _cloud_xyz(msg)
+            d = np.linalg.norm(pts - obj_xyz, axis=1)
+            roi = pts[d <= self.look_roi]
+            if not len(roi):
+                counts.append(0)
+                continue
+            fd = np.linalg.norm(roi[:, None, :] - finger_pts[None, :, :], axis=2)
+            counts.append(int((fd.min(axis=1) <= 0.03).sum()))
+        return int(np.median(counts))
+
+    def _do_grasp(self, arg):
+        """Session C: sampler-driven grasp cycle. look -> ~/sample_grasps for
+        REAL geometry (not the fixed-descend _grasp_sequence's naive
+        approach) -> back off to a stand-off along the grasp pose's own
+        approach axis -> descend open-loop (D405 is blind under ~0.07 m, no
+        visual servoing to contact) -> close -> verify against BOTH the
+        sampler's predicted width and a post-grasp wrist-cloud check -> lift.
+        Every stage failure is reported plainly (Rule 12) -- no silent
+        partial success, and a both_sides_observed=False top candidate is
+        logged as a documented risk (tier-2 oblique look not implemented
+        yet), not silently ignored.
+        """
+        self._set_perception_pause(True)
+        try:
+            # Perception is paused BEFORE resolving the target, so the index
+            # stays valid for the whole cycle (object_localizer freezes while
+            # paused) -- see memory detected-objects-index-unstable.
+            target, idx, name = self._resolve_target(arg, verb='grasp')
+            if target is None:
+                return
+            obj_xyz = np.array([target.position.x, target.position.y,
+                                target.position.z])
+            self.get_logger().info(
+                f'>>> GRASP {name}: x={obj_xyz[0]:+.3f} y={obj_xyz[1]:+.3f} '
+                f'z={obj_xyz[2]:+.3f} (world)')
+
+            arm = self._reach_look_and_settle(obj_xyz, name)
+            if arm is None:
+                return
+
+            req = SampleGrasps.Request()
+            req.target = str(idx) if isinstance(idx, int) else ''
+            req.roi = 0.0
+            req.captures = 0
+            req.max_candidates = 0
+            if not self.sample_grasps_cli.wait_for_service(timeout_sec=5.0):
+                self.get_logger().error(
+                    f'{name}: /grasp_sampler/sample_grasps not available')
+                return
+            resp = self._wait(self.sample_grasps_cli.call_async(req),
+                              self.sample_grasps_timeout)
+            if resp is None:
+                self.get_logger().error(f'{name}: sample_grasps timed out')
+                return
+            if not resp.success or not resp.grasps.poses:
+                self.get_logger().error(
+                    f'{name}: sample_grasps failed: {resp.message}')
+                return
+
+            gp = resp.grasps.poses[0]
+            width = resp.widths[0]
+            both_sides = resp.both_sides_observed[0]
+            self.get_logger().info(
+                f'{arm.name}: top grasp candidate score={resp.scores[0]:.3f} '
+                f'width={width * 1000:.1f}mm antipodal={resp.antipodal[0]:.3f} '
+                f'gravity={resp.gravity[0]:.3f} both_sides_observed={both_sides} '
+                f'({resp.message})')
+            if not both_sides:
+                self.get_logger().warn(
+                    f'{arm.name}: top candidate has NOT been observed from '
+                    'both sides (single nadir view) -- tier-2 oblique look '
+                    'is not implemented yet; proceeding on the nadir-only '
+                    'estimate as a DOCUMENTED risk, not a silent skip')
+            # Gen3 Lite pad gap calibration (isaac_sim/workcell/grasp_verify.txt):
+            # 0.085 m open, 0.020 m closed.
+            gripper_open_gap, gripper_closed_gap = 0.085, 0.020
+            if width > gripper_open_gap:
+                self.get_logger().error(
+                    f'{arm.name}: candidate width {width * 1000:.1f}mm exceeds '
+                    f"the gripper's open gap {gripper_open_gap * 1000:.0f}mm "
+                    '-- cannot be grasped, aborting')
+                return
+
+            gq = gp.orientation
+            R_wg = quat_to_R(gq.x, gq.y, gq.z, gq.w)
+            grasp_xyz_gripper = np.array(
+                [gp.position.x, gp.position.y, gp.position.z])
+            # local +Z of the GRIPPER points at the fingertips (see the srv
+            # definition) -- back off along -Z to retreat from the object.
+            approach_dir = R_wg[:, 2]
+            standoff_xyz_gripper = grasp_xyz_gripper - approach_dir * self.grasp_standoff
+
+            standoff_xyz, standoff_quat = self._gripper_pose_to_tool(
+                arm, standoff_xyz_gripper, R_wg)
+            grasp_xyz, grasp_quat = self._gripper_pose_to_tool(
+                arm, grasp_xyz_gripper, R_wg)
+            if standoff_xyz is None or grasp_xyz is None:
+                return
+
+            seed_q = self._current_q(arm)
+            self.get_logger().info(
+                f'{arm.name}: moving to stand-off {np.round(standoff_xyz, 3)} '
+                f'({self.grasp_standoff:.3f} m back along the approach axis, '
+                f'gripper-frame grasp point {np.round(grasp_xyz_gripper, 3)})')
+            ok, goal_q, _ = self._move_to_pose(
+                arm, standoff_xyz, standoff_quat, seed_q)
+            if not ok:
+                self.get_logger().error(f'{name}: stand-off unreachable')
+                return
+
+            ok, _ = self._move_gripper(arm, self.gripper_open_pos)
+            if not ok:
+                self.get_logger().error(
+                    f'{name}: gripper failed to open before descent')
+                return
+
+            self.get_logger().info(
+                f'{arm.name}: descending open-loop to grasp pose '
+                f'{np.round(grasp_xyz, 3)} (no visual feedback below ~0.07 m '
+                '-- D405 blind range)')
+            ok, goal_q, _ = self._move_to_pose(
+                arm, grasp_xyz, grasp_quat, goal_q)
+            if not ok:
+                self.get_logger().error(
+                    f'{name}: open-loop descent failed to reach the grasp pose')
+                return
+
+            self.get_logger().info(f'{arm.name}: closing gripper')
+            ok, end_pos = self._move_gripper(arm, self.gripper_closed_pos)
+            if not ok or end_pos is None:
+                self.get_logger().error(
+                    f'>>> {name}: GRASP FAILED -- gripper did not actuate/'
+                    'stall on anything')
+                return
+            span_pos = self.gripper_open_pos - self.gripper_closed_pos
+            frac = ((end_pos - self.gripper_closed_pos) / span_pos
+                    if span_pos else 0.0)
+            achieved_gap = (gripper_closed_gap
+                           + frac * (gripper_open_gap - gripper_closed_gap))
+            width_err = achieved_gap - width
+            width_ok = abs(width_err) <= self.grasp_width_tol
+            self.get_logger().info(
+                f'{arm.name}: gripper closed at pos={end_pos:.3f} -> achieved '
+                f'pad gap={achieved_gap * 1000:.1f}mm vs predicted '
+                f'width={width * 1000:.1f}mm (err={width_err * 1000:+.1f}mm, '
+                f'tol={self.grasp_width_tol * 1000:.0f}mm) -> '
+                f'{"PASS" if width_ok else "FAIL"}')
+            if self.grasp_settle_s > 0:
+                time.sleep(self.grasp_settle_s)
+
+            n_finger = self._finger_roi_count(arm, obj_xyz)
+            visual_ok = n_finger > 0
+            self.get_logger().info(
+                f'{arm.name}: post-grasp wrist-cloud check -- {n_finger} '
+                f'point(s) within 3cm of a finger link -> '
+                f'{"PASS" if visual_ok else "FAIL"}')
+
+            if not (width_ok and visual_ok):
+                self.get_logger().error(
+                    f'>>> {name}: GRASP FAILED -- width_check={width_ok} '
+                    f'visual_check={visual_ok} (not lifting)')
+                return
+
+            lift_xyz = grasp_xyz_gripper + np.array([0.0, 0.0, self.lift_height])
+            lift_tool_xyz, lift_quat = self._gripper_pose_to_tool(
+                arm, lift_xyz, R_wg)
+            self.get_logger().info(f'{arm.name}: lifting {self.lift_height:.3f} m')
+            ok, goal_q, _ = self._move_to_pose(
+                arm, lift_tool_xyz, lift_quat, goal_q)
+            if not ok:
+                self.get_logger().error(
+                    f'>>> {name}: grasp closed+verified but LIFT FAILED')
+                return
+
+            self.get_logger().info(
+                f'>>> {name}: GRASP SUCCESS -- {arm.name} closed on the '
+                f'object (pad gap err={width_err * 1000:+.1f}mm) and lifted '
+                f'{self.lift_height:.3f} m')
+        finally:
+            self._set_perception_pause(False)
 
     # ---- IK / planning ------------------------------------------------------
     def _grasp_ori_candidates(self):
@@ -1643,14 +2027,32 @@ class GantryReachExecutor(Node):
         self.attach_pub.publish(msg)
         self.get_logger().info(f'sent: {msg.data}')
 
-    def _move_gripper(self, arm, position):
-        """Send `position` (rad, master finger joint) to arm's gripper.
+    def _move_gripper(self, arm, position, settle_timeout=90.0, settle_tol=0.02,
+                      poll_dt=0.2, stall_consec=5, min_settle_before_stall=30.0):
+        """Send `position` (rad, master finger joint) to arm's gripper, then
+        confirm against the LIVE joint state rather than trusting the action
+        result alone -- GripperActionController's `reached_goal`/`stalled`
+        can report before Isaac's physics finishes the move, the same race
+        already found for arm motion (_wait_until_reached) and ~/look (see
+        memory look-settle-race-and-cube-occlusion): a live grasp attempt
+        got `stalled=True, moved~=0` immediately after commanding OPEN, while
+        the live joint had actually reached ~0.96 (fully open) moments later.
 
-        True if the goal was reached OR the joint stalled while having moved
-        (an object between the fingers stops it short of `position` -- that IS
-        the grasp, not a failure), mirroring run_take_bottle.py's move_gripper
-        confirmation heuristic. False on a genuine no-motion stall (nothing
-        between the fingers / hardware not actuating)."""
+        `min_settle_before_stall` guards against a second, distinct failure
+        mode seen live: under heavy system load (observed load average 53 on
+        this shared server) Isaac can have several seconds of dead time
+        before a commanded joint even STARTS moving -- the naive stall check
+        misread "hasn't started yet" as "already stalled" and gave up after
+        <1.5s while the close command was still going to complete correctly
+        given enough time. No stall exit is allowed before this many seconds
+        have elapsed, regardless of stable-reading count.
+
+        True if the LIVE joint converges to `position` OR stalls (after this
+        grace period) having moved (an object between the fingers stops it
+        short of `position` -- that IS the grasp, not a failure), mirroring
+        run_take_bottle.py's move_gripper confirmation heuristic. False on a
+        genuine no-motion stall (nothing between the fingers / hardware not
+        actuating)."""
         client = self.gripper_clients.get(arm.name)
         if client is None:
             self.get_logger().error(f'{arm.name}: no gripper client (gripper_name '
@@ -1671,19 +2073,41 @@ class GantryReachExecutor(Node):
         if result is None:
             self.get_logger().error(f'{arm.name}: gripper action timed out')
             return False, None
-        r = result.result
-        end_pos = float(r.position)
-        if r.reached_goal:
+
+        t0 = time.time()
+        deadline = t0 + settle_timeout
+        last, stable = self._joints.get(arm.gripper_joint), 0
+        while time.time() < deadline:
+            cur = self._joints.get(arm.gripper_joint)
+            if cur is not None:
+                if abs(cur - position) <= settle_tol:
+                    break
+                if last is not None and abs(cur - last) <= settle_tol * 0.25:
+                    stable += 1
+                    if (stable >= stall_consec
+                            and time.time() - t0 >= min_settle_before_stall):
+                        break
+                else:
+                    stable = 0
+                last = cur
+            time.sleep(poll_dt)
+        end_pos = self._joints.get(arm.gripper_joint)
+        if end_pos is None:
+            self.get_logger().error(
+                f'{arm.name}: no live gripper joint state available to '
+                'confirm the move')
+            return False, None
+        if abs(end_pos - position) <= settle_tol:
             return True, end_pos
         moved = start_pos is not None and abs(end_pos - start_pos) > 0.02
-        if r.stalled and moved:
+        if moved:
             self.get_logger().info(
                 f'{arm.name}: gripper stalled on object (pos={end_pos:.3f}) '
                 '-- treating as grasped')
             return True, end_pos
         self.get_logger().error(
-            f'{arm.name}: gripper did not actuate (stalled={r.stalled}, '
-            f'start={start_pos}, end={end_pos:.4f})')
+            f'{arm.name}: gripper did not actuate (start={start_pos}, '
+            f'end={end_pos:.4f}, target={position:.4f})')
         return False, end_pos
 
     def _move_to_pose(self, arm, xyz, quat, seed_q):
