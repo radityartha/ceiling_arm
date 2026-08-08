@@ -48,7 +48,7 @@ try:
 
     labels = [spec[0] for spec in [
         ("cracker_box",), ("sugar_box",), ("tomato_soup_can",), ("mustard_bottle",),
-        ("teddy_bear",), ("mug",), ("banana",), ("beaker",),
+        ("potted_meat_can",), ("tuna_fish_can",), ("banana",), ("beaker",),
     ]]
     p0 = [np.array(o.get_world_pose()[0], dtype=float) for o in objs]
     out(f"initial xyz: {[list(np.round(p, 3)) for p in p0]}")

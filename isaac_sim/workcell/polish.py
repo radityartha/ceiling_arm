@@ -20,14 +20,14 @@ from isaacsim.core.utils.semantics import add_update_semantics
 GRASP_OBJECTS = os.environ.get("GRASP_OBJECTS", "0") == "1"
 
 # Per-label mass (kg) applied via UsdPhysics.MassAPI when GRASP_OBJECTS=1.
-# cracker_box/sugar_box/tomato_soup_can/mustard_bottle are published YCB
-# dataset masses. teddy_bear/mug/beaker are not YCB objects (IsaacLab /
-# Isaac Props assets) -- their masses are rough real-world estimates, not
+# cracker_box/sugar_box/tomato_soup_can/mustard_bottle/potted_meat_can/
+# tuna_fish_can are published YCB dataset masses. beaker is not a YCB object
+# (Isaac Props asset) -- its mass is a rough real-world estimate, not
 # measured. mustard_bottle (0.603 kg) exceeds the Gen3 Lite's 0.5 kg payload
 # on purpose -- an expected-fail grasp case, not a bug.
 GRASP_MASS = {
     "cracker_box": 0.411, "sugar_box": 0.514, "tomato_soup_can": 0.349,
-    "mustard_bottle": 0.603, "teddy_bear": 0.20, "mug": 0.25,
+    "mustard_bottle": 0.603, "potted_meat_can": 0.370, "tuna_fish_can": 0.171,
     "banana": 0.066, "beaker": 0.05,
 }
 
@@ -128,9 +128,10 @@ def build_room():
     # along X (sx2=1.30, sy2=0.75, was 0.75x1.30) and sits flush against wall_left:
     # its +Y edge (cy2 + 0.75/2 = 1.15) touches the wall inner face. Centered at
     # cx2=1.6 so it spans x 0.95..2.25, inside the gantry X range. Its 2 objects
-    # (teddy_bear, mug) are lined up along X at y=cy2 (see specs below). NOTE: the old per-object
-    # reachable/unreachable design (banana reachable, potted_meat_can out of reach
-    # at y=1.60) no longer holds under this layout and would need re-tuning.
+    # (potted_meat_can, tuna_fish_can) are lined up along X at y=cy2 (see specs
+    # below). NOTE: the old per-object reachable/unreachable design (banana
+    # reachable, potted_meat_can out of reach at y=1.60) no longer holds under
+    # this layout and would need re-tuning.
     cx2, cy2, top_z2, sx2, sy2 = 1.6, 0.775, 0.97, 1.30, 0.75
     FixedCuboid(prim_path="/World/work_table2/top", name="wt2_top",
                 position=np.array([cx2, cy2, top_z2]), scale=np.array([sx2, sy2, th]),
@@ -218,11 +219,16 @@ def build_room():
         ("mustard_bottle",  "Axis_Aligned_Physics/006_mustard_bottle.usd",  (cab_x, cab_cy, cab_h), True),
         # obj_4/5 lined up along X on the rotated table 2 at y=cy2 (0.775), spaced
         # ~0.9 m apart, inside its x 0.95..2.25 span.
-        # obj_4: IsaacLab teddy bear (not YCB) -> full URL, resolved directly below.
-        ("teddy_bear",      f"{root}/Isaac/IsaacLab/Objects/Teddy_Bear/teddy_bear.usd", (1.15, 0.775, surf2), False),
-        # obj_5: Isaac Props mug (not YCB) -> full URL. Ships upright (Z up), so it
-        # needs NO stand rotation (see stand_rot below).
-        ("mug",             f"{root}/Isaac/Props/Mugs/SM_Mug_A2.usd",        (2.05, 0.775, surf2), False),
+        # obj_4/5 were teddy_bear/mug -- swapped 2026-08-08 (user request) for
+        # simple-shape YCB cans arm_1's 2-finger gripper can actually antipodal-
+        # grasp: teddy_bear is a soft irregular blob (bad PCA/antipodal geometry,
+        # same failure class as the self-occluded pick_cube, see memory
+        # look-settle-race-and-cube-occlusion) and the mug's handle + ~9cm body
+        # diameter is awkward/near the 0.085 m pad-gap limit. potted_meat_can and
+        # tuna_fish_can are simple canonical YCB cans, same family as
+        # tomato_soup_can (obj_2) which already grasps fine.
+        ("potted_meat_can", "Axis_Aligned_Physics/010_potted_meat_can.usd", (1.15, 0.775, surf2), True),
+        ("tuna_fish_can",   "Axis_Aligned_Physics/007_tuna_fish_can.usd",   (2.05, 0.775, surf2), True),
         # obj_6/7 on table 3 (surf3), spread in Y near the two gantries at x=cx3=0.2.
         ("banana",          "Axis_Aligned/011_banana.usd",                  (0.2, 0.4, surf3), False),
         # obj_7: Isaac Props 500 ml beaker (not YCB) -> full URL. Ships upright (Z up).
@@ -239,10 +245,12 @@ def build_room():
     # mustard bottle came out upside down at +90; -90 (i.e. +180 more) stands it right way up.
     _stand_flip = np.array([0.70710678, -0.70710678, 0.0, 0.0])  # -90 deg about X
     _yaw90 = np.array([0.70710678, 0.0, 0.0, 0.70710678])         # +90 deg about Z (in-plane)
-    # obj_0/obj_1 boxes (-90), obj_2 tomato_soup_can (+90),
-    # obj_3 mustard_bottle (-90), obj_6 banana (+90 yaw). obj_5 (mug), obj_7 (beaker)
-    # ship upright -> no entry.
-    stand_rot = {0: _stand_flip, 1: _stand_flip, 2: _stand, 3: _stand_flip, 6: _yaw90}
+    # obj_0/obj_1 boxes (-90), obj_2 tomato_soup_can (+90), obj_3 mustard_bottle
+    # (-90), obj_4/5 potted_meat_can/tuna_fish_can (+90, same can family as
+    # obj_2 -- verify orientation live, may need _stand_flip like the boxes),
+    # obj_6 banana (+90 yaw). obj_7 (beaker) ships upright -> no entry.
+    stand_rot = {0: _stand_flip, 1: _stand_flip, 2: _stand, 3: _stand_flip,
+                4: _stand, 5: _stand, 6: _yaw90}
 
     if GRASP_OBJECTS:
         # One shared friction material for every graspable object -- same
@@ -334,18 +342,6 @@ def build_room():
         # labeled mask + an id->class JSON, so the localizer can name each
         # detected object. Ground-truth seg now; swap source for open-vocab later.
         add_update_semantics(prim, label)
-        if label == 'mug':
-            # Override the mug's shipped ceramic look with a bright, saturated PBR
-            # color so it reads as a vivid object -- bound per mesh, stronger than
-            # the asset's own material (same pattern as recolor_tables).
-            from pxr import UsdShade
-            bright = OmniPBR(prim_path='/World/Looks/MugBright', name='mug_bright',
-                             color=np.array([1.0, 0.42, 0.05]))
-            bmat = UsdShade.Material(stage.GetPrimAtPath(bright.prim_path))
-            for d in Usd.PrimRange(prim):
-                if d.IsA(UsdGeom.Mesh):
-                    UsdShade.MaterialBindingAPI.Apply(d).Bind(
-                        bmat, bindingStrength=UsdShade.Tokens.strongerThanDescendants)
 
     # A standing human beside the workcell as scene context / static obstacle. It
     # gets NO semantic label (like the cabinet), so it stays background: the cameras
