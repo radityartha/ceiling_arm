@@ -61,6 +61,7 @@ setup(
             'coalition_reach_executor = '
             'reachability_gng.coalition_reach_executor:main',
             'pick_cli = reachability_gng.pick_cli:main',
+            'grasp_sampler = reachability_gng.grasp_sampler:main',
         ],
     },
 )

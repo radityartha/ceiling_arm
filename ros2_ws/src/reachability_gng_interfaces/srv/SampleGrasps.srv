@@ -1,0 +1,54 @@
+# Antipodal grasp candidates for one object, computed from the WRIST camera's
+# point cloud at whatever look pose the arm is currently holding. Deliberately a
+# SERVICE, not a topic: a topic's newest message can be stale by the time it is
+# acted on, which is the failure mode that produced the label-swap / wrong-target
+# bugs in this stack. Here the caller gets geometry computed from frames captured
+# DURING its own call, or an explicit failure.
+#
+# Implemented by reachability_gng/grasp_sampler.py -- see that node's docstring
+# for the algorithm and for what each score actually measures.
+
+# Which object. Preferred form is "#<tid>", a persistent object_localizer track
+# id from /detected_objects/tracks -- it names the same physical object across
+# calls. A bare index into the live /detected_objects PoseArray is accepted for
+# parity with gantry_reach_executor's ~/pick and ~/look, but that array's length
+# and order change between publishes, so an index can name a different object
+# than the caller meant (observed live). "" falls back to /target_object.
+string target
+
+# Per-call overrides; <= 0 means "use the node's parameter".
+float64 roi                     # ROI crop radius (m) about the reported object
+int32 captures                  # wrist cloud frames to accumulate
+int32 max_candidates            # cap on how many grasps to return
+---
+bool success
+string message
+
+# Grasp poses, BEST FIRST. header.frame_id is the world frame.
+#
+# Each pose is for the GRIPPER BASE LINK (e.g. t1_a1_gripper_base_link), at the
+# CLOSED-ON-OBJECT position -- i.e. the finger midpoint sits on the contact
+# midpoint. It is NOT a pre-grasp/stand-off pose; the caller backs off along the
+# approach axis by however much it wants. Orientation follows the gripper's own
+# measured axes: local +Z is the approach direction (points at the fingertips)
+# and local Y is the finger-spread axis (so the fingers close along `widths`).
+geometry_msgs/PoseArray grasps
+
+# Per-grasp, index-aligned with grasps.poses.
+float64[] scores                # combined rank score, descending
+float64[] widths                # contact separation (m) = pad gap the grasp needs
+float64[] antipodal             # antipodality alone, 1.0 = perfectly opposed normals
+float64[] gravity               # gravity alignment alone, 1.0 = closing axis horizontal
+
+# True when BOTH contacts of this grasp have real observed surface support, so
+# the grasp does not rest on an inferred/unseen far side. A false here on the
+# top candidate is the escalation trigger for an oblique second look.
+bool[] both_sides_observed
+
+# Diagnostics -- enough to tell "bad geometry" from "bad input" without RViz.
+int32 n_cluster_points          # points in the chosen object cluster
+int32 n_gripper_filtered        # points dropped as the robot's own hand
+int32 n_support_filtered        # points dropped as the support surface
+geometry_msgs/Vector3 principal_axis    # cluster's PCA principal axis (world)
+geometry_msgs/Vector3 cluster_extent    # cluster size (m) along its 3 PCA axes
+geometry_msgs/Point cluster_centroid    # cluster centroid (world)

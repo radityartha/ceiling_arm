@@ -46,7 +46,8 @@ _THREAD_CAP = {'additional_env': {
 # ~/look's captures (mixed messages from a live node and an orphaned one) --
 # caught live during Isaac grasping session A2.
 _STALE = ('lib/reachability_gng/gantry_reach_executor',
-          '__node:=depth_cloud_wrist')
+          '__node:=depth_cloud_wrist',
+          'lib/reachability_gng/grasp_sampler')
 
 
 def _kill_stale(context, *args, **kwargs):
@@ -219,6 +220,22 @@ def generate_launch_description():
                 'min_depth': 0.05,
                 'max_depth': 1.5,
                 'stride': 2,
+            }],
+            **_THREAD_CAP,
+        ),
+        # Antipodal grasp sampler (session B), serving ~/sample_grasps off the
+        # same wrist cloud depth_cloud_wrist publishes -- so it is gated on the
+        # same arg, there being nothing for it to read otherwise.
+        Node(
+            package='reachability_gng',
+            executable='grasp_sampler',
+            name='grasp_sampler',
+            output='screen',
+            condition=IfCondition(wrist_cloud),
+            parameters=[{
+                'wrist_cloud_topic': '/wrist1/depth_cloud',
+                'wrist_optical_frame': 'wrist1_camera_optical',
+                'gripper_link': 't1_a1_gripper_base_link',
             }],
             **_THREAD_CAP,
         ),
