@@ -169,21 +169,31 @@ def _add_wrist_camera(arm_prefix="t1_a1_", ns="wrist1"):
 
     IMPORTANT, learned the hard way in the same session: a USD Camera prim
     ALWAYS renders down its own LOCAL -Z (fixed Pixar/Hydra convention,
-    independent of this transform) while Isaac's ROS2 bridge publishes the
-    prim's LOCAL +Z as the `_optical` frame's forward axis (ROS/REP-103
-    convention) -- so the published TF's +Z is ALWAYS the exact opposite of
-    what the camera actually renders, for ANY M built here. That mismatch is
-    NOT fixed by picking a different sign for `z` below (verified by trying
-    exactly that: forcing Row2 = +f, i.e. away from -f, produced a valid
-    rotation -- det=+1 -- but a captured /wrist1/rgb frame showed the arm's
-    own body, i.e. the render direction flipped WITH the TF, confirming
-    render = -Row2 structurally). The fix for downstream consumers of this
-    TF (gantry_reach_executor.py's wrist-camera look-pose math) is to target
-    the OPPOSITE of the intuitive "optical +Z at the object" and is applied
-    there, not here -- this function only needs to get the RENDER pointed at
-    `target`, which is what `z = -f` below does (`f` itself points AT
-    target; the render direction is confirmed empirically, see above, to be
-    -Row2, so Row2 must be -f for the render to be +f).
+    independent of this transform) -- so `z` below must be -f for the RENDER
+    to point at `target` (`f` itself points AT target; verified by capturing
+    an actual /wrist1/rgb frame -- forcing Row2 = +f instead gave a valid
+    rotation, det=+1, but rendered the arm's own body, confirming render =
+    -Row2 for this prim). This function's matrix ONLY controls the render.
+
+    It does NOT control what direction downstream ROS consumers (this
+    node's own launch_workcell.sh static TF, gantry_reach_executor's IK
+    targeting, depth_cloud's point-cloud deprojection) believe the camera
+    faces -- the `wrist1_camera_optical` TF is a SEPARATE, hand-computed
+    static_transform_publisher entry in launch_workcell.sh, not something
+    Isaac's ROS2 bridge derives from this prim automatically. An earlier
+    version of this fix mirrored this function's z=-f into that TF too
+    (making TF's +Z the opposite of the true render direction, "matching"
+    this function's own internal convention) and then had
+    gantry_reach_executor.py's IK-targeting code compensate for that --
+    which fixed IK but left depth_cloud silently deprojecting points in the
+    wrong direction (it trusts the same TF, with no equivalent
+    compensation, and failed SILENTLY -- 0 points near the object, not an
+    error). Fixed properly by keeping this function's z=-f (render-only,
+    correct) while computing launch_workcell.sh's static TF as its OWN
+    independent, REP-103-compliant rotation (+Z = the confirmed real render
+    direction) -- see that file's comment for the exact construction. If
+    `eye`/`target` change, recompute BOTH this matrix and that TF quat; they
+    are related but are NOT the same computation anymore.
     """
     from pxr import Gf, UsdGeom
     stage = get_current_stage()

@@ -35,12 +35,24 @@ _THREAD_CAP = {'additional_env': {
     'OMP_NUM_THREADS': '1', 'OPENBLAS_NUM_THREADS': '1',
     'MKL_NUM_THREADS': '1', 'NUMEXPR_NUM_THREADS': '1'}}
 
-_STALE = 'lib/reachability_gng/gantry_reach_executor'
+# gantry_reach_executor's own executable name is unique enough to match
+# directly. depth_cloud_wrist is NOT -- its executable (lib/reachability_gng/
+# depth_cloud) is SHARED with topo_fusion.launch.py's ceiling-camera instance
+# (node name `depth_cloud`), so it must be matched by its --ros-args remap
+# instead (`__node:=depth_cloud_wrist`) or this would kill an unrelated
+# launch's node. Without this second pattern, restarting this launch left a
+# stale depth_cloud_wrist running (its parent `ros2 launch` process didn't
+# exit either), and TWO publishers on /wrist1/depth_cloud silently corrupted
+# ~/look's captures (mixed messages from a live node and an orphaned one) --
+# caught live during Isaac grasping session A2.
+_STALE = ('lib/reachability_gng/gantry_reach_executor',
+          '__node:=depth_cloud_wrist')
 
 
 def _kill_stale(context, *args, **kwargs):
-    subprocess.run(['pkill', '-9', '-f', _STALE],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for pattern in _STALE:
+        subprocess.run(['pkill', '-9', '-f', pattern],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(0.5)
     return []
 

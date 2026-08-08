@@ -133,32 +133,27 @@ def look_camera_pose(obj_xyz, distance, roll, tilt=0.0, azimuth=0.0):
     the only one wired up so far -- swung `tilt` rad off vertical toward compass
     direction `azimuth` for the later oblique tiers.
 
-    Optical-frame convention for the CEILING cameras (rgbd/rgbd2, what
-    object_localizer.deproject assumes): +Z forward along the view ray, +X
-    right, +Y down -- standard ROS/REP-103. The WRIST camera's PUBLISHED
-    `_optical` TF does NOT follow that convention: a captured /wrist1/rgb
-    frame during Isaac grasping session A2 showed the sensor actually renders
-    down its optical frame's LOCAL -Z, not +Z -- a structural mismatch
-    between the USD Camera prim (always renders -Z, fixed Pixar/Hydra
-    convention) and what Isaac's ROS2 bridge labels as `_optical`'s +Z (see
-    ros2_bridge_gui.py's _add_wrist_camera docstring; it is NOT fixable by
-    changing the mount's own construction, since the mismatch is the same for
-    either sign there). So `z_c` here is the desired TF optical+Z, which must
-    be pointed AWAY from the object (matching `n`, object->camera) for the
-    ACTUAL render (the opposite axis) to look AT it. Rotation ABOUT that ray
-    leaves the view unchanged (same pixels, rotated image), so it is a free
-    DOF -- `roll` parametrizes it, and it is the only handle for making an
-    otherwise-identical view reachable by IK.
+    Optical-frame convention, matching what Isaac publishes on
+    <ns>_camera_optical and what object_localizer.deproject assumes: +Z forward
+    along the view ray, +X right, +Y down. Rotation ABOUT that ray leaves the
+    view unchanged (same pixels, rotated image), so it is a free DOF -- `roll`
+    parametrizes it, and it is the only handle for making an otherwise-identical
+    view reachable by IK.
+
+    (The wrist camera's static TF in launch_workcell.sh is a hand-computed
+    number, deliberately kept REP-103-compliant -- see that file's comment on
+    the wrist1_camera_optical static_transform_publisher for why this matters:
+    an earlier version of this function compensated here for a TF that had
+    been published backwards, which was the wrong place to fix it -- it made
+    IK targeting correct but left depth_cloud's point-cloud deprojection
+    silently wrong, since that node trusts the same TF and has no equivalent
+    compensation. Fixed at the TF source instead; this function needs none.)
     """
     n = np.array([np.sin(tilt) * np.cos(azimuth),
                   np.sin(tilt) * np.sin(azimuth),
                   np.cos(tilt)], float)
     p_cam = np.asarray(obj_xyz, float) + float(distance) * n
-    # optical +Z points AWAY from the object (n): the wrist camera's ACTUAL
-    # render direction is the opposite of its published optical+Z -- see
-    # docstring above. (Ceiling-camera code elsewhere is untouched: this
-    # function is only ever used for the wrist camera's look poses.)
-    z_c = n
+    z_c = -n                                   # optical +Z looks AT the object
     ref = np.array([1.0, 0.0, 0.0])
     if abs(float(np.dot(ref, z_c))) > 0.95:    # ref ~parallel to the ray
         ref = np.array([0.0, 1.0, 0.0])

@@ -98,20 +98,29 @@ PIDS+=($!)
 # the mount offset is fixed but the link itself moves with the arm --
 # robot_state_publisher (started by MoveIt bringup, step 2 above) already
 # publishes t1_a1_gripper_base_link's TF from /joint_states, this just adds
-# the last rigid hop. Offset/quat computed from ros2_bridge_gui.py's
-# _add_wrist_camera() local-frame eye/target (see its docstring for how the
-# mount geometry was chosen) -- KEEP IN SYNC if that function's eye/target move.
-# Values updated (Isaac grasping session A2): eye pushed further out (was
-# sitting inside the wrist's own collision mesh -- a captured /wrist1/rgb
-# frame showed the arm body, not the scene) and the construction reverted to
-# z = -f (the OTHER sign was tried and tested WORSE -- see _add_wrist_camera's
-# docstring for why the published optical +Z is unavoidably the opposite of
-# the actual render direction, for either sign of z).
+# the last rigid hop. Translation matches ros2_bridge_gui.py's
+# _add_wrist_camera() `eye` (see its docstring for how the mount geometry was
+# chosen) -- KEEP IN SYNC if that function's eye moves.
+#
+# IMPORTANT: this static TF's ROTATION is NOT derived from the USD prim's own
+# transform -- it is a SEPARATE, hand-computed number, deliberately chosen so
+# this frame's +Z equals the CONFIRMED real render direction (verified by
+# capturing and inspecting an actual /wrist1/rgb frame during Isaac grasping
+# session A2), i.e. standard REP-103 (optical +Z = forward). The USD prim's
+# OWN matrix in _add_wrist_camera() uses z = -f internally because a USD
+# Camera renders down its LOCAL -Z (fixed Pixar/Hydra convention) -- that is
+# a SEPARATE, unrelated coordinate choice that only affects the prim's own
+# render, not this TF. Do not "simplify" this into deriving the quat from
+# that prim matrix directly -- doing so once already produced a TF whose +Z
+# was the opposite of the real render direction, which fed wrong assumptions
+# into every consumer (gantry_reach_executor's IK targeting AND depth_cloud's
+# point-cloud deprojection both silently produce good-looking-but-wrong
+# results for a backwards optical-frame TF, not loud errors).
 ( set +u; source /opt/ros/humble/setup.bash
   export ROS_DOMAIN_ID RMW_IMPLEMENTATION
   exec ros2 run tf2_ros static_transform_publisher \
     --x 0.06 --y 0.0 --z -0.05 \
-    --qx 0.0 --qy 0.993073 --qz 0.0 --qw 0.117500 \
+    --qx 0.0 --qy -0.117500 --qz 0.0 --qw 0.993073 \
     --frame-id t1_a1_gripper_base_link --child-frame-id wrist1_camera_optical \
     ) > "$LOG/wrist1_camera_tf.log" 2>&1 &
 PIDS+=($!)
