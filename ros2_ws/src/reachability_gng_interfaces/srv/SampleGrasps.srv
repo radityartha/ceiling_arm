@@ -20,6 +20,21 @@ string target
 float64 roi                     # ROI crop radius (m) about the reported object
 int32 captures                  # wrist cloud frames to accumulate
 int32 max_candidates            # cap on how many grasps to return
+
+# Multi-view fusion (tier-2/3 oblique escalation, see both_sides_observed below).
+# false (default) = this call sees ONLY its own fresh captures, which is the
+# right behaviour for a normal one-shot nadir sample.
+# true = keep the points captured by previous accumulate calls for the SAME
+# target and add this call's captures to them, so a grasp can be computed from
+# two or more look poses at once. Each batch remembers the camera position it
+# was taken from, and normals are oriented per-point toward the NEAREST of
+# those views -- orienting a fused cloud against one global viewpoint would
+# flip the far side's normals inward and both_sides_observed could never become
+# true, so escalation would never terminate.
+# The accumulator resets automatically when the resolved target moves more than
+# a few cm (a different object, or the same one after it was nudged), so a
+# stale far-side cloud is never fused onto a new object.
+bool accumulate
 ---
 bool success
 string message

@@ -637,6 +637,16 @@ class GraspSampler(Node):
         self._tracks_xyz = {}
         self._tracks_lbl = {}
 
+        # Multi-view accumulator for tier-2/3 oblique escalation (request
+        # field `accumulate`). Points and the camera position they were seen
+        # from are kept TOGETHER: normals must be oriented per-point toward
+        # the nearest view, so a fused cloud cannot be reduced to one blob
+        # plus one viewpoint without destroying the far-side evidence the
+        # second look exists to collect.
+        self._acc_pts = []          # list of (N,3) arrays, one per batch
+        self._acc_views = []        # list of (3,) camera positions, index-aligned
+        self._acc_target = None     # world xyz the accumulation belongs to
+
         # The cloud sub and the service run in SEPARATE callback groups under a
         # multi-threaded executor: the service handler blocks while it waits for
         # fresh frames, and on a single-threaded executor that wait would also
@@ -694,6 +704,53 @@ class GraspSampler(Node):
         if req.max_candidates > 0:
             cfg['max_candidates'] = int(req.max_candidates)
         return cfg
+
+    def _accumulate(self, pts, view_xyz, obj_xyz, keep):
+        """Fold this call's captures into the multi-view accumulator and return
+        the (points, views) to sample from.
+
+        `keep` False = one-shot behaviour: this call samples from its own
+        captures only, so a normal nadir call is never contaminated by an older
+        look -- but the batch is still REMEMBERED as the start of a fresh
+        accumulation, so a follow-up `keep` True call (the oblique escalation)
+        has that first view to fuse against.
+
+        The accumulator is also dropped when the target has MOVED more than
+        acc_reset_dist -- either a different object, or the same one after it
+        was nudged. Fusing a stale far-side cloud onto a moved object would
+        invent contact evidence that is no longer physically there, which is
+        exactly the silent-wrong-geometry failure this whole node is careful
+        about."""
+        acc_reset_dist = 0.05
+        pts = np.asarray(pts, float)
+        view_xyz = np.asarray(view_xyz, float)
+        with self._lock:
+            if not keep:
+                # Start a NEW accumulation from this batch: this call still
+                # samples from its own points only, but they are retained so a
+                # follow-up accumulate call (the oblique escalation) has the
+                # first view to fuse against. Dropping them here left every
+                # escalation running on a single view -- observed live as
+                # "1 view(s) [accumulated]" on tier 1, with
+                # both_sides_observed stuck False no matter how many tiers ran.
+                self._acc_pts = [pts]
+                self._acc_views = [view_xyz]
+                self._acc_target = np.asarray(obj_xyz, float)
+                return pts, np.atleast_2d(view_xyz)
+            moved = (self._acc_target is not None
+                     and float(np.linalg.norm(np.asarray(obj_xyz, float)
+                                              - self._acc_target)) > acc_reset_dist)
+            if moved:
+                self.get_logger().info(
+                    'sample_grasps: target moved '
+                    f'{np.linalg.norm(np.asarray(obj_xyz, float) - self._acc_target):.3f} m '
+                    f'(> {acc_reset_dist:.2f} m) -- dropping the accumulated '
+                    'views rather than fusing onto a different pose')
+                self._acc_pts, self._acc_views = [], []
+            self._acc_pts.append(np.asarray(pts, float))
+            self._acc_views.append(np.asarray(view_xyz, float))
+            self._acc_target = np.asarray(obj_xyz, float)
+            return np.vstack(self._acc_pts), np.array(self._acc_views)
 
     def _resolve_target(self, target):
         """Resolve a target handle to a world position.
@@ -835,10 +892,25 @@ class GraspSampler(Node):
                 f'arrived in {self.capture_timeout:.1f}s -- using what came in')
         pts = np.vstack([_cloud_xyz(m) for m in msgs])
 
+        # Hand-filter BEFORE accumulating: the gripper sits somewhere different
+        # in every look pose, so a batch stored raw would carry the hand from
+        # the pose it was taken at, and a later call's TF cannot mask a hand
+        # that is no longer there.
+        keep_mask = hand(pts)
+        n_hand_here = int((~keep_mask).sum())
+        pts = pts[keep_mask]
+
+        pts, views = self._accumulate(pts, view_xyz, obj_xyz,
+                                      bool(req.accumulate))
+
         self.get_logger().info(
             f'sample_grasps: {why} at {np.round(obj_xyz, 3)}, '
-            f'{len(pts)} raw points from {len(msgs)} capture(s)')
-        out = sample_grasps_from_cloud(pts, obj_xyz, view_xyz, cfg, hand)
+            f'{len(pts)} points from {len(msgs)} capture(s) in '
+            f'{len(views)} view(s)'
+            + (' [accumulated]' if req.accumulate else ''))
+        # hand_filter=None: already applied per-batch above.
+        out = sample_grasps_from_cloud(pts, obj_xyz, views, cfg, None)
+        out['n_gripper_filtered'] = n_hand_here
 
         resp.n_cluster_points = int(out['n_cluster_points'])
         resp.n_gripper_filtered = int(out['n_gripper_filtered'])

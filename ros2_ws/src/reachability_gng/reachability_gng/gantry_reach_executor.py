@@ -493,6 +493,16 @@ class GantryReachExecutor(Node):
         # enough (a stall a few cm off the real object would also report
         # closed). See isaac-grasping-wrist-only-plan Session C item 4.
         self.declare_parameter('grasp_width_tol', 0.015)
+        # Tier-2/3 oblique escalation: when the top candidate's far contact
+        # side was never actually observed (both_sides_observed False), take
+        # another look from off-vertical and re-sample with the two views
+        # FUSED (SampleGrasps.accumulate). Tier 3 is tier 2 swung 90 deg
+        # around in azimuth, for objects where one oblique still is not
+        # enough. Set grasp_oblique_tiers 0 to disable and keep the old
+        # nadir-only behaviour.
+        self.declare_parameter('grasp_oblique_tiers', 2)
+        self.declare_parameter('grasp_oblique_tilt_deg', 37.0)
+        self.declare_parameter('grasp_oblique_azimuth_deg', 0.0)
 
         g = self.get_parameter
         names = list(g('arm_names').value)
@@ -576,6 +586,10 @@ class GantryReachExecutor(Node):
         self.grasp_standoff = float(g('grasp_standoff').value)
         self.sample_grasps_timeout = float(g('sample_grasps_timeout').value)
         self.grasp_width_tol = float(g('grasp_width_tol').value)
+        self.grasp_oblique_tiers = int(g('grasp_oblique_tiers').value)
+        self.grasp_oblique_tilt = np.radians(float(g('grasp_oblique_tilt_deg').value))
+        self.grasp_oblique_azimuth = np.radians(
+            float(g('grasp_oblique_azimuth_deg').value))
         self.look_settle_consec = int(g('look_settle_consec').value)
         self.look_settle_timeout = float(g('look_settle_timeout').value)
         self.place_enabled = bool(g('place_enabled').value)
@@ -1369,8 +1383,9 @@ class GantryReachExecutor(Node):
                ('left_finger_prox_link', 'left_finger_dist_link',
                 'right_finger_prox_link', 'right_finger_dist_link')]
 
-    def _reach_look_and_settle(self, obj_xyz, name):
-        """Move a wrist-camera arm to the nadir look pose for `obj_xyz`, then
+    def _reach_look_and_settle(self, obj_xyz, name, tilt=0.0, azimuth=0.0,
+                               only_arm=None):
+        """Move a wrist-camera arm to a look pose for `obj_xyz`, then
         block until the wrist cloud's ROI centroid stabilizes (progress-based
         settle: joints reaching goal_q does not mean the RENDERED cloud has
         caught up -- Isaac's render can lag physics under load). Probes
@@ -1386,8 +1401,16 @@ class GantryReachExecutor(Node):
         this just tries every arm that HAS a wrist camera, in arm_names
         order, and stops at the first that reaches a look pose. Returns the
         arm on success, or None (already logged) on failure.
+
+        `tilt`/`azimuth` (rad) select the tier: 0/0 is the nadir tier 1, a
+        non-zero tilt is the oblique tier 2/3 used to observe a contact side
+        the nadir view could not see. `only_arm` restricts the search to one
+        arm -- an oblique re-look must come from the SAME arm that took the
+        nadir view, since the accumulated clouds are fused together.
         """
         cams = [a for a in self.arms if a.wrist_frame and a.wrist_cloud_topic]
+        if only_arm is not None:
+            cams = [a for a in cams if a is only_arm]
         if not cams:
             self.get_logger().error(
                 'no arm has both wrist_frame and wrist_cloud_topic configured '
@@ -1397,7 +1420,7 @@ class GantryReachExecutor(Node):
         arm = reached = None
         for cand in cams:
             seed_q = self._current_q(cand)
-            cand_poses = self._look_poses(cand, obj_xyz)
+            cand_poses = self._look_poses(cand, obj_xyz, tilt, azimuth)
             if not cand_poses:
                 continue                      # _tool_from_camera already logged
             for xyz, quat in cand_poses:
@@ -1408,8 +1431,11 @@ class GantryReachExecutor(Node):
             if reached:
                 break
         if not reached:
+            tier = ('nadir' if tilt == 0.0
+                    else f'oblique (tilt={np.degrees(tilt):.0f} deg, '
+                         f'azimuth={np.degrees(azimuth):.0f} deg)')
             self.get_logger().error(
-                f'{name}: no arm reached a nadir look pose '
+                f'{name}: no arm reached a {tier} look pose '
                 f'({self.look_roll_samples} roll(s) tried per candidate arm)')
             return None
 
@@ -1634,43 +1660,89 @@ class GantryReachExecutor(Node):
                 f'>>> GRASP {name}: x={obj_xyz[0]:+.3f} y={obj_xyz[1]:+.3f} '
                 f'z={obj_xyz[2]:+.3f} (world)')
 
-            arm = self._reach_look_and_settle(obj_xyz, name)
-            if arm is None:
-                return
-
-            req = SampleGrasps.Request()
-            req.target = str(idx) if isinstance(idx, int) else ''
-            req.roi = 0.0
-            req.captures = 0
-            req.max_candidates = 0
             if not self.sample_grasps_cli.wait_for_service(timeout_sec=5.0):
                 self.get_logger().error(
                     f'{name}: /grasp_sampler/sample_grasps not available')
                 return
-            resp = self._wait(self.sample_grasps_cli.call_async(req),
-                              self.sample_grasps_timeout)
-            if resp is None:
-                self.get_logger().error(f'{name}: sample_grasps timed out')
-                return
-            if not resp.success or not resp.grasps.poses:
-                self.get_logger().error(
-                    f'{name}: sample_grasps failed: {resp.message}')
-                return
+
+            # Tiered look: nadir first, then oblique re-looks FUSED onto it
+            # (accumulate) while the top candidate's far contact side is still
+            # unobserved. Escalation stops on both_sides_observed, never on a
+            # score threshold -- an unobserved far side is missing evidence,
+            # not a low score, and the two are not interchangeable.
+            arm = resp = None
+            n_tiers = 1 + max(0, self.grasp_oblique_tiers)
+            for tier in range(n_tiers):
+                if tier == 0:
+                    tilt, azim = 0.0, 0.0
+                else:
+                    tilt = self.grasp_oblique_tilt
+                    # OPPOSITE azimuths (0, 180, ...), not +90 steps. The flag
+                    # being chased is both_sides_observed: a grasp's two
+                    # contacts sit on OPPOSING faces along the closing axis, so
+                    # the evidence needed is a view from the other side of that
+                    # axis. A +90 step only shows an adjacent face and leaves
+                    # the far contact just as unobserved -- verified in
+                    # test/verify_grasp_sampler.py, whose passing two-view case
+                    # is az 0/180 (antipodality 0.998, both_sides True), and
+                    # live, where a 0/90 pair left both_sides False on all
+                    # three tiers.
+                    azim = self.grasp_oblique_azimuth + (tier - 1) * np.pi
+                    self.get_logger().info(
+                        f'{name}: escalating to oblique tier {tier} '
+                        f'(tilt={np.degrees(tilt):.0f} deg, '
+                        f'azimuth={np.degrees(azim):.0f} deg) and fusing views')
+                look_arm = self._reach_look_and_settle(
+                    obj_xyz, name, tilt, azim, only_arm=arm)
+                if look_arm is None:
+                    if tier == 0:
+                        return
+                    self.get_logger().warn(
+                        f'{name}: oblique tier {tier} pose unreachable -- '
+                        'keeping the best candidate seen so far')
+                    break
+                arm = look_arm
+
+                req = SampleGrasps.Request()
+                req.target = str(idx) if isinstance(idx, int) else ''
+                req.roi = 0.0
+                req.captures = 0
+                req.max_candidates = 0
+                req.accumulate = tier > 0
+                r = self._wait(self.sample_grasps_cli.call_async(req),
+                               self.sample_grasps_timeout)
+                if r is None:
+                    self.get_logger().error(f'{name}: sample_grasps timed out')
+                    if resp is None:
+                        return
+                    break
+                if not r.success or not r.grasps.poses:
+                    self.get_logger().error(
+                        f'{name}: sample_grasps failed: {r.message}')
+                    if resp is None:
+                        return
+                    break
+                resp = r
+                self.get_logger().info(
+                    f'{arm.name}: tier {tier} top candidate '
+                    f'score={resp.scores[0]:.3f} '
+                    f'width={resp.widths[0] * 1000:.1f}mm '
+                    f'antipodal={resp.antipodal[0]:.3f} '
+                    f'gravity={resp.gravity[0]:.3f} '
+                    f'both_sides_observed={resp.both_sides_observed[0]} '
+                    f'({resp.message})')
+                if resp.both_sides_observed[0]:
+                    break
 
             gp = resp.grasps.poses[0]
             width = resp.widths[0]
             both_sides = resp.both_sides_observed[0]
-            self.get_logger().info(
-                f'{arm.name}: top grasp candidate score={resp.scores[0]:.3f} '
-                f'width={width * 1000:.1f}mm antipodal={resp.antipodal[0]:.3f} '
-                f'gravity={resp.gravity[0]:.3f} both_sides_observed={both_sides} '
-                f'({resp.message})')
             if not both_sides:
                 self.get_logger().warn(
-                    f'{arm.name}: top candidate has NOT been observed from '
-                    'both sides (single nadir view) -- tier-2 oblique look '
-                    'is not implemented yet; proceeding on the nadir-only '
-                    'estimate as a DOCUMENTED risk, not a silent skip')
+                    f'{arm.name}: top candidate STILL has an unobserved far '
+                    f'contact side after {n_tiers} tier(s) -- proceeding on '
+                    'the inferred far side as a DOCUMENTED risk, not a silent '
+                    'skip')
             # Gen3 Lite pad gap calibration (isaac_sim/workcell/grasp_verify.txt):
             # 0.085 m open, 0.020 m closed.
             gripper_open_gap, gripper_closed_gap = 0.085, 0.020
@@ -1819,6 +1891,17 @@ class GantryReachExecutor(Node):
         """Try each grasp orientation in ori_list; return the first IK solution.
         Freeing the grasp yaw turns many -31 (NO_IK_SOLUTION) into a reachable
         target for the redundant arm+gantry chain."""
+        if seed_q is None:
+            # _current_q(arm) returns None until /joint_states has all of this
+            # arm's joints -- e.g. right after a bringup restart where
+            # ros2_control_node/robot_state_publisher haven't come up yet.
+            # build_ik_request's `[float(v) for v in seed_pos]` would otherwise
+            # crash hard on None ("'NoneType' object is not iterable") instead
+            # of failing loud with a clear reason.
+            self.get_logger().error(
+                f'{arm.name}: no seed joint state available yet (arm not '
+                'reporting on /joint_states) -- cannot solve IK')
+            return False, None, None
         if not self.ik_cli.service_is_ready():
             self.ik_cli.wait_for_service(timeout_sec=2.0)
         last_err = None
