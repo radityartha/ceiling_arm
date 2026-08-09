@@ -226,9 +226,12 @@ def build_room():
         # look-settle-race-and-cube-occlusion) and the mug's handle + ~9cm body
         # diameter is awkward/near the 0.085 m pad-gap limit. potted_meat_can and
         # tuna_fish_can are simple canonical YCB cans, same family as
-        # tomato_soup_can (obj_2) which already grasps fine.
-        ("potted_meat_can", "Axis_Aligned_Physics/010_potted_meat_can.usd", (1.15, 0.775, surf2), True),
-        ("tuna_fish_can",   "Axis_Aligned_Physics/007_tuna_fish_can.usd",   (2.05, 0.775, surf2), True),
+        # tomato_soup_can (obj_2). NOTE: unlike 003-006, these two only exist
+        # under the plain Axis_Aligned/ path (no _Physics variant) -- confirmed
+        # by a "Could not open asset" error live when Axis_Aligned_Physics/ was
+        # tried, and matches an earlier version of this file's history.
+        ("potted_meat_can", "Axis_Aligned/010_potted_meat_can.usd", (1.15, 0.775, surf2), False),
+        ("tuna_fish_can",   "Axis_Aligned/007_tuna_fish_can.usd",   (2.05, 0.775, surf2), False),
         # obj_6/7 on table 3 (surf3), spread in Y near the two gantries at x=cx3=0.2.
         ("banana",          "Axis_Aligned/011_banana.usd",                  (0.2, 0.4, surf3), False),
         # obj_7: Isaac Props 500 ml beaker (not YCB) -> full URL. Ships upright (Z up).
