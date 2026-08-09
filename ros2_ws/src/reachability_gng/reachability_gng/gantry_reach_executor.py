@@ -1635,7 +1635,26 @@ class GantryReachExecutor(Node):
         return int(np.median(counts))
 
     def _do_grasp(self, arg):
-        """Session C: sampler-driven grasp cycle. look -> ~/sample_grasps for
+        """Run one grasp cycle and ALWAYS end with a single, uniform verdict
+        line -- `GRASP SUCCESS` or `GRASP FAILED -- <reason>`.
+
+        The verdict is emitted here rather than at each early return inside
+        _grasp_cycle because several of those paths used to exit with only
+        their own specific message (e.g. 'stand-off unreachable'), so anything
+        watching the log for a result could wait forever on a cycle that had
+        in fact already finished. One exit, one marker (Rule 12: a failure
+        that leaves no uniform trace is a silent failure).
+        """
+        why = self._grasp_cycle(arg)
+        if why is not None:
+            self.get_logger().error(f'>>> {arg}: GRASP FAILED -- {why}')
+        return why
+
+    def _grasp_cycle(self, arg):
+        """Session C: sampler-driven grasp cycle. Returns None on success, or
+        a short reason string on failure (the caller logs the verdict).
+
+        look -> ~/sample_grasps for
         REAL geometry (not the fixed-descend _grasp_sequence's naive
         approach) -> back off to a stand-off along the grasp pose's own
         approach axis -> descend open-loop (D405 is blind under ~0.07 m, no
@@ -1647,13 +1666,14 @@ class GantryReachExecutor(Node):
         yet), not silently ignored.
         """
         self._set_perception_pause(True)
+        name = arg
         try:
             # Perception is paused BEFORE resolving the target, so the index
             # stays valid for the whole cycle (object_localizer freezes while
             # paused) -- see memory detected-objects-index-unstable.
             target, idx, name = self._resolve_target(arg, verb='grasp')
             if target is None:
-                return
+                return 'target could not be resolved'
             obj_xyz = np.array([target.position.x, target.position.y,
                                 target.position.z])
             self.get_logger().info(
@@ -1663,7 +1683,7 @@ class GantryReachExecutor(Node):
             if not self.sample_grasps_cli.wait_for_service(timeout_sec=5.0):
                 self.get_logger().error(
                     f'{name}: /grasp_sampler/sample_grasps not available')
-                return
+                return 'sample_grasps service not available'
 
             # Tiered look: nadir first, then oblique re-looks FUSED onto it
             # (accumulate) while the top candidate's far contact side is still
@@ -1696,7 +1716,7 @@ class GantryReachExecutor(Node):
                     obj_xyz, name, tilt, azim, only_arm=arm)
                 if look_arm is None:
                     if tier == 0:
-                        return
+                        return 'no arm could reach the nadir look pose'
                     self.get_logger().warn(
                         f'{name}: oblique tier {tier} pose unreachable -- '
                         'keeping the best candidate seen so far')
@@ -1714,13 +1734,13 @@ class GantryReachExecutor(Node):
                 if r is None:
                     self.get_logger().error(f'{name}: sample_grasps timed out')
                     if resp is None:
-                        return
+                        return 'sample_grasps timed out'
                     break
                 if not r.success or not r.grasps.poses:
                     self.get_logger().error(
                         f'{name}: sample_grasps failed: {r.message}')
                     if resp is None:
-                        return
+                        return f'sample_grasps found no candidate ({r.message})'
                     break
                 resp = r
                 self.get_logger().info(
@@ -1751,7 +1771,8 @@ class GantryReachExecutor(Node):
                     f'{arm.name}: candidate width {width * 1000:.1f}mm exceeds '
                     f"the gripper's open gap {gripper_open_gap * 1000:.0f}mm "
                     '-- cannot be grasped, aborting')
-                return
+                return (f'candidate width {width * 1000:.1f}mm exceeds the '
+                        f'gripper open gap')
 
             gq = gp.orientation
             R_wg = quat_to_R(gq.x, gq.y, gq.z, gq.w)
@@ -1767,7 +1788,7 @@ class GantryReachExecutor(Node):
             grasp_xyz, grasp_quat = self._gripper_pose_to_tool(
                 arm, grasp_xyz_gripper, R_wg)
             if standoff_xyz is None or grasp_xyz is None:
-                return
+                return 'no tool<-gripper TF; cannot convert the grasp pose'
 
             seed_q = self._current_q(arm)
             self.get_logger().info(
@@ -1777,14 +1798,13 @@ class GantryReachExecutor(Node):
             ok, goal_q, _ = self._move_to_pose(
                 arm, standoff_xyz, standoff_quat, seed_q)
             if not ok:
-                self.get_logger().error(f'{name}: stand-off unreachable')
-                return
+                return 'stand-off unreachable'
 
             ok, _ = self._move_gripper(arm, self.gripper_open_pos)
             if not ok:
                 self.get_logger().error(
                     f'{name}: gripper failed to open before descent')
-                return
+                return 'gripper failed to open before descent'
 
             self.get_logger().info(
                 f'{arm.name}: descending open-loop to grasp pose '
@@ -1795,15 +1815,12 @@ class GantryReachExecutor(Node):
             if not ok:
                 self.get_logger().error(
                     f'{name}: open-loop descent failed to reach the grasp pose')
-                return
+                return 'open-loop descent did not reach the grasp pose'
 
             self.get_logger().info(f'{arm.name}: closing gripper')
             ok, end_pos = self._move_gripper(arm, self.gripper_closed_pos)
             if not ok or end_pos is None:
-                self.get_logger().error(
-                    f'>>> {name}: GRASP FAILED -- gripper did not actuate/'
-                    'stall on anything')
-                return
+                return 'gripper did not actuate/stall on anything'
             span_pos = self.gripper_open_pos - self.gripper_closed_pos
             frac = ((end_pos - self.gripper_closed_pos) / span_pos
                     if span_pos else 0.0)
@@ -1828,10 +1845,8 @@ class GantryReachExecutor(Node):
                 f'{"PASS" if visual_ok else "FAIL"}')
 
             if not (width_ok and visual_ok):
-                self.get_logger().error(
-                    f'>>> {name}: GRASP FAILED -- width_check={width_ok} '
-                    f'visual_check={visual_ok} (not lifting)')
-                return
+                return (f'verification failed (width_check={width_ok}, '
+                        f'visual_check={visual_ok}) -- not lifting')
 
             lift_xyz = grasp_xyz_gripper + np.array([0.0, 0.0, self.lift_height])
             lift_tool_xyz, lift_quat = self._gripper_pose_to_tool(
@@ -1840,14 +1855,13 @@ class GantryReachExecutor(Node):
             ok, goal_q, _ = self._move_to_pose(
                 arm, lift_tool_xyz, lift_quat, goal_q)
             if not ok:
-                self.get_logger().error(
-                    f'>>> {name}: grasp closed+verified but LIFT FAILED')
-                return
+                return 'grasp closed and verified, but the LIFT failed'
 
             self.get_logger().info(
                 f'>>> {name}: GRASP SUCCESS -- {arm.name} closed on the '
                 f'object (pad gap err={width_err * 1000:+.1f}mm) and lifted '
                 f'{self.lift_height:.3f} m')
+            return None
         finally:
             self._set_perception_pause(False)
 
