@@ -1,0 +1,30 @@
+Subject: [PATCH] gen3_lite_2f: prefix the ros2_control hardware name
+
+ros2_ws/src/ros2_kortex/ is recorded in this repo's index as a gitlink
+(mode 160000) but there is no .gitmodules, no .git/modules entry and no
+.git inside the directory -- so git tracks only a stale submodule SHA and
+ignores the files entirely. The fix below therefore CANNOT be committed
+normally; it lives on disk only and is lost by any checkout/clean/re-clone.
+This patch is the durable copy. Re-apply with:
+
+    git apply patches/0001-gen3_lite_2f-unique-gripper-hardware-name.patch
+
+WHY IT MATTERS: <ros2_control name="GripperHardwareInterface"> was hardcoded
+while every joint below it already used ${prefix}. With two or more Gen3 Lite
+grippers loaded together -- i.e. always in `launch_workcell.sh full` --
+ros2_control_node aborts at startup with
+  std::runtime_error: Hardware name GripperHardwareInterface is duplicated
+and nothing spawns: no controllers, no /joint_states, a disconnected TF tree,
+and move_group complaining about missing frames. Deterministic, not flaky.
+
+--- a/ros2_ws/src/ros2_kortex/kortex_description/grippers/gen3_lite_2f/urdf/gen3_lite_2f.ros2_control.xacro
++++ b/ros2_ws/src/ros2_kortex/kortex_description/grippers/gen3_lite_2f/urdf/gen3_lite_2f.ros2_control.xacro
+@@ -22,7 +22,7 @@
+         gripper_max_velocity:=100.0
+         gripper_max_force:=100.0">
+ 
+-        <ros2_control name="GripperHardwareInterface" type="system">
++        <ros2_control name="${prefix}GripperHardwareInterface" type="system">
+             <hardware>
+                 <xacro:if value="${sim_isaac}">
+                     <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
