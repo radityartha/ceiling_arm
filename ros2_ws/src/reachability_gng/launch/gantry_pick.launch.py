@@ -156,7 +156,7 @@ def generate_launch_description():
                               description='deg azimuth of the first oblique tier; '
                                           'later tiers step by 180 deg (opposite '
                                           'sides of the closing axis, NOT +90)'),
-        DeclareLaunchArgument('look_settle_timeout', default_value='15.0',
+        DeclareLaunchArgument('look_settle_timeout', default_value='8.0',
                               description='s to wait for the wrist cloud to stop '
                                           'moving after the arm reaches a look '
                                           'pose; Isaac\'s render lags the joints'),

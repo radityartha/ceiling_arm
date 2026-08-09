@@ -366,7 +366,12 @@ class GantryReachExecutor(Node):
         # (and so the loop does not fire the next candidate mid-execution, which
         # left a ghost/duplicate arm in RViz). A genuine planning failure still
         # returns fast with an error code, so this does not slow the fallback.
-        self.declare_parameter('exec_wait', 120.0)
+        # 2026-08-10: halved from the value raised for a 0.15x-realtime sim.
+        # Isaac now runs ~0.86x (ISAAC_MAX_FPS/ISAAC_RENDER_EVERY in
+        # ros2_bridge_gui.py), so arm MOTION costs ~4.7x less wall time.
+        # Scaled 2x, not 4.7x, on purpose: planning/IK is CPU-bound and did
+        # NOT get faster, and these are wall-clock (time.time()) budgets.
+        self.declare_parameter('exec_wait', 60.0)
         # move_group's execute result can return before Isaac Sim's slower-than-
         # realtime physics finish settling, so SUCCESS is confirmed only once the
         # LIVE /joint_states converge to the goal within reach_tol (max per-joint
@@ -447,7 +452,12 @@ class GantryReachExecutor(Node):
         # on the object. The timeout is a safety net for a genuinely dead
         # camera, not a normal path, so it should be well clear of the render
         # lag rather than tuned close to it.
-        self.declare_parameter('look_settle_timeout', 15.0)
+        # 2026-08-10: halved from the value raised for a 0.15x-realtime sim.
+        # Isaac now runs ~0.86x (ISAAC_MAX_FPS/ISAAC_RENDER_EVERY in
+        # ros2_bridge_gui.py), so arm MOTION costs ~4.7x less wall time.
+        # Scaled 2x, not 4.7x, on purpose: planning/IK is CPU-bound and did
+        # NOT get faster, and these are wall-clock (time.time()) budgets.
+        self.declare_parameter('look_settle_timeout', 8.0)
         # --- grasp / logging ---
         self.declare_parameter('auto_attach', False)
         self.declare_parameter('attach_object_id', '')
@@ -2135,8 +2145,8 @@ class GantryReachExecutor(Node):
         self.attach_pub.publish(msg)
         self.get_logger().info(f'sent: {msg.data}')
 
-    def _move_gripper(self, arm, position, settle_timeout=90.0, settle_tol=0.02,
-                      poll_dt=0.2, stall_consec=5, min_settle_before_stall=30.0):
+    def _move_gripper(self, arm, position, settle_timeout=45.0, settle_tol=0.02,
+                      poll_dt=0.2, stall_consec=5, min_settle_before_stall=12.0):
         """Send `position` (rad, master finger joint) to arm's gripper, then
         confirm against the LIVE joint state rather than trusting the action
         result alone -- GripperActionController's `reached_goal`/`stalled`

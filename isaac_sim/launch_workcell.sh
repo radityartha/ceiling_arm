@@ -18,6 +18,19 @@ KORTEX_WS="/srv/data/users/raditya/kortex_min_ws/install/setup.bash"
 WORKCELL_WS="/srv/data/users/raditya/workcell_overlay_ws/install/setup.bash"
 GNG_WS="$REPO/ros2_ws/install/setup.bash"   # this repo's ws: reachability_gng clouds
 export ROS_DOMAIN_ID=42 RMW_IMPLEMENTATION=rmw_cyclonedds_cpp DISPLAY=:22380
+
+# Isaac CPU/RTF settings, MEASURED 2026-08-10 on this shared server (see
+# scripts/sim_perf_probe.py and the knob comments in ros2_bridge_gui.py).
+# Baseline was RTF 0.181x at 1732% CPU; this pair gives RTF 0.859x at 1220%
+# -- 4.7x more sim per second for 30% LESS CPU. Override either from the
+# caller's environment (e.g. ISAAC_MAX_FPS=10 ./launch_workcell.sh full).
+#   ISAAC_MAX_FPS    caps renders/sec -- this is what actually frees cores;
+#                    it also sets every camera's publish rate (4 Hz > the
+#                    2 Hz perception runs at, so nothing downstream starves).
+#   ISAAC_RENDER_EVERY  physics substeps per render -- this is what buys RTF.
+# RTF ~= ISAAC_MAX_FPS * ISAAC_RENDER_EVERY / 60.
+export ISAAC_MAX_FPS="${ISAAC_MAX_FPS:-4}"
+export ISAAC_RENDER_EVERY="${ISAAC_RENDER_EVERY:-12}"
 LOG=/tmp/workcell_launch; mkdir -p "$LOG"
 MODE="${1:-gng}"
 PIDS=()

@@ -16,10 +16,41 @@ Drive a joint from another shell (system Humble, same two env vars):
     ros2 topic echo /joint_states            # watch t1_a1_joint_2 move to ~0.6
 """
 import os
+import time
 import numpy as np
 
+# --- CPU-load knobs (2026-08-10). Every one defaults to the ORIGINAL behaviour,
+# so an unset environment reproduces the pre-knob bridge exactly; they exist
+# because this sim was running at RTF 0.155x / ~1900% CPU on a SHARED server.
+# See scripts/sim_perf_probe.py for the measurement harness.
+#   ISAAC_HEADLESS=1   skip the GUI viewport render (opt-in; GUI stays default
+#                      because that viewport is how camera-mount bugs get spotted)
+#   ISAAC_RENDER_EVERY=N  run N physics substeps per RENDER (rendering_dt =
+#                      N/60). Physics stays at 1/60 either way.
+#   ISAAC_CAM_SKIP=N   publish every (N+1)th frame on the two CEILING cameras
+#                      (ROS2CameraHelper.frameSkipCount). The wrist camera is
+#                      deliberately NOT decimated -- ~/look captures on demand
+#                      and pays the skip as latency.
+#   ISAAC_CAM_SEG=0    drop the instance_segmentation helper on the ceiling
+#                      cameras. REQUIRED by perception's seg_source:=isaac --
+#                      leave it at 1 whenever that path is in use.
+#   ISAAC_MAX_FPS=F    cap the step loop at F renders/second (0 = uncapped, the
+#                      original behaviour). MEASURED 2026-08-10: this is the ONLY
+#                      knob that actually frees CPU. The loop was uncapped, so
+#                      every per-frame saving (headless, frameSkipCount, seg off)
+#                      was spent on MORE frames/s instead of fewer cores -- all
+#                      three measured ~0% CPU reduction without this cap.
+#                      RTF ~= ISAAC_MAX_FPS * ISAAC_RENDER_EVERY / 60.
+HEADLESS = os.environ.get("ISAAC_HEADLESS", "0") == "1"
+RENDER_EVERY = max(1, int(os.environ.get("ISAAC_RENDER_EVERY", "1")))
+CAM_SKIP = max(0, int(os.environ.get("ISAAC_CAM_SKIP", "0")))
+CAM_SEG = os.environ.get("ISAAC_CAM_SEG", "1") == "1"
+MAX_FPS = float(os.environ.get("ISAAC_MAX_FPS", "0"))
+
 from isaacsim import SimulationApp
-simulation_app = SimulationApp({"headless": False})
+simulation_app = SimulationApp({"headless": HEADLESS})
+print(f">>> perf knobs: headless={HEADLESS} render_every={RENDER_EVERY} "
+      f"cam_skip={CAM_SKIP} cam_seg={CAM_SEG} max_fps={MAX_FPS}", flush=True)
 
 from isaacsim.core.utils.extensions import enable_extension  # noqa: E402
 enable_extension("isaacsim.ros2.bridge")
@@ -76,7 +107,13 @@ CAMERAS = [
 
 import polish  # noqa: E402  (room + lights + work table; same dir)
 
-world = World(stage_units_in_meters=1.0)
+# physics_dt stays 1/60 (the Isaac default) so dynamics are unchanged;
+# rendering_dt = RENDER_EVERY/60 makes SimulationContext substep physics
+# RENDER_EVERY times per rendered frame instead of rendering every step.
+# RENDER_EVERY=1 reproduces the default 1/60, 1/60 exactly.
+world = World(stage_units_in_meters=1.0,
+              physics_dt=1.0 / 60.0,
+              rendering_dt=RENDER_EVERY / 60.0)
 add_reference_to_stage(usd_path=USD_PATH, prim_path=ROBOT)
 wc = world.scene.add(Robot(prim_path=ROBOT, name="workcell"))
 
@@ -308,12 +345,19 @@ wc.get_articulation_controller().set_gains(kps=kps, kds=kds)
 # this -- e.g. the wrist camera skips "seg", see _add_wrist_camera()):
 _cam_topics = {"rgb": "rgb", "depth": "depth", "info": "camera_info",
                "seg": "instance_segmentation"}
+# Default key set for the ceiling cameras (the wrist cam carries its own "keys").
+# ISAAC_CAM_SEG=0 drops the instance_segmentation helper -- only safe when
+# perception is NOT running seg_source:=isaac, which consumes that topic.
+_default_keys = [k for k in _cam_topics if CAM_SEG or k != "seg"]
 _cam_nodes, _cam_connects, _cam_setvals = [], [], []
 for _c in CAMERAS:
     _ns = _c["ns"]
     _rp = f"RP_{_ns}"
     _res = _c.get("res", CAM_RES)
-    _helpers = {k: _cam_topics[k] for k in _c.get("keys", _cam_topics)}
+    _helpers = {k: _cam_topics[k] for k in _c.get("keys", _default_keys)}
+    # Decimate the ceiling cameras only; the wrist cam declares its own "keys"
+    # and is left at every-frame (see the ISAAC_CAM_SKIP note at the top).
+    _skip = 0 if "keys" in _c else CAM_SKIP
     _cam_nodes.append((_rp, "isaacsim.core.nodes.IsaacCreateRenderProduct"))
     _cam_connects.append(("OnPlaybackTick.outputs:tick", f"{_rp}.inputs:execIn"))
     _cam_setvals += [
@@ -333,6 +377,7 @@ for _c in CAMERAS:
             (f"{_h}.inputs:topicName", f"{_ns}/{_cam_topics[_key]}"),
             (f"{_h}.inputs:type", _type),
             (f"{_h}.inputs:frameId", _c["frame"]),
+            (f"{_h}.inputs:frameSkipCount", _skip),
         ]
         if _key == "seg":
             # also publish the instance-id -> semantic-class JSON mapping so the
@@ -423,8 +468,16 @@ print(f">>> default arm pose: joint_2=joint_3=150deg ({_ARM_TUCK:.4f} rad)", flu
 # params, so no extra coupling is needed here.
 print(">>> ROS2 bridge: publishing /isaac_joint_states, subscribing /isaac_joint_commands. Ctrl-C to stop.", flush=True)
 i = 0
+_min_frame_s = 1.0 / MAX_FPS if MAX_FPS > 0 else 0.0
 while simulation_app.is_running():
+    _t0 = time.perf_counter()
     world.step(render=True)   # render pumps the OmniGraph so nodes tick
+    if _min_frame_s:
+        # Give the shared server its cores back between frames. Without this the
+        # loop renders flat-out and pins ~20 cores no matter how cheap a frame is.
+        _idle = _min_frame_s - (time.perf_counter() - _t0)
+        if _idle > 0:
+            time.sleep(_idle)
     i += 1
     if i % 120 == 0:
         print(f">>> running (step {i})", flush=True)
