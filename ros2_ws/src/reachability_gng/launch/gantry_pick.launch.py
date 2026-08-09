@@ -73,6 +73,18 @@ def generate_launch_description():
     place_y = LaunchConfiguration('place_y')
     place_z = LaunchConfiguration('place_z')
     wrist_cloud = LaunchConfiguration('wrist_cloud')
+    # ~/grasp (session C) knobs. Without these the node's own declared
+    # parameters are unreachable from the command line: passing e.g.
+    # `grasp_width_tol:=0.020` was accepted by ros2 launch and then SILENTLY
+    # ignored (launch does not warn about an argument nothing consumes), so a
+    # run could look tuned while using stock values -- which happened, twice.
+    grasp_standoff = LaunchConfiguration('grasp_standoff')
+    grasp_width_tol = LaunchConfiguration('grasp_width_tol')
+    sample_grasps_timeout = LaunchConfiguration('sample_grasps_timeout')
+    grasp_oblique_tiers = LaunchConfiguration('grasp_oblique_tiers')
+    grasp_oblique_tilt_deg = LaunchConfiguration('grasp_oblique_tilt_deg')
+    grasp_oblique_azimuth_deg = LaunchConfiguration('grasp_oblique_azimuth_deg')
+    look_settle_timeout = LaunchConfiguration('look_settle_timeout')
 
     return LaunchDescription([
         DeclareLaunchArgument('execute', default_value='false',
@@ -120,6 +132,34 @@ def generate_launch_description():
                               description='world y (m) drop point'),
         DeclareLaunchArgument('place_z', default_value='0.0',
                               description='world z (m) drop point'),
+        # --- ~/grasp (session C) knobs; defaults MUST match the node's own
+        # declare_parameter defaults so adding these changes no behaviour ---
+        DeclareLaunchArgument('grasp_standoff', default_value='0.10',
+                              description='m to back off along the grasp pose\'s '
+                                          'own approach axis before the '
+                                          'open-loop descent'),
+        DeclareLaunchArgument('grasp_width_tol', default_value='0.015',
+                              description='m tolerance between the achieved pad '
+                                          'gap and the width the sampler '
+                                          'predicted; wider suits organic '
+                                          'objects (a banana is not a prism)'),
+        DeclareLaunchArgument('sample_grasps_timeout', default_value='15.0',
+                              description='s to wait on ~/sample_grasps'),
+        DeclareLaunchArgument('grasp_oblique_tiers', default_value='2',
+                              description='oblique re-looks fused onto the nadir '
+                                          'view while the top candidate\'s far '
+                                          'contact side is unobserved. 0 = nadir '
+                                          'only (fastest cycle)'),
+        DeclareLaunchArgument('grasp_oblique_tilt_deg', default_value='37.0',
+                              description='deg off vertical for the oblique tiers'),
+        DeclareLaunchArgument('grasp_oblique_azimuth_deg', default_value='0.0',
+                              description='deg azimuth of the first oblique tier; '
+                                          'later tiers step by 180 deg (opposite '
+                                          'sides of the closing axis, NOT +90)'),
+        DeclareLaunchArgument('look_settle_timeout', default_value='15.0',
+                              description='s to wait for the wrist cloud to stop '
+                                          'moving after the arm reaches a look '
+                                          'pose; Isaac\'s render lags the joints'),
         DeclareLaunchArgument('wrist_cloud', default_value='false',
                               description='true = also start a depth_cloud '
                                           'instance for wrist1 (session A2 '
@@ -194,6 +234,20 @@ def generate_launch_description():
                 'attach_object_id': attach_object_id,
                 'grasp_descend': ParameterValue(grasp_descend, value_type=float),
                 'lift_height': ParameterValue(lift_height, value_type=float),
+                'grasp_standoff': ParameterValue(grasp_standoff,
+                                                 value_type=float),
+                'grasp_width_tol': ParameterValue(grasp_width_tol,
+                                                  value_type=float),
+                'sample_grasps_timeout': ParameterValue(sample_grasps_timeout,
+                                                        value_type=float),
+                'grasp_oblique_tiers': ParameterValue(grasp_oblique_tiers,
+                                                      value_type=int),
+                'grasp_oblique_tilt_deg': ParameterValue(grasp_oblique_tilt_deg,
+                                                         value_type=float),
+                'grasp_oblique_azimuth_deg': ParameterValue(
+                    grasp_oblique_azimuth_deg, value_type=float),
+                'look_settle_timeout': ParameterValue(look_settle_timeout,
+                                                      value_type=float),
                 'place_enabled': ParameterValue(place_enabled, value_type=bool),
                 # Each LaunchConfiguration wrapped in its OWN list: a flat list
                 # of substitutions is_substitution()==True at the top level and
