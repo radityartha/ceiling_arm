@@ -205,7 +205,15 @@ def _add_wrist_camera(arm_prefix="t1_a1_", ns="wrist1"):
         return None
 
     up = np.array([0.0, 1.0, 0.0])           # local finger-spread axis as camera "up"
-    eye = np.array([0.06, 0.0, -0.05])       # local frame (see docstring)
+    # Pushed out AGAIN 2026-08-09 from [0.06, 0, -0.05], which was still
+    # embedded: /wrist1/depth showed the right quarter of the frame pinned at
+    # 0.050-0.055 m, i.e. exactly the 0.05 m near-clip plane, so ~25-40% of the
+    # sensor was the arm's own body rendering black (and the hand filter was
+    # discarding 21720 of 57600 points). The old mount sat 0.060 m from the
+    # gripper axis, INSIDE grasp_sampler's own 0.100 m gripper_radius model.
+    # 0.110 m clears that model; z moved just forward of the flange so the
+    # bulky wrist body falls behind the lens instead of across it.
+    eye = np.array([0.11, 0.0, 0.01])        # local frame (see docstring)
     target = np.array([0.0, 0.0, 0.20])      # local frame, pre-grasp stand-off point
     f = target - eye; f /= np.linalg.norm(f)
     r = np.cross(f, up); r /= np.linalg.norm(r)

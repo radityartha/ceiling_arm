@@ -439,7 +439,15 @@ class GantryReachExecutor(Node):
         # look_captures window (started once settled) is reported/used.
         self.declare_parameter('look_settle_tol', 0.01)
         self.declare_parameter('look_settle_consec', 3)
-        self.declare_parameter('look_settle_timeout', 3.0)
+        # 15 s, not 3: measured live, Isaac's wrist render can still be showing
+        # the PRE-MOVE scene several seconds after the joints have converged.
+        # With a 3 s cap the poll gave up, the capture ran on frames that had
+        # no object in them at all, and ~/sample_grasps failed with "0 points
+        # within roi" -- while a manual check moments later found 16315 points
+        # on the object. The timeout is a safety net for a genuinely dead
+        # camera, not a normal path, so it should be well clear of the render
+        # lag rather than tuned close to it.
+        self.declare_parameter('look_settle_timeout', 15.0)
         # --- grasp / logging ---
         self.declare_parameter('auto_attach', False)
         self.declare_parameter('attach_object_id', '')
@@ -1480,8 +1488,11 @@ class GantryReachExecutor(Node):
         if not settled:
             self.get_logger().warn(
                 f'{arm.name}: cloud never settled within '
-                f'{self.look_settle_timeout:.1f}s (tol={self.look_settle_tol:.3f} m) '
-                '-- proceeding anyway, results may reflect a still-moving scene')
+                f'{self.look_settle_timeout:.1f}s (tol={self.look_settle_tol:.3f} m, '
+                f'last ROI centroid={"none - NO points on the object at all" if last_centroid is None else np.round(last_centroid, 3)}) '
+                '-- proceeding anyway; if the next step reports "0 points '
+                'within roi", this warning is why: the render had not caught '
+                'up with the arm, not a perception failure')
         return arm
 
     def _do_look(self, arg):

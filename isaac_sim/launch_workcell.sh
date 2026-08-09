@@ -116,11 +116,20 @@ PIDS+=($!)
 # into every consumer (gantry_reach_executor's IK targeting AND depth_cloud's
 # point-cloud deprojection both silently produce good-looking-but-wrong
 # results for a backwards optical-frame TF, not loud errors).
+#
+# Both halves (this quat + _add_wrist_camera's eye/target) were last recomputed
+# 2026-08-09 for the pushed-out mount eye=[0.11, 0, 0.01], target=[0, 0, 0.20].
+# The quat below is R = [-r | u | f] as a quaternion, where f = normalize(
+# target - eye), r = normalize(cross(f, up)), u = cross(r, f), up = [0, 1, 0].
+# That construction is not guesswork: it REPRODUCES the previous, live-verified
+# pair (eye=[0.06, 0, -0.05] -> 0, -0.117500, 0, 0.993073) exactly, which is how
+# the axis signs were pinned. If eye/target change again, re-derive with the
+# same formula and re-verify against a known-good pair before trusting it.
 ( set +u; source /opt/ros/humble/setup.bash
   export ROS_DOMAIN_ID RMW_IMPLEMENTATION
   exec ros2 run tf2_ros static_transform_publisher \
-    --x 0.06 --y 0.0 --z -0.05 \
-    --qx 0.0 --qy -0.117500 --qz 0.0 --qw 0.993073 \
+    --x 0.11 --y 0.0 --z 0.01 \
+    --qx 0.0 --qy -0.259397 --qz 0.0 --qw 0.965771 \
     --frame-id t1_a1_gripper_base_link --child-frame-id wrist1_camera_optical \
     ) > "$LOG/wrist1_camera_tf.log" 2>&1 &
 PIDS+=($!)
