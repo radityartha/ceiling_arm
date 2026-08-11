@@ -8,7 +8,18 @@ seg_cloud, ...) expects:
 
 ...plus a static TF `world -> <ns>_camera_optical` per camera (the pipeline
 looks up exactly that frame name, see object_localizer/depth_cloud
-`optical_frame_suffix`). The realsense2_camera driver publishes depth as
+`optical_frame_suffix`), and `color_cloud`:
+
+    /<ns>/color_cloud    sensor_msgs/PointCloud2  (frame `world`, xyz + rgb)
+
+This is THE place color_cloud is started -- it needs nothing but the cameras
+(no arms, no move_group, no ros2_control), so bringing it up here means the
+true-colour cloud is on any time the cameras are, with no extra terminal. Add
+a PointCloud2 display on /rgbd/color_cloud + /rgbd2/color_cloud in RViz,
+Color Transformer -> RGB8, Fixed Frame `world`. Turn it off with
+`with_color_cloud:=false` (viz-only; nothing in the planning pipeline reads
+it -- depth_cloud, not this, is what feeds env_gng/map_topo_static).
+The realsense2_camera driver publishes depth as
 16UC1 millimeters aligned to color; `depth_image_proc`'s `convert_metric_node`
 converts that to the 32FC1-meters contract this repo's nodes decode directly
 (see depth_cloud.py `_decode`). Color image_raw and camera_info are relayed
@@ -136,6 +147,10 @@ def generate_launch_description():
         # fully skip a camera whose cable/hardware is known bad.
         DeclareLaunchArgument('enable1', default_value='true'),
         DeclareLaunchArgument('enable2', default_value='true'),
+        # Viz-only true-colour cloud, on by default: it costs one subsampled
+        # deprojection per frame and saves a whole terminal. Nothing in the
+        # planning path consumes it.
+        DeclareLaunchArgument('with_color_cloud', default_value='true'),
         DeclareLaunchArgument('color_profile', default_value='1280x720x30'),
         DeclareLaunchArgument('depth_profile', default_value='848x480x30'),
         # world->camera extrinsics, from calibrate_extrinsics.py (2026-07-30
@@ -183,4 +198,12 @@ def generate_launch_description():
                           LaunchConfiguration('tf2_z'), LaunchConfiguration('tf2_roll'),
                           LaunchConfiguration('tf2_pitch'), LaunchConfiguration('tf2_yaw')),
             ]),
+
+        # One node covers both namespaces (color_cloud's `camera_namespaces`
+        # defaults to ['rgbd', 'rgbd2']), so it sits outside the per-camera
+        # groups above. With enable1/enable2:=false it simply never sees that
+        # camera's camera_info and stays silent for it -- no error.
+        Node(package='reachability_gng', executable='color_cloud',
+             name='color_cloud', output='screen',
+             condition=IfCondition(LaunchConfiguration('with_color_cloud'))),
     ])

@@ -5,7 +5,8 @@ Starts, in one process tree (single Ctrl-C stops everything -- no orphan nodes):
     realsense_dual.launch.py   2x RealSense D455 -> /rgbd*, /rgbd2* + world TF
     seg_router (YOLOE)         -> /<ns>/seg/debug_image + /<ns>/seg/instance_*
     depth_cloud                -> /<ns>/depth_cloud   (geometry for map_topo_static)
-    color_cloud                -> /<ns>/color_cloud   (true-colour cloud, viz only)
+    color_cloud                -> /<ns>/color_cloud   (viz only, off by default,
+                                  started by realsense_dual, not by this file)
 
 This is the LIGHT stack: just what you need to (a) eyeball detection on
 /rgbd/seg/debug_image and (b) feed build_topo.sh / map_topo_static. It does NOT
@@ -18,8 +19,11 @@ perception.launch.py, which also assumes the Isaac cameras.
     ros2 launch reachability_gng rgbd_perception.launch.py \
         seg_prompts:=box,bottle,person seg_device:=cuda:0 serial1:=234222303079
 
-color_cloud is off by default (viz-only, not needed by map_topo_static); add a
-PointCloud2 display on /rgbd/color_cloud + /rgbd2/color_cloud in RViz to see it.
+color_cloud is off by default HERE (viz-only, not needed by map_topo_static,
+and this stack already carries YOLOE) even though realsense_dual.launch.py
+defaults it ON -- `with_color_cloud` is forwarded down, so this file's default
+wins for anyone coming through it. Add a PointCloud2 display on
+/rgbd/color_cloud + /rgbd2/color_cloud in RViz to see it.
 
 Then view the detection overlay (DISPLAY :1 via noVNC is auto-set by ~/.bashrc):
     ros2 run rqt_image_view rqt_image_view /rgbd/seg/debug_image
@@ -82,8 +86,15 @@ def generate_launch_description():
         # forwarded -- see the note above; realsense_dual owns them.
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(realsense_launch),
-            launch_arguments={'enable1': LaunchConfiguration('enable1'),
-                              'enable2': LaunchConfiguration('enable2')}.items()),
+            launch_arguments={
+                'enable1': LaunchConfiguration('enable1'),
+                'enable2': LaunchConfiguration('enable2'),
+                # color_cloud lives in realsense_dual now (one owner, so no
+                # double publisher on /<ns>/color_cloud); this file keeps its
+                # own default of OFF for the heavy YOLOE stack and just
+                # forwards it.
+                'with_color_cloud': LaunchConfiguration('with_color_cloud'),
+            }.items()),
 
         # 2) YOLOE segmentation -> /<ns>/seg/debug_image + instance masks.
         Node(package='reachability_gng', executable='seg_router',
@@ -101,8 +112,4 @@ def generate_launch_description():
              name='depth_cloud', output='screen',
              condition=IfCondition(with_depth_cloud)),
 
-        # 4) true-colour world-frame cloud for visualization (optional).
-        Node(package='reachability_gng', executable='color_cloud',
-             name='color_cloud', output='screen',
-             condition=IfCondition(LaunchConfiguration('with_color_cloud'))),
     ])

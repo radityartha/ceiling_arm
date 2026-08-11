@@ -137,16 +137,23 @@ ros2 launch reachability_gng topo_fusion.launch.py \
   </div>
 
   <div class="card">
-  <h2>B3 · Static topo map on REAL RGBD hardware <span class="pill">validated 2026-07-30</span></h2>
+  <h2>B3 · Static topo map on REAL RGBD hardware <span class="pill">updated 2026-08-02</span></h2>
   <p>Same idea as B2 but for the real 2-camera RealSense rig + real Kinova
      arms, not the Isaac twin. Use <code>build_topo.sh</code>, not
-     <code>topo_fusion.launch.py</code>, for the capture step.</p>
-<pre><code># 0) check for stray duplicate processes FIRST (biggest source of "looks wrong")
+     <code>topo_fusion.launch.py</code>, for the capture step —
+     <code>build_topo.sh</code> now <b>auto-starts the cameras</b>
+     (<code>realsense_dual.launch.py</code>) and <code>depth_cloud</code>
+     itself if they aren't already running, so step 1 below is optional.</p>
+<pre><code># 0) check for stray duplicate processes FIRST (biggest source of "looks wrong") --
+#    also don't launch realsense_dual.launch.py by hand AND let build_topo.sh
+#    auto-start it, that's the easiest way to double up a camera node
 for pid in /proc/[0-9]*; do tr '\0' ' ' &lt; "$pid/cmdline" 2&gt;/dev/null; echo; done \
   | grep -E "realsense2_camera_node|static_transform_publisher|depth_cloud"
 # expect exactly 2 camera nodes, 2 camera static_transform_publishers, <=1 depth_cloud
 
-# 1) cameras up + calibrated
+# 1) cameras up + calibrated -- OPTIONAL, only if you want to eyeball the
+#    calibration in RViz first; build_topo.sh (step 5) auto-starts them
+#    otherwise using the same calibrated tf1_*/tf2_* defaults
 ros2 launch reachability_gng extrinsics_view.launch.py with_robot_tf:=false
 
 # 2) real arm+gantry bringup, for self-filter TF -- NOT single_rviz_workcell.launch.py
@@ -159,7 +166,9 @@ for f in t1_a1_tool_frame t1_a2_tool_frame t2_a1_tool_frame t2_a2_tool_frame; do
   ros2 run tf2_ros tf2_echo world $f 2&gt;&amp;1 | grep -A1 Translation | head -2
 done
 
-# 5) capture (dual-camera fusion + self-filter are the script's defaults)
+# 5) capture (dual-camera fusion + self-filter are the script's defaults;
+#    cameras + depth_cloud auto-start here if not already up -- can take
+#    several minutes from a cold camera state, RealSense enumeration is slow)
 cd ros2_ws/src/reachability_gng
 ./build_topo.sh
 
@@ -207,6 +216,26 @@ ros2 run reachability_gng target_cli</code></pre>
   <p class="note"><b>Bring-up order:</b> 1 → 2 → wait for <code>/rgbd/rgb</code> and
      <code>/rgbd2/rgb</code> to actually publish (<code>ros2 topic hz /rgbd/rgb</code>)
      → 3 → 4.</p>
+  <p class="note"><b>True-colour cloud — no extra terminal.</b>
+     <code>color_cloud</code> ships inside <b>Terminal 2</b>
+     (<code>realsense_dual.launch.py</code>, <code>with_color_cloud</code> default
+     <b>true</b>), so <code>/rgbd/color_cloud</code> and
+     <code>/rgbd2/color_cloud</code> are live as soon as the cameras are. Terminal 3
+     publishes none — <code>topo_fusion</code> runs <code>depth_cloud</code>
+     (xyz-only) and <code>seg_cloud</code> (coloured by segmentation id), never
+     <code>color_cloud</code>. To see it: in Terminal 1's RViz,
+     <b>Add → PointCloud2</b>, Topic <code>/rgbd/color_cloud</code> (plus a second
+     display for <code>/rgbd2/color_cloud</code>), <b>Color Transformer → RGB8</b>,
+     Fixed Frame <code>world</code>. Off with
+     <code>with_color_cloud:=false</code>.</p>
+  <p class="note"><span class="green">It needs only the cameras</span> — no arms, no
+     <code>move_group</code>, no <code>ros2_control</code>; the
+     <code>world → &lt;ns&gt;_camera_optical</code> TF comes from
+     <code>realsense_dual</code>'s own <code>static_transform_publisher</code>, not
+     from the robot. If the colour cloud is <i>all</i> you want, skip this whole
+     section and run <code>extrinsics_view.launch.py</code> — cameras + TF +
+     <code>color_cloud</code> + an RViz preconfigured with both displays, one
+     terminal.</p>
   <p class="note"><b>Verify it's GNG, not octomap</b> (run after Terminal 3 is up):</p>
 <pre><code># these must all show NO publisher:
 ros2 topic info /livox/filtered

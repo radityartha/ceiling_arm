@@ -105,12 +105,22 @@ def generate_launch_description():
             description='gripper capsule filter radius (end_effector->fingers, m)'),
         # Kill any perception nodes left over from a PREVIOUS topo_fusion launch
         # BEFORE spawning ours -- two live env_gng/depth_cloud publishing to the
-        # same topics makes the RViz map flicker/"double". `pkill` excludes its
-        # own PID and the pattern doesn't match the `ros2 launch` process, so it
-        # only reaps stale nodes; our own nodes spawn 3 s later (below), after it
-        # has finished. Exits 1 when nothing matched -- harmless.
+        # same topics makes the RViz map flicker/"double". The pattern doesn't
+        # match the `ros2 launch` process, so it only reaps stale nodes; our own
+        # nodes spawn 3 s later (below), after it has finished. `xargs -r` makes
+        # "nothing matched" a clean no-op.
+        #
+        # color_cloud is EXCLUDED: it belongs to realsense_dual.launch.py
+        # (Terminal 2, with_color_cloud default true), not to this launch, and a
+        # blanket `pkill -f lib/reachability_gng/` silently killed it every time
+        # this file started -- the colour cloud would simply vanish from RViz
+        # seconds after Terminal 3 came up, with no error anywhere except that
+        # launch's own log. Anything else added here must stay reaped.
         ExecuteProcess(
-            cmd=['pkill', '-9', '-f', 'lib/reachability_gng/'], output='screen'),
+            cmd=['bash', '-c',
+                 "pgrep -af 'lib/reachability_gng/' | grep -v color_cloud "
+                 "| awk '{print $1}' | xargs -r kill -9"],
+            output='screen'),
         # spawn everything only AFTER the cleanup has completed
         TimerAction(period=3.0, actions=[
             # perception WITHOUT the octomap/object-box nodes: the GNG topological

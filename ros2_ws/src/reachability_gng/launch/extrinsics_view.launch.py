@@ -91,8 +91,9 @@ def generate_launch_description():
                  condition=IfCondition(LaunchConfiguration('with_robot_tf')),
                  parameters=[{'robot_description': robot_description}]),
 
-            Node(package='reachability_gng', executable='color_cloud',
-                 name='color_cloud', output='screen'),
+            # color_cloud is NOT started here: realsense_dual.launch.py above
+            # already brings it up (with_color_cloud, default true). Starting a
+            # second one would put two publishers on /<ns>/color_cloud.
 
             # RViz last: the cameras need a moment to publish camera_info
             # before color_cloud emits anything, so starting it earlier just
