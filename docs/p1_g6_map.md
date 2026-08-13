@@ -173,6 +173,198 @@ G1–G5, dan menulis JSON. Tidak ada metrik baru yang didefinisikan di sana.
 
 ---
 
-## B. Hasil — diisi SESUDAH §A dikunci
+## B. Hasil — diukur SESUDAH §A dikunci
 
-_(kosong sampai penangkapan selesai)_
+> Data mentah: `/tmp/g6_field.jsonl` (G1–G5), `/tmp/g6_grow.jsonl` (§B6).
+> Awan: `/tmp/topo_cloud_{a,b}.npz`. Peta: `/tmp/topo_static_{a,b}.npz`.
+> Perkakas: `test/analyze_field_capture.py`, `test/bench_bl_grow.py`.
+
+### B0. Penangkapan — G1 LULUS untuk keduanya
+
+Dua penangkapan, 2026-08-13, jarak ~36 menit, parameter identik kecuali nama
+berkas keluaran (diverifikasi dari baris perintah node, bukan dari niat).
+
+| | A (21:36) | B (22:07) |
+|---|---|---|
+| titik ditangkap | 80.848 | 82.511 (+2,1%) |
+| pool fit | 12.000 | 12.000 |
+| bbox span (m) | 3,142 × 2,966 × 1,729 | 3,141 × 2,968 × 1,729 |
+| node / sisi | 1800 / 3152 | 1800 / 3136 |
+| wall-clock node | 1224 s | 1562 s |
+
+Ambang G1 (≥3000 titik, bbox ≥1,0 m di x dan y) terlampaui jauh. bbox kedua
+penangkapan sepakat sampai **2 mm** — konsisten dengan adegan yang memang diam.
+
+Pool = tepat 12.000 = `fit_max_points`, jadi seperti yang diantisipasi §A2,
+replay D2 **tidak** men-subsampel ulang: permutasi baris menguji jalur fit itu
+sendiri, tanpa lapisan subsampel di depannya.
+
+### B1. G3 — LANTAI DERAU SENSOR (diukur lebih dulu, sesuai §A3)
+
+| `cloud_a ↔ cloud_b` | nilai |
+|---|---|
+| mean-NN | **0,0235 m** |
+| hausdorff | 0,8330 m |
+
+mean-NN 2,35 cm ≈ leaf voxel 2 cm. Sesuai peringatan §A2, angka ini **bukan**
+akurasi depth D455 — ia terkuantisasi oleh voxel. Hausdorff 0,83 m berarti ada
+titik di satu penangkapan tanpa pasangan dekat di penangkapan lain: bagian
+adegan yang tertangkap sekali saja, bukan pergeseran sistematis.
+
+### B2. G2 — D2 LAPANGAN: **LULUS**. Ini gate-nya, dan ini hasil utama sesi.
+
+| | GNG | MS-BL-GNG |
+|---|---|---|
+| bit-identik setelah permutasi baris | ❌ | ✅ |
+| `max\|ΔW\|` | **2,712 m** | **0,0** |
+| drift hausdorff | 0,2052 m | **0,0000 m** |
+
+Klaim yang sekarang boleh masuk naskah **dengan angka lapangan**, bukan proksi:
+*"peta statis tidak bergantung pada urutan penyajian sampel"*.
+
+Dua hal yang layak dicatat:
+
+1. **Masalahnya nyata di lapangan, bukan artefak proksi.** `max|ΔW|` GNG di awan
+   nyata **2,712 m** — bahkan lebih besar dari 2,53 m di proksi Sesi C. Node bisa
+   mendarat di sisi ruangan yang lain hanya karena baris masukan berbeda urutan.
+2. **Lulusnya sekaligus membuktikan round-trip `SAVE_CLOUD`.** Yang dibandingkan
+   adalah peta **tersimpan** (`topo_static_a.npz`) melawan fit ulang atas awan
+   **tersimpan** yang dipermutasi. Bit-identik hanya mungkin kalau awan yang
+   disimpan memang awan yang menghasilkan peta itu. Jadi pasangan awan/peta di
+   disk terverifikasi, bukan diasumsikan — dan itu yang membuat sesi-sesi
+   berikutnya tidak perlu kamera lagi.
+
+### B3. G4 — D3 LAPANGAN (dilaporkan tanpa ambang, sesuai §A3/G4)
+
+| | GNG | MS-BL |
+|---|---|---|
+| D3-recapture mean-NN | 0,0478 | **0,0377** |
+| D3-recapture hausdorff | **0,5750** | 0,7947 ⚠ |
+| D3-95% mean-NN | 0,0257 | **0,0206** |
+| D3-95% hausdorff | 0,2600 | **0,1715** |
+| rasio drift peta ÷ derau sensor (mean-NN) | 2,035× | **1,606×** |
+
+**Atribusi, memakai aturan baca yang ditetapkan §A3/G3 sebelum angkanya terlihat:**
+kedua algoritma punya `M_ab > S_ab`, jadi **keduanya memperkuat derau sensor** —
+bukan hanya meneruskannya. MS-BL memperkuat **lebih sedikit** (1,61× vs 2,04×).
+Tidak ada gate di sini, dan tidak ada yang ditetapkan setelah melihat angkanya.
+
+⚠️ **MS-BL tidak unggul seragam, dan ini tidak dihaluskan.** Pola Sesi C terulang
+persis di lapangan: MS-BL menggeser **seluruh** peta lebih sedikit (mean-NN
+menang di kedua bentuk D3), tapi node **terjauhnya** bisa bergeser lebih banyak
+(hausdorff kalah di D3-recapture). Di Sesi C ini muncul di S1 dan S4; di lapangan
+muncul di recapture. Artinya konsisten: yang membaik adalah perilaku massal, yang
+memburuk adalah ekor.
+
+### B4. G5 — PARITAS KUALITAS DI AWAN NYATA: **LULUS ketiga ambangnya**
+
+Ambang dari `p1_g5 §A1/C2`, dipakai apa adanya, `cloud_a` yang sama.
+
+| | GNG | MS-BL | ambang | |
+|---|---|---|---|---|
+| QE_mean | 0,03521 | **0,03048** | ≤ 1,05× → **0,866×** | ✅ |
+| cov@5cm | 0,8661 | **0,9453** | ≥ −0,02 → **+0,079** | ✅ |
+| n_nodes | 1800 | 1800 | ≥ 1710 | ✅ |
+| QE_median | 0,03469 | 0,02979 | — | |
+| cov@2cm | 0,1336 | 0,1922 | — | |
+| spacing median | 0,0624 | 0,0612 | — | |
+| n_edges | 3666 | 3152 | — | |
+| n_comp | 5 | 10 | **tanpa ground truth** | — |
+
+`n_comp` **tidak boleh** disebut perbaikan maupun kemunduran (§A0). Ini menutup
+utang `p1_next_steps` Jalur B-4 dengan jawaban **"tidak bisa dijawab untuk adegan
+nyata"**, bukan dengan angka. Yang punya ground truth adalah S1 sintetis (harus
+2), dan di sana MS-BL benar (`p1_g5 §B3`).
+
+### B5. Proksi vs lapangan — apakah Sesi C menyesatkan?
+
+| | proksi (`p1_g5 §B1`, 400 node) | lapangan (1800 node) |
+|---|---|---|
+| D2 GNG `max\|ΔW\|` | 2,53 m | **2,712 m** |
+| D2 MS-BL | bit-identik | **bit-identik** |
+| D3 hausdorff GNG→MS-BL | 0,2927 → 0,1680 | 0,2600 → **0,1715** (D3-95%) |
+| D3 mean-NN GNG→MS-BL | 0,0533 → 0,0504 | 0,0257 → **0,0206** (D3-95%) |
+
+**Proksi Sesi C ternyata memprediksi arah dengan benar di keempat baris**, dan
+besarannya sepadan untuk D3-95%. Jadi proksi itu **tidak** menyesatkan — tapi
+perlu dicatat bahwa itu baru diketahui **sekarang**, setelah diukur. Angka proksi
+tetap tidak boleh dikutip sebagai hasil lapangan; yang berubah adalah kita punya
+alasan untuk mempercayainya sebagai alat eksplorasi.
+
+### B6. Biaya — dan koreksi terhadap pembingkaian §B7b Sesi C
+
+Setelan produksi, awan nyata, `grow=1`: MS-BL **1406,7 s**, GNG **53,4 s**
+(GNG di sini lebih lambat dari 25,5 s §B7b karena pool nyata 12.000 titik dengan
+23 epoch auto, bukan pool proksi).
+
+`p1_g5 §B7` menyebut perlambatan ini "struktural". Itu benar tapi terlalu longgar,
+dan sempat terbaca seolah batch learning itu sendiri yang mahal. **Yang mahal
+adalah kadens pertumbuhan**, dan itu terverifikasi di sumbernya:
+
+```c
+// Meso-HSR/GNG.h, akhir MS_GNG_learning
+if (GNGinfo[m].ngn < GNGinfo[m].maxNeuron)   //  add neuron per every it iteration
+    GNG_add(m);
+```
+
+Satu batch = satu node → tumbuh ke 1800 node butuh **1800 lintasan data**,
+sementara GNG online menyisipkan tiap `lam=100` sampel **di dalam** satu lintasan
+(23 epoch cukup). Bandingkan kerjanya: ~1,3e10 vs ~4,6e8 evaluasi jarak (~28×),
+terukur 26×. Portnya **setia**; yang mahal adalah kadensnya.
+
+Konsekuensi yang tidak berubah: **online tetap lebih murah dengan MS-BL** — di
+`env_gng` satu tick = satu batch, jadi ~800 `step()` Python diganti satu operasi
+matriks (`p1_g5 §B7`).
+
+**`fit(grow=k)` — diukur, menjawab utang Jalur B-3:**
+
+| grow | detik | percepatan | QE_mean | cov@5cm | n_nodes | D2 bit-identik |
+|---|---|---|---|---|---|---|
+| 1 | 1406,7 | 1,0× | 0,03048 | 0,945 | 1800 | ✅ |
+| 4 | 370,2 | 3,8× | 0,03071 (+0,8%) | 0,940 | 1800 | ✅ |
+| 8 | 189,4 | 7,4× | 0,03087 (+1,3%) | 0,941 | 1800 | ✅ |
+| 16 | **99,7** | **14,1×** | 0,03099 (+1,7%) | 0,936 | 1800 | ✅ |
+
+Biaya ~linier terhadap `1/grow` (14,1× pada k=16 dari ideal 16×), QE bergerak
+<2%, `n_nodes` tetap 1800, dan **D2 bertahan di setiap k** — yang menentukan,
+karena D2-lah alasan MS-BL ada di sini. 23 menit → 100 detik masih lulus kedua
+ambang paritas §A1/C2 dengan margin.
+
+⚠️ Angka `grow` diukur **sementara RViz jalan**, jadi sedikit pesimis. Biasnya
+melawan klaim percepatan, bukan mendukungnya.
+
+**Jalur produksi tetap `grow=1`** dan seluruh angka §B1–§B5 memakai `grow=1`.
+Tabel ini menyatakan perubahan itu **tersedia dan aman**, bukan bahwa ia sudah
+diambil — memilih default adalah keputusan naskah.
+
+Tersangka berikutnya, **belum diukur**: `learn_batch` mengalokasi matriks
+ko-aktivasi `(n, n)` per batch (26 MB pada n=1800) lalu memindainya dengan
+`np.triu`. Bisa jadi porsi besar sisa waktunya, dan bisa hilang tanpa mengubah
+hasil sama sekali.
+
+### B7. Yang TIDAK dikerjakan, dan kenapa
+
+- **Ekstrinsik tidak disentuh** (§A0). Tidak ada alasan, dan itu jam kerja hilang.
+- **Akurasi geometri peta terhadap ruangan tidak diukur** — tidak ada ground
+  truth terukur untuk adegan ini (§A4).
+- **Paritas action map / IK tidak diulang** — itu C3 Sesi C.
+- **`grow` tidak diubah di jalur produksi** (§B6).
+- **Optimasi `(n,n)` tidak dikerjakan** — ditemukan saat gate sedang diukur;
+  menyentuh jalur fit saat itu akan mencemari angka yang sedang diambil.
+
+### B8. Papan skor §7.2 — dugaan ke-9, dan polanya AKHIRNYA putus
+
+Delapan dugaan sebelumnya meleset, **semuanya** ke arah menduga kendala lebih
+mengikat daripada kenyataannya.
+
+**Ke-9 (sesi ini):** "penangkapan ulang di lapangan akan jauh lebih berantakan
+daripada proksi; D2 lapangan adalah taruhan yang sesungguhnya." **Diukur: D2
+lulus bit-identik, dan proksi memprediksi arah dengan benar di keempat baris
+(§B5).** Jadi kali ini dugaannya menaksir masalah **lebih mengikat** juga — pola
+yang sama — tapi hasilnya **bukan** kejutan yang membalik kesimpulan: ia
+mengonfirmasi.
+
+Yang layak dibawa: dugaan ini pun diturunkan dari **intuisi tentang lapangan**,
+bukan dari jalur data kode. Pembeda yang sama seperti Sesi A tetap berlaku —
+dugaan yang tepat datang dari menelusuri variabel (`params.seed`, `GNG_add` di
+akhir batch), bukan dari menakar keketatan.

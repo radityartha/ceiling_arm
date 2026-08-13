@@ -70,7 +70,16 @@ diputuskan di awal sesi: ukuran instance yang masih tractable untuk exact, defin
 makespan, apakah handover dimodelkan sebagai satu tugas dua-lengan atau dua tugas
 tergandeng, dan ambang optimality gap yang dianggap "cukup baik".
 
-### 🥈 Jalur C — Peta statis nyata (HARDWARE: KAMERA SAJA, kecil, KERJAKAN SEGERA)
+### ✅ Jalur C — Peta statis nyata — **SELESAI 2026-08-13 (Sesi G6)**
+
+> **SELURUH sub-bagian di bawah adalah CATATAN SEJARAH, bukan pekerjaan tersisa.**
+> Hasil: [p1_g6_map.md](p1_g6_map.md). **D2 lapangan LULUS bit-identik**
+> (`max|ΔW|`: GNG 2,712 m → MS-BL 0,0). Awan mentah kedua penangkapan tersimpan
+> di `/tmp/topo_cloud_{a,b}.npz` dan round-trip-nya **terverifikasi**, jadi
+> jendela kamera sudah tidak diperlukan lagi untuk pertanyaan apa pun tentang
+> adegan ini. Jalur B-4 (`n_comp`) ikut tertutup — jawabannya "tidak bisa
+> dijawab untuk adegan nyata", bukan sebuah angka. Jalur B-3 (`grow=k`) juga
+> terjawab: 14,1× lebih cepat pada k=16, D2 tetap bit-identik (§B6).
 
 Kecil tapi ditaruh di atas Jalur B karena **jendelanya menutup** saat lengan dipasang.
 
@@ -103,12 +112,15 @@ Empat hal, urut menurut risiko menyesatkan:
    identik sampai 3 angka penting), wajar hanya di arm2 (0.196–0.232). Ada yang
    salah di `manip_at` atau di model tereduksi untuk grup tersebut. Didiagnosis,
    bukan ditambal.
-3. **Biaya offline MS-BL** — `learn_batch(grow=k)` sudah jadi knob. Ukur `k>1`
-   untuk melihat berapa 1033 s bisa turun tanpa merusak QE. **Jangan** menulis
-   "bisa dipercepat" di naskah sebelum angkanya ada.
-4. **`n_comp` proxy 2→3** — tidak ada ground truth untuk adegan nyata, jadi
-   **tidak bisa** disebut perbaikan maupun kemunduran. Akan terjawab sendiri oleh
-   Jalur C.
+3. ~~**Biaya offline MS-BL** — ukur `learn_batch(grow=k)` untuk `k>1`.~~
+   ✅ **SELESAI (Sesi G6, p1_g6_map §B6).** Pada awan NYATA, setelan produksi:
+   k=4 → 3,8×, k=8 → 7,4×, k=16 → **14,1×** (1406,7 s → 99,7 s), QE naik <2%,
+   `n_nodes` tetap 1800, dan **D2 bit-identik di setiap k**. Jalur produksi
+   tetap `grow=1`; angkanya ada, keputusannya keputusan naskah.
+4. ~~**`n_comp` proxy 2→3**~~ ✅ **TERTUTUP (Sesi G6).** Di awan nyata GNG 5 →
+   MS-BL 10, dan itu **tetap** tidak bisa disebut perbaikan maupun kemunduran —
+   adegan nyata tidak punya ground truth jumlah komponen. Jawabannya adalah
+   "tidak bisa dijawab", bukan sebuah angka. Jangan dibuka lagi.
 
 ### 4️⃣ Jalur D — Reach-and-dwell di hardware (TERBLOKIR sampai lengan dipasang)
 
