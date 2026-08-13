@@ -336,9 +336,14 @@ class EnvGNG(Node):
             # (dynamic data distributions). The batch is drawn by content-sorted
             # order inside partial_fit, so the live map no longer depends on the
             # order points arrive in within a tick.
-            sub = pool[self._rng.choice(len(pool),
-                                        size=min(self.batch, len(pool)),
-                                        replace=False)]
+            # Draw the tick's samples from the CONTENT-sorted pool, not from
+            # raw row order: picking by row index would make the live map depend
+            # on the order points happen to arrive in, which is the very
+            # order-dependence the batch update exists to remove.
+            canon = pool[BLGNG.canonical_order(pool)]
+            sub = canon[self._rng.choice(len(canon),
+                                         size=min(self.batch, len(canon)),
+                                         replace=False)]
             self.gng.partial_fit(sub, grow=self.grow_per_tick)
             self._tick_i += 1
             if self.prune_dist > 0 and self._tick_i % self.prune_every == 0:

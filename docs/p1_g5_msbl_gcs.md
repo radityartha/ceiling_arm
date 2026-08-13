@@ -364,11 +364,39 @@ lambat**. Sebabnya struktural: MS-BL menambah **satu node per batch**, jadi
 biayanya ≈ `max_nodes × |batch| × n_node`, sementara GNG menyisipkan setiap
 `lam` sampel.
 
+#### B7b. Setelan produksi — DIUKUR, bukan diekstrapolasi
+
+`map_topo_static` sebenarnya berjalan pada `max_nodes=1800`,
+`fit_max_points=12000`. Diukur langsung di sana (mesin sepi, pool proxy sama):
+
+| | node | sisi | QE_mean | waktu |
+|---|---|---|---|---|
+| GNG | 1800 | 3220 | 0.0292 m | **25.5 s** |
+| MS-BL-GNG | 1800 | 2732 | **0.0270 m** | **1033.5 s** (17.2 menit) |
+
+➜ **40× lebih lambat pada setelan produksi**, bukan 12×. Perlambatannya
+**superlinier** terhadap `max_nodes`, persis seperti yang diduga strukturnya
+(`max_nodes × |batch| × n_node`), jadi ekstrapolasi dari angka 400-node akan
+**meleset 3×** — alasan lain untuk mengukur.
+
+Apakah ini bisa diterima? Untuk `map_topo_static` **ya**: ia jalan **sekali**,
+offline, saat adegan statis ditangkap. 17 menit sekali seumur tata-letak, ditukar
+dengan peta yang tidak berubah saat awan titik yang sama disajikan ulang.
+Tapi angkanya harus **disebut**, bukan disembunyikan, dan kalau nanti
+`max_nodes` dinaikkan, biayanya naik kuadratik.
+
 Yang **tidak** terpengaruh: `env_gng` (online). Di sana satu tick persepsi = satu
 batch, jadi 800 panggilan `step()` Python diganti **satu** operasi matriks —
-lebih murah, bukan lebih mahal.
+lebih murah, bukan lebih mahal. Diverifikasi langsung dengan mengonstruksi node
+dan menyuapinya awan sintetis (tanpa kamera): 12 tick → 98 node, 234 sisi, dan
+peta hidupnya **identik** ketika awan yang sama disajikan dalam urutan
+teracak.
 
-*(Biaya pada setelan produksi `max_nodes=1800` diukur terpisah — lihat B7b.)*
+> ⚠️ Invariansi urutan di `env_gng` **tidak gratis** dan sempat gagal: subsampel
+> per-tick semula memilih berdasarkan **indeks baris**, sehingga awan yang
+> dipermutasi memilih titik berbeda. Diperbaiki dengan menarik sampel dari pool
+> terurut-konten, sama seperti `fit_static_map_bl`. Jebakan yang sama muncul dua
+> kali di dua tempat berbeda — layak diingat kalau ada jalur ketiga ditambahkan.
 
 ### B8. Yang TIDAK dikerjakan, dan kenapa
 
