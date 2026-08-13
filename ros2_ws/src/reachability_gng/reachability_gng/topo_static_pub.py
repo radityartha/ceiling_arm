@@ -1,4 +1,4 @@
-"""Publish the saved STATIC GNG map as RViz/collision markers.
+"""Publish the saved STATIC MS-BL-GNG map as RViz/collision markers.
 
 Loads the graph mapped once by map_topo_static.py and republishes it on a timer
 as /topo_map/static/markers (transient-local, so a late RViz/gng_collision still
@@ -23,7 +23,7 @@ from rclpy.qos import QoSDurabilityPolicy, QoSProfile
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import Marker, MarkerArray
 
-from reachability_gng.gng import GNG
+from reachability_gng.bl_gng import BLGNG
 
 
 class TopoStaticPub(Node):
@@ -60,7 +60,7 @@ class TopoStaticPub(Node):
     def _build(self):
         if not os.path.exists(self.map_file):
             return None
-        g = GNG.load(self.map_file)
+        g = BLGNG.load(self.map_file)
         W = g.W
         blue = ColorRGBA(r=0.35, g=0.55, b=0.95, a=1.0)
         now = self.get_clock().now().to_msg()

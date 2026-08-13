@@ -22,7 +22,7 @@ from tf2_ros import (Buffer, ConnectivityException, ExtrapolationException,
                      LookupException, TransformListener)
 from visualization_msgs.msg import Marker, MarkerArray
 
-from reachability_gng.gng import GNG, GNGParams
+from reachability_gng.bl_gng import BLGNG, BLGNGParams
 
 # Kinova Gen3 Lite arm chain (self-filter capsules along consecutive links).
 _ARM_CHAIN = ['shoulder_link', 'arm_link', 'forearm_link',
@@ -238,8 +238,13 @@ class EnvGNG(Node):
         self._pending = {}            # newest RAW msg per camera, processed in _update
         self._latest = {}             # newest downsampled cloud per camera
         self._rng = np.random.default_rng(0)
-        self.gng = GNG(dim=3, task_dim=3, params=GNGParams(
-            max_nodes=int(g('max_nodes')), lam=int(g('lam'))))
+        # MS-BL-GNG: one perception tick = one batch. `lam` no longer gates
+        # insertion (MS-BL adds per batch, not per sample), so the old
+        # "insert every lam samples" rate is converted to nodes-per-batch to
+        # keep the live map growing at the rate this node was tuned for.
+        self.grow_per_tick = max(1, self.batch // max(1, int(g('lam'))))
+        self.gng = BLGNG(dim=3, task_dim=3, params=BLGNGParams(
+            max_nodes=int(g('max_nodes'))))
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
@@ -298,7 +303,7 @@ class EnvGNG(Node):
                 f'static_map {path} not found -- running WITHOUT background '
                 'subtraction (whole-scene live map); run map_topo_static first')
             return None
-        g = GNG.load(path)
+        g = BLGNG.load(path)
         self.get_logger().info(
             f'static background: {len(g.W)} nodes from {path}; '
             f'subtracting points within {self.bg_dist} m')
@@ -327,11 +332,14 @@ class EnvGNG(Node):
             self._pending.pop(ns, None)
         pool = self._pool()
         if len(pool) >= 2:
-            if len(self.gng.W) == 0:
-                self.gng.init_two(pool)
-            for i in self._rng.choice(len(pool), size=min(self.batch, len(pool)),
-                                      replace=False):
-                self.gng.step(pool[i])
+            # One tick's cloud IS the MS-BL batch -- which is what MS-BL is for
+            # (dynamic data distributions). The batch is drawn by content-sorted
+            # order inside partial_fit, so the live map no longer depends on the
+            # order points arrive in within a tick.
+            sub = pool[self._rng.choice(len(pool),
+                                        size=min(self.batch, len(pool)),
+                                        replace=False)]
+            self.gng.partial_fit(sub, grow=self.grow_per_tick)
             self._tick_i += 1
             if self.prune_dist > 0 and self._tick_i % self.prune_every == 0:
                 self._prune_stale(pool)

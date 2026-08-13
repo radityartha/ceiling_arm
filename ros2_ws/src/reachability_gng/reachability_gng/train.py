@@ -1,7 +1,13 @@
-"""Train the GNG on an FK dataset and attach per-node reachability stats.
+"""Train the action map on an FK dataset and attach per-node reachability stats.
 
 Pipeline:
-    dataset.npz  --(build [task | q] matrix)-->  GNG.fit  -->  model.npz
+    dataset.npz  --(build [task | q] matrix)-->  fit  -->  model.npz
+
+--algo picks the network. `gcs` is the manuscript's algorithm (Growing Cell
+Structures, simplex invariant repaired -- see gcs.py); `gng` is the plain
+Fritzke GNG kept as the ABLATION BASELINE, because /tmp/arm{1..4}_model.npz were
+trained with it and eval.py compares the two side by side. Never overwrite a
+`gng` model with a `gcs` one: they are the two arms of that comparison.
 
 Task space is selectable:
     --task pos   : xyz only            (task_dim = 3)
@@ -28,6 +34,7 @@ import argparse
 import numpy as np
 import yaml
 
+from reachability_gng.gcs import GCS, GCSParams
 from reachability_gng.gng import GNG, GNGParams
 
 
@@ -109,7 +116,7 @@ def knn_edges(P, k=6):
     return list(edges)
 
 
-def annotate(g: GNG, X, manip):
+def annotate(g, X, manip):
     """Assign each sample to its BMU and accumulate hits + mean manipulability."""
     hits = np.zeros(len(g.W))
     manip_sum = np.zeros(len(g.W))
@@ -151,6 +158,10 @@ def main():
     ap.add_argument('--lam', type=int, default=200)
     ap.add_argument('--epochs', type=int, default=2)
     ap.add_argument('--seed', type=int, default=0)
+    ap.add_argument('--algo', choices=['gng', 'gcs'], default='gng',
+                    help='gcs = Growing Cell Structures (the manuscript\'s '
+                    'algorithm); gng = plain Fritzke GNG, kept as the ablation '
+                    'baseline. Write the two to DIFFERENT files.')
     ap.add_argument('--boundary-nodes', type=int, default=0,
                     help='pin this many fixed boundary-shell nodes on the true '
                     'reachable surface before growing the interior (0 = off, '
@@ -167,8 +178,14 @@ def main():
     data = np.load(args.dataset)
     X, task_dim = build_matrix(data, args.task, args.ori_weight)
 
-    params = GNGParams(max_nodes=args.max_nodes, lam=args.lam, seed=args.seed)
-    g = GNG(dim=X.shape[1], task_dim=task_dim, params=params)
+    if args.algo == 'gcs':
+        g = GCS(dim=X.shape[1], task_dim=task_dim,
+                params=GCSParams(max_nodes=args.max_nodes, seed=args.seed,
+                                 add_every=args.lam))
+    else:
+        g = GNG(dim=X.shape[1], task_dim=task_dim,
+                params=GNGParams(max_nodes=args.max_nodes, lam=args.lam,
+                                 seed=args.seed))
     if args.boundary_nodes > 0:
         pos = X[:, :3]                              # metric xyz for geometry
         bmask = boundary_mask(pos, k=args.boundary_k, tau=args.boundary_tau)
@@ -199,7 +216,8 @@ def main():
 
     np.savez(base + '_stats.npz', hits=hits, manip=node_manip, hold=hold,
              joint_names=names)
-    print(f'Trained GNG: {len(g.W)} nodes ({int(g.pinned.sum())} pinned '
+    print(f'Trained {args.algo.upper()}: {len(g.W)} nodes '
+          f'({int(g.pinned.sum())} pinned '
           f'boundary), {len(g._edges)} edges, task_dim={task_dim}. '
           f'Saved {args.out} (+ _stats, '
           f'hold={"computed" if args.config else "zeros"}).')

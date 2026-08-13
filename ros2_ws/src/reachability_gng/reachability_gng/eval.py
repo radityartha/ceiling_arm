@@ -8,9 +8,13 @@ Two subcommands:
            the table provides -- the headline arm-only vs arm+table figure.
 
   ik       MoveIt IK benchmark over held-out reachable poses. Needs move_group
-           running (/compute_ik) and a trained GNG model. Compares seeding
-           strategies: gng | none | random. Reports success rate, solve time,
-           and (with --config) manipulability of the returned solution.
+           running (/compute_ik) and a trained model. Compares seeding
+           strategies: gcs | gng | none | random. Reports success rate, solve
+           time, and (with --config) manipulability of the returned solution.
+
+           `gcs` and `gng` seed from DIFFERENT model files (--gcs-model /
+           --model), so the two are the arms of the action-map ablation and
+           must be reported side by side, never one in place of the other.
 
 Examples
 --------
@@ -96,10 +100,15 @@ def cmd_ik(args):
     from moveit_msgs.srv import GetPositionIK
     from rclpy.node import Node
 
+    from reachability_gng.gcs import GCS
     from reachability_gng.gng import GNG
     from reachability_gng.seed_ik import build_ik_request, solve_ik
 
     gng = GNG.load(args.model)
+    gcs = GCS.load(args.gcs_model) if args.gcs_model else None
+    if 'gcs' in args.methods and gcs is None:
+        raise SystemExit('--methods gcs needs --gcs-model (train with '
+                         '`train.py --algo gcs -o arm1_gcsx.npz`)')
     stats = (args.model[:-4] if args.model.endswith('.npz') else args.model) \
         + '_stats.npz'
     try:
@@ -131,8 +140,8 @@ def cmd_ik(args):
     node.get_logger().info('waiting for /compute_ik ...')
     cli.wait_for_service()
 
-    def task_vec(row):
-        if gng.task_dim == 3:
+    def task_vec(row, task_dim):
+        if task_dim == 3:
             return row[:3]
         v = row[:7].copy()
         v[3:] *= args.ori_weight
@@ -140,7 +149,9 @@ def cmd_ik(args):
 
     def seed_for(method, row):
         if method == 'gng':
-            return [gng.seed_q(task_vec(row))]
+            return [gng.seed_q(task_vec(row, gng.task_dim))]
+        if method == 'gcs':
+            return [gcs.seed_q(task_vec(row, gcs.task_dim))]
         if method == 'none':
             return [np.zeros(len(names))]
         if method == 'random':
@@ -213,11 +224,12 @@ def main():
     pv.set_defaults(func=cmd_volume)
 
     pk = sub.add_parser('ik', help='MoveIt IK benchmark (needs move_group)')
-    pk.add_argument('--model', required=True)
+    pk.add_argument('--model', required=True, help='GNG model (baseline arm)')
+    pk.add_argument('--gcs-model', help='GCS model, for --methods gcs')
     pk.add_argument('--dataset', required=True, help='source of test poses')
     pk.add_argument('--config', help='YAML (enables random-restart + manip)')
     pk.add_argument('--methods', nargs='+', default=['gng', 'none'],
-                    choices=['gng', 'none', 'random'])
+                    choices=['gcs', 'gng', 'none', 'random'])
     pk.add_argument('--group', default='gantry_1_with_arm_1')
     pk.add_argument('--ee-frame', default='t1_a1_tool_frame')
     pk.add_argument('--frame', default='world')

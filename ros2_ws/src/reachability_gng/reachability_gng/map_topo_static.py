@@ -32,7 +32,55 @@ from tf2_ros import (Buffer, ConnectivityException, ExtrapolationException,
 
 from reachability_gng.env_gng import (_cloud_xyz, _radius_outlier_removal,
                                       _voxel_downsample, apply_self_filter)
+from reachability_gng.bl_gng import BLGNG, BLGNGParams
 from reachability_gng.gng import GNG, GNGParams
+
+
+def fit_static_map(pool, max_nodes, lam, epochs, fit_max_points):
+    """Fit the static topological map to a world-frame point pool.
+
+    Split out of the node so the determinism/quality benchmark
+    (test/bench_topo_determinism.py) measures the code that actually ships,
+    not a re-implementation of it. Returns (graph, pool_used, epochs_used).
+    """
+    if 0 < fit_max_points < len(pool):          # bound per-epoch cost
+        rng = np.random.default_rng(0)           # fixed seed -> reproducible
+        pool = pool[rng.choice(len(pool), fit_max_points, replace=False)]
+    # AUTO epochs: enough passes so epochs*points >= ~1.5*max_nodes*lam to
+    # grow the graph to max_nodes and settle, regardless of pool size.
+    if epochs <= 0:
+        target = int(1.5 * max_nodes * lam)
+        epochs = max(3, -(-target // len(pool)))   # ceil div
+    gng = GNG(dim=3, task_dim=3,
+              params=GNGParams(max_nodes=max_nodes, lam=lam))
+    gng.fit(pool, epochs=epochs)
+    # freeze the whole graph: it is a fixed background model from here on.
+    gng.pinned[:] = True
+    return gng, pool, epochs
+
+
+def fit_static_map_bl(pool, max_nodes, lam, epochs, fit_max_points):
+    """MS-BL-GNG version of fit_static_map -- the shipping path since 2026-08-13.
+
+    Differs from the GNG path in two ways that both serve reproducibility
+    (docs/p1_g5_msbl_gcs.md §A1/C1):
+
+    * the cost-bounding subsample is drawn from the CANONICAL (content-sorted)
+      pool, not from raw row order -- drawing by row index would reintroduce
+      exactly the order dependence the batch update removes;
+    * `lam` is unused: MS-BL adds one node per batch by construction, so there
+      is no "insert every lam samples" knob. It stays in the signature so the
+      node's parameters and the benchmark keep one call shape.
+    """
+    pool = np.asarray(pool, dtype=np.float64)
+    if 0 < fit_max_points < len(pool):
+        canon = pool[BLGNG.canonical_order(pool)]
+        rng = np.random.default_rng(0)
+        pool = canon[rng.choice(len(canon), fit_max_points, replace=False)]
+    g = BLGNG(dim=3, task_dim=3, params=BLGNGParams(max_nodes=max_nodes))
+    g.fit(pool, epochs=epochs)
+    g.pinned[:] = True     # fixed background model from here on
+    return g, pool, (epochs if epochs > 0 else g.params.settle_batches)
 
 
 class MapTopoStatic(Node):
@@ -168,21 +216,9 @@ class MapTopoStatic(Node):
                 'check cameras / bands')
             return
         captured = len(pool)
-        if 0 < self.fit_max_points < len(pool):     # bound per-epoch cost
-            rng = np.random.default_rng(0)           # fixed seed -> reproducible
-            pool = pool[rng.choice(len(pool), self.fit_max_points, replace=False)]
-        # AUTO epochs: enough passes so epochs*points >= ~1.5*max_nodes*lam to
-        # grow the graph to max_nodes and settle, regardless of pool size.
-        epochs = self.epochs
-        if epochs <= 0:
-            target = int(1.5 * self.max_nodes * self.lam)
-            epochs = max(3, -(-target // len(pool)))   # ceil div
-        gng = GNG(dim=3, task_dim=3,
-                  params=GNGParams(max_nodes=self.max_nodes, lam=self.lam))
-        gng.fit(pool, epochs=epochs)
+        gng, pool, epochs = fit_static_map(pool, self.max_nodes, self.lam,
+                                           self.epochs, self.fit_max_points)
         self.epochs = epochs   # for the log line
-        # freeze the whole graph: it is a fixed background model from here on.
-        gng.pinned[:] = True
         gng.save(self.output)
         self.get_logger().info(
             f'static GNG mapped: {captured} captured -> fit on {len(pool)} pts '
