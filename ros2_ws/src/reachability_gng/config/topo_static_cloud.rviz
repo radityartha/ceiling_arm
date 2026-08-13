@@ -1,0 +1,95 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Plane Cell Count: 20
+      Reference Frame: world
+    - Class: rviz_default_plugins/MarkerArray
+      Name: TopoStatic
+      Enabled: true
+      Topic:
+        Value: /topo_map/static/markers
+        Depth: 1
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+    # True-colour clouds: what the room looks like. Viz only -- nothing in the
+    # planning pipeline reads these (see realsense_dual.launch.py).
+    - Class: rviz_default_plugins/PointCloud2
+      Name: ColorCloud rgbd
+      Enabled: true
+      Topic:
+        Value: /rgbd/color_cloud
+        Depth: 5
+        Durability Policy: Volatile
+        Reliability Policy: Best Effort
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: RGB8
+      Decay Time: 0
+    - Class: rviz_default_plugins/PointCloud2
+      Name: ColorCloud rgbd2
+      Enabled: true
+      Topic:
+        Value: /rgbd2/color_cloud
+        Depth: 5
+        Durability Policy: Volatile
+        Reliability Policy: Best Effort
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: RGB8
+      Decay Time: 0
+    # depth_cloud is the geometry that ACTUALLY feeds map_topo_static/env_gng.
+    # Off by default (it overlaps the colour cloud); turn on to see what the map
+    # was fitted to, e.g. when a map has a hole and you need to know whether the
+    # hole is in the map or was never in the cloud.
+    - Class: rviz_default_plugins/PointCloud2
+      Name: DepthCloud rgbd (fed the map)
+      Enabled: false
+      Topic:
+        Value: /rgbd/depth_cloud
+        Depth: 5
+        Durability Policy: Volatile
+        Reliability Policy: Best Effort
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: FlatColor
+      Color: 255; 170; 0
+      Decay Time: 0
+    - Class: rviz_default_plugins/PointCloud2
+      Name: DepthCloud rgbd2 (fed the map)
+      Enabled: false
+      Topic:
+        Value: /rgbd2/depth_cloud
+        Depth: 5
+        Durability Policy: Volatile
+        Reliability Policy: Best Effort
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: FlatColor
+      Color: 0; 200; 255
+      Decay Time: 0
+  Global Options:
+    Fixed Frame: world
+    Background Color: 30; 30; 30
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      Distance: 8
+      Focal Point:
+        X: 1.0
+        Y: 0.0
+        Z: 0.8
+      Pitch: 0.5
+      Yaw: 2.6
+Window Geometry:
+  Height: 900
+  Width: 1500

@@ -276,13 +276,18 @@ class BLGNG:
         lvl = int(np.searchsorted(np.asarray(p.ms_fracs), fr, side='right'))
         return p.ms_strides[min(lvl, len(p.ms_strides) - 1)], lvl
 
-    def fit(self, X, epochs=0):
+    def fit(self, X, epochs=0, grow=1):
         """Grow to ``max_nodes`` on X, then settle.
 
         ``epochs`` is accepted for API parity with ``GNG.fit``; for MS-BL it sets
         the number of FULL-batch settling passes after growth (<=0 keeps the
         ``settle_batches`` default). Growth itself is driven by the multi-scale
         schedule, one node per batch, exactly as the source does.
+
+        ``grow`` is nodes added per batch (default 1 = the source's cadence).
+        Growth needs ``max_nodes/grow`` batches, so fit cost is ~linear in
+        1/grow -- the only knob that moves the 1400 s production fit. Raising it
+        deviates from the source; measured in docs/p1_g6_map.md §B6.
         """
         X = np.asarray(X, dtype=np.float64)
         Xc = X[self.canonical_order(X)]      # deviation 1: content-derived order
@@ -294,7 +299,7 @@ class BLGNG:
         while len(self.W) < p.max_nodes and guard < max_batches:
             stride, _ = self._stride()
             offset = self._batch_no % stride
-            self.learn_batch(Xc[offset::stride], grow=1)
+            self.learn_batch(Xc[offset::stride], grow=grow)
             self._batch_no += 1
             guard += 1
         settle = epochs if epochs > 0 else p.settle_batches

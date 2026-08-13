@@ -58,7 +58,17 @@ def main():
     ap.add_argument('--epochs', type=int, default=0)
     ap.add_argument('--fit-max-points', type=int, default=12000)
     ap.add_argument('--json', help='append one JSON result line to this file')
+    # The maps map_topo_static already wrote ARE fit_static_map_bl() over the
+    # very pools SAVE_CLOUD stored, so refitting them costs 17 min each to
+    # reproduce a file we have. Loading them instead makes the D2 gate compare
+    # the SAVED map against the permuted refit, which -- if it passes -- also
+    # proves the cloud/map pair on disk round-trips. Only valid for --algo bl.
+    ap.add_argument('--saved-map-a')
+    ap.add_argument('--saved-map-b')
     args = ap.parse_args()
+    if (args.saved_map_a or args.saved_map_b) and args.algo != 'bl':
+        raise SystemExit('--saved-map-* only valid with --algo bl '
+                         '(the node ships the MS-BL path)')
 
     ca, cap_a = load_cloud(args.cloud_a)
     cb, cap_b = load_cloud(args.cloud_b)
@@ -92,9 +102,20 @@ def main():
         return g, used, ep, round(time.perf_counter() - t, 1)
 
     # --- G2 D2 field: the gate ------------------------------------------------
-    g_a, used_a, ep, t_a = run(ca)
+    # SAVE_CLOUD stores the pool AFTER the fit-time subsample, so refitting it
+    # never subsamples again (0 < fit_max_points < len(pool) is false) and the
+    # fitted pool is the saved cloud itself. Asserted, not assumed.
+    assert len(ca) <= args.fit_max_points, (
+        f'{args.cloud_a} has {len(ca)} pts > fit_max_points={args.fit_max_points}; '
+        'the saved cloud is meant to be the post-subsample pool')
+    if args.saved_map_a:
+        from reachability_gng.bl_gng import BLGNG
+        g_a, used_a, ep, t_a = BLGNG.load(args.saved_map_a), ca, 'saved', 0.0
+    else:
+        g_a, used_a, ep, t_a = run(ca)
     res['epochs'] = ep
     res['fit_seconds'] = t_a
+    res['maps_loaded'] = bool(args.saved_map_a)
     perm = np.random.default_rng(7).permutation(len(ca))
     g_p, _, _, t_p = run(ca[perm])
     ok2, delta2 = node_set_equal(g_a.W, g_p.W)
@@ -102,7 +123,11 @@ def main():
                     'drift': map_distance(g_a.W, g_p.W), 'fit_seconds': t_p}
 
     # --- G4 D3 field ----------------------------------------------------------
-    g_b, _, _, t_b = run(cb)
+    if args.saved_map_b:
+        from reachability_gng.bl_gng import BLGNG
+        g_b, t_b = BLGNG.load(args.saved_map_b), 0.0
+    else:
+        g_b, _, _, t_b = run(cb)
     keep = np.random.default_rng(7).choice(len(ca), int(0.95 * len(ca)),
                                            replace=False)
     g_s, _, _, t_s = run(ca[keep])
