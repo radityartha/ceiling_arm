@@ -22,6 +22,11 @@
 #
 # Other knobs via env vars (defaults match map_topo_static):
 #   CAPTURE=8.0  MAX_NODES=1800  MAX_Z=1.75  MAX_X_FROM_CAMERA=2.5  SELF_FILTER=true
+#   SAVE_CLOUD=/tmp/topo_cloud_a.npz   also dump the RAW fitted cloud ('' = off)
+# SAVE_CLOUD is worth setting for any capture you might want to revisit: a
+# capture needs a cleared scene, so re-running one is not free. With the cloud
+# on disk, a different fit / an order-invariance replay / a quality comparison
+# costs nothing later; without it, they cost another cleared scene.
 # MAX_X_FROM_CAMERA: drop points farther than this (m) from EACH camera's own
 # world-X position (not a fixed world-X band); <=0 disables.
 #
@@ -109,7 +114,8 @@ ros2 run reachability_gng map_topo_static --ros-args \
   -p "max_nodes:=${MAX_NODES}" \
   -p "max_z:=${MAX_Z}" \
   -p "max_x_from_camera:=${MAX_X_FROM_CAMERA}" \
-  -p "output:=${OUT}"
+  -p "output:=${OUT}" \
+  -p "save_cloud:=${SAVE_CLOUD:-}"
 
 echo "=== done -> ${OUT} ==="
 echo "view:  ros2 run reachability_gng topo_static_pub --ros-args -p map_file:=${OUT}"
