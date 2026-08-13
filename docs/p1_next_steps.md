@@ -130,7 +130,7 @@ Empat hal, urut menurut risiko menyesatkan:
 
 | Keputusan | Rekomendasi | Kapan |
 |---|---|---|
-| **Klaim action map di naskah** | **Jangan klaim percepatan IK.** Bingkai ulang sebagai **indeks ruang kerja / pembangkit kandidat** — itu memang perannya di `gantry_reach_executor` (`query_radius` → kolam kandidat, di-rank ulang dengan biaya energi). Laporkan ablation seeding sebagai hasil negatif satu tabel. | setelah Jalur B-1 |
+| **Klaim action map di naskah** | **Jangan klaim percepatan IK.** Bingkai ulang sebagai **indeks kelayakan / pembangkit kandidat**: `query_radius` menghasilkan kolam pose gantry+lengan yang layak untuk satu target. ⚠️ **Ranking-nya pakai biaya WAKTU SETUP `T_traverse` (§5.6), BUKAN energi** — `w_hold`/`w_manip` di `gantry_reach_executor` itu warisan paper konferensi Energy-Aware dan **di luar lingkup P1** (`p1_plan.md §6`); untuk P1 set keduanya 0. Laporkan ablation seeding sebagai hasil negatif satu tabel. | setelah Jalur B-1 |
 | **GCS jadi default runtime?** | **Belum.** Keduanya sisi ablation. Kalau nanti dialihkan: cukup arahkan parameter `arm_models` ke `arm{n}_gcsx.npz` — tata-letak npz identik, **nol perubahan kode**. | keputusan naskah |
 | **Metrik pengganti untuk klaim seeding** | Laju keberhasilan sudah **jenuh** (89–98%), tidak bisa membedakan apa pun. Kalau tetap mau klaim seeding, ukur **konsistensi konfigurasi antar tugas berurutan** (jarak sendi ditempuh / elbow-flip) — itu yang relevan untuk scheduler. | bersama Jalur A |
 | **Grasp** | ⏳ **TENGGAT 2026-11-13** (≈3 bulan lagi). Kalau sampai tanggal itu belum ada lengan mengangkat objek ≥5 cm dan menahannya, paper **berkomitmen** ke formulasi non-grasping dan framing + venue disesuaikan **saat itu juga**. Tanpa handover, slotnya turun ke `ST-SR-TA` — persis slot Qin et al. | 2026-11-13 |
@@ -196,6 +196,11 @@ apa pun yang membutuhkannya.
 - **Batas rel operasional 1600 mm.** Bukan 2000.
 - **Peta kapabilitas: pakai `_rail160`.** `cap_g{1,2}.npz` lama memuat 8 pose rel
   yang TIDAK ADA.
+- **Energy-aware ADALAH PAPER TERPISAH** (`p1_plan.md §6` → `experiment_plan.md`).
+  Fungsi biaya `J` di `gantry_reach_executor` memakai `hold` dan `manip` karena
+  node itu dibangun untuk paper konferensi tersebut. **Jangan menarik energi ke
+  dalam P1.** Biaya P1 = **waktu setup** `T_traverse` (§5.6), objektif = throughput
+  / makespan. Kolom `hold`/`manip` tinggal tidak dipakai (`w_hold=w_manip=0`).
 - **MS-BL-GNG dan GCS bukan kontribusi** — dikutip (Ardilla/Saputra/Kubota IJAT
   2023; Fritzke GCS). Perbaikan invarian simpleks juga bukan kontribusi: itu GCS
   Fritzke standar.
