@@ -83,22 +83,33 @@
         <plugin>mock_components/GenericSystem</plugin>
       </hardware>
 
+      <!-- velocity state is required for the same reason as in the
+           TableRealTopicBased block below: gantry_*_controller asks for
+           state_interfaces [position, velocity] and activation otherwise fails
+           with "State interface with key 't1_linear_joint/velocity' does not
+           exist". The fix was applied to the real block only; here it stayed
+           hidden because the 32-joint FakeSystem mock supplied the interface
+           until that mock was removed from config/trailer_workcell.urdf.xacro. -->
       <joint name="t1_linear_joint">
         <command_interface name="position" />
         <state_interface name="position" />
+        <state_interface name="velocity" />
       </joint>
       <joint name="t1_rotation_joint">
         <command_interface name="position" />
         <state_interface name="position" />
+        <state_interface name="velocity" />
       </joint>
 
       <joint name="t2_linear_joint">
         <command_interface name="position" />
         <state_interface name="position" />
+        <state_interface name="velocity" />
       </joint>
       <joint name="t2_rotation_joint">
         <command_interface name="position" />
         <state_interface name="position" />
+        <state_interface name="velocity" />
       </joint>
     </ros2_control>
   </xacro:if>
@@ -150,21 +161,35 @@
           <param name="joint_commands_topic">table_hw_commands</param>
           <param name="joint_states_topic">table_hw_states</param>
         </hardware>
+        <!-- velocity state is required: gantry_*_controller and
+             gantry_*_with_arm_controller both ask for state_interfaces
+             [position, velocity], and without it activation fails with
+             "State interface with key 't1_linear_joint/velocity' does not
+             exist". It only appeared to work because config/trailer_workcell.
+             urdf.xacro instantiates its 32-joint mock_components FakeSystem
+             unconditionally (even with use_fake_hardware:=false) and that mock
+             supplied the interface. dual_table_controller publishes no velocity
+             field, so this reads a constant 0, which is fine for JTC here: it
+             uses velocity only for tolerance checks we leave unset. -->
         <joint name="t1_linear_joint">
           <command_interface name="position" />
           <state_interface name="position" />
+          <state_interface name="velocity" />
         </joint>
         <joint name="t1_rotation_joint">
           <command_interface name="position" />
           <state_interface name="position" />
+          <state_interface name="velocity" />
         </joint>
         <joint name="t2_linear_joint">
           <command_interface name="position" />
           <state_interface name="position" />
+          <state_interface name="velocity" />
         </joint>
         <joint name="t2_rotation_joint">
           <command_interface name="position" />
           <state_interface name="position" />
+          <state_interface name="velocity" />
         </joint>
       </ros2_control>
     </xacro:if>

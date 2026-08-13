@@ -5,10 +5,20 @@
     <!-- Import trailer_workcell urdf file -->
     <xacro:include filename="$(find workcell_description)/urdf/workcell.urdf.xacro" />
 
-    <!-- Import control_xacro -->
-    <xacro:include filename="trailer_workcell.ros2_control.xacro" />
+    <!-- The 32-joint "FakeSystem" mock that used to be instantiated here is
+         gone on purpose. workcell.urdf.xacro (included above) already covers
+         every one of this robot's 44 joints in BOTH modes: TableFakeHardware /
+         TableRealTopicBased for the 4 table joints, and per-arm
+         ${prefix}GenericSystem + ${prefix}GripperHardwareInterface (fake) or
+         ${prefix}KortexMultiInterfaceHardware (real) for the other 40. Every
+         joint FakeSystem claimed was therefore a second claim on a joint some
+         other component already owned.
 
-
-    <xacro:trailer_workcell_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
+         In real mode that was actively harmful (it re-claimed all 24 arm
+         joints), and even in fake mode resource_manager logged 92 "interface
+         already in available list" warnings and silently dropped the losing
+         claim, so which component actually owned a joint depended on load
+         order. config/real_workcell.urdf.xacro exists only as a workaround for
+         that and is redundant now. -->
 
 </robot>

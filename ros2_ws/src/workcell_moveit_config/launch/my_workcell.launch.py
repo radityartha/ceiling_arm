@@ -43,11 +43,29 @@ def generate_launch_description():
                               description="IP of Arm 3 / t2_a1 (gantry_2, mount_right)"),
         DeclareLaunchArgument("arm4_ip", default_value="192.168.2.10",
                               description="IP of Arm 4 / t2_a2 (gantry_2, mount_left)"),
+        # Per-arm mock override. workcell.urdf.xacro has always accepted these,
+        # but this launch file never forwarded them, so real mode meant opening
+        # a Kortex session to all four arms at once -- and one unreachable arm
+        # aborts the whole ros2_control_node. Mock the arms you are not using to
+        # bring up a single real arm (verified on arm_1 2026-08-12):
+        #   use_fake_hardware:=false arm2_fake:=true arm3_fake:=true arm4_fake:=true
+        DeclareLaunchArgument("arm1_fake",
+                              default_value=LaunchConfiguration("use_fake_hardware"),
+                              description="Mock arm 1 / t1_a1 individually"),
+        DeclareLaunchArgument("arm2_fake",
+                              default_value=LaunchConfiguration("use_fake_hardware"),
+                              description="Mock arm 2 / t1_a2 individually"),
+        DeclareLaunchArgument("arm3_fake",
+                              default_value=LaunchConfiguration("use_fake_hardware"),
+                              description="Mock arm 3 / t2_a1 individually"),
+        DeclareLaunchArgument("arm4_fake",
+                              default_value=LaunchConfiguration("use_fake_hardware"),
+                              description="Mock arm 4 / t2_a2 individually"),
         # Real-hardware gantry bridge (see workcell.urdf.xacro's TableRealTopicBased
         # block + dual_table_controller.py's bridge.* params). Two gates, both
         # must be true to actually drive the steppers from a MoveIt trajectory:
         # dual_table_controller must be running (it isn't in fake-hardware mode,
-        # since the table joints are covered by mock_components/FakeSystem then)
+        # since the table joints are covered by TableFakeHardware then)
         # AND enable_gantry_bridge:=true. Defaults to false even on real hardware
         # so a first real-mode launch doesn't move the tables until reviewed.
         DeclareLaunchArgument("enable_gantry_bridge", default_value="false",
@@ -67,6 +85,10 @@ def generate_launch_description():
                 "arm2_ip":           LaunchConfiguration("arm2_ip"),
                 "arm3_ip":           LaunchConfiguration("arm3_ip"),
                 "arm4_ip":           LaunchConfiguration("arm4_ip"),
+                "arm1_fake":         LaunchConfiguration("arm1_fake"),
+                "arm2_fake":         LaunchConfiguration("arm2_fake"),
+                "arm3_fake":         LaunchConfiguration("arm3_fake"),
+                "arm4_fake":         LaunchConfiguration("arm4_fake"),
                 "enable_gantry_bridge": LaunchConfiguration("enable_gantry_bridge"),
                 "use_sim_time":      "false",
             },
