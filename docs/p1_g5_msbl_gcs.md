@@ -185,6 +185,201 @@ bukan diterima.
 
 ---
 
-## B. Hasil — diisi SESUDAH §A dikunci
+## B. Hasil — diukur SESUDAH §A dikunci
 
-*(kosong saat §A dikunci)*
+> Semua angka di bawah dari `test/bench_topo_determinism.py`,
+> `test/validate_bl_gng.py`, `test/test_gcs.py`, dan `eval.py ik`.
+> Data mentah: `/tmp/g5_bench.jsonl`, `/tmp/g5_ik_arm{1..4}.csv`.
+
+### B0. Yang berubah
+
+| Berkas | Perubahan |
+|---|---|
+| `bl_gng.py` | **BARU** — MS-BL-GNG |
+| `gcs.py` | **BARU** — GCS + perbaikan simpleks |
+| `map_topo_static.py` | `fit_static_map()` dipisah (pemindahan murni, agar terukur) + `fit_static_map_bl()`; node memakai yang BL |
+| `topo_static_pub.py` | `GNG.load` → `BLGNG.load` |
+| `env_gng.py` | `GNG`→`BLGNG`; loop `step()` per titik → satu `partial_fit()` per tick |
+| `train.py` | `--algo {gng,gcs}`, default **gng** (baseline tidak berubah) |
+| `eval.py` | strategi seeding `gcs` + `--gcs-model` |
+| `build_maps.sh` | `ALGO=gcs` → `arm{n}_gcsx.npz`; dataset dipakai ulang |
+| `gng.py` | **NOL perubahan** (`git diff` kosong) |
+
+### B1. C1 — DETERMINISME
+
+#### 🔴 Dugaan yang meleset — DUGAAN KE-8, dan lagi-lagi ke arah yang sama
+
+Prompt (dan `p1_plan.md §3`) menyatakan: *"peta statis sekarang berubah tiap
+run"*. **Diukur: TIDAK.** `gng.py` memakai `np.random.default_rng(params.seed)`
+dengan `seed=0`, jadi atas pool **identik dengan urutan identik** GNG sudah
+**bit-identik** (D1 = True, delta = 0.0) — di kelima adegan.
+
+Yang benar-benar gagal adalah **D2**: pool titik yang **sama** disajikan dalam
+**urutan baris berbeda** menghasilkan peta berbeda. Itu justru kondisi nyata,
+karena penangkapan ulang mengembalikan titik yang sama dalam urutan lain.
+
+Perbedaannya penting untuk naskah: klaim yang boleh ditulis adalah
+**"tidak invarian terhadap urutan penyajian"**, bukan "tidak deterministik".
+Yang kedua salah dan mudah dibantah reviewer yang membaca kode.
+
+Konsisten dengan papan skor §7.2 p1_state: dugaan menaksir masalah **lebih
+mengikat** daripada kenyataannya. Sekarang **delapan** dari delapan.
+
+#### Angka
+
+| Adegan | D1 (urutan sama) | D2 (baris dipermutasi) | D3 hausdorff (m) | D3 mean-NN (m) |
+|---|---|---|---|---|
+| | GNG → MS-BL | GNG → MS-BL | GNG → MS-BL | GNG → MS-BL |
+| proxy | ✅ → ✅ | **❌ → ✅** | 0.2927 → **0.1680** | 0.0533 → **0.0504** |
+| S1 dua gugus | ✅ → ✅ | **❌ → ✅** | 0.0874 → 0.1065 ⚠️ | 0.0346 → **0.0312** |
+| S2 bidang | ✅ → ✅ | **❌ → ✅** | 0.0434 → **0.0387** | 0.0168 → **0.0148** |
+| S3 kulit bola | ✅ → ✅ | **❌ → ✅** | 0.0762 → **0.0637** | 0.0297 → **0.0271** |
+| S4 derau | ✅ → ✅ | **❌ → ✅** | 0.1084 → 0.1228 ⚠️ | 0.0529 → **0.0463** |
+
+**D2 LULUS di kelima adegan**: MS-BL bit-identik (delta **0.0**, drift
+hausdorff **0.0000 m**) terhadap permutasi baris masukan. GNG gagal di kelimanya
+— drift hausdorff **0.087–0.294 m**, dengan `max|ΔW|` sampai **2.53 m** pada
+proxy (yaitu node bisa mendarat di sisi ruangan yang lain).
+
+**D3 (subsampel 95%) tidak dijanjikan lulus, dan memang campur.** MS-BL menang
+pada **mean-NN di kelima adegan** dan pada hausdorff di 3 dari 5; kalah hausdorff
+di S1 dan S4 (⚠️). Artinya: MS-BL menggeser **seluruh** peta lebih sedikit, tapi
+node **terjauhnya** bisa bergeser lebih banyak pada distribusi tanpa struktur.
+Dilaporkan apa adanya, tidak dihaluskan.
+
+### B2. C2 — PARITAS KUALITAS: **LULUS, dan lebih baik, di kelima adegan**
+
+`max_nodes=400`, `lam=100`, pool sama, jalur kode yang sama dengan yang dikirim.
+
+| Adegan | QE_mean (m) | rasio | cov@5cm | cov@2cm | node | sisi | komponen |
+|---|---|---|---|---|---|---|---|
+| proxy | 0.0642 → **0.0594** | **0.926×** | 0.327 → **0.381** | 0.032 → 0.041 | 400 → 400 | 805 → 708 | 2 → 3 ⚠️ |
+| S1 | 0.0409 → **0.0379** | **0.926×** | 0.799 → **0.830** | 0.098 → 0.123 | 400 → 400 | 1666 → 1411 | 2 → 2 ✅ |
+| S2 | 0.0182 → **0.0174** | **0.957×** | 1.000 → 1.000 | 0.589 → 0.626 | 400 → 400 | 980 → 869 | 1 → 1 |
+| S3 | 0.0318 → **0.0305** | **0.957×** | 0.925 → **0.943** | 0.194 → 0.217 | 400 → 400 | 1012 → 932 | 1 → 1 |
+| S4 | 0.0632 → **0.0593** | **0.939×** | 0.277 → **0.320** | 0.017 → 0.021 | 400 → 400 | 1507 → 1301 | 1 → 1 |
+
+Ambang §A1 menuntut `QE ≤ 1.05×` dan `cov@5cm ≥ −0.02`; hasilnya **0.926–0.957×**
+dan cov naik di semua adegan. `n_nodes` = 400/400 di semua adegan (ambang ≥380).
+
+⚠️ **Satu hal yang harus disebut, bukan disembunyikan:** pada `proxy`, MS-BL
+menghasilkan **3** komponen terhubung, GNG **2**. Peta proxy memang bukan satu
+benda tersambung (lantai + meja + fixture), jadi 3 tidak otomatis salah — tapi
+**tidak ada ground truth** untuk jumlah komponen adegan nyata, jadi ini
+**tidak bisa disebut perbaikan maupun kemunduran**. Yang punya ground truth
+adalah S1 (harus 2), dan di sana MS-BL **benar**.
+
+### B3. §A2 — VALIDASI TERHADAP GROUND TRUTH SINTETIS: **semua lulus**
+
+`test/validate_bl_gng.py`, dijalankan untuk **kedua** algoritma:
+
+| Cek | GNG | MS-BL |
+|---|---|---|
+| S1 tepat 2 komponen | ✅ 2 | ✅ 2 |
+| S1 tidak ada node di celah kosong (0.3<x<0.7) | ✅ 0 | ✅ 0 |
+| S2 QE turun monoton terhadap jumlah node | ✅ 0.0558→0.0387→0.0271→0.0182 | ✅ 0.0549→0.0385→0.0259→**0.0174** |
+| S3 node berada di kulit bola r=0.5 | ✅ 0.4936 ± 0.0013 | ✅ **0.4963 ± 0.0008** |
+| S4 tidak runtuh | ✅ bbox [0.878 0.883 0.865] | ✅ bbox [0.919 0.909 0.890] |
+
+### B4. C3 — PARITAS ACTION MAP: **DIUJI SUNGGUHAN**, bukan proksi
+
+`move_group` **dijalankan** (`my_workcell.launch.py use_fake_hardware:=true`),
+`/compute_ik` hidup, 500 pose reachable held-out per lengan, seed 0.
+Model GCS dilatih dengan **resep identik** dengan baseline GNG lewat
+`ALGO=gcs build_maps.sh` (`max_nodes=3000`, `lam=60`, `epochs=2`,
+`boundary=600`) — hasilnya 3000 node / 600 pinned pada **keduanya**, jadi
+perbedaan yang terukur adalah jaringnya, bukan setelannya.
+
+| Lengan | success GCS | success GNG | median ms GCS | median ms GNG |
+|---|---|---|---|---|
+| arm1 | **90.2%** | 89.4% | 1.45 | 1.46 |
+| arm2 | **90.2%** | 89.0% | 1.45 | 1.46 |
+| arm3 | **91.4%** | 89.8% | 1.49 | 1.48 |
+| arm4 | **89.0%** | 88.8% | 1.58 | 1.53 |
+
+Ambang §A1 (`success ≥ GNG − 0.02`, `median ≤ 1.25× GNG`): **LULUS di keempat
+lengan**, dan GCS sedikit **di atas** GNG di keempatnya (+0.2 … +1.6 poin).
+Sisi jaring: GCS 21.3k–21.4k vs GNG 15.8k–16.0k — konsisten dengan simpleks yang
+ditutup, bukan graf biasa.
+
+#### 🔴 Temuan yang TIDAK diminta tapi wajib dilaporkan
+
+Pada benchmark yang sama, seed **`none`** (vektor nol) mengalahkan **kedua**
+action map, dan `random` (10 restart) mengalahkan semuanya:
+
+| Lengan | gcs | gng | **none** | random (10×) |
+|---|---|---|---|---|
+| arm1 | 90.2% | 89.4% | **94.8%** | 98.4% |
+| arm2 | 90.2% | 89.0% | **93.4%** | 98.4% |
+| arm3 | 91.4% | 89.8% | **95.4%** | 98.6% |
+| arm4 | 89.0% | 88.8% | **94.6%** | 98.2% |
+
+Jadi **action map tidak membantu KDL IK pada benchmark ini** — ~4–6 poin di
+bawah seed nol, untuk GNG maupun GCS. Ini **bukan regresi dari sesi ini**
+(GNG baseline sama buruknya) dan **bukan bagian dari C3**, tapi ini klaim yang
+bisa langsung diserang reviewer kalau naskah menyebut action map sebagai
+pemercepat IK. `random` juga tidak sebanding lurus: ia dapat **10** percobaan
+per pose, sementara gcs/gng hanya **1**.
+
+➜ **Harus diselesaikan sebelum naskah mengklaim manfaat seeding.** Bukan di
+sesi ini: memperbaikinya berarti mengubah metrik/desain benchmark, dan §A1
+mengunci "pakai metrik yang sudah ada, jangan bikin baru".
+
+⚠️ Kolom `mean manip` benchmark **tidak informatif**: 1.0e-07 untuk arm1/3/4
+(semua metode identik sampai 3 angka penting). Nilai wajar hanya muncul di arm2
+(0.196–0.232). Jadi manipulability **tidak dipakai** untuk menyimpulkan apa pun
+di sini. Penyebabnya belum dicari — di luar lingkup, dicatat sebagai utang.
+
+### B5. C4 — INVARIAN SIMPLEKS: **terbukti, bukan diklaim**
+
+`test/test_gcs.py`, fit identik dijalankan dua kali, invarian diperiksa setelah
+**setiap** `add` (60 add eksplisit; `add_every` dinaikkan agar `step()` tidak
+menambah node diam-diam sehingga hitungannya eksak):
+
+| | pelanggaran | node | sisi |
+|---|---|---|---|
+| `simplex_repair=False` (persis sumber sensei) | **91** | 63 | 152 |
+| `simplex_repair=True` (blok GNG.h:634-640 dipulihkan) | **0** | 63 | **254** |
+
+Tes yang gagal pada implementasi belum-diperbaiki **memang gagal**, dan lulus
+setelah diperbaiki. Perbaikannya **hanya menambah sisi**, tidak menghapus/
+memindah apa pun (`test_repair_only_adds_edges`).
+
+### B6. C5 — TIDAK ADA REGRESI: **lulus**
+
+- `git diff ros2_ws/src/reachability_gng/reachability_gng/gng.py` → **kosong**.
+- `pytest test/test_gng.py test/test_gcs.py` → **10 lulus**.
+- `/tmp/arm{1..4}_model.npz` tetap termuat lewat `GNG.load`, `seed_q` berjalan,
+  3000 node / 15.8k–16.0k sisi utuh.
+- Tata-letak npz sama, jadi `GNG.load` dan `BLGNG.load` bisa saling membaca —
+  **10 berkas konsumen tidak perlu diubah sama sekali** (kendala integrasi
+  prompt terpenuhi).
+- Keluaran GCS di `arm{n}_gcsx.npz`; `arm{n}_model.npz` **dan**
+  `arm{n}_gcs.npz` (eksperimen 2026-08-02) keduanya tidak tersentuh.
+
+### B7. Biaya — MS-BL lebih lambat, dan itu harus disebut
+
+Pada `max_nodes=400`: GNG **2.6–3.2 s**, MS-BL **34.0–38.7 s** → **~12× lebih
+lambat**. Sebabnya struktural: MS-BL menambah **satu node per batch**, jadi
+biayanya ≈ `max_nodes × |batch| × n_node`, sementara GNG menyisipkan setiap
+`lam` sampel.
+
+Yang **tidak** terpengaruh: `env_gng` (online). Di sana satu tick persepsi = satu
+batch, jadi 800 panggilan `step()` Python diganti **satu** operasi matriks —
+lebih murah, bukan lebih mahal.
+
+*(Biaya pada setelan produksi `max_nodes=1800` diukur terpisah — lihat B7b.)*
+
+### B8. Yang TIDAK dikerjakan, dan kenapa
+
+- **Index capability tidak disentuh** — terkunci grid (§5.2 p1_state).
+- **Peta statis nyata belum dibangun ulang** dari kamera: sesi ini tanpa
+  perangkat keras, sesuai instruksi. `/tmp/topo_static.npz` masih peta GNG
+  2026-08-02. Awan "nyata" di seluruh §B adalah **proksi** dari node peta itu —
+  distribusi realistis, **bukan** penangkapan ulang.
+  ➜ Menjalankan `map_topo_static` dengan kamera nyata adalah langkah berikutnya
+  yang wajib sebelum angka D2 dikutip sebagai hasil di lapangan.
+- **Action map GCS belum menggantikan GNG di jalur runtime.** `train.py --algo`
+  default tetap `gng`, dan konsumen masih memuat `arm{n}_model.npz`. Itu
+  disengaja: keduanya adalah dua sisi ablation, dan pemilihannya keputusan
+  naskah, bukan keputusan port.

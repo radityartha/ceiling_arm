@@ -6,6 +6,11 @@
 #   <OUT_DIR>/<name>_dataset.npz   (FK samples)
 #   <OUT_DIR>/<name>_model.npz     (+ _stats.npz)  <- loaded by visualize/seed_ik
 #
+# ALGO=gcs builds the Growing Cell Structures action map instead, into
+#   <OUT_DIR>/<name>_gcsx.npz      (+ _stats.npz)
+# leaving the gng models in place as the ablation baseline:
+#   ALGO=gcs ros2_ws/src/reachability_gng/build_maps.sh
+#
 # Run from the REPO ROOT (config 'urdf:' paths are repo-root-relative):
 #   source /opt/ros/humble/setup.bash && source ros2_ws/install/setup.bash
 #   ros2_ws/src/reachability_gng/build_maps.sh
@@ -33,6 +38,13 @@ TASK="${TASK:-pos}"
 # inside it (set BOUNDARY=0 for the legacy centroid-only map).
 BOUNDARY="${BOUNDARY:-600}"
 BOUNDARY_TAU="${BOUNDARY_TAU:-0.4}"
+# ALGO picks the action-map network: gcs (the manuscript's Growing Cell
+# Structures) or gng (plain Fritzke, the ablation baseline). They write to
+# DIFFERENT files -- <name>_model.npz for gng, <name>_gcsx.npz for gcs -- so a
+# gcs build can never clobber the baseline the paper compares against. Every
+# other knob is shared, which is the point: the two arms of the ablation must
+# differ ONLY in the network.
+ALGO="${ALGO:-gng}"
 
 mkdir -p "$OUT_DIR"
 
@@ -51,11 +63,21 @@ build_one() {
   local name="$1" cfg="$2"
   local dataset="$OUT_DIR/${name}_dataset.npz"
   local model="$OUT_DIR/${name}_model.npz"
-  echo "=== [$name] data_gen ($N samples) -> $dataset ==="
-  python3 -m reachability_gng.data_gen --config "$cfg" --out "$dataset" --n "$N"
-  echo "=== [$name] train (max-nodes=$MAX_NODES lam=$LAM epochs=$EPOCHS boundary=$BOUNDARY) -> $model ==="
+  # `if`, not `[ ] && ...`: under `set -e` an and-list that ends false aborts
+  # the whole build, so the common ALGO=gng case would kill the script.
+  if [ "$ALGO" = "gcs" ]; then model="$OUT_DIR/${name}_gcsx.npz"; fi
+  # Reuse an existing dataset: FK sampling is deterministic given the config, so
+  # rebuilding it just to train a second network would burn minutes and, worse,
+  # risk the two ablation arms being fit to different samples.
+  if [ -f "$dataset" ]; then
+    echo "=== [$name] reusing $dataset ==="
+  else
+    echo "=== [$name] data_gen ($N samples) -> $dataset ==="
+    python3 -m reachability_gng.data_gen --config "$cfg" --out "$dataset" --n "$N"
+  fi
+  echo "=== [$name] train $ALGO (max-nodes=$MAX_NODES lam=$LAM epochs=$EPOCHS boundary=$BOUNDARY) -> $model ==="
   python3 -m reachability_gng.train --dataset "$dataset" --out "$model" \
-      --config "$cfg" \
+      --config "$cfg" --algo "$ALGO" \
       --task "$TASK" --max-nodes "$MAX_NODES" --lam "$LAM" --epochs "$EPOCHS" \
       --boundary-nodes "$BOUNDARY" --boundary-tau "$BOUNDARY_TAU"
 }

@@ -139,10 +139,19 @@ pasangan punya >1 komponen. **Jangan klaim topologi C-space.**
 
 | Komponen | Representasi | Status |
 |---|---|---|
-| Peta lingkungan `O(t)` — statis **dan** dinamis | GNG → **MS-BL-GNG** | jalan (`map_topo_static.py`, `env_gng.py`); **port MS-BL belum** |
-| Action map `xyz → q` | **GCS** | belum diport (`FRD-01/nRobot.h:435-593`) + simplex repair |
+| Peta lingkungan `O(t)` — statis **dan** dinamis | GNG → **MS-BL-GNG** | ✅ **DIPORT 2026-08-13 (Sesi C)** — `bl_gng.py`; dipakai `map_topo_static.py`, `topo_static_pub.py`, `env_gng.py` |
+| Action map `xyz → q` | **GCS** | ✅ **DIPORT 2026-08-13 (Sesi C)** — `gcs.py`, invarian simpleks diperbaiki; 4 model di `/tmp/arm{n}_gcsx.npz` |
 | Operasi himpunan Meso | graf ↔ graf | arm↔env jalan (`reach_fusion.py`); **arm↔arm baru di `capability.py overlap`** |
 | Index capability | **grid** | terukur; topo salah 11% keputusan, bias optimis |
+
+✅ **Sesi C selesai 2026-08-13** — [p1_g5_msbl_gcs.md](p1_g5_msbl_gcs.md).
+Peta statis sekarang **invarian terhadap urutan sampel** (bit-identik; GNG
+bergeser sampai 0.29 m hausdorff), kualitas peta **naik** di kelima adegan uji
+(QE 0.93–0.96×), paritas IK **diuji dengan `move_group` nyata** di keempat lengan
+(GCS ≥ GNG di semuanya). `gng.py` tidak tersentuh — tetap baseline ablation.
+⚠️ Dua temuan yang harus dibaca sebelum menulis naskah: **§B1** (klaim "peta
+berubah tiap run" itu SALAH — yang benar "tidak invarian terhadap urutan") dan
+**§B4** (action map, GNG maupun GCS, **kalah dari seed nol** pada benchmark IK).
 
 **Penugasan algoritma dikonfirmasi pengguna 2026-08-13 — jangan dibuka lagi:**
 MS-BL-GNG untuk **kedua** layer lingkungan; GCS untuk **action map**; index
@@ -153,10 +162,11 @@ titik tugas ke `q` representatif, yang kedua menyimpan mask pose gantry per node
 Berisi path sumber terverifikasi, jebakan **tiga versi `nRobot.h` yang berbeda**,
 dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `GNG`.
 
-> ⚠️ **Utang penamaan, dan ini bisa ditanyakan reviewer langsung.** Naskah menyebut
-> MS-BL-GNG dan GCS; kode menjalankan **GNG Fritzke online** dan jaring yang **tidak
-> memelihara invarian simpleks**. Akibat paling mudah diserang: **peta "statis"
-> berubah tiap run** — reproduktifitas, bukan kerapian.
+> ✅ **Utang penamaan LUNAS 2026-08-13.** Naskah menyebut MS-BL-GNG dan GCS, dan
+> sekarang itulah yang berjalan. Invarian simpleks dibuktikan lewat tes yang GAGAL
+> pada implementasi belum-diperbaiki (91 pelanggaran per 60 add) dan LULUS setelah
+> (0). Yang tersisa: peta statis nyata belum dibangun ulang dengan kamera — angka
+> Sesi C memakai **proksi** distribusi dari peta 2026-08-02.
 
 ---
 
@@ -439,15 +449,23 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_g2_results.md` | pengukuran G2, §1–§12, dengan batasan tiap angka |
 | `p1_g3_timing.md` | Sesi A — biaya setup gantry, **TERKUNCI** di §C |
 | `p1_g4_reach_dwell.md` | Sesi B — definisi sukses (§A1), instrumen + validasi (§B0), fix batas rel (§B1), sapuan ulang (§B2), prasyarat fisik (§B3), kalibrasi (§B4b) |
-| `p1_prompt_gcs_msbl.md` | prompt siap-pakai untuk sesi port MS-BL-GNG + GCS |
+| `p1_g5_msbl_gcs.md` | Sesi C — port MS-BL-GNG + GCS: kriteria terkunci (§A), hasil terukur (§B) |
+| `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_plan.md` | ⚠️ §1/§3-lapisan/§4 stale. Sah: §2b–§2e, §3 utang teknis, §6, §7 |
 
 ### Catatan §7.2 — papan skor dugaan
 
-Sampai 2026-08-13: **tujuh dugaan meleset, semuanya ke arah yang sama** — menduga
+Sampai 2026-08-13: **delapan dugaan meleset, semuanya ke arah yang sama** — menduga
 kendala lebih mengikat daripada kenyataannya (interference, policy canonical,
 zona-eksklusi, index topologis, dan di Sesi B: kalibrasi RGBD "memburuk" ternyata
 tidak, dan kolom rel hantu ternyata hampir tidak menghapus target).
+
+**Ke-8 (Sesi C):** "peta statis berubah tiap run karena GNG belajar online".
+Diukur: **tidak** — `gng.py` ter-seed, jadi masukan identik memberi peta
+bit-identik. Yang gagal adalah invariansi terhadap **urutan** sampel. Polanya
+sama persis: masalahnya nyata, tapi **lebih sempit** dari dugaan. Dan seperti
+dugaan yang tepat di Sesi A, jawabannya datang dari **membaca jalur data kode**
+(`params.seed` → `default_rng`), bukan dari menakar.
 
 Satu dugaan yang **tepat** (waktu traverse, Sesi A) adalah satu-satunya yang
 diturunkan dari **jalur data kode**, bukan dari intuisi geometris. Itu pembeda yang
