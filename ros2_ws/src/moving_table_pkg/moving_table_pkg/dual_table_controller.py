@@ -81,6 +81,30 @@ class DualTableController(Node):
         self.declare_parameter("bridge.rotate_speed", 1000)
         self.declare_parameter("bridge.pos_tol_mm", 1.0)
         self.declare_parameter("bridge.rot_tol_deg", 0.3)
+        # Arming handshake: TopicBasedSystem starts joint_commands_ at 0.0 and its
+        # write() publishes whenever |state - command| > 1e-5, with no regard for
+        # whether a controller is active. So a joint that no active controller has
+        # claimed is commanded to 0.0 at the controller_manager rate -- measured:
+        # 100Hz of position [0,0,0,0] with the hardware active and nothing claimed.
+        # Obeying that means driving the gantry to the end of its travel with no
+        # operator command (e.g. gantry_2 whenever arm 3/4 fails to connect and
+        # gantry_2_with_arm_controller therefore never activates). A real JTC always
+        # begins by holding the CURRENT position, so we refuse every command until
+        # the incoming stream first agrees with the measured encoder position --
+        # that agreement is the proof a controller actually took over.
+        self.declare_parameter("bridge.arm_tol_mm", 5.0)
+        self.declare_parameter("bridge.arm_tol_deg", 1.0)
+        # Travel limits (URDF: t*_linear_joint 0..2.0 m, t*_rotation_joint +-pi).
+        # go_to_absolute() converts mm straight to pulses with no clamping of its
+        # own, so out-of-range targets are rejected here rather than on the bus.
+        self.declare_parameter("bridge.min_mm", 0.0)
+        # MEASURED end stop is ~1656 mm from encoder zero, not 2000 -- the gantry
+        # physically hit the rail end on 2026-08-13 while a move to 1900 mm was
+        # running (docs/p1_g3_timing.md §B3b). 1600 leaves a 56 mm margin. The old
+        # 2000.0 default promised ~344 mm of travel that does not exist.
+        self.declare_parameter("bridge.max_mm", 1600.0)
+        self.declare_parameter("bridge.min_deg", -180.0)
+        self.declare_parameter("bridge.max_deg", 180.0)
 
         self.add_on_set_parameters_callback(self.parameters_callback)
 
@@ -152,6 +176,9 @@ class DualTableController(Node):
         # ------------------- ros2_control bridge subscriber ---------------
         self._bridge_target_mm = {"table1": None, "table2": None}   # last dispatched, mm/deg
         self._bridge_target_deg = {"table1": None, "table2": None}
+        # False until the command stream has agreed with the measured position once
+        # (see bridge.arm_tol_* above). Nothing is dispatched while un-armed.
+        self._bridge_armed = {"table1": False, "table2": False}
         self.create_subscription(JointState, "table_hw_commands", self._on_hw_command, qos_profile)
 
     def parameters_callback(self, params):
@@ -398,6 +425,12 @@ class DualTableController(Node):
         rot_speed = int(self.get_parameter("bridge.rotate_speed").value)
         pos_tol = float(self.get_parameter("bridge.pos_tol_mm").value)
         rot_tol = float(self.get_parameter("bridge.rot_tol_deg").value)
+        arm_tol_mm = float(self.get_parameter("bridge.arm_tol_mm").value)
+        arm_tol_deg = float(self.get_parameter("bridge.arm_tol_deg").value)
+        min_mm = float(self.get_parameter("bridge.min_mm").value)
+        max_mm = float(self.get_parameter("bridge.max_mm").value)
+        min_deg = float(self.get_parameter("bridge.min_deg").value)
+        max_deg = float(self.get_parameter("bridge.max_deg").value)
         for table_id, lin_j, rot_j, table, thread_attr in (
             ("table1", self.t1_linear_joint, self.t1_rotation_joint, self.table1, "table1_thread"),
             ("table2", self.t2_linear_joint, self.t2_rotation_joint, self.table2, "table2_thread"),
@@ -406,6 +439,41 @@ class DualTableController(Node):
                 continue
             target_mm = pos[lin_j] * 1000.0
             target_deg = pos[rot_j] * 180.0 / 3.14159265359
+
+            with self.joint_state_lock:
+                cur_mm = self.joint_positions[lin_j] * 1000.0
+                cur_deg = self.joint_positions[rot_j] * 180.0 / 3.14159265359
+
+            # Arming handshake -- refuse everything until the command stream first
+            # matches where the gantry actually is (i.e. a controller is holding it).
+            if not self._bridge_armed[table_id]:
+                if (abs(target_mm - cur_mm) < arm_tol_mm
+                        and abs(target_deg - cur_deg) < arm_tol_deg):
+                    self._bridge_armed[table_id] = True
+                    # Seed the debounce with this agreed-on target so arming itself
+                    # never dispatches a move.
+                    self._bridge_target_mm[table_id] = target_mm
+                    self._bridge_target_deg[table_id] = target_deg
+                    self.get_logger().info(
+                        f"bridge: {table_id} ARMED at {cur_mm:.1f}mm/{cur_deg:.1f}deg "
+                        f"-- now following ros2_control commands")
+                else:
+                    self.get_logger().warning(
+                        f"bridge: {table_id} NOT armed -- ignoring command "
+                        f"{target_mm:.1f}mm/{target_deg:.1f}deg while the gantry is at "
+                        f"{cur_mm:.1f}mm/{cur_deg:.1f}deg. No active controller is "
+                        f"holding this joint (check `ros2 control list_controllers`).",
+                        throttle_duration_sec=5.0)
+                continue
+
+            if not (min_mm <= target_mm <= max_mm and min_deg <= target_deg <= max_deg):
+                self.get_logger().error(
+                    f"bridge: {table_id} REJECTED out-of-range target "
+                    f"{target_mm:.1f}mm/{target_deg:.1f}deg (limits "
+                    f"{min_mm}..{max_mm}mm, {min_deg}..{max_deg}deg)",
+                    throttle_duration_sec=5.0)
+                continue
+
             last_mm, last_deg = self._bridge_target_mm[table_id], self._bridge_target_deg[table_id]
             if (last_mm is not None
                     and abs(target_mm - last_mm) < pos_tol
@@ -506,6 +574,51 @@ class DualTableController(Node):
                 self.table2_thread = None
             self.get_logger().info(f"Background thread finished for {table_id}")
 
+    def _check_travel_limits(self, table_id, request):
+        """(ok, message) -- would this request end up outside the physical rail?
+
+        Resolves the request to an ABSOLUTE target first, because go_to_table is a
+        RELATIVE move (moving_table.py:100 adds the increment to the encoder
+        reading before dispatching it as absolute). A relative delta that looks
+        small can still land past the end stop, which is exactly the failure mode
+        that damaged nothing only by luck on 2026-08-13.
+
+        Jog (operation_type 10-13) is continuous and has no target to check; it is
+        warned about, not blocked -- see the note below.
+        """
+        min_mm = float(self.get_parameter("bridge.min_mm").value)
+        max_mm = float(self.get_parameter("bridge.max_mm").value)
+        min_deg = float(self.get_parameter("bridge.min_deg").value)
+        max_deg = float(self.get_parameter("bridge.max_deg").value)
+
+        lin_j = self.t1_linear_joint if table_id == "table1" else self.t2_linear_joint
+        rot_j = self.t1_rotation_joint if table_id == "table1" else self.t2_rotation_joint
+        with self.joint_state_lock:
+            cur_mm = self.joint_positions[lin_j] * 1000.0
+            cur_deg = self.joint_positions[rot_j] * 180.0 / 3.14159265359
+
+        if request.operation_type == OP_GOTO_ABS:
+            target_mm, target_deg = request.distance_mm, request.angle_deg
+        elif request.operation_type == OP_GOTO_HOME:
+            target_mm, target_deg = 0.0, 0.0
+        else:
+            # go_to_table applies BOTH increments regardless of operation_type
+            # (moving_table.py:81) -- it never gates on it, so neither do we.
+            target_mm = cur_mm + request.distance_mm
+            target_deg = cur_deg + request.angle_deg
+
+        if not (min_mm <= target_mm <= max_mm):
+            return False, (
+                f"🚫 REJECTED {table_id}: linear target {target_mm:.1f}mm is outside "
+                f"the physical rail [{min_mm:.0f}, {max_mm:.0f}]mm "
+                f"(now at {cur_mm:.1f}mm). The rail END STOP is at ~1656mm measured; "
+                f"commanding past it drives the gantry into it.")
+        if not (min_deg <= target_deg <= max_deg):
+            return False, (
+                f"🚫 REJECTED {table_id}: rotation target {target_deg:.1f}deg is "
+                f"outside [{min_deg:.0f}, {max_deg:.0f}]deg (now at {cur_deg:.1f}deg).")
+        return True, ""
+
     def move_dual_table_callback(self, request, response):
         target_table_id = request.table_id
         target_table = None
@@ -532,6 +645,23 @@ class DualTableController(Node):
         # ── JOG: fire-and-forget continuous drive, preempts any stale thread ──
         if request.operation_type in JOG_DIRECTIONS:
             direction = JOG_DIRECTIONS[request.operation_type]
+            # A jog has no target, so it CANNOT be range-checked -- it runs until
+            # something stops it. This is a real remaining hole: jogging toward the
+            # far end WILL reach the ~1656 mm end stop. It is left open because jog
+            # is the human-in-the-loop tool (table_keyboard.py) and gating it needs
+            # a position watchdog; it is not on the scheduler's path. Warn loudly.
+            with self.joint_state_lock:
+                lin_j = (self.t1_linear_joint if target_table_id == "table1"
+                         else self.t2_linear_joint)
+                jog_mm = self.joint_positions[lin_j] * 1000.0
+            min_mm = float(self.get_parameter("bridge.min_mm").value)
+            max_mm = float(self.get_parameter("bridge.max_mm").value)
+            if not (min_mm + 100.0 <= jog_mm <= max_mm - 100.0):
+                self.get_logger().warning(
+                    f"⚠ JOG {direction} on {target_table_id} at {jog_mm:.1f}mm -- "
+                    f"within 100mm of the travel limits [{min_mm:.0f}, {max_mm:.0f}]. "
+                    f"Jog is NOT range-checked and will run into the end stop. "
+                    f"Watch it and be ready to STOP.")
             # Preempt any stale position-move thread
             stop_event = self.table1_stop_event if target_table_id == "table1" else self.table2_stop_event
             stop_event.set()
@@ -581,6 +711,18 @@ class DualTableController(Node):
             response.success = True
             response.message = f"🛑 Stopped {target_table_id}."
             self.get_logger().info(response.message)
+            return response
+
+        # ── Travel limits: the SERVICE path had no check at all ──
+        # The ros2_control bridge validates against bridge.min_mm/max_mm, but this
+        # service bypasses that guard entirely -- which is how a move to 1900 mm
+        # got dispatched and drove the gantry into the rail end on 2026-08-13
+        # (docs/p1_g3_timing.md §B3b). Same limits, same parameters, enforced here.
+        ok, why = self._check_travel_limits(target_table_id, request)
+        if not ok:
+            response.success = False
+            response.message = why
+            self.get_logger().error(why)
             return response
 
         # ── Position move (existing go_to_table path) ──

@@ -35,13 +35,17 @@
       </inertial>
     </link>
 
-    <!-- Linear slide -->
+    <!-- Linear slide.
+         upper=1.6, NOT 2.0: the rail end stop was MEASURED at ~1.656 m from
+         encoder zero on 2026-08-13 (the gantry hit it; docs/p1_g3_timing.md
+         §B3b). The old 2.0 promised ~0.34 m of travel that does not physically
+         exist, so MoveIt would happily plan gantry poses into the end stop. -->
     <joint name="${prefix}linear_joint" type="prismatic">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}platform_link"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <axis xyz="1 0 0"/>
-      <limit lower="0.0" upper="2.0" effort="1000" velocity="0.5"/>
+      <limit lower="0.0" upper="1.6" effort="1000" velocity="0.5"/>
     </joint>
 
     <!-- Rotation bar -->
