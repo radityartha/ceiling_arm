@@ -229,6 +229,11 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 
 ## 6. Berikutnya: Lapis 3 + 4 — scheduler
 
+> ➜ Urutan kerja konkret + prompt sesi siap-pakai:
+> [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
+> 🔴 Perhatikan §0 di sana: **lengan sedang dilepas fisik**, jadi seluruh jalur
+> hardware (§8c langkah 2–5) terblokir dan jalur offline adalah jalur utama.
+
 Bahan sudah lengkap:
 - oracle: `capability.py`
 - resource mutex: zona irisan dari `overlap` (`r = 0.20`)
@@ -450,6 +455,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_g3_timing.md` | Sesi A — biaya setup gantry, **TERKUNCI** di §C |
 | `p1_g4_reach_dwell.md` | Sesi B — definisi sukses (§A1), instrumen + validasi (§B0), fix batas rel (§B1), sapuan ulang (§B2), prasyarat fisik (§B3), kalibrasi (§B4b) |
 | `p1_g5_msbl_gcs.md` | Sesi C — port MS-BL-GNG + GCS: kriteria terkunci (§A), hasil terukur (§B) |
+| **`p1_next_steps.md`** | **rencana kerja setelah Sesi C** — 4 jalur berurut, keputusan menunggu + tenggat, prompt Sesi D |
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_plan.md` | ⚠️ §1/§3-lapisan/§4 stale. Sah: §2b–§2e, §3 utang teknis, §6, §7 |
 
