@@ -119,6 +119,8 @@ class MapTopoStatic(Node):
         # the whole surface -- the extra points were redundant). <=0 disables.
         p('fit_max_points', 12000)
         p('output', '/tmp/topo_static.npz')
+        # Path to also dump the raw fitted cloud ('' = off). See _fit_and_save.
+        p('save_cloud', '')
         # Self-filter the robot arms out of the static capture via TF, so the
         # arms need NOT be physically moved away -- their points are dropped, not
         # baked into the static map. Same capsule/sphere filter env_gng uses.
@@ -142,6 +144,7 @@ class MapTopoStatic(Node):
         self.epochs = int(g('epochs'))
         self.fit_max_points = int(g('fit_max_points'))
         self.output = g('output')
+        self.save_cloud = g('save_cloud')
         self.self_filter = bool(g('self_filter'))
         self.arm_prefixes = list(g('arm_prefixes'))
         self.filter_r = float(g('self_filter_radius'))
@@ -216,14 +219,23 @@ class MapTopoStatic(Node):
                 'check cameras / bands')
             return
         captured = len(pool)
-        gng, pool, epochs = fit_static_map(pool, self.max_nodes, self.lam,
-                                           self.epochs, self.fit_max_points)
+        gng, pool, epochs = fit_static_map_bl(pool, self.max_nodes, self.lam,
+                                              self.epochs, self.fit_max_points)
         self.epochs = epochs   # for the log line
         gng.save(self.output)
+        if self.save_cloud:
+            # Save the CLOUD, not just the map. A capture needs a cleared scene
+            # and cannot be repeated on demand; without the raw points, any
+            # later question about this scene (a different fit, an order-
+            # invariance replay, a quality comparison) would need the scene
+            # cleared and the cameras up all over again.
+            np.savez_compressed(self.save_cloud, cloud=pool, captured=captured,
+                                leaf=self.leaf, max_nodes=self.max_nodes)
+            self.get_logger().info(f'raw cloud -> {self.save_cloud}')
         self.get_logger().info(
-            f'static GNG mapped: {captured} captured -> fit on {len(pool)} pts '
-            f'x {self.epochs} epochs -> {len(gng.W)} nodes, {len(gng._edges)} '
-            f'edges -> saved {self.output}')
+            f'static MS-BL-GNG mapped: {captured} captured -> fit on '
+            f'{len(pool)} pts x {self.epochs} settle batches -> {len(gng.W)} '
+            f'nodes, {len(gng._edges)} edges -> saved {self.output}')
 
 
 def main():

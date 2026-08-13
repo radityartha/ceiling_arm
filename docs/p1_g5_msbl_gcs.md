@@ -197,7 +197,7 @@ bukan diterima.
 |---|---|
 | `bl_gng.py` | **BARU** — MS-BL-GNG |
 | `gcs.py` | **BARU** — GCS + perbaikan simpleks |
-| `map_topo_static.py` | `fit_static_map()` dipisah (pemindahan murni, agar terukur) + `fit_static_map_bl()`; node memakai yang BL |
+| `map_topo_static.py` | `fit_static_map()` dipisah (pemindahan murni, agar terukur) + `fit_static_map_bl()`; node memakai yang BL, + parameter `save_cloud` |
 | `topo_static_pub.py` | `GNG.load` → `BLGNG.load` |
 | `env_gng.py` | `GNG`→`BLGNG`; loop `step()` per titik → satu `partial_fit()` per tick |
 | `train.py` | `--algo {gng,gcs}`, default **gng** (baseline tidak berubah) |
@@ -397,6 +397,30 @@ teracak.
 > dipermutasi memilih titik berbeda. Diperbaiki dengan menarik sampel dari pool
 > terurut-konten, sama seperti `fit_static_map_bl`. Jebakan yang sama muncul dua
 > kali di dua tempat berbeda — layak diingat kalau ada jalur ketiga ditambahkan.
+
+### B7c. 🔴 Koreksi 2026-08-13 — node statis sempat TIDAK memakai MS-BL
+
+Ditemukan saat menyiapkan Sesi G6, **sesudah** §B ditulis. `fit_static_map_bl()`
+dibuat dan diukur, tapi `MapTopoStatic._fit_and_save` masih memanggil
+`fit_static_map()` — jalur **GNG**. Jadi selama beberapa jam repo ini mengklaim
+layer statis berjalan MS-BL padahal node-nya menghasilkan peta GNG.
+
+**Apa yang TIDAK terpengaruh:** seluruh angka §B1–§B7. Benchmark memanggil kedua
+jalur secara eksplisit (`--algo gng` / `--algo bl`), tidak lewat node, jadi
+perbandingannya tetap sah.
+
+**Apa yang terpengaruh:** klaim "layer statis sekarang menjalankan MS-BL". Itu
+salah sampai diperbaiki, dan sudah diperbaiki (satu baris).
+
+**Pelajarannya, dan ini yang layak dibawa:** saya memverifikasi bahwa *fungsinya*
+benar dan bahwa *modulnya* meng-import BLGNG, tapi tidak memverifikasi bahwa
+*node-nya memanggil fungsi yang benar*. Import yang benar dan fungsi yang benar
+tidak membuktikan keduanya tersambung. Sejak koreksi ini ada cek eksplisit
+"node memanggil apa", bukan "modul meng-import apa".
+
+Kalau bug ini lolos ke G6, penangkapan adegan nyata — yang butuh area dibersihkan
+dan tidak bisa diulang sesuka hati — akan menghasilkan peta GNG sambil dicatat
+sebagai MS-BL.
 
 ### B8. Yang TIDAK dikerjakan, dan kenapa
 
