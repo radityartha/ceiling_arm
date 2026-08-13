@@ -473,6 +473,16 @@ sama persis: masalahnya nyata, tapi **lebih sempit** dari dugaan. Dan seperti
 dugaan yang tepat di Sesi A, jawabannya datang dari **membaca jalur data kode**
 (`params.seed` → `default_rng`), bukan dari menakar.
 
+**Ke-9 (Sesi G6):** "penangkapan ulang di lapangan akan jauh lebih berantakan
+daripada proksi; D2 lapangan adalah taruhan yang sesungguhnya." Diukur: **D2
+lulus bit-identik** di awan nyata, dan proksi Sesi C ternyata memprediksi arah
+dengan benar di keempat baris (`p1_g6_map §B5`). Sekali lagi dugaannya menaksir
+kendala **lebih mengikat** dari kenyataannya — **sembilan dari sembilan, arah yang
+sama.**
+
 Satu dugaan yang **tepat** (waktu traverse, Sesi A) adalah satu-satunya yang
 diturunkan dari **jalur data kode**, bukan dari intuisi geometris. Itu pembeda yang
-layak dipakai: telusuri variabelnya, jangan menakar keketatannya.
+layak dipakai: telusuri variabelnya, jangan menakar keketatannya. Sesi G6
+menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawab
+dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
+(satu node per batch), bukan dengan menakar biaya batch learning.
