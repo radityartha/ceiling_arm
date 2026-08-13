@@ -32,6 +32,7 @@ setup(
             'data_gen = reachability_gng.data_gen:main',
             'train = reachability_gng.train:main',
             'eval = reachability_gng.eval:main',
+            'irm_sweep = reachability_gng.irm_sweep:main',
             # Online ROS 2 nodes
             'seed_server = reachability_gng.seed_server:main',
             'seed_ik = reachability_gng.seed_ik:main',
@@ -59,6 +60,8 @@ setup(
             'static_collision = reachability_gng.static_collision:main',
             'gantry_reach_executor = '
             'reachability_gng.gantry_reach_executor:main',
+            'reach_dwell_monitor = '
+            'reachability_gng.reach_dwell_monitor:main',
             'pick_cli = reachability_gng.pick_cli:main',
         ],
     },
