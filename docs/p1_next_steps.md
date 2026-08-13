@@ -34,13 +34,17 @@ dipasang lagi. Lihat Jalur C — **kerjakan lebih dulu meski kecil.**
 
 ### 🥇 Jalur A — Scheduler: ground truth dulu (OFFLINE, sesi penuh, INI JALUR UTAMA)
 
-Ini kontribusi paper. Formulasinya `XD [ST-MR-TA]`, dan **belum ada satu baris pun
-kodenya**. Semua bahan model biaya sudah lengkap (`p1_state §6`).
+Ini kontribusi paper. Formulasinya `XD [ST-MR-TA]`.
+
+> ✅ **Langkah 1 dan 2 SELESAI 2026-08-14 (Sesi G7)** —
+> [p1_g7_sched.md](p1_g7_sched.md). `reachability_gng/sched.py` +
+> `test/verify_sched_exact.py`. **Jangan bangun ulang model atau solvernya**;
+> prompt lanjutan (G8 = langkah 3 dan 4) ada di `p1_g7_sched.md §C`.
 
 **Urutan WAJIB dari §7.1 — jangan dibalik:**
 
-1. **Generator instance kecil** (2–6 tugas) yang bisa dienumerasi tuntas.
-2. **Solver exact** (MIP/DP) → optimum. **Ini ground truth-nya.**
+1. ✅ **Generator instance kecil** (2–6 tugas) yang bisa dienumerasi tuntas.
+2. ✅ **Solver exact** (MIP/DP) → optimum. **Ini ground truth-nya.**
 3. **Baru** heuristik, dilaporkan sebagai **optimality gap** terhadap (2).
 4. **Baru** baseline pembanding: fixed assignment · greedy/nearest · sequential.
 

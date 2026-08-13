@@ -229,6 +229,20 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 
 ## 6. Berikutnya: Lapis 3 + 4 — scheduler
 
+> ✅ **Langkah §7.1 nomor 1 dan 2 SELESAI 2026-08-14 (Sesi G7)** —
+> [p1_g7_sched.md](p1_g7_sched.md). Model penjadwalan terkunci (§A1), generator
+> instance + solver exact ada di `reachability_gng/sched.py`, dan
+> **exactness-nya dibuktikan lewat V0–V4** (`test/verify_sched_exact.py`),
+> termasuk brute-force independen dan 8 instance patologis. Batas tractable
+> terukur: **n ≤ 10 tugas, 4 lengan, |P| = 2376 penuh, 84 s, 500 MB.**
+>
+> 🔴 **Dua hasil G7 yang mengubah cara §2 boleh dikutip — baca sebelum menulis
+> naskah:** (a) mutex `r = 0.20` **tidak menggerakkan makespan sama sekali**
+> (0.000 s pada 105 pasang solve), jadi "selisih 25 poin itu yang dibeli
+> scheduling" sah sebagai klaim **kelayakan**, **bukan** klaim waktu
+> ([p1_g7 §B3](p1_g7_sched.md)); (b) **74–92% makespan adalah gerak gantry**,
+> jadi masalahnya tur pose, bukan penugasan lengan ([p1_g7 §B5](p1_g7_sched.md)).
+>
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
 > 🔴 Perhatikan §0 di sana: **lengan sedang dilepas fisik**, jadi seluruh jalur
@@ -455,6 +469,8 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_g3_timing.md` | Sesi A — biaya setup gantry, **TERKUNCI** di §C |
 | `p1_g4_reach_dwell.md` | Sesi B — definisi sukses (§A1), instrumen + validasi (§B0), fix batas rel (§B1), sapuan ulang (§B2), prasyarat fisik (§B3), kalibrasi (§B4b) |
 | `p1_g5_msbl_gcs.md` | Sesi C — port MS-BL-GNG + GCS: kriteria terkunci (§A), hasil terukur (§B) |
+| `p1_g6_map.md` | Sesi G6 — peta statis dari kamera nyata; D2 lapangan lulus bit-identik |
+| **`p1_g7_sched.md`** | **Sesi G7 — model penjadwalan (§A1) + solver EXACT + bukti V0–V4 (§B1). Baca §B3/§B5 sebelum mengutip §2.** Prompt G8 di §C |
 | **`p1_next_steps.md`** | **rencana kerja setelah Sesi C** — 4 jalur berurut, keputusan menunggu + tenggat, prompt Sesi D |
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_plan.md` | ⚠️ §1/§3-lapisan/§4 stale. Sah: §2b–§2e, §3 utang teknis, §6, §7 |
@@ -479,6 +495,23 @@ lulus bit-identik** di awan nyata, dan proksi Sesi C ternyata memprediksi arah
 dengan benar di keempat baris (`p1_g6_map §B5`). Sekali lagi dugaannya menaksir
 kendala **lebih mengikat** dari kenyataannya — **sembilan dari sembilan, arah yang
 sama.**
+
+**Ke-10 dan ke-11 (Sesi G7):** "instance 6 tugas tidak akan muat anggaran 120 s"
+— meleset, **10 tugas** muat tanpa penjarangan pose. Dan yang paling telak:
+"mutex `r = 0.20` akan mengikat pada instance nyata" — meleset, **0.000 s pada
+105 pasang solve**, bahkan ketika dwell dinaikkan sampai 92% garis waktu.
+Sebabnya diukur, bukan ditakar: mutex memang berbiaya di **10.9%** pasangan
+(himpunan tugas, pose), tapi **92%** di antaranya punya pose lain yang gratis,
+dan optimum tidak pernah membangun perhentian sebesar yang dibutuhkan
+([p1_g7 §B3](p1_g7_sched.md)). **Sebelas meleset, sepuluh ke arah yang sama.**
+➜ Prior kerja yang sudah layak dipakai: **kendala yang belum diukur itu LONGGAR**,
+sampai terbukti sebaliknya.
+
+Dugaan G7 yang **tepat** (tugas MR jauh lebih mahal, +7.0 s / +11.2 s) tetap
+salah **mekanismenya** — mahal karena pose handover langka (p10 = 26 pose dari
+2376), bukan karena dua lengan terkunci (itu paling banyak 2.0 s). Bagian yang
+benar datang dari kolom yang dicetak `Instance.describe()`; bagian yang salah
+tidak ditelusuri ke data sama sekali. Polanya konsisten dengan paragraf berikut.
 
 Satu dugaan yang **tepat** (waktu traverse, Sesi A) adalah satu-satunya yang
 diturunkan dari **jalur data kode**, bukan dari intuisi geometris. Itu pembeda yang
