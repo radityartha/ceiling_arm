@@ -87,8 +87,10 @@ def node_set_equal(Wa, Wb):
     return delta == 0.0, delta
 
 
-def map_distance(Wa, Wb):
-    da, db = _nn_dist(Wa, Wb), _nn_dist(Wb, Wa)
+def map_distance(Wa, Wb, chunk=2000):
+    # chunk: the pairwise block is len(chunk) x len(Wb) x 3 floats, so comparing
+    # two 12k-point CLOUDS (not 1.8k-node maps) needs a smaller block to fit.
+    da, db = _nn_dist(Wa, Wb, chunk), _nn_dist(Wb, Wa, chunk)
     return {'hausdorff_m': float(max(da.max(), db.max())),
             'mean_nn_m': float((da.mean() + db.mean()) / 2)}
 
