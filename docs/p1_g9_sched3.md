@@ -1114,6 +1114,14 @@ Lengan 4x MASIH DILEPAS. Sesi ini SEPENUHNYA OFFLINE.
 - gen_real_crowded (probe S2) ada dan hidup, TAPI BELUM PERNAH DIJALANKAN.
 - Ambang Lemma 2 yang BENAR: 0.095 m, bukan 0.11. Jangan pakai (N1)/(N2)
   sebagai syarat cukup -- itu kesalahan pertama G9.
+- KONSTRUKTOR BATAS ATAS SUDAH LAYAK (probe 2026-08-14, commit 40bfbf9):
+  _repair_ub + UB_START_PROBES memberi rasio kurungan mean 1.126 max 1.211
+  pada 13 instance yang mengikat, dari 1.600/1.936. Artinya G10 MULAI dengan
+  incumbent yang ketat -- itu persis handicap terbesar B&B G9, dan ia sudah
+  hilang. Jangan bangun ulang; pakai.
+- DUA instance sudah punya Delta = 0 TERBUKTI EXACT (n4_s2_mr1, n4_s9_mr1:
+  UB menyentuh LB). Jangan hitung ulang; pakai sebagai uji regresi -- solver
+  G10 WAJIB tetap memberi 0.000 di keduanya.
 
 === YANG GAGAL DAN HARUS DIPERBAIKI DULU ===
 - W2 TIDAK DIBANGUN. Ia satu-satunya uji yang menyerang Lemma 5 (himpunan
@@ -1133,23 +1141,47 @@ Lengan 4x MASIH DILEPAS. Sesi ini SEPENUHNYA OFFLINE.
    gantry, dengan grid waktu-mulai RAPAT (bukan {batas leg lawan}), tanpa
    B&B, tanpa Lemma 5. Inilah yang menilai Pertentangan 3.
 3. Perbaiki kelengkapan solver sampai W2b LULUS pada 12/12 dengan
-   proved=True. Kalau B&B tidak bisa, ganti bentuknya -- misalnya DP atas
-   (R1, p1, R2, p2) dengan frontier Pareto (t1, t2), yang menghindari
-   pencarian waktu mulai sama sekali.
+   proved=True.
+   ➜ REKOMENDASI KUAT, dan ini BUKAN selera -- ia diukur di B6: GANTI
+     BENTUKNYA jadi DP atas (R1, p1, R2, p2) dengan frontier Pareto (t1, t2),
+     yang menghindari pencarian waktu mulai SAMA SEKALI.
+     Buktinya: probe B6 menunjukkan yang membuat kurungan longgar BUKAN B&B
+     yang lambat, melainkan himpunan waktu mulai yang terlalu kasar
+     (Pertentangan 3). Pada n4_s4_mr0 kedua gantry menyapu rot ~ -90 deg pada
+     lin yang sama pada detik yang sama; obatnya menunda satu gantry beberapa
+     detik, dan waktu itu BUKAN batas leg apa pun. Menambal daftar kandidat
+     waktu mulai akan mengejar ekor terus-menerus; representasi yang membawa
+     (t1, t2) sebagai state menghilangkan masalahnya.
 4. BARU kemudian: K3 pada S1 DAN S2, K5.4, K5.6, lalu (a) mutex dan
    (b) urutan tur.
+   Pertanyaan biner yang menentukan pembingkaian naskah, dan yang membuat
+   G10 layak dibiayai: batas ATAS Delta pada 13 instance yang mengikat
+   adalah mean 5.13 s / max 8.55 s (~4-17% dari makespan), TAPI 2 dari 13
+   sudah terbukti Delta = 0 persis. Jadi:
+     - kalau Delta sejati dekat batas atas -> koordinasi melewati ambang 5%
+       A3-K3, dan ia mekanisme WAKTU pertama yang ditemukan sejak
+       mutex = 0.000 s (g7 B3);
+     - kalau dekat nol -> tabrakan mengulang pola mutex (sering mengikat,
+       tidak berbiaya), dan lubang klaim-waktu paper TETAP terbuka.
+   Kedua sisi sudah punya bukti pendukung. JANGAN menebak mana; ukur.
 
 === KUNCI KRITERIA SEBELUM KODE, ke docs/p1_g10_sched4.md A ===
 1. Bagaimana W2 sendiri dibuktikan benar -- ia oracle, dan oracle yang salah
    mencetak "0 mismatch" dengan senang hati.
 2. Berapa besar instance yang WAJIB proved=True, sebagai angka, sebelum
-   solver boleh disebut ground truth.
+   solver boleh disebut ground truth. Patokan konkret yang sudah ada:
+   13 instance S1 yang mengikat sekarang terkurung <= 1.211; menutup
+   ke-13 itu adalah palang yang wajar, dan 2 di antaranya sudah 1.000.
 3. Apa yang dilaporkan kalau lagi-lagi tidak semua instance bisa dibuktikan.
 
 === JEBAKAN YANG SUDAH DIUKUR, JANGAN DITEMUKAN ULANG ===
-- Yang lambat adalah PEMERIKSA, bukan penjadwal. Dua kali sekarang: g8 B4
-  (validate_schedule eksponensial) dan g9 B3 (_first_start per aksi, 1.5e5
-  aksi per node). Ukur pemeriksanya SEBELUM menjalankan sapuan.
+- Yang lambat adalah PEMERIKSA, bukan penjadwal. TIGA kali sekarang, semuanya
+  dalam dua sesi: g8 B4 (validate_schedule eksponensial), g9 B3 (_first_start
+  per aksi, 1.5e5 aksi per node), dan g9 B6 (evade menyapu 858 pose aman,
+  masing-masing satu certificate walk, DI LUAR time budget). Pola ketiganya
+  sama: sebuah loop O(besar) yang setiap iterasinya memanggil pemeriksa.
+  Ukur pemeriksanya SEBELUM menjalankan sapuan, dan beri SETIAP loop yang
+  memanggilnya sebuah batas eksplisit.
 - h_g[R] dengan R yang masih dibagi bersama TIDAK admissible. Pakai min atas
   pembagian tugas. Bug ini ada di DUA tempat di G9 dan perbaikan pertama
   hanya menutup satu.
@@ -1159,7 +1191,7 @@ Lengan 4x MASIH DILEPAS. Sesi ini SEPENUHNYA OFFLINE.
   0.455 m. Angka rugi TETAP batas bawah.
 
 === ATURAN ===
-- 7.2: UKUR, JANGAN MENDUGA. Papan skor 16 meleset, 2 tepat.
+- 7.2: UKUR, JANGAN MENDUGA. Papan skor 17 meleset, 2 tepat.
   Prior dunia: LONGGAR. Prior kode sendiri (g9 B8, kini 2 dari 2):
   LEBIH LAMBAT, LEBIH RUMIT, LEBIH SALAH dari yang terasa.
 - Kalau B bertentangan dengan A, yang menang B, dan pertentangannya DITULIS.
