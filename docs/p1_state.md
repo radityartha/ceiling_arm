@@ -243,6 +243,35 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > ([p1_g7 §B3](p1_g7_sched.md)); (b) **74–92% makespan adalah gerak gantry**,
 > jadi masalahnya tur pose, bukan penugasan lengan ([p1_g7 §B5](p1_g7_sched.md)).
 >
+> ✅ **Langkah §7.1 nomor 3 dan 4 SELESAI 2026-08-14 (Sesi G8)** —
+> [p1_g8_sched2.md](p1_g8_sched2.md). Heuristik `pose-tour` + tiga baseline +
+> batas bawah ada di `reachability_gng/sched_heur.py`, kerangka evaluasi di
+> `test/eval_sched_heur.py`. **Seluruh §7.1 (1–4) kini selesai.**
+>
+> 🔴 **Empat hasil G8 yang mengubah cara §2/§6 boleh dikutip:**
+> (a) **ambang "cukup baik" TIDAK tercapai** — `pose-tour` mean gap **2.45%**
+> (lolos ≤ 5%) tapi max **24.31%** (gagal ≤ 10%), pada 140 instance dan
+> direplikasi pada 60 instance held-out. Ia persis optimal pada 51% instance dan
+> 1 300× lebih cepat dari exact, tapi **ambangnya dilaporkan GAGAL**, bukan
+> dinaikkan ([p1_g8 §B2](p1_g8_sched2.md));
+> (b) **urutan tur menyumbang 0.00%** pada 40/40 instance `n` = 8…50 — yang
+> menentukan adalah **pose mana** yang dipilih, bukan urutannya. Ini
+> **membatasi** `p1_g7 §B5` ([p1_g8 §B6](p1_g8_sched2.md));
+> (c) **"74–92% makespan adalah gerak gantry" adalah pernyataan `n ≤ 10`.** Di
+> `n = 50` pangsanya **59.5%**. Kutip selalu dengan `n`-nya
+> ([p1_g8 §B7](p1_g8_sched2.md));
+> (d) ekor gap = **satu pose handover yang salah dipilih** (+9.55 s traverse),
+> bukan tur yang salah diurutkan ([p1_g8 §B3](p1_g8_sched2.md)).
+>
+> ⚠️ `validate_schedule()` **eksponensial** dalam tugas per perhentian; ia
+> menggantung di `n ≥ 20`. Baca [p1_g8 §B4](p1_g8_sched2.md) sebelum menulis
+> evaluasi apa pun di atas `n = 10`.
+>
+> ➜ Sisa lubang model terbesar: **tabrakan struktur gantry–gantry**, satu-satunya
+> kopling **waktu** antar gantry yang belum ada. Semua angka rugi tetap batas
+> bawah sampai ia dimodelkan. Prompt G9 siap pakai di
+> [p1_g8_sched2.md §C](p1_g8_sched2.md).
+
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
 > 🔴 Perhatikan §0 di sana: **lengan sedang dilepas fisik**, jadi seluruh jalur

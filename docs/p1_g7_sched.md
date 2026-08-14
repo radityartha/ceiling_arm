@@ -439,6 +439,30 @@ sekali**, sehingga biaya koordinasi sebenarnya **hanya bisa naik** dari sini.
 Yang benar dikatakan: *pada instance yang optimumnya bisa dihitung, mutex bukan
 penggerak makespan.*
 
+> 🔻 **KOREKSI TERCATAT, 2026-08-14 (audit awal G8).** Kalimat di atas —
+> "mutex baru berbiaya kalau `z > max(a, b)`, yaitu butuh **≥3 tugas zona** di
+> satu perhentian dengan beban dua lengan seimbang" — **SALAH pada bagian
+> ≥3-nya**. **Dua** tugas zona sudah cukup: split 1-1 memberi `z = 2 >
+> max(1, 1) = 1`. Bantahannya ada di dokumen ini sendiri — **P4 adalah instance
+> 2 tugas dan ia berbiaya 4.0 s, bukan 2.0 s** — dan terukur ulang di peta
+> nyata (`n = 6`, seed 0/1/2: ada subset 2-bit yang durasi terbaiknya atas
+> seluruh 2376 pose naik `2.0 → 4.0 s`).
+>
+> Kalimat penutup paragraf itu ("memindahkan kedua tugas ke lengan yang SAMA
+> berbiaya sama persis") juga mencampur dua hal: benar bahwa **di bawah mutex**
+> tidak ada penugasan yang lebih murah (`max(a,b) = z = 2`), tapi pembanding
+> yang relevan adalah **tanpa** mutex, dan di sana split 1-1 hanya butuh 1 slot.
+> Jadi mutex memang membayar 1 slot pada 2 tugas zona.
+>
+> **Yang TIDAK berubah:** `mutex cost = 0.000 s` pada 105 pasang tetap berdiri
+> (direproduksi 2026-08-14: 10/10 seed `n = 6`, mr = 1, 1 gantry, `0.000`), dan
+> Q1/Q2/Q3 tetap berdiri. Yang gugur hanya **penjelasan mekanismenya**. Sebab
+> yang benar bukan "perhentian tidak pernah cukup besar untuk mengikat"
+> melainkan **Q2 + Q3**: optimum punya 2376 pose untuk dipilih, memakai
+> rata-rata 2.40 tugas per perhentian, dan garis waktunya didominasi setup
+> (§B5) — jadi ia selalu bisa menghindari pose yang mengikat, bukan selalu
+> terlalu kecil untuk mengikat.
+
 ### B4. D3 — MR memang mahal (dugaan TEPAT), tapi mekanismenya bukan yang diduga
 
 `n = 6`, satu tugas MR, 10 seed:
