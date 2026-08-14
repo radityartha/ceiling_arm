@@ -267,10 +267,43 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > menggantung di `n ≥ 20`. Baca [p1_g8 §B4](p1_g8_sched2.md) sebelum menulis
 > evaluasi apa pun di atas `n = 10`.
 >
-> ➜ Sisa lubang model terbesar: **tabrakan struktur gantry–gantry**, satu-satunya
-> kopling **waktu** antar gantry yang belum ada. Semua angka rugi tetap batas
-> bawah sampai ia dimodelkan. Prompt G9 siap pakai di
-> [p1_g8_sched2.md §C](p1_g8_sched2.md).
+> ⏳ **Sesi G9 (2026-08-14) — [p1_g9_sched3.md](p1_g9_sched3.md). Tabrakan
+> struktur gantry–gantry DIMODELKAN, tapi GROUND TRUTH-nya BELUM TEGAK.**
+>
+> 🔴 **Gerbang W0–W4 §A3-K1 TIDAK LULUS**, jadi `sched_coll.solve_coupled`
+> **tidak boleh disebut ground truth** dan §7.1 melarang menyentuh heuristik
+> sadar-tabrakan. W2 (enumerator bersama brute force, satu-satunya uji yang
+> menyerang himpunan waktu-mulai) **tidak dibangun**; W2b **gagal** (dengan
+> tabrakan dimatikan, B&B memberi 46.7772 di mana `solve_exact` memberi
+> 44.7772); W4 **tidak bisa dijalankan** karena `validate_schedule()` tidak
+> punya tempat untuk waktu **tunggu** yang model baru tambahkan.
+>
+> ✅ **Yang tegak dan boleh dipakai:** predikat `BLOCK` (jejak URDF exact,
+> reduksi 2-D terbukti; W0 1 184 kasus 0 mismatch, W0b 2.2e-16 vs
+> `irm_sweep.base_pose`), lintasan traverse + sertifikat waktu kontinu
+> (W1a–d lulus; durasi cocok `sched.traverse_time` sampai 3.6e-15 s),
+> Lemma 1 (parkir aman `rot = 0`, margin 0.21 m), Lemma 3
+> (`terkopel ≥ takterkopel`, batas bawah yang sah).
+>
+> 🔴 **Hasil yang mengubah cara §6 dan §7.3(b) boleh dikutip: pada 13 dari 40
+> instance S1 (32.5%), jadwal yang G7/G8 sebut OPTIMUM benar-benar
+> melanggar kendala tabrakan.** Jadi "semua angka rugi adalah batas bawah"
+> bukan lagi kehati-hatian teoretis — ia punya dukungan kuantitatif.
+> Pada 27 dari 40 sisanya `Δ = 0` **exact**.
+>
+> ⚠️ **Vonis "berapa mahal koordinasi" TIDAK DAPAT DITENTUKAN sesi ini**, dan
+> subset yang bisa dibuktikan **bias ke bawah menurut konstruksi** (ia
+> didefinisikan oleh "optimum takterkopelnya bebas tabrakan", yaitu oleh
+> `Δ = 0`). **Dilarang mengutip mean `Δ` atas subset itu sebagai biaya
+> koordinasi** — baca [p1_g9 §B6](p1_g9_sched3.md).
+>
+> ⛔ **TIDAK DIUKUR di G9**, dan tidak boleh diasumsikan selamat: apakah mutex
+> `r = 0.20` masih 0.000 s pada model terkopel; apakah urutan tur masih
+> menyumbang 0.00%; sapuan `c_clear`; probe adversarial S2.
+>
+> ➜ Prompt G10 siap pakai di [p1_g9_sched3.md §C](p1_g9_sched3.md). Urutannya
+> sengaja terbalik dari G9: **oracle dulu** (gerbang sadar-tunggu + W2), solver
+> belakangan.
 
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
@@ -292,9 +325,31 @@ Baseline (empat): fixed assignment · greedy/nearest · sequential · MIP/DP-opt
 Dengan MR task dan mutex, MIP/DP **tidak lagi vacuous** — enumerasi lengkap tidak
 tractable, jadi ada optimality gap yang bisa dilaporkan.
 
-Yang belum dimodelkan dan harus disebut: **tabrakan struktur gantry–gantry**
-(pelat mount menyapu lingkaran r=0.4 m di `y=±0.36`, beririsan di `y ∈ [−0.04, 0.04]`);
-proksi polyline meremehkan volume sapuan → semua angka rugi adalah batas bawah.
+~~Yang belum dimodelkan dan harus disebut: **tabrakan struktur gantry–gantry**
+(pelat mount menyapu lingkaran r=0.4 m di `y=±0.36`, beririsan di `y ∈ [−0.04, 0.04]`).~~
+
+> 🔻 **KOREKSI, 2026-08-14 (G9).** Kalimat di atas dipakai berulang sebagai
+> **predikat tabrakan**, dan dalam peran itu ia **SALAH**. Lingkaran `r = 0.4`
+> adalah **sapuan atas SELURUH rotasi** — ia menjawab "bisakah mereka bertemu
+> sama sekali", bukan "apakah pose ini bertabrakan". Dipakai per-pose ia
+> melarang sebagian besar ruang pose secara palsu.
+>
+> Predikat yang benar ada di `sched_coll.py` dan
+> [p1_g9 §A2.2](p1_g9_sched3.md), diturunkan dari URDF apa adanya: jejak tiap
+> gantry = **OBB batang `0.80 × 0.08` ∪ dua cakram pelat `r = 0.055`**, dan
+> `BLOCK(p1, p2) ⟺ jarak_XY ≤ c_clear`. Ambang penting yang sudah terukur:
+> pada `rot = ∓90°`, tabrakan terjadi untuk `|Δlin| ≤ 0.095 m` (**bukan**
+> 0.11 — 0.11 adalah syarat **perlu**, dan memakainya sebagai syarat **cukup**
+> adalah kesalahan pertama G9, [p1_g9 §B1](p1_g9_sched3.md)).
+>
+> Syarat perlu yang berguna dan sah: tabrakan menuntut **kedua** gantry
+> berputar > 31.7° dari sejajar-rel. Gantry di `rot ≈ 0` atau `≈ 180°`
+> **mustahil** ditabrak.
+
+Tabrakan **lengan–lengan** antar gantry tetap di luar model, dan itu sekarang
+lubang yang lebih besar: ujung lengan terentang 1.4 m dari sumbu rotasi, tiga
+kali `R_MAX = 0.455 m` struktur yang G9 modelkan. **Semua angka rugi tetap
+batas bawah.**
 
 ---
 
@@ -392,13 +447,29 @@ mengarang konstanta.**
 > dan itu menghentikan **kedua** lengan pada gantry itu. Modelkan begitu, jangan
 > hanya traverse.
 
-**(b) Tabrakan struktur gantry–gantry masih terbuka.**
-Yang sudah dicek baru lengannya. Pelat mount menyapu lingkaran radius 0.4 m di
-`y = ±0.36`, jadi beririsan di `y ∈ [−0.04, 0.04]` — dua gantry pada `x` yang
-berdekatan dengan rotasi saling menghadap **bisa** bertabrakan secara struktur.
-Ini batasan atas `(lin₁, rot₁, lin₂, rot₂)` yang tidak bergantung target sama
-sekali, jadi ia memangkas ruang jadwal secara langsung. Kalau scheduler dibangun
-tanpa ini, jadwalnya bisa memerintahkan konfigurasi yang merusak hardware.
+**(b)** ~~Tabrakan struktur gantry–gantry masih terbuka.~~
+
+> ✅ **PREDIKATNYA SUDAH DIMODELKAN DAN DIVERIFIKASI 2026-08-14 (Sesi G9)** —
+> `sched_coll.py`, [p1_g9 §A2.2 dan §B1](p1_g9_sched3.md). Yang **belum** tegak
+> adalah solver terkopelnya, bukan predikatnya (§6).
+>
+> 🔻 **Kalimat asli di bawah memakai lingkaran sapuan `r = 0.4` sebagai
+> predikat per-pose, dan itu SALAH** — sama dengan koreksi di §6. Lingkaran itu
+> adalah gabungan atas semua rotasi.
+>
+> Yang terbukti benar dari paragraf asli: ia memang **batasan atas
+> `(lin₁, rot₁, lin₂, rot₂)` yang tidak bergantung target sama sekali**, dan ia
+> memang **memangkas ruang jadwal secara langsung**. Terukur: pada **13 dari 40**
+> instance 2-gantry alami, jadwal optimum G7/G8 melanggarnya. Peringatan
+> terakhirnya juga terbukti tepat — **jadwal G7/G8 memang bisa memerintahkan
+> konfigurasi yang merusak hardware, dan pada sepertiga instance ia melakukannya.**
+
+Yang **masih** terbuka setelah G9: tabrakan **lengan–lengan** antar gantry
+selama gerak. `p1_g2 §10` mengukurnya pada konfigurasi *menjangkau* dan
+menemukan tidak mengikat (0.00% pasangan hilang sampai clearance 0.15 m), tapi
+itu proksi polyline dan bukan pada lengan yang sedang dibawa melintas. Lengan
+terentang 1.4 m dari sumbu rotasi — **tiga kali** `R_MAX = 0.455 m` struktur
+yang sudah dimodelkan.
 
 ---
 
@@ -535,6 +606,35 @@ dan optimum tidak pernah membangun perhentian sebesar yang dibutuhkan
 ([p1_g7 §B3](p1_g7_sched.md)). **Sebelas meleset, sepuluh ke arah yang sama.**
 ➜ Prior kerja yang sudah layak dipakai: **kendala yang belum diukur itu LONGGAR**,
 sampai terbukti sebaliknya.
+
+**Ke-12 sampai ke-16 (Sesi G8):** empat dari lima dugaan meleset
+([p1_g8 §B9](p1_g8_sched2.md)), tapi **prior papan skor sendiri benar pada empat
+dari lima**. Catatan penting yang lahir di sana: prior "longgar" berlaku untuk
+**DUNIA**, **bukan** untuk **kode yang kita tulis sendiri** — heuristik kita
+ternyata lebih **buruk** dari dugaan, bukan lebih baik.
+
+**Ke-17 (Sesi G9):** dua dugaan dinilai, dua-duanya meleset, **ke arah yang
+berbeda**, dan itu yang informatif ([p1_g9 §B8](p1_g9_sched3.md)):
+
+- **D13** (tentang **kode sendiri**: "solver terkopel muat 120 s pada `n = 6`")
+  — meleset, kodenya lebih lambat dan lebih sulit. Catatan G8 terkonfirmasi,
+  sekarang **2 dari 2**.
+- **D9** (tentang **dunia**: "`Δ = 0` pada ≥ 80% instance") — meleset ke
+  **67.5%**, yaitu kendalanya **LEBIH MENGIKAT** dari dugaan.
+
+🔴 **D9 adalah dugaan pertama dari 19 yang meleset melawan prior utama papan
+skor.** Satu titik data tidak membatalkan pola 16-dari-18, tapi ia menandai
+**batas** prior itu: "longgar" diturunkan seluruhnya dari kendala **kelayakan
+statis** (interference, zona-eksklusi, co-feasibility, index topologis).
+Tabrakan gantry–gantry adalah kendala **eksklusi ruang bersama** — kelas yang
+berbeda, dan kelas itu baru saja memberi contoh tandingan pertamanya.
+
+➜ Prior kerja yang sekarang lebih tepat, dua baris bukan satu:
+> **Kendala KELAYAKAN yang belum diukur: tebak LONGGAR.**
+> **Kendala EKSKLUSI RUANG BERSAMA: belum ada dasar untuk menebak — ukur.**
+> **Dugaan tentang KODE SENDIRI: tebak lebih lambat, lebih rumit, lebih salah.**
+
+**Papan skor: 17 meleset, 2 tepat.**
 
 Dugaan G7 yang **tepat** (tugas MR jauh lebih mahal, +7.0 s / +11.2 s) tetap
 salah **mekanismenya** — mahal karena pose handover langka (p10 = 26 pose dari
