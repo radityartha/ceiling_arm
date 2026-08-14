@@ -113,7 +113,7 @@ def validate_coupled(inst, stops, finish=None, makespan=None,
     errs, done = [], []
     ends = {}
     for g, sg in sorted(stops.items()):
-        t, cur = 0.0, inst.p0[g]
+        t, cur, last_work = 0.0, inst.p0[g], 0.0
         for k, st in enumerate(sg):
             p = st['pose']
             pa, pb = inst.poses[g][cur], inst.poses[g][p]
@@ -151,10 +151,17 @@ def validate_coupled(inst, stops, finish=None, makespan=None,
                     errs.append(f'g{g} task {i} unreachable by {a} at pose {p}')
             done += tasks
             t = st['start'] + st['dur']
+            if tasks:
+                last_work = t
             cur = p
-        ends[g] = t
-        if finish is not None and abs(t - finish.get(g, t)) > TOL:
-            errs.append(f'g{g} finish {finish[g]} != replay {t}')
+        # completion = end of the last DWELL. A gantry that steps aside after
+        # finishing its work has not extended the makespan (p1_g7 A2-K2 defines
+        # it as the end of the last task's dwell window), and counting the
+        # evasive leg would inflate it by a whole traverse on exactly the
+        # instances where collision binds.
+        ends[g] = last_work
+        if finish is not None and abs(last_work - finish.get(g, last_work)) > TOL:
+            errs.append(f'g{g} finish {finish[g]} != replay {last_work}')
     if sorted(done) != list(range(inst.n)):
         errs.append(f'tasks done {sorted(done)} != every task exactly once')
     if makespan is not None and abs(max(ends.values()) - makespan) > TOL:

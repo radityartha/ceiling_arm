@@ -404,7 +404,20 @@ def first_block(A, B, t_lo, t_hi, c_clear=C_CLEAR, eps=EPS_CERT):
     "blocked" when the true clearance sits in (c, c + eps]. It is NEVER wrong
     the other way. eps = 0.005 m is locked in A2.4, an order below the 0.05 m
     rail grid quantum.
+
+    🔺 G10 FIX -- reported as a finding in p1_g10 B1, not filed as a tidy-up.
+    `pair_distance(l1, r1, l2, r2)` puts its FIRST argument at y = +0.36 and its
+    second at y = -0.36: the arguments are gantry-indexed, not interchangeable.
+    Callers written as "my trajectory, the other one's" therefore evaluated a
+    MIRRORED world whenever the caller was gantry 2 -- roughly half of every
+    feasibility test the coupled search makes. Measured: a pose pair whose true
+    clearance is 0.000 m (a real collision) reads 0.189 m clear when swapped,
+    and the boolean flips in both directions on the real grid. Ordering the two
+    trajectories by gantry id here fixes every caller at once, `_first_start`
+    and `_repair_ub` included, which is where it actually bit.
     """
+    if A.g > B.g:
+        A, B = B, A
     if t_hi < t_lo or _cannot_meet(A, B, t_lo, t_hi, c_clear):
         return None
     t = t_lo
@@ -646,6 +659,16 @@ def _repair_ub(inst, sol0, c_clear, eps, safe=None):
                 if s_g is not None:
                     trajs[g] = tr_g
                     t[g] = s_g + leg_duration(cur, qg)
+                    # 🔺 G10 FIX, reported in p1_g10 B1. The stand-aside was
+                    # committed to `trajs` but never to `out`, so the schedule
+                    # this function RETURNED omitted a leg the trajectory it
+                    # validated contained. Everything downstream -- the gate,
+                    # the replay, the reported optimum -- then saw a gantry
+                    # standing where it no longer was, and the reported
+                    # schedule could collide even though the checked one did
+                    # not. Caught by the wait-aware gate on Q3.
+                    out[g].append(dict(pose=p_safe, start=t[g], dur=0.0,
+                                       tasks=0, assign={}))
                     moved = True
                     break
             if moved and any(_try(k, [m for m in gs if m != k][0])
@@ -683,7 +706,12 @@ def _serial_ub(inst, sol0, safe, c_clear, eps):
         tuple(inst.poses[a][end_a]), tuple(inst.poses[a][p])))
     shift = fin_a + leg_duration(tuple(inst.poses[a][end_a]),
                                  tuple(inst.poses[a][park]))
-    stops = {a: list(sol0.stops[a]),
+    # the park is a real leg and must appear in the schedule -- same defect,
+    # same G10 fix as in _repair_ub above: gantry b's whole schedule is shifted
+    # on the assumption that a got out of the way, so a schedule that omits the
+    # park is not the schedule whose feasibility was argued.
+    stops = {a: list(sol0.stops[a]) + [dict(pose=int(park), start=shift,
+                                            dur=0.0, tasks=0, assign={})],
              b: [dict(s, start=s['start'] + shift) for s in sol0.stops[b]]}
     return max(fin_a, stops[b][-1]['start'] + stops[b][-1]['dur']), stops
 
