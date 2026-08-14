@@ -463,6 +463,8 @@ from reachability_gng import sched                              # noqa: E402
 
 NODE_BUDGET = 200_000
 ACTION_BUDGET = 400        # certificate walks per node; see B3
+EVADE_CANDIDATES = 12      # cheapest safe poses tried when standing aside
+UB_START_PROBES = 40       # extra start times probed by the UB constructor only
 
 
 def safe_poses(poses, c_clear=C_CLEAR):
@@ -507,14 +509,34 @@ def _start_candidates(other, t_min):
     return sorted(out)
 
 
-def _first_start(tr, q, dur, t_min, other, c_clear, eps):
+def _first_start(tr, q, dur, t_min, other, c_clear, eps, n_probe=0):
     """Earliest feasible start to traverse to q and hold `dur` there.
 
     Terminates: past other.end_time() the other gantry is static, so the whole
     action becomes a pure time shift and feasibility stops depending on s.
+
+    `n_probe` adds a uniform grid of start times between t_min and the other
+    gantry's last leg end, on top of the locked candidate set. Used ONLY by the
+    upper-bound constructor, never by the exactness claim -- a feasible
+    schedule is a valid UB however its start times were found, so probing here
+    tightens the bracket without touching what `solve_coupled` may claim.
+
+    It exists because the locked set {own readiness} U {other's leg boundaries}
+    turns out to be far too coarse: on the binding instances the two gantries
+    collide MID-TRAVERSE, both sweeping through rot ~ -90 deg at the same lin,
+    and the fix is to delay one by a few seconds -- a time that is not any
+    boundary of anything. That is Restriction (ii) biting, measured
+    (p1_g9 B6).
     """
     T = leg_duration(tr.end_pose(), q)
-    for s in _start_candidates(other, t_min):
+    cands = _start_candidates(other, t_min)
+    if n_probe:
+        hi = max(t_min, other.end_time())
+        if hi > t_min:
+            cands = sorted(set(cands) | {
+                round(t_min + (hi - t_min) * k / n_probe, 9)
+                for k in range(1, n_probe)})
+    for s in cands:
         cand = tr.copy()
         cand.append(s, q)
         if first_block(cand, other, s, s + T + dur, c_clear, eps) is None:
@@ -545,13 +567,25 @@ def _split_lb(dps, gs, R, r, t):
     return best
 
 
-def _repair_ub(inst, sol0, c_clear, eps):
+def _repair_ub(inst, sol0, c_clear, eps, safe=None):
     """A genuinely feasible schedule: keep the uncoupled optimum's (pose, task
     set) choices and only push each action to its earliest feasible start.
 
-    Purely an incumbent, so the B&B has something to prune against. It is a
-    real schedule -- no invented slack constant -- and it is checked by the
-    same certificate as everything else. Returns inf if it deadlocks.
+    An incumbent for the B&B, and -- since a feasible schedule is a valid UPPER
+    BOUND however it was found -- the thing that sets how tight the reported
+    bracket is. Every number in it is a real traverse or a real dwell; no
+    invented slack.
+
+    `safe` enables ONE extra move that the uncoupled schedule never contains: a
+    gantry that has run out of tasks steps aside to the nearest universally
+    safe pose. Without it this deadlocks exactly when the collision binds --
+    the finished gantry parks in the way and the other can never reach its
+    pose -- which is why the first G9 sweep fell back to the very loose
+    serialisation bound on all 13 binding instances (p1_g9 B6).
+
+    This is an upper-BOUND constructor, not a scheduler: nothing it produces is
+    ever reported as an optimum or as a heuristic result, so it does not
+    trespass on p1_state 7.1.
     """
     gs = inst.gantries
     trajs = {g: Traj(g, tuple(inst.poses[g][inst.p0[g]])) for g in gs}
@@ -559,19 +593,68 @@ def _repair_ub(inst, sol0, c_clear, eps):
     t = {g: 0.0 for g in gs}
     fin = {g: 0.0 for g in gs}
     out = {g: [] for g in gs}
-    while any(todo[g] for g in gs):
-        g = min((k for k in gs if todo[k]), key=lambda k: (t[k], k))
-        h = [k for k in gs if k != g][0]
-        st = todo[g].pop(0)
+    stood_aside = {g: False for g in gs}
+
+    def _try(g, h):
+        """Commit g's next stop at its earliest feasible start, or return False."""
+        st = todo[g][0]
         q = tuple(inst.poses[g][st['pose']])
-        s, newtr = _first_start(trajs[g], q, st['dur'], t[g], trajs[h],
-                                c_clear, eps)
-        if s is None:
-            return np.inf, None
-        arrive = s + leg_duration(trajs[g].end_pose(), q)
+        s_, newtr = _first_start(trajs[g], q, st['dur'], t[g], trajs[h],
+                                 c_clear, eps, n_probe=UB_START_PROBES)
+        if s_ is None:
+            return False
+        todo[g].pop(0)
+        arrive = s_ + leg_duration(trajs[g].end_pose(), q)
         trajs[g] = newtr
         t[g] = fin[g] = arrive + st['dur']
         out[g].append(dict(st, start=arrive))
+        return True
+
+    while any(todo[g] for g in gs):
+        ready = sorted((k for k in gs if todo[k]), key=lambda k: (t[k], k))
+        placed = False
+        # Try the earliest-ready gantry, then the OTHER one. That second try is
+        # the fix that matters: _first_start only sees the other gantry's
+        # COMMITTED trajectory, so a gantry that still has work but has not
+        # planned its next leg looks parked forever, and waiting can never
+        # clear it. Letting it move first can. (The first attempt at this only
+        # handled a FINISHED gantry standing in the way, and changed nothing on
+        # any of the 13 binding instances -- p1_g9 B6.)
+        for g in ready:
+            h = [k for k in gs if k != g][0]
+            if _try(g, h):
+                placed = True
+                break
+        if placed:
+            continue
+        # Both blocked: let an idle gantry step aside, once each.
+        for g in gs:
+            h = [k for k in gs if k != g][0]
+            if stood_aside[g] or not safe:
+                continue
+            stood_aside[g] = True
+            cur = trajs[g].end_pose()
+            cand = sorted(safe[g], key=lambda p: leg_duration(
+                cur, tuple(inst.poses[g][p])))[:EVADE_CANDIDATES]
+            moved = False
+            for p_safe in cand:
+                qg = tuple(inst.poses[g][p_safe])
+                if qg == cur:
+                    break
+                s_g, tr_g = _first_start(trajs[g], qg, 0.0, t[g], trajs[h],
+                                         c_clear, eps)
+                if s_g is not None:
+                    trajs[g] = tr_g
+                    t[g] = s_g + leg_duration(cur, qg)
+                    moved = True
+                    break
+            if moved and any(_try(k, [m for m in gs if m != k][0])
+                             for k in sorted((x for x in gs if todo[x]),
+                                             key=lambda x: (t[x], x))):
+                placed = True
+                break
+        if not placed:
+            return np.inf, None
     return max(fin.values()), out
 
 
@@ -663,7 +746,7 @@ def solve_coupled(inst, c_clear=C_CLEAR, eps=EPS_CERT, budget=NODE_BUDGET,
                 if int(p) in keep_idx[g]] for g in gs}
     full = (1 << inst.n) - 1
 
-    best_m, best_stops = _repair_ub(inst, sol0, c_clear, eps)
+    best_m, best_stops = _repair_ub(inst, sol0, c_clear, eps, safe)
     if not np.isfinite(best_m):
         best_m, best_stops = _serial_ub(inst, sol0, safe, c_clear, eps)
     if ub_seed is not None:          # W2b only: force the search to work

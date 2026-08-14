@@ -910,6 +910,69 @@ kuantitatif pertamanya.** Bukan lagi kehati-hatian teoretis: pada 32.5%
 instance, jadwal yang G7/G8 sebut optimum **benar-benar** akan menabrakkan
 perangkat keras.
 
+
+#### Kurungan yang dipersempit — probe lanjutan, 2026-08-14
+
+⚠️ **Dijalankan SESUDAH §B6 versi pertama ditulis, dan tetap bukan `Δ`.** Yang
+berubah hanya **konstruktor batas atas**, bukan solver dan bukan klaim
+exactness: sebuah jadwal yang layak adalah batas atas yang sah bagaimanapun ia
+ditemukan. `LB` tidak berubah sama sekali (optimum takterkopel, exact dari G7).
+
+Tiga hal diperbaiki di `_repair_ub`, dan dua yang pertama **tidak menghasilkan
+apa-apa** — dicatat karena mereka menunjukkan diagnosis awal saya salah:
+
+1. gantry yang **sudah selesai** boleh menyingkir → **nol perubahan** pada 13/13;
+2. kalau satu gantry terhalang, **gantry lain jalan duluan** → juga nol;
+3. **himpunan waktu mulai diperlebar** (40 probe seragam, hanya di konstruktor
+   UB) → **inilah yang bekerja**.
+
+Sebabnya terbaca dari datanya, bukan ditebak. Pada `n4_s4_mr0` optimum
+takterkopel menyuruh **kedua** gantry menyapu `rot ≈ −90°` pada `lin` yang sama
+**pada saat yang sama** (t = 8.475 s, jarak 0.0034 m). Tabrakannya **di
+tengah traverse**, bukan di tujuan — tujuannya justru aman (`rot = −180°`,
+(N1) melarang tabrakan di sana). Yang memperbaikinya adalah **menunda satu
+gantry beberapa detik**, dan waktu itu **bukan batas leg apa pun**. Jadi
+kurungan yang longgar itu adalah **Pertentangan 3 yang mengikat**, bukan B&B
+yang lambat.
+
+| instance | LB | UB lama | UB baru | rasio lama | rasio baru | `Δ` |
+|---|---|---|---|---|---|---|
+| `n4_s2_mr1` | 48.445 | 56.205 | **48.445** | 1.160 | **1.000** | **0.000 (EXACT)** |
+| `n4_s4_mr0` | 37.713 | 73.017 | **45.656** | 1.936 | **1.211** | ≤ 7.943 |
+| `n4_s7_mr0` | 39.304 | 58.693 | **47.060** | 1.493 | **1.197** | ≤ 7.755 |
+| `n4_s7_mr1` | 39.594 | 58.983 | **47.350** | 1.490 | **1.196** | ≤ 7.755 |
+| `n4_s8_mr0` | 35.713 | 63.757 | **37.630** | 1.785 | **1.054** | ≤ 1.918 |
+| `n4_s9_mr1` | 50.036 | 78.974 | **50.036** | 1.578 | **1.000** | **0.000 (EXACT)** |
+| `n6_s1_mr1` | 44.777 | 60.574 | **53.325** | 1.353 | **1.191** | ≤ 8.548 |
+| `n6_s2_mr1` | 50.735 | 83.963 | **58.542** | 1.655 | **1.154** | ≤ 7.807 |
+| `n6_s6_mr1` | 31.346 | 52.326 | **32.683** | 1.669 | **1.043** | ≤ 1.337 |
+| `n6_s7_mr0` | 39.304 | 58.693 | **47.060** | 1.493 | **1.197** | ≤ 7.755 |
+| `n6_s8_mr0` | 35.713 | 63.757 | **37.630** | 1.785 | **1.054** | ≤ 1.918 |
+| `n6_s9_mr0` | 32.938 | 59.876 | **38.896** | 1.818 | **1.181** | ≤ 5.958 |
+| `n6_s9_mr1` | 50.036 | 78.974 | **57.994** | 1.578 | **1.159** | ≤ 7.958 |
+
+```
+rasio kurungan   lama  mean 1.599   max 1.936
+                 baru  mean 1.126   max 1.211
+BATAS ATAS Delta       mean 5.127 s   median 7.755 s   max 8.548 s
+terbukti Delta = 0     2 dari 13
+```
+
+➜ **Jawaban atas pertanyaan yang memicu probe ini: koordinasi berbiaya ORDE
+SATU SAMPAI EMPAT SLOT DWELL, bukan puluhan detik.** Batas atasnya maks
+8.55 s pada makespan 31–51 s, dan pada **2 dari 13** instance
+`UB` menyentuh `LB` sehingga `Δ = 0` **terbukti exact** — tabrakannya diserap
+habis hanya dengan menunda satu gantry, tanpa memperpanjang makespan sama
+sekali.
+
+🔴 **Yang TETAP tidak berubah:** ini semua **batas atas**. `Δ` sebenarnya ada di
+`[0, angka itu]`, dan vonis A3-K3 atas seluruh S1 **tetap TIDAK DAPAT
+DITENTUKAN** sampai gerbang §A3-K1 lulus. Dan arah tafsirnya sekarang jelas:
+kalau `Δ` sejati mendekati batas atas ini, koordinasi berbiaya ~4–17% — di
+sekitar ambang 5% A3-K3. Kalau ia mendekati nol, tabrakan mengulang pola mutex
+(sering mengikat, tidak berbiaya). **G10 memutuskan yang mana**, dan itu
+menaikkan nilai G10, bukan menurunkannya.
+
 ### B7. Langkah 5 dan 6 — **TIDAK DIUKUR**
 
 §A7 mengunci aturannya: *"Apa pun yang tidak tercapai dilaporkan sebagai TIDAK
