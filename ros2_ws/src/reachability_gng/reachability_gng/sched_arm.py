@@ -375,7 +375,20 @@ class ArmTraj:
     def polys(self, t):
         """[(m, 4, 3), (m, 4, 3)] -- configuration sets of arm slot 0 and 1."""
         for t0, t1, p, tasks, assign in self.win:
-            if t0 - 1e-12 <= t < t1 + 1e-12:
+            # 🔴 G12 BUG FIX, and A0's freeze on this file is VOID (p1_g12 B).
+            # The right edge was CLOSED (`t < t1 + 1e-12`), so at t == t1 --
+            # which is a certificate-walk mark, i.e. a time the walk always
+            # samples -- this returned the configuration of the dwell that had
+            # just ENDED. The arm state is discontinuous there (T_fold = 0), so
+            # the walk then took a Lipschitz step sized by the clearance of the
+            # EXTENDED arm and strode straight over the violation the HANGING
+            # arm was about to have. Measured on n4_s1_mr1: d(t1) = 0.7828 m
+            # with the stale extended config vs 0.1243 m one microsecond later
+            # -- a 0.66 m jump, and a step 6x too long.
+            # The window is half-open by the model's own convention
+            # ([start, start + dur)), so this is the convention being applied,
+            # not a new one being chosen.
+            if t0 - 1e-12 <= t < t1:
                 return self.geom.configs(self.g, p, tasks, assign)
         lin, rot = self.tr.pose_at(np.asarray(t, float))
         out = []
