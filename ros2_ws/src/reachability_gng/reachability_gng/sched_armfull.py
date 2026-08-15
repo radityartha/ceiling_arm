@@ -77,6 +77,13 @@ DELTA_LEMMA_B = 0.004
 # V_REL_ARM: the certificate step is twice as long as p1_g11's full gate takes.
 V_ARM = sa.V_ARM
 
+# Floor on the certificate step, so the eps-aware walk terminates instead of
+# converging geometrically onto the band edge. STEP_MIN * V_REL_ARM = 2.2 mm,
+# the same order as the frozen stack's own EPS_S floor (p1_g10 A2.2:
+# V_POINT * EPS_S = 1.1 mm, "a fifth of eps"). Conservative in one direction
+# only: it may declare a block up to 2.2 mm early, never late.
+STEP_MIN = 0.01
+
 
 class ArmView:
     """A gantry's arms over time, built from a Traj that already exists.
@@ -208,20 +215,50 @@ def arm_conflict(A, B, t_lo, t_hi, c_arm, eps=sc.EPS_CERT, memo=None,
                 key = (wa[2], wa[3], wb[2], wb[3])
                 d = memo.get(key)
                 if d is None:
-                    d = memo[key] = _pair_dist(A, B, mid)
+                    d = memo[key] = _pair_dist(A, B, lo)
             else:
-                d = _pair_dist(A, B, mid)
+                d = _pair_dist(A, B, lo)
             if d <= c_arm + eps:
                 return lo
             continue
-        v = sa.V_REL_ARM if (ma and mb) else V_ARM
+        # 🔺 The V_ARM refinement (case (iii) has one mover, so the closing
+        # speed is HALF V_REL_ARM and the step could be twice as long) is
+        # CORRECT -- measured empirically at 0.111125 m/s against V_ARM =
+        # 0.111200 on 200 random legs -- and it is GIVEN UP anyway. Two walks
+        # with different step sizes sample different points of the (c, c + eps]
+        # guard band and therefore return different verdicts on schedules where
+        # the true clearance sits inside it. Both are sound about true blocks
+        # and neither can serve as the other's oracle, which costs more than
+        # the factor of two is worth: M2 exists to adjudicate the fast path
+        # against an independent slow one, and a gate that cannot fire cleanly
+        # is p1_g8 B1's never-firing gate in yet another costume.
+        v = sa.V_REL_ARM
         t = lo
         while t <= hi:
             d = _pair_dist(A, B, t)
             if d <= c_arm + eps:
                 return t
-            t += max(d - c_arm, 0.0) / v + 1e-12
-        if _pair_dist(A, B, hi) <= c_arm + eps:
+            # 🔴 The step is (d - c - EPS), not (d - c). Stepping by (d - c)
+            # only certifies that no TRUE block (d <= c) is skipped; it can
+            # still stride past a point inside the eps band, so WHICH points
+            # of the band get seen depends on the step size -- and the step
+            # size depends on how many bodies move. Measured on n6_s0_mr0:
+            # this walk (V_ARM, one mover) stepped to d = 0.055194 and stopped,
+            # while sched_arm's (V_REL_ARM, half the step) landed on
+            # d = 0.054960 and called it a block. Both are sound about true
+            # blocks; they simply disagreed about the guard band, which made
+            # an oracle comparison impossible. Subtracting eps makes detection
+            # STEP-INDEPENDENT: the walk now sees every point with
+            # d <= c + eps, so any two step sizes give the same verdict.
+            step = (d - c_arm - eps) / v
+            if step < STEP_MIN:
+                return t          # within STEP_MIN * v = 1.1 mm of the band
+            t += step
+        if _pair_dist(A, B, max(lo, hi - 1e-9)) <= c_arm + eps:
+            # hi belongs to the NEXT piece's state (windows are half-open), so
+            # the endpoint is evaluated as the limit from the LEFT. Reading it
+            # at hi itself is the same stale-configuration error the dwell
+            # lookup had -- measured 0.0552 in-piece vs 0.4267 at hi.
             return hi
     return None
 

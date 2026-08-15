@@ -446,8 +446,17 @@ def arm_first_block(A, B, t_lo, t_hi, c_arm=C_ARM, eps=sc.EPS_CERT):
                 return t
             if not (A.moving(t) or B.moving(t)):
                 break                      # nothing moves in this piece
-            t += (d - c_arm) / V_REL_ARM
-        if arm_distance(A, B, hi) <= c_arm + eps:
+            # G12: step by (d - c - eps), not (d - c). See the note in
+            # sched_armfull.arm_conflict -- with (d - c) the set of eps-band
+            # points the walk samples depends on the step size, so two sound
+            # checkers disagree about the guard band and neither can serve as
+            # the other's oracle. Freeze on this file is already VOID (see
+            # ArmTraj.polys).
+            step = (d - c_arm - eps) / V_REL_ARM
+            if step < 0.01:
+                return t
+            t += step
+        if arm_distance(A, B, max(lo, hi - 1e-9)) <= c_arm + eps:
             return hi
     return None
 
