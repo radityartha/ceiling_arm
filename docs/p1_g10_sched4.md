@@ -979,17 +979,20 @@ Ia **tidak** boleh dibaca sebagai "optimum sejati".
 ### B10. K5.6 — sapuan `c_clear`, dan K5.7/K5.8
 
 Sapuan dijalankan pada subset `n = 4` (20 instance per set per nilai), dan itu
-disebut sebagai angka, bukan dihaluskan:
+disebut sebagai angka, bukan dihaluskan. **Nol jadwal gagal gerbang pada
+seluruh sapuan** — tapi hanya setelah Pertentangan 5 diperbaiki juga di
+`_first_start`; sebelum itu satu instance (`n4_s8_mr1`) ditolak gerbang pada
+`c_clear = 0.05` **dan** `0.10` dan tidak pernah pada `0.00`:
 
-| set | `c_clear` | exact / kurungan | `mean Δ%` dua-sisi | vonis |
-|---|---|---|---|---|
-| S1 | 0.00 | 37 / 3 (dari 40) | **[0.0000, 1.0141]** | BUKAN MAHAL |
-| S1 | 0.05 | lihat §B11 | **[0.0000, 2.2079]** | BUKAN MAHAL |
-| S1 | 0.10 | lihat §B11 | **[0.0000, 2.8282]** | BUKAN MAHAL |
-| S2 | 0.00 / 0.05 / 0.10 | 40 / 0, 20 / 0, 20 / 0 | **[0, 0]** | GRATIS |
+| set | `c_clear` | exact / kurungan | gagal gerbang | `mean Δ%` dua-sisi | vonis |
+|---|---|---|---|---|---|
+| S1 (n = 4 dan 6) | 0.00 | 37 / 3 (dari 40) | **0** | **[0.0000, 1.0141]** | BUKAN MAHAL |
+| S1 (n = 4) | 0.05 | 19 / 1 (dari 20) | **0** | **[0.0000, 1.0526]** | BUKAN MAHAL |
+| S1 (n = 4) | 0.10 | 17 / 3 (dari 20) | **0** | **[0.0000, 2.6868]** | BUKAN MAHAL |
+| S2 | 0.00 / 0.05 / 0.10 | 40 / 0, 20 / 0, 20 / 0 | **0** | **[0, 0]** | GRATIS |
 
 **Arah dan besarnya:** monoton naik, dan **modest** — batas atas `Δ%` naik
-1.01 → 2.21 → 2.83 saat `c_clear` naik 0 → 0.05 → 0.10 m. Vonis A3-K3 **tidak
+1.01 → 1.05 → 2.69 saat `c_clear` naik 0 → 0.05 → 0.10 m. Vonis A3-K3 **tidak
 berubah** pada ketiganya. Bandingkan dengan jalur data K5.4, di mana fraksi
 pasangan pose yang `BLOCK` naik ×1.82 dan ×2.87 pada nilai yang sama: kendala
 geometrinya hampir tiga kali lipat, biayanya hanya tiga kali lipat dari
