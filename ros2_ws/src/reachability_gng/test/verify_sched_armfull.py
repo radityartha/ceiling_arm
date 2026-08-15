@@ -118,15 +118,52 @@ def gen_small_armreal(n, n_pose, seed, n_mr=0, x_c=0.80, band=0.06,
         dict(nodes=node_idx.tolist(), pose_keep=keep.tolist()))
 
 
-def w3_fuel(limit=24):
+def arm_binding_fraction(inst, geom, c):
+    """Fraction of (pose, single task) x (pose, single task) pairs ARM_BLOCKs.
+
+    The W3 fuel has to be adversarial FOR ARMS, and "inside the structural
+    blocking band" is not the same thing -- p1_g11 B5 contradiction 3 measured
+    hanging arms colliding 2-3x LESS often than the structure. A first draft
+    chose poses by the structural criterion and produced 0 of 11 binding
+    instances: a gate that cannot fire (p1_g8 B1). This measures the arm
+    predicate directly and the fuel is filtered on it.
+    """
+    gs = inst.gantries
+    P = len(inst.poses[gs[0]])
+    hit = tot = 0
+    for i in range(inst.n):
+        for j in range(inst.n):
+            if i == j:
+                continue          # a schedule does each task EXACTLY once
+            for p in range(P):
+                for q in range(P):
+                    a1 = sched.stop_duration(inst, gs[0], 1 << i, p)
+                    a2 = sched.stop_duration(inst, gs[1], 1 << j, q)
+                    if not (np.isfinite(a1[0]) and np.isfinite(a2[0])):
+                        continue
+                    tot += 1
+                    hit += sa.arm_block(geom, gs[0], p, 1 << i, a1[1],
+                                        gs[1], q, 1 << j, a2[1], c)
+    return hit / max(tot, 1), tot
+
+
+def w3_fuel(limit=24, c=C_MAIN, need=0.02):
     out = []
-    for n, P, mr in [(2, 3, 0), (2, 4, 0), (3, 3, 0), (2, 3, 1), (3, 4, 0)]:
-        for seed in range(6):
+    for n, P, mr in [(2, 3, 0), (2, 4, 0), (3, 3, 0), (2, 3, 1), (3, 4, 0),
+                     (2, 4, 1), (3, 4, 1)]:
+        for seed in range(14):
             if len(out) >= limit:
                 return out
             inst = gen_small_armreal(n, P, seed, n_mr=mr)
-            if inst is not None:
-                out.append((f'armreal_n{n}P{P}mr{mr}s{seed}', inst))
+            if inst is None:
+                continue
+            try:
+                geom = sa.ArmGeom(inst)
+            except Exception:
+                continue
+            f, tot = arm_binding_fraction(inst, geom, c)
+            if tot and f >= need:
+                out.append((f'armreal_n{n}P{P}mr{mr}s{seed}[{f:.2f}]', inst))
     return out
 
 
