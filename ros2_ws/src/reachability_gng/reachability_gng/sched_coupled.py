@@ -171,13 +171,35 @@ def feasible_starts(tr, q, dur, t_min, other, c_clear=C_CLEAR, eps=EPS_CERT,
     truth. Same direction as every other approximation in this model stack --
     the reported makespan is an upper bound.
     """
+    # A gantry cannot depart before its own committed leg has finished. The
+    # callers all believe they pass a t_min at or after that point, and one of
+    # them was wrong -- Traj.append raised `overlapping legs` from inside the
+    # dive's stand-aside. Normalising here rather than at each call site is the
+    # one place it cannot be forgotten again.
+    t_min = max(float(t_min), tr.end_time())
     p_from = tr.end_pose()
     T = leg_duration(p_from, q)
     W = T + dur
     horizon = max(t_min, other.end_time())
 
-    nu = int(np.clip(W * V_REL / eps + 2.0, 2, NU_MAX))
-    u = np.linspace(0.0, W, nu)
+    # 🔺 CONTRADICTION 5, and P2 -- the gate applied to W2's OWN schedules -- is
+    # what caught it. Checking an action only over its own window [s, s+W] is
+    # NOT sound: after the window the gantry stands at `q`, and an action the
+    # OTHER gantry commits later can sweep into it at a time no window covers.
+    # The other gantry's own check covers only ITS window, so the static tail
+    # falls between the two. MEASURED: W2 returned a schedule for Q4 whose
+    # gantry 1 is still rotating at t = 9.5243 s while gantry 2 has just parked
+    # at +90 deg on the same lin -- a real collision, accepted by both W2 and
+    # (structurally) by the solver, and rejected by the gate.
+    #
+    # The fix is to extend every check to cover the other gantry's entire
+    # committed future, symmetrically on both sides. Then times before `s` are
+    # covered by the other's own checks (the own gantry has not moved yet),
+    # times inside are covered here, and the final all-static configuration is
+    # covered by the endpoint.
+    span = max(W, other.end_time() - t_min)
+    nu = int(np.clip(span * V_REL / eps + 2.0, 2, NU_MAX))
+    u = np.linspace(0.0, span, nu)
     own_lin, own_rot = leg_pose(u, p_from, q)
 
     grid = {round(t_min, 9), round(horizon, 9)}
@@ -410,10 +432,45 @@ def _dive(inst, pcs, gs, safe, t, fin, r, trajs, stops, R, c_clear, eps,
         if cont is None:
             return np.inf, None
         todo[g] = cont
-    tt = dict(t)
-    ff = dict(fin)
-    trj = {g: trajs[g].copy() for g in gs}
-    out = {g: list(stops[g]) for g in gs}
+    return _replay(inst, gs, safe, todo, dict(t), dict(fin),
+                   {g: trajs[g].copy() for g in gs},
+                   {g: list(stops[g]) for g in gs}, c_clear, eps, bud)
+
+
+def repair_schedule(inst, stops0, c_clear=C_CLEAR, eps=EPS_CERT, safe=None,
+                    bud=None):
+    """Make an arbitrary (pose, task set) plan collision-feasible.
+
+    The (pose, task set) choices are kept exactly as given and only the TIMES
+    move: each action goes at its earliest feasible start, and an idle gantry
+    may step aside once. Used for the tour-order ablation (K5.5b), where the
+    question is what a heuristic's plan COSTS under A2.4 -- so the plan must
+    survive unchanged and only the schedule around it may adapt.
+
+    Returns (makespan, stops) or (inf, None) if the plan cannot be made
+    feasible at all.
+    """
+    gs = inst.gantries
+    if safe is None:
+        safe = {g: [int(p) for p in safe_poses(inst.poses[g], c_clear)]
+                for g in gs}
+    todo = {g: [dict(pose=st['pose'], dur=st['dur'], tasks=st['tasks'],
+                     assign=st['assign']) for st in stops0.get(g, [])]
+            for g in gs}
+    return _replay(inst, gs, safe, todo, {g: 0.0 for g in gs},
+                   {g: 0.0 for g in gs},
+                   {g: Traj(g, tuple(inst.poses[g][inst.p0[g]])) for g in gs},
+                   {g: [] for g in gs}, c_clear, eps, bud)
+
+
+def _replay(inst, gs, safe, todo, tt, ff, trj, out, c_clear, eps, bud):
+    """Place a fixed per-gantry stop plan in time, earliest feasible first.
+
+    Structure copied from sched_coll._repair_ub, which was MEASURED to work
+    (p1_g9 B6: bracket ratio 1.600 -> 1.126) and which A0 says to use rather
+    than rebuild. What is new is only that it starts from an arbitrary
+    committed state and uses the A2.2 start set.
+    """
     aside = {g: False for g in gs}
 
     def _try(g, h):
@@ -628,45 +685,58 @@ def solve_coupled2(inst, c_clear=C_CLEAR, eps=EPS_CERT, budget=NODE_BUDGET,
                 dive_proof = True
                 break
 
-        g = min(gs, key=lambda k: (t[k], k))
-        h = b if g == a else a
-        dp, other = dps[g], trajs[h]
-
-        # Successor bound, vectorised over every candidate pose, computed
-        # BEFORE any start-time search: the certificate is the expensive thing
-        # (p1_g9 B3, and p1_g8 B4 before it), so it may only run on actions
-        # that already survived pruning.
-        Tg = pcs[g].trow(r[g])
-        dp_h_g, hcol_h = dps[g].h, pcs[h].hcol(r[h])
+        # BOTH gantries are expanded, not only the one whose clock is behind.
+        # 🔺 CONTRADICTION 4, and W2 is what found it -- twice over, since the
+        # enumerator had the same restriction in its first draft and Q4 caught
+        # it there. "Expand the earlier gantry" is exact in the UNCOUPLED model
+        # (the two schedules are independent, so their interleaving is free)
+        # and is a heuristic here: the earlier gantry can be blocked by the
+        # later one, and the unblocking move can be a TASK the later one has to
+        # do, not just an evasion. MEASURED on the crowded W2 fuel before this
+        # change: 3 of 8 instances came back with solver > brute force, by up
+        # to 0.96 s, while reporting proved = True.
         actions = []
-        U = R
-        while U:
-            d = dp.dur[U, :]
-            end = t[g] + Tg + d
-            R2 = R ^ U
-            split = np.full(end.shape, np.inf)
-            A = R2
-            while True:
-                v2 = hcol_h[R2 ^ A]
-                if np.isfinite(v2):
-                    np.minimum(split, np.maximum(end + dp_h_g[A, :],
-                                                 t[h] + float(v2)), out=split)
-                if A == 0:
-                    break
-                A = (A - 1) & R2
-            nlb_vec = np.maximum(np.maximum(split, end), fin[h])
-            okk = np.flatnonzero(np.isfinite(d) & (nlb_vec < best_m - 1e-9))
-            for r2 in okk:
-                actions.append((float(nlb_vec[r2]), int(r2), U, float(d[r2])))
-            U = (U - 1) & R
+        for g in gs:
+            h = b if g == a else a
+            dp = dps[g]
+            # Successor bound, vectorised over every candidate pose, computed
+            # BEFORE any start-time search: the certificate is the expensive
+            # thing (p1_g9 B3, p1_g8 B4 before it), so it may only run on
+            # actions that already survived pruning.
+            Tg = pcs[g].trow(r[g])
+            dp_h_g, hcol_h = dps[g].h, pcs[h].hcol(r[h])
+            U = R
+            while U:
+                d = dp.dur[U, :]
+                end = t[g] + Tg + d
+                R2 = R ^ U
+                split = np.full(end.shape, np.inf)
+                A = R2
+                while True:
+                    v2 = hcol_h[R2 ^ A]
+                    if np.isfinite(v2):
+                        np.minimum(split, np.maximum(end + dp_h_g[A, :],
+                                                     t[h] + float(v2)),
+                                   out=split)
+                    if A == 0:
+                        break
+                    A = (A - 1) & R2
+                nlb_vec = np.maximum(np.maximum(split, end), fin[h])
+                okk = np.flatnonzero(np.isfinite(d) & (nlb_vec < best_m - 1e-9))
+                for r2 in okk:
+                    actions.append((float(nlb_vec[r2]), g, int(r2), U,
+                                    float(d[r2])))
+                U = (U - 1) & R
         actions.sort(key=lambda x: x[0])
 
         produced = False
-        for k, (_, r2, U, d) in enumerate(actions):
+        for k, (_, g, r2, U, d) in enumerate(actions):
             if k >= action_budget or time.time() - t0 > time_budget:
                 exhausted = True
                 bud.action_hit += 1
                 break
+            h = b if g == a else a
+            dp, other = dps[g], trajs[h]
             p2 = int(dp.keep[r2])
             q = tuple(inst.poses[g][p2])
             multi = k < n_multi
@@ -697,6 +767,11 @@ def solve_coupled2(inst, c_clear=C_CLEAR, eps=EPS_CERT, budget=NODE_BUDGET,
         # it stand aside (p1_g9 contradiction 2 -- evasive moves are part of
         # the model, not an implementation detail). Skipped when h is already
         # universally safe, since then h is not what blocks g.
+        # For the evasion branch the "who is behind" question still makes
+        # sense: it is the gantry that could not act, and the other one is what
+        # stands in its way.
+        g = min(gs, key=lambda k: (t[k], k))
+        h = b if g == a else a
         h_safe = int(dp_pose_index(inst, h, trajs[h].end_pose())) in safe[h]
         if not produced and not h_safe:
             pushed = 0

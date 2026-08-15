@@ -519,8 +519,707 @@ DIUKUR; kalau sesi ini harus menulis lima baris lagi, ia menulisnya.
 
 ## B. Hasil terukur
 
-> §A dikunci 2026-08-14 sebelum `sched_coupled.py` ada. Semua angka di bawah
-> keluar sesudahnya. Setiap tempat di mana §B bertentangan dengan §A ditandai 🔺.
-> **§A TIDAK ditulis ulang.**
->
-> ⏳ **Sesi ini masih berjalan.**
+> §A dikunci 2026-08-14 sebelum `sched_coupled.py` ada (commit `053679a`). Semua
+> angka di bawah keluar sesudahnya. Setiap tempat di mana §B bertentangan
+> dengan §A ditandai 🔺. **§A TIDAK ditulis ulang.**
+
+### B0. Cara menjalankan ulang
+
+```bash
+cd /home/user1/Documents/ceiling_arm/ros2_ws/src/reachability_gng
+python3 test/gate_sched_coupled.py            # gerbang + mutasi M1-M6
+python3 test/verify_sched_coupled.py all      # P0-P4, W2, W2b(i)/(ii), W3, W4', REG
+python3 test/eval_sched_coupled.py s3         # kontrol nol
+python3 test/eval_sched_coupled.py s1         # angka utama
+python3 test/eval_sched_coupled.py s2         # probe adversarial
+python3 test/eval_sched_coupled.py grid       # K5.4
+python3 test/eval_sched_coupled.py report
+```
+
+⚠️ **Waktu dinding sesi ini diukur pada mesin yang sedang dibebani hal lain:**
+`load average 42` pada 16 core, karena node kamera ROS dari sesi lain
+(`depth_cloud`, `color_cloud`, `realsense2_camera`) memakai ~13 core sepanjang
+pengukuran. Itu **tidak** mengubah satu pun nilai `Δ` — solver deterministik —
+tapi setiap angka detik di K5.7 adalah **batas atas** yang longgar. Disebut di
+sini supaya tidak dibandingkan langsung dengan `p1_g7 §B2`.
+
+### B1. 🔴 TIGA BUG NYATA di berkas yang §A0 BEKUKAN. Pembekuannya GUGUR.
+
+§A0 mengunci `sched_coll.py` dan menulis aturannya: *"Kalau bug ditemukan di
+berkas beku, ia dilaporkan sebagai temuan, diperbaiki di tempatnya, dan
+pembekuannya dinyatakan gugur secara eksplisit di §B."* Aturan itu dipakai tiga
+kali, dan dua yang pertama adalah bug yang **mengubah kebenaran**, bukan gaya.
+
+#### B1.1 🔴 `first_block` mengevaluasi DUNIA CERMIN pada separuh panggilan
+
+`pair_distance(l1, r1, l2, r2)` menaruh argumen **pertama** di `y = +0.36` dan
+kedua di `y = −0.36`. Argumennya **ber-indeks gantry**, bukan bisa ditukar.
+Tetapi `_first_start(tr, q, …, other)` memanggil `first_block(cand, other, …)`
+— yaitu *"lintasanku, lintasan lawan"*. **Kalau pemanggilnya gantry 2, seluruh
+uji kelayakan dijalankan pada konfigurasi cermin.**
+
+Refleksi `y → −y` memang memetakan gantry 1 ↔ gantry 2, tapi ia **juga**
+membalik `rot → −rot`. Menukar argumen tanpa membalik rotasi memberi
+konfigurasi yang berbeda. Terukur:
+
+| | jarak XY |
+|---|---|
+| konfigurasi sebenarnya `(0.80, −70°)` vs `(0.95, +95°)` | **0.000000 m** (menabrak) |
+| argumen tertukar, seperti yang dilakukan `_first_start` | **0.188681 m** (dibaca aman) |
+| tertukar **dan** rotasi dinegasikan (refleksi yang benar) | 0.000000 m ✓ |
+
+Galat **188.7 mm** pada pasangan itu, dan pencarian acak menemukan **pembalikan
+boolean pada kedua arah** di grid nyata (`g1 = (0.884, 125.4°)`,
+`g2 = (0.950, −127.6°)`: benar `d = 0.00017`, tertukar `d = 0.00000`).
+
+**Kena di mana:** setiap `_first_start` dan karenanya seluruh `_repair_ub`,
+seluruh loop aksi `solve_coupled` G9, dan cabang menghindarnya — kira-kira
+separuh dari semua uji kelayakan. **Tidak** kena: `schedule_conflict` dan
+`conflict_free` (keduanya sudah mengurutkan berdasar gantry), jadi W0/W0b/W0c/W1
+G9 dan gerbang replay-nya semuanya sah.
+
+Perbaikan: dua baris di `first_block`, mengurutkan kedua lintasan berdasar
+`Traj.g`, sehingga **semua** pemanggil beres sekaligus.
+
+➜ **Regresi G9 dijalankan ulang setelah perbaikan dan hasilnya identik:**
+W0 1184 kasus 0 mismatch, W0b 2.220e-16 m, W0c Lemma 1 = 0.2100 m dan Lemma 2
+ambang 0.095 m, W1a 3.553e-15 s, W1b 250 pasangan 197 terhalang **0 terlewat**,
+W1c 2.9568 s, W1d 0 blok. Jadi separuh-model G9 berdiri utuh; yang cacat
+hanyalah pemakaiannya oleh solver.
+
+#### B1.2 🔴 `_repair_ub` dan `_serial_ub` MENGEMBALIKAN jadwal yang bukan jadwal yang mereka periksa
+
+Cabang "menyingkir" di `_repair_ub` meng-commit leg ke `trajs[g]` tetapi
+**tidak pernah** menambahkannya ke `out[g]`. Jadwal yang **dikembalikan**
+karenanya kehilangan satu leg yang dimiliki lintasan yang **divalidasi**. Semua
+yang di hilir — gerbang, pemutar ulang, optimum yang dilaporkan — melihat gantry
+berdiri di tempat yang sudah ia tinggalkan. `_serial_ub` punya cacat yang sama
+untuk leg "parkir"-nya, dan di sana lebih tajam lagi: seluruh jadwal gantry
+kedua digeser **dengan asumsi** gantry pertama sudah menyingkir.
+
+Tertangkap oleh gerbang sadar-tunggu pada Q3: solver melaporkan makespan 20.5200
+dengan `stops[2] = []`, padahal lintasan yang ia periksa berisi satu leg
+menghindar. Tanpa gerbang itu, angka tersebut akan masuk §B tanpa ada yang
+menegur — dan ia **tidak** akan tertangkap oleh `schedule_conflict` G9 pada
+kebanyakan instance, karena jadwal yang kehilangan leg biasanya tetap
+"bebas tabrakan" menurut pemutar ulang: gantry yang hilang legnya dianggap diam
+di pose lamanya, yang justru pose yang **tidak** menghalangi.
+
+#### B1.3 `hcol[∅]` = `inf` — bug saya sendiri, hari ini, dan gejalanya senyap
+
+`solve_gantry` mengisi `w[A]` hanya untuk `A` tak-kosong dan membaca kasus kosong
+dari `h[0] = 0`. Merekonstruksi `h` dari `w` untuk pose di luar `keep` (B3.2)
+karena itu **wajib** memulihkan `h[∅] = 0`; lupa melakukannya membuat **setiap**
+penerus menghindar bernilai `inf`. Gejalanya: pada Q3, cabang menghindar
+mencoba ketiga targetnya, menemukan ketiganya **layak**, dan mendorong **nol**
+node. Solver lalu melaporkan `proved = True` atas jawaban yang salah.
+
+➜ Ketiganya ditemukan oleh **uji yang dijalankan**, bukan oleh pembacaan ulang.
+Itu tiga dari tiga, dan konsisten dengan pola `p1_g9 §B8`.
+
+### B2. Gerbang sadar-tunggu — SIAP, dan ia menyala
+
+| | Cakupan | Hasil |
+|---|---|---|
+| kontrol positif | jadwal serialisasi hitung-tangan pada pose saling mengunci | **0 pelanggaran** (harus 0) |
+| kontrol negatif | versi konkuren dari jadwal yang sama | ditolak, **A2.4 termasuk** |
+| M1–M5 | 3 jadwal nyata Lemma-4 × 5 kelas mutasi | 15 mutasi |
+| M6 | 2 optimum takterkopel nyata yang `p1_g9 §B6` ukur sebagai mustahil | ditolak, `A2.4 dilanggar pada t = 8.4995 s` |
+| **total** | | **17 mutasi, 0 lolos** |
+
+Dua angka yang membuat Pertentangan 4 `p1_g9` jadi konkret, bukan naratif:
+
+* jadwal legal hitung-tangan itu mengandung **20.520 s waktu tunggu** — besaran
+  yang representasi G7/G8 tidak punya tempat untuk menyimpannya;
+* `validate_schedule()` G7/G8, dijalankan pada jadwal **legal** yang sama,
+  melaporkan **3 "pelanggaran"**. Itu cacatnya, direproduksi sebagai angka.
+
+🔺 **Satu aturan yang §A2.4 lupa tulis, ditambahkan di sini:** perhentian dengan
+**nol tugas** adalah gerak menghindar; ia wajib berdwell 0 dan `ref_stop_slots`
+tidak dikonsultasikan sama sekali (fungsi itu mengenumerasi penempatan slot dan
+tidak punya jawaban untuk nol tugas). §A2.4 mewarisi asumsi G7/G8 bahwa setiap
+perhentian membawa kerja; `p1_g9` Pertentangan 2 sudah membatalkannya dan §A
+tidak mengikutinya sampai ke gerbang.
+
+Dan **`finish` gantry = akhir DWELL terakhir, bukan akhir gerak terakhir**.
+Gantry yang menyingkir setelah selesai tidak memperpanjang makespan
+(`p1_g7 §A2-K2`); membaca perhentian terakhir secara buta menggelembungkannya
+satu leg penuh, persis pada instance di mana tabrakan mengikat.
+
+### B3. LIMA pertentangan struktural dengan §A — dan W2 menemukan dua di antaranya
+
+#### 🔺 Pertentangan 1 — Lemma 7 BENAR tapi langkahnya DEGENERASI
+
+§A2.2 menurunkan langkah maju `(c_clear − d*) / V_POINT` dan mengunci
+`EPS_S = 0.01 s` sebagai lantainya. Lemma 7 tidak dicabut — ia benar. Yang
+salah adalah menganggapnya bisa dipakai: **`pair_distance` memotong tumpang
+tindih jadi tepat `0.0`** dan tidak melaporkan kedalaman penetrasi. Di dalam
+selang terhalang, `d* = 0 = c_clear`, jadi langkahnya **nol**; di ujung selang,
+`d*` sudah di dalam pita `ε`, jadi langkahnya **negatif**. Dua-duanya jatuh ke
+lantai `EPS_S` dan berjalan merangkak 0.01 s per langkah.
+
+Terukur sebelum ditulis ulang, pada `n4_s4_mr0`: **1547 langkah lantai**,
+**8.0 s per dive**, **2 node dalam 74 s**. Yaitu `p1_g9 §B3` — *"yang lambat
+adalah PEMERIKSA"* — terulang satu sesi kemudian, **di dalam kode yang ditulis
+untuk menghindarinya**, dan sudah disebut sebagai jebakan di prompt G10 sendiri.
+
+Penggantinya mempertahankan jaminannya dan membuang jalannya: satu sapuan
+tervektorisasi atas seluruh grid `(waktu mulai × offset jam sendiri)`, dengan
+prapenyaring `may_block`, lalu bisection selang layak pertama sampai `EPS_S`.
+Lemma 7 tetap terpakai, dengan tugas berbeda: ia yang menjamin penghalusan
+sampai `EPS_S` berada **di bawah resolusi uji tabrakannya sendiri**
+(`V_POINT × EPS_S = 0.0011 m`, seperlima dari `ε = 0.005 m`).
+Hasil: **74 s → 21 s**, lalu 4–14 s setelah Pertentangan 4.
+
+🔒 Dua konstanta yang **tidak** ada di §A dan karena itu disebut: `DS_COARSE =
+0.20 s` (kuantum grid waktu mulai sebelum penghalusan) dan `NU_MAX = 4000`.
+Konservatismenya searah dengan semua yang lain: jendela layak yang lebih sempit
+dari `DS_COARSE` bisa terlangkahi, jadi waktu mulai yang dikembalikan **tidak
+pernah lebih awal** dari yang sebenarnya, dan makespan tetap batas atas.
+
+#### 🔺 Pertentangan 2 — gantry TANPA TUGAS tidak bisa bergerak sama sekali
+
+`p1_g9` Pertentangan 2 menulis ruang aksinya adalah `keep_g ∪ safe_g`;
+kodenya **meng-iris**, bukan menggabung. Karena `solve_gantry` hanya menyimpan
+pose di mana ada himpunan tugas yang layak, gantry **tanpa tugas** menyimpan
+tepat pose awalnya dan **tidak bisa pindah**. Ia lalu memblokir gantry lain
+selamanya dan instance dilaporkan **tidak layak**.
+
+Terukur pada Q3 — kasus patologis yang `p1_g9 §A3-K1b` tentukan dan `p1_g9`
+tidak pernah bangun: makespan terkopel kembali `inf`. Diperbaiki dengan
+`PoseCost`, yang menghitung `h[A] = min_k (T(pose, k) + w[A][k])` untuk pose
+grid **mana pun**, satu operasi vektor atas `|keep|`.
+
+#### 🔺 Pertentangan 3 — pose menghindar yang AMAN bisa TAK TERCAPAI
+
+Pose "aman universal" (Lemma 1, `|rot| < 31.7°`) cukup sebagai **tujuan**, dan
+di situlah jebakannya: **rutenya** bisa terhalang justru ketika rute ke pose
+tak-aman tidak. Terukur pada Q3: gantry 2 di `(0.8, +90°)` yang berputar ke
+satu-satunya pose aman `rot = 0` menyapu turun melewati `+73°…+45°` dan menabrak
+pada **t = 1.553 s**; berputar ke `rot = −135°` justru lewat **atas**, melalui
+`+180°`, dan tidak pernah menabrak. Dengan target dibatasi ke pose aman solver
+mengembalikan **20.5200**; enumerator brute force menemukan **11.2600**, jadwal
+yang gerbang terima.
+
+➜ Urutannya sekarang: pose aman dulu (termurah dulu), lalu **setiap** pose
+lain menurut biaya traverse, `EVADE_ATTEMPTS = 60` percobaan dan `EVADE_PUSH =
+4` penerus per node.
+
+#### 🔺 Pertentangan 4 — "kembangkan gantry yang tertinggal" adalah HEURISTIK
+
+Aturan ekspansi yang `p1_g9 §A3-K1` kunci — selalu kembangkan gantry dengan
+`t_g` lebih kecil — **exact di model takterkopel** (dua jadwal saling bebas,
+jadi urutan penyisipannya gratis) dan **heuristik di sini**: gantry yang
+tertinggal bisa terhalang oleh yang di depan, dan gerakan yang membebaskannya
+bisa berupa **tugas** yang gantry di depan harus kerjakan, bukan sekadar
+menghindar.
+
+Terukur pada bahan bakar W2 yang sempit, sebelum diperbaiki: **3 dari 8**
+instance mengembalikan `solver > brute force`, sampai **0.96 s**, sambil
+melaporkan `proved = True`. Sesudah kedua gantry dikembangkan: **0 dari 8**, dan
+solvernya justru **lebih cepat** (7–26 node dan 4–14 s, dari ratusan node dan
+24–133 s).
+
+🔴 Ini pertentangan yang paling penting di sesi ini, karena ia satu-satunya yang
+**tidak akan pernah ditemukan tanpa W2** — dan W2 adalah persis uji yang G9
+tugaskan dan tidak bangun. Ia juga menegur `proved`: bendera itu berarti
+*"tertutup terhadap himpunan kandidatnya sendiri"*, bukan *"optimal"*. Bahasa
+`p1_g7 §A2-K1` dipakai apa adanya.
+
+#### 🔺 Pertentangan 5 — memeriksa aksi hanya pada JENDELANYA SENDIRI tidak sound
+
+Ditemukan oleh **P2**, yaitu gerbang yang diterapkan pada jadwal **W2 sendiri**.
+Ini pertentangan yang paling halus di sesi ini dan satu-satunya yang ada di
+**kedua** implementasi sekaligus, jadi tidak ada perbandingan silang yang bisa
+melihatnya — hanya gerbang independen yang bisa.
+
+Sebuah aksi diperiksa pada `[s, s + T + dur]` terhadap lintasan lawan **yang
+sudah terkomit saat itu**. Sesudah jendela itu, gantrynya **berdiri di `q`** —
+dan aksi yang lawan komit **belakangan** bisa menyapu ke sana pada waktu yang
+**tidak dicakup jendela mana pun**: bukan jendela kita (sudah lewat), bukan
+jendela lawan (ia hanya mencakup geraknya sendiri). Ekor statisnya jatuh di
+antara keduanya.
+
+Terukur: W2 mengembalikan jadwal Q4 yang gantry 1-nya masih berputar pada
+**t = 9.5243 s** sementara gantry 2 baru saja parkir di `+90°` pada `lin` yang
+sama — tabrakan nyata, diterima oleh W2 **dan** secara struktural oleh solver,
+dan ditolak gerbang. Nilai Q4 yang salah itu **17.5100**; yang benar
+**21.7600**.
+
+Perbaikannya simetris di kedua sisi: setiap uji diperluas ke
+`[s, max(s + T + dur, lawan.end_time())]`. Lalu waktu sebelum `s` tercakup oleh
+uji milik lawan (gantry kita belum bergerak), waktu di dalamnya tercakup di
+sini, dan konfigurasi akhir yang serba-statis tercakup oleh titik ujungnya.
+
+⚠️ Ia **juga** ada di `_first_start` milik berkas beku, dan di sana ia baru
+menyala pada `c_clear > 0`: satu jadwal S1 (`n4_s8_mr1`, route `dive-lb`)
+ditolak gerbang pada `c_clear = 0.05` **dan** `0.10` sebelum diperbaiki. Pada
+`c_clear = 0.0` ia tidak pernah menyala — yaitu bug yang **hanya** terlihat
+lewat sapuan sensitivitas yang §A perintahkan karena alasan yang sama sekali
+berbeda.
+
+### B4. K5.4 — statistik predikat pada grid, dan (N1) sebagai plafon
+
+| | Angka |
+|---|---|
+| pasangan pose `2376 × 2376` | 5 645 376 |
+| yang `BLOCK` pada `c_clear = 0.00` | **183 836 = 3.2564 %** |
+| pasangan `(rot1, rot2)` yang memenuhi (N1) | 1684 / 5184 = **32.48 %** |
+| pose yang memblokir **sesuatu** | 1490 / 2376 = **62.71 %** |
+| pose yang memblokir **tidak apa pun** (himpunan aman Lemma 1) | **886 / 2376** |
+| `c_clear = 0.05` | 334 140 = 5.9188 % (**×1.82**) |
+| `c_clear = 0.10` | 528 500 = 9.3616 % (**×2.87**) |
+
+Dua bacaan, dan keduanya jalur data:
+
+1. **Predikat exact-nya sepuluh kali lebih ketat dari plafon aljabarnya.**
+   (N1) mengizinkan 32.48% pasangan rotasi; yang benar-benar bertabrakan
+   3.26% pasangan pose. Jadi (N1) memang menyaring, tapi menyamakannya dengan
+   tabrakan — kesalahan pertama G9 (`p1_g9` Pertentangan 1) — akan
+   melebih-lebihkan kendala **sepuluh kali lipat**.
+2. **37.3% ruang pose bebas-tabrakan tanpa syarat.** Itu himpunan parkir
+   Lemma 1, dan ia besar. Ia sekaligus penjelasan mekanistik kenapa §B5–§B6
+   berbentuk seperti itu: selalu ada tempat menyingkir, dan biasanya murah.
+
+### B5. S3 — kontrol nol LULUS 20/20
+
+`gen_real`, `n = 4`, seed 0–9, **satu** gantry, mr 0 dan 1. Tidak ada gantry
+kedua, jadi `Δ` wajib nol.
+
+```
+20 dari 20 instance:  Delta = +0.000 s   (route 'single'),  gerbang 0 pelanggaran
+```
+
+Sama membosankannya dengan `p1_g9 §B5`, dan gunanya sama: kalau satu saja bukan
+nol, `solve_coupled2` menambahkan biaya yang tidak berasal dari tabrakan dan
+setiap angka `Δ` di bawah tercemar.
+
+
+### B6. S1 — 🟢 vonis A3-K3 **DAPAT DITENTUKAN**: koordinasi **BUKAN MAHAL**
+
+40 instance, `gen_real`, `n` = 4/6, seed 0–9, 2 gantry, mr 0/1, anggaran 120 s,
+`c_clear = 0.0`. **Nol jadwal gagal gerbang.**
+
+| | jumlah | |
+|---|---|---|
+| `Δ` **EXACT** | **37 / 40** | semuanya `Δ = +0.0000 s` |
+| **KURUNGAN** | **3 / 40** | rasio 1.187, 1.187, 1.031 |
+| route | `lemma4` 25, `dive-lb` 5, `bnb` 10 | |
+| menunggu benar-benar dipakai | **8 / 40**, rata-rata 1.32 s | mekanisme A2.5 hidup |
+
+```
+A3-K3 dua-sisi:  mean Delta%  dalam  [0.0000 , 1.0141]  atas SELURUH 40 instance
+ambang 5.0 %  ->  VONIS: BUKAN MAHAL (< 5 %)
+```
+
+🟢 **Inilah yang G10 beli.** `p1_g9 §B6` terpaksa menulis *"TIDAK DAPAT
+DITENTUKAN"* dan melarang mengutip angkanya, karena satu-satunya subset yang
+bisa ia rata-ratakan didefinisikan oleh `Δ = 0` dan karenanya mengukur
+definisinya sendiri. Aturan dua-sisi A3-K3 — dikunci **sebelum** hasil ini ada —
+merata-ratakan atas **seluruh 40** instance pada **kedua** ekstrem kurungan, jadi
+tidak ada instance yang dibuang dan tidak ada subset yang bias. Kedua ekstrem
+jatuh di sisi yang sama dari 5.0%, jadi vonisnya sah **berapa pun nilai `Δ`
+sejati di dalam ketiga kurungan itu**.
+
+Yang **tidak** boleh dikatakan: bahwa koordinasi **GRATIS**. Tiga kurungan
+menyisakan `Δ > 0` sebagai kemungkinan, dan ambang GRATIS A3-K3 menuntut
+`max Δ = 0.000` pada **seluruh** S1. Batas atasnya `mean Δ% ≤ 1.01%`, jadi:
+
+> Koordinasi gantry–gantry pada instance alami berbiaya antara **0 dan 1.01%**
+> makespan. Ia **di bawah** ambang 5% A3-K3, jauh lebih dekat ke mutex
+> (`0.000 s`, `p1_g7 §B3`) daripada ke MR (`15.0%`, `p1_g7 §B4`).
+
+Ketiga kurungan itu, dan ketiganya ada di dalam 13 instance yang `p1_g9 §B6`
+tinggalkan terbuka:
+
+| instance | LB | UB | rasio | `Δ ≤` |
+|---|---|---|---|---|
+| `n4_s7_mr0` | 39.304 | 46.660 | 1.187 | 7.356 s |
+| `n6_s7_mr0` | 39.304 | 46.654 | 1.187 | 7.350 s |
+| `n6_s6_mr1` | 31.346 | 32.333 | 1.031 | 0.986 s |
+
+➜ **10 dari 13 instance yang G9 tinggalkan terkurung sekarang TERBUKTI
+`Δ = 0.000` exact.** Palang pengukuran A3-K2 ("menutup ke-13 itu") tidak
+tercapai penuh: **3 tersisa**, dan itu dilaporkan sebagai angka, bukan
+dihaluskan.
+
+#### 🔺 Dan `p1_g9 §B8` harus DIBALIK: **D9 sebenarnya TEPAT**
+
+`p1_g9 §A5` D9 menduga `Δ = 0.000 s` pada **≥ 80%** instance S1. `p1_g9 §B6`
+menilainya **MELESET** pada 67.5% (27/40), dan menaruhnya di papan skor sebagai
+**contoh tandingan pertama** terhadap prior *"kendala yang belum diukur itu
+LONGGAR"* — kesimpulan yang cukup besar sampai ia ditulis sebagai paragraf
+tersendiri.
+
+**Terukur sekarang: 37/40 = 92.5%, dan itu ≥ 80%.** D9 **TEPAT**.
+
+Sebabnya bukan model yang berubah — **`route lemma4` tetap 25 di G9 dan di
+G10, angka yang sama persis**, karena jalur itu memakai `schedule_conflict` yang
+urutan gantrynya sudah benar sejak awal (§B1.1). Yang berubah adalah berapa
+banyak dari 15 sisanya yang **bisa dibuktikan**: G9 membuktikan 2, G10
+membuktikan 12. Jadi 67.5% bukan pengukuran tentang dunia; ia pengukuran tentang
+**kelemahan solver G9**, dilaporkan sebagai kalau ia tentang dunia.
+
+🔴 Pelajarannya lebih tajam daripada angkanya, dan berlaku ke depan: **sebuah
+dugaan yang dinilai dengan solver yang belum tegak tidak dinilai sama sekali.**
+`p1_g9 §B4` sudah menulis dengan tinta merah bahwa ground truth-nya belum tegak;
+`p1_g9 §B6` tetap menjatuhkan vonis papan skor di atasnya. Itu satu-satunya
+tempat di mana disiplin G9 bocor, dan ia bocor ke arah kesimpulan yang paling
+menarik.
+
+### B7. S2 — probe adversarial **TIDAK MENGIKAT SAMA SEKALI**, dan itu tentang PROBE-nya
+
+40 instance `gen_real_crowded`, bentuk sama dengan S1. **Nol gagal gerbang.**
+
+```
+40 dari 40 EXACT,  Delta = +0.0000 s,  route lemma4 40/40,  GRATIS
+wall rata-rata 4.2 s  (bandingkan S1: 18.8 s)
+```
+
+🔺 **D17 MELESET TELAK.** Dugaannya: S2 mengikat, `mean Δ% ≥ 5%`. Terukur: ia
+**tidak pernah** mengikat, satu kali pun, dan **solver terkopelnya tidak pernah
+dijalankan** — 40/40 dijawab Lemma 4.
+
+Sebabnya terbaca dari rancangan probenya, dan ia **kesalahan §A3-K2 `p1_g9`**,
+bukan temuan tentang dunia. `gen_real_crowded` mempersempit **kolam simpul**
+ke `|x − 0.80| ≤ 0.30` dan menaruh `p0` kedua gantry di `(0.80, rot = 0)`. Itu
+membuat tugas-tugasnya **dekat dengan pose awal**, sehingga makespan-nya jatuh
+ke 4–9 s (S1: 28–50 s) dan gantrynya **nyaris tidak berputar**. Tapi (N1)
+menuntut **kedua** gantry lebih dari 31.7° dari sejajar-rel. Probe itu
+memadatkan sumbu yang salah: ia memadatkan `lin`, dan tabrakan menuntut `rot`.
+
+➜ Jadi `p1_g9` D10 dan D17 sekarang keduanya tercatat sebagai **dugaan yang
+tidak pernah benar-benar diuji**, karena alatnya tidak bisa mengujinya. Bahan
+bakar W2 sesi ini (`gen_small_crowded`, §B8) menunjukkan bentuk probe yang
+**benar**: pose aman di `rot = 0` sebagai `p0`, plus pose kerja di `±90°` pada
+`lin` yang berdekatan, dan tugas yang **hanya** layak di pose `±90°` itu. Di
+sana tabrakan mengikat pada **15 dari 31** instance dan biayanya 2.5–3.9 s.
+**G11 harus mengulang S2 dengan generator berbentuk begitu.**
+
+### B8. K5.5 — mutex dan urutan tur, keduanya diuji ULANG di bawah kopling waktu
+
+| | Pertanyaan | `p1_g7`/`p1_g8` | **Terukur di model terkopel** |
+|---|---|---|---|
+| **K5.5(a)** | apakah mutex `r = 0.20` masih gratis? | `0.000 s`, `p1_g7 §B3` | **mean `+0.0000 s`, max `+0.0000 s`, mengikat pada 0/20**, 19/20 pasang dua-duanya terbukti |
+| **K5.5(b)** | apakah urutan tur masih menyumbang nol? | `+0.00%`, `p1_g8 §B6` | **`nn-only` +0.0000%, `cover-order` +0.0000%, lebih buruk pada 0/20** — pada S1 **dan** S2 |
+
+**D18 TEPAT.** **D19 setengah tepat** dan dicatat sebagai **MELESET**: ia benar
+untuk S1 dan salah untuk S2, tapi §B7 baru saja menunjukkan S2 tidak mengikat
+sama sekali, jadi separuh yang salah itu **belum benar-benar diuji**.
+
+⚠️ **Yang harus dibaca dengan hati-hati:** `p1_g8 §B10.1` memperingatkan bahwa
+"tahap 3 menyumbang nol" berlaku **pada model yang tidak punya kopling waktu**.
+Sesi ini menjalankan pertanyaan itu **pada model yang punya**, dan jawabannya
+tetap nol. Peringatan `p1_g8` karena itu **dicabut sebagian**: ia sekarang sudah
+diuji, dan yang tersisa hanyalah bahwa ia diuji pada rezim di mana tabrakan
+jarang mengikat (§B6: 37/40 `Δ = 0`). Cara mengujinya sampai tuntas adalah S2
+yang benar-benar adversarial (§B7), bukan model yang lebih kaya.
+
+Metodenya disebut supaya bisa diserang: heuristiknya **tidak disentuh** (A0
+membekukan `sched_heur`); tiap varian merencanakan seperti biasa, lalu
+rencananya **ditempatkan dalam waktu** oleh `sched_coupled.repair_schedule`,
+yang mempertahankan setiap pilihan `(pose, himpunan tugas)` dan hanya
+menggeser jam. Jadi yang diukur adalah **berapa harga turnya setelah dua gantry
+terkopel dalam waktu**, yang persis pertanyaan yang `p1_g8 §B10.1` biarkan
+terbuka.
+
+### B9. 🟡 GERBANG A3-K2: **7 dari 8 baris lulus, 1 GAGAL.** Ground truth **BELUM** boleh disebut tegak.
+
+| Palang A3-K2 | Terukur | |
+|---|---|---|
+| Gerbang mutasi ≥ 15, 0 lolos | **17 mutasi, 0 lolos** | ✅ |
+| **P0** model gerak W2 vs `sched_coll.Traj` | 300 lintasan × 200 waktu, maks \|selisih pose\| **3.331e-16**, durasi **0.000e+00 s** | ✅ |
+| **P1** W2 tanpa tabrakan vs `sched.solve_exact` | 12 instance, **0 ketidakcocokan** | ✅ |
+| **P2** setiap jadwal W2 lewat gerbang | 31 jadwal, **0 ditolak** | ✅ |
+| **P3** W2 ≥ optimum takterkopel (Lemma 3) | **0 pelanggaran** | ✅ |
+| **P4** grid dihalfkan tidak menaikkan W2 | 8 instance, **0 naik** | ✅ |
+| **W2** `solver > W2` pada 0 dari ≥ 24 | **31 instance** (15 mengikat, 2 timeout), **solver > W2 pada 0** | ✅ |
+| **W2b(i)** dive menyala | **12 / 12** identik sampai 1e-9, `proved` | ✅ |
+| **W2b(ii)** `no_dive` | **6 dari 12 GAGAL** — mengembalikan persis nilai seed-nya | ❌ |
+| **W3** Q1–Q5 lima-limanya | **lima-limanya LULUS**, termasuk **Q3 yang G9 tidak pernah bangun** | ✅ |
+| **W4′** 100% jadwal lolos gerbang | 12 jadwal, **0 pelanggaran**, 9.9 s tunggu di dalamnya | ✅ |
+| **Regresi G9** `n4_s2_mr1`, `n4_s9_mr1` | keduanya `Δ = +0.000000` | ✅ |
+
+🔴 **Vonis: `solve_coupled2` TIDAK boleh disebut ground truth tanpa kualifikasi**,
+karena palang A3-K2 menuntut kedelapan barisnya dan W2b(ii) gagal. Itu ditulis
+sebagai vonis, bukan catatan kaki, persis seperti `p1_g9 §B4`.
+
+**Apa arti kegagalan itu, tepatnya.** W2b(ii) mematikan dive dan menanyakan
+apakah **mesin ekspansinya sendiri** bisa menemukan optimum dalam 90 s ketika
+incumbent-nya di-seed 2.0 s di atas. Jawabannya tidak, pada 6 dari 12: ia
+mengembalikan persis nilai seed. Jadi **dive-nya menanggung beban**, dan itu
+diukur, bukan ditutupi.
+
+**Dan apa yang TIDAK diruntuhkannya**, karena ini menentukan apakah §B6 boleh
+dikutip:
+
+1. **W2 menguji solver LENGKAP DENGAN dive-nya**, terhadap enumerator yang tidak
+   berbagi satu baris pun dengan pencariannya — 31 instance, 15 di antaranya
+   tabrakannya benar-benar mengikat, **0 kali `solver > W2`**. Itu justru bukti
+   yang lebih kuat daripada W2b(ii), karena W2b(ii) mematikan tabrakan sama
+   sekali.
+2. **Nilai `Δ = 0` yang §B6 laporkan tidak bergantung pada kelengkapan
+   pencarian.** Ketiga jalurnya adalah bukti tersendiri: `lemma4` (25 instance —
+   optimum takterkopel sendiri bebas tabrakan), `dive-lb` (5 — jadwal layak
+   menyentuh batas bawah Lemma 3 di akar), dan `UB = LB` di dalam B&B (7). Semua
+   bertumpu pada Lemma 3 + Lemma 4 + sertifikat A2.4 yang W1 verifikasi, **tidak
+   satu pun pada pencariannya**. Yang tersisa dilaporkan sebagai kurungan.
+
+➜ Jadi **vonis A3-K3 di §B6 sah**, dan **sebutan "ground truth" tidak**. Dua
+kalimat yang berbeda, dan sesi ini menuliskannya sebagai dua kalimat.
+
+⚠️ **Batasan W2 sendiri, disebut karena W2 adalah oracle:** pada **9 dari 31**
+instance `solver < W2`, dan **menghalfkan gridnya menutup 0 dari 9** — jadi
+selisihnya **bukan** grid. Sebab yang paling mungkin, dan G11 harus
+mengukurnya: W2 dibatasi `max_evade = 1` per gantry, sementara solver memakai
+sampai **3** gerak menghindar (Q3). Artinya W2 **longgar sebagai batas atas**,
+dan aturan A3-K1 memang hanya memakainya satu arah (`solver > W2` = kegagalan).
+Ia **tidak** boleh dibaca sebagai "optimum sejati".
+
+### B10. K5.6 — sapuan `c_clear`, dan K5.7/K5.8
+
+Sapuan dijalankan pada subset `n = 4` (20 instance per set per nilai), dan itu
+disebut sebagai angka, bukan dihaluskan:
+
+| set | `c_clear` | exact / kurungan | `mean Δ%` dua-sisi | vonis |
+|---|---|---|---|---|
+| S1 | 0.00 | 37 / 3 (dari 40) | **[0.0000, 1.0141]** | BUKAN MAHAL |
+| S1 | 0.05 | lihat §B11 | **[0.0000, 2.2079]** | BUKAN MAHAL |
+| S1 | 0.10 | lihat §B11 | **[0.0000, 2.8282]** | BUKAN MAHAL |
+| S2 | 0.00 / 0.05 / 0.10 | 40 / 0, 20 / 0, 20 / 0 | **[0, 0]** | GRATIS |
+
+**Arah dan besarnya:** monoton naik, dan **modest** — batas atas `Δ%` naik
+1.01 → 2.21 → 2.83 saat `c_clear` naik 0 → 0.05 → 0.10 m. Vonis A3-K3 **tidak
+berubah** pada ketiganya. Bandingkan dengan jalur data K5.4, di mana fraksi
+pasangan pose yang `BLOCK` naik ×1.82 dan ×2.87 pada nilai yang sama: kendala
+geometrinya hampir tiga kali lipat, biayanya hanya tiga kali lipat dari
+sesuatu yang mendekati nol. Itu konsisten dengan §B4: 37.3% ruang pose bebas
+tabrakan tanpa syarat, jadi selalu ada tempat menyingkir.
+
+🔒 **`c_clear = 0.0` tetap default terkunci** dan tetap tidak pernah diukur pada
+perangkat keras (`p1_state §7.2`). Yang di atas adalah sensitivitas, bukan
+kalibrasi.
+
+**K5.7 waktu dinding**, dengan peringatan beban mesin di §B0:
+`solve_coupled2` pada S1 rata-rata **18.8 s**, maks **120.1 s** (anggaran
+tersentuh pada instance yang terkurung); S2 rata-rata **4.2 s**; S3 **1.1 s**.
+`n` terbesar yang muat anggaran 120 s: **`n = 6` pada `\|P\| = 2376`, 2 gantry**
+— yaitu **D13 `p1_g9` sekarang terpenuhi**, pada kode yang berbeda.
+
+**K5.8 anggaran yang tersentuh, S1** (40 instance): `action_hit = 35`,
+`multi_skipped = 13 640`, `walks = 58 884`, `dives = 62` (`dive_proved = 7`),
+`k_start_hit = 0`, `evade_tried = 0`, `eps_s_floor = 0`.
+Dua bacaan: (a) `k_start_hit = 0` berarti tutup `K_START = 8` **tidak pernah**
+mengikat, jadi ia bukan penjarangan yang aktif; (b) `action_hit = 35` berarti
+anggaran aksi **sering** mengikat, dan itulah kenapa 3 instance tersisa sebagai
+kurungan. `eps_s_floor = 0` karena mekanismenya sudah diganti (Pertentangan 1),
+dan pencacahnya dibiarkan untuk mencatat itu.
+
+### B11. Papan skor §7.2 — dan **satu vonis G9 DIBALIK**
+
+| # | Dugaan (§A5, ditulis di muka) | Hasil |
+|---|---|---|
+| **D14** | W2 menemukan ≥ 1 instance `solver > W2` | ✅ **TEPAT** — 3 dari 8 pada bahan bakar sempit, sampai 0.96 s, sambil melapor `proved = True` (§B3 Pertentangan 4) |
+| **D15** | ≥ 8 dari 13 instance S1 yang mengikat tertutup jadi exact | ✅ **TEPAT** — **10 dari 13** (§B6) |
+| **D16** | Vonis S1 sah dan berbunyi TERUKUR TAPI MURAH (`0 < mean Δ% < 5%`) | ❌ **MELESET** — vonisnya **sah** dan **< 5%** ✓, tapi `0 <`-nya **tidak tegak**: mean-nya ada di `[0, 1.01%]` dan GRATIS tidak bisa disingkirkan. Meleset ke arah **lebih longgar** dari dugaan |
+| **D17** | S2 mengikat, `mean Δ% ≥ 5%` | ❌ **MELESET TELAK** — 40/40 `Δ = 0`, 40/40 lewat Lemma 4, solver terkopelnya **tidak pernah jalan** (§B7) |
+| **D18** | Mutex tetap `0.000 s` di model terkopel | ✅ **TEPAT** — mean dan max `+0.0000 s`, mengikat 0/20 |
+| **D19** | Tur `0.00%` di S1, `> 0` di S2 | ❌ **MELESET** — `0.00%` di S1 ✓ dan **juga** `0.00%` di S2; tapi §B7 menunjukkan S2 tidak mengikat, jadi separuh yang salah itu belum benar-benar diuji |
+
+**Tiga tepat, tiga meleset.**
+
+🔺 **Dan `p1_g9 §B8` harus dikoreksi: D9 dinilai MELESET dan sebenarnya TEPAT**
+(§B6). Papan skornya karena itu: `p1_g9` berdiri di 17 meleset / 2 tepat; D9
+pindah sisi → **16 / 3**; sesi ini menambah 3 / 3 → **19 meleset, 6 tepat**.
+
+Tiga bacaan, dan yang ketiga yang paling berguna:
+
+1. **Prior DUNIA ("kendala yang belum diukur itu LONGGAR") tidak punya contoh
+   tandingan lagi.** `p1_g9 §B6` mengangkat D9 sebagai contoh tandingan
+   pertamanya dan menulis satu paragraf tentang "kelas kendala kedua". Dengan
+   D9 dibalik, dan dengan D16/D17/D19 semuanya meleset **ke arah longgar**,
+   prior itu justru **menguat**: sekarang 4 dari 4 dugaan dunia sesi ini meleset
+   ke arah kendala lebih longgar.
+2. **Prior KODE SENDIRI ("lebih lambat, lebih rumit, lebih salah") dipakai
+   secara harfiah di D14 dan D15, dan keduanya TEPAT.** Ini pertama kalinya
+   dugaan tentang kode sendiri kena — karena ia ditulis **pesimis dengan
+   sengaja**. Prior itu sekarang 4 dari 4 (D4-max G8, D13 G9, D14, D15 di sini)
+   dan layak dinaikkan dari catatan kaki jadi metode: *tulis dugaan tentang kode
+   sendiri pada sisi pesimisnya, lalu ia bisa dinilai.*
+3. 🔴 **Pelajaran metodologis yang paling mahal sesi ini, dan ia bukan tentang
+   tabrakan:** `p1_g9 §B4` menyatakan ground truth-nya BELUM tegak, lalu
+   `p1_g9 §B6` **tetap menjatuhkan vonis papan skor** di atas solver yang sama.
+   Vonis itu salah, dan salahnya ke arah yang paling menggoda — kesimpulan yang
+   paling menarik ("prior utama proyek ini punya contoh tandingan pertamanya").
+   Aturannya sekarang eksplisit:
+
+   > **Dugaan yang dinilai memakai solver yang belum lulus gerbangnya tidak
+   > dinilai sama sekali. Ia ditandai TERTUNDA, bukan MELESET.**
+
+### B12. Batasan setelah sesi ini
+
+Seluruh `p1_g7 §A4`/`§B7`, `p1_g8 §B10`, `p1_g9 §A4`/`§B9` **masih berlaku**
+kecuali yang §B di atas cabut secara eksplisit. Yang ditambahkan:
+
+1. 🔴 **`solve_coupled2` BUKAN ground truth menurut palang A3-K2** (§B9,
+   W2b(ii)). Yang boleh dikutip: vonis A3-K3 §B6, karena ketiga jalur
+   exactness-nya tidak bergantung pada kelengkapan pencarian.
+2. 🔴 **Angka rugi TETAP BATAS BAWAH.** Tabrakan **lengan–lengan** antar gantry
+   masih di luar model. Ujung lengan terentang 1.4 m dari sumbu rotasi, **tiga
+   kali** `R_MAX = 0.455` yang sesi ini modelkan. Sesi ini mengukur bahwa
+   kendala **struktur** longgar (≤ 1.01% pada S1); itu **tidak** menyiratkan
+   apa pun tentang lengan.
+3. **S2 sebagai probe adversarial GAGAL BERFUNGSI** (§B7). `gen_real_crowded`
+   memadatkan `lin`, dan (N1) menuntut `rot`. D10 (`p1_g9`) dan D17 karena itu
+   **belum pernah benar-benar diuji**.
+4. **W2 longgar sebagai batas atas** (`max_evade = 1`, §B9), dan dipakai hanya
+   satu arah.
+5. Konservatisme yang menumpuk, semuanya searah (makespan yang dilaporkan
+   adalah **batas atas**): `ε = 0.005 m` (A2.4), `EPS_S = 0.01 s` dan
+   `DS_COARSE = 0.20 s` (A2.2 + Pertentangan 1).
+6. `T_fold = 0.0`, masih tidak pernah diukur. `c_clear = 0.0`, tidak pernah
+   diukur; sapuannya (§B10) sensitivitas, bukan kalibrasi.
+7. Exact tetap exact hanya terhadap grid 33 × 72 dan terhadap himpunan kandidat
+   waktu mulai A2.2.
+8. Lintasan traverse A2.3 tetap **tafsir** offset sebagai waktu mati.
+
+---
+
+## C. Prompt sesi berikutnya — G11
+
+> Rekomendasi: **Opus 5, effort TINGGI.** Alasannya berbeda lagi, dan harus
+> dibaca. G7–G10 semuanya punya struktur yang sama: bangun model, bangun
+> oracle, ukur. G11 adalah sesi pertama yang harus **memutuskan apa yang layak
+> dibangun berikutnya**, dan pilihan itu tidak punya sinyal error sama sekali —
+> membangun hal yang salah dengan sempurna tetap mencetak §B yang rapi. Dua
+> kandidatnya berbeda satu orde besarnya (§C tugas 2 vs tugas 3), dan §A G11
+> wajib membenarkan pilihannya **sebelum** kode, dengan angka dari G10, bukan
+> dengan selera.
+
+```
+Sesi G11 -- SCHED-5 / REACH-1: menutup utang G10, lalu lubang model TERBESAR
+yang tersisa (tabrakan LENGAN-LENGAN antar gantry).
+
+BACA DULU, berurutan:
+1. docs/p1_g10_sched4.md  -- SELURUHNYA. B1 (tiga bug di berkas beku, dan
+                             KENAPA pembekuan itu gugur), B3 (LIMA
+                             pertentangan struktural -- terutama 4 dan 5, yang
+                             dua-duanya ditemukan W2), B6 (vonis S1 SAH),
+                             B7 (probe S2 GAGAL BERFUNGSI), B9 (palang
+                             A3-K2: 7 dari 8), B11 (D9 G9 DIBALIK -- baca
+                             pelajaran metodologisnya), B12 (batasan)
+2. docs/p1_g9_sched3.md   -- B1, B2 (predikat + sertifikat, MASIH BERLAKU),
+                             B4 (kenapa G9 gagal), B6
+3. docs/p1_g8_sched2.md   -- B4, B6, B9, B10
+4. docs/p1_g7_sched.md    -- A1, A2-K1 (bahasa "exact TERHADAP himpunan
+                             kandidat"), B3, B5
+5. reachability_gng/sched.py, sched_coll.py, sched_coupled.py, sched_heur.py,
+   test/gate_sched_coupled.py, test/verify_sched_coupled.py,
+   test/eval_sched_coupled.py
+
+=== KEADAAN FISIK ===
+Lengan 4x MASIH DILEPAS. Sesi ini SEPENUHNYA OFFLINE kecuali kalau tugas 3
+menuntut pengukuran, dan kalau ya, itu dikunci di A lebih dulu.
+CATATAN MESIN: G10 diukur pada mesin dengan load 42/16 karena node kamera ROS
+sesi lain masih hidup. Cek `ps` dan bereskan SEBELUM mengukur waktu dinding,
+atau nyatakan bebannya seperti p1_g10 B0.
+
+=== YANG SUDAH TEGAK, JANGAN BANGUN ULANG ===
+- Predikat BLOCK, lintasan A2.3, sertifikat A2.4: W0/W0b/W0c/W1 G9, dijalankan
+  ULANG setelah perbaikan first_block dan hasilnya identik.
+- Gerbang sadar-tunggu (test/gate_sched_coupled.py): 17 mutasi, 0 lolos, plus
+  kontrol positif. PAKAI INI untuk setiap jadwal yang sesi mana pun laporkan.
+- W2 (test/verify_sched_coupled.Brute) + P0-P4. Oracle-nya sendiri terbukti.
+- solve_coupled2 dengan dive: W2 31 instance (15 mengikat) 0 kali solver > W2,
+  W2b(i) 12/12, W3 Q1-Q5, W4' 12/12, regresi G9 2/2.
+- ANGKA UTAMA: pada S1, mean Delta% ada di [0.0000, 1.0141] -> BUKAN MAHAL.
+  37/40 terbukti Delta = 0.000 exact. JANGAN hitung ulang; pakai.
+- K5.4: 3.2564% dari 2376^2 pasangan pose BLOCK; 886/2376 pose bebas total.
+
+=== UTANG G10 YANG HARUS DIBAYAR ATAU DIBATALKAN SECARA EKSPLISIT ===
+U1. W2b(ii) (no_dive) GAGAL 6/12. Dua jalan yang SAMA-SAHNYA, pilih satu di A
+    SEBELUM kode:
+      (a) perbaiki kelengkapan ekspansi sampai 12/12 tanpa dive; atau
+      (b) UBAH KRITERIANYA, dengan argumen tertulis di A, bahwa W2 +
+          W2b(i) adalah palang yang benar dan W2b(ii) mengukur konfigurasi
+          yang tidak pernah dipakai. Kalau (b), argumennya ditulis SEBELUM
+          melihat hasil apa pun, dan "ground truth" baru boleh dipakai
+          sesudahnya.
+    DILARANG: membiarkannya menggantung seperti p1_g9 membiarkan W2.
+U2. S2 TIDAK BERFUNGSI sebagai probe (p1_g10 B7). gen_real_crowded memadatkan
+    lin; (N1) menuntut rot. Bentuk yang BENAR sudah ada dan sudah terbukti
+    mengikat: verify_sched_coupled.gen_small_crowded -- p0 di pose aman
+    rot = 0, pose kerja di +-90 deg pada lin berdekatan, tugas HANYA layak di
+    pose +-90 itu. Bangun `gen_real_rotcrowded` berbentuk begitu pada peta
+    NYATA, lalu ukur ulang D10/D17/D19-S2. Ini MURAH dan ia membayar utang
+    yang sudah dua sesi menghindari penilaian.
+U3. Tiga instance S1 masih terkurung (n4_s7_mr0, n6_s7_mr0 rasio 1.187;
+    n6_s6_mr1 rasio 1.031). action_hit = 35 menunjuk penyebabnya.
+U4. W2 sendiri longgar: max_evade = 1 sementara solver memakai sampai 3.
+    Naikkan dan ukur ulang 9 instance `solver < W2`.
+
+=== TUGAS, BERURUTAN. JANGAN LOMPAT. ===
+1. U1 dan U2. Keduanya kecil, dan U2 yang menentukan apakah ada rezim di mana
+   koordinasi MAHAL sama sekali.
+2. K3 ulang pada S2 yang benar. Pertanyaan binernya: apakah ADA rezim di grid
+   ini di mana tabrakan struktur melewati ambang 5%? Kalau S2-yang-benar pun
+   di bawah 5%, itu temuan yang LEBIH BESAR daripada kalau ia di atas: ia
+   berarti tabrakan struktur gantry-gantry BUKAN mekanisme waktu yang dicari
+   naskah, dan naskah harus berhenti menggantungkan klaimnya di sana.
+3. LUBANG MODEL TERBESAR YANG TERSISA: tabrakan LENGAN-LENGAN antar gantry.
+   Ini yang membuat SETIAP angka rugi tetap batas bawah (p1_g10 B12.2).
+   Angkanya: ujung lengan terentang 1.4 m dari sumbu rotasi (p1_g2 12), TIGA
+   KALI R_MAX = 0.455 m yang G9/G10 modelkan. p1_g2 10 mengukurnya TIDAK
+   MENGIKAT (0.00% pasangan target hilang sampai clearance 0.15 m) -- tapi itu
+   diukur pada konfigurasi MENJANGKAU, dengan proksi polyline yang MEREMEHKAN
+   volume sapuan, dan TIDAK PERNAH pada lengan yang sedang dibawa melintas.
+   Struktur A yang sama berlaku: predikat dulu, oracle dulu, solver terakhir.
+   Dan predikat lengan JAUH lebih mahal dari predikat struktur -- ukur
+   pemeriksanya SEBELUM menjalankan sapuan apa pun (p1_g8 B4, p1_g9 B3,
+   p1_g10 B3 Pertentangan 1: TIGA kali sekarang, dan yang ketiga terjadi di
+   dalam kode yang ditulis untuk menghindari yang kedua).
+
+=== KUNCI KRITERIA SEBELUM KODE, ke docs/p1_g11_*.md A ===
+1. Jalan mana untuk U1, (a) atau (b), dan kenapa.
+2. Untuk tugas 3: apa DEFINISI predikat lengan-lengan, sebagai fungsi dari apa.
+   Konfigurasi lengan TIDAK ada di model penjadwalan (p1_g7 A4.3: gerak lengan
+   di dalam satu pose = 0), jadi predikat yang bergantung pada konfigurasi
+   lengan menuntut penambahan model, dan penambahan itu dikunci di A atau ia
+   akan menyelinap masuk lewat implementasi.
+3. Berapa besar instance yang WAJIB lulus, sebagai angka, sebelum apa pun
+   disebut tegak. Palang G10 (A3-K2) adalah contoh yang bisa dipakai ulang.
+4. Apa yang dilaporkan kalau lagi-lagi tidak semuanya bisa dibuktikan. Aturan
+   dua-sisi p1_g10 A3-K3 BEKERJA -- ia mengubah "TIDAK DAPAT DITENTUKAN" jadi
+   vonis yang sah tanpa membuang satu instance pun. Pakai ulang bentuknya.
+
+=== JEBAKAN YANG SUDAH DIUKUR, JANGAN DITEMUKAN ULANG ===
+- Argumen yang ber-INDEKS tidak bisa ditukar. pair_distance(l1,r1,l2,r2)
+  menaruh argumen pertama di y = +0.36. Menukarnya tanpa menegasikan rot
+  memberi DUNIA CERMIN, dan galatnya 188.7 mm (p1_g10 B1.1).
+- Kelayakan aksi HARUS diperiksa sampai ujung gerak terkomit LAWAN, bukan
+  hanya sampai ujung jendelanya sendiri; kalau tidak, EKOR STATIS-nya tidak
+  pernah diperiksa terhadap apa pun yang dikomit belakangan (Pertentangan 5,
+  ditemukan oleh P2 -- gerbang yang diterapkan pada jadwal W2 SENDIRI).
+- Konstruktor jadwal harus mengembalikan JADWAL YANG SAMA dengan yang ia
+  periksa. _repair_ub G9 tidak (p1_g10 B1.2).
+- "Kembangkan gantry yang tertinggal" adalah HEURISTIK di model terkopel,
+  exact hanya di model takterkopel (Pertentangan 4).
+- Pose menghindar yang AMAN bisa TAK TERCAPAI; rute ke pose tak-aman bisa
+  justru bebas (Pertentangan 3).
+- h[himpunan kosong] tidak ada di dp.w; merekonstruksinya wajib memulihkan 0
+  (p1_g10 B1.3).
+- Yang lambat adalah PEMERIKSA. Tiga sesi berturut-turut.
+
+=== ATURAN ===
+- 7.2: UKUR, JANGAN MENDUGA. Papan skor 19 meleset, 6 tepat.
+  Prior DUNIA: LONGGAR (dan p1_g10 B11 mengembalikan prior ini setelah D9
+  dibalik -- ia tidak punya contoh tandingan).
+  Prior KODE SENDIRI: LEBIH LAMBAT, LEBIH RUMIT, LEBIH SALAH. 4 dari 4.
+  Tulis dugaan tentang kode sendiri pada sisi PESIMISNYA supaya bisa dinilai.
+- 🔴 DUGAAN YANG DINILAI MEMAKAI SOLVER YANG BELUM LULUS GERBANGNYA TIDAK
+  DINILAI SAMA SEKALI. Tandai TERTUNDA, bukan MELESET. Ini aturan baru dan ia
+  lahir dari kesalahan nyata (p1_g10 B11 catatan 3).
+- Kalau B bertentangan dengan A, yang menang B, dan pertentangannya DITULIS.
+  G10 punya LIMA, plus satu dengan prompt G10 sendiri (A2.1). Itu bukan aib.
+- Akhiri dengan prompt sesi berikutnya (G12).
+```

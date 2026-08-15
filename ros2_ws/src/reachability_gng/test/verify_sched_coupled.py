@@ -245,7 +245,13 @@ class Brute:
                     continue
                 cand = (tr[g][0], tr[g][1] + ([(s, cur, q)] if T > 0 else []))
                 A, B = (cand, tr[h]) if g == self.gs[0] else (tr[h], cand)
-                if ref_conflict(A, B, s, s + T + d, self.c):
+                # the check must reach past this action's own window, out to
+                # the end of the other gantry's committed motion: otherwise the
+                # STATIC TAIL of this action is never checked against anything
+                # the other gantry commits afterwards. P2 caught exactly that
+                # here, in this enumerator, which is what P2 is for.
+                if ref_conflict(A, B, s, max(s + T + d, ref_end_time(tr[h])),
+                                self.c):
                     continue
                 nt, nf = dict(t), dict(fin)
                 nt[g] = s + T + d
@@ -274,17 +280,49 @@ def gen_small_crowded(n, P, seed, n_mr=0):
     close together; `gen_random_small` draws lin over the whole 1.6 m rail and
     rot over the whole circle, so a random tiny pose set almost never contains
     such a pair, and a W2 that never sees a collision would be judging the
-    solver on the one axis where it is already known to agree. How many W2
-    instances actually bind is reported as a number.
+    such a pair.
+
+    The first draft drew EVERY pose inside the blocking band, and W2 said so at
+    once: 4 of 16 instances came back infeasible for both solver and oracle (no
+    Lemma 1 park anywhere in the pose set, so the gantries were locked from
+    t = 0) and most of the rest were trivial -- both tasks doable at p0,
+    makespan exactly one dwell. An instance that is infeasible or trivial tests
+    nothing, which is p1_g8 B1's never-firing gate in yet another costume. This
+    version fixes both by construction:
+
+      pose 0     (0.80, 0 deg): universally safe, and p0 for BOTH gantries, so
+                 the start state is collision-free and Lemma 1's serialisation
+                 always exists
+      poses 1..  (0.80 +- 0.04, +-90 deg): mutually blocking by Lemma 2
+      reach      every task reachable ONLY at the blocking poses, so both
+                 gantries are forced into them
+
+    How many W2 instances actually bind is reported as a number, because that
+    count is the difference between W2 judging the solver and W2 agreeing with
+    it about nothing.
     """
     rng = np.random.default_rng(1000 + seed)
     inst = sched.gen_random_small(n, P, seed, n_mr=n_mr, gantries=(1, 2))
-    lin = 0.80 + rng.uniform(-0.08, 0.08, P)
-    sgn = rng.choice([-1.0, 1.0], P)
-    rot = sgn * rng.uniform(np.deg2rad(65.0), np.deg2rad(115.0), P)
+    lin = np.concatenate([[0.80], 0.80 + rng.uniform(-0.04, 0.04, P - 1)])
+    rot = np.concatenate([[0.0],
+                          rng.choice([-1.0, 1.0], P - 1)
+                          * rng.uniform(np.deg2rad(80.0), np.deg2rad(100.0),
+                                        P - 1)])
     poses = np.stack([lin, rot], axis=1)
-    return sched.Instance(inst.kind, {g: poses for g in (1, 2)}, inst.reach,
-                          inst.zone, inst.hand, inst.p0, None, inst.dwell, 0.0,
+    reach, hand = {}, {}
+    for g in (1, 2):
+        r = np.zeros((n, P, 2), bool)
+        for i in range(n):
+            p = 1 + (i + g) % (P - 1)
+            if inst.kind[i] == 'MR':
+                r[i, p, :] = True
+            else:
+                r[i, p, (i + g) % 2] = True
+        reach[g] = r
+        hand[g] = r[:, :, 0] & r[:, :, 1]
+    zone = {g: np.zeros((n, P, 2), bool) for g in (1, 2)}
+    return sched.Instance(inst.kind, {g: poses for g in (1, 2)}, reach, zone,
+                          hand, {1: 0, 2: 0}, None, inst.dwell, 0.0,
                           f'crowded-small(n={n},P={P},seed={seed})')
 
 
@@ -501,8 +539,10 @@ def w3():
     floor = (0.26 + 90.0 / 10.0) + 2 * sched.DWELL
     bq2, _ = Brute(inst, ds=DS).solve()
     e2 = validate_coupled(inst, s.stops, s.finish, s.makespan)
+    # solver <= brute is the locked rule (A3-K1): solver ABOVE the enumerator is
+    # the failure, solver below it is the enumerator's grid being coarse.
     q2 = (s.makespan >= floor - TOL and s.makespan > ref + TOL
-          and abs(s.makespan - bq2) <= 1e-6 and not e2)
+          and s.makespan <= bq2 + 1e-6 and not e2)
     ok &= q2
     print(f'Q2 mutually locking poses: uncoupled {ref:.4f}, coupled '
           f'{s.makespan:.4f}, brute force {bq2:.4f}, hand floor {floor:.4f} '
@@ -553,7 +593,7 @@ def w3():
     # checkable: the solver matches the brute-force enumerator exactly, its
     # schedule passes the gate, and Lemma 3 holds.
     q3 = (np.isfinite(s.makespan) and s.makespan >= ref - TOL
-          and s.makespan >= floor3 - 1e-6 and abs(s.makespan - bq3) <= 1e-6
+          and s.makespan >= floor3 - 1e-6 and s.makespan <= bq3 + 1e-6
           and not errs3)
     ok &= q3
     print(f'Q3 traverse cut by a parked gantry: uncoupled {ref:.4f}, coupled '
@@ -580,7 +620,7 @@ def w3():
     errs = validate_coupled(inst, s.stops, s.finish, s.makespan)
     bq4, _ = Brute(inst, ds=DS).solve()
     q4 = (np.isfinite(s.makespan) and not errs
-          and abs(s.makespan - bq4) <= 1e-6)
+          and s.makespan <= bq4 + 1e-6)
     ok &= q4
     print(f'Q4 waiting is useful: coupled {s.makespan:.4f}, brute force '
           f'{bq4:.4f}, uncoupled {sched.solve_exact(inst).makespan:.4f}, gate '

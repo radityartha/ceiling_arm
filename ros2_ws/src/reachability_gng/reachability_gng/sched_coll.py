@@ -552,7 +552,15 @@ def _first_start(tr, q, dur, t_min, other, c_clear, eps, n_probe=0):
     for s in cands:
         cand = tr.copy()
         cand.append(s, q)
-        if first_block(cand, other, s, s + T + dur, c_clear, eps) is None:
+        # 🔺 G10 contradiction 5, applied here too: the check must reach past
+        # this action's own window, out to the end of the OTHER gantry's
+        # committed motion. Otherwise the static tail of this action is never
+        # checked against anything the other gantry commits later, and the
+        # incumbent this constructor returns can be infeasible. Measured at
+        # c_clear = 0.05 and 0.10 on n4_s8_mr1, where the schedule came back
+        # via route `dive-lb` and the wait-aware gate rejected it.
+        if first_block(cand, other, s, max(s + T + dur, other.end_time()),
+                       c_clear, eps) is None:
             return s, cand
     return None, None
 
