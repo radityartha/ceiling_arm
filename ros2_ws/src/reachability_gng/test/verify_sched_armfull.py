@@ -357,8 +357,16 @@ def brute_arm(inst, geom, c_arm, c_clear, horizon=None, step=0.25,
                 for p in range(P[g]):
                     dur, assign = sched.stop_duration(inst, g, U, p)
                     if not np.isfinite(dur):
-                        U = (U - 1) & R
-                        break
+                        # 🔴 G13 B3: this was `U = (U-1)&R; break`, which on the
+                        # FIRST pose infeasible for this subset abandoned every
+                        # REMAINING pose for it. The enumerator was therefore
+                        # not exhaustive, and W3 was an over-estimate of the
+                        # optimum rather than the optimum -- which is exactly
+                        # how it can sit ABOVE a schedule the solver returns and
+                        # that passes all three independent gates. Found by a
+                        # test that was RUN (the M3 gate on a BINDING instance),
+                        # not by re-reading: six sessions, six for six.
+                        continue
                     cur = (stops[g][-1]['pose'] if stops[g]
                            else int(inst.p0[g]))
                     T = sc.leg_duration(tuple(inst.poses[g][cur]),
@@ -374,9 +382,7 @@ def brute_arm(inst, geom, c_arm, c_clear, horizon=None, step=0.25,
                                              assign=assign))
                         rec(R ^ U, stops, max(tmin, dep + T + dur))
                         stops[g].pop()
-                else:
-                    U = (U - 1) & R
-                    continue
+                U = (U - 1) & R
         return
 
     rec(full, {g: [] for g in gs}, 0.0)

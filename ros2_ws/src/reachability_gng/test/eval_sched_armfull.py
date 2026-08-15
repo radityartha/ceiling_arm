@@ -40,19 +40,33 @@ C_SWEEP = (0.00, 0.05, 0.10, 0.15, 0.20)
 C_MAIN = 0.05
 
 
-def _path(tag):
-    # One file per set (p1_g11: two processes read-modify-writing one JSON
-    # silently truncated the S2 table from 37 rows to 2).
-    return Path(f'/tmp/g12_eval_{tag}.json')
+def _path(tag, c):
+    # One file per (set, c_arm). p1_g11 measured why it cannot be one file per
+    # set: two processes read-modify-writing one JSON silently truncated the S2
+    # table from 37 rows to 2. G13 A2.2 runs cells CONCURRENTLY, and a cell is
+    # a (set, c_arm) pair, so the key has to carry c as well.
+    return Path(f'/tmp/g13_eval_{tag}_{c:.2f}.json')
 
 
-def _load(tag):
-    q = _path(tag)
+def _load(tag, c):
+    q = _path(tag, c)
     return json.loads(q.read_text()) if q.exists() else {}
 
 
-def _save(tag, o):
-    _path(tag).write_text(json.dumps(o, indent=1))
+def _save(tag, c, o):
+    _path(tag, c).write_text(json.dumps(o, indent=1))
+
+
+def _load1():
+    """load average, so a cell's wall can never be read without its machine.
+
+    p1_g10 C: seconds are not comparable across sessions without the load, and
+    G13 is the first session to run cells in parallel -- which moves the
+    proved-count, i.e. the Delta_lo side of the two-sided verdict, not just the
+    wall.  A2.2.
+    """
+    import os
+    return os.getloadavg()[0]
 
 
 def _instances(setname):
@@ -165,14 +179,25 @@ def lemmac(setname='s1', c=C_MAIN, limit=None):
 
 # ---------------------------------------------------------------- the sweep
 def run(setname, cs=(C_MAIN,), budget=TIME_BUDGET, only_n=None):
-    db = _load(setname)
-    db.setdefault(setname, {})
+    for c in cs:
+        db = _load(setname, c)
+        db.setdefault(setname, {})
+        db.setdefault('_load', [_load1(), None])
+        _run_cell(setname, c, db, budget, only_n)
+        db['_load'][1] = _load1()
+        _save(setname, c, db)
+        print(f'CELL {setname} c={c:.2f} DONE  load {db["_load"][0]:.2f} -> '
+              f'{db["_load"][1]:.2f}', flush=True)
+    return 0
+
+
+def _run_cell(setname, c, db, budget, only_n):
     for key, n, seed, mr, gen in _instances(setname):
         if only_n and n not in only_n:
             continue
         rec = db[setname].get(key)
         inst = geom = None
-        for c in cs:
+        for _ in (0,):
             ck = f'{c:.2f}'
             if rec and ck in rec.get('arm', {}):
                 continue
@@ -205,14 +230,13 @@ def run(setname, cs=(C_MAIN,), budget=TIME_BUDGET, only_n=None):
                 arm_slow=None if slow is None else float(slow),
                 arm_calls=ctx.calls, arm_t=ctx.t_arm)
             db[setname][key] = rec
-            _save(setname, db)
+            _save(setname, c, db)
             print(f'{key:12s} c={ck} unc {rec["lb"]:8.3f} '
                   f'str {ss.makespan:9.3f}({ss.route:7s}) '
                   f'full {sf.makespan:9.3f}({sf.route:7s},pr={int(sf.proved)}) '
                   f'D_arm {sf.makespan-ss.makespan:+8.3f} gate={len(errs)}'
                   f'{"" if slow is None else " ARMVIOL"} {wall:6.1f}s',
                   flush=True)
-    return 0
 
 
 def _exact(route, proved, ub, lb):
@@ -237,16 +261,23 @@ def verdict(pairs):
 
 def report():
     for tag in ('s1', 's2'):
-        db = _load(tag).get(tag)
-        if not db:
+        seen = [c for c in C_SWEEP if _path(tag, c).exists()]
+        if not seen:
+            print(f'\n=== {tag}: TIDAK DIUKUR -- no cell has been run ===')
             continue
-        print(f'\n=== {tag}: {len(db)} instances ===')
+        print(f'\n=== {tag} ===')
         for c in C_SWEEP:
+            raw = _load(tag, c)
+            db, ld = raw.get(tag, {}), raw.get('_load')
             ck = f'{c:.2f}'
             rows = [(k, r, r['arm'][ck]) for k, r in db.items()
                     if ck in r.get('arm', {})]
             if not rows:
+                print(f'\n  c_arm = {ck}   TIDAK DIUKUR')
                 continue
+            print(f'  [load {ld[0]:.2f} -> '
+                  f'{"RUNNING" if ld[1] is None else f"{ld[1]:.2f}"}]' if ld
+                  else '  [load NOT RECORDED -- A2.2: cell not reported]')
             bad = [k for k, _, a in rows if a['gate'] or a['arm_slow'] is not None]
             none = [k for k, _, a in rows if not np.isfinite(a['full_ub'])]
             st = [(r['lb'], a['struct_ub'],
@@ -290,7 +321,8 @@ def main(argv=None):
         cs = [float(x) for x in a[1:]] or [C_MAIN]
         return run(a[0], cs=cs)
     if a[0] == 'lemmac':
-        return lemmac(*(a[1:] or ['s1']))
+        b = a[1:] or ['s1']
+        return lemmac(b[0], *(float(x) for x in b[1:2]), *(int(x) for x in b[2:3]))
     return {'cost': cost, 'report': report}[a[0]]()
 
 

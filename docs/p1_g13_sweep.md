@@ -313,4 +313,176 @@ yang benar-benar mengikat dan dilaporkan: **120 s wall per instance** (A2.4) dan
 > angka di bawah keluar sesudahnya. Setiap tempat di mana §B bertentangan
 > dengan §A ditandai 🔺. **§A TIDAK ditulis ulang.**
 
-_(diisi selama sesi)_
+### B0. Cara menjalankan ulang, dan beban mesin
+
+```bash
+cd /home/user1/Documents/ceiling_arm/ros2_ws/src/reachability_gng
+python3 test/eval_sched_armfull.py s1 0.20      # satu SEL sapuan
+python3 test/eval_sched_armfull.py report       # semua sel + bebannya
+python3 test/m3_bind_g13.py scan                # apakah tuas 3 ADA di peta ini
+python3 test/m3_bind_g13.py m3                  # tabel kelas + tiga-arah
+python3 test/m3_bind_g13.py gate                # solver vs W3 pada yang MENGIKAT
+python3 test/diag_g13.py n6                     # profil n6_s4_mr0
+python3 test/diag_g13.py u4 2                   # U4, max_evade
+```
+
+⚠️ **Beban mesin:** awal sesi `load average` **2.98**, selama sapuan **6–8.5**
+pada **16 core**. Itu **di bawah jenuh** — jumlah proses runnable tidak pernah
+melewati jumlah core — jadi wall per proses tidak ter-throttle, dan itulah
+pembenaran A2.2 yang sesungguhnya, bukan konkurensi 3 itu sendiri. G12 diukur
+pada 4.5–5.0, G11 pada 3.3–3.7, G10 pada 42.
+
+🔒 **Berkas beku (§A0), diperiksa:** dua belas dari tiga belas `git diff`
+**KOSONG**. **`test/verify_sched_armfull.py` GUGUR** — satu bug nyata di
+`brute_arm` (§B3). `test/eval_sched_armfull.py` diubah sesuai izin §A0 (kunci
+berkas per (set, `c_arm`) + `load average`), dan **R0 membuktikan semantiknya
+tidak berubah**. Berkas baru: `test/m3_bind_g13.py`, `test/diag_g13.py`.
+
+### B1. R0 — harness diubah, semantiknya TIDAK
+
+Baris S1 `c_arm = 0.05` **dimigrasikan** dari G12 (A2.2 poin 3), bukan
+dijalankan ulang, lalu dibaca lewat `report()` yang baru:
+
+| | `p1_g12 §B7.1` | `report()` G13 | |
+|---|---|---|---|
+| `Δ_struct` | [0.0000, 0.4679] | [0.0000, 0.4679] | ✅ |
+| `Δ_full` | [0.0000, 7.6155] | [0.0000, 7.6155] | ✅ |
+| `Δ_arm` | [+0.0000, +7.1476] | [+0.0000, +7.1476] | ✅ |
+| exact | 36 / 40 | 36 / 40 | ✅ |
+| route berubah | 10 / 40 | 10 / 40 | ✅ |
+| route (struct→full) | — | `lemma4→lemma4` 18, `bnb→bnb` 10, `lemma4→bnb` 4, `lemma4→dive-lb` 3, `dive-lb→bnb` 3, `dive-lb→dive-lb` 2 | ✅ |
+| wall mean / maks | 31.0 / 120.1 s | 31.0 / 120.1 s | ✅ |
+
+➜ **R0 LULUS.** Perubahan harness adalah kunci berkas, bukan perhitungan.
+
+### B2. 🔺 PERTENTANGAN 1 — BIAYA SAPUAN, dan ANGGARAN 120 s TIDAK MENGIKAT
+
+A2.1 mengunci probe pada `c_arm = 0.20` sebelum 40 instance. Terukur:
+
+| probe | wall @0.05 | wall @0.20 | rasio | node | panggilan `ctx.ok` |
+|---|---|---|---|---|---|
+| `n4_s0_mr0` (medium) | **1.39 s** (`lemma4`, `proved`) | **139.92 s** (`bnb`, **tidak** terbukti) | **101×** | 0 | **0** |
+| `n6_s4_mr0` (terburuk diketahui) | 120.06 s | **120.11 s** | **1.00×** | 11 | 4016 |
+
+🔴 **Dua hal yang tidak bisa dibaca dari rasio itu, dan dua-duanya penting.**
+
+**(a) 139.92 s > anggaran 120 s.** Anggaran "TERKUNCI 120 s" (`p1_g10 §K4`,
+dipakai G7/G9/G10/G11/G12) **hanya diperiksa di dalam loop B&B dan
+`feasible_starts`**. Konstruktor pra-loop tidak melihatnya sama sekali. Jadi
+kalimat "anggaran 120 s per instance" **tidak pernah benar sebagai batas wall**
+— ia batas atas pada **pencarian**, bukan pada instance. Ini bukan penemuan
+tentang sesi ini saja: ia berlaku surut ke setiap sesi yang mengutip anggaran
+itu. Terukur di sapuan: wall maks **144.3 s** pada `c_arm = 0.10`.
+
+**(b) Biayanya bukan di gerbang lengan — ia di `arm_serial_ub`.** Probe medium
+menghabiskan 139.92 s dengan **nol** panggilan `ctx.ok` dan **nol** node.
+Ditelusuri per tahap:
+
+| tahap, `n4_s0_mr0` | `c_arm = 0.05` | `c_arm = 0.20` | rasio |
+|---|---|---|---|
+| uji lengan pada rute Lemma 4 | 0.015 s → **bebas** | 0.010 s → **TERBLOKIR** | — |
+| `_repair_ub` (struktur, beku) | 0.001 s | 0.001 s | 1× |
+| **`arm_serial_ub`** (A2.4, tutup 60 pose dicabut) | **0.039 s** | **138.009 s** | **3500×** |
+
+🔺 **Anggaran A2.5 G12 (`arm_serial_ub ≤ 1.0 s`) diverifikasi pada
+satu-satunya `c_arm` yang loop-nya TIDAK PERNAH BERITERASI.** G12 mengukur
+0.23 s dan menyatakannya ✅. Biaya sebenarnya **bukan per instance** — ia **per
+pose yang DITOLAK**, dan yang mengendalikan jumlah penolakan adalah `c_arm`.
+Pada 0.05 pose parkir termurah langsung diterima dan loop `break` pada iterasi
+pertama; pada 0.20 ia menyapu ribuan pose, masing-masing membayar dua
+`schedule_conflict` **dan** dua `schedule_arm_conflict` atas **seluruh** jadwal.
+
+➜ **Ini sesi KEENAM berturut-turut dengan jebakan "yang lambat adalah
+PEMERIKSA"** (`p1_g8 §B4`, `p1_g9 §B3`, `p1_g10 §B3-1`, `p1_g11 §B4`,
+`p1_g12 §B4`), dan yang **kedua** di mana pengukuran-sebelum-sapuan mengubah
+apa yang boleh ditulis tentang biayanya.
+
+🔒 **Keputusan A2.1 tetap dipakai apa adanya** (probe medium menyentuh 120 s →
+sapuan dijalankan **penuh**, urutan sel mengikat). Yang **gugur** adalah
+aritmetika biayanya: batas "40 × 120 s = 80 menit per sel" **salah**, karena
+120 s bukan batas wall. `arm_serial_ub` **TIDAK diperbaiki** — ia di berkas
+beku, ia **benar** (mengembalikan 47.9603 di kedua `c_arm`), dan yang cacat
+adalah anggaran yang mengukurnya, bukan kodenya.
+
+### B3. 🔴 BUG NYATA di `brute_arm` — BERKAS BEKU, PEMBEKUANNYA GUGUR
+
+Ditemukan oleh **uji yang dijalankan** (gerbang M3 pada instance yang
+mengikat), bukan oleh pembacaan ulang. **Enam dari enam** untuk pola
+`p1_g10 §B8`.
+
+Gerbang M3 melaporkan `solver < W3` pada satu instance: `s10`, `c_arm = 0.15`,
+solver **10.7600 `proved`** melawan W3 **12.2600**. Dua bacaan mungkin — solver
+terlalu longgar (bug soundness) atau W3 terlalu kasar. **Diadu, tidak
+dinalar:** jadwal solver dijalankan lewat **tiga** gerbang independen —
+`validate_coupled` (sadar-tunggu), `sa.arm_schedule_conflict` (jalan lambat
+G11), dan `sc.schedule_conflict` (struktur). **Ketiganya lulus.** Jadwalnya
+layak; W3 yang salah.
+
+Sebabnya, di `verify_sched_armfull.brute_arm`:
+
+```python
+for p in range(P[g]):
+    dur, assign = sched.stop_duration(inst, g, U, p)
+    if not np.isfinite(dur):
+        U = (U - 1) & R
+        break            # <- meninggalkan SELURUH pose sisanya untuk U ini
+```
+
+Pada pose **pertama** yang tidak layak untuk sebuah subset `U`, ia membuang
+setiap pose **p+1 … P−1** untuk subset itu dan langsung pindah ke `U`
+berikutnya. **Enumeratornya tidak menyeluruh**, jadi W3 adalah **taksiran
+lebih** atas optimum, bukan optimum.
+
+🔒 Perbaikan: `continue` alih-alih `U = (U-1)&R; break`, dan `U` dimundurkan
+sesudah loop pose selesai. Sesudahnya `s10 c=0.15` memberi W3 **10.7600**,
+**persis** nilai solver.
+
+**Apa yang ini runtuhkan, dan apa yang TIDAK:**
+
+1. 🔴 **Angka M3 `p1_g12 §B8` ("0 dari 18 mengikat") diukur dengan enumerator
+   yang cacat**, dan begitu juga jalan pertama M3 sesi ini. Keduanya dihitung
+   ulang di §B5.
+2. ✅ **Kesimpulan `solver > W3` pada 0 dari 18 TETAP SAH.** Setiap jadwal yang
+   `brute_arm` kembalikan sudah lolos kedua gerbangnya, jadi W3 selalu
+   **batas atas yang sah** atas optimum sejati; membuatnya tidak menyeluruh
+   membuatnya **lebih longgar**, tidak salah arah. Palang soundness berdiri.
+3. ⚠️ **`enum_opt` sesi ini mewarisi bentuk yang sama**, jadi "0 selisih
+   enumerator" di jalan pertama **bukan** bukti kebenaran — dua instrumen
+   dengan cacat yang sama akan selalu sepakat. Itu ditulis, bukan dihaluskan:
+   silang-periksa itu hanya menguji pembukuan, bukan kelengkapan. Keduanya
+   diperbaiki dan dijalankan ulang.
+
+### B4. 🟢 M3 LULUS — utang oracle G12 LUNAS, dan gerbangnya DISKRIMINATIF
+
+`p1_g12 §B8` menutup dengan: *"W3 mengonfirmasi solver tidak pernah lebih buruk
+dari brute force, tapi ia **tidak bisa** mendeteksi solver yang terlalu
+longgar, karena tidak ada instance kecil di mana longgar dan ketat berbeda."*
+Sekarang ada **sebelas**.
+
+**Kenapa G12 tidak menemukannya, dan itu bukan tuas 3 atau 4:** G12 menjalankan
+M3 **hanya pada `c_arm = 0.05`**. Sapuan `c_arm` — tuas 6, satu-satunya yang
+G12 tidak putar — adalah yang membuka gerbangnya. Pada 0.05 sesi ini juga
+mendapat **0 mengikat**, jadi angka G12 **tereproduksi** dan sekarang
+**terjelaskan**: ia pernyataan tentang `c_arm = 0.05`, bukan tentang kelas
+instance-nya.
+
+| | Terukur |
+|---|---|
+| instance `BINDING` (`brute_arm(c) > brute_arm(∞)`) | **11**, semuanya pada `c_arm ≥ 0.10` |
+| pada `c_arm = 0.05` | **0** — mereproduksi `p1_g12 §B8` |
+| kenaikan optimum | 10.2600 → **12.2600** (10 instance) dan → **10.7600** (1) |
+| **`solver > W3`** (tidak sound) | **0 / 11** ✅ |
+| **`solver < W3`** (terlalu longgar) — arah yang G12 **tidak bisa** uji | **0 / 11** ✅ |
+| solver `proved` pada semuanya | **11 / 11** |
+
+🔒 **Inilah yang membuatnya diskriminatif:** pada instance ini solver yang
+mengabaikan atau kurang-menerapkan `ARM_BLOCK` akan mengembalikan **10.2600**,
+optimum struktur. Ia mengembalikan **12.2600** (dan 10.7600), **persis** nilai
+enumerator sadar-lengan yang tidak berbagi satu baris pun dengan pencariannya.
+Kenaikannya **+2.0000 s = tepat satu `DWELL`** — kendalanya memaksa satu dwell
+diserialkan, dan itu mekanisme yang bisa disebut, bukan sekadar angka.
+
+➜ **Kualifikasi `p1_g12 §B10` poin 2 DICABUT.** "Exact" sekarang berarti exact
+terhadap M0+M1+M2 **dan** terhadap enumerator independen yang diskriminatif —
+pada kelas instance kecil, pada `c_arm ≥ 0.10`.
+
