@@ -37,7 +37,22 @@ from reachability_gng.irm_sweep import (approach_filter, base_pose,
 # cloud. Both are reproduced bit-identically from these three values (L1), so
 # they are named here rather than left implicit: a canonical index read against
 # the wrong cloud is a silent, plausible-looking wrong answer.
-CLOUD = '/tmp/irm_cloud_pol.npz'
+# G12 U0: the cloud lived ONLY in /tmp through all of G11 -- a reboot would have
+# made every arm polyline of that session unreproducible. The repo copy in data/
+# is now the primary; /tmp stays as fallback so an existing checkout keeps
+# working. Both are the same file (md5 d62c2f54...), and L1a re-proves the
+# canonical table is BIT-IDENTICAL when read through this resolution.
+def _cloud_path():
+    from pathlib import Path
+    here = Path(__file__).resolve()
+    for up in here.parents:
+        cand = up / 'data' / 'irm_cloud_pol.npz'
+        if cand.exists():
+            return str(cand)
+    return '/tmp/irm_cloud_pol.npz'
+
+
+CLOUD = _cloud_path()
 APPROACH_DEG = 45.0
 CANON_POLICY = 'manip'
 
