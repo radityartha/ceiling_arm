@@ -242,13 +242,19 @@ python3 scripts/reach_dwell_probe.py --arm arm_1 --trials 10
 python3 scripts/reach_dwell_probe.py --arm arm_1 --trials 10 --move
 ```
 
-#### ⛔ JANGAN dipakai
+#### Skrip alternatif — mana yang boleh, mana yang tidak
 
-`scripts/start_single_arm.sh` — `WS` di dalamnya menunjuk
-`~/Documents/moonshot_project/ros2_ws`, yang **tidak ada** (repo ini
-`ceiling_arm`). Skrip itu basi dari repo lain. `start_single_rviz.sh` path-nya
-benar, tetapi ia membawa **keempat** lengan nyata, yaitu justru yang A7b
-hindari untuk langkah 2.
+| Skrip | Status | Pakai untuk |
+|---|---|---|
+| `scripts/start_single_arm.sh` | ✅ **DIPERBAIKI 2026-08-16** — `WS` tadinya menunjuk `~/Documents/moonshot_project/ros2_ws`, path dari repo lain yang **tidak ada**, jadi setiap run mati di `source` | **tahap 3** (regresi). Ia membawa **satu** lengan nyata, jadi lengan yang mid-boot hanya menjatuhkan controller-nya sendiri. ❌ **Tidak cukup untuk tahap 4**: tanpa LIDAR, `/detected_object_pose` tidak pernah terbit |
+| `scripts/start_single_rviz.sh` | ✅ path benar | ❌ membawa **keempat** lengan nyata — justru yang A7b hindari |
+| `my_workcell.launch.py` + `arm{2,3,4}_fake:=true` | ✅ | **tahap 1 dan 4** — satu-satunya yang punya `enable_lidar_octomap_filter` |
+
+⚠️ `start_single_arm.sh` masih memakai `pkill -f` di `cleanup()`. Di sini ia
+tidak cocok dengan shell-nya sendiri (`start_single_arm.sh` ≠
+`single_arm_tables`), jadi **tidak diubah** — mengubah semantik pembersihan
+proses pada malam sebelum sesi perangkat keras adalah risiko yang salah untuk
+diambil. Tetap jangan tiru polanya.
 
 ### A8. 🔒 INSTRUMEN — dan kenapa yang MENILAI bukan yang MEMERINTAH
 

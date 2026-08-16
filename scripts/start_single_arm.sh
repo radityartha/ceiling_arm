@@ -10,11 +10,20 @@
 # foreground. Ctrl+C tears everything down.
 #
 # Usage:  ./scripts/start_single_arm.sh [robot_ip]
-#   robot_ip defaults to 192.168.2.10 (arm 4). Use 192.168.2.11 for arm 3.
+#   robot_ip defaults to 192.168.2.10 (arm 4).
+#   arm_1 = .13   arm_2 = .12   arm_3 = .11   arm_4 = .10
+#
+# Brings up ONE real arm, so an arm still mid-boot can only take down its own
+# controller -- the kortex_driver SIGABRT kills all four together when four are
+# connected. Good for docs/p1_g16_hw.md stage 3 (the joint_6 regression).
+# NOT enough for stage 4: this launch has no LIDAR, so nothing publishes
+# /detected_object_pose. Use my_workcell.launch.py with per-arm fake for that.
 set -e
 
 ROBOT_IP="${1:-192.168.2.10}"
-WS="$HOME/Documents/moonshot_project/ros2_ws"
+# Fixed 2026-08-16: pointed at ~/Documents/moonshot_project/ros2_ws, a path from
+# a different repo that does not exist here, so every run died on `source`.
+WS="$HOME/Documents/ceiling_arm/ros2_ws"
 
 # strip the broken custom overlays from this shell's environment
 strip() { echo "$1" | tr ':' '\n' | grep -vE 'rviz2_ws|moveit2_ws' | paste -sd: -; }
