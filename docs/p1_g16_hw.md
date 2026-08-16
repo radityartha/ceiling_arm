@@ -159,6 +159,97 @@ TAHAP 4  §8c LANGKAH 2 -- reach_dwell_probe.py, 10 percobaan
 sudah pernah berhasil (`arm_1` joint_6 5°, 2026-08-12), jadi kegagalan di sana
 berarti pemasangan ulang, bukan metode.
 
+### A7b. 🔴 PERINTAH KONKRET — diverifikasi 2026-08-16, bukan diingat
+
+#### 🔴 PRASYARAT: WORKSPACE HARUS DIBANGUN ULANG DULU
+
+Diperiksa hari ini:
+
+| | |
+|---|---|
+| `ros2_ws/install/` | **KOSONG** |
+| `install/` (akar repo) | ada, tetapi tertanggal **30 Juli** |
+| `reach_dwell_monitor` | ❌ **TIDAK TERPASANG** — ditulis 13 Agustus, jadi ia lahir **setelah** build terakhir |
+
+➜ `ros2 run reachability_gng reach_dwell_monitor` **AKAN GAGAL** besok kalau
+workspace tidak dibangun ulang. Ini **tidak butuh perangkat keras** — kerjakan
+malam ini atau pagi sebelum memasang lengan.
+
+```bash
+cd ~/Documents/ceiling_arm/ros2_ws
+./build_all.sh
+source install/setup.bash
+ros2 pkg executables reachability_gng | grep reach_dwell_monitor   # HARUS muncul
+```
+
+⚠️ Disk akar **100 % (16 G sisa)**. Kalau build gagal, curigai disk penuh
+lebih dulu, bukan kode.
+
+#### TAHAP 0 — sebelum dan sesudah memasang
+
+```bash
+cd ~/Documents/ceiling_arm
+python3 scripts/remount_check.py          # bersihkan proses basi DENGAN PID dulu
+# ... pasang lengan, beri JEDA setelah power-on (LED tidak amber) ...
+python3 scripts/remount_check.py          # sekarang ICMP harus 4/4
+```
+
+#### TAHAP 1 — bring-up, **HANYA `arm_1` yang nyata**
+
+```bash
+cd ~/Documents/ceiling_arm/ros2_ws && source install/setup.bash
+ros2 launch workcell_moveit_config my_workcell.launch.py \
+    use_fake_hardware:=false \
+    arm2_fake:=true arm3_fake:=true arm4_fake:=true \
+    enable_lidar_octomap_filter:=true \
+    2>&1 | tee /tmp/g16_t1.log
+```
+
+🔴 **Tiga argumen yang mudah terlewat dan masing-masing punya harga:**
+
+| Argumen | Kenapa | Kalau lupa |
+|---|---|---|
+| `use_fake_hardware:=false` | **default-nya `true`** | Anda menguji lengan **palsu** dan mengira berhasil |
+| `arm{2,3,4}_fake:=true` | bug mid-boot `kortex_driver` membunuh **keempat** controller bersama | memaparkan 4 lengan padahal langkah 2 hanya butuh 1 — **memperbesar area ledakan 4×** tanpa alasan |
+| `enable_lidar_octomap_filter:=true` | **default-nya `false`**, dan node inilah yang memublikasikan `/detected_object_pose` | probe menunggu persepsi yang tidak akan pernah datang, lalu melapor TIDAK VALID 10×|
+
+⚠️ `2>&1 | tee` **wajib**: pesan abort C++ hanya keluar ke stderr konsol, dan
+tanpa itu SIGABRT tidak meninggalkan jejak apa pun di `~/.ros/log`.
+
+```bash
+# terminal lain
+cd ~/Documents/ceiling_arm && python3 scripts/remount_check.py --ros
+```
+
+#### TAHAP 2–3 — torsi istirahat, lalu regresi gerak terkecil
+
+```bash
+ros2 topic echo /joint_states --field effort --once     # S3: catat torsi MENGGANTUNG
+python3 scripts/hardware_check.py --arms                # regresi via MoveIt
+```
+
+#### TAHAP 4 — langkah 2
+
+```bash
+# terminal A: PENILAI (memerintah NOL)
+ros2 run reachability_gng reach_dwell_monitor --ros-args \
+    -p arms:="['arm_1']" -p tool_frames:="['t1_a1_tool_frame']" \
+    -p csv_log:=/tmp/g16_step2
+
+# terminal B: PEMERINTAH -- DRY RUN dulu, selalu
+python3 scripts/reach_dwell_probe.py --arm arm_1 --trials 10
+# baru setelah jalur MoveIt disambung DAN tahap 3 lulus:
+python3 scripts/reach_dwell_probe.py --arm arm_1 --trials 10 --move
+```
+
+#### ⛔ JANGAN dipakai
+
+`scripts/start_single_arm.sh` — `WS` di dalamnya menunjuk
+`~/Documents/moonshot_project/ros2_ws`, yang **tidak ada** (repo ini
+`ceiling_arm`). Skrip itu basi dari repo lain. `start_single_rviz.sh` path-nya
+benar, tetapi ia membawa **keempat** lengan nyata, yaitu justru yang A7b
+hindari untuk langkah 2.
+
 ### A8. 🔒 INSTRUMEN — dan kenapa yang MENILAI bukan yang MEMERINTAH
 
 | Berkas | Peran | Status |

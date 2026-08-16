@@ -880,7 +880,27 @@ TIDAK DIUKUR: kepadatan tugas") — §B3 mengukurnya. Yang ditambahkan:
 
 ---
 
-## C. Prompt sesi berikutnya — G16
+## C. Prompt faktorial — ⛔ DIGANTIKAN, JANGAN DIPAKAI SEBAGAI SESI BERIKUTNYA
+
+> # ⛔ BACA INI DULU
+>
+> **Prompt di bawah ini BUKAN sesi berikutnya.** Ia digantikan pada hari yang
+> sama juga (2026-08-16) oleh:
+>
+> # ➜ **[docs/p1_g16_hw.md](p1_g16_hw.md)**
+>
+> **Sesi berikutnya adalah PERANGKAT KERAS**, bukan faktorial offline.
+> Alasannya dihitung di [p1_g16_hw.md §A0](p1_g16_hw.md): keuntungan informasi
+> 4 sudut sisanya **rendah** (prior sudah menang 3 dari 3 faktor, 493 bukti),
+> sementara **§8c langkah 2 dari 5 belum pernah dimulai** dan tenggat grasp
+> **2026-11-13** tinggal ~3 bulan.
+>
+> Prompt di bawah **tidak dihapus** karena rancangan faktorialnya tetap sah dan
+> siap pakai — ia **diturunkan prioritasnya**, dan dikerjakan hanya kalau ada
+> sesi luang setelah perangkat keras jalan. Sampai itu terjadi, keempat sudut
+> dilaporkan **TIDAK DIUKUR** dengan namanya (§B7.5).
+
+### C1. (arsip) Prompt faktorial G16 — dipakai NANTI, bukan berikutnya
 
 > **Rekomendasi: Opus 5, effort SEDANG.** Sama seperti G15, dan alasannya
 > sekarang lebih kuat, bukan lebih lemah: sesi ini tidak menemukan satu pun
