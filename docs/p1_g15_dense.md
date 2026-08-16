@@ -900,7 +900,14 @@ TIDAK DIUKUR: kepadatan tugas") — §B3 mengukurnya. Yang ditambahkan:
 > sesi luang setelah perangkat keras jalan. Sampai itu terjadi, keempat sudut
 > dilaporkan **TIDAK DIUKUR** dengan namanya (§B7.5).
 
-### C1. (arsip) Prompt faktorial G16 — dipakai NANTI, bukan berikutnya
+### C1. (arsip) Prompt faktorial — dipakai NANTI, bukan berikutnya
+
+> 🗃️ **Sebuah §A terkunci lengkap + harness (`test/corner_g16.py`, memakai
+> ulang `dense_g15` dan `psweep_g14`) sempat ditulis untuk ini pada 2026-08-16,
+> lalu **dibuang** supaya tidak ada dua dokumen bernama "G16". Keduanya
+> **belum pernah dijalankan**, jadi belum terverifikasi.
+> **Dapat dipulihkan:** `git show 0f63bab` — atau
+> `git checkout 0f63bab -- docs/p1_g16_interact.md ros2_ws/src/reachability_gng/test/corner_g16.py`
 
 > **Rekomendasi: Opus 5, effort SEDANG.** Sama seperti G15, dan alasannya
 > sekarang lebih kuat, bukan lebih lemah: sesi ini tidak menemukan satu pun
