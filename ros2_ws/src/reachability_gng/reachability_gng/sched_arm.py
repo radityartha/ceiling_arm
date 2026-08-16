@@ -444,7 +444,22 @@ def arm_first_block(A, B, t_lo, t_hi, c_arm=C_ARM, eps=sc.EPS_CERT):
             d = arm_distance(A, B, t)
             if d <= c_arm + eps:
                 return t
-            if not (A.moving(t) or B.moving(t)):
+            if not (A.moving(0.5 * (lo + hi)) or B.moving(0.5 * (lo + hi))):
+                # 🔴 G13 B6: the static test is asked of the PIECE, at its
+                # midpoint, not of the instant t. `moving()` is CLOSED on the
+                # right, so at a leg's final instant -- always a mark, i.e.
+                # always the `lo` of the next piece -- it reported "moving" for
+                # a piece in which nothing moves. The walk then applied the
+                # STEP_MIN floor, which exists only for genuinely moving
+                # bodies, and returned a BLOCK for a clearance sitting up to
+                # STEP_MIN * V_REL_ARM = 2.2 mm ABOVE the guard band. Measured
+                # on S2 n4_s3_mr0: d = 0.055417 against c_arm + eps = 0.055 --
+                # no violation, and the gate fired anyway. Within a piece the
+                # moving-state is constant (marks include every leg endpoint),
+                # so the midpoint is exact, and it is the convention
+                # sched_armfull.arm_conflict already uses -- which is why the
+                # FAST path was right and the slow one wrong. Same class as
+                # p1_g12 B3.1, in the function that fix did not touch.
                 break                      # nothing moves in this piece
             # G12: step by (d - c - eps), not (d - c). See the note in
             # sched_armfull.arm_conflict -- with (d - c) the set of eps-band

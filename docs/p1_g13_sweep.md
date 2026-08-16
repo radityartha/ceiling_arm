@@ -486,3 +486,483 @@ diserialkan, dan itu mekanisme yang bisa disebut, bukan sekadar angka.
 terhadap M0+M1+M2 **dan** terhadap enumerator independen yang diskriminatif —
 pada kelas instance kecil, pada `c_arm ≥ 0.10`.
 
+⚠️ **Yang TIDAK tercapai, dan A2.3 menuntut ini disebut:** lantai usaha A2.3
+(≥ 5 kelas, ≥ 300 kandidat, ≥ 40 brute-force) **TIDAK terpenuhi** — dengan
+enumerator yang sudah diperbaiki pencariannya jauh lebih mahal, dan tutup wall
+1800 s memotong di **1 kelas, 10 kandidat, 32 brute-force**. Lantai itu ditulis
+sebagai syarat untuk menulis **"tidak bisa dibangun"**; karena hasilnya
+**positif**, ia tidak lagi menjadi gerbang. Tabel tiga-arah karena itu
+dilaporkan **hanya untuk kelas `G12-baseline`**, dan tuas 3 + 4 (`gen_forced`)
+**TIDAK DIUKUR** — bukan "diperkirakan tidak menambah".
+
+| kelas `G12-baseline`, 10 seed × 4 `c_arm` | |
+|---|---|
+| di-brute-force dua arah | **32** |
+| **`binding`** — optimum naik | **7** |
+| **`rerouted`** — mengikat, harga **nol** | **9** |
+| **`vacuous`** — tidak menyentuh optimum | **16** |
+| selisih antar enumerator | **0** |
+
+🔒 **Pembagian `vacuous` / `rerouted` adalah kalimat naskahnya**, dan ia yang
+G12 tidak punya: pada **9 dari 32**, `ARM_BLOCK` benar-benar **membuang
+sebagian optimum** dan yang lain bertahan dengan makespan yang sama. Itu
+mekanisme "mengikat dan gratis" §B7.3 G12, sekarang **terhitung**, bukan
+disimpulkan.
+
+### B5. 🟢 ANGKA UTAMA — sapuan `c_arm` pada S1 dan S2
+
+Anggaran **120 s TERKUNCI** di setiap sel (A2.4). `c_clear = 0.0` di kedua
+sisi. Konkurensi 3 sel (A2.2), beban tercatat per sel.
+
+#### B5.1 S1 — `gen_real`, 40 instance per sel
+
+| `c_arm` | `Δ_struct` | `Δ_full` mean % dua-sisi | vonis `Δ_full` | `Δ_arm` | exact | route diubah lengan | wall mean/maks | beban |
+|---|---|---|---|---|---|---|---|---|
+| **0.00** (degenerate) | [0, 0.4679] | **[0.0000, 1.3529]** | 🟢 **BUKAN MAHAL** | [+0.0000, +0.8850] | **38/40** | 3/40 | 20.9 / 120.1 s | 5.96→8.37 |
+| **0.05** (utama G12) | [0, 0.4679] | [0.0000, 7.6155] | TIDAK DAPAT DITENTUKAN | [+0.0000, +7.1476] | **36/40** | 10/40 | 31.0 / 120.1 s | 4.75 (konk. **1**) |
+| **0.10** | [0, 0.4679] | [0.0000, 14.9514] | TIDAK DAPAT DITENTUKAN | [+0.0000, +14.4836] | **31/40** | 14/40 | 45.5 / **144.3 s** | 3.68→6.42 |
+| **0.15** | [0, 0.4679] | **TIDAK DIUKUR pada 4 / 40** | — | — | 23 terbukti | — | — | 3.68→9.89 |
+| **0.20** | [0, 0.4679] | **TIDAK DIUKUR pada 6 / 40** | — | — | 19 terbukti | — | — | 3.68→4.14 |
+
+#### B5.2 S2 — `gen_real_rotcrowded`, 40 instance per sel
+
+⚠️ **S1 dan S2 TIDAK PERNAH dirata-ratakan bersama.** Probe S2 membatasi
+**himpunan pose** (`p1_g11 §B3`), dan setiap angka di bawah membawa
+kualifikasi itu.
+
+| `c_arm` | `Δ_struct` | `Δ_full` | vonis | `Δ_arm` | exact | route diubah lengan | wall mean/maks |
+|---|---|---|---|---|---|---|---|
+| **0.05** | [0, 0] **GRATIS** | **[0.0000, 0.0000]** | 🟢 **GRATIS** | [+0.0000, +0.0000] | **40/40** | **16/40** | 4.8 / 71.6 s |
+| **0.10** | [0, 0] GRATIS | [0.0000, 15.2127] | TIDAK DAPAT DITENTUKAN | [+0.0000, +15.2127] | **33/40** | **22/40** | 30.2 / 120.0 s |
+| **0.15** | [0, 0] GRATIS | **TIDAK DIUKUR pada 1 / 40** | — | — | 25 terbukti | — | — |
+| **0.20** | [0, 0] GRATIS | **TIDAK DIUKUR pada 11 / 38** | — | — | 14 terbukti | — | — |
+| **0.00** (degenerate) | [0, 0] GRATIS | **[0.0000, 0.0000]** | 🟢 **GRATIS** | [+0.0000, +0.0000] | **40/40** | 1/40 | 0.1 / 0.2 s |
+
+🔒 **`Δ_struct` S2 tetap GRATIS di seluruh sapuan** (`lemma4` 40/40), jadi pada
+set ini **lengan adalah satu-satunya hal yang bisa menggerakkan angka** —
+`Δ_arm ≡ Δ_full`. Itu yang membuat S2 pengukuran lengan yang lebih bersih
+daripada S1, dan itu juga yang membuat §B5.4 mungkin.
+
+#### B5.3 🟢 ANGKA SESI INI: `Δ_arm = 0.0000` pada SETIAP instance terbukti
+
+Diperiksa langsung, bukan disimpulkan dari mean: berapa instance **terbukti**
+punya `Δ_arm > 0`?
+
+| set | 0.00 | 0.05 | 0.10 | 0.15 | 0.20 |
+|---|---|---|---|---|---|
+| **S1** terbukti | 38 | 36 | 31 | 23 | 19 |
+| **S1** dengan `Δ_arm > 0` | **0** | **0** | **0** | **0** | **0** |
+| **S2** terbukti | 40 | 40 | 33 | 25 | 14 |
+| **S2** dengan `Δ_arm > 0` | **0** | **0** | **0** | **1** | **1** |
+
+> **BOLEH DIKUTIP:** pada **S1**, `Δ_arm = 0.0000` **TERBUKTI OPTIMAL** pada
+> **setiap** instance yang bisa dibuktikan, pada **kelima** nilai `c_arm`
+> sampai **0.20** — yaitu **empat kali** clearance utama G12. **147 bukti
+> `Δ_arm = 0` dan nol contoh tandingan.** Pada **S2**, hal yang sama berlaku di
+> `c_arm ≤ 0.10` (73 instance terbukti, nol positif).
+>
+> **TIDAK BOLEH:** vonis `Δ_full` pada `c_arm ≥ 0.15`. Di sana baris **TIDAK
+> ADA JADWAL DITEMUKAN** (§B5.5) membuat mean dua-sisi tidak terdefinisi, dan
+> ambang 5.0 % **tidak digeser**.
+
+#### B5.4 🔴 CONTOH TANDINGAN PERTAMA: `Δ_arm` POSITIF, TERBUKTI
+
+`n6_s0_mr1` pada **S2**, dan ia satu-satunya di seluruh sapuan:
+
+| | |
+|---|---|
+| batas bawah takterkopel | **9.2600** |
+| optimum struktur (`lemma4`, gratis) | **9.2600** |
+| **optimum sadar-lengan** | **9.7600, `proved`** |
+| **`Δ_arm`** | **+0.5000 s = +5.40 %** |
+| route | `lemma4` → **`bnb`** |
+| pada `c_arm` | **0.15 DAN 0.20** (identik) |
+| `validate_coupled` / jalan lambat G11 | **lulus / lulus** |
+
+🔒 **Ini harga positif pertama untuk koordinasi lengan–lengan yang pernah
+dibuktikan di P1**, dan ia dilaporkan dengan seluruh kualifikasinya: satu
+instance, pada set **S2** yang himpunan posenya dibatasi, pada `c_arm` **tiga
+sampai empat kali** nilai utama. Ia **tidak** mengubah vonis mana pun — tapi ia
+mematahkan kalimat "kendala lengan tidak pernah punya harga", dan G12 tidak
+punya satu pun contoh seperti ini.
+
+#### B5.5 🔴 KATEGORI BARU: **TIDAK ADA JADWAL DITEMUKAN**, dan ia BUKAN ketidaklayakan
+
+Pertama kali kategori `p1_g12 §A2.4` ini benar-benar terisi:
+
+| set / `c_arm` | instance tanpa jadwal | nama |
+|---|---|---|
+| S1 / 0.15 | **4 / 40** | `n4_s4_mr1`, `n6_s1_mr1`, `n6_s2_mr1`, `n6_s4_mr1` |
+| S1 / 0.20 | **6 / 40** | + `n4_s5_mr1`, … |
+| S2 / 0.15 | **1 / 40** | `n6_s1_mr1` |
+| S2 / 0.20 | **11 / 38** | `n4_s3_mr0`, `n4_s5_mr1`, `n4_s6_mr0`, `n4_s7_mr0`, `n4_s8_mr1`, … |
+
+🔒 **Dilarang menyebutnya "tidak layak".** Lemma C diukur ulang di kedua
+`c_arm`, seperti A2.5 poin 6 wajibkan:
+
+| `c_arm` | perhentian | tanpa pose parkir | fraksi \|P\| bebas: min / p5 / p50 |
+|---|---|---|---|
+| 0.05 (G12) | 107 | **0** | 0.8300 / 0.8841 / 0.9731 |
+| **0.15** | 107 | **0** | **0.5640** / 0.7035 / 0.8872 |
+| **0.20** | 107 | **0** | **0.4310** / 0.6227 / 0.8283 |
+
+**Lemma C LULUS di seluruh sapuan.** Jadi mekanisme "tidak ada tempat bagi
+gantry lawan di seluruh sel" **DIKESAMPINGKAN oleh pengukuran** — kategorinya
+adalah **anggaran**, dan ditulis `TIDAK ADA JADWAL DITEMUKAN (anggaran 120 s)`.
+
+🔺 **PERTENTANGAN 2 — dan ia terhadap G12, bukan terhadap §A.** `p1_g12 §B6`
+menyimpulkan: *"Serialisasi selalu ada, jadi `arm_serial_ub` selalu
+mengembalikan sesuatu dan kurungan `Δ_full` selalu terdefinisi."* **Inferensi
+itu SALAH, dan sesi ini punya contoh tandingannya:** Lemma C lulus di 0.15 dan
+0.20 dan `arm_serial_ub` tetap tidak mengembalikan apa-apa pada 4/6/1/11
+instance. Sebabnya struktural, bukan numerik — **Lemma C hanya menyertifikasi
+fase PARKIR** (lawan menggantung di satu pose melawan perhentian bertugas),
+sementara `arm_serial_ub` juga menuntut **seluruh ekor serial** (gantry parkir
+kemudian mengerjakan perhentiannya sendiri) bebas pada **kedua** predikat.
+Lemma C tidak mengatakan apa pun tentang ekor itu.
+
+➜ Ini juga menjelaskan §B2: pada `c_arm` besar `arm_serial_ub` menyapu **semua
+2376** pose, menolak setiap satu, dan mengembalikan `inf` setelah membayar
+penuh. Biayanya 138 s **dan** hasilnya kosong.
+
+### B6. 🔴 BUG NYATA KEDUA — `sched_arm.arm_first_block`, gerbang R1 pada S2
+
+`p1_g12 §B8` melaporkan M1 **40/40 pada S1**. M2b G12 juga hanya memakai
+**delapan instance S1** (`itertools.islice(_s1(), 8)`). Sel S2 sesi ini adalah
+pertama kalinya gerbang lambat dijalankan atas jadwal `rotcrowded` — dan ia
+**gagal**, pada `n4_s3_mr0`, `c_arm = 0.05`.
+
+Diadu, tidak dinalar. Pada `t = 3.7600`:
+
+| | |
+|---|---|
+| jarak lengan–lengan sejati | **0.055417 m** |
+| ambang `c_arm + ε` | **0.055000 m** |
+| **vonis benar** | **BEBAS** (margin 0.417 mm) |
+| jalan **cepat** (`sched_armfull`) | **bebas** ✅ |
+| jalan **lambat** (`sched_arm`) | **BLOK** ❌ |
+
+Sebabnya: `t = 3.76` adalah instan **terakhir** sebuah leg **dan** instan
+pertama sebuah dwell. `ArmTraj.moving()` **tertutup di kanan**, jadi ia
+melaporkan "bergerak" untuk potongan `[3.76, 7.76)` yang **seluruhnya statis**.
+Jalan itu lalu tidak `break`, menghitung `step = (d − c − ε)/V_REL_ARM =
+0.00188 s < STEP_MIN = 0.01`, dan **lantai STEP_MIN** — yang ada hanya untuk
+benda yang benar-benar bergerak — mengembalikan blok yang tidak ada.
+
+🔒 Perbaikan: uji statis ditanyakan pada **POTONGAN**, di titik tengahnya, bukan
+pada instan `t`. Di dalam satu potongan keadaan-bergerak konstan (marks memuat
+setiap ujung leg), jadi titik tengah **eksak** — dan itu **persis konvensi yang
+`sched_armfull.arm_conflict` sudah pakai**, yang menjelaskan kenapa jalan cepat
+benar dan jalan lambat salah.
+
+**Ini kelas yang sama dengan `p1_g12 §B3.1`** (tepi kanan tertutup), di fungsi
+yang perbaikan itu tidak sentuh. **`sched_arm.py` gugur pembekuannya untuk
+sesi kedua berturut-turut.**
+
+**Regresi sesudah perbaikan — semuanya dijalankan, bukan diasumsikan:**
+
+| | |
+|---|---|
+| `verify_sched_arm.py all` (L0–L5 G11) | **LULUS enam-enamnya**, angka L2/L4/L5 identik G11 |
+| **M2a** — δ Lemma B pada 2376² di **setiap** `c_arm` | **LULUS**, δ ≤ 0.004 di kelimanya (G12 melaporkan ini **TIDAK DIJALANKAN**) |
+| **M2b** — cepat vs lambat, 1864 jadwal termutasi | **0 selisih vonis**, 630 dengan pelanggaran nyata |
+| S2 `c_arm = 0.05` dijalankan ulang | **0 ARMVIOL / 40** |
+| tiga tanda ARMVIOL sisa (S2 0.10 ×2, 0.20 ×1) | diperiksa langsung: **ketiganya BASI**, pasca-perbaikan `SLOW = None` |
+
+➜ **R1 dan R2 LULUS di seluruh sapuan: 0 kegagalan gerbang nyata, 0 pelanggaran
+Lemma 3**, pada 9 sel × 40 instance.
+
+### B7. Diagnosis `n6_s4_mr0` — dan `_dive` BUKAN jawabannya
+
+`p1_g12 §B10.3`: satu-satunya instance S1 yang terkurung pada **kedua**
+anggaran. Diprofil pada anggaran terkunci 120 s, `c_arm = 0.05`:
+
+| | |
+|---|---|
+| node diperluas | **7** (bukan 45 — itu angka 600 s) |
+| makespan / LB | 79.0166 / 39.7126, `bnb`, **tidak terbukti** |
+| **gerbang lengan** | 2602 panggilan, **71.3 s = 59.4 % wall** |
+| **`feasible_starts`** (struktur, **BEKU**) | **44.6 s = 37 % wall** |
+| **`_dive`** | **8 panggilan, tidak muncul di daftar kumulatif sama sekali** |
+| `action_hit` | **7** — anggaran aksi tersentuh di **setiap** node |
+| `multi_skipped` | 2434 |
+
+🔴 **D34 MELESET**, dan arah melesetnya adalah pola sesi keenam: yang mahal
+adalah **PEMERIKSA** — gerbang lengan (59 %) plus pemeriksa struktur beku
+(37 %) = **96 % wall**. Pencariannya sendiri praktis gratis; ia hanya tidak
+pernah sampai ke mana-mana karena setiap aksi harus dibayar dua kali.
+
+**Dan satu angka yang menjelaskan 59 % itu:** `_pair_dist` dipanggil **78 121**
+kali, `ArmView.polys` **148 210**, `irm_sweep.base_pose` **296 420**.
+`ArmView.pts` menyimpan cache **hanya konfigurasi dwell** (`key = (pose,
+tasks)`); konfigurasi **MENGGANTUNG** dihitung ulang dari `base_pose` setiap
+kali. Itu **tidak diperbaiki** — `sched_armfull.py` beku, ia **benar**, dan
+mengubahnya di sesi yang sama yang memakainya untuk mengukur `Δ` akan
+membatalkan M0. Dicatat sebagai **utang terukur**, bukan dugaan.
+
+➜ **Vonis: menaikkan anggaran ke-3 kalinya adalah jawaban yang salah.** 96 %
+wall ada di dua pemeriksa; anggaran 600 s membeli 45 node, bukan bukti.
+
+### B8. U4 — `max_evade` BUKAN sebabnya. Terbantah oleh pengukuran.
+
+`p1_g10 §B9` menyebut `solver < W2` pada **9 dari 31** dan menamai tersangkanya:
+*"W2 dibatasi `max_evade = 1` per gantry, sementara solver memakai sampai 3"*.
+**TIDAK DIUKUR sejak G10.** Diukur sekarang:
+
+| | |
+|---|---|
+| instance dengan `solver < W2` pada `max_evade = 1` | **9** (mereproduksi G10 persis) |
+| W2 **turun** pada `max_evade = 2` | **0 / 9** |
+| W2 **tertutup** ke solver | **0 / 9** |
+| timeout | **0 / 9** |
+| node W2 (contoh `crowd_n2P4mr0s0`) | **1026 → 10 566** (10×) |
+
+🔴 **D36 MELESET telak.** Enumeratornya mencari **sepuluh kali lebih banyak**
+dan mengembalikan **nilai yang sama persis**. Jadi celahnya **bukan** grid
+(G10 mengukur: menghalfkan menutup 0 dari 9) dan **bukan** `max_evade`.
+
+**Yang tersisa, dan ia sekarang satu-satunya kandidat yang berdiri:** `_starts`
+W2 menyampel waktu mulai pada **grid seragam** berjangkar di `t[g]`, sementara
+`feasible_starts` solver menghitung waktu mulai layak **kontinu** — dan sebuah
+bilangan real yang sembarang tidak pernah masuk grid seragam mana pun, jadi
+**menghalfkan grid memang tidak bisa menutupnya.** Uji G10 benar kelasnya tapi
+salah instrumennya. Ini **belum diukur** dan ditulis sebagai kandidat, bukan
+sebagai kesimpulan.
+
+⚠️ `Brute._rec` **diperiksa** untuk cacat yang sama dengan §B3 dan **tidak
+punya** — ia melewati aksi tak-layak tanpa `break`. Diperiksa karena
+`brute_arm` adalah keturunannya, bukan karena diduga.
+
+### B9. Papan skor §7.2
+
+| # | Dugaan (§A4, ditulis di muka) | Hasil |
+|---|---|---|
+| **D30** | wall @0.20 ≥ 2× wall @0.05, dan ≥ 8 dari 40 menyentuh 120 s | 🟡 **SEPARUH** — pada probe medium **101×**, jauh melewati "≥ 2×", tapi **mekanismenya bukan yang diduga**: bukan pencarian yang membengkak, melainkan `arm_serial_ub` (§B2). Ditulis pesimis dan **tetap terlalu optimis**, yaitu arah yang **berlawanan** dengan dua sesi terakhir |
+| **D31** | Lemma C LULUS di seluruh sapuan S1 | ✅ **TEPAT** — 107 perhentian, **0** tanpa pose parkir, di 0.15 **dan** 0.20; minimum fraksi bebas turun 83 % → **43 %** tapi tidak pernah nol |
+| **D32** | `Δ_arm = 0` sampai 0.15; pada 0.20 **≥ 1** instance terbukti positif | 🟡 **SEPARUH, dan menariknya di kedua sisi** — separuh pertama **TEPAT dan lebih kuat** (0 positif pada **seluruh** S1 sampai 0.20, 147 bukti); separuh kedua **TEPAT tapi di set yang salah dan `c_arm` yang salah** — positifnya ada di **S2**, dan sudah muncul di **0.15**, bukan 0.20 |
+| **D33** | S2 @0.05 `Δ_arm = 0` pada setiap yang terbukti, vonis BUKAN MAHAL @120 s | ✅ **TEPAT, dan lebih kuat** — **40/40 exact**, vonis **GRATIS**, bukan sekadar BUKAN MAHAL |
+| **D34** | sisa wall `n6_s4_mr0` didominasi `_dive` (≥ 40 %) | ❌ **MELESET** — `_dive` **tidak muncul sama sekali**; 96 % wall ada di gerbang lengan (59 %) + `feasible_starts` beku (37 %) |
+| **D35** | instance `BINDING` bisa dibangun **dengan tuas 3+4**, pada `c_arm ≥ 0.15` | 🟡 **SEPARUH** — instance mengikat **BISA** dibangun (≥ 11), tapi **tanpa** tuas 3 dan 4 sama sekali: yang membukanya adalah **tuas 6 (`c_arm`)**, satu-satunya yang G12 tidak putar. `c_arm ≥ 0.15` **hampir** tepat — yang pertama mengikat ada di **0.10**. Tuas 3+4 **TIDAK DIUKUR** |
+| **D36** | `max_evade` 1→2 menutup ≥ 5 dari 9 | ❌ **MELESET telak** — **0 dari 9**, dengan 10× node |
+
+**Dua tepat, dua meleset, tiga separuh.** Papan skor `p1_g12 §B9` berdiri di
+**23 meleset / 10 tepat**; sesi ini menambah **2/2** (separuh tidak dihitung ke
+kolom mana pun) → **25 meleset, 12 tepat**.
+
+Empat bacaan:
+
+1. **Prior DUNIA ("kendala yang belum diukur itu LONGGAR") menang lagi, dan
+   sekarang dengan batasnya yang pertama terukur.** 147 bukti `Δ_arm = 0` di
+   S1 sampai `c_arm = 0.20` melawan **satu** contoh tandingan terbukti di S2
+   (+5.40 %). Prior itu benar sebagai prior; ia bukan teorema, dan sekarang ada
+   satu titik data yang menunjukkan di mana ia patah — **himpunan pose yang
+   dibatasi**, bukan clearance yang dinaikkan.
+2. **Prior KODE SENDIRI berbalik arah.** D22/D25 dua sesi berturut-turut
+   menduga kode sendiri terlalu **LAMBAT** dan meleset. Sesi ini D30 dan D34
+   meleset ke arah **sebaliknya** — biayanya lebih besar dan di tempat yang
+   tidak diduga (`arm_serial_ub`, `feasible_starts`). Sekarang **5 dari 9**,
+   dan arah melesetnya **tidak lagi bisa disebut**. Yang bertahan adalah
+   pernyataan yang lebih sempit: **yang mahal selalu PEMERIKSA, bukan
+   pencarian** — enam sesi berturut-turut.
+3. **D29 (G12) tetap prior paling berguna yang dimiliki proyek ini, dan
+   sekarang ENAM sesi berturut-turut.** Dua bug nyata sesi ini
+   (`brute_arm` §B3, `arm_first_block` §B6), **dua-duanya di berkas beku**,
+   **dua-duanya ditemukan oleh uji yang dijalankan**, **nol oleh pembacaan
+   ulang**. Dan keduanya berada di tempat yang gerbang sebelumnya **tidak
+   pernah jangkau**: `brute_arm` hanya dipanggil pada instance yang mengikat
+   (tidak ada sebelum sesi ini), `arm_first_block` hanya gagal pada jadwal S2
+   (M1/M2b G12 keduanya hanya S1).
+4. 🔴 **Satu bacaan yang tidak menyenangkan tentang metode sesi ini sendiri:**
+   `enum_opt` ditulis sebagai instrumen **kedua** untuk menyilang-periksa
+   `brute_arm`, dan ia mewarisi **cacat yang sama persis** karena ditulis dari
+   bentuk yang sama. "0 selisih enumerator" karena itu **tidak membuktikan apa
+   pun tentang kelengkapan** — ia hanya menguji pembukuan. Yang benar-benar
+   menemukan bugnya adalah **membandingkan dengan artefak yang tidak berbagi
+   bentuk** (solver + tiga gerbang independen). Itu pelajaran yang bisa
+   dipakai, bukan sekadar pengakuan.
+
+### B10. Batasan setelah sesi ini
+
+Seluruh `p1_g7 §A4`, `p1_g8 §B10`, `p1_g9 §A4`, `p1_g10 §B12`, `p1_g11 §B9`,
+`p1_g12 §B10` **masih berlaku** kecuali yang dicabut eksplisit di atas
+(`p1_g12 §B10` poin **2** DICABUT — M3 sekarang menyala; poin **4** DICABUT —
+S2 dan sapuan sekarang terukur). Yang ditambahkan:
+
+1. 🔴 **Anggaran "120 s TERKUNCI" BUKAN batas wall**, dan tidak pernah pernah
+   (§B2a). Ia batas atas pada **loop pencarian**; konstruktor pra-loop tidak
+   melihatnya. Terukur sampai **144.3 s**. Berlaku surut ke G7/G9/G10/G11/G12.
+2. 🔴 **`Δ_full` TIDAK DAPAT DITENTUKAN pada `c_arm ≥ 0.15`** di kedua set,
+   karena baris **TIDAK ADA JADWAL DITEMUKAN** (§B5.5). Itu **anggaran**, bukan
+   ketidaklayakan — Lemma C lulus di kedua nilai.
+3. 🔴 **Inferensi `p1_g12 §B6` "serialisasi selalu ada" SALAH** (§B5.5
+   Pertentangan 2). Lemma C hanya menyertifikasi fase **parkir**, bukan ekor
+   serialnya.
+4. 🔴 **`arm_serial_ub` berbiaya 138 s pada `c_arm = 0.20`**, 138× anggaran
+   A2.5 G12 — yang diverifikasi pada satu-satunya `c_arm` yang loop-nya tidak
+   beriterasi. **Tidak diperbaiki** (berkas beku, kodenya benar).
+5. 🔴 **Satu `Δ_arm` positif terbukti** (§B5.4), pada **satu** instance, di
+   **S2**, pada `c_arm ≥ 0.15`. Ia tidak mengubah vonis apa pun tapi ia mencabut
+   kalimat "harganya selalu nol".
+6. **Tuas 3 + 4 M3 (`gen_forced`) TIDAK DIUKUR** — lantai usaha A2.3 tidak
+   terpenuhi (1 kelas dari ≥ 5, 10 kandidat dari ≥ 300). Tersedia dan siap.
+   Diukur: tuas 3 **ADA tapi tipis** (6 + 6 tugas satu-gantry dari 864; 90 %
+   node dijangkau **kedua** gantry — sel ini nyaris **invarian-gantry**,
+   analog dengan invarian-rotasi `p1_g11 §B3`).
+7. **Sembilan dari sepuluh sel sapuan dijalankan penuh** (S1 ×5, S2 ×5 — S2
+   `c_arm = 0.00` selesai paling akhir, 40/40 GRATIS). Tidak ada sel yang
+   dilaporkan sebagian.
+8. **Sel kontrol A2.2 poin 4 TIDAK DIUKUR:** S1 `c_arm = 0.05` tetap satu-satunya
+   baris pada konkurensi 1. Perbandingan lintas-`c_arm` karena itu **tidak
+   sepenuhnya adil** pada baris itu, dan itu ditulis, bukan dihaluskan.
+9. **`ArmView` tidak meng-cache konfigurasi MENGGANTUNG** (§B7): 296 420
+   panggilan `base_pose` dalam satu instance 120 s. Utang terukur, tidak
+   diperbaiki karena memperbaikinya membatalkan M0 di sesi yang sama yang
+   memakainya.
+10. **Celah `solver < W2` masih terbuka** (§B8), dengan dua sebab tersingkir
+    (grid halving, `max_evade`) dan satu kandidat tersisa yang **belum diukur**
+    (grid seragam vs waktu mulai kontinu).
+11. Proksi polyline tetap **meremehkan** volume sapuan; `T_fold = 0`; kanonik
+    `manip`; exact tetap relatif terhadap grid 33 × 72; `safe_poses` tetap tidak
+    diganti (`p1_g12 §B10.5`).
+12. 🔴 **Rule 6 JEBOL**, dan §A6 menyatakannya di muka. Anggaran yang benar-benar
+    mengikat dan dilaporkan: §B2 dan tabel per sel §B5.
+
+
+---
+
+## C. Prompt sesi berikutnya — G14
+
+> **Rekomendasi: Opus 5, effort TINGGI.** Naik lagi dari SEDANG, dan alasannya
+> spesifik: G13 menutup sapuan dan oracle, tapi ia membuka **tiga hal yang
+> tidak punya sinyal error** — (a) `Δ_arm` positif pertama muncul di S2 dan
+> belum ada yang tahu **kenapa S2 dan bukan S1**; (b) baris TIDAK ADA JADWAL
+> adalah anggaran, dan menutupnya menuntut memutuskan **di mana** `arm_serial_ub`
+> boleh menyerah tanpa membuat "tidak ditemukan" berarti "tidak ada"; (c)
+> anggaran 120 s ternyata tidak pernah mengikat wall, dan memperbaikinya
+> mengubah **setiap** angka yang pernah dikutip. Ketiganya keputusan rancangan
+> yang salahnya hanya terlihat sebagai angka yang masuk akal.
+
+```
+Sesi G14 -- REACH-4: kenapa S2, dan apa arti "tidak ditemukan".
+Sapuan LUNAS (9+1 sel, S1 dan S2, c_arm 0.00-0.20). Oracle LUNAS (M3 menyala,
+11 instance mengikat, 0 solver>W3 DAN 0 solver<W3). Yang tersisa bukan
+pengukuran ulang -- ia tiga pertanyaan yang G13 baru bisa ajukan.
+
+BACA DULU:
+1. docs/p1_g13_sweep.md -- SELURUHNYA. Khususnya:
+   B2 (anggaran 120 s BUKAN batas wall -- berlaku SURUT ke G7-G12),
+   B3 (brute_arm TIDAK menyeluruh; dan kenapa "0 selisih enumerator" tidak
+       membuktikan apa pun -- B9 bacaan 4),
+   B5.4 (Delta_arm POSITIF pertama, +5.40%, S2, terbukti),
+   B5.5 (TIDAK ADA JADWAL = ANGGARAN; dan kenapa inferensi p1_g12 B6
+         "serialisasi selalu ada" SALAH),
+   B6 (bug kedua, arm_first_block; M1/M2b G12 hanya menguji S1),
+   B7 (n6_s4_mr0: 96% wall di dua PEMERIKSA, _dive nol),
+   B8 (max_evade TERBANTAH; satu kandidat tersisa, belum diukur),
+   B10 (batasan -- terutama 1, 3, 4, 6, 8, 10)
+2. docs/p1_g12_armsolve.md B2 (kenapa substitusi predikat mustahil), B4
+   (Lemma B teorema bukan mekanisme), B7 (angka utama G12)
+3. reachability_gng/sched_armfull.py, sched_arm.py, test/m3_bind_g13.py
+
+=== KEADAAN FISIK ===
+Lengan 4x MASIH DILEPAS. Sesi ini SEPENUHNYA OFFLINE.
+CATATAN MESIN: G13 diukur pada load 6-8.5 dari 16 core (DI BAWAH JENUH, itu
+pembenarannya, bukan konkurensi 3-nya). G12 4.5-5.0, G11 3.3-3.7, G10 42.
+
+=== YANG SUDAH TEGAK, JANGAN BANGUN ULANG ===
+- Sapuan penuh: S1 dan S2, c_arm {0.00,0.05,0.10,0.15,0.20}, 40 instance/sel,
+  0 kegagalan gerbang nyata, 0 pelanggaran Lemma 3. Angkanya ada di
+  /tmp/g13_eval_{s1,s2}_{c}.json dan di B5. PAKAI, jangan hitung ulang.
+- ANGKA UTAMA: Delta_arm = 0.0000 TERBUKTI pada SETIAP instance S1 yang bisa
+  dibuktikan, kelima c_arm sampai 0.20 (147 bukti, nol contoh tandingan).
+  S2 sama sampai c_arm <= 0.10 (73 bukti).
+- M3 LULUS dan DISKRIMINATIF: 11 instance mengikat, 0 solver>W3, 0 solver<W3.
+  brute_arm SUDAH DIPERBAIKI. Jangan pakai angka M3 p1_g12 B8 -- ia diukur
+  dengan enumerator cacat.
+- Lemma C LULUS di 0.05/0.15/0.20 (107 perhentian, 0 tanpa pose parkir,
+  min fraksi bebas 83%/56%/43%).
+- M2a LULUS (delta <= 0.004 pada 2376^2 di kelima c_arm) -- G12 tidak
+  menjalankannya.
+- U4 LUNAS SEBAGIAN: max_evade BUKAN sebabnya, 0 dari 9. Jangan ulangi.
+
+=== TUGAS, BERURUTAN. JANGAN LOMPAT. ===
+1. ANGGARAN 120 s (B10.1). Ia tidak pernah membatasi wall. Putuskan SATU dari
+   dua, dan tulis mana SEBELUM mengukur: (a) anggaran ditegakkan sungguhan --
+   maka SETIAP angka G7-G13 berubah dan harus dijalankan ulang, katakan
+   berapa banyak; (b) anggaran didefinisikan ulang sebagai "anggaran
+   PENCARIAN" dan wall dilaporkan terpisah -- maka tidak ada angka yang
+   berubah, tapi kalimatnya berubah di seluruh naskah. JANGAN campur.
+2. KENAPA S2 DAN BUKAN S1. Satu-satunya Delta_arm positif ada di
+   n6_s0_mr1 pada S2, +0.5000 s = +5.40%, terbukti, c_arm 0.15 DAN 0.20.
+   S2 membatasi HIMPUNAN POSE (p1_g11 B3). Hipotesis yang bisa diuji:
+   harga lengan muncul ketika ruang keluar dibatasi, bukan ketika clearance
+   dinaikkan. UJI: kecilkan |P| pada S1 secara terkendali dan lihat apakah
+   Delta_arm positif muncul. Kalau ya, itu KALIMAT NASKAH -- harga koordinasi
+   ditentukan kekayaan ruang pose, bukan geometri lengan.
+3. TIDAK ADA JADWAL DITEMUKAN (B5.5): 4/6/1/11 instance. Lemma C lulus, jadi
+   ini anggaran. Dua jalan, pilih dengan mengukur BUKAN dengan menebak:
+   (a) beri arm_serial_ub anggaran waktu + urutan pose yang lebih baik
+       (lemma_c() sudah menghitung pose bebas untuk SELURUH 2376 secara
+       tervektorisasi dalam 0.23 s -- pakai sebagai PRAPENYARING, dan
+       BUKTIKAN ia syarat perlu sebelum memakainya);
+   (b) terima dan laporkan sebagai kurungan.
+   Kalau (a): itu mengubah sched_armfull.py yang BEKU, jadi M0 harus
+   dijalankan ulang dan itu bagian dari harganya.
+4. TUAS 3 + 4 M3 (B10.6). gen_forced SUDAH ADA dan TIDAK DIUKUR. Tuas 3 tipis
+   (6+6 dari 864) tapi ada. Pertanyaannya bukan lagi "bisakah dibangun" --
+   sudah bisa -- melainkan apakah menutup jalan keluar "menunggu" MENAIKKAN
+   fraksi mengikat di c_arm = 0.05, yaitu di nilai utama.
+5. U4 sisa (B8): satu kandidat tersisa, grid seragam vs waktu mulai kontinu.
+   Ambil satu dari 9 instance, ambil jadwal solver, dan periksa apakah waktu
+   berangkatnya ada di grid W2. Itu uji lima menit yang G10 tidak jalankan.
+
+=== KUNCI KRITERIA SEBELUM KODE, ke docs/p1_g14_*.md A ===
+1. Keputusan anggaran (tugas 1) ditulis SEBELUM mengukur apa pun, dengan
+   jumlah angka yang harus dijalankan ulang kalau (a) dipilih.
+2. Apa yang membuat tugas 2 "menjawab" -- berapa penyusutan |P| dianggap
+   terkendali, dan apa yang membedakan "harga muncul" dari "instance lain".
+   DITULIS SEBELUM MEMBANGUNNYA. Ini persis jebakan M3 G12.
+3. Kalau tugas 3 memilih (a): M0 dijalankan ulang adalah GERBANG, bukan
+   catatan. Tidak ada angka baru sebelum ia lulus.
+4. Apa yang dilaporkan kalau lagi-lagi tidak semuanya bisa dibuktikan.
+
+=== JEBAKAN YANG SUDAH DIUKUR, JANGAN DITEMUKAN ULANG ===
+- ENAM SESI: yang lambat adalah PEMERIKSA, bukan pencarian. n6_s4_mr0 = 96%
+  wall di gerbang lengan + feasible_starts; _dive nol.
+- Anggaran diverifikasi pada satu titik operasi bisa salah 3500x di titik
+  lain. arm_serial_ub: 0.039 s @0.05, 138 s @0.20. Ukur di UJUNG sapuan.
+- Instrumen kedua yang ditulis dari BENTUK yang sama mewarisi cacat yang sama.
+  enum_opt vs brute_arm: 0 selisih, dan dua-duanya salah. Silang-periksa hanya
+  bernilai kalau artefaknya tidak berbagi bentuk.
+- Gerbang yang hanya pernah dijalankan pada S1 belum diuji. M1 40/40 dan M2b
+  0/1864 dua-duanya HANYA S1; jadwal S2 pertama langsung menemukan bug.
+- Tepi kanan TERTUTUP adalah kelas bug berulang: p1_g12 B3.1 di polys(),
+  p1_g13 B6 di moving(). Tanya keadaan pada TITIK TENGAH POTONGAN.
+- Lemma C hanya menyertifikasi fase PARKIR. Ia TIDAK menjamin arm_serial_ub
+  mengembalikan sesuatu. p1_g12 B6 menyimpulkan sebaliknya dan itu salah.
+- Sel kalau dijalankan serentak: satu berkas per (set, c_arm), dan beban
+  dicatat. Beban di BAWAH jumlah core = tidak ada throttling; itu
+  pembenarannya, bukan angka konkurensinya.
+- `tail` pada proses latar MENELAN keluaran sampai proses selesai. Tulis per
+  baris ke berkas.
+- np.bool_ tidak JSON-serializable.
+
+=== ATURAN ===
+- 7.2: UKUR, JANGAN MENDUGA. Papan skor 25 meleset, 12 tepat.
+  Prior DUNIA: LONGGAR -- dan sekarang punya SATU contoh tandingan terbukti
+  (B5.4), yang datang dari HIMPUNAN POSE DIBATASI, bukan dari clearance.
+  Prior KODE SENDIRI: arahnya TIDAK LAGI BISA DISEBUT (5 dari 9, dua sesi
+  meleset "terlalu lambat", sesi ini dua meleset "terlalu cepat"). Yang
+  bertahan lebih sempit: yang mahal selalu PEMERIKSA.
+  Prior PALING BERGUNA: setiap bug nyata ditemukan oleh UJI YANG DIJALANKAN,
+  nol oleh pembacaan ulang. ENAM sesi berturut-turut, dan G13 menambahkan
+  syaratnya: uji yang dijalankan pada BAHAN YANG BELUM PERNAH DIPAKAI.
+- DUGAAN YANG DINILAI MEMAKAI SOLVER YANG BELUM LULUS GERBANGNYA TIDAK
+  DINILAI. Tandai TERTUNDA.
+- Kalau B bertentangan dengan A, yang menang B, dan pertentangannya DITULIS.
+  G10 lima, G11 empat, G12 dua, G13 dua -- dan yang kedua kali ini bertentangan
+  dengan G12, bukan dengan A-nya sendiri.
+- Rule 6 (30k token) adalah PENGECUALIAN EKSPLISIT untuk sesi protokol-panjang
+  P1, dinyatakan di muka (A6), bukan dilaporkan sesudahnya.
+- Akhiri dengan prompt sesi berikutnya (G15).
+```
