@@ -40,7 +40,6 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/meshes")
 endif()
 
 install(PROGRAMS
-  scripts/lidar_filter.py
   scripts/run_take_bag.py
   scripts/run_take_bottle.py
   scripts/run_close_curtain.py

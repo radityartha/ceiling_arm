@@ -7,11 +7,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # From ros2_ws/
 cd ros2_ws
-./build_all.sh                 # builds livox driver first, then the rest with colcon
+./build_all.sh                 # colcon build over the workspace
 source install/setup.bash
 ```
 
-`build_all.sh` builds `livox_ros_driver2` via its own `build.sh humble`, then runs `colcon build --symlink-install` on the remaining packages (Livox SDK is ignored to avoid double-build).
+`build_all.sh` runs `colcon build --symlink-install` over the workspace. (It used to build `livox_ros_driver2` first; that stage was removed 2026-08-16 — see "Perception" below.)
 
 Docker alternative:
 ```bash
@@ -31,7 +31,9 @@ There is no formal test suite in this repo yet. Hardware/integration checks are 
 
 ## Architecture Overview
 
-ROS 2 Humble workspace for an automated workcell: **2 ceiling-mounted motorized gantries**, **4 Kinova Gen3 Lite 6-DOF arms** (2 per gantry) each with a 2-finger gripper, and a **Livox Mid360 3D LIDAR** for collision sensing — all unified under MoveIt 2.
+ROS 2 Humble workspace for an automated workcell: **2 ceiling-mounted motorized gantries**, **4 Kinova Gen3 Lite 6-DOF arms** (2 per gantry) each with a 2-finger gripper, and **2 RGBD modules (Intel D455)** for perception and collision sensing — all unified under MoveIt 2.
+
+> **Perception note (2026-08-16):** this cell uses **RGBD only**. The Livox Mid360 LIDAR path was removed — `livox_ros_driver2` had no source in this checkout and no `.gitmodules` to restore it, so it broke `build_all.sh` and advertised a `/detected_object_pose` that could never publish. Deleted with it: `lidar_filter.py`, `lidar_processor.py`, `save_pcd.py`, `lidar_filter.launch.py`, the `livox_lidar` octomap updater, and the `livox_frame` static TF. Object poses now come from `object_localizer` on **`/target_object`**.
 
 > **Naming note (renamed 2026-06-26):** the ceiling-mounted moving platforms are called **gantry** (not "table") to disambiguate from the workpiece **work table**. The rename covers MoveIt planning groups, controllers, kinematics, SRDF, and TF/frame docs (`gantry_1`, `gantry_2`, `gantry_1_with_arm`, `gantry_1_controller`, …). **Intentionally still named "table"** (hardware/driver layer, out of scope): the `moving_table_pkg` / `moving_table_interfaces` packages, the `MovingTable` service + its `table_id` field + `"table1"`/`"table2"` id strings, the URDF joint/link prefixes `t1_`/`t2_`, `dual_table_controller`, `move_dual_table`, and the `--tables` CLI flag.
 
@@ -45,7 +47,6 @@ world
 ├── gantry_2_base  (linear + rotation, Modbus RTU on /dev/ttyUSB1)
 │   ├── arm_3   (Kinova Gen3 Lite, Ethernet @ 192.168.2.11)
 │   └── arm_4   (Kinova Gen3 Lite, Ethernet @ 192.168.2.10)
-└── livox_frame    (Mid360 LIDAR, overhead, x=2.3 z=1.9)
 ```
 
 Each gantry is driven by 3 Oriental Motor stepper motors (2 linear + 1 rotational) over Modbus RTU. Each arm speaks the Kinova Kortex API over Ethernet on subnet `192.168.2.x`.
@@ -53,7 +54,7 @@ Each gantry is driven by 3 Oriental Motor stepper motors (2 linear + 1 rotationa
 ### Package dependency flow
 
 ```
-workcell_description            (URDF/Xacro + LIDAR processing nodes)
+workcell_description            (URDF/Xacro + perception helper nodes)
          ↓
 moving_table_interfaces         (MovingTable.srv definition)
          ↓
@@ -62,19 +63,18 @@ moving_table_pkg                (dual_table_controller — Modbus RTU)
 workcell_moveit_config          (SRDF, kinematics, controllers, sensors_3d)
          ↑
 ros2_kortex (submodule)         (Kinova arm driver + URDF + bringup)
-livox_ros_driver2 (submodule)   (Livox Mid360 driver)
 ```
 
-`kinova_gen3_lite_control` and `lidar_integration` are placeholder packages — their functionality lives in `ros2_kortex` and `workcell_description` respectively.
+`kinova_gen3_lite_control` and `lidar_integration` are placeholder packages (`lidar_integration` is vestigial — this cell is RGBD-only).
 
 ### [ros2_ws/src/workcell_description/](ros2_ws/src/workcell_description/)
 
 Robot model and perception nodes.
 
-- `urdf/workcell.urdf.xacro` — top-level: 2 tables + 4 arms + 4 grippers + LIDAR
+- `urdf/workcell.urdf.xacro` — top-level: 2 tables + 4 arms + 4 grippers
 - `urdf/moving_table.urdf.xacro` — single table with linear + rotation joints
-- Launch: `workcell_bringup.launch.py` (full system), `lidar_filter.launch.py` (4×4×1.8 m crop-box), `workcell_view.launch.py` (visualization only)
-- Scripts: `lidar_filter.py` (voxel downsample → DBSCAN → bounding-box detection, publishes `/livox/filtered` and `/detected_object_pose`), `lidar_processor.py` (alt processor feeding MoveIt), `move_arm_commander.py` (example MoveIt Commander), `save_pcd.py`, `get_pose.py`
+- Launch: `workcell_bringup.launch.py` (full system), `workcell_view.launch.py` (visualization only)
+- Scripts: `move_arm_commander.py` (example MoveIt Commander), `get_pose.py`
 
 ### [ros2_ws/src/workcell_moveit_config/](ros2_ws/src/workcell_moveit_config/)
 
@@ -86,7 +86,7 @@ MoveIt 2 config for the whole workcell.
 - `gantry_1`, `gantry_2` — gantry-only
 - `gantry_1_with_arm`, `gantry_2_with_arm` — coupled arm + gantry
 
-**Primary launch:** [launch/my_workcell.launch.py](ros2_ws/src/workcell_moveit_config/launch/my_workcell.launch.py) spawns `joint_state_broadcaster`, 2 table controllers, 4 arm controllers, Move Group, RViz, LIDAR static TF, and the Livox driver.
+**Primary launch:** [launch/my_workcell.launch.py](ros2_ws/src/workcell_moveit_config/launch/my_workcell.launch.py) spawns `joint_state_broadcaster`, 2 table controllers, 4 arm controllers, Move Group, and RViz.
 
 ```bash
 ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false
@@ -95,7 +95,7 @@ ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false
 Key config files:
 - `moveit_controllers.yaml` — FollowJointTrajectory (tables + arms) + GripperCommand
 - `kinematics.yaml` — KDL per group
-- `sensors_3d.yaml` — octomap from LIDAR cloud
+- `sensors_3d.yaml` — octomap from the two RGBD collision clouds (`/rgbd/collision_cloud`, `/rgbd2/collision_cloud`)
 - `joint_limits.yaml`, `pilz_cartesian_limits.yaml` — safety limits
 - `initial_positions.yaml` — home joints
 
@@ -120,7 +120,6 @@ use_fake_hardware: false
 ### Submodules
 
 - [ros2_ws/src/ros2_kortex/](ros2_ws/src/ros2_kortex/) — official Kinova ROS 2 driver: `kortex_driver` (HW interface), `kortex_description` (Gen3 Lite + 2F gripper URDF), `kortex_bringup`, `kortex_moveit_config`.
-- [ros2_ws/src/livox_ros_driver2/](ros2_ws/src/livox_ros_driver2/) — Livox Mid360 driver. Publishes `/livox/points` (`sensor_msgs/PointCloud2`) and `/livox/lidar` (Livox custom). Config: `config/MID360_config.json`. Built separately by `build_all.sh`.
 
 ### Coordinate frames
 
@@ -133,7 +132,6 @@ use_fake_hardware: false
 | `arm_2_base_link` | `gantry_1_mount_right` | |
 | `arm_3_base_link` | `gantry_2_mount_left` | |
 | `arm_4_base_link` | `gantry_2_mount_right` | |
-| `livox_frame` | `world` | x=2.3, z=1.9, pointing down |
 
 ### Helper scripts ([scripts/](scripts/))
 

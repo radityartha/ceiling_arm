@@ -1,6 +1,8 @@
 beri guidance untk # Moonshot Workcell Project
 
-A ROS 2 workspace for controlling an automated workcell consisting of two ceiling-mounted motorized tables, four Kinova Gen3 Lite robotic arms, four 2-finger grippers, and a Livox Mid360 3D LIDAR sensor — all integrated with MoveIt 2 for motion planning.
+A ROS 2 workspace for controlling an automated workcell consisting of two ceiling-mounted motorized tables, four Kinova Gen3 Lite robotic arms, four 2-finger grippers, and two Intel RealSense D455 RGBD modules — all integrated with MoveIt 2 for motion planning.
+
+> **2026-08-16:** the Livox Mid360 LIDAR path was removed. Its driver source was absent from this checkout (empty dir, no `.gitmodules`), which broke `build_all.sh` and advertised a `/detected_object_pose` topic that could never publish. Perception is RGBD-only; object poses come from `object_localizer` on `/target_object`.
 
 ---
 
@@ -16,7 +18,6 @@ Workcell
 │   ├── Arm 3  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.11  (left mount)
 │   └── Arm 4  — Kinova Gen3 Lite 6DOF + 2F gripper  @ 192.168.2.10  (right mount)
 │
-└── Livox Mid360 LIDAR  (overhead, world frame: x=2.3 y=0 z=1.9)
     └── Object detection & MoveIt octomap collision avoidance
 ```
 
@@ -39,14 +40,13 @@ moonshot_project/
 └── ros2_ws/
     ├── build_all.sh              # Local colcon build script
     └── src/
-        ├── workcell_description/         # URDF/XACRO + LIDAR nodes + utility scripts
+        ├── workcell_description/         # URDF/XACRO + utility scripts
         ├── workcell_moveit_config/       # MoveIt 2 config for all groups
         ├── moving_table_pkg/             # Dual table controller (Modbus RTU)
         ├── moving_table_interfaces/      # ROS 2 service definition for table control
         ├── kinova_gen3_lite_control/     # (placeholder — superseded by ros2_kortex)
-        ├── lidar_integration/            # (placeholder — handled in workcell_description)
+        ├── lidar_integration/            # (vestigial placeholder — cell is RGBD-only)
         ├── ros2_kortex/                  # Kinova official ROS 2 driver (submodule)
-        └── livox_ros_driver2/            # Livox LIDAR ROS 2 driver (submodule)
 ```
 
 ---
@@ -64,16 +64,12 @@ Defines the complete robot model and provides sensing/utility nodes.
 | File | Purpose |
 |------|---------|
 | `workcell_bringup.launch.py` | Full system: RSP, table controller, joint state GUI, RViz |
-| `lidar_filter.launch.py` | LIDAR crop-box filter node (4×4×1.8 m workspace) |
 | `workcell_view.launch.py` | Visualization only |
 
 **Scripts/Nodes:**
 | Script | What it does |
 |--------|-------------|
-| `lidar_filter.py` | Voxel downsampling → DBSCAN clustering → bounding-box object detection; publishes `/livox/filtered` and `/detected_object_pose` |
-| `lidar_processor.py` | Alternative LIDAR processor feeding object poses into MoveIt |
 | `move_arm_commander.py` | Example MoveIt Commander node for arm trajectory execution |
-| `save_pcd.py` | Records raw LIDAR clouds to `~/lidar_dataset/*.pcd` |
 | `get_pose.py` | Utility for reading current end-effector pose |
 
 ---
@@ -92,7 +88,7 @@ MoveIt 2 configuration for the entire workcell.
 |------|---------|
 | `moveit_controllers.yaml` | FollowJointTrajectory (tables + arms) + GripperCommand controllers |
 | `kinematics.yaml` | KDL IK solver for all groups |
-| `sensors_3d.yaml` | Octomap integration with LIDAR point cloud |
+| `sensors_3d.yaml` | Octomap integration with the two RGBD collision clouds |
 | `joint_limits.yaml` / `pilz_cartesian_limits.yaml` | Safety limits |
 | `initial_positions.yaml` | Default home joint positions |
 
@@ -100,7 +96,7 @@ MoveIt 2 configuration for the entire workcell.
 ```bash
 ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false
 ```
-This spawns: `joint_state_broadcaster`, 2 table controllers, 4 arm controllers, Move Group node, RViz, LIDAR static TF, and the Livox driver.
+This spawns: `joint_state_broadcaster`, 2 table controllers, 4 arm controllers, Move Group node, and RViz.
 
 ---
 
@@ -148,22 +144,6 @@ Official Kinova ROS 2 driver. Provides:
 
 ---
 
-### `livox_ros_driver2` (submodule)
-Official Livox ROS 2 driver for the **Mid360** sensor.
-
-Publishes:
-- `/livox/points` — standard `sensor_msgs/PointCloud2`
-- `/livox/lidar` — Livox custom format
-
-Key launch files:
-```bash
-ros2 launch livox_ros_driver2 msg_MID360_launch.py    # driver only
-ros2 launch livox_ros_driver2 rviz_MID360_launch.py   # driver + RViz
-```
-
-Config file: `livox_ros_driver2/config/MID360_config.json`
-
----
 
 ## Prerequisites
 
@@ -193,7 +173,7 @@ cd ~/Documents/moonshot_project/ros2_ws
 source install/setup.bash
 ```
 
-`build_all.sh` handles the Livox driver separately (it uses its own `build.sh`) then builds the rest with colcon.
+`build_all.sh` runs colcon over the workspace.
 
 ### Option B — Docker
 
@@ -220,15 +200,6 @@ source ~/Documents/moonshot_project/ros2_ws/install/setup.bash
 ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false
 ```
 
-### LIDAR only
-
-```bash
-# Start Livox driver
-ros2 launch livox_ros_driver2 msg_MID360_launch.py
-
-# Start filtered point cloud node
-ros2 launch workcell_description lidar_filter.launch.py
-```
 
 ### Visualization only (no hardware)
 
@@ -462,7 +433,6 @@ Defined in `workcell_moveit_config/config/trailer_workcell.srdf`:
 | `arm_2_base_link` | `table_1_mount_right` | |
 | `arm_3_base_link` | `table_2_mount_left` | |
 | `arm_4_base_link` | `table_2_mount_right` | |
-| `livox_frame` | `world` | x=2.3, z=1.9, pointing down |
 
 TF tree PDF snapshots are saved in `ros2_ws/frames_*.pdf`.
 
@@ -471,5 +441,4 @@ TF tree PDF snapshots are saved in `ros2_ws/frames_*.pdf`.
 ## External Resources
 
 - Kinova Gen3 Lite docs: [github.com/Kinovarobotics/ros2_kortex](https://github.com/Kinovarobotics/ros2_kortex)
-- Livox Mid360 driver: [github.com/Livox-SDK/livox_ros_driver2](https://github.com/Livox-SDK/livox_ros_driver2)
 - MoveIt 2 Humble: [moveit.picknik.ai](https://moveit.picknik.ai)

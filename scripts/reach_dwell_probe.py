@@ -9,7 +9,7 @@ nothing.
 
 The contract between them, and the reason the ordering matters:
 
-    1. perceive          -> p_perceived        (from /detected_object_pose)
+    1. perceive          -> p_perceived        (from /target_object, or --target)
     2. choose            -> p_cmd              (perceived + approach offset)
     3. PUBLISH p_cmd to /reach_dwell/target/<arm>   <-- BEFORE any motion
     4. command MoveIt to p_cmd
@@ -29,7 +29,17 @@ SAFETY (docs/p1_g16_hw.md A6). Read-only unless --move is typed on purpose:
   * it aborts on any joint effort above --tau-max.
   * the rest pose is HANGING.
 
-    python3 scripts/reach_dwell_probe.py --arm arm_1 --trials 10
+NOTE ON THE PERCEPTION SOURCE. /detected_object_pose does NOT exist in this
+checkout: it comes from lidar_filter.py, which needs livox_ros_driver2, and that
+source tree is empty (there is no .gitmodules). What exists is the RGBD chain
+ending in /target_object. And because the locked criterion scores COMMANDED ->
+ACHIEVED, a hand-given --target measures exactly the same thing with the cameras
+and the segmentation model taken out of the failure surface -- which is what day
+one should do, so that a failure can actually be attributed.
+
+    # day one: no perception at all, measures the same L2
+    python3 scripts/reach_dwell_probe.py --arm arm_1 --target 0.9,0.3,1.2
+    # once the RGBD chain is up
     python3 scripts/reach_dwell_probe.py --arm arm_1 --trials 10 --move
 """
 
@@ -48,22 +58,30 @@ from std_msgs.msg import String
 
 TOOL_FRAME = {'arm_1': 't1_a1_tool_frame', 'arm_2': 't1_a2_tool_frame',
               'arm_3': 't2_a1_tool_frame', 'arm_4': 't2_a2_tool_frame'}
+# NOT /detected_object_pose: that is published by workcell_description's
+# lidar_filter.py, which needs livox_ros_driver2 -- and that source tree is
+# EMPTY in this checkout (there is no .gitmodules either), so the LIDAR driver
+# cannot run and the topic never appears. The RGBD chain is what exists:
+#   rgbd_perception.launch.py -> instance segmentation -> object_localizer
+#                             -> /target_object
+PERCEPT_TOPIC = '/target_object'
 # A6/S2. Never commanded. Kept here so the refusal is explicit and greppable.
 FORBIDDEN_TUCK = [0.0, 2.6, 2.6, 0.0, 0.0, 0.0]
 
 
 class Probe(Node):
-    def __init__(self, arm, approach, tau_max, move):
+    def __init__(self, arm, approach, tau_max, move, topic=PERCEPT_TOPIC,
+                 fixed=None):
         super().__init__('reach_dwell_probe')
         self.arm, self.approach, self.tau_max, self.move = \
             arm, approach, tau_max, move
+        self.fixed = fixed
         self.perceived = None
         self.status = []
         self.tau_peak = 0.0
         self.tau_worst_joint = ''
 
-        self.create_subscription(PoseStamped, '/detected_object_pose',
-                                 self._on_percept, 10)
+        self.create_subscription(PoseStamped, topic, self._on_percept, 10)
         self.create_subscription(String, '/reach_dwell/status',
                                  self._on_status, 10)
         self.create_subscription(JointState, '/joint_states', self._on_js, 20)
@@ -91,6 +109,22 @@ class Probe(Node):
 
     # ------------------------------------------------------------- helpers
     def wait_percept(self, timeout):
+        """A fixed target is a legitimate source, and on day one the better one.
+
+        The locked success criterion (A1) scores COMMANDED -> ACHIEVED (L2).
+        Perception error (L3) is explicitly NOT part of it. So where p_cmd comes
+        from does not change what is being measured -- it only changes which
+        pose is measured. Running L2 against a hand-given pose therefore
+        measures exactly the same quantity while removing the cameras, the
+        segmentation model and the extrinsics from the failure surface. Couple
+        them on day one and a failure cannot be attributed.
+        """
+        if self.fixed is not None:
+            p = PoseStamped()
+            p.header.frame_id = 'world'
+            p.pose.position.x, p.pose.position.y, p.pose.position.z = self.fixed
+            p.pose.orientation.w = 1.0
+            return p
         t0 = time.time()
         while time.time() - t0 < timeout and self.perceived is None:
             rclpy.spin_once(self, timeout_sec=0.05)
@@ -176,19 +210,36 @@ def main():
                     help='A6/S3 batas torsi abort (N.m); tuck = 12.78/14')
     ap.add_argument('--settle', type=float, default=8.0,
                     help='detik menunggu monitor per percobaan')
+    ap.add_argument('--topic', default=PERCEPT_TOPIC,
+                    help=f'topik pose terpersepsi (default {PERCEPT_TOPIC}; '
+                         '/detected_object_pose BUTUH livox yang TIDAK ADA)')
+    ap.add_argument('--target', metavar='X,Y,Z',
+                    help='pose tetap di frame world, lewati persepsi sama '
+                         'sekali. Mengukur L2 yang SAMA; pakai ini hari pertama')
     ap.add_argument('--move', action='store_true',
                     help='A6/S7: BENAR-BENAR menggerakkan lengan. '
                          'Tanpa ini skrip DRY RUN.')
     a = ap.parse_args()
+
+    fixed = None
+    if a.target:
+        try:
+            fixed = tuple(float(v) for v in a.target.split(','))
+            if len(fixed) != 3:
+                raise ValueError
+        except ValueError:
+            ap.error('--target harus X,Y,Z (meter, frame world)')
 
     if not a.move:
         print('\033[33mDRY RUN\033[0m -- tidak ada gerak. '
               'Tambahkan --move untuk menggerakkan (A6/S7).\n')
 
     rclpy.init()
-    node = Probe(a.arm, a.approach, a.tau_max, a.move)
+    node = Probe(a.arm, a.approach, a.tau_max, a.move, a.topic, fixed)
+    src = f'TETAP {fixed} (persepsi dilewati)' if fixed else f'topik {a.topic}'
     print(f'probe: {a.arm} ({TOOL_FRAME[a.arm]}), {a.trials} percobaan, '
           f'approach {a.approach*1000:.0f} mm, abort torsi {a.tau_max} N.m')
+    print(f'sumber target: {src}')
     print('kriteria A1 TERKUNCI: pos < 5 mm, ori < 5 deg, dwell 2.0 s KONTINU\n')
 
     tally = {'SUCCESS': 0, 'REACHED-NOT-HELD': 0, 'NO-PLAN': 0,
@@ -200,9 +251,9 @@ def main():
             node.clear()
             p = node.wait_percept(timeout=10.0)
             if p is None:
-                print(f'  [{i:2d}] TIDAK VALID (mesin): tidak ada persepsi di '
-                      '/detected_object_pose -- A5, diulang, tidak masuk '
-                      'penyebut')
+                print(f'  [{i:2d}] TIDAK VALID (mesin): tidak ada pose di '
+                      f'{a.topic} -- A5, diulang, tidak masuk penyebut. '
+                      'Pakai --target X,Y,Z untuk melewati persepsi.')
                 tally['INVALID'] += 1
                 continue
 

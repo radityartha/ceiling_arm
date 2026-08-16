@@ -201,17 +201,15 @@ cd ~/Documents/ceiling_arm/ros2_ws && source install/setup.bash
 ros2 launch workcell_moveit_config my_workcell.launch.py \
     use_fake_hardware:=false \
     arm2_fake:=true arm3_fake:=true arm4_fake:=true \
-    enable_lidar_octomap_filter:=true \
     2>&1 | tee /tmp/g16_t1.log
 ```
 
-🔴 **Tiga argumen yang mudah terlewat dan masing-masing punya harga:**
+🔴 **Dua argumen yang mudah terlewat dan masing-masing punya harga:**
 
 | Argumen | Kenapa | Kalau lupa |
 |---|---|---|
 | `use_fake_hardware:=false` | **default-nya `true`** | Anda menguji lengan **palsu** dan mengira berhasil |
 | `arm{2,3,4}_fake:=true` | bug mid-boot `kortex_driver` membunuh **keempat** controller bersama | memaparkan 4 lengan padahal langkah 2 hanya butuh 1 — **memperbesar area ledakan 4×** tanpa alasan |
-| `enable_lidar_octomap_filter:=true` | **default-nya `false`**, dan node inilah yang memublikasikan `/detected_object_pose` | probe menunggu persepsi yang tidak akan pernah datang, lalu melapor TIDAK VALID 10×|
 
 ⚠️ `2>&1 | tee` **wajib**: pesan abort C++ hanya keluar ke stderr konsol, dan
 tanpa itu SIGABRT tidak meninggalkan jejak apa pun di `~/.ros/log`.
@@ -236,10 +234,11 @@ ros2 run reachability_gng reach_dwell_monitor --ros-args \
     -p arms:="['arm_1']" -p tool_frames:="['t1_a1_tool_frame']" \
     -p csv_log:=/tmp/g16_step2
 
-# terminal B: PEMERINTAH -- DRY RUN dulu, selalu
-python3 scripts/reach_dwell_probe.py --arm arm_1 --trials 10
+# terminal B: PEMERINTAH -- DRY RUN dulu, selalu.
+# HARI PERTAMA: target TETAP, persepsi dilewati sama sekali (lihat A8b).
+python3 scripts/reach_dwell_probe.py --arm arm_1 --target 0.9,0.3,1.2 --trials 10
 # baru setelah jalur MoveIt disambung DAN tahap 3 lulus:
-python3 scripts/reach_dwell_probe.py --arm arm_1 --trials 10 --move
+python3 scripts/reach_dwell_probe.py --arm arm_1 --target 0.9,0.3,1.2 --trials 10 --move
 ```
 
 #### Skrip alternatif — mana yang boleh, mana yang tidak
@@ -248,7 +247,7 @@ python3 scripts/reach_dwell_probe.py --arm arm_1 --trials 10 --move
 |---|---|---|
 | `scripts/start_single_arm.sh` | ✅ **DIPERBAIKI 2026-08-16** — `WS` tadinya menunjuk `~/Documents/moonshot_project/ros2_ws`, path dari repo lain yang **tidak ada**, jadi setiap run mati di `source` | **tahap 3** (regresi). Ia membawa **satu** lengan nyata, jadi lengan yang mid-boot hanya menjatuhkan controller-nya sendiri. ❌ **Tidak cukup untuk tahap 4**: tanpa LIDAR, `/detected_object_pose` tidak pernah terbit |
 | `scripts/start_single_rviz.sh` | ✅ path benar | ❌ membawa **keempat** lengan nyata — justru yang A7b hindari |
-| `my_workcell.launch.py` + `arm{2,3,4}_fake:=true` | ✅ | **tahap 1 dan 4** — satu-satunya yang punya `enable_lidar_octomap_filter` |
+| `my_workcell.launch.py` + `arm{2,3,4}_fake:=true` | ✅ | **tahap 1 dan 4** — bringup penuh dengan hanya satu lengan nyata |
 
 ⚠️ `start_single_arm.sh` masih memakai `pkill -f` di `cleanup()`. Di sini ia
 tidak cocok dengan shell-nya sendiri (`start_single_arm.sh` ≠
@@ -263,6 +262,30 @@ diambil. Tetap jangan tiru polanya.
 | `reachability_gng/reach_dwell_monitor.py` | **penilai murni** — baca TF, nilai, catat. Memerintah **nol** | ✅ ada, tervalidasi 5/5 |
 | `scripts/reach_dwell_probe.py` | **pemerintah** — persepsi → pose perintah → publikasi ke monitor → gerakkan lengan | 🆕 **BARU sesi ini** |
 | `scripts/remount_check.py` | gerbang tahap 0 dan 1, read-only | 🆕 **BARU sesi ini** |
+
+#### A8b. 🔴 SUMBER PERSEPSI BERUBAH — LIDAR DIHAPUS, dan hari pertama TIDAK memakai persepsi
+
+Ditemukan saat menyiapkan sesi ini: `livox_ros_driver2` **tidak punya sumber**
+di checkout ini (direktori kosong, dan **tidak ada `.gitmodules`** untuk
+memulihkannya). Akibatnya `build_all.sh` mati di baris 7 dan
+`/detected_object_pose` **tidak akan pernah terbit**. Atas keputusan pengguna
+(2026-08-16) seluruh jalur LIDAR **DIHAPUS**; sel ini **RGBD saja**.
+
+| | |
+|---|---|
+| Sumber pose objek sekarang | `object_localizer` → **`/target_object`**, dari rantai RGBD (`rgbd_perception.launch.py` → segmentasi instans → localizer) |
+| Yang dihapus | `lidar_filter.py`, `lidar_processor.py`, `save_pcd.py`, `lidar_filter.launch.py`, updater octomap `livox_lidar`, TF statis `livox_frame`, tahap livox di `build_all.sh` |
+
+🔒 **HARI PERTAMA MEMAKAI `--target X,Y,Z`, BUKAN PERSEPSI — dan itu bukan
+kompromi.** Kriteria A1 menilai **PERINTAH → TERCAPAI** (L2); galat persepsi
+(L3) **secara eksplisit bukan bagian darinya**. Jadi dari mana `p_cmd` berasal
+**tidak mengubah besaran yang diukur** — ia hanya mengubah pose mana yang
+diukur. Memakai pose tetap mengukur **L2 yang sama persis** sambil mengeluarkan
+kamera, model segmentasi, dan ekstrinsik dari permukaan kegagalan. Kalau
+keduanya digabung di hari pertama dan gagal, kegagalannya **tidak dapat
+diatribusikan** — dan A5 ada justru untuk mencegah itu.
+
+➜ Persepsi disambung **setelah** L2 terbukti, dan L3 dilaporkan terpisah.
 
 🔴 **Pemisahan ini WAJIB dan bukan kerapian.** `reach_dwell_monitor` docstring
 sudah menyatakannya: *"whatever scores success must not also be what chooses

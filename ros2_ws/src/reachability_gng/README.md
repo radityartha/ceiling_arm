@@ -153,7 +153,7 @@ source /opt/ros/humble/setup.bash && source ros2_ws/install/setup.bash
 ros2 launch reachability_gng gng_moveit.launch.py     # uses /tmp/arm{1,2}_model.npz
 ```
 Brings up `move_group` + a ros2_control **mock** joint source + the workcell
-controllers on **fake hardware** (no real arms, no Isaac Sim, no LIDAR), one
+controllers on **fake hardware** (no real arms, no Isaac Sim), one
 `visualize` node **per arm** (arm_1 **green**, arm_2 **orange**, nodes colored
 by manipulability), and RViz with the **MotionPlanning** plugin. Pick group
 `gantry_1_with_arm_1` or `gantry_1_with_arm_2` to **Plan/Execute** while both
@@ -575,10 +575,7 @@ can't find the arms at all:
 ros2 launch workcell_moveit_config my_workcell.launch.py \
   use_sim_time:=false use_fake_hardware:=false
 ```
-If this errors on `livox_ros_driver2` not found: that submodule may not be
-checked out on this machine. The launch file now degrades gracefully (skips
-the LIDAR driver with a warning) instead of failing the whole bringup — pull
-latest and rebuild `workcell_moveit_config` if you still see a hard crash.
+The Livox LIDAR path was removed 2026-08-16 — this cell is RGBD-only.
 
 Gantry joints (`t1_linear`/`t1_rotation`/`t2_linear`/`t2_rotation`) have **no
 live encoder feed** in this launch file (`moving_table_pkg`'s real Modbus
@@ -634,10 +631,7 @@ Isaac bridge -- no code differs between the two, only what feeds `/rgbd*`,
 `/rgbd2*`. This replaces octomap with `gng_collision`'s GNG-derived
 `CollisionObject` spheres on `/planning_scene`, same as sim.
 
-**Terminal 1 -- real arm + gantry bringup + move_group.** `lidar_filter.py`
-(the node that used to feed the octomap's `livox_lidar` sensor via
-`/livox/filtered`) is OFF by default here now; pass
-`enable_lidar_octomap_filter:=true` only to restore the old octomap-from-LIDAR
+**Terminal 1 -- real arm + gantry bringup + move_group.**
 path.
 ```bash
 cd ros2_ws
@@ -679,7 +673,6 @@ publish (`ros2 topic hz /rgbd/rgb`) -> 3 -> 4.
 **Verify collision is really coming from GNG, not octomap:**
 ```bash
 # these must all show NO publisher (nothing feeds the octomap sensor plugins):
-ros2 topic info /livox/filtered
 ros2 topic info /rgbd/collision_cloud
 ros2 topic info /rgbd2/collision_cloud
 # this must show the GNG collision object:

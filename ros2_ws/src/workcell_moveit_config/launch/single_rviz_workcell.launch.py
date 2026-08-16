@@ -170,15 +170,6 @@ def generate_launch_description():
             ],
         ),
 
-        # Static TF for the LIDAR (overhead, pointing down)
-        Node(
-            package="tf2_ros",
-            executable="static_transform_publisher",
-            name="livox_static_tf",
-            arguments=["2.3", "0", "1.9", "3.14159", "3.14159", "0",
-                       "world", "livox_frame"],
-            parameters=[{"use_sim_time": False}],
-        ),
     ]
 
     # Per-arm + gripper controllers only (no table joints → no velocity-interface crash)
