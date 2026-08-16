@@ -54,7 +54,7 @@ dan setiap baris CSV mencatat ambang yang dipakai menilainya.
 
 | | Dikunci |
 |---|---|
-| **Jumlah percobaan** | **10 percobaan** pada **satu lengan** (`arm_1`), target terpersepsi, pose berbeda-beda |
+| **Jumlah percobaan** | **10 percobaan** pada **satu lengan** (`arm_1`), **pose berbeda-beda** — dibangkitkan `reachable_targets.py --spread 10` dan **dikunci sebagai daftar sebelum percobaan pertama** (§C tugas 4). Titik yang NO-PLAN dilaporkan begitu, **tidak** diganti |
 | **LULUS** | **≥ 8 dari 10** memenuhi definisi A1 penuh |
 | **Dilaporkan apa pun hasilnya** | pembagian **TIGA ARAH** per percobaan (A3), galat posisi/orientasi p50 dan p95, laju sampel aktual, dan `load`/waktu |
 | **Percobaan DILARANG dibuang** | percobaan yang gagal karena sebab mesin (A5) dilaporkan sebagai **TIDAK VALID** dengan sebabnya disebut, dan **diulang**, bukan dihapus diam-diam |
@@ -237,7 +237,7 @@ ros2 run reachability_gng reach_dwell_monitor --ros-args \
 # terminal B: PILIH TARGET YANG TERBUKTI TERJANGKAU -- jangan mengarang angka.
 # Baca dulu posisi rel NYATA gantry_1, lalu minta kandidatnya:
 ros2 topic echo /joint_states --once | grep -A30 t1_linear
-python3 scripts/reachable_targets.py --arm arm_1 --lin <hasil_di_atas>
+python3 scripts/reachable_targets.py --arm arm_1 --lin <hasil_di_atas> --spread 10
 
 # DRY RUN dulu, selalu. HARI PERTAMA target TETAP, persepsi dilewati (A8b).
 python3 scripts/reach_dwell_probe.py --arm arm_1 --approach 0 \
@@ -266,7 +266,7 @@ diambil. Tetap jangan tiru polanya.
 | `reachability_gng/reach_dwell_monitor.py` | **penilai murni** — baca TF, nilai, catat. Memerintah **nol** | ✅ ada, tervalidasi 5/5 |
 | `scripts/reach_dwell_probe.py` | **pemerintah** — persepsi → pose perintah → publikasi ke monitor → gerakkan lengan | 🆕 **BARU sesi ini** |
 | `scripts/remount_check.py` | gerbang tahap 0 dan 1, read-only | 🆕 **BARU sesi ini** |
-| `scripts/reachable_targets.py` | pilih target yang **terbukti terjangkau** dari peta kapabilitas, offline | 🆕 **BARU sesi ini** |
+| `scripts/reachable_targets.py` | bangkitkan **daftar titik percobaan** yang terbukti terjangkau + **tersebar** (`--spread 10`), offline dari peta kapabilitas | 🆕 **BARU sesi ini** |
 
 #### A8b. 🔴 SUMBER PERSEPSI BERUBAH — LIDAR DIHAPUS, dan hari pertama TIDAK memakai persepsi
 
@@ -457,8 +457,21 @@ Disk root 100 % (16 G sisa) -- kegagalan tulis dibaca sebagai disk penuh dulu.
 2. torsi istirahat MENGGANTUNG, dicatat
 3. REGRESI arm_1 joint_6 +5 deg. Ini sudah pernah BERHASIL (2026-08-12), jadi
    gagal di sini = pemasangan ulang, BUKAN metode.
-4. LANGKAH 2, 10 percobaan. Target dari reachable_targets.py (--approach 0),
-   BUKAN angka karangan. Monitor menilai, probe memerintah, proses TERPISAH.
+4. BUAT TITIK PERCOBAAN DULU, SEBELUM percobaan pertama dijalankan:
+     ros2 topic echo /joint_states --once | grep -A30 t1_linear   # lin NYATA
+     python3 scripts/reachable_targets.py --arm arm_1 --lin <lin> --spread 10
+   SALIN kesepuluh barisnya ke docs/p1_g16_hw.md §B1 APA ADANYA, sebagai
+   daftar terkunci, SEBELUM satu percobaan pun jalan. Alasannya bukan kerapian:
+   memilih ulang titik setelah melihat hasil = memilih hasilnya.
+   -> --spread WAJIB. Tanpa itu titik teratas adalah tetangga grid ~7 cm,
+      yaitu SATU pose diukur 10x, dan A2 menuntut pose BERBEDA. Dengan
+      --spread pemisahannya min ~33 cm.
+   -> --approach 0 WAJIB. Offset 10 cm default memerintahkan pose yang
+      keterjangkauannya TIDAK pernah diperiksa.
+   -> Titik yang ternyata NO-PLAN TETAP dilaporkan sebagai NO-PLAN (A3).
+      Ia TIDAK diganti dengan titik lain yang lebih mudah.
+5. LANGKAH 2, 10 percobaan memakai daftar itu. Monitor menilai, probe
+   memerintah, proses TERPISAH.
 
 === SATU-SATUNYA KODE YANG DITULIS SESI INI ===
 reach_dwell_probe.move_to() -- sengaja dibiarkan NotImplementedError semalam.

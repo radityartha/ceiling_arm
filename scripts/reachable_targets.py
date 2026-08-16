@@ -15,8 +15,13 @@ matters. Poses are scored at the TIGHTEST tolerance the map carries (5 cm, L1)
 -- that is the layer that says "a solution exists near here", NOT an accuracy
 claim; execution accuracy (L2, < 5 mm) is what the session measures.
 
-    python3 scripts/reachable_targets.py --lin 0.550
-    python3 scripts/reachable_targets.py --lin 0.550 --arm arm2 --n 10
+    python3 scripts/reachable_targets.py --lin 0.550                # inspeksi
+    python3 scripts/reachable_targets.py --lin 0.550 --spread 10    # 10 titik uji
+
+`--spread N` is the one to use for stage 4: it returns N targets SPREAD across
+the reachable set, one per trial. Plain depth ranking does not -- its top hits
+are grid neighbours ~7 cm apart, which is one pose measured N times, and that
+would report a tracking property as if it were a workspace property.
 """
 
 from __future__ import annotations
@@ -52,6 +57,10 @@ def main():
                          'MEASURED from /joint_states')
     ap.add_argument('--rot', type=float, default=0.0, help='gantry rotation, deg')
     ap.add_argument('--n', type=int, default=8)
+    ap.add_argument('--spread', type=int, metavar='N',
+                    help='emit N targets SPREAD across the reachable set, one '
+                         'per trial (A2 wants different poses, not one pose '
+                         'ten times)')
     a = ap.parse_args()
 
     gantry, arm_key = ARM_MAP[a.arm]
@@ -74,17 +83,48 @@ def main():
           f'y {ok[:,1].min():.2f}..{ok[:,1].max():.2f}   '
           f'z {ok[:,2].min():.2f}..{ok[:,2].max():.2f}')
 
-    # Rank by distance from the reachable set's own centroid: the deepest
-    # interior points are the ones least likely to sit on a reachability edge
-    # where a few mm of mounting shift flips them infeasible.
-    d = np.linalg.norm(ok - ok.mean(0), axis=1)
-    print(f'\ndeepest interior targets (furthest from any reachability edge).\n'
-          f'Use --approach 0: there is no object to clear, and the offset would\n'
-          f'command a pose that was never checked.\n')
-    for j in np.argsort(d)[:a.n]:
-        print('  python3 scripts/reach_dwell_probe.py --arm %s '
-              '--approach 0 --target %.3f,%.3f,%.3f'
-              % (a.arm, *ok[j]))
+    # Depth from the reachable set's centroid: interior points are least likely
+    # to sit on a reachability edge, where a few mm of mounting shift (A4) flips
+    # them infeasible.
+    depth = np.linalg.norm(ok - ok.mean(0), axis=1)
+
+    if not a.spread:
+        print('\ndeepest interior targets (furthest from any reachability '
+              'edge).\nUse --approach 0: there is no object to clear, and the '
+              'offset would\ncommand a pose that was never checked.\n')
+        for j in np.argsort(depth)[:a.n]:
+            print('  python3 scripts/reach_dwell_probe.py --arm %s '
+                  '--approach 0 --target %.3f,%.3f,%.3f' % (a.arm, *ok[j]))
+        return 0
+
+    # A2 demands the trials use DIFFERENT poses. Ranking by depth alone does not
+    # give that: the deepest points are grid neighbours ~7 cm apart, i.e. the
+    # same pose measured ten times. Ten near-identical poses would report a
+    # tracking property as if it were a workspace property.
+    #
+    # Farthest-point sampling instead, seeded at the deepest point and confined
+    # to the interior half so nothing lands on a reachability edge: each new
+    # target is the candidate furthest from every target already chosen.
+    interior = ok[depth <= np.median(depth)]
+    pick = [int(np.argmin(np.linalg.norm(interior - ok.mean(0), axis=1)))]
+    dmin = np.linalg.norm(interior - interior[pick[0]], axis=1)
+    while len(pick) < min(a.spread, len(interior)):
+        j = int(np.argmax(dmin))
+        pick.append(j)
+        dmin = np.minimum(dmin, np.linalg.norm(interior - interior[j], axis=1))
+    sel = interior[pick]
+
+    sep = [np.linalg.norm(sel[i] - sel[j])
+           for i in range(len(sel)) for j in range(i + 1, len(sel))]
+    print(f'\n{len(sel)} target TERSEBAR (farthest-point, dibatasi ke separuh '
+          f'bagian dalam).\n  pemisahan min {min(sep)*100:.1f} cm, '
+          f'median {np.median(sep)*100:.1f} cm  <- A2 menuntut pose BERBEDA\n')
+    print('# SALIN APA ADANYA. Urutan ini DIKUNCI SEBELUM data dilihat --')
+    print('# memilih ulang titik setelah melihat hasil = memilih hasilnya.')
+    for i, p in enumerate(sel, 1):
+        print('python3 scripts/reach_dwell_probe.py --arm %s --approach 0 '
+              '--trials 1 --target %.3f,%.3f,%.3f   # percobaan %d'
+              % (a.arm, *p, i))
     return 0
 
 
