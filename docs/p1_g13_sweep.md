@@ -788,9 +788,38 @@ Seluruh `p1_g7 §A4`, `p1_g8 §B10`, `p1_g9 §A4`, `p1_g10 §B12`, `p1_g11 §B9`
 (`p1_g12 §B10` poin **2** DICABUT — M3 sekarang menyala; poin **4** DICABUT —
 S2 dan sapuan sekarang terukur). Yang ditambahkan:
 
-1. 🔴 **Anggaran "120 s TERKUNCI" BUKAN batas wall**, dan tidak pernah pernah
-   (§B2a). Ia batas atas pada **loop pencarian**; konstruktor pra-loop tidak
-   melihatnya. Terukur sampai **144.3 s**. Berlaku surut ke G7/G9/G10/G11/G12.
+1. 🔴 **Anggaran "120 s TERKUNCI" BUKAN batas wall**, dan tidak pernah (§B2a).
+   Ia batas atas pada **loop pencarian**; konstruktor pra-loop
+   (`solve_exact`, `_repair_ub`, `_dive` akar, `arm_serial_ub`) tidak
+   melihatnya. **97 dari 400 instance** sesi ini melewatinya. Tapi besarnya
+   **sangat tidak merata**, dan itu yang menentukan apa yang harus dikerjakan:
+
+   | sel | wall mean | maks | > 120 s | overshoot maks |
+   |---|---|---|---|---|
+   | S1 0.00 / 0.05 | 20.9 / 31.0 s | 120.1 s | 2 / 4 | **0.1 s** |
+   | S1 0.10 | 45.5 s | 144.3 s | 9 | 24.3 s |
+   | **S1 0.15** | 96.6 s | **437.4 s** | 16 | **317.4 s** |
+   | **S1 0.20** | 108.9 s | 380.2 s | 19 | 260.2 s |
+   | S2 (kelimanya) | 0.1–82.9 s | 120.0 s | 0–25 | **0.0 s** |
+
+   🔒 **Yang TIDAK berubah: tidak satu pun angka `Δ`.** Setiap makespan adalah
+   bukti optimalitas (bebas anggaran) atau batas atas yang sah, dan vonis
+   dua-sisi bergantung pada `exact`/`proved`, yaitu pada anggaran **pencarian**
+   — yang memang sama untuk semua instance.
+
+   🔴 **Yang berubah: labelnya.** `TIDAK ADA JADWAL DITEMUKAN (anggaran 120 s)`
+   menyesatkan — instance itu mendapat **437 s wall** dan tetap kosong. Label
+   yang benar menyebut **dua** angka: anggaran pencarian **dan** wall.
+
+   ⚠️ **Cakupan surutnya lebih sempit dari kesan pertama, dan itu diukur.**
+   Pada sel utama G12 (S1, `c_arm = 0.05`) overshoot maksimum **0.1 s**, dan
+   pemindai tak-terbatasnya baru ada sejak G12 **mencabut tutup 60 pose** G11
+   (`p1_g12 §B6`) — sebelum itu `arm_serial_ub` terbatas oleh konstruksi.
+   S2 **nol overshoot di kelima sel**, karena probe-nya membatasi himpunan pose
+   sehingga sapuan parkirnya pendek. ➜ **Opsi (a) §C tugas 1 ("jalankan ulang
+   semuanya") kemungkinan besar TIDAK diperlukan**; yang diperlukan adalah
+   menamai ulang dan melaporkan wall terpisah. Itu dugaan yang diturunkan dari
+   pengukuran di atas, **bukan** izin untuk melewatkan tugas 1.
 2. 🔴 **`Δ_full` TIDAK DAPAT DITENTUKAN pada `c_arm ≥ 0.15`** di kedua set,
    karena baris **TIDAK ADA JADWAL DITEMUKAN** (§B5.5). Itu **anggaran**, bukan
    ketidaklayakan — Lemma C lulus di kedua nilai.
