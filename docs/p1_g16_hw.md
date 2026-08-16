@@ -234,11 +234,15 @@ ros2 run reachability_gng reach_dwell_monitor --ros-args \
     -p arms:="['arm_1']" -p tool_frames:="['t1_a1_tool_frame']" \
     -p csv_log:=/tmp/g16_step2
 
-# terminal B: PEMERINTAH -- DRY RUN dulu, selalu.
-# HARI PERTAMA: target TETAP, persepsi dilewati sama sekali (lihat A8b).
-python3 scripts/reach_dwell_probe.py --arm arm_1 --target 0.9,0.3,1.2 --trials 10
-# baru setelah jalur MoveIt disambung DAN tahap 3 lulus:
-python3 scripts/reach_dwell_probe.py --arm arm_1 --target 0.9,0.3,1.2 --trials 10 --move
+# terminal B: PILIH TARGET YANG TERBUKTI TERJANGKAU -- jangan mengarang angka.
+# Baca dulu posisi rel NYATA gantry_1, lalu minta kandidatnya:
+ros2 topic echo /joint_states --once | grep -A30 t1_linear
+python3 scripts/reachable_targets.py --arm arm_1 --lin <hasil_di_atas>
+
+# DRY RUN dulu, selalu. HARI PERTAMA target TETAP, persepsi dilewati (A8b).
+python3 scripts/reach_dwell_probe.py --arm arm_1 --approach 0 \
+    --target <salin_dari_reachable_targets> --trials 10
+# baru setelah jalur MoveIt disambung DAN tahap 3 lulus: tambahkan --move
 ```
 
 #### Skrip alternatif — mana yang boleh, mana yang tidak
@@ -262,6 +266,7 @@ diambil. Tetap jangan tiru polanya.
 | `reachability_gng/reach_dwell_monitor.py` | **penilai murni** — baca TF, nilai, catat. Memerintah **nol** | ✅ ada, tervalidasi 5/5 |
 | `scripts/reach_dwell_probe.py` | **pemerintah** — persepsi → pose perintah → publikasi ke monitor → gerakkan lengan | 🆕 **BARU sesi ini** |
 | `scripts/remount_check.py` | gerbang tahap 0 dan 1, read-only | 🆕 **BARU sesi ini** |
+| `scripts/reachable_targets.py` | pilih target yang **terbukti terjangkau** dari peta kapabilitas, offline | 🆕 **BARU sesi ini** |
 
 #### A8b. 🔴 SUMBER PERSEPSI BERUBAH — LIDAR DIHAPUS, dan hari pertama TIDAK memakai persepsi
 
@@ -286,6 +291,27 @@ keduanya digabung di hari pertama dan gagal, kegagalannya **tidak dapat
 diatribusikan** — dan A5 ada justru untuk mencegah itu.
 
 ➜ Persepsi disambung **setelah** L2 terbukti, dan L3 dilaporkan terpisah.
+
+🔴 **TAPI target tetap TIDAK BOLEH dikarang.** Kalau posenya tidak terjangkau,
+percobaan 1 kembali sebagai `NO-PLAN` dan itu **bukan** kegagalan metode — ia
+kegagalan memilih titik. `scripts/reachable_targets.py` membacanya dari peta
+kapabilitas (offline, tanpa perangkat keras) pada posisi rel yang **DIUKUR**:
+
+```bash
+python3 scripts/reachable_targets.py --arm arm_1 --lin 0.550
+```
+
+Contoh keluaran pada `lin = 0.550`, `rot = 0` — **1014 dari 3132 node
+terjangkau**, dan kandidat terdalamnya (paling jauh dari tepi jangkauan, jadi
+paling tahan terhadap pergeseran mounting A4): `0.929, 0.247, 1.240`.
+
+⚠️ Pakai `--approach 0`. Offset approach 10 cm default ada untuk menghindari
+objek; di sini tidak ada objek, dan offset itu akan **memerintahkan pose yang
+tidak pernah diperiksa keterjangkauannya**.
+
+⚠️ `--lin 0.550` berasal dari enkoder **2026-08-13** (`p1_g4 §B3`: g1 =
+550.009 mm). Enkoder AZ absolut jadi ia bertahan lintas power-cycle, tetapi
+**tetap dibaca ulang** dari `/joint_states` sebelum dipakai.
 
 🔴 **Pemisahan ini WAJIB dan bukan kerapian.** `reach_dwell_monitor` docstring
 sudah menyatakannya: *"whatever scores success must not also be what chooses
