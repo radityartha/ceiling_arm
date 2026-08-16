@@ -400,3 +400,99 @@ aktif sebelum lengan disentuh.
 ### B1. Langkah 2
 
 _(diisi 2026-08-17)_
+
+---
+
+## C. Prompt sesi berikutnya — G16-HW (salin ke chat BARU, 2026-08-17)
+
+> **Rekomendasi: Opus 5, effort TINGGI.** Naik dari SEDANG, dan alasannya
+> spesifik — bukan karena soalnya lebih rumit, melainkan karena **ini sesi
+> pertama di P1 yang bisa merusak perangkat keras**. Tiga hal yang menuntut itu:
+> (1) satu-satunya kode yang harus ditulis sesi ini, `move_to()`, adalah persis
+> kode yang **menggerakkan lengan nyata**; (2) palang A6/S2 (tolak pose tuck)
+> **dideklarasikan tapi BELUM ditegakkan** — tidak ada tempat yang membentuk
+> perintah sendi sampai `move_to` ditulis, jadi penegakannya lahir bersama
+> risikonya; (3) `fault_controller` tidak di-spawn, jadi satu red LED = **reset
+> FISIK**, dan tidak ada undo. Sisanya sudah dikunci di §A dan tinggal diikuti.
+
+```
+Sesi G16-HW -- p1_state.md 8c LANGKAH 2: satu lengan reach-and-dwell.
+SESI PERANGKAT KERAS. Lengan dipasang hari ini. Ada risiko fisik.
+
+BACA DULU, DAN §A SUDAH DIKUNCI KEMARIN -- JANGAN DITULIS ULANG:
+1. docs/p1_g16_hw.md -- SELURUHNYA. Ia ditulis SEBELUM perangkat keras
+   dipasang, jadi sebelum satu sampel pun ada. Khususnya:
+   A0  (kenapa faktorial G16 dibatalkan -- JANGAN dibuka lagi)
+   A1  (definisi sukses TERKUNCI sejak G4, DIPAKAI APA ADANYA)
+   A2  (LULUS := >= 8 dari 10; dikunci sebelum ada data)
+   A3  (pembagian TIGA ARAH: NO-PLAN / REACHED-NOT-HELD / SUCCESS)
+   A4  (pemasangan ulang: L2 dan ekstrinsik TIDAK basi; corner-ref BASI)
+   A5  (DELAPAN mode kegagalan mesin + aturan atribusi)
+   A6  (keselamatan S1-S7)
+   A7  (urutan tahap 0-4, TIDAK dilompati) + A7b (perintah konkret)
+   A8  (penilai vs pemerintah) + A8b (LIDAR DIHAPUS; hari 1 TANPA persepsi)
+   B0  (garis dasar sebelum pemasangan, sudah diisi)
+2. docs/p1_g4_reach_dwell.md A1/A2 -- definisi sukses dan TIGA lapis toleransi
+3. scripts/: remount_check.py, reachable_targets.py, reach_dwell_probe.py
+
+=== KEADAAN FISIK ===
+Lengan 4x DIPASANG hari ini. Sesi ini MEMAKAI perangkat keras nyata.
+Disk root 100 % (16 G sisa) -- kegagalan tulis dibaca sebagai disk penuh dulu.
+
+=== SUDAH SELESAI SEMALAM (2026-08-16), JANGAN ULANGI ===
+- Proses basi DIBERSIHKAN: 5 yatim + 1 pohon launch realsense. /proc bersih
+  untuk keempat pola. (Bunuh dengan PID; induk mati meninggalkan anak yatim --
+  itu terjadi semalam dan anaknya harus dibunuh terpisah.)
+- Workspace DIBANGUN ULANG: 22 paket, reach_dwell_monitor SUDAH TERPASANG.
+  Verifikasi: ros2 pkg executables reachability_gng | grep reach_dwell_monitor
+- LIDAR/Livox DIHAPUS TOTAL. Sel ini RGBD saja. build_all.sh dulu MATI di
+  baris 7 karena livox tak bersumber -- itulah sebab reach_dwell_monitor tidak
+  pernah terpasang, bukan lupa build.
+- start_single_arm.sh DIPERBAIKI (dulu menunjuk repo moonshot_project).
+
+=== TUGAS, BERURUTAN. TAHAP TIDAK DILOMPATI (A7). ===
+0. python3 scripts/remount_check.py           -> ICMP harus 4/4
+1. bring-up, HANYA arm_1 nyata (A7b), lalu remount_check.py --ros
+   -> /joint_states ~96 Hz dan 28 nilai. TEPAT 10 Hz = ros2_control MATI.
+2. torsi istirahat MENGGANTUNG, dicatat
+3. REGRESI arm_1 joint_6 +5 deg. Ini sudah pernah BERHASIL (2026-08-12), jadi
+   gagal di sini = pemasangan ulang, BUKAN metode.
+4. LANGKAH 2, 10 percobaan. Target dari reachable_targets.py (--approach 0),
+   BUKAN angka karangan. Monitor menilai, probe memerintah, proses TERPISAH.
+
+=== SATU-SATUNYA KODE YANG DITULIS SESI INI ===
+reach_dwell_probe.move_to() -- sengaja dibiarkan NotImplementedError semalam.
+Disambung SETELAH tahap 3 LULUS, dengan lengan terpasang dan ada yang
+mengawasi. Saat menyambungnya, TEGAKKAN A6/S2 DI SITU: tolak goal yang vektor
+sendinya dekat FORBIDDEN_TUCK. Konstantanya sudah ada, penegakannya belum.
+Pakai ulang jalur MoveIt hardware_check.py --arms; jangan tulis penggerak baru.
+
+=== JEBAKAN YANG SUDAH DIUKUR, JANGAN DITEMUKAN ULANG ===
+- use_fake_hardware DEFAULT true. Lupa = menguji lengan PALSU dan mengira lulus.
+- arm{2,3,4}_fake:=true. Bug mid-boot kortex_driver membunuh KEEMPAT controller
+  bersama; langkah 2 cuma butuh satu lengan.
+- 2>&1 | tee WAJIB: pesan abort C++ hanya ke stderr konsol, tidak ke ~/.ros/log.
+- Tab browser ke https://192.168.2.1x = sesi Kortex kedua = SIGPIPE(-13)
+  mid-sesi. TUTUP.
+- pkill -f membunuh shell yang memuat polanya. PAKAI PID. Dan membunuh induk
+  launch MENINGGALKAN ANAK YATIM -- periksa ulang setelah kill.
+- `tail` pada proses latar MENELAN keluaran sampai proses selesai.
+- Skrip di /tmp tidak mewarisi cwd repo: sys.path ABSOLUT.
+- --approach default 0.10 memerintahkan pose yang keterjangkauannya TIDAK
+  pernah diperiksa. Pakai --approach 0 untuk uji L2.
+
+=== ATURAN ===
+- 7.2: UKUR, JANGAN MENDUGA. Papan skor 30 meleset, 17 tepat.
+  Dugaan sesi ini D48-D50 SUDAH ditulis di muka (A9). Nilai apa adanya.
+  Prior KODE SENDIRI: pembacaan kode menemukan LETAK, tidak dapat
+  memperkirakan AKIBAT. Prior PALING BERGUNA: setiap temuan nyata datang dari
+  UJI YANG DIJALANKAN -- delapan sesi berturut-turut.
+- ATRIBUSI (A5): percobaan yang gagal karena mode mesin dicatat TIDAK VALID
+  dengan gejalanya disebut, DIULANG, dan TIDAK masuk penyebut 10. Ia BUKAN
+  kegagalan metode. Ini yang menjaga hari pertama tidak salah dibaca.
+- DILARANG menggeser ambang A1 (5 mm / 5 deg / 2.0 s) setelah melihat data.
+- Kalau B bertentangan dengan A, yang menang B, dan pertentangannya DITULIS.
+  G10 lima, G11 empat, G12 dua, G13 dua, G14 empat, G15 dua.
+- Rule 6 PENGECUALIAN EKSPLISIT untuk sesi protokol-panjang P1 (A10).
+- Isi §B docs/p1_g16_hw.md. Akhiri dengan prompt sesi berikutnya.
+```
