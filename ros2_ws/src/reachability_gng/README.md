@@ -222,6 +222,34 @@ See **README.html** for the short quick-start.
   false` (+ large `allowed_execution_duration_scaling` / `allowed_goal_duration_margin`)
   so slow-but-correct motions are not killed; the plan was already collision-checked.
 
+### 3d. Camera cloud + static GNG map + capability map in one RViz
+```bash
+source /opt/ros/humble/setup.bash && source ros2_ws/install/setup.bash
+ros2 launch reachability_gng view_scene.launch.py                  # all three
+ros2 launch reachability_gng view_scene.launch.py with_cameras:=false  # maps only
+ros2 launch reachability_gng view_scene.launch.py arm:=arm_2 lin:=0.9
+ros2 launch reachability_gng view_scene.launch.py mode:=index      # all poses
+```
+The three layers, all in `world`:
+
+| layer | topic | source |
+|---|---|---|
+| camera colour cloud | `/rgbd{,2}/color_cloud` | live D455s (`with_cameras:=false` to skip) |
+| static GNG topo map | `/topo_map/static/markers` | saved `.npz` (`map_file:=`) |
+| capability map | `/capability/markers` | `data/cap_g{1,2}_rail160.npz`, picked from `arm:=` |
+
+`lin:=` is the gantry rail position in **metres** and it is not cosmetic — the
+reachable set moves with the rail, so the default 0.55 draws the wrong workspace
+if the gantry is elsewhere. Read it from `/joint_states` first (`t1_linear`),
+as `reachable_targets.py` requires; an out-of-range value is snapped to the map
+grid with a `WARN` naming the pose actually used. `mode:=index` swaps the
+single-pose set for the pose-independent capability index (blue → red by the
+fraction of the 2376 gantry poses that reach each node).
+
+⚠️ Reachable is **not** torque-safe — ~30 % of `arm_1`'s reachable workspace
+exceeds `joint_2`'s 14 N·m rating (`docs/p1_g17_hw.md`). This view draws the
+reachable set only; `scripts/torque_safe_workspace.py` scores the safe subset.
+
 ### 4. GNG-seeded MoveIt IK (Phase 2)
 Needs `move_group` running so `/compute_ik` exists (e.g. `gng_moveit.launch.py`
 above), plus the per-arm SRDF group. `seed_ik` is generic — point it at an

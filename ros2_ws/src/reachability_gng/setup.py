@@ -57,6 +57,7 @@ setup(
             'object_collision = reachability_gng.object_collision:main',
             'octomap_refresher = reachability_gng.octomap_refresher:main',
             'map_static = reachability_gng.map_static:main',
+            'capability_pub = reachability_gng.capability_pub:main',
             'static_collision = reachability_gng.static_collision:main',
             'gantry_reach_executor = '
             'reachability_gng.gantry_reach_executor:main',
