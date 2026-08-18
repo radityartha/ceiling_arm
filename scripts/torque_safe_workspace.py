@@ -45,7 +45,15 @@ ARM_MAP = {'arm_1': (1, GANTRY_ARM[1]), 'arm_2': (1, PARTNER[1]),
 JOINT_PREFIX = {'arm_1': 't1_a1_', 'arm_2': 't1_a2_',
                 'arm_3': 't2_a1_', 'arm_4': 't2_a2_'}
 JOINT_EFFORT_LIMIT = {1: 10.0, 2: 14.0, 3: 10.0, 4: 7.0, 5: 7.0, 6: 7.0}
-TORQUE_MODEL_OFFSET_NM = 6.6
+# Per actuator family -- see reach_dwell_probe.JOINT_TORQUE_OFFSET_NM and
+# docs/p1_g17_hw.md B1.2. B5.4 calibrated 6.6 on joint_2 (KA-75+) only; the
+# KA-58 wrist gets it scaled by nominal torque, 6.6 x 3.6/12.0.
+#
+# This map is barely affected: it screens STATIC gravity torque, where wrist
+# terms are small, so B6 saw joint_4 bind only 10 of 273 unsafe nodes. The
+# change can therefore only ADD nodes to the safe set, never remove one -- so
+# the target list locked in p1_g17_hw.md B0.3 remains valid under it.
+JOINT_TORQUE_OFFSET_NM = {1: 6.6, 2: 6.6, 3: 6.6, 4: 1.98, 5: 1.98, 6: 1.98}
 
 
 def main():
@@ -58,8 +66,16 @@ def main():
     ap.add_argument('--rot', type=float, default=0.0)
     ap.add_argument('--urdf', default='/tmp/reach_dwell_live.urdf',
                     help='URDF captured from the running system')
-    ap.add_argument('--offset', type=float, default=TORQUE_MODEL_OFFSET_NM)
+    ap.add_argument('--offset', type=float, default=None,
+                    help='paksa satu offset untuk SEMUA sendi; default memakai '
+                         'peta per-aktuator JOINT_TORQUE_OFFSET_NM')
+    # Per-arm by default. The first version wrote one fixed name, so mapping a
+    # second arm silently overwrote the first arm's set -- and step 3 needs BOTH
+    # at once to find where the two safe workspaces overlap.
+    ap.add_argument('--out', default=None,
+                    help='default /tmp/torque_safe_<arm>.npy')
     a = ap.parse_args()
+    out = a.out or f'/tmp/torque_safe_{a.arm}.npy'
 
     import pinocchio as pin
 
@@ -120,7 +136,9 @@ def main():
         frac, worst = 0.0, None
         for n in names:
             j = int(n.split('joint_')[-1])
-            f = (abs(g[idx[n][1]]) + a.offset) / JOINT_EFFORT_LIMIT[j]
+            off = a.offset if a.offset is not None \
+                else JOINT_TORQUE_OFFSET_NM.get(j, 6.6)
+            f = (abs(g[idx[n][1]]) + off) / JOINT_EFFORT_LIMIT[j]
             if f > frac:
                 frac, worst = f, j
         (safe if frac <= 1.0 else unsafe).append(xyz)
@@ -137,8 +155,8 @@ def main():
           f'({100.0 * len(unsafe) / solved:.1f} %)')
     print(f'  sendi pengikat: ' + ', '.join(
         f'joint_{k} {v}x' for k, v in sorted(worst_counts.items())))
-    print(f'\n  ambang: gravitasi + {a.offset} N.m vs rating per-sendi '
-          f'{JOINT_EFFORT_LIMIT}')
+    print(f'\n  ambang: gravitasi + offset vs rating per-sendi. offset = '
+          f'{a.offset if a.offset is not None else JOINT_TORQUE_OFFSET_NM}')
     print('  CATATAN: statis saja -> syarat PERLU, bukan CUKUP. Pose yang lolos '
           'di sini masih bisa melonjak saat transit (B5.4).')
     if len(safe):
@@ -146,8 +164,8 @@ def main():
         print(f'\n  kotak aman: x {s[:,0].min():.2f}..{s[:,0].max():.2f}  '
               f'y {s[:,1].min():.2f}..{s[:,1].max():.2f}  '
               f'z {s[:,2].min():.2f}..{s[:,2].max():.2f}')
-        np.save('/tmp/torque_safe_nodes.npy', s)
-        print('  -> /tmp/torque_safe_nodes.npy')
+        np.save(out, s)
+        print(f'  -> {out}')
     return 0
 
 

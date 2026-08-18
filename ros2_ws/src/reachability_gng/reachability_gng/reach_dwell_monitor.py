@@ -268,6 +268,17 @@ class ReachDwellMonitor(Node):
         pos = [s[1] for s in task.samples]
         ori = [s[2] for s in task.samples]
         eff_rate = task.n_samples / span if span > 0 else 0.0
+        # The dwell window STARTS on the sample that crosses the threshold, so
+        # that first sample is by construction just under the bar and it sets
+        # pos_err_max for the whole window. Measured in fake hardware, where
+        # execution is exact: entry sample 4.71 mm, then 0.53 mm flat for 2392
+        # samples (docs/p1_g17_hw.md B1.3). pos_err_max therefore cannot tell a
+        # perfect servo from a poor one, and G16 B5.2 read it as if it could.
+        # Reported ALONGSIDE, never instead of: the thresholds are locked, no
+        # verdict changes, and every G16 number stays directly comparable.
+        tail = task.samples[int(len(task.samples) * 0.75):] or task.samples
+        settled_pos = max(s[1] for s in tail)
+        settled_ori = max(s[2] for s in tail)
         task.done_at = now
         task.reported = True
         task.result = {
@@ -278,6 +289,10 @@ class ReachDwellMonitor(Node):
             'pos_err_mean_mm': round(float(np.mean(pos)) * 1000.0, 3),
             'ori_err_max_deg': round(math.degrees(max(ori)), 3),
             'ori_err_mean_deg': round(math.degrees(float(np.mean(ori))), 3),
+            # Max over the LAST 25 % of the window -- the settled part, with the
+            # entry transient excluded. See the comment above _succeed's tail.
+            'pos_err_max_settled_mm': round(settled_pos * 1000.0, 3),
+            'ori_err_max_settled_deg': round(math.degrees(settled_ori), 3),
             'n_window_samples': len(task.samples),
             'sample_rate_hz': round(eff_rate, 2),
             'n_tf_fail': task.n_tf_fail,
@@ -302,6 +317,7 @@ class ReachDwellMonitor(Node):
         self.get_logger().info(
             f'>>> {task.arm}: SUCCESS -- held {self.dwell:.1f}s, '
             f'pos max {task.result["pos_err_max_mm"]:.2f}mm '
+            f'(settled {task.result["pos_err_max_settled_mm"]:.2f}) '
             f'(tol {self.pos_tol * 1000:.1f}), ori max '
             f'{task.result["ori_err_max_deg"]:.2f}deg '
             f'(tol {math.degrees(self.ori_tol):.1f}), '

@@ -93,12 +93,31 @@ JOINT_EFFORT_LIMIT = {1: 10.0, 2: 14.0, 3: 10.0, 4: 7.0, 5: 7.0, 6: 7.0}
 # error is a false REFUSAL, i.e. it errs toward not moving, which is the correct
 # direction for a safety screen. A raw-prediction threshold would separate all
 # 7, but only inside a 0.17 N.m gap (7.60..7.77) -- far too thin to trust.
-TORQUE_MODEL_OFFSET_NM = 6.6
+#
+# PER ACTUATOR FAMILY, not one number (docs/p1_g17_hw.md B1.2). All seven
+# calibration pairs above are joint_2 peaks, i.e. the offset was only ever
+# measured on a KA-75+. Applying 6.6 to a KA-58 wrist rated 7.0 spends 94.3 % of
+# the rating before any torque is predicted, which refused 9 of 18 step-3 plans
+# with joint_4 binding 72 % of the time -- and G16's own measurements rule that
+# out: wrist peak 0.499 N.m under load (B4.2) and -0.007 N.m at rest (B1.5),
+# neither of which is possible if a 6.6 N.m friction term existed there.
+# Scaled by nominal actuator torque: KA-75+ 12.0 -> 6.6, KA-58 3.6 -> 1.98.
+# Still 3.3x above the largest wrist torque G16 ever measured, so it stays
+# conservative; it is not a threshold move, it is the same measured constant
+# applied only where it was measured to apply.
+JOINT_TORQUE_OFFSET_NM = {1: 6.6, 2: 6.6, 3: 6.6, 4: 1.98, 5: 1.98, 6: 1.98}
+# STEP 3. Minimum distance allowed between the two arms that share a gantry,
+# anywhere along a planned trajectory. MoveIt cannot supply this: 112 of the 121
+# geometry-bearing t1_a1_* <-> t1_a2_* pairs are disabled in the SRDF with
+# reason="Never" while the mounts are 0.800 m apart and each arm reaches 1.005 m
+# (scripts/interarm_collision.py). 5 cm is chosen to absorb the discrete
+# waypoint sampling, not because contact at 4 cm would be acceptable.
+INTERARM_MARGIN_M = 0.05
 
 
 class Probe(Node):
     def __init__(self, arm, approach, tau_max, move, topic=PERCEPT_TOPIC,
-                 fixed=None):
+                 fixed=None, arms=None):
         super().__init__('reach_dwell_probe')
         self.arm, self.approach, self.tau_max, self.move = \
             arm, approach, tau_max, move
@@ -107,13 +126,19 @@ class Probe(Node):
         self.status = []
         self.tau_peak = 0.0
         self.tau_worst_joint = ''
+        # /joint_states has TWO publishers here and they send SEPARATE messages
+        # carrying different joints, so no single message is the whole robot --
+        # `--once` picks one of them and silently misses the rest. Merging by
+        # name across messages is the only way to hold a complete state.
+        self.joint_pos = {}
 
         self.create_subscription(PoseStamped, topic, self._on_percept, 10)
         self.create_subscription(String, '/reach_dwell/status',
                                  self._on_status, 10)
         self.create_subscription(JointState, '/joint_states', self._on_js, 20)
-        self.target_pub = self.create_publisher(
-            PoseStamped, f'/reach_dwell/target/{arm}', 10)
+        self.target_pub = {
+            a: self.create_publisher(PoseStamped, f'/reach_dwell/target/{a}', 10)
+            for a in (arms or [arm])}
         self.clear_pub = self.create_publisher(String, '/reach_dwell/clear', 10)
 
     # ------------------------------------------------------------- inputs
@@ -133,6 +158,8 @@ class Probe(Node):
         for name, eff in zip(msg.name, msg.effort or []):
             if abs(eff) > self.tau_peak:
                 self.tau_peak, self.tau_worst_joint = abs(eff), name
+        for name, pos in zip(msg.name, msg.position or []):
+            self.joint_pos[name] = float(pos)
 
     # ------------------------------------------------------------- helpers
     def wait_percept(self, timeout):
@@ -187,22 +214,45 @@ class Probe(Node):
             rclpy.spin_once(self, timeout_sec=0.05)
         return pub.get_subscription_count() > 0
 
-    def publish_target(self, p_cmd, timeout=15.0):
-        """MUST happen before motion -- see the module docstring."""
-        if not self._await_match(self.target_pub, timeout):
+    def publish_target(self, p_cmd, arm=None, timeout=15.0):
+        """MUST happen before motion -- see the module docstring.
+
+        In dual-arm mode BOTH targets go out before EITHER arm moves. That is
+        not merely tidy: reach_dwell_monitor resets its common-window clock
+        whenever a target arrives, so publishing arm_2's target after arm_1 was
+        already holding would discard the very window being measured.
+        """
+        pub = self.target_pub[arm or self.arm]
+        if not self._await_match(pub, timeout):
             return False
-        self.target_pub.publish(p_cmd)
+        pub.publish(p_cmd)
         for _ in range(10):
             rclpy.spin_once(self, timeout_sec=0.02)
         return True
 
-    def clear(self, timeout=15.0):
+    def clear(self, arm=None, timeout=15.0):
         if not self._await_match(self.clear_pub, timeout):
             return False
-        self.clear_pub.publish(String(data=self.arm))
+        self.clear_pub.publish(String(data=arm or self.arm))
         for _ in range(10):
             rclpy.spin_once(self, timeout_sec=0.02)
         return True
+
+    def wait_joints(self, names, seconds=1.0):
+        """Merge /joint_states by name until every `names` entry is present.
+
+        See __init__: two publishers, separate messages. Measured in G16 to make
+        a single-message read fail silently ~90 % of the time -- and here a
+        missing joint would place the OTHER arm at its URDF neutral pose inside
+        the collision screen, which is exactly the wrong direction to be wrong.
+        """
+        t0 = time.time()
+        while time.time() - t0 < seconds or not all(n in self.joint_pos
+                                                    for n in names):
+            rclpy.spin_once(self, timeout_sec=0.05)
+            if time.time() - t0 > seconds + 5.0:
+                break
+        return {n: self.joint_pos[n] for n in names if n in self.joint_pos}
 
     def collect(self, seconds):
         t0 = time.time()
@@ -217,6 +267,33 @@ class Probe(Node):
                 if s.get('arm') == self.arm and s.get('event') == 'success':
                     return 'SUCCESS'
         return None
+
+    def collect_concurrent(self, seconds, arms):
+        """Watch for the COMMON window -- the quantity step 3 exists to measure.
+
+        docs/p1_g4_reach_dwell.md A1: N-arm success is ONE window of 2.0 s in
+        which ALL arms are inside their own tolerance SIMULTANEOUSLY. Two arms
+        that each succeed at different moments is exactly what the prior work
+        already does, so per-arm successes are counted but they are NOT the
+        result. `STAGGERED` names that outcome instead of letting it pass as a
+        success, which is the whole reason the distinction was locked.
+        """
+        t0 = time.time()
+        while time.time() - t0 < seconds:
+            rclpy.spin_once(self, timeout_sec=0.05)
+            if self.tau_peak > self.tau_max:
+                self.get_logger().error(
+                    f'ABORT: torsi {self.tau_peak:.2f} N.m pada '
+                    f'{self.tau_worst_joint} > batas {self.tau_max:.2f}')
+                return 'TORQUE-ABORT', set()
+            for s in self.status:
+                if s.get('event') == 'concurrent' and s.get('n_arms', 0) >= len(arms):
+                    return 'CONCURRENT', set(arms)
+        won = {s.get('arm') for s in self.status if s.get('event') == 'success'}
+        won &= set(arms)
+        if won == set(arms):
+            return 'STAGGERED', won
+        return ('PARTIAL' if won else 'NEITHER'), won
 
     def verdict(self, raw, mv=None, reached=None):
         """A3's THREE-WAY split. Never collapse these into one bucket.
@@ -415,8 +492,51 @@ def predict_peak_torque(traj, arm, node):
     return peak
 
 
+def screen_interarm(traj, arm, node, other_arm, margin=INTERARM_MARGIN_M):
+    """Screen a plan against the OTHER arm on the same gantry, before executing.
+
+    STEP 3 only. Step 2 moved one arm and needed nothing like this.
+
+    This exists because MoveIt here cannot answer the question: the SRDF marks
+    112 of the 121 geometry-bearing cross-arm pairs `reason="Never"`, including
+    gripper-vs-gripper, so a plan that drives arm_1 through arm_2 comes back
+    valid. Verified offline: driving both tools to (0.55, 0.36, 1.40) puts the
+    two left finger links in contact, and that exact pair is disabled at
+    trailer_workcell.srdf:339.
+
+    Returns None when the screen cannot run -- the caller must then REFUSE,
+    the same way an unavailable torque model refuses.
+    """
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from interarm_collision import InterArmChecker
+    except ImportError:
+        return None
+    if not hasattr(node, '_interarm'):
+        try:
+            node._interarm = InterArmChecker(gantry='gantry_1', margin=margin)
+        except Exception:                                        # noqa: BLE001
+            node._interarm = None
+    chk = node._interarm
+    if chk is None:
+        return None
+    # The other arm is HELD at its measured configuration while this one moves.
+    other = node.wait_joints([f'{JOINT_PREFIX[other_arm]}joint_{i}'
+                              for i in range(1, 7)] + ['t1_linear_joint'])
+    if len(other) < 7:
+        node.get_logger().error(
+            f'penyaring tabrakan: /joint_states hanya memberi {len(other)}/7 '
+            'sendi untuk lengan pasangan -- MENOLAK menyaring dengan keadaan '
+            'yang tidak lengkap.')
+        return None
+    jt = traj.joint_trajectory
+    return chk.screen_trajectory(list(jt.joint_names),
+                                 [list(p.positions) for p in jt.points], other)
+
+
 def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
-            vel_scale=0.15, plan_time=15.0, plan_only=False, tau_max=None):
+            vel_scale=0.15, plan_time=15.0, plan_only=False, tau_max=None,
+            other_arm=None, attempts=1):
     """Plan to p_cmd, CHECK the plan against A6/S2, then execute it.
 
     Reuses the MoveIt path hardware_check.py --arms drives (MoveGroup action,
@@ -436,75 +556,39 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
     if not node._plan_ac.wait_for_server(timeout_sec=15.0):
         return 'EXEC-FAIL'
 
-    goal = MoveGroup.Goal()
-    goal.request.group_name = arm
-    goal.request.num_planning_attempts = 5
-    goal.request.allowed_planning_time = plan_time
-    goal.request.max_velocity_scaling_factor = vel_scale
-    goal.request.max_acceleration_scaling_factor = vel_scale
-    goal.request.goal_constraints.append(
-        _goal_constraints(TOOL_FRAME[arm], p_cmd, pos_tol, ori_tol_deg))
-    goal.planning_options.plan_only = True
+    def _plan_once():
+        """Ask for one plan and run every screen on it. (verdict, traj)."""
+        return _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg,
+                                vel_scale, plan_time, tau_max, other_arm)
 
-    fut = node._plan_ac.send_goal_async(goal)
-    rclpy.spin_until_future_complete(node, fut, timeout_sec=20.0)
-    gh = fut.result()
-    if gh is None or not gh.accepted:
-        return 'NO-PLAN'
-    rf = gh.get_result_async()
-    rclpy.spin_until_future_complete(node, rf, timeout_sec=plan_time + 20.0)
-    res = rf.result()
-    if res is None or res.result.error_code.val != MoveItErrorCodes.SUCCESS:
-        return 'NO-PLAN'
-
-    traj = res.result.planned_trajectory
-    if not traj.joint_trajectory.points:
-        return 'NO-PLAN'
-
-    hit = _violates_tuck(traj, arm)
-    if hit is not None and hit >= 0:
-        node.get_logger().error(
-            f'A6/S2: rencana DITOLAK -- titik {hit} berada dalam 10 deg dari '
-            f'FORBIDDEN_TUCK {FORBIDDEN_TUCK}. TIDAK dieksekusi.')
-        return 'TUCK-REFUSED'
-
-    # A6/S3, enforced as PREVENTION rather than detection. The --tau-max guard
-    # in collect() only WATCHES: by the time it fires the trajectory has already
-    # run and the torque has already been applied -- that is how trial 4 reached
-    # 17.61 N.m on a joint rated 14. Screening the plan is the only point at
-    # which an over-torque motion can still be refused instead of merely noticed.
-    if tau_max is not None:
-        peak = predict_peak_torque(traj, arm, node)
-        if peak is None:
-            node.get_logger().error(
-                'TIDAK BISA memprediksi torsi (pinocchio/URDF tidak tersedia) '
-                '-- MENOLAK bergerak tanpa penyaringan. Ini disengaja.')
-            return 'TORQUE-UNSCREENED'
-        # Compare each joint against ITS OWN rating, corrected by the measured
-        # model offset -- not against one global number. joint_2 is rated 14 and
-        # the wrist only 7, so a single bar would be simultaneously too loose
-        # for the wrist and too tight for the shoulder.
-        worst, worst_frac = None, 0.0
-        parts = []
-        for k, v in sorted(peak.items()):
-            j = int(k.split('joint_')[-1])
-            lim = min(JOINT_EFFORT_LIMIT.get(j, 7.0), tau_max) \
-                if j != 2 else min(JOINT_EFFORT_LIMIT[2], max(tau_max, 14.0))
-            corr = v + TORQUE_MODEL_OFFSET_NM
-            parts.append(f'{j}={v:.2f}->{corr:.2f}/{lim:.0f}')
-            if corr / lim > worst_frac:
-                worst, worst_frac, worst_corr, worst_lim = k, corr / lim, corr, lim
+    # RETRY, and this is a feasibility change rather than a safety one.
+    # docs/p1_g17_hw.md B1.9 measured the same target from the same rest pose
+    # coming back TORQUE-UNSAFE on one attempt and PLANNED on the next: 8 of 10
+    # for (1.286, 0.459, 1.160), while other targets were stable 10/10 either
+    # way. The refusal is a property of the trajectory OMPL happened to sample,
+    # not of the pose. Taking one sample therefore discards good targets on
+    # planner luck and files the loss as a method failure, which is exactly the
+    # misattribution A3 exists to prevent.
+    #
+    # EVERY plan is still screened in full, and only a plan that passes every
+    # screen is ever executed -- so the guard is untouched. What changes is the
+    # MEANING of a refusal verdict: "no safe trajectory found in `attempts`
+    # tries" instead of "this one sample was bad".
+    #
+    # Not retried: TORQUE-UNSCREENED / INTERARM-UNSCREENED / EXEC-FAIL. Those
+    # say the screen or the machinery is unavailable, and repeating a broken
+    # tool just hides that it is broken.
+    RETRYABLE = ('NO-PLAN', 'TUCK-REFUSED', 'TORQUE-UNSAFE', 'INTERARM-COLLIDE')
+    verdict, traj = _plan_once()
+    for k in range(2, max(1, attempts) + 1):
+        if verdict not in RETRYABLE:
+            break
         node.get_logger().info(
-            f'torsi RNEA+{TORQUE_MODEL_OFFSET_NM} vs rating: ' + ', '.join(parts)
-            + f'  (terketat {worst} {worst_frac * 100:.0f} %)')
-        if worst_frac > 1.0:
-            node.get_logger().error(
-                f'A6/S3: rencana DITOLAK SEBELUM GERAK -- {worst} diperkirakan '
-                f'{worst_corr:.2f} N.m > rating {worst_lim:.0f}. Pose ini '
-                'menuntut torsi di atas rating sendi; itu sifat POSE, bukan '
-                'sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi '
-                'G16 ia menolak 1 dari 4 pose yang ternyata aman.)')
-            return 'TORQUE-UNSAFE'
+            f'percobaan rencana {k}/{attempts}: yang sebelumnya {verdict} '
+            '-- meminta lintasan LAIN (penyaring tidak dilonggarkan)')
+        verdict, traj = _plan_once()
+    if verdict != 'PLANNED':
+        return verdict
 
     # A6/S7: --move not typed means the arm does not move, but the plan was
     # still worth asking for -- it separates NO-PLAN from reachable-but-untried
@@ -527,6 +611,195 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
     if eres is None or eres.result.error_code.val != MoveItErrorCodes.SUCCESS:
         return 'EXEC-FAIL'
     return 'MOVED'
+
+
+def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
+                     plan_time, tau_max, other_arm):
+    """One plan request plus every pre-execution screen. ('PLANNED', traj) or
+    (refusal, None). Split out of move_to so a refusal can be re-sampled
+    without duplicating a single line of the screening logic."""
+    goal = MoveGroup.Goal()
+    goal.request.group_name = arm
+    goal.request.num_planning_attempts = 5
+    goal.request.allowed_planning_time = plan_time
+    goal.request.max_velocity_scaling_factor = vel_scale
+    goal.request.max_acceleration_scaling_factor = vel_scale
+    goal.request.goal_constraints.append(
+        _goal_constraints(TOOL_FRAME[arm], p_cmd, pos_tol, ori_tol_deg))
+    goal.planning_options.plan_only = True
+
+    fut = node._plan_ac.send_goal_async(goal)
+    rclpy.spin_until_future_complete(node, fut, timeout_sec=20.0)
+    gh = fut.result()
+    if gh is None or not gh.accepted:
+        return 'NO-PLAN', None
+    rf = gh.get_result_async()
+    rclpy.spin_until_future_complete(node, rf, timeout_sec=plan_time + 20.0)
+    res = rf.result()
+    if res is None or res.result.error_code.val != MoveItErrorCodes.SUCCESS:
+        return 'NO-PLAN', None
+
+    traj = res.result.planned_trajectory
+    if not traj.joint_trajectory.points:
+        return 'NO-PLAN', None
+
+    hit = _violates_tuck(traj, arm)
+    if hit is not None and hit >= 0:
+        node.get_logger().error(
+            f'A6/S2: rencana DITOLAK -- titik {hit} berada dalam 10 deg dari '
+            f'FORBIDDEN_TUCK {FORBIDDEN_TUCK}. TIDAK dieksekusi.')
+        return 'TUCK-REFUSED', None
+
+    # A6/S3, enforced as PREVENTION rather than detection. The --tau-max guard
+    # in collect() only WATCHES: by the time it fires the trajectory has already
+    # run and the torque has already been applied -- that is how trial 4 reached
+    # 17.61 N.m on a joint rated 14. Screening the plan is the only point at
+    # which an over-torque motion can still be refused instead of merely noticed.
+    if tau_max is not None:
+        peak = predict_peak_torque(traj, arm, node)
+        if peak is None:
+            node.get_logger().error(
+                'TIDAK BISA memprediksi torsi (pinocchio/URDF tidak tersedia) '
+                '-- MENOLAK bergerak tanpa penyaringan. Ini disengaja.')
+            return 'TORQUE-UNSCREENED', None
+        # Compare each joint against ITS OWN rating, corrected by the measured
+        # model offset -- not against one global number. joint_2 is rated 14 and
+        # the wrist only 7, so a single bar would be simultaneously too loose
+        # for the wrist and too tight for the shoulder.
+        worst, worst_frac = None, 0.0
+        parts = []
+        for k, v in sorted(peak.items()):
+            j = int(k.split('joint_')[-1])
+            lim = min(JOINT_EFFORT_LIMIT.get(j, 7.0), tau_max) \
+                if j != 2 else min(JOINT_EFFORT_LIMIT[2], max(tau_max, 14.0))
+            corr = v + JOINT_TORQUE_OFFSET_NM.get(j, 6.6)
+            parts.append(f'{j}={v:.2f}->{corr:.2f}/{lim:.0f}')
+            if corr / lim > worst_frac:
+                worst, worst_frac, worst_corr, worst_lim = k, corr / lim, corr, lim
+        node.get_logger().info(
+            'torsi RNEA+offset(per-aktuator) vs rating: ' + ', '.join(parts)
+            + f'  (terketat {worst} {worst_frac * 100:.0f} %)')
+        if worst_frac > 1.0:
+            node.get_logger().error(
+                f'A6/S3: rencana DITOLAK SEBELUM GERAK -- {worst} diperkirakan '
+                f'{worst_corr:.2f} N.m > rating {worst_lim:.0f}. Pose ini '
+                'menuntut torsi di atas rating sendi; itu sifat POSE, bukan '
+                'sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi '
+                'G16 ia menolak 1 dari 4 pose yang ternyata aman.)')
+            return 'TORQUE-UNSAFE', None
+
+    # STEP 3. Runs after the torque screen and before execution, because the
+    # goal-pose screen in dual_arm_targets.py only clears the ENDPOINTS -- the
+    # measured minimum there was 262 mm, while what the arms do in TRANSIT
+    # between hanging and those endpoints is not constrained by it at all.
+    if other_arm is not None:
+        sc = screen_interarm(traj, arm, node, other_arm)
+        if sc is None:
+            node.get_logger().error(
+                'TIDAK BISA menyaring tabrakan antar-lengan -- MENOLAK '
+                'bergerak tanpa penyaringan. SRDF tidak dapat dipakai sebagai '
+                'cadangan: 112 dari 121 pasangan silang dimatikan di sana.')
+            return 'INTERARM-UNSCREENED', None
+        verdict, dist, pair, k = sc
+        node.get_logger().info(
+            f'jarak antar-lengan minimum sepanjang rencana: {dist * 1000:.1f} mm '
+            f'di titik {k} ({pair[0]} <-> {pair[1]}) -> {verdict}')
+        if verdict != 'CLEAR':
+            node.get_logger().error(
+                f'TABRAKAN ANTAR-LENGAN: rencana DITOLAK SEBELUM GERAK -- '
+                f'{dist * 1000:.1f} mm di titik {k} antara {pair[0]} dan '
+                f'{pair[1]}, di bawah margin {INTERARM_MARGIN_M * 1000:.0f} mm. '
+                'MoveIt menilai rencana ini SAH karena pasangan itu dimatikan '
+                'di SRDF.')
+            return 'INTERARM-COLLIDE', None
+
+    return 'PLANNED', traj
+
+
+def dual_trial(node, a, i, arms, fixed2):
+    """One step-3 trial: both arms of gantry 1, scored on the COMMON window.
+
+    The arms are commanded SEQUENTIALLY -- arm_1 arrives, then arm_2 -- and that
+    is deliberate, not a limitation worked around. The locked criterion asks
+    whether a common 2.0 s window EXISTS, not whether the two arms travelled at
+    once; arm_1 holding its pose under position control while arm_2 flies is a
+    legitimate way to produce one. Commanding both simultaneously would also
+    put two arms in motion in a shared volume screened only at waypoints, which
+    is a much larger physical risk for no gain in what is being measured.
+    """
+    node.status.clear()
+    # NO /reach_dwell/clear here, and that is a fix rather than an omission.
+    # Measured in fake hardware, trial 10 of 10: the probe published clear
+    # BEFORE the targets, but clear and target are separate topics with
+    # separate DDS match times, and the clear was DELIVERED 1 ms AFTER them --
+    #     arm_1: target set (0.714, 0.318, 1.240)
+    #     cleared: arm_1
+    # -- which wiped the freshly set targets, left the monitor with no active
+    # task, and produced NEITHER while both arms were in fact sitting 1.2 mm
+    # from their targets. Same family as g16 B3.4(6), mirrored.
+    #
+    # The clear was redundant anyway: _on_target REPLACES tasks[arm] and resets
+    # concurrent_since/concurrent_reported, so re-targeting an arm already does
+    # everything clearing it would. Removing it removes the race outright
+    # instead of trying to out-wait it.
+    p = node.wait_percept(timeout=10.0)
+    p2 = PoseStamped()
+    p2.header.frame_id = 'world'
+    p2.pose.position.x, p2.pose.position.y, p2.pose.position.z = fixed2
+    p2.pose.orientation.w = 1.0
+    if p is None:
+        return dict(trial=i, verdict='INVALID')
+    cmds = {arms[0]: node.command_pose(p), arms[1]: node.command_pose(p2)}
+
+    # BOTH before EITHER moves -- the monitor restarts its common-window clock
+    # on every incoming target (reach_dwell_monitor._on_target).
+    for arm in arms:
+        if not node.publish_target(cmds[arm], arm):
+            print(f'  [{i:2d}] TIDAK VALID (mesin): tidak ada pelanggan di '
+                  f'/reach_dwell/target/{arm} -- monitor tidak memantau '
+                  'KEDUA lengan? A5, diulang, di luar penyebut.')
+            return dict(trial=i, verdict='INVALID')
+
+    if not a.move:
+        for arm in arms:
+            other = arms[1] if arm == arms[0] else arms[0]
+            mv = move_to(arm, cmds[arm], node, plan_only=True,
+                         tau_max=a.tau_max, other_arm=other,
+                         attempts=a.plan_attempts) \
+                if a.plan_check else 'DRY'
+            c = cmds[arm].pose.position
+            print(f'  [{i:2d}] DRY {arm}: p_cmd = ({c.x:+.3f}, {c.y:+.3f}, '
+                  f'{c.z:+.3f})' + (f'   rencana: {mv}' if a.plan_check else ''))
+        return dict(trial=i, verdict='DRY')
+
+    node.tau_peak, node.tau_worst_joint = 0.0, ''
+    moves = {}
+    for arm in arms:
+        other = arms[1] if arm == arms[0] else arms[0]
+        moves[arm] = move_to(arm, cmds[arm], node, tau_max=a.tau_max,
+                             other_arm=other, attempts=a.plan_attempts)
+        print(f'       {arm}: moveit {moves[arm]}')
+        if moves[arm] != 'MOVED':
+            break
+
+    if any(v != 'MOVED' for v in moves.values()) or len(moves) < len(arms):
+        bad = [f'{k}:{v}' for k, v in moves.items() if v != 'MOVED']
+        v = 'HALTED'
+        print(f'  [{i:2d}] {v:12s} ({", ".join(bad) or "tidak lengkap"}) '
+              f'torsi puncak {node.tau_peak:5.2f} N.m')
+        return dict(trial=i, verdict=v, move_status=moves,
+                    tau_peak=round(node.tau_peak, 3))
+
+    v, won = node.collect_concurrent(a.settle, arms)
+    print(f'  [{i:2d}] {v:12s} (lengan sukses sendiri-sendiri: '
+          f'{sorted(won) or "tidak ada"}) torsi puncak {node.tau_peak:5.2f} N.m')
+    return dict(trial=i, verdict=v, move_status=moves,
+                per_arm_success=sorted(won),
+                tau_peak=round(node.tau_peak, 3),
+                targets={k: [round(c.pose.position.x, 4),
+                             round(c.pose.position.y, 4),
+                             round(c.pose.position.z, 4)]
+                         for k, c in cmds.items()})
 
 
 def main():
@@ -555,38 +828,78 @@ def main():
                     help='saat DRY RUN, tetap MINTA rencana ke MoveIt (tanpa '
                          'mengeksekusi) supaya NO-PLAN terpisah dari '
                          'terjangkau-tapi-belum-dicoba')
+    ap.add_argument('--dual', action='store_true',
+                    help='LANGKAH 3: arm_1 + arm_2 pada gantry_1, dinilai pada '
+                         'jendela dwell BERSAMA (A1 N-lengan), bukan pada '
+                         'sukses masing-masing')
+    ap.add_argument('--plan-attempts', type=int, default=3,
+                    help='B1.9: vonis torsi bergantung lintasan yang kebetulan '
+                         'ditemukan OMPL (8/10 pada satu pose marginal). Minta '
+                         'sampai N lintasan; TIAP rencana tetap disaring penuh, '
+                         'dan hanya yang lolos SEMUA saringan dieksekusi.')
+    ap.add_argument('--target2', metavar='X,Y,Z',
+                    help='target arm_2 untuk --dual; ambil dari '
+                         'scripts/dual_arm_targets.py, jangan dikarang')
     ap.add_argument('--monitor-csv', default='',
                     help='<csv_log>_samples.csv milik reach_dwell_monitor. '
                          'Dibutuhkan untuk membedakan REACHED-NOT-HELD dari '
                          'EXEC-MISS: monitor TIDAK menerbitkan status per-sampel')
     a = ap.parse_args()
 
-    fixed = None
-    if a.target:
+    def _xyz(s, flag):
         try:
-            fixed = tuple(float(v) for v in a.target.split(','))
-            if len(fixed) != 3:
+            v = tuple(float(x) for x in s.split(','))
+            if len(v) != 3:
                 raise ValueError
+            return v
         except ValueError:
-            ap.error('--target harus X,Y,Z (meter, frame world)')
+            ap.error(f'{flag} harus X,Y,Z (meter, frame world)')
+
+    fixed = _xyz(a.target, '--target') if a.target else None
+    fixed2 = None
+    arms = None
+    if a.dual:
+        if not (a.target and a.target2):
+            ap.error('--dual butuh --target (arm_1) DAN --target2 (arm_2). '
+                     'Pakai scripts/dual_arm_targets.py untuk keduanya.')
+        fixed2 = _xyz(a.target2, '--target2')
+        arms = ['arm_1', 'arm_2']
 
     if not a.move:
         print('\033[33mDRY RUN\033[0m -- tidak ada gerak. '
               'Tambahkan --move untuk menggerakkan (A6/S7).\n')
 
     rclpy.init()
-    node = Probe(a.arm, a.approach, a.tau_max, a.move, a.topic, fixed)
+    node = Probe(a.arm, a.approach, a.tau_max, a.move, a.topic, fixed, arms)
     src = f'TETAP {fixed} (persepsi dilewati)' if fixed else f'topik {a.topic}'
-    print(f'probe: {a.arm} ({TOOL_FRAME[a.arm]}), {a.trials} percobaan, '
-          f'approach {a.approach*1000:.0f} mm, abort torsi {a.tau_max} N.m')
-    print(f'sumber target: {src}')
-    print('kriteria A1 TERKUNCI: pos < 5 mm, ori < 5 deg, dwell 2.0 s KONTINU\n')
+    if a.dual:
+        print(f'probe LANGKAH 3: {arms[0]} + {arms[1]} (gantry_1), '
+              f'{a.trials} percobaan, abort torsi {a.tau_max} N.m')
+        print(f'sumber target: arm_1 {fixed}, arm_2 {fixed2}')
+        print('kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana '
+              'KEDUA lengan\nmemenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. '
+              'Bergantian TIDAK dihitung.\n')
+    else:
+        print(f'probe: {a.arm} ({TOOL_FRAME[a.arm]}), {a.trials} percobaan, '
+              f'approach {a.approach*1000:.0f} mm, abort torsi {a.tau_max} N.m')
+        print(f'sumber target: {src}')
+        print('kriteria A1 TERKUNCI: pos < 5 mm, ori < 5 deg, dwell 2.0 s '
+              'KONTINU\n')
 
     tally = {'SUCCESS': 0, 'REACHED-NOT-HELD': 0, 'NO-PLAN': 0,
              'TORQUE-ABORT': 0, 'INVALID': 0}
     rows = []
     try:
         for i in range(1, a.trials + 1):
+            if a.dual:
+                row = dual_trial(node, a, i, arms, fixed2)
+                rows.append(row)
+                tally[row['verdict']] = tally.get(row['verdict'], 0) + 1
+                if row['verdict'] == 'TORQUE-ABORT':
+                    print('\033[31m  BERHENTI: batas torsi. A6/S4 -- red LED '
+                          'butuh reset FISIK.\033[0m')
+                    break
+                continue
             node.status.clear()
             node.clear()
             p = node.wait_percept(timeout=10.0)
@@ -610,7 +923,8 @@ def main():
 
             if not a.move:
                 mv = move_to(a.arm, p_cmd, node, plan_only=True,
-                             tau_max=a.tau_max) if a.plan_check else 'DRY'
+                             tau_max=a.tau_max,
+                             attempts=a.plan_attempts) if a.plan_check else 'DRY'
                 print(f'  [{i:2d}] DRY RUN  p_cmd = '
                       f'({p_cmd.pose.position.x:+.3f}, '
                       f'{p_cmd.pose.position.y:+.3f}, '
@@ -643,9 +957,26 @@ def main():
     finally:
         # A5: machine-mode events (TUCK-REFUSED / EXEC-FAIL / TORQUE-ABORT /
         # INVALID) are NOT method failures and stay OUT of the denominator.
+        if a.dual:
+            # CONCURRENT is the result. STAGGERED is reported next to it and
+            # never added into it: both arms succeeding at different moments is
+            # the prior-work behaviour this criterion was written to exclude.
+            v = sum(tally.get(k, 0) for k in
+                    ('CONCURRENT', 'STAGGERED', 'PARTIAL', 'NEITHER'))
+            if v:
+                print(f'\n  A1 N-lengan: {tally.get("CONCURRENT", 0)} / {v} '
+                      'punya jendela BERSAMA')
+                print(f'  BERGANTIAN (kedua lengan sukses, tapi TIDAK '
+                      f'bersamaan): {tally.get("STAGGERED", 0)}  <- BUKAN sukses')
+                print(f'  SEBAGIAN {tally.get("PARTIAL", 0)}, '
+                      f'TIDAK ADA {tally.get("NEITHER", 0)}')
+            mesin = {k: n for k, n in tally.items()
+                     if k in ('HALTED', 'TORQUE-ABORT', 'INVALID', 'DRY') and n}
+            print(f'  TIDAK VALID (mesin, A5, di LUAR penyebut): '
+                  f'{mesin or "tidak ada"}')
         valid = sum(tally.get(k, 0) for k in
                     ('SUCCESS', 'REACHED-NOT-HELD', 'EXEC-MISS', 'NO-PLAN'))
-        if valid:
+        if valid and not a.dual:
             print(f'\n  A2: {tally["SUCCESS"]} / {valid} sukses  '
                   f'(LULUS butuh >= 8/10)')
             print(f'  A3: SUCCESS {tally["SUCCESS"]}, '
@@ -659,8 +990,21 @@ def main():
             print(f'  TIDAK VALID (mesin, A5, diulang, di LUAR penyebut): '
                   f'{mesin or "tidak ada"}')
         if rows:
-            json.dump(rows, open('/tmp/g16_step2.json', 'w'), indent=1)
-            print('  -> /tmp/g16_step2.json')
+            out = '/tmp/g17_step3.json' if a.dual else '/tmp/g16_step2.json'
+            # Appended, not overwritten: step 3 runs ONE pair per invocation, so
+            # a fresh write would leave only the last trial of ten.
+            old = []
+            if a.dual and os.path.exists(out):
+                try:
+                    old = json.load(open(out))
+                except ValueError:
+                    old = []
+                # One pair per invocation means `trial` is always 1 locally;
+                # renumber so the accumulated file reads as trials 1..10.
+                for k, r in enumerate(rows, len(old) + 1):
+                    r['trial'] = k
+            json.dump(old + rows, open(out, 'w'), indent=1)
+            print(f'  -> {out}')
         node.destroy_node()
         rclpy.shutdown()
     return 0
