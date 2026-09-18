@@ -34,8 +34,6 @@ Email: rochmanto-artha@ed.tmu.ac.jp, achmad-aji@ed.tmu.ac.jp, risnumawan-anhar@e
 \maketitle
 
 \begin{abstract}
-% DRAFT -- not yet signed off; follows the "Approach and contributions" (I-¶4) and
-% "Results preview" (I-¶5) paragraphs below.
 The two ceiling-mounted rails carrying four arms turn every pick into two
 coupled decisions, which arm should act and where its base should go, since
 repositioning the base is a dominant cost of the motion. We propose an
@@ -48,15 +46,15 @@ reachable. Treating the rail as a degree of freedom when building the map enlarg
 the measured reachable workspace by about four times, and boundary-seeding keeps
 the map accurate to within about a centimetre of the true reach surface. In
 simulation on NVIDIA Isaac Sim, energy-aware selection is evaluated against
-nearest, fixed, and random baselines under a rail dynamics model with assumed
-Coulomb/viscous friction (a modelling assumption, not measured hardware data), so
+nearest, fixed, and random baselines under a rail dynamics model with
+Coulomb/viscous friction and an assumed friction coefficient of $\mu=0.15$, so
 repositioning the rail carries a real energy cost. Over a 60-position grid, the
 multi-arm policies each reach 93.3\% plan success versus 63--65\% for any single
 fixed arm, and energy-aware selection attains the lowest mean measured mechanical
 energy of the three (5.1\% below nearest, 3.1\% below random), with a majority
 (57--61\%) same-target pairwise win rate against each baseline. A friction
 sensitivity analysis shows that this advantage grows with rail friction (up to
-11--12\% at three times the assumed value) and is lost only when rail friction is low.
+11--12\% at three times the nominal value) and is lost only when rail friction is low.
 \end{abstract}
 
 \begin{IEEEkeywords}
