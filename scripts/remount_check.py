@@ -39,8 +39,11 @@ PORTS = ('/dev/ttyUSB0', '/dev/ttyUSB1')
 # Processes that must NOT already be running. pgrep/ps match their own command
 # text, so /proc/*/cmdline is scanned instead -- that mistake is itself one of
 # the recorded failure modes.
+# reach_dwell_monitor is here because the SCORER leaks: `ros2 run` spawns it as
+# a child, so killing the wrapper leaves it alive, and a leaked scorer scores the
+# next run -- silently, with whatever code the leaked one was built from.
 STALE = ('move_group', 'ros2_control_node', 'static_transform_publisher',
-         'realsense2_camera_node')
+         'realsense2_camera_node', 'reach_dwell_monitor')
 
 FAILS: list[str] = []
 WARNS: list[str] = []

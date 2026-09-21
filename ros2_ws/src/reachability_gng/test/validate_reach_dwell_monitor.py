@@ -13,6 +13,8 @@ Cases:
 """
 import json
 import math
+import os
+import signal
 import subprocess
 import sys
 import time
@@ -87,14 +89,32 @@ def successes(d, arm=None):
 
 
 def main():
+    # start_new_session so the WHOLE group can be killed below. `ros2 run` is a
+    # wrapper: it spawns the monitor as a CHILD, so terminating this Popen kills
+    # the wrapper and leaves the monitor running. Measured: four leaked monitors
+    # accumulated across four validator runs, and a leaked monitor SCORES the
+    # next run -- cases then pass without the run's own monitor ever starting.
     mon = subprocess.Popen(
         ['ros2', 'run', 'reachability_gng', 'reach_dwell_monitor'],
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+        start_new_session=True)
     rclpy.init()
     d = Driver()
     fails = []
     try:
+        # A monitor that never starts scores nothing, and "scores nothing" reads
+        # as A/C/E FAIL while B/D PASS -- the two cases that assert the ABSENCE
+        # of success pass for the wrong reason. That happened for real: a stale
+        # entry_points.txt made `ros2 run` die with StopIteration, stderr went to
+        # DEVNULL, and the output looked like three broken cases instead of one
+        # missing process. So the process is checked FIRST, and separately.
         spin(d, 2.0)   # let the monitor come up and discover topics
+        if mon.poll() is not None:          # checked AFTER the spin: `ros2 run`
+            err = (mon.stderr.read() or '').strip().splitlines()   # takes ~1 s
+            print('MONITOR FAILED TO START -- no case below is meaningful.')
+            for line in err[-6:]:
+                print('   ', line)
+            return 2
 
         # ---- A: exactly on target -------------------------------------
         d.reset()
@@ -197,8 +217,18 @@ def main():
     finally:
         d.destroy_node()
         rclpy.try_shutdown()
-        mon.terminate()
-        mon.wait(timeout=5)
+        try:
+            os.killpg(os.getpgid(mon.pid), signal.SIGINT)
+        except (ProcessLookupError, PermissionError):
+            pass
+        try:
+            mon.wait(timeout=8)
+        except subprocess.TimeoutExpired:
+            os.killpg(os.getpgid(mon.pid), signal.SIGTERM)
+            mon.wait(timeout=5)
+        if mon.poll() not in (0, -15, None):
+            print(f'WARNING: monitor exited {mon.poll()} mid-run; '
+                  'cases after that point are not meaningful.')
 
     print()
     if fails:
