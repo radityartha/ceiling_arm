@@ -1,0 +1,61 @@
+pids monitor 936602 recorder 936586 ros2_control_node 933648; launch log /tmp/g20_t1.log
+rail baseline t1 0.550910 t2 0.000000
+===== TRIAL 1 start 1789977129.966958795 a1=1.000,0.318,1.240 a2=0.214,0.247,1.240 a3=0.450,-0.402,1.240 a4=-0.336,-0.473,1.240
+  TASK probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED arm_3: moveit MOVED arm_4: moveit MOVED | [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_1', 'arm_2', 'arm_3', 'arm_4']) torsi puncak 10.99 N.m
+  measured peak |tau| per arm during task: 7.787:t1_a1_joint_2 9.917:t1_a2_joint_2 6.276:t2_a1_joint_2 10.994:t2_a2_joint_2
+  RETRACT arm_3 arm_4 rc=0: selesai: galat akhir 0.041 deg, torsi puncak 5.886 N.m pada t2_a1_joint_2
+  RETRACT arm_1 arm_2 rc=0: selesai: galat akhir 0.098 deg, torsi puncak 4.718 N.m pada t1_a1_joint_2
+BATCH 1..1 DONE
+pids monitor 936602 recorder 936586 ros2_control_node 933648; launch log /tmp/g20_t1.log
+rail baseline t1 0.550910 t2 0.000000
+===== TRIAL 2 start 1789977566.214419516 a1=0.857,0.035,1.080 a2=0.286,0.529,1.160 a3=0.307,-0.685,1.080 a4=-0.264,-0.191,1.160
+  TASK probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED arm_3: moveit MOVED arm_4: moveit MOVED | [ 1] TORQUE-ABORT (lengan sukses sendiri-sendiri: tidak ada) torsi puncak 13.03 N.m
+  measured peak |tau| per arm during task: 13.032:t1_a1_joint_2 11.383:t1_a2_joint_2 12.528:t2_a1_joint_2 6.055:t2_a2_joint_3
+  NOTE: probe bucket {'TORQUE-ABORT': 1} -- scored as an outcome (g18 B2.1/B2.2), not a stop
+  RETRACT arm_3 arm_4 rc=0: selesai: galat akhir 0.045 deg, torsi puncak 8.222 N.m pada t2_a2_joint_2
+  RETRACT arm_1 arm_2 rc=0: selesai: galat akhir 0.093 deg, torsi puncak 7.009 N.m pada t1_a1_joint_2
+===== TRIAL 3 start 1789977843.189724514 a1=0.786,0.388,1.000 a2=0.071,0.176,1.000 a3=0.236,-0.332,1.000 a4=-0.479,-0.544,1.000
+  TASK probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED arm_3: moveit MOVED arm_4: moveit MOVED | [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_1', 'arm_2', 'arm_3', 'arm_4']) torsi puncak  7.99 N.m
+  measured peak |tau| per arm during task: 3.756:t1_a1_joint_2 7.627:t1_a2_joint_2 4.375:t2_a1_joint_2 7.994:t2_a2_joint_2
+  RETRACT arm_3 arm_4 rc=0: selesai: galat akhir 0.041 deg, torsi puncak 7.077 N.m pada t2_a1_joint_2
+  RETRACT arm_1 arm_2 rc=0: selesai: galat akhir 0.033 deg, torsi puncak 7.031 N.m pada t1_a1_joint_2
+===== TRIAL 4 start 1789978073.119320139 a1=0.714,0.318,1.240 a2=0.071,0.247,1.160 a3=0.164,-0.402,1.240 a4=-0.479,-0.473,1.160
+  TASK probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED arm_3: moveit MOVED arm_4: moveit MOVED | [ 1] TORQUE-ABORT (lengan sukses sendiri-sendiri: tidak ada) torsi puncak 12.87 N.m
+  measured peak |tau| per arm during task: 12.872:t1_a1_joint_2 10.101:t1_a2_joint_2 5.615:t2_a1_joint_3 6.035:t2_a2_joint_3
+  NOTE: probe bucket {'TORQUE-ABORT': 1} -- scored as an outcome (g18 B2.1/B2.2), not a stop
+  RETRACT arm_3 arm_4 rc=0: selesai: galat akhir 0.039 deg, torsi puncak 8.635 N.m pada t2_a1_joint_2
+  RETRACT arm_1 arm_2 rc=0: selesai: galat akhir 0.094 deg, torsi puncak 8.062 N.m pada t1_a1_joint_2
+===== TRIAL 5 start 1789978368.439157988 a1=1.000,0.318,1.240 a2=0.214,0.247,1.240 a3=0.450,-0.402,1.240 a4=-0.336,-0.473,1.240
+  TASK probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED arm_3: moveit MOVED arm_4: moveit MOVED | [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_1', 'arm_2', 'arm_3', 'arm_4']) torsi puncak  9.87 N.m
+  measured peak |tau| per arm during task: 6.871:t1_a1_joint_2 9.872:t1_a2_joint_2 9.459:t2_a1_joint_2 5.959:t2_a2_joint_3
+  RETRACT arm_3 arm_4 rc=0: selesai: galat akhir 0.042 deg, torsi puncak 6.894 N.m pada t2_a2_joint_2
+  RETRACT arm_1 arm_2 rc=0: selesai: galat akhir 0.095 deg, torsi puncak 5.749 N.m pada t1_a2_joint_2
+===== TRIAL 6 start 1789978715.901044387 a1=0.857,0.035,1.080 a2=0.286,0.529,1.160 a3=0.307,-0.685,1.080 a4=-0.264,-0.191,1.160
+  TASK probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED arm_3: moveit MOVED arm_4: moveit MOVED | [ 1] TORQUE-ABORT (lengan sukses sendiri-sendiri: tidak ada) torsi puncak 12.83 N.m
+  measured peak |tau| per arm during task: 11.589:t1_a1_joint_2 5.175:t1_a2_joint_3 12.551:t2_a1_joint_2 12.826:t2_a2_joint_2
+  NOTE: probe bucket {'TORQUE-ABORT': 1} -- scored as an outcome (g18 B2.1/B2.2), not a stop
+  RETRACT arm_3 arm_4 rc=0: selesai: galat akhir 0.046 deg, torsi puncak 8.406 N.m pada t2_a2_joint_2
+  RETRACT arm_1 arm_2 rc=0: selesai: galat akhir 0.086 deg, torsi puncak 7.123 N.m pada t1_a2_joint_2
+===== TRIAL 7 start 1789979050.164027827 a1=0.786,0.388,1.000 a2=0.071,0.176,1.000 a3=0.236,-0.332,1.000 a4=-0.479,-0.544,1.000
+  TASK probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED arm_3: moveit MOVED arm_4: moveit MOVED | [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_1', 'arm_2', 'arm_3', 'arm_4']) torsi puncak 10.03 N.m
+  measured peak |tau| per arm during task: 3.573:t1_a1_joint_2 9.482:t1_a2_joint_2 9.162:t2_a1_joint_2 10.032:t2_a2_joint_2
+  RETRACT arm_3 arm_4 rc=0: selesai: galat akhir 0.042 deg, torsi puncak 5.703 N.m pada t2_a2_joint_2
+  RETRACT arm_1 arm_2 rc=0: selesai: galat akhir 0.087 deg, torsi puncak 6.986 N.m pada t1_a1_joint_2
+===== TRIAL 8 start 1789979315.891146707 a1=0.714,0.318,1.240 a2=0.071,0.247,1.160 a3=0.164,-0.402,1.240 a4=-0.479,-0.473,1.160
+  TASK probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED arm_3: moveit MOVED arm_4: moveit MOVED | [ 1] TORQUE-ABORT (lengan sukses sendiri-sendiri: tidak ada) torsi puncak 14.27 N.m
+  measured peak |tau| per arm during task: 5.320:t1_a1_joint_3 10.353:t1_a2_joint_2 14.269:t2_a1_joint_2 10.925:t2_a2_joint_2
+AUTO-STOP before retract 8: measured torque 14.269:t2_a1_joint_2 > 14 N.m (arms left where they are: operator decides recovery)
+pids monitor 936602 recorder 936586 ros2_control_node 933648; launch log /tmp/g20_t1.log
+rail baseline t1 0.550910 t2 0.000000
+===== TRIAL 9 start 1789979808.447246304 a1=1.000,0.318,1.240 a2=0.214,0.247,1.240 a3=0.450,-0.402,1.240 a4=-0.336,-0.473,1.240
+  TASK probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED arm_3: moveit MOVED arm_4: moveit MOVED | [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_1', 'arm_2', 'arm_3', 'arm_4']) torsi puncak  9.94 N.m
+  measured peak |tau| per arm during task: 8.566:t1_a1_joint_2 9.940:t1_a2_joint_2 6.184:t2_a1_joint_2 5.822:t2_a2_joint_3
+  RETRACT arm_3 arm_4 rc=0: selesai: galat akhir 0.043 deg, torsi puncak 5.749 N.m pada t2_a2_joint_2
+  RETRACT arm_1 arm_2 rc=0: selesai: galat akhir 0.034 deg, torsi puncak 5.199 N.m pada t1_a2_joint_2
+===== TRIAL 10 start 1789980144.959909104 a1=0.857,0.035,1.080 a2=0.286,0.529,1.160 a3=0.307,-0.685,1.080 a4=-0.264,-0.191,1.160
+  TASK probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED arm_3: moveit MOVED arm_4: moveit MOVED | [ 1] TORQUE-ABORT (lengan sukses sendiri-sendiri: tidak ada) torsi puncak 13.08 N.m
+  measured peak |tau| per arm during task: 11.544:t1_a1_joint_2 12.597:t1_a2_joint_2 13.078:t2_a1_joint_2 12.460:t2_a2_joint_2
+  NOTE: probe bucket {'TORQUE-ABORT': 1} -- scored as an outcome (g18 B2.1/B2.2), not a stop
+  RETRACT arm_3 arm_4 rc=0: selesai: galat akhir 0.045 deg, torsi puncak 7.696 N.m pada t2_a1_joint_2
+  RETRACT arm_1 arm_2 rc=0: selesai: galat akhir 0.079 deg, torsi puncak 8.291 N.m pada t1_a2_joint_2
+BATCH 9..10 DONE

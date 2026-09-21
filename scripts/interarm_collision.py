@@ -95,20 +95,27 @@ class InterArmChecker:
                 q[self.model.joints[jid].idx_q] = value
         return q
 
-    def check(self, q):
-        """(min_distance_m, worst_pair_names). Negative distance = penetrating."""
+    def check(self, q, only=None):
+        """(min_distance_m, worst_pair_names). Negative distance = penetrating.
+
+        `only` (a link-name prefix) keeps just the pairs that touch it: with
+        four arms, a plan for arm_1 must not be blamed for two OTHER arms that
+        are both standing still."""
         pin.updateGeometryPlacements(self.model, self.data, self.geom,
                                      self.geom_data, q)
         pin.computeDistances(self.model, self.data, self.geom, self.geom_data, q)
         worst, best = None, float('inf')
         for k, res in enumerate(self.geom_data.distanceResults):
+            cp = self.geom.collisionPairs[k]
+            a, b = self.names[cp.first], self.names[cp.second]
+            if only and not (a.startswith(only) or b.startswith(only)):
+                continue
             if res.min_distance < best:
                 best = res.min_distance
-                cp = self.geom.collisionPairs[k]
-                worst = (self.names[cp.first], self.names[cp.second])
+                worst = (a, b)
         return best, worst
 
-    def screen_trajectory(self, joint_names, points, other_joints):
+    def screen_trajectory(self, joint_names, points, other_joints, only=None):
         """Screen one arm's planned waypoints against the other arm HELD still.
 
         Returns (verdict, min_distance_m, worst_pair, waypoint_index) where
@@ -121,7 +128,7 @@ class InterArmChecker:
         worst_d, worst_pair, worst_k = float('inf'), None, -1
         for k, pt in enumerate(points):
             q = self.q_from(dict(zip(joint_names, pt)), q=base)
-            d, pair = self.check(q)
+            d, pair = self.check(q, only)
             if d < worst_d:
                 worst_d, worst_pair, worst_k = d, pair, k
         if worst_d <= 0.0:
@@ -129,6 +136,56 @@ class InterArmChecker:
         if worst_d < self.margin:
             return 'MARGIN', worst_d, worst_pair, worst_k
         return 'CLEAR', worst_d, worst_pair, worst_k
+
+
+class CrossGantryChecker(InterArmChecker):
+    """Everything on gantry 1 against everything on gantry 2 -- step 5.
+
+    docs/p1_g20_hw.md A: MoveIt disables 283 t1_* <-> t2_* pairs (282 "Never",
+    1 "Adjacent") in trailer_workcell.srdf, so with both gantries live it plans
+    any arm straight through the other gantry and calls it valid. The class
+    above covers only the two arms of ONE gantry.
+
+    CONVEX HULLS, not the shipped meshes, and that is measured rather than
+    chosen: mesh distance cost 469 ms per waypoint for 121 pairs; the 676 pairs
+    here would cost ~2.6 s per waypoint, ~100 s per plan. Hulls cost 1.07 ms for
+    all 676. A hull CONTAINS its mesh, so in exact arithmetic the hull distance
+    is <= the mesh distance. MEASURED, it is not quite: GJK at default
+    tolerance read up to 0.4 mm ABOVE mesh at 13 / 59 / 143 mm gaps (and -15.0
+    vs 0.0 in contact). Tightening gjk_tolerance made it worse (+3.8 mm, GJK
+    stops unconverged on an upper bound), so default is kept. 0.4 mm against a
+    50 mm margin; stated, not assumed away (docs/p1_g20_hw.md B0).
+
+    Structure-vs-structure pairs (platform, rotation link, mount plates of both
+    gantries) are dropped: the two rails are parallel in x at fixed y +-0.36,
+    so those can only translate past each other and sit at a constant 429 mm
+    that would otherwise be reported as "the minimum" on every waypoint.
+    """
+
+    def __init__(self, urdf=LIVE_URDF, margin=DEFAULT_MARGIN_M):
+        self.model = pin.buildModelFromUrdf(urdf)
+        self.data = self.model.createData()
+        self.geom = pin.buildGeomFromUrdf(
+            self.model, urdf, pin.GeometryType.COLLISION, _package_dirs())
+        self.margin = margin
+        for g in self.geom.geometryObjects:
+            if hasattr(g.geometry, 'buildConvexRepresentation'):
+                g.geometry.buildConvexRepresentation(False)
+                g.geometry = g.geometry.convex
+        names = [g.name for g in self.geom.geometryObjects]
+        arm = tuple(ARM_PREFIX.values())
+        ia = [i for i, n in enumerate(names) if n.startswith('t1_')]
+        ib = [i for i, n in enumerate(names) if n.startswith('t2_')]
+        self.geom.removeAllCollisionPairs()
+        for i in ia:
+            for j in ib:
+                if names[i].startswith(arm) or names[j].startswith(arm):
+                    self.geom.addCollisionPair(pin.CollisionPair(i, j))
+        if not len(self.geom.collisionPairs):
+            raise ValueError('antar-gantry: tidak ada pasangan')
+        self.geom_data = self.geom.createData()
+        self.names = names
+        self.n_pairs = len(self.geom.collisionPairs)
 
 
 def _ik(model, data, prefix, target, q0, iters=300):
@@ -191,14 +248,54 @@ def self_test(urdf=LIVE_URDF, lin=0.550):
     return 0 if good else 1
 
 
+def self_test_cross(urdf=LIVE_URDF, lin1=0.550, lin2=0.0):
+    """Same two known answers as self_test(), across the gantries (g20 A).
+
+    A: all four arms HANGING, rails at lin1 / lin2 -> must be clear.
+    B: arm_1 (gantry 1) and arm_3 (gantry 2) driven to the SAME world point
+       between the rails -> must report contact. If B does not fire, the
+       screen is dead and nothing it clears may be trusted.
+    """
+    c = CrossGantryChecker(urdf=urdf)
+    print(f'pasangan antar-gantry diperiksa (hull): {c.n_pairs}')
+    rest = {'t1_linear_joint': lin1, 't2_linear_joint': lin2}
+    for pfx in ARM_PREFIX.values():
+        rest.update(zip([f'{pfx}joint_{i}' for i in range(1, 7)],
+                        [-0.46352, 0.10710, 0.12916, -1.38653, -0.17648,
+                         1.73885]))
+    d, pair = c.check(c.q_from(rest))
+    ok_rest = d > c.margin
+    print(f'  A. empat lengan MENGGANTUNG (rel {lin1:.3f} / {lin2:.3f}) : '
+          f'jarak {d * 1000:8.1f} mm  {"BEBAS ✓" if ok_rest else "✗"}   {pair}')
+
+    q = c.q_from(rest)
+    mid = np.array([0.45, 0.0, 1.30])       # antara rel, dijangkau keduanya
+    q, o1 = _ik(c.model, c.data, 't1_a1_', mid, q)
+    q, o3 = _ik(c.model, c.data, 't2_a1_', mid, q)
+    d2, pair2 = c.check(q)
+    ok_hit = d2 <= 0
+    print(f'  B. arm_1 + arm_3 ke titik SAMA {mid} : jarak {d2 * 1000:8.1f} mm  '
+          f'{"TABRAKAN ✓ (benar)" if ok_hit else "BEBAS ✗ (pemeriksa MATI)"}'
+          f'   {pair2}')
+    print(f'     (IK konvergen: arm_1 {o1}, arm_3 {o3})')
+    good = ok_rest and ok_hit and o1 and o3
+    print(f'\nSWA-UJI ANTAR-GANTRY: {"LULUS" if good else "GAGAL"}')
+    return 0 if good else 1
+
+
 def main():
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--urdf', default=LIVE_URDF)
     ap.add_argument('--lin', type=float, default=0.550)
+    ap.add_argument('--lin2', type=float, default=0.0)
     ap.add_argument('--self-test', action='store_true')
+    ap.add_argument('--cross', action='store_true',
+                    help='swa-uji antar-gantry (t1_* vs t2_*), g20')
     a = ap.parse_args()
+    if a.self_test and a.cross:
+        return self_test_cross(a.urdf, a.lin, a.lin2)
     if a.self_test:
         return self_test(a.urdf, a.lin)
     ap.error('pakai --self-test, atau impor InterArmChecker')

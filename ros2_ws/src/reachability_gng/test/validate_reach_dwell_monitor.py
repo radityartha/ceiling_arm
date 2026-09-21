@@ -10,6 +10,8 @@ Cases:
   C  in tol, one 1-sample excursion at t=1.0 -> window RESETS (success late)
   D  6 deg off in approach axis   -> NO success (position alone is not enough)
   E  two arms, staggered entry    -> concurrent window starts at the LATER arm
+  F  FOUR arms, staggered entry   -> 4-arm window starts at the LAST arm (g20)
+  G  four targets, three arrive   -> NO 4-arm window (negative control, g20)
 """
 import json
 import math
@@ -26,6 +28,8 @@ from std_msgs.msg import String
 from tf2_ros import TransformBroadcaster
 
 TARGET = (1.0, 0.5, 1.2)
+FRAMES = ['t1_a1_tool_frame', 't1_a2_tool_frame',
+          't2_a1_tool_frame', 't2_a2_tool_frame']
 
 
 class Driver(Node):
@@ -33,16 +37,14 @@ class Driver(Node):
         super().__init__('validate_driver')
         self.br = TransformBroadcaster(self)
         self.pub = {a: self.create_publisher(PoseStamped, f'/reach_dwell/target/{a}', 10)
-                    for a in ('arm_1', 'arm_2')}
+                    for a in ('arm_1', 'arm_2', 'arm_3', 'arm_4')}
         self.clear = self.create_publisher(String, '/reach_dwell/clear', 10)
         self.events = []
         self.create_subscription(
             String, '/reach_dwell/status',
             lambda m: self.events.append(dict(json.loads(m.data), _t=time.time())), 10)
-        self.offset = {'t1_a1_tool_frame': (0.0, 0.0, 0.0),
-                       't1_a2_tool_frame': (0.0, 0.0, 0.0)}
-        self.quat = {'t1_a1_tool_frame': (0.0, 0.0, 0.0, 1.0),
-                     't1_a2_tool_frame': (0.0, 0.0, 0.0, 1.0)}
+        self.offset = {f: (0.0, 0.0, 0.0) for f in FRAMES}
+        self.quat = {f: (0.0, 0.0, 0.0, 1.0) for f in FRAMES}
         self.live = set()
         self.create_timer(0.02, self._tf)
 
@@ -214,6 +216,53 @@ def main():
                 print(f'E PASS  2-arm common window: fired {lag:.2f}s after the '
                       f'late arm entered tolerance (must be >=2.0s), '
                       f'arms={conc[0]["arms"]}')
+
+        # ---- F: FOUR arms, the common window starts at the LAST arrival ----
+        # g20 step 5 scores N = 4. E only ever proved N = 2.
+        arms4 = ['arm_1', 'arm_2', 'arm_3', 'arm_4']
+        d.reset()
+        d.live = set(FRAMES)
+        for f in FRAMES:
+            d.offset[f] = (0.05, 0.0, 0.0)          # all start OUT of tol
+            d.quat[f] = (0.0, 0.0, 0.0, 1.0)
+        spin(d, 0.5)
+        for a in arms4:
+            d.set_target(a)
+        spin(d, 0.5)
+        for f in FRAMES:                             # arrive 0.8 s apart
+            d.offset[f] = (0.0, 0.0, 0.0)
+            t_late = time.time()
+            spin(d, 0.8)
+        spin(d, 2.5)
+        conc = [e for e in d.events if e.get('event') == 'concurrent'
+                and e.get('n_arms') == 4]
+        if not conc:
+            fails.append('F: no 4-arm concurrent event')
+        else:
+            lag = conc[0]['_t'] - t_late
+            if lag < 1.9:
+                fails.append(f'F: 4-arm window fired {lag:.2f}s after the LAST '
+                             'arm arrived -- anchored on an earlier arm')
+            else:
+                print(f'F PASS  4-arm common window: fired {lag:.2f}s after the '
+                      f'last arm entered tolerance, arms={conc[0]["arms"]}')
+
+        # ---- G: four targets, only three ever arrive -> NO 4-arm window ----
+        d.reset()
+        d.live = set(FRAMES)
+        for f in FRAMES:
+            d.offset[f] = (0.0, 0.0, 0.0)
+        d.offset['t2_a2_tool_frame'] = (0.006, 0.0, 0.0)   # arm_4 6 mm off
+        spin(d, 0.5)
+        for a in arms4:
+            d.set_target(a)
+        spin(d, 4.0)
+        bad = [e for e in d.events if e.get('event') == 'concurrent'
+               and e.get('n_arms', 0) >= 4]
+        if bad:
+            fails.append(f'G: 4-arm concurrent fired with arm_4 6 mm off: {bad[0]}')
+        else:
+            print('G PASS  arm_4 6 mm off (tol 5) -> correctly NO 4-arm window')
     finally:
         d.destroy_node()
         rclpy.try_shutdown()

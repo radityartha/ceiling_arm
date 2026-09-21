@@ -1,0 +1,12 @@
+penilai sebelum: 0
+A PASS  on-target -> SUCCESS, pos_err_max 0.0 mm, 41 samples @ 20.05 Hz, instrument_ok=True
+B PASS  6 mm off (tol 5) -> correctly NO success
+C PASS  excursion at 1.0s reset the window: dwell completed at 3.215s, not ~2.0s
+D PASS  6 deg approach error (tol 5) -> correctly NO success
+E PASS  2-arm common window: fired 2.08s after the late arm entered tolerance (must be >=2.0s), arms=['arm_1', 'arm_2']
+F PASS  4-arm common window: fired 2.06s after the last arm entered tolerance, arms=['arm_1', 'arm_2', 'arm_3', 'arm_4']
+G PASS  arm_4 6 mm off (tol 5) -> correctly NO 4-arm window
+
+ALL CASES PASS -- instrument validated against known synthetic error
+rc=0
+penilai sesudah: 0

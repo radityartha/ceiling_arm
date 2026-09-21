@@ -231,6 +231,76 @@ def pair_screen(pairs, lin, tau_max, repeats=3):
     return out
 
 
+def quad_screen(quads, lin1, lin2, tau_max, repeats=3):
+    """docs/p1_g20_hw.md A4: pair_screen() for FOUR arms, two gantries.
+
+    One sample = one trial as it will run, in the order it will run (S11):
+    arm_1 from REST; arm_2 with arm_1 PLACED at the end of its plan; arm_3 with
+    arm_1 + arm_2 placed; arm_4 with all three placed. Rails placed at lin1 /
+    lin2. Every plan is screened against ALL three other arms (same-gantry mesh
+    + cross-gantry hull, reach_dwell_probe.screen_interarm). plan_only, zero
+    motion; k-of-k as pair_screen.
+    """
+    import rclpy
+    from geometry_msgs.msg import PoseStamped
+
+    from reach_dwell_probe import Probe, _plan_and_screen
+    from rclpy.action import ActionClient
+    from moveit_msgs.action import MoveGroup
+
+    arms = ['arm_1', 'arm_2', 'arm_3', 'arm_4']
+    pfx = {'arm_1': 't1_a1_', 'arm_2': 't1_a2_',
+           'arm_3': 't2_a1_', 'arm_4': 't2_a2_'}
+    base = {'t1_linear_joint': lin1, 't1_rotation_joint': 0.0,
+            't2_linear_joint': lin2, 't2_rotation_joint': 0.0}
+    for p in pfx.values():
+        base.update({f'{p}joint_{i}': v for i, v in enumerate(REST, 1)})
+
+    def pose(xyz):
+        p = PoseStamped()
+        p.header.frame_id = 'world'
+        p.pose.position.x, p.pose.position.y, p.pose.position.z = \
+            (float(v) for v in xyz)
+        p.pose.orientation.x, p.pose.orientation.w = 1.0, 0.0
+        return p
+
+    rclpy.init()
+    node = Probe('arm_1', 0.0, tau_max, False, arms=arms)
+    node._plan_ac = ActionClient(node, MoveGroup, 'move_action')
+    if not node._plan_ac.wait_for_server(timeout_sec=15.0):
+        raise RuntimeError('move_group tidak ada')
+    out = []
+    try:
+        for n, tg in quads:
+            vs = []
+            for _ in range(repeats):
+                placed, bad = dict(base), None
+                for arm, xyz in zip(arms, tg):
+                    v, t = _plan_and_screen(
+                        arm, pose(xyz), node, 0.002, 2.0, 0.15, 15.0, tau_max,
+                        [x for x in arms if x != arm], start_joints=placed)
+                    if v != 'PLANNED':
+                        bad = f'{arm[-1]}:{v}'
+                        break
+                    jt = t.joint_trajectory
+                    placed.update(zip(jt.joint_names, jt.points[-1].positions))
+                vs.append(bad or 'PLANNED')
+                if bad:
+                    break
+            ok = len(vs) == repeats and all(v == 'PLANNED' for v in vs)
+            print(f'  kuartet {n:2d} @rel {lin1:.3f}/{lin2:.3f}: '
+                  + ' '.join(f'a{k}({x:.3f},{y:.3f},{z:.3f})'
+                             for k, (x, y, z) in enumerate(tg, 1))
+                  + f' -> {"/".join(vs)}  {"LOLOS" if ok else "ditolak"}',
+                  flush=True)
+            out.append(dict(quad=n, lin1=lin1, lin2=lin2,
+                            targets=[list(x) for x in tg], samples=vs, ok=ok))
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(
         description=__doc__,
@@ -262,6 +332,13 @@ def main():
                     help='rel tempat --pairs-file dibuat; target digeser '
                          '+x sebesar (--lin - --pairs-lin), rel = translasi x '
                          'murni jadi geometri relatif lengan identik')
+    ap.add_argument('--quad', action='store_true',
+                    help='g20 A4: tiap baris --pairs-file dipakai di KEDUA '
+                         'gantry -- gantry 1 di rel --lin, gantry 2 = pasangan '
+                         'sama digeser (--lin2 - --pairs-lin, -0.72, 0); empat '
+                         'lengan disaring berurutan, yang lain DITEMPATKAN')
+    ap.add_argument('--lin2', type=float, default=0.0,
+                    help='rel gantry 2 TERUKUR (m), untuk --quad')
     ap.add_argument('--out', default='',
                     help='JSON hasil --pairs-file (arsipkan ke docs/results)')
     a = ap.parse_args()
@@ -279,6 +356,22 @@ def main():
             p1[0] += dx
             p2[0] += dx
             pairs.append((int(n), p1, p2))
+        if a.quad:
+            # Gantry 2 = gantry 1 translated by -0.72 m in y, same base
+            # rotation (FK, g20 B0), so a shifted pair has the SAME relative
+            # geometry and gravity torque as the original.
+            d2 = a.lin2 - a.pairs_lin
+            quads = [(n, [p1, p2, [p1[0] - dx + d2, p1[1] - 0.72, p1[2]],
+                          [p2[0] - dx + d2, p2[1] - 0.72, p2[2]]])
+                     for n, p1, p2 in pairs]
+            print(f'{len(quads)} kuartet, rel {a.lin:.3f} / {a.lin2:.3f}, '
+                  f'{a.repeats}/{a.repeats}, lengan lain DITEMPATKAN')
+            res = quad_screen(quads, a.lin, a.lin2, a.tau_max, a.repeats)
+            print(f'\nlolos {sum(r["ok"] for r in res)}/{len(res)}')
+            if a.out:
+                json.dump(res, open(a.out, 'w'), indent=1)
+                print(f'  -> {a.out}')
+            return 0
         print(f'{len(pairs)} pasangan dari {a.pairs_file}, rel {a.lin:.3f} m '
               f'(geser x {dx * 1000:+.1f} mm), {a.repeats}/{a.repeats}, '
               f'arm_2 dengan arm_1 DITEMPATKAN')

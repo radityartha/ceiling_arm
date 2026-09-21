@@ -1,0 +1,15 @@
+probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_3 (0.45, -0.402, 1.24), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789976373.992305337] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=4.79->11.39/14, 3=2.13->8.73/10, 4=0.35->2.33/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 87 %)
+[INFO] [1789976410.283378833] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 463.1 mm di titik 48 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+       arm_3: moveit MOVED
+  [ 1] STAGGERED    (lengan sukses sendiri-sendiri: ['arm_3']) torsi puncak  8.70 N.m
+
+  A1 N-lengan: 0 / 1 punya jendela BERSAMA
+  BERGANTIAN (kedua lengan sukses, tapi TIDAK bersamaan): 1  <- BUKAN sukses
+  SEBAGIAN 0, TIDAK ADA 0
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /tmp/g20_step5.json

@@ -1,0 +1,29 @@
+probe LANGKAH 5: arm_1 + arm_2 + arm_3 + arm_4, 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (0.857, 0.035, 1.08), ['arm_2', 'arm_3', 'arm_4'] [(0.286, 0.529, 1.16), (0.307, -0.685, 1.08), (-0.264, -0.191, 1.16)]
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789978717.688369562] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=5.31->11.91/14, 3=1.90->8.50/10, 4=0.33->2.31/7, 5=0.10->2.08/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 85 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:168: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789978755.432448031] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 499.5 mm di titik 113 (t1_a1_left_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0) -> CLEAR
+       arm_1: moveit MOVED
+[INFO] [1789978768.279427852] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=1.32->7.92/14, 3=2.48->9.08/10, 4=0.44->2.42/7, 5=0.12->2.10/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 91 %)
+[INFO] [1789978802.200129797] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 499.7 mm di titik 71 (t1_a1_lower_wrist_link_0 <-> t1_a2_right_finger_dist_link_0) -> CLEAR
+       arm_2: moveit MOVED
+[INFO] [1789978814.746836048] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.15->6.75/10, 2=7.45->14.05/14, 3=1.49->8.09/10, 4=0.21->2.19/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 100 %)
+[ERROR] [1789978814.747174118] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t2_a1_joint_2 diperkirakan 14.05 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1789978814.747442175] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1789978814.797225277] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.18->6.78/10, 2=5.86->12.46/14, 3=2.17->8.77/10, 4=0.33->2.31/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 89 %)
+[INFO] [1789978841.487696199] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 405.1 mm di titik 32 (t1_a1_left_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0) -> CLEAR
+       arm_3: moveit MOVED
+[INFO] [1789978852.268494256] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.09->6.69/10, 2=6.27->12.87/14, 3=0.89->7.49/10, 4=0.12->2.10/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 92 %)
+[INFO] [1789978871.574701941] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 533.5 mm di titik 63 (t1_a2_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+       arm_4: moveit MOVED
+[ERROR] [1789978877.866688097] [reach_dwell_probe]: ABORT: torsi 12.83 N.m pada t2_a2_joint_2 > batas 12.00
+  [ 1] TORQUE-ABORT (lengan sukses sendiri-sendiri: tidak ada) torsi puncak 12.83 N.m
+[31m  BERHENTI: batas torsi. A6/S4 -- red LED butuh reset FISIK.[0m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'TORQUE-ABORT': 1}
+  -> /tmp/g20_step5.json

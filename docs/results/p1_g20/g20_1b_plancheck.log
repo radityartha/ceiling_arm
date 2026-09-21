@@ -1,0 +1,12 @@
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_3 (0.45, -0.402, 1.24), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789976310.123304047] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=4.72->11.32/14, 3=2.15->8.75/10, 4=0.36->2.34/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 87 %)
+[INFO] [1789976345.883522024] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 458.7 mm di titik 51 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_3: p_cmd = (+0.450, -0.402, +1.240)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g20_step5.json

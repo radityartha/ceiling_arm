@@ -68,6 +68,9 @@ TOOL_FRAME = {'arm_1': 't1_a1_tool_frame', 'arm_2': 't1_a2_tool_frame',
               'arm_3': 't2_a1_tool_frame', 'arm_4': 't2_a2_tool_frame'}
 JOINT_PREFIX = {'arm_1': 't1_a1_', 'arm_2': 't1_a2_',
                 'arm_3': 't2_a1_', 'arm_4': 't2_a2_'}
+GANTRY_OF = {'arm_1': 'gantry_1', 'arm_2': 'gantry_1',
+             'arm_3': 'gantry_2', 'arm_4': 'gantry_2'}
+RAIL_JOINT = {'gantry_1': 't1_linear_joint', 'gantry_2': 't2_linear_joint'}
 # NOT /detected_object_pose: that is published by workcell_description's
 # lidar_filter.py, which needs livox_ros_driver2 -- and that source tree is
 # EMPTY in this checkout (there is no .gitmodules either), so the LIDAR driver
@@ -515,31 +518,51 @@ def screen_interarm(traj, arm, node, other_arm, margin=INTERARM_MARGIN_M,
     """
     try:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-        from interarm_collision import InterArmChecker
+        from interarm_collision import CrossGantryChecker, InterArmChecker
     except ImportError:
         return None
+    # docs/p1_g20_hw.md: `other_arm` may be ONE arm (steps 3-4, same gantry,
+    # unchanged) or a LIST (step 5): every arm in it is HELD still, the ones on
+    # this arm's gantry go to the mesh checker validated in g17-g19, the ones on
+    # the other gantry to the hull checker -- MoveIt screens neither, 112/121
+    # same-gantry and 283 cross-gantry pairs are disabled in the SRDF.
+    others = [other_arm] if isinstance(other_arm, str) else list(other_arm)
+    g = GANTRY_OF[arm]
+    same = [o for o in others if GANTRY_OF[o] == g]
+    cross = [o for o in others if GANTRY_OF[o] != g]
     if not hasattr(node, '_interarm'):
-        try:
-            node._interarm = InterArmChecker(gantry='gantry_1', margin=margin)
-        except Exception:                                        # noqa: BLE001
-            node._interarm = None
-    chk = node._interarm
-    if chk is None:
+        node._interarm = {}
+    try:
+        if same and g not in node._interarm:
+            node._interarm[g] = InterArmChecker(gantry=g, margin=margin)
+        if cross and 'cross' not in node._interarm:
+            node._interarm['cross'] = CrossGantryChecker(margin=margin)
+    except Exception:                                        # noqa: BLE001
         return None
-    # The other arm is HELD at its measured configuration while this one moves.
-    want = [f'{JOINT_PREFIX[other_arm]}joint_{i}'
-            for i in range(1, 7)] + ['t1_linear_joint']
+    # The other arms are HELD at their measured configuration while this moves.
+    want = [RAIL_JOINT[g]]
+    for o in others:
+        want += [f'{JOINT_PREFIX[o]}joint_{i}' for i in range(1, 7)]
+        if RAIL_JOINT[GANTRY_OF[o]] not in want:
+            want.append(RAIL_JOINT[GANTRY_OF[o]])
     other = {n: other_joints[n] for n in want if n in other_joints} \
         if other_joints is not None else node.wait_joints(want)
-    if len(other) < 7:
+    if len(other) < len(want):
         node.get_logger().error(
-            f'penyaring tabrakan: /joint_states hanya memberi {len(other)}/7 '
-            'sendi untuk lengan pasangan -- MENOLAK menyaring dengan keadaan '
-            'yang tidak lengkap.')
+            f'penyaring tabrakan: hanya {len(other)}/{len(want)} sendi untuk '
+            'lengan lain -- MENOLAK menyaring dengan keadaan yang tidak '
+            f'lengkap (hilang {sorted(set(want) - set(other))}).')
         return None
     jt = traj.joint_trajectory
-    return chk.screen_trajectory(list(jt.joint_names),
-                                 [list(p.positions) for p in jt.points], other)
+    pts = [list(p.positions) for p in jt.points]
+    res = []
+    if same:
+        res.append(node._interarm[g].screen_trajectory(
+            list(jt.joint_names), pts, other))
+    if cross:
+        res.append(node._interarm['cross'].screen_trajectory(
+            list(jt.joint_names), pts, other, only=JOINT_PREFIX[arm]))
+    return min(res, key=lambda r: r[1])
 
 
 def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
@@ -738,6 +761,9 @@ def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
 
 
 def dual_trial(node, a, i, arms, fixed2):
+    # g20: fixed2 = ONE xyz (step 3/4, arm_2) or a LIST of xyz for arms[1:]
+    # (step 5, --quad). Same sequence either way: every target published
+    # before any arm moves, then the arms one after another (S11).
     """One step-3 trial: both arms of gantry 1, scored on the COMMON window.
 
     The arms are commanded SEQUENTIALLY -- arm_1 arrives, then arm_2 -- and that
@@ -764,13 +790,24 @@ def dual_trial(node, a, i, arms, fixed2):
     # everything clearing it would. Removing it removes the race outright
     # instead of trying to out-wait it.
     p = node.wait_percept(timeout=10.0)
-    p2 = PoseStamped()
-    p2.header.frame_id = 'world'
-    p2.pose.position.x, p2.pose.position.y, p2.pose.position.z = fixed2
-    p2.pose.orientation.w = 1.0
+    extra = [fixed2] if not a.screen_all else list(fixed2)
     if p is None:
         return dict(trial=i, verdict='INVALID')
-    cmds = {arms[0]: node.command_pose(p), arms[1]: node.command_pose(p2)}
+    cmds = {arms[0]: node.command_pose(p)}
+    for arm, xyz in zip(arms[1:], extra):
+        p2 = PoseStamped()
+        p2.header.frame_id = 'world'
+        p2.pose.position.x, p2.pose.position.y, p2.pose.position.z = xyz
+        p2.pose.orientation.w = 1.0
+        cmds[arm] = node.command_pose(p2)
+
+    def _others(arm):
+        # --dual: the partner, exactly as steps 3-4 ran. --arms/--quad (g20):
+        # ALL three other arms, moving in this trial or not -- with both
+        # gantries live, an arm left at REST is still in the way.
+        if not a.screen_all:
+            return arms[1] if arm == arms[0] else arms[0]
+        return [x for x in TOOL_FRAME if x != arm]
 
     # BOTH before EITHER moves -- the monitor restarts its common-window clock
     # on every incoming target (reach_dwell_monitor._on_target).
@@ -783,7 +820,7 @@ def dual_trial(node, a, i, arms, fixed2):
 
     if not a.move:
         for arm in arms:
-            other = arms[1] if arm == arms[0] else arms[0]
+            other = _others(arm)
             mv = move_to(arm, cmds[arm], node, plan_only=True,
                          tau_max=a.tau_max, other_arm=other,
                          attempts=a.plan_attempts) \
@@ -796,7 +833,7 @@ def dual_trial(node, a, i, arms, fixed2):
     node.tau_peak, node.tau_worst_joint = 0.0, ''
     moves = {}
     for arm in arms:
-        other = arms[1] if arm == arms[0] else arms[0]
+        other = _others(arm)
         moves[arm] = move_to(arm, cmds[arm], node, tau_max=a.tau_max,
                              other_arm=other, attempts=a.plan_attempts)
         print(f'       {arm}: moveit {moves[arm]}')
@@ -861,6 +898,16 @@ def main():
     ap.add_argument('--target2', metavar='X,Y,Z',
                     help='target arm_2 untuk --dual; ambil dari '
                          'scripts/dual_arm_targets.py, jangan dikarang')
+    ap.add_argument('--arms', nargs='+', default=None, dest='arms_list',
+                    choices=sorted(TOOL_FRAME),
+                    help='LANGKAH 5 (docs/p1_g20_hw.md): lengan-lengan ini, '
+                         'berurutan, dinilai pada SATU jendela 2.0 s bersama; '
+                         '--target, --target2, ... sesuai urutan. TIAP rencana '
+                         'disaring terhadap KETIGA lengan lain (dua gantry)')
+    ap.add_argument('--quad', action='store_true',
+                    help='= --arms arm_1 arm_2 arm_3 arm_4')
+    ap.add_argument('--target3', metavar='X,Y,Z', help='target lengan ke-3')
+    ap.add_argument('--target4', metavar='X,Y,Z', help='target lengan ke-4')
     ap.add_argument('--monitor-csv', default='',
                     help='<csv_log>_samples.csv milik reach_dwell_monitor. '
                          'Dibutuhkan untuk membedakan REACHED-NOT-HELD dari '
@@ -885,6 +932,21 @@ def main():
                      'Pakai scripts/dual_arm_targets.py untuk keduanya.')
         fixed2 = _xyz(a.target2, '--target2')
         arms = ['arm_1', 'arm_2']
+    a.screen_all = False
+    if a.quad:
+        a.arms_list = ['arm_1', 'arm_2', 'arm_3', 'arm_4']
+    if a.arms_list:
+        if a.dual or len(set(a.arms_list)) != len(a.arms_list):
+            ap.error('--arms/--quad: tanpa --dual, tanpa lengan ganda')
+        flags = ['--target', '--target2', '--target3', '--target4']
+        vals = [a.target, a.target2, a.target3, a.target4]
+        n = len(a.arms_list)
+        if not all(vals[:n]) or any(vals[n:]):
+            ap.error(f'--arms {a.arms_list} butuh tepat {flags[:n]}')
+        a.dual = a.screen_all = True
+        fixed = _xyz(a.target, '--target')
+        fixed2 = [_xyz(v, f) for v, f in zip(vals[1:n], flags[1:n])]
+        arms = list(a.arms_list)
 
     if not a.move:
         print('\033[33mDRY RUN\033[0m -- tidak ada gerak. '
@@ -894,9 +956,9 @@ def main():
     node = Probe(a.arm, a.approach, a.tau_max, a.move, a.topic, fixed, arms)
     src = f'TETAP {fixed} (persepsi dilewati)' if fixed else f'topik {a.topic}'
     if a.dual:
-        print(f'probe LANGKAH 3: {arms[0]} + {arms[1]} (gantry_1), '
+        print(f'probe LANGKAH {5 if a.screen_all else 3}: {" + ".join(arms)}, '
               f'{a.trials} percobaan, abort torsi {a.tau_max} N.m')
-        print(f'sumber target: arm_1 {fixed}, arm_2 {fixed2}')
+        print(f'sumber target: {arms[0]} {fixed}, {arms[1:]} {fixed2}')
         print('kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana '
               'KEDUA lengan\nmemenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. '
               'Bergantian TIDAK dihitung.\n')
@@ -1011,7 +1073,8 @@ def main():
             print(f'  TIDAK VALID (mesin, A5, diulang, di LUAR penyebut): '
                   f'{mesin or "tidak ada"}')
         if rows:
-            out = '/tmp/g17_step3.json' if a.dual else '/tmp/g16_step2.json'
+            out = '/tmp/g20_step5.json' if a.screen_all else \
+                '/tmp/g17_step3.json' if a.dual else '/tmp/g16_step2.json'
             # Appended, not overwritten: step 3 runs ONE pair per invocation, so
             # a fresh write would leave only the last trial of ten.
             old = []

@@ -538,7 +538,7 @@ lemah — padahal 5 cm adalah L1, yang memang tidak pernah dimaksudkan sebagai a
 | **2** | Satu lengan reach-and-dwell ke target terpersepsi | ✅ **LULUS 8/10** [g16 §B5.1](p1_g16_hw.md) — target **tetap** (`--target`), bukan terpersepsi; 3 dari 8 sukses di atas rating `joint_2` |
 | **3** | Dua lengan se-gantry — ~~kopling geser-π terlihat~~ **jendela dwell BERSAMA** | ✅ **LULUS 9/10 CONCURRENT** [g18 §B2](p1_g18_hw.md) — ⚠️ lihat pertentangan di bawah |
 | **4** | Tambah gerak gantry antar tugas — setup cost nyata | ✅ **LULUS 10/10 CONCURRENT** [g19 §B1](p1_g19_hw.md) — pindah 400 mm ≈ **148 s**, traverse hanya **21 s** (14 %); 5/10 di atas 12 N·m nominal |
-| **5** | Dua gantry, empat lengan | ⬜ |
+| **5** | Dua gantry, empat lengan | ✅ **LULUS 10/10 CONCURRENT** [g20 §B2](p1_g20_hw.md) — SATU jendela 2.0 s untuk keempat lengan; rel **tetap** (0.550 / 0.000, nol gerak gantry); 🔴 rating `joint_2` **dilewati sekali** (14.27 N·m, arm_3) oleh rencana yang lolos penyaring; 5/10 di atas 12 |
 
 > 🔴 **Pertentangan (dicatat 2026-09-21, G19; g18 B0.10 no. 7).** Tabel ini
 > dulu mendefinisikan langkah 3 sebagai *"kopling geser-π terlihat"*. Protokol
@@ -551,6 +551,11 @@ lemah — padahal 5 cm adalah L1, yang memang tidak pernah dimaksudkan sebagai a
 >
 > Langkah 2 juga menyimpang dari bunyinya: target **tetap**, persepsi dilewati
 > (g16 A8 — L2 yang sama, persepsi dikeluarkan dari permukaan kegagalan).
+>
+> Langkah 5 (G20): rel **tidak** digerakkan (keputusan operator g20 A8-1), jadi
+> langkah 5 = empat lengan + jendela bersama pada **satu** pasang rel; pindah
+> gantry dengan empat lengan dan eksklusi antar-gantry di rel lain **belum
+> diukur**. Hanya 4 kuartet target berbeda (saringan 3/3 meloloskan 4/10).
 >
 > Langkah 4: model yang diuji g3 §C2 (**retract + traverse + extend**, bukan
 > "lipat + traverse + rentang"), dan traverse lewat bridge ros2_control terikat

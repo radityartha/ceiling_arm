@@ -54,8 +54,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # hangs free here (A6/S1), and rest torque measured 0.069 N.m against tuck's
 # 12.78 of 14.
 REST = [-0.46352, 0.10710, 0.12916, -1.38653, -0.17648, 1.73885]
-PREFIX = {'arm_1': 't1_a1_', 'arm_2': 't1_a2_'}
-CONTROLLER = '/gantry_1_with_arm_controller/follow_joint_trajectory'
+PREFIX = {'arm_1': 't1_a1_', 'arm_2': 't1_a2_',
+          'arm_3': 't2_a1_', 'arm_4': 't2_a2_'}
+# docs/p1_g20_hw.md: one controller per gantry, 14 joints each, so one call
+# moves the arms of ONE gantry. Two gantries = two calls, never one goal each
+# sent at once -- the second screen needs the first gantry's arms AT rest.
+GANTRY = {'arm_1': 1, 'arm_2': 1, 'arm_3': 2, 'arm_4': 2}
+CONTROLLER = '/gantry_{}_with_arm_controller/follow_joint_trajectory'
 # Reported, never enforced -- see departure 2 above. 13.5 was g16's recovery
 # bar; it is ABOVE the KA-75+ 12.0 nominal and must never be used as a trial
 # value (g16 B4.2).
@@ -68,6 +73,7 @@ class RestMover(Node):
         self.joint_pos = {}
         self.tau_peak = 0.0
         self.tau_worst = ''
+        self.watch = ()
         self.create_subscription(JointState, '/joint_states', self._on_js, 20)
 
     def _on_js(self, msg):
@@ -76,6 +82,9 @@ class RestMover(Node):
         for n, p in zip(msg.name, msg.position or []):
             self.joint_pos[n] = float(p)
         for n, e in zip(msg.name, msg.effort or []):
+            # g20: four arms live -- only the arms this call moves count.
+            if self.watch and not n.startswith(self.watch):
+                continue
             if not math.isnan(e) and abs(e) > self.tau_peak:
                 self.tau_peak, self.tau_worst = abs(e), n
 
@@ -121,6 +130,13 @@ def main():
     ap.add_argument('--move', action='store_true',
                     help='A6/S7: benar-benar menggerakkan. Tanpa ini DRY RUN.')
     a = ap.parse_args()
+    gs = {GANTRY[x] for x in a.arms}
+    if len(gs) != 1:
+        ap.error(f'--arms harus dari SATU gantry (satu controller); {a.arms} '
+                 'mencakup dua. Panggil dua kali, gantry demi gantry.')
+    g = gs.pop()
+    og = 3 - g
+    rail = f't{g}_linear_joint'
 
     if not a.move:
         print('\033[33mDRY RUN\033[0m -- tidak ada gerak. '
@@ -128,9 +144,17 @@ def main():
 
     rclpy.init()
     node = RestMover()
+    node.watch = tuple(PREFIX[x] for x in a.arms)
     names = [f'{PREFIX[x]}joint_{i}' for x in a.arms for i in range(1, 7)]
-    state = node.wait_joints(names + ['t1_linear_joint'])
-    missing = [n for n in names if n not in state]
+    # The OTHER gantry, held still, for the cross-gantry screen (g20).
+    held = [f'{PREFIX[x]}joint_{i}' for x in PREFIX if GANTRY[x] == og
+            for i in range(1, 7)] + [f't{og}_linear_joint']
+    # A single-arm call holds its PARTNER still; before g20 the partner was
+    # left at URDF neutral (all joints 0) in the screen instead of measured.
+    partner = [f'{PREFIX[x]}joint_{i}' for x in PREFIX
+               if GANTRY[x] == g and x not in a.arms for i in range(1, 7)]
+    state = node.wait_joints(names + [rail] + held + partner)
+    missing = [n for n in names + [rail] + held + partner if n not in state]
     if missing:
         print(f'🔴 /joint_states tidak lengkap, hilang {missing} -- MENOLAK. '
               'Menginterpolasi dari pose yang tidak diketahui adalah persis '
@@ -144,7 +168,7 @@ def main():
     err = max(abs(s - g) for s, g in zip(start, goal))
     print(f'lengan: {a.arms}   galat terbesar dari rest: '
           f'{math.degrees(err):.2f} deg')
-    print(f'rel t1_linear = {state.get("t1_linear_joint", float("nan")):.6f} m')
+    print(f'rel {rail} = {state[rail]:.6f} m')
     if math.degrees(err) < 0.5:
         print('sudah di rest (< 0.5 deg) -- tidak ada yang perlu dikerjakan.')
         node.destroy_node()
@@ -156,13 +180,22 @@ def main():
     # S8/S9. Both arms move in this trajectory, so the screen gets both sets of
     # joints per waypoint and only the rail comes from the measured state.
     try:
-        from interarm_collision import InterArmChecker
-        chk = InterArmChecker(gantry='gantry_1')
-        v, d, pair, k = chk.screen_trajectory(
+        from interarm_collision import CrossGantryChecker, InterArmChecker
+        res = []
+        chk = InterArmChecker(gantry=f'gantry_{g}')
+        res.append(('se-gantry', chk.screen_trajectory(
             names, [p.positions for p in pts],
-            {'t1_linear_joint': state.get('t1_linear_joint', 0.0)})
-        print(f'penyaring antar-lengan: {v}, minimum {d * 1000:.1f} mm '
-              f'di titik {k}/{len(pts)} ({pair[0]} <-> {pair[1]})')
+            {n: state[n] for n in [rail] + partner})))
+        # g20: the other gantry's arms, HELD at their measured pose. Pairs
+        # restricted to the arms of THIS gantry (only='t{g}_a').
+        cross = CrossGantryChecker()
+        res.append(('antar-gantry', cross.screen_trajectory(
+            names, [p.positions for p in pts],
+            {n: state[n] for n in [rail] + held}, only=f't{g}_a')))
+        for label, (v, d, pair, k) in res:
+            print(f'penyaring {label}: {v}, minimum {d * 1000:.1f} mm '
+                  f'di titik {k}/{len(pts)} ({pair[0]} <-> {pair[1]})')
+        v = 'CLEAR' if all(r[1][0] == 'CLEAR' for r in res) else 'NOT-CLEAR'
         if v != 'CLEAR':
             print('🔴 jalur PEMULIHAN sendiri bertabrakan -- MENOLAK. '
                   'Pulihkan satu lengan lebih dulu (--arms arm_1).')
@@ -182,9 +215,10 @@ def main():
         rclpy.shutdown()
         return 0
 
-    ac = ActionClient(node, FollowJointTrajectory, CONTROLLER)
+    ctl = CONTROLLER.format(g)
+    ac = ActionClient(node, FollowJointTrajectory, ctl)
     if not ac.wait_for_server(timeout_sec=15.0):
-        print(f'🔴 {CONTROLLER} tidak ada. Controller aktif? '
+        print(f'🔴 {ctl} tidak ada. Controller aktif? '
               '(enable_gantry_bridge WAJIB di perangkat keras nyata)')
         node.destroy_node()
         rclpy.shutdown()

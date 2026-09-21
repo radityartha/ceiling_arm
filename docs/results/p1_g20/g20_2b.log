@@ -1,0 +1,18 @@
+probe LANGKAH 5: arm_3 + arm_4, 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_3 (0.45, -0.402, 1.24), ['arm_4'] [(-0.336, -0.473, 1.24)]
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789976833.469581734] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=4.96->11.56/14, 3=2.13->8.73/10, 4=0.37->2.35/7, 5=0.10->2.08/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 87 %)
+[INFO] [1789976867.662444833] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 533.9 mm di titik 70 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_dist_link_0) -> CLEAR
+       arm_3: moveit MOVED
+[INFO] [1789976880.448506257] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.09->6.69/10, 2=5.84->12.44/14, 3=1.64->8.24/10, 4=0.27->2.25/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 89 %)
+[INFO] [1789976913.127348002] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 588.0 mm di titik 67 (t2_a1_arm_link_0 <-> t2_a2_forearm_link_0) -> CLEAR
+       arm_4: moveit MOVED
+  [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_3', 'arm_4']) torsi puncak 10.67 N.m
+
+  A1 N-lengan: 1 / 1 punya jendela BERSAMA
+  BERGANTIAN (kedua lengan sukses, tapi TIDAK bersamaan): 0  <- BUKAN sukses
+  SEBAGIAN 0, TIDAK ADA 0
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /tmp/g20_step5.json

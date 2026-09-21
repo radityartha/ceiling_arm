@@ -1,0 +1,28 @@
+probe LANGKAH 5: arm_1 + arm_2 + arm_3 + arm_4, 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (0.786, 0.388, 1.0), ['arm_2', 'arm_3', 'arm_4'] [(0.071, 0.176, 1.0), (0.236, -0.332, 1.0), (-0.479, -0.544, 1.0)]
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789977844.154955195] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=0.88->7.48/14, 3=1.26->7.86/10, 4=0.25->2.23/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 79 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:168: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789977865.549147242] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 536.7 mm di titik 64 (t1_a1_upper_wrist_link_0 <-> t1_a2_upper_wrist_link_0) -> CLEAR
+       arm_1: moveit MOVED
+[INFO] [1789977871.986850671] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=3.13->9.73/14, 3=1.69->8.29/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 83 %)
+[INFO] [1789977882.717220387] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 505.7 mm di titik 39 (t1_a2_upper_wrist_link_0 <-> t2_a1_upper_wrist_link_0) -> CLEAR
+       arm_2: moveit MOVED
+[INFO] [1789977886.703420985] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=0.89->7.49/14, 3=1.25->7.85/10, 4=0.25->2.23/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 79 %)
+[INFO] [1789977898.871960045] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 470.7 mm di titik 38 (t1_a2_upper_wrist_link_0 <-> t2_a1_upper_wrist_link_0) -> CLEAR
+       arm_3: moveit MOVED
+[INFO] [1789977902.741452333] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=3.02->9.62/14, 3=1.63->8.23/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a2_joint_3 82 %)
+[INFO] [1789977913.390818866] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 536.1 mm di titik 0 (t2_a1_gripper_base_link_0 <-> t2_a2_upper_wrist_link_0) -> CLEAR
+       arm_4: moveit MOVED
+  [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_1', 'arm_2', 'arm_3', 'arm_4']) torsi puncak  7.99 N.m
+
+  A1 N-lengan: 1 / 1 punya jendela BERSAMA
+  BERGANTIAN (kedua lengan sukses, tapi TIDAK bersamaan): 0  <- BUKAN sukses
+  SEBAGIAN 0, TIDAK ADA 0
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /tmp/g20_step5.json
