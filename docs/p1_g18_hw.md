@@ -347,13 +347,135 @@ sebagai konstanta keluarga aktuator.
   semua percobaan (gzip), sampel & ringkasan penilai, log per percobaan, skrip
   runner/analisis.
 
-## D. Langkah berikutnya
+## D. Prompt sesi berikutnya — G19-HW (salin ke chat BARU)
 
-Menurut `p1_state.md` §8c: **langkah 4 — gerak gantry antar tugas, biaya setup
-nyata**. Prasyarat yang sesi ini buka: origin gantry diverifikasi **fisik**
-sebelum gerak apa pun ([[gantry-origin-offset-2026-09]]), dan batas end stop
-~1656 mm dari home.
+**Rekomendasi: Opus 5, effort TINGGI.** Langkah 4 menambahkan gerak gantry ke
+sel yang sudah terbukti di langkah 3, dan kesalahan di sana (origin enkoder, end
+stop, bridge yang tidak ARMED, lengan yang belum dilipat saat gantry
+berakselerasi) bersifat **diam** sampai perangkat keras menabrak.
 
-**Rekomendasi: Opus 5, effort TINGGI** — langkah 4 menambahkan gerak gantry
-pada lengan yang sedang menahan pose, dan kesalahan di sana (origin, end stop,
-bridge yang tidak ARMED) bersifat **diam** sampai perangkat keras menabrak.
+```
+Sesi G19-HW -- p1_state.md 8c LANGKAH 4 di PERANGKAT KERAS NYATA:
+gerak gantry ANTAR tugas -- biaya setup NYATA. Repo ceiling_arm,
+branch feat/rgbd-topo-deploy.
+
+BACA PENUH sebelum menulis kode atau menyentuh hardware:
+1. CLAUDE.md (Working Rules; Rule 6 dikecualikan untuk sesi protokol P1,
+   g16 A10).
+2. docs/p1_g18_hw.md -- SELURUHNYA. Langkah 3 LULUS 9/10 CONCURRENT.
+   B0.4 (fix ros2_kortex), B0.7 (origin gantry), B1 (tau-max 12 TIDAK
+   memperketat joint_2), B2.1 (DUA pembacaan), B2.4 (+6.6 BUKAN batas
+   atas), B0.10 (TUJUH pertentangan).
+3. docs/p1_state.md 5.6 + 8c, dan docs/p1_g3_timing.md C -- model biaya
+   setup TERKUNCI: pindah = LIPAT + TRAVERSE + RENTANG-ULANG, dan itu
+   menghentikan KEDUA lengan di gantry itu. Traverse 31.416 mm/s.
+4. docs/p1_g17_hw.md A1-A3 dan docs/p1_g16_hw.md A1, A3, A5, A6 (S1-S7).
+
+=== TUGAS ===
+1. Protokol langkah 4 BELUM ADA. Tulis docs/p1_g19_hw.md A DULU dan KUNCI
+   sebelum satu pun gerak: besaran yang diukur (biaya setup terukur lawan
+   model 5.6/g3 C, per komponen lipat/traverse/rentang), definisi sukses
+   (warisi A1 N-lengan g17 untuk tiap tugas SETELAH pindah), jumlah
+   percobaan dan palang LULUS, pembagian vonis, dan papan skor D57+
+   (skor masuk: 34 meleset, 22 tepat). Minta persetujuan operator atas A.
+2. Target tugas harus dari himpunan yang TERBUKTI di rel yang akan dipakai.
+   Daftar B2 g17 hanya sah di rel 0.550 m. Posisi rel lain = saring ulang
+   3/3 (dual_arm_targets.py --plan-screen), dengan arm_1 DITEMPATKAN di
+   target pasangannya saat menyaring arm_2 (g18 B2.2 membuktikan saringan
+   dengan arm_1 di rest salah kondisi). Opsi itu BELUM ADA di
+   dual_arm_targets.py -- tulis dan validasi dulu (offline/fake, nol gerak).
+   Kunci daftar SEBELUM data.
+3. Jalankan, nilai apa adanya, tulis di docs/p1_g19_hw.md, tautkan balik
+   ke g18. JANGAN sambung/edit p1_g18_hw.md.
+4. Perbarui p1_state.md 8c (basi: langkah 2 masih "BERIKUTNYA"; langkah 3
+   di sana "kopling geser-pi" -- tulis pertentangannya, jangan diam-diam).
+
+=== SEBELUM BRING-UP ===
+- ros2_ws/src/ros2_kortex HARUS di branch ceiling-arm-fixes (e712295).
+  Kalau tidak: bring-up abort "Hardware name GenericSystem is duplicated"
+  di mode MANA PUN (g18 B0.4). Stash cadangan masih ada.
+- python3 scripts/remount_check.py -> GERBANG LULUS (kini juga memindai
+  reach_dwell_monitor basi).
+- Validator penilai: 0 penilai sebelum, 5/5, 0 sesudah.
+- Disk ~4 GB. Launch yang abort meninggalkan crash dump ~400 MB di
+  /var/crash -- hapus dump MILIKMU sendiri.
+- TIDAK ADA table_keyboard.py / dual_table_controller milik operator
+  yang hidup (kunci port -> node gantry gagal init sekali-jalan, g18 B0.8).
+
+=== PERINTAH ===
+cd ros2_ws && source install/setup.bash
+ros2 launch workcell_moveit_config my_workcell.launch.py \
+    use_fake_hardware:=false arm3_fake:=true arm4_fake:=true \
+    enable_gantry_bridge:=true > /tmp/g19_t1.log 2>&1
+# PID launch ASLI: pindai /proc untuk "/opt/ros/humble/bin/ros2 launch".
+# $! dan setsid memberi PEMBUNGKUS. Verifikasi: ros2 node list --no-daemon.
+# 7/7 active; "Actuator count reported by robot is '6'" DUA kali.
+
+python3 scripts/return_rest.py --arms arm_1 arm_2 [--move]
+# rel parsial (bridge): docs/results/p1_g18/rail_to.py <m> [--move]
+# penilai: ros2 run reachability_gng reach_dwell_monitor --ros-args \
+#   -p arms:="['arm_1','arm_2']" \
+#   -p tool_frames:="['t1_a1_tool_frame','t1_a2_tool_frame']" \
+#   -p csv_log:=/tmp/g19_step4
+# perekam joint_states + runner auto-stop: docs/results/p1_g18/
+#   js_record.py, batch.sh, score.py, analyze.py -- titik awal, BUKAN siap
+#   pakai: PID penilai/perekam/ros2_control dan path /tmp/g18_* DI-HARDCODE.
+
+=== KESELAMATAN ===
+- A6/S7: TIDAK ADA gerak tanpa persetujuan eksplisit operator di SETIAP
+  langkah. Otorisasi g18 TIDAK berlanjut.
+- ORIGIN GANTRY: sebelum gerak gantry apa pun, operator KONFIRMASI FISIK
+  carriage ada di posisi yang dibaca enkoder. g18: terbaca 0.000 padahal
+  fisik ~55 cm dari home; end stop (~1656 mm dari home) lalu berada di
+  enkoder ~1106 sementara guard 1600.
+- LIPAT SEBELUM GANTRY BERAKSELERASI (p1_state). Lengan terentang ~98 %
+  batas torsi hanya menahan diri; akselerasi gantry menambah beban
+  inersia yang TIDAK disaring RNEA (penyaring hanya melihat lintasan
+  lengan). Terukur di g18: rel 550 mm dengan lengan di REST -> lengan
+  bergeser 0.018 deg. Gantry bergerak dengan lengan TERENTANG: BELUM
+  PERNAH diukur -- jangan dilakukan tanpa protokol + izin.
+- enable_gantry_bridge:=true WAJIB (tanpa itu nol gerak lengan).
+- Bridge ARMED hanya pada pesan perintah pertama, dan topic_based_ros2_
+  control hanya menerbitkan bila perintah != state. Setpoint pertama harus
+  < arm_tol 5 mm (pakai lintasan cosine lambat, spt rail_to.py).
+- go_to_absolute: |pos-target| <= 50 pulsa = "sudah sampai" (0.52 mm
+  linear / 0.5 deg rotasi).
+- Batas rel operasional 1600 mm (S5); jog tidak dijaga penuh.
+- --tau-max 12.0 JANGAN dinaikkan. TAPI: joint_2 disaring terhadap
+  RATING 14 (prediksi + 6.6), 12.0 hanya PENGAMAT. +6.6 BUKAN batas atas
+  (g18: satu rencana terukur 0.46 N.m di atasnya; margin 0.17 di rencana
+  lain). Tanyakan operator di awal sesi apakah penyaring diperketat --
+  keputusan operator, dicatat di A SEBELUM data.
+- ros2_control TIDAK menegakkan effort; fault_controller TIDAK di-spawn:
+  red LED = reset FISIK.
+- SRDF menonaktifkan 112/121 pasangan antar-lengan: screening manual
+  (interarm_collision.py, sudah di move_to/return_rest).
+- Gerak PEMULIHAN lambat dan HARUS selesai (g16 B4.4).
+
+=== JEBAKAN YANG SUDAH DIUKUR ===
+- /joint_states DUA penerbit: gabung per-nama >= 0.5 s, jangan --once.
+- Probe menulis /tmp/g17_step3.json (hardcode) dan MENIMPA tiap run;
+  /tmp HILANG saat reboot. Arsipkan ke docs/results/p1_g19/ tiap run.
+- Probe memasukkan TORQUE-ABORT dan HALTED ke "TIDAK VALID (mesin)".
+  Vonis A1 = PENILAI INDEPENDEN, bukan probe (g16 B5.1, g17 B3).
+- Jalur --dual (termasuk --plan-check) WAJIB penilai hidup; pakai
+  penilai TERPISAH untuk dry-run supaya CSV hari-H bersih.
+- /robot_state_publisher menyajikan URDF MODE PALSU (geometri lengan &
+  massa identik; hanya 4 sendi jari berbeda) -- g18 B0.6.
+- Rencanakan HANYA dari rest. Torsi = sifat LINTASAN (pasangan 5: 13.62
+  di plan-check, 5.53 saat dieksekusi).
+- pgrep -f / grep /proc cocok dengan baris perintah SHELL-mu sendiri.
+- kill -INT ke launch bisa > 20 s; cek sisa proses SEBELUM meluncurkan lagi
+  (g18 sempat dua stack sekaligus).
+- ros2_control_node membuat crash dump saat SHUTDOWN.
+- --approach 0 WAJIB. Tab browser ke 192.168.2.1x = SIGPIPE.
+
+=== ATURAN ===
+- 7.2: UKUR, JANGAN MENDUGA. Dugaan dikunci SEBELUM data.
+- DILARANG menggeser A1 (5 mm / 5 deg / 2.0 s) atau mengganti target
+  yang gagal. Pakai pos_err_max_settled_mm, bukan pos_err_max (artefak).
+- Kalau B bertentangan dengan A, B menang dan pertentangannya DITULIS.
+  G16 enam, G17 enam, G18 TUJUH.
+- Checkpoint (Rule 10) setelah tiap tahap; Rule 12 -- tidak ada yang
+  dilewati diam-diam.
+```

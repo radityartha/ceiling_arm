@@ -1,0 +1,200 @@
+===== PAIR 1  a1=1.000,0.318,1.240  a2=0.214,0.247,1.240
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (1.0, 0.318, 1.24), arm_2 (0.214, 0.247, 1.24)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789961775.455568651] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=5.18->11.78/14, 3=2.06->8.66/10, 4=0.36->2.34/7, 5=0.10->2.08/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 87 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789961805.991273069] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.8 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_1: p_cmd = (+1.000, +0.318, +1.240)   rencana: PLANNED
+[INFO] [1789961806.044911598] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=5.53->12.13/14, 3=1.88->8.48/10, 4=0.27->2.25/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 87 %)
+[INFO] [1789961824.663660764] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 456.9 mm di titik 64 (t1_a1_arm_link_0 <-> t1_a2_forearm_link_0) -> CLEAR
+  [ 1] DRY arm_2: p_cmd = (+0.214, +0.247, +1.240)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g17_step3.json
+rc=0
+===== PAIR 2  a1=0.857,0.035,1.080  a2=0.286,0.529,1.160
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (0.857, 0.035, 1.08), arm_2 (0.286, 0.529, 1.16)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789961825.587393126] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.12->6.72/10, 2=5.13->11.73/14, 3=1.68->8.28/10, 4=0.31->2.29/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 84 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789961840.583435186] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 544.2 mm di titik 24 (t1_a1_upper_wrist_link_0 <-> t1_a2_upper_wrist_link_0) -> CLEAR
+  [ 1] DRY arm_1: p_cmd = (+0.857, +0.035, +1.080)   rencana: PLANNED
+[INFO] [1789961840.634326865] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=6.57->13.17/14, 3=0.64->7.24/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 94 %)
+[INFO] [1789961853.096246115] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 510.4 mm di titik 32 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_2: p_cmd = (+0.286, +0.529, +1.160)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g17_step3.json
+rc=0
+===== PAIR 3  a1=0.786,0.388,1.000  a2=0.071,0.176,1.000
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (0.786, 0.388, 1.0), arm_2 (0.071, 0.176, 1.0)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789961854.846920521] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=0.97->7.57/14, 3=1.22->7.82/10, 4=0.24->2.22/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 78 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789961868.060374438] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 534.1 mm di titik 41 (t1_a1_gripper_base_link_0 <-> t1_a2_upper_wrist_link_0) -> CLEAR
+  [ 1] DRY arm_1: p_cmd = (+0.786, +0.388, +1.000)   rencana: PLANNED
+[INFO] [1789961868.106341004] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=5.05->11.65/14, 3=0.45->7.05/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 83 %)
+[INFO] [1789961878.014266562] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.8 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_2: p_cmd = (+0.071, +0.176, +1.000)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g17_step3.json
+rc=0
+===== PAIR 4  a1=1.286,0.459,1.160  a2=0.500,0.388,1.240
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (1.286, 0.459, 1.16), arm_2 (0.5, 0.388, 1.24)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789961878.957472976] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.23->6.83/10, 2=7.63->14.23/14, 3=0.42->7.02/10, 4=0.12->2.10/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 102 %)
+[ERROR] [1789961878.957774684] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.23 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1789961878.958099029] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1789961879.002800014] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=5.46->12.06/14, 3=2.52->9.12/10, 4=0.40->2.38/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 91 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789961897.342625792] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.8 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_1: p_cmd = (+1.286, +0.459, +1.160)   rencana: PLANNED
+[INFO] [1789961897.396951806] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=4.98->11.58/14, 3=2.44->9.04/10, 4=0.42->2.40/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 90 %)
+[INFO] [1789961911.207593179] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 321.8 mm di titik 68 (t1_a1_arm_link_0 <-> t1_a2_upper_wrist_link_0) -> CLEAR
+  [ 1] DRY arm_2: p_cmd = (+0.500, +0.388, +1.240)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g17_step3.json
+rc=0
+===== PAIR 5  a1=0.786,0.529,1.320  a2=0.000,0.388,1.240
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (0.786, 0.529, 1.32), arm_2 (0.0, 0.388, 1.24)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789961912.138671025] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.10->6.70/10, 2=7.02->13.62/14, 3=0.71->7.31/10, 4=0.06->2.04/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 97 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789961931.579323687] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 431.5 mm di titik 52 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_1: p_cmd = (+0.786, +0.529, +1.320)   rencana: PLANNED
+[INFO] [1789961931.641801317] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=0.71->7.31/14, 3=2.45->9.05/10, 4=0.41->2.39/7, 5=0.08->2.06/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 91 %)
+[INFO] [1789961955.053954767] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 568.5 mm di titik 125 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_2: p_cmd = (+0.000, +0.388, +1.240)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g17_step3.json
+rc=0
+===== PAIR 6  a1=0.786,0.176,1.400  a2=0.214,0.035,1.400
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (0.786, 0.176, 1.4), arm_2 (0.214, 0.035, 1.4)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789961955.995867392] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=7.50->14.10/14, 3=0.38->6.98/10, 4=0.04->2.02/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 101 %)
+[ERROR] [1789961955.996218296] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.10 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1789961955.996504890] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1789961956.062361934] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=7.47->14.07/14, 3=0.52->7.12/10, 4=0.06->2.04/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 101 %)
+[ERROR] [1789961956.062627323] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.07 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1789961956.062884157] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1789961956.123536051] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=4.36->10.96/14, 3=2.59->9.19/10, 4=0.41->2.39/7, 5=0.14->2.12/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 92 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789961983.827890594] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 278.6 mm di titik 52 (t1_a1_left_finger_dist_link_0 <-> t1_a2_upper_wrist_link_0) -> CLEAR
+  [ 1] DRY arm_1: p_cmd = (+0.786, +0.176, +1.400)   rencana: PLANNED
+[INFO] [1789961983.891345115] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=6.11->12.71/14, 3=2.55->9.15/10, 4=0.39->2.37/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 92 %)
+[INFO] [1789962007.117471134] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.8 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_2: p_cmd = (+0.214, +0.035, +1.400)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g17_step3.json
+rc=0
+===== PAIR 7  a1=1.071,0.600,1.320  a2=0.214,0.388,1.000
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (1.071, 0.6, 1.32), arm_2 (0.214, 0.388, 1.0)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789962008.051063334] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.20->6.80/10, 2=7.37->13.97/14, 3=0.38->6.98/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 100 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789962030.698001806] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 504.0 mm di titik 36 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_1: p_cmd = (+1.071, +0.600, +1.320)   rencana: PLANNED
+[INFO] [1789962030.756766874] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=1.41->8.01/14, 3=1.26->7.86/10, 4=0.21->2.19/7, 5=0.08->2.06/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 79 %)
+[INFO] [1789962060.295597295] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.8 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_2: p_cmd = (+0.214, +0.388, +1.000)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g17_step3.json
+rc=0
+===== PAIR 8  a1=1.071,0.529,1.000  a2=0.286,-0.035,1.240
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (1.071, 0.529, 1.0), arm_2 (0.286, -0.035, 1.24)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789962061.217254142] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=3.64->10.24/14, 3=1.43->8.03/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 80 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789962090.152463655] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.8 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_1: p_cmd = (+1.071, +0.529, +1.000)   rencana: PLANNED
+[INFO] [1789962090.211733674] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.13->6.73/10, 2=7.24->13.84/14, 3=2.44->9.04/10, 4=0.41->2.39/7, 5=0.07->2.05/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 99 %)
+[INFO] [1789962115.737547950] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 584.2 mm di titik 127 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_2: p_cmd = (+0.286, -0.035, +1.240)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g17_step3.json
+rc=0
+===== PAIR 9  a1=1.000,0.247,1.000  a2=0.357,0.318,1.320
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (1.0, 0.247, 1.0), arm_2 (0.357, 0.318, 1.32)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789962116.688112426] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=3.02->9.62/14, 3=0.83->7.43/10, 4=0.10->2.08/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 74 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789962141.133295429] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 596.4 mm di titik 22 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_1: p_cmd = (+1.000, +0.247, +1.000)   rencana: PLANNED
+[INFO] [1789962141.185309852] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=6.74->13.34/14, 3=1.02->7.62/10, 4=0.12->2.10/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 95 %)
+[INFO] [1789962159.822521546] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 409.7 mm di titik 68 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_2: p_cmd = (+0.357, +0.318, +1.320)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g17_step3.json
+rc=0
+===== PAIR 10  a1=0.714,0.318,1.240  a2=0.071,0.247,1.160
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (0.714, 0.318, 1.24), arm_2 (0.071, 0.247, 1.16)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789962160.744561009] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=6.87->13.47/14, 3=0.79->7.39/10, 4=0.09->2.07/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 96 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789962178.353473080] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 417.3 mm di titik 66 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_1: p_cmd = (+0.714, +0.318, +1.240)   rencana: PLANNED
+[INFO] [1789962178.414720633] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=6.06->12.66/14, 3=1.17->7.77/10, 4=0.21->2.19/7, 5=0.08->2.06/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 90 %)
+[INFO] [1789962205.177877575] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.8 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+  [ 1] DRY arm_2: p_cmd = (+0.071, +0.247, +1.160)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g17_step3.json
+rc=0
+ALL DONE

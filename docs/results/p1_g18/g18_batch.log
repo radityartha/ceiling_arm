@@ -1,0 +1,43 @@
+===== PAIR 2 start 1789962642.094601525  a1=0.857,0.035,1.080 a2=0.286,0.529,1.160
+  return_rest rc=0: selesai: galat akhir 0.033 deg, torsi puncak 5.428 N.m pada t1_a1_joint_2
+  probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED | [ 1] TORQUE-ABORT (lengan sukses sendiri-sendiri: tidak ada) torsi puncak 12.71 N.m
+  measured peak |tau| during trial: 12.712 t1_a1_joint_2 N.m   window 1789962693.918745794 .. 1789962782.562402516
+AUTO-STOP before pair 3: pair 2 INVALID (machine cause)
+----- RESUME 3..10 1789962902.564250016
+===== PAIR 3 start 1789962902.766399175  a1=0.786,0.388,1.000 a2=0.071,0.176,1.000
+  return_rest rc=0: selesai: galat akhir 0.093 deg, torsi puncak 10.742 N.m pada t1_a1_joint_2
+  probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED | [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_1', 'arm_2']) torsi puncak  6.46 N.m
+  measured peak |tau| during trial: 6.459 t1_a2_joint_2 N.m   window 1789962953.759239038 .. 1789963036.151307233
+===== PAIR 4 start 1789963037.841507076  a1=1.286,0.459,1.160 a2=0.500,0.388,1.240
+  return_rest rc=0: selesai: galat akhir 0.035 deg, torsi puncak 6.986 N.m pada t1_a1_joint_2
+  probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED | [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_1', 'arm_2']) torsi puncak 11.31 N.m
+  measured peak |tau| during trial: 11.315 t1_a1_joint_2 N.m   window 1789963088.900654236 .. 1789963145.796061659
+===== PAIR 5 start 1789963147.724966680  a1=0.786,0.529,1.320 a2=0.000,0.388,1.240
+  return_rest rc=0: selesai: galat akhir 0.099 deg, torsi puncak 8.154 N.m pada t1_a2_joint_2
+  probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED | [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_1', 'arm_2']) torsi puncak  5.53 N.m
+  measured peak |tau| during trial: 5.533 t1_a2_joint_3 N.m   window 1789963198.882583715 .. 1789963273.746381521
+===== PAIR 6 start 1789963276.022533634  a1=0.786,0.176,1.400 a2=0.214,0.035,1.400
+  return_rest rc=0: selesai: galat akhir 0.073 deg, torsi puncak 9.070 N.m pada t1_a1_joint_2
+  probe rc=0 | arm_1: moveit MOVED arm_2: moveit TORQUE-UNSAFE | [ 1] HALTED       (arm_2:TORQUE-UNSAFE) torsi puncak 10.97 N.m
+  measured peak |tau| during trial: 10.971 t1_a1_joint_2 N.m   window 1789963326.310940643 .. 1789963362.302757742
+AUTO-STOP before pair 7: pair 6 INVALID bucket: {'HALTED': 1}
+----- RESUME 7..10 1789963434.321621728
+===== PAIR 7 start 1789963434.528938924  a1=1.071,0.600,1.320 a2=0.214,0.388,1.000
+  return_rest rc=0: selesai: galat akhir 0.043 deg, torsi puncak 6.573 N.m pada t1_a1_joint_2
+  probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED | [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_1', 'arm_2']) torsi puncak 10.19 N.m
+  measured peak |tau| during trial: 10.192 t1_a1_joint_2 N.m   window 1789963483.017383147 .. 1789963563.793589155
+===== PAIR 8 start 1789963566.701732348  a1=1.071,0.529,1.000 a2=0.286,-0.035,1.240
+  return_rest rc=0: selesai: galat akhir 0.089 deg, torsi puncak 4.718 N.m pada t1_a1_joint_2
+  probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED | [ 1] TORQUE-ABORT (lengan sukses sendiri-sendiri: tidak ada) torsi puncak 13.56 N.m
+  measured peak |tau| during trial: 13.559 t1_a2_joint_2 N.m   window 1789963616.691871261 .. 1789963679.567750774
+  NOTE: probe bucket {'TORQUE-ABORT': 1} -- scored as an outcome, not a stop
+===== PAIR 9 start 1789963682.768834321  a1=1.000,0.247,1.000 a2=0.357,0.318,1.320
+  return_rest rc=0: selesai: galat akhir 0.094 deg, torsi puncak 8.291 N.m pada t1_a2_joint_2
+  probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED | [ 1] TORQUE-ABORT (lengan sukses sendiri-sendiri: tidak ada) torsi puncak 13.01 N.m
+  measured peak |tau| during trial: 13.009 t1_a2_joint_2 N.m   window 1789963733.263882486 .. 1789963802.823935384
+  NOTE: probe bucket {'TORQUE-ABORT': 1} -- scored as an outcome, not a stop
+===== PAIR 10 start 1789963806.398582291  a1=0.714,0.318,1.240 a2=0.071,0.247,1.160
+  return_rest rc=0: selesai: galat akhir 0.044 deg, torsi puncak 7.054 N.m pada t1_a2_joint_2
+  probe rc=0 | arm_1: moveit MOVED arm_2: moveit MOVED | [ 1] CONCURRENT   (lengan sukses sendiri-sendiri: ['arm_1', 'arm_2']) torsi puncak  6.73 N.m
+  measured peak |tau| during trial: 6.803 t1_a1_joint_2 N.m   window 1789963858.711313226 .. 1789963924.655484061
+BATCH DONE

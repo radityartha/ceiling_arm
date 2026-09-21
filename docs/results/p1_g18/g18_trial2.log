@@ -1,0 +1,18 @@
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (0.857, 0.035, 1.08), arm_2 (0.286, 0.529, 1.16)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789962694.699308988] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=6.70->13.30/14, 3=1.11->7.71/10, 4=0.19->2.17/7, 5=0.07->2.05/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 95 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789962725.366732199] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 539.0 mm di titik 84 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+       arm_1: moveit MOVED
+[INFO] [1789962738.204956395] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=1.47->8.07/14, 3=2.48->9.08/10, 4=0.43->2.41/7, 5=0.12->2.10/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 91 %)
+[INFO] [1789962769.790524212] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 476.6 mm di titik 68 (t1_a1_left_finger_prox_link_0 <-> t1_a2_left_finger_dist_link_0) -> CLEAR
+       arm_2: moveit MOVED
+[ERROR] [1789962782.380890197] [reach_dwell_probe]: ABORT: torsi 12.71 N.m pada t1_a1_joint_2 > batas 12.00
+  [ 1] TORQUE-ABORT (lengan sukses sendiri-sendiri: tidak ada) torsi puncak 12.71 N.m
+[31m  BERHENTI: batas torsi. A6/S4 -- red LED butuh reset FISIK.[0m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'TORQUE-ABORT': 1}
+  -> /tmp/g17_step3.json
