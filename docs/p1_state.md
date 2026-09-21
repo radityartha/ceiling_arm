@@ -535,10 +535,26 @@ lemah — padahal 5 cm adalah L1, yang memang tidak pernah dimaksudkan sebagai a
 |---|---|---|
 | **0** | bring-up + verifikasi prasyarat fisik + instrumen | ✅ **SELESAI** Sesi B |
 | **1** | Ukur waktu traverse (+ lipat/rentang) | ✅ **SELESAI** Sesi A — model TERKUNCI (§5.6) |
-| **2** | Satu lengan reach-and-dwell ke target terpersepsi | ⬜ **BERIKUTNYA** |
-| **3** | Dua lengan se-gantry — kopling geser-π terlihat | ⬜ |
-| **4** | Tambah gerak gantry antar tugas — setup cost nyata | ⬜ |
+| **2** | Satu lengan reach-and-dwell ke target terpersepsi | ✅ **LULUS 8/10** [g16 §B5.1](p1_g16_hw.md) — target **tetap** (`--target`), bukan terpersepsi; 3 dari 8 sukses di atas rating `joint_2` |
+| **3** | Dua lengan se-gantry — ~~kopling geser-π terlihat~~ **jendela dwell BERSAMA** | ✅ **LULUS 9/10 CONCURRENT** [g18 §B2](p1_g18_hw.md) — ⚠️ lihat pertentangan di bawah |
+| **4** | Tambah gerak gantry antar tugas — setup cost nyata | ✅ **LULUS 10/10 CONCURRENT** [g19 §B1](p1_g19_hw.md) — pindah 400 mm ≈ **148 s**, traverse hanya **21 s** (14 %); 5/10 di atas 12 N·m nominal |
 | **5** | Dua gantry, empat lengan | ⬜ |
+
+> 🔴 **Pertentangan (dicatat 2026-09-21, G19; g18 B0.10 no. 7).** Tabel ini
+> dulu mendefinisikan langkah 3 sebagai *"kopling geser-π terlihat"*. Protokol
+> yang **benar-benar dikunci dan dinilai** (g17 §A1–A2) mengukur **jendela dwell
+> BERSAMA** dua lengan — besaran berbeda. Kopling geser-π **tidak pernah diukur**
+> oleh g17 maupun g18; "langkah 3 LULUS" hanya berarti jendela bersama.
+> Pelengkap terdekat yang terukur: g18 B2.3 (arm_1 menahan ≤ 0.17 mm selagi
+> arm_2 terbang). Tidak diubah diam-diam; bila kopling geser-π dibutuhkan paper,
+> ia butuh protokol sendiri.
+>
+> Langkah 2 juga menyimpang dari bunyinya: target **tetap**, persepsi dilewati
+> (g16 A8 — L2 yang sama, persepsi dikeluarkan dari permukaan kegagalan).
+>
+> Langkah 4: model yang diuji g3 §C2 (**retract + traverse + extend**, bukan
+> "lipat + traverse + rentang"), dan traverse lewat bridge ros2_control terikat
+> **durasi lintasan yang diperintah**, bukan `T_lin` — [g19 §A1](p1_g19_hw.md).
 
 **Yang sudah diverifikasi di langkah 0** (dibaca, bukan diterima —
 [p1_g4 §B3](p1_g4_reach_dwell.md)): kedua port USB · `enp112s0` = 192.168.2.100/24 ·

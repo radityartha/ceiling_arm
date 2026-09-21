@@ -155,6 +155,82 @@ def plan_screen(cands, arm, other_arm, tau_max, repeats=3):
     return [x for x, _ in kept], why
 
 
+REST = [-0.46352, 0.10710, 0.12916, -1.38653, -0.17648, 1.73885]
+
+
+def pair_screen(pairs, lin, tau_max, repeats=3):
+    """Screen whole PAIRS at rail `lin`, arm_2 with arm_1 PLACED at its target.
+
+    docs/p1_g19_hw.md A4. plan_screen() above screens arm_2 with arm_1 hanging,
+    and g18 B2.2 measured that this is the wrong condition: pair 6's arm_2 plan
+    passed at 12.71 N.m with arm_1 at rest, then was refused 3/3 on hardware
+    (15.36 / 15.39 / 14.63) once arm_1 sat at its target, because OMPL picked a
+    different route through the changed scene.
+
+    Each of the `repeats` samples is one trial as it will run: arm_1 planned
+    from REST, then arm_2 planned from REST with arm_1 placed at the LAST point
+    of THAT arm_1 plan -- the configuration arm_1 will actually hold, not an IK
+    guess. The rail is placed at `lin` in both. Nothing moves: every plan is
+    plan_only, and the placement goes into MoveIt start_state and the inter-arm
+    screen, never into a controller. k-of-k as in plan_screen (g17 B1.9).
+    """
+    import rclpy
+    from geometry_msgs.msg import PoseStamped
+
+    from reach_dwell_probe import Probe, _plan_and_screen
+    from rclpy.action import ActionClient
+    from moveit_msgs.action import MoveGroup
+
+    base = {'t1_linear_joint': lin, 't1_rotation_joint': 0.0}
+    for pfx in ('t1_a1_', 't1_a2_'):
+        base.update({f'{pfx}joint_{i}': v for i, v in enumerate(REST, 1)})
+
+    def pose(xyz):
+        p = PoseStamped()
+        p.header.frame_id = 'world'
+        p.pose.position.x, p.pose.position.y, p.pose.position.z = \
+            (float(v) for v in xyz)
+        p.pose.orientation.x, p.pose.orientation.w = 1.0, 0.0
+        return p
+
+    rclpy.init()
+    node = Probe('arm_1', 0.0, tau_max, False, arms=['arm_1', 'arm_2'])
+    node._plan_ac = ActionClient(node, MoveGroup, 'move_action')
+    if not node._plan_ac.wait_for_server(timeout_sec=15.0):
+        raise RuntimeError('move_group tidak ada')
+    out = []
+    try:
+        for n, p1, p2 in pairs:
+            vs = []
+            for _ in range(repeats):
+                v1, t1 = _plan_and_screen('arm_1', pose(p1), node, 0.002, 2.0,
+                                          0.15, 15.0, tau_max, 'arm_2',
+                                          start_joints=base)
+                if v1 != 'PLANNED':
+                    vs.append(f'a1:{v1}')
+                    break
+                jt = t1.joint_trajectory
+                placed = dict(base)
+                placed.update(zip(jt.joint_names, jt.points[-1].positions))
+                v2, _ = _plan_and_screen('arm_2', pose(p2), node, 0.002, 2.0,
+                                         0.15, 15.0, tau_max, 'arm_1',
+                                         start_joints=placed)
+                vs.append('PLANNED' if v2 == 'PLANNED' else f'a2:{v2}')
+                if v2 != 'PLANNED':
+                    break
+            ok = len(vs) == repeats and all(v == 'PLANNED' for v in vs)
+            print(f'  pasangan {n:2d} @rel {lin:.3f}: '
+                  f'a1({p1[0]:.3f},{p1[1]:.3f},{p1[2]:.3f}) '
+                  f'a2({p2[0]:.3f},{p2[1]:.3f},{p2[2]:.3f}) -> '
+                  f'{"/".join(vs)}  {"LOLOS" if ok else "ditolak"}', flush=True)
+            out.append(dict(pair=n, lin=lin, a1=list(p1), a2=list(p2),
+                            samples=vs, ok=ok))
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(
         description=__doc__,
@@ -177,7 +253,41 @@ def main():
                          'independen. Sekali lolos BUKAN bukti kelayakan.')
     ap.add_argument('--tau-max', type=float, default=12.0,
                     help='= nominal KA-75+. JANGAN dinaikkan agar lolos.')
+    ap.add_argument('--pairs-file', default='',
+                    help='g19 A4: saring pasangan YANG SUDAH ADA (baris '
+                         '"n x,y,z x,y,z", mis. results/p1_g18/b2_pairs.txt) '
+                         'di rel --lin, arm_2 dengan arm_1 DITEMPATKAN di '
+                         'targetnya. Nol gerak; butuh move_group hidup.')
+    ap.add_argument('--pairs-lin', type=float, default=0.550,
+                    help='rel tempat --pairs-file dibuat; target digeser '
+                         '+x sebesar (--lin - --pairs-lin), rel = translasi x '
+                         'murni jadi geometri relatif lengan identik')
+    ap.add_argument('--out', default='',
+                    help='JSON hasil --pairs-file (arsipkan ke docs/results)')
     a = ap.parse_args()
+
+    if a.pairs_file:
+        import json
+        dx = a.lin - a.pairs_lin
+        pairs = []
+        for line in open(a.pairs_file):
+            if not line.strip() or line.startswith('#'):
+                continue
+            n, s1, s2 = line.split()
+            p1 = [float(v) for v in s1.split(',')]
+            p2 = [float(v) for v in s2.split(',')]
+            p1[0] += dx
+            p2[0] += dx
+            pairs.append((int(n), p1, p2))
+        print(f'{len(pairs)} pasangan dari {a.pairs_file}, rel {a.lin:.3f} m '
+              f'(geser x {dx * 1000:+.1f} mm), {a.repeats}/{a.repeats}, '
+              f'arm_2 dengan arm_1 DITEMPATKAN')
+        res = pair_screen(pairs, a.lin, a.tau_max, a.repeats)
+        print(f'\nlolos {sum(r["ok"] for r in res)}/{len(res)}')
+        if a.out:
+            json.dump(res, open(a.out, 'w'), indent=1)
+            print(f'  -> {a.out}')
+        return 0
 
     s1 = np.load('/tmp/torque_safe_arm_1.npy')
     s2 = np.load('/tmp/torque_safe_arm_2.npy')

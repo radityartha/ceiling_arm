@@ -492,10 +492,16 @@ def predict_peak_torque(traj, arm, node):
     return peak
 
 
-def screen_interarm(traj, arm, node, other_arm, margin=INTERARM_MARGIN_M):
+def screen_interarm(traj, arm, node, other_arm, margin=INTERARM_MARGIN_M,
+                    other_joints=None):
     """Screen a plan against the OTHER arm on the same gantry, before executing.
 
     STEP 3 only. Step 2 moved one arm and needed nothing like this.
+
+    `other_joints` PLACES the other arm (and the rail) instead of reading them
+    off /joint_states -- for SELECTION only, docs/p1_g19_hw.md A4: arm_2 must be
+    screened with arm_1 already at its paired target (g18 B2.2), and that has to
+    be screened without moving arm_1 there.
 
     This exists because MoveIt here cannot answer the question: the SRDF marks
     112 of the 121 geometry-bearing cross-arm pairs `reason="Never"`, including
@@ -521,8 +527,10 @@ def screen_interarm(traj, arm, node, other_arm, margin=INTERARM_MARGIN_M):
     if chk is None:
         return None
     # The other arm is HELD at its measured configuration while this one moves.
-    other = node.wait_joints([f'{JOINT_PREFIX[other_arm]}joint_{i}'
-                              for i in range(1, 7)] + ['t1_linear_joint'])
+    want = [f'{JOINT_PREFIX[other_arm]}joint_{i}'
+            for i in range(1, 7)] + ['t1_linear_joint']
+    other = {n: other_joints[n] for n in want if n in other_joints} \
+        if other_joints is not None else node.wait_joints(want)
     if len(other) < 7:
         node.get_logger().error(
             f'penyaring tabrakan: /joint_states hanya memberi {len(other)}/7 '
@@ -614,12 +622,24 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
 
 
 def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
-                     plan_time, tau_max, other_arm):
+                     plan_time, tau_max, other_arm, start_joints=None):
     """One plan request plus every pre-execution screen. ('PLANNED', traj) or
     (refusal, None). Split out of move_to so a refusal can be re-sampled
-    without duplicating a single line of the screening logic."""
+    without duplicating a single line of the screening logic.
+
+    `start_joints` ({joint: pos}) plans from a PLACED state rather than the
+    measured one -- MoveIt start_state as a diff, and the same placement handed
+    to the inter-arm screen. Selection only (dual_arm_targets.py --pairs-file):
+    it lets a rail position and a partner-arm pose be screened with zero motion.
+    Never pass it on a path that executes: the plan would start somewhere the
+    arm is not."""
     goal = MoveGroup.Goal()
     goal.request.group_name = arm
+    if start_joints:
+        goal.request.start_state.is_diff = True
+        goal.request.start_state.joint_state.name = list(start_joints)
+        goal.request.start_state.joint_state.position = \
+            [float(v) for v in start_joints.values()]
     goal.request.num_planning_attempts = 5
     goal.request.allowed_planning_time = plan_time
     goal.request.max_velocity_scaling_factor = vel_scale
@@ -693,7 +713,8 @@ def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
     # measured minimum there was 262 mm, while what the arms do in TRANSIT
     # between hanging and those endpoints is not constrained by it at all.
     if other_arm is not None:
-        sc = screen_interarm(traj, arm, node, other_arm)
+        sc = screen_interarm(traj, arm, node, other_arm,
+                             other_joints=start_joints)
         if sc is None:
             node.get_logger().error(
                 'TIDAK BISA menyaring tabrakan antar-lengan -- MENOLAK '

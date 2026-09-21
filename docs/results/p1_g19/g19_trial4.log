@@ -1,0 +1,21 @@
+probe LANGKAH 3: arm_1 + arm_2 (gantry_1), 1 percobaan, abort torsi 12.0 N.m
+sumber target: arm_1 (0.786, 0.529, 1.32), arm_2 (0.0, 0.388, 1.24)
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1789968613.111654789] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.14->6.74/10, 2=7.85->14.45/14, 3=0.58->7.18/10, 4=0.02->2.00/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 103 %)
+[ERROR] [1789968613.111990723] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.45 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1789968613.112288487] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1789968613.169747130] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.09->6.69/10, 2=6.94->13.54/14, 3=0.79->7.39/10, 4=0.07->2.05/7, 5=0.07->2.05/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 97 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1789968632.984634173] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 432.2 mm di titik 53 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+       arm_1: moveit MOVED
+[INFO] [1789968641.436053451] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=0.61->7.21/14, 3=2.45->9.05/10, 4=0.41->2.39/7, 5=0.08->2.06/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 90 %)
+[INFO] [1789968668.189582575] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 458.0 mm di titik 126 (t1_a1_lower_wrist_link_0 <-> t1_a2_forearm_link_0) -> CLEAR
+       arm_2: moveit MOVED
+[ERROR] [1789968680.780769125] [reach_dwell_probe]: ABORT: torsi 13.26 N.m pada t1_a1_joint_2 > batas 12.00
+  [ 1] TORQUE-ABORT (lengan sukses sendiri-sendiri: tidak ada) torsi puncak 13.26 N.m
+[31m  BERHENTI: batas torsi. A6/S4 -- red LED butuh reset FISIK.[0m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'TORQUE-ABORT': 1}
+  -> /tmp/g17_step3.json
