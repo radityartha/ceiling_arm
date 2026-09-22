@@ -463,6 +463,14 @@ penggerak makespan.*
 > (§B5) — jadi ia selalu bisa menghindari pose yang mengikat, bukan selalu
 > terlalu kecil untuk mengikat.
 
+> 🔻 **KOREKSI TERCATAT, 2026-09-22 (G21, [p1_g21](p1_g21_sched_tfold.md) §B6).** "0.000 s pada SETIAP
+> pasang" adalah pernyataan **`t_fold = 0`**. Dengan biaya pindah terukur
+> (`t_fold` FISIK **50.80 s** dan DINDING **126.80 s**, dari g19 §B1.2) mutex
+> berbiaya **+2.0 s pada 1 dari 80** pasang (`n8_s9_g1_mr1`): pose-pelarian Q2
+> kini berbiaya satu pindah, jadi optimum menumpuk 6 tugas di satu perhentian
+> dan mutex menyerialkan satu slot. Mutex tetap bukan penggerak makespan
+> (1.8 % pada satu instance); klaim "tidak pernah" gugur.
+
 ### B4. D3 — MR memang mahal (dugaan TEPAT), tapi mekanismenya bukan yang diduga
 
 `n = 6`, satu tugas MR, 10 seed:
@@ -515,6 +523,16 @@ yang bergantung urutan** (TSP kecil dengan cakupan), bukan penugasan lengan.
 Heuristik yang benar tur pose-nya akan punya optimality gap kecil; heuristik yang
 pintar soal alokasi lengan tapi buruk soal tur akan kalah jauh. **Ini dugaan, dan
 G8 wajib mengukurnya, bukan mengasumsikannya.**
+
+> 🔻 **KOREKSI TERCATAT, 2026-09-22 (G21, [p1_g21](p1_g21_sched_tfold.md) §B2).** "74–92 % makespan
+> adalah gerak gantry" berlaku di **`t_fold = 0`** (biaya lengan nol). Dengan
+> `t_fold` FISIK **50.80 s** (gerak retract + eksekusi extend, g19 §B1.2), pada
+> 140 instance g8 K2 yang sama: gerak gantry **87.4–98.0 %** per instance,
+> **61.7 %** dari makespan adalah `t_fold` saja dan traverse hanya **32.8 %**.
+> Dan bentuk masalahnya berubah: optimum di `t_fold` 50.80 dan 126.80 **identik
+> 140/140** — minimalkan **jumlah pindah** dulu, traverse hanya pemecah seri.
+> "Yang langka adalah waktu gantry" tetap benar; "tur pose yang bergantung
+> urutan" tidak (g8 §B6, bertahan juga di `t_fold` terukur).
 
 ### B6. Papan skor §7.2 — sekarang **sebelas meleset, satu tepat**
 

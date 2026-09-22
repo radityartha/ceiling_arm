@@ -433,6 +433,14 @@ median 0.97%, max **11.64%** — verdict yang sama, dan sekali lagi max-nya jatu
 pada instance 1 gantry (`n8_s12_g1_mr1`), sementara belahan 2-gantry lolos
 (mean 1.00%, max 6.96%).
 
+> 🔻 **KOREKSI TERCATAT, 2026-09-22 (G21, [p1_g21](p1_g21_sched_tfold.md) §B3).** Tabel di atas adalah
+> **`t_fold = 0`**. Pada 140 instance yang sama dengan `t_fold` FISIK
+> **50.80 s**: mean gap **1.01 %**, persis optimal **110/140**, tetapi max
+> **47.12 %** (+51.09 s = satu `t_fold`) → **K1 tetap TIDAK TERCAPAI**, ekornya
+> dua kali lebih buruk. Kelas ekornya sama dengan §B3 (pose handover salah →
+> satu perhentian ekstra), harganya kini satu pindah penuh. `greedy`/`sequential`
+> runtuh ke **78 % / 82 %**.
+
 ### B3. Ekor gap itu **BUKAN turnya** — ia pilihan pose handover. Ditelusuri ke data
 
 Keempat instance yang melewati langit-langit, dan **tiga dari empat punya tugas
@@ -575,6 +583,11 @@ kalimat itu sebagai dugaan yang wajib diukur G8; G8 mengukurnya dan ia meleset.
 Konsisten dengan §B3: ekor gap datang dari **satu pose yang salah dipilih**,
 bukan dari satu tur yang salah diurutkan.
 
+> ✅ **DIUJI ULANG 2026-09-22 (G21, [p1_g21](p1_g21_sched_tfold.md) §B4): BERTAHAN.** Pada `t_fold` FISIK
+> 50.80 s dan DINDING 126.80 s, `nn-only` dan `cover-order` tetap **+0.00 %
+> pada 40/40**; tahap 4 turun ke +0.09 % / +0.05 % (3/40). Catatan §B10.1
+> (tanpa kopling waktu) tetap berlaku.
+
 ### B7. Bagian II — kurungan di atas `n = 10` (K3), dan **D8 MELESET**
 
 50 instance, `n` = 12/16/20/30/50, 2 gantry, seed 0–4, mr 0/1. **Tidak ada exact
@@ -647,6 +660,12 @@ perhentian — **akan mulai mengikat pada `n` yang lebih besar lagi**, yang tida
 diukur sesi ini dan tidak boleh diklaim.
 
 
+
+> 🔻 **KOREKSI TERCATAT, 2026-09-22 (G21, [p1_g21](p1_g21_sched_tfold.md) §B5).** "59.5 % di `n = 50`"
+> adalah **`t_fold = 0`**. Dengan `t_fold` FISIK **50.80 s**: **82.3 %**
+> (75.8–89.0); DINDING 126.80 s: 89.0 %. Pangsa masih turun terhadap `n`
+> (91.6 % di `n = 12`), dari lantai yang jauh lebih tinggi. Kutip dengan `n`
+> **dan** `t_fold`-nya.
 
 ### B8. `pose-tour+wide` — varian **POST-HOC**, dilaporkan terpisah dan tetap GAGAL
 

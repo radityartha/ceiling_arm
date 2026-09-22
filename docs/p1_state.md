@@ -305,6 +305,37 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > sengaja terbalik dari G9: **oracle dulu** (gerbang sadar-tunggu + W2), solver
 > belakangan.
 
+> ✅ **Sesi G21 (2026-09-22, offline) — [p1_g21_sched_tfold.md](p1_g21_sched_tfold.md).
+> Scheduler di bawah biaya setup TERUKUR.** Semua evaluasi G7–G15 memakai
+> `t_fold = 0` (biaya pindah = traverse saja). G21 menurunkan `t_fold` dari
+> g19 §B1.2 dan mengunci sebelum solve: **FISIK 50.80 s** (gerak retract 29.02 +
+> eksekusi extend 12.50 + 9.28 — **nilai yang boleh dikutip**) dan **DINDING
+> 126.80 s** (apa adanya; ~76 s-nya artefak perangkat lunak kita, **tidak**
+> dikutip sebagai sifat sel). Dibebankan per perubahan pose **per gantry**
+> (diperiksa di kode). Exactness `solve_exact` dibuktikan ulang di ketiga
+> `t_fold` (V0–V4 + P8/P9, kontrol mutan tertangkap); C0 mereproduksi arsip g8
+> 700/700.
+>
+> 🔴 **Empat hasil G21 yang mengubah cara §6 boleh dikutip:**
+> (a) **optimum di FISIK dan DINDING IDENTIK pada 140/140** — pada biaya
+> terukur masalahnya **minimum-jumlah-pindah**, traverse hanya pemecah seri.
+> 61.7 % makespan adalah `t_fold`, traverse 32.8 %, dwell 5.5 %
+> ([p1_g21 §B2](p1_g21_sched_tfold.md));
+> (b) `pose-tour` mean gap **1.01 %** (110/140 persis optimal) tapi max
+> **47.1 %** = satu pindah ekstra; **K1 tetap GAGAL**, ekornya 2× lebih buruk.
+> Baseline miopik runtuh (`greedy` 78 %) (§B3);
+> (c) urutan tur tetap **0.00 %** (40/40) — g8 §B6 bertahan; pangsa gerak
+> gantry di `n = 50` **82.3 %**, bukan 59.5 % (§B4–B5);
+> (d) mutex `r = 0.20` berbiaya **pertama kali**: +2.0 s pada 1/80 pasang
+> (§B6). "0.000 s pada setiap pasang" = pernyataan `t_fold = 0`.
+> Koreksi tertulis di g7 §B3/§B5, g8 §B2/§B6/§B7. Semua tetap batas bawah
+> (tabrakan g9 di luar model). `t_fold` ∈ (0, 50.8) **tidak diukur**.
+>
+> ⚠️ Penyaring torsi `joint_2` (g20 §C, keputusan operator): distribusi
+> offset terukur − RNEA atas 81 rencana g18–g20 di [p1_g21 §B8](p1_g21_sched_tfold.md)
+> — maks **+7.15**, offset **naik dengan prediksi**; usulan `RNEA + 7.7 ≤ 14`.
+> Kode penyaring **tidak** diubah.
+
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
 > 🔴 Perhatikan §0 di sana: **lengan sedang dilepas fisik**, jadi seluruh jalur
@@ -594,6 +625,9 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | **`p1_g7_sched.md`** | **Sesi G7 — model penjadwalan (§A1) + solver EXACT + bukti V0–V4 (§B1). Baca §B3/§B5 sebelum mengutip §2.** Prompt G8 di §C |
 | **`p1_next_steps.md`** | **rencana kerja setelah Sesi C** — 4 jalur berurut, keputusan menunggu + tenggat, prompt Sesi D |
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
+| `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
+| `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
+| **`p1_g21_sched_tfold.md`** | **Sesi G21 — scheduler di bawah `t_fold` terukur (FISIK 50.80 s); koreksi g7 §B3/§B5, g8 §B2/§B6/§B7; offset torsi `joint_2` (§B8)** |
 | `p1_plan.md` | ⚠️ §1/§3-lapisan/§4 stale. Sah: §2b–§2e, §3 utang teknis, §6, §7 |
 
 ### Catatan §7.2 — papan skor dugaan
@@ -655,7 +689,7 @@ berbeda, dan kelas itu baru saja memberi contoh tandingan pertamanya.
 > **Kendala EKSKLUSI RUANG BERSAMA: belum ada dasar untuk menebak — ukur.**
 > **Dugaan tentang KODE SENDIRI: tebak lebih lambat, lebih rumit, lebih salah.**
 
-**Papan skor: 17 meleset, 2 tepat.**
+**Papan skor (per G9): 17 meleset, 2 tepat.** ⚠️ Basi — lihat tally G10–G21 di akhir bagian ini.
 
 Dugaan G7 yang **tepat** (tugas MR jauh lebih mahal, +7.0 s / +11.2 s) tetap
 salah **mekanismenya** — mahal karena pose handover langka (p10 = 26 pose dari
@@ -669,3 +703,28 @@ layak dipakai: telusuri variabelnya, jangan menakar keketatannya. Sesi G6
 menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawab
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
+
+**Tally G10–G21** (diperbarui 2026-09-22, G21; tiap baris dari §B dokumen
+sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
+
+| sesi | ditambah (meleset / tepat) | papan skor |
+|---|---|---|
+| G10 | 3 / 3 | 19 / 6 |
+| G11 | 3 / 1 | 22 / 7 |
+| G12 | 1 / 3 | 23 / 10 |
+| G13 | 2 / 2 | 25 / 12 |
+| G14 | 3 / 3 | 28 / 15 |
+| G15 | 2 / 2 | 30 / 17 |
+| G16 | 2 / 1 | 32 / 18 |
+| G17 | 0 / 0 (D51–D56 dinilai G18) | 32 / 18 |
+| G18 | 2 / 4 | 34 / 22 |
+| G19 | 4 / 3 | 38 / 25 |
+| G20 | 2 / 5 | 40 / 30 |
+| **G21** | **1 / 7** | **41 meleset / 37 tepat** |
+
+➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
+atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
+adalah **besaran** yang ditaksir tanpa melihat lantainya. Dan D78 adalah dugaan
+**kedua** yang tepat melawan prior "longgar" — keduanya (D9, D78) kendala
+**eksklusi ruang bersama**, mengonfirmasi prior dua-baris di atas.
+

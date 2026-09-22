@@ -57,6 +57,19 @@ def ref_traverse(lin_a, rot_a, lin_b, rot_b):
     return max(t_lin, t_rot)
 
 
+def ref_move(inst, g, a, b):
+    """Cost of gantry g going from pose index a to b, typed from p1_g21 A2.
+
+    Zero when the pose does not change; otherwise T_traverse plus the arm
+    retract+extend constant t_fold, charged once per pose change of THIS
+    gantry. At t_fold = 0 this is ref_traverse + 0.0, bit-identical.
+    """
+    if a == b:
+        return 0.0
+    pa, pb = inst.poses[g][a], inst.poses[g][b]
+    return ref_traverse(pa[0], pa[1], pb[0], pb[1]) + inst.t_fold
+
+
 # ---------------------------------------------------------------------------
 # independent stop scheduler -- exhaustive over slots, no closed form anywhere
 # ---------------------------------------------------------------------------
@@ -144,9 +157,7 @@ def ref_gantry_cost(inst, g, tasks):
                     slots = slots_of(block, p)
                     if slots is None:
                         continue
-                    move = 0.0 if p == cur_pose else ref_traverse(
-                        poses[cur_pose][0], poses[cur_pose][1],
-                        poses[p][0], poses[p][1])
+                    move = ref_move(inst, g, cur_pose, p)
                     rec(remaining - set(block), p,
                         acc + move + slots * inst.dwell)
 
@@ -169,14 +180,15 @@ def ref_makespan(inst):
 # ---------------------------------------------------------------------------
 # V3 fixtures -- values fixed in docs/p1_g7_sched.md A2-K5 BEFORE any solver ran
 # ---------------------------------------------------------------------------
-def _synth(n, poses, spec, p0=0, gantries=(1,), kinds=None):
+def _synth_base(n, poses, spec, p0=0, gantries=(1,), kinds=None, t_fold=0.0):
     """spec[g] = (reach, zone, hand) as nested lists/arrays."""
     kinds = kinds if kinds is not None else ['SR'] * n
     return gen_synthetic(kinds, {g: poses for g in gantries},
                          {g: spec[g][0] for g in gantries},
                          {g: spec[g][1] for g in gantries},
                          {g: spec[g][2] for g in gantries},
-                         {g: p0 for g in gantries}, gantries=gantries)
+                         {g: p0 for g in gantries}, gantries=gantries,
+                         t_fold=t_fold)
 
 
 def _blank(n, P):
@@ -184,9 +196,17 @@ def _blank(n, P):
             np.zeros((n, P), bool))
 
 
-def pathological():
-    """(name, instance, expected_makespan, what_it_isolates)."""
+def pathological(t_fold=0.0):
+    """(name, instance, expected_makespan, what_it_isolates).
+
+    Expected values: g7 A2-K5, plus the t_fold terms and P8/P9 fixed in
+    p1_g21 A5 before any solver ran with t_fold > 0.
+    """
+    c = t_fold
     out = []
+
+    def _synth(*a, **k):                  # every fixture carries this t_fold
+        return _synth_base(*a, t_fold=c, **k)
     one = np.array([[0.0, 0.0]])
 
     # P1 -- forced serialisation on one arm
@@ -206,7 +226,7 @@ def pathological():
     two = np.array([[0.0, 0.0], [0.8, np.deg2rad(90.0)]])
     r, z, h = _blank(1, 2)
     r[0, 1, 0] = True
-    exp = ref_traverse(0.0, 0.0, 0.8, np.deg2rad(90.0)) + DWELL
+    exp = ref_traverse(0.0, 0.0, 0.8, np.deg2rad(90.0)) + c + DWELL
     out.append(('P3 traverse', _synth(1, two, {1: (r, z, h)}), exp,
                 'sequence-dependent setup cost'))
 
@@ -243,7 +263,7 @@ def pathological():
     r, z, h = _blank(k, 4)
     for i in range(k):
         r[i, i + 1, 0] = True
-    tour = min(sum(ref_traverse(*pl[a], *pl[b])
+    tour = min(sum(ref_traverse(*pl[a], *pl[b]) + c
                    for a, b in zip((0,) + perm, perm))
                for perm in itertools.permutations(range(1, 4)))
     out.append(('P6 tour', _synth(k, pl, {1: (r, z, h)}), tour + k * DWELL,
@@ -256,27 +276,55 @@ def pathological():
     r2[1, 0, 0] = True
     inst = gen_synthetic(['SR', 'SR'], {1: one, 2: one}, {1: r1, 2: r2},
                          {1: z1, 2: z2}, {1: h1, 2: h2}, {1: 0, 2: 0},
-                         gantries=(1, 2))
+                         gantries=(1, 2), t_fold=c)
     out.append(('P7 two gantries', inst, DWELL, 'makespan = max over gantries'))
+
+    # P8 -- t_fold is per MOVE: at large c one far batched stop beats two near
+    v = 3000.0 / 95.4930
+    pb = np.array([[0.0, 0.0], [0.10, 0.0], [0.20, 0.0], [1.00, 0.0]])
+    r, z, h = _blank(2, 4)
+    r[0, 1, 0] = True                         # pA: task 0 only
+    r[1, 2, 0] = True                         # pB: task 1 only
+    r[0, 3, 0] = r[1, 3, 1] = True            # pC: both, one per arm
+    exp = min(2 * (0.29 + 100.0 / v) + 2 * c + 2 * DWELL,
+              (0.29 + 1000.0 / v) + c + DWELL)
+    out.append(('P8 fold per move', _synth(2, pb, {1: (r, z, h)}), exp,
+                't_fold charged once per pose change'))
+
+    # P9 -- t_fold is per GANTRY: each pays its own, makespan is the max
+    p9 = np.array([[0.0, 0.0], [0.40, 0.0]])
+    rr = {}
+    for g in (1, 2):
+        rg, zg, hg = _blank(2, 2)
+        rg[g - 1, 1, 0] = True
+        rr[g] = (rg, zg, hg)
+    inst = gen_synthetic(['SR', 'SR'], {1: p9, 2: p9},
+                         {g: rr[g][0] for g in (1, 2)},
+                         {g: rr[g][1] for g in (1, 2)},
+                         {g: rr[g][2] for g in (1, 2)}, {1: 0, 2: 0},
+                         gantries=(1, 2), t_fold=c)
+    out.append(('P9 fold per gantry', inst, 0.29 + 400.0 / v + c + DWELL,
+                't_fold per gantry, max not sum'))
     return out
 
 
 # ---------------------------------------------------------------------------
 # checks
 # ---------------------------------------------------------------------------
-def v0_traverse():
+def v0_traverse(t_fold=0.0):
     rng = np.random.default_rng(7)
     lin = rng.choice(np.arange(33) * 0.05, 40)
     rot = np.deg2rad(rng.choice(np.arange(-180, 180, 5), 40))
     poses = np.stack([lin, rot], axis=1)
-    T = traverse_matrix(poses)
+    T = traverse_matrix(poses, t_fold)
     worst = 0.0
     for i in range(len(poses)):
         for j in range(len(poses)):
-            worst = max(worst, abs(T[i, j] - ref_traverse(*poses[i],
-                                                          *poses[j])))
-    print(f'V0 traverse matrix vs scalar reference: max |diff| {worst:.3e} '
-          f'over {len(poses)**2} pairs')
+            same = np.allclose(poses[i], poses[j], atol=0, rtol=0)
+            ref = 0.0 if same else ref_traverse(*poses[i], *poses[j]) + t_fold
+            worst = max(worst, abs(T[i, j] - ref))
+    print(f'V0 traverse matrix vs scalar reference (t_fold {t_fold}): '
+          f'max |diff| {worst:.3e} over {len(poses)**2} pairs')
     return worst < TOL
 
 
@@ -302,7 +350,7 @@ def v1_stop_duration():
     return not bad
 
 
-def v2_solver():
+def v2_solver(t_fold=0.0):
     bad, checked = [], 0
     cases = [(2, 4, (1,), 0), (3, 4, (1,), 0), (3, 3, (1,), 1),
              (4, 3, (1,), 0), (4, 3, (1,), 1), (4, 3, (1,), 2),
@@ -310,13 +358,15 @@ def v2_solver():
              (4, 3, (1, 2), 0), (2, 6, (1,), 0), (3, 5, (1,), 1)]
     for n, P, gs, mr in cases:
         for seed in range(8):
-            inst = gen_random_small(n, P, 100 + seed, n_mr=mr, gantries=gs)
+            inst = gen_random_small(n, P, 100 + seed, n_mr=mr, gantries=gs,
+                                    t_fold=t_fold)
             got = solve_exact(inst).makespan
             ref = ref_makespan(inst)
             checked += 1
             if abs(got - ref) > TOL:
                 bad.append((n, P, gs, mr, seed, got, ref))
-    print(f'V2 DP vs brute-force enumerator: {checked} instances, '
+    print(f'V2 DP vs brute-force enumerator (t_fold {t_fold}): '
+          f'{checked} instances, '
           f'{len(bad)} mismatches')
     for b in bad[:5]:
         print(f'   n={b[0]} |P|={b[1]} gantries={b[2]} mr={b[3]} seed={b[4]}: '
@@ -324,10 +374,10 @@ def v2_solver():
     return not bad
 
 
-def v3_pathological():
+def v3_pathological(t_fold=0.0):
     bad = []
-    print('V3 pathological instances (expected values fixed in g7 A2-K5):')
-    for name, inst, exp, why in pathological():
+    print(f'V3 pathological instances (g7 A2-K5 + g21 A5), t_fold {t_fold}:')
+    for name, inst, exp, why in pathological(t_fold):
         got = solve_exact(inst).makespan
         ok = abs(got - exp) <= TOL
         print(f'   {"PASS" if ok else "FAIL"}  {name:<20} '
@@ -350,9 +400,7 @@ def validate_schedule(inst, sol):
         t, cur = 0.0, inst.p0[g]
         for st in stops:
             p = st['pose']
-            if p != cur:
-                t += ref_traverse(inst.poses[g][cur][0], inst.poses[g][cur][1],
-                                  inst.poses[g][p][0], inst.poses[g][p][1])
+            t += ref_move(inst, g, cur, p)
             if abs(t - st['start']) > TOL:
                 errs.append(f'g{g} stop start {st["start"]} != replay {t}')
             tasks = [i for i in range(inst.n) if st['tasks'] >> i & 1]
@@ -383,30 +431,39 @@ def validate_schedule(inst, sol):
     return errs
 
 
-def v4_schedule_replay():
+def v4_schedule_replay(t_fold=0.0):
     bad, checked = [], 0
-    insts = [gen_random_small(n, P, 200 + s, n_mr=mr, gantries=gs)
+    insts = [gen_random_small(n, P, 200 + s, n_mr=mr, gantries=gs,
+                              t_fold=t_fold)
              for n, P, gs, mr in [(4, 3, (1,), 0), (4, 3, (1,), 1),
                                   (4, 3, (1, 2), 1), (3, 5, (1,), 0)]
              for s in range(6)]
-    insts += [gen_real(n, s, mr, gs) for n, mr, gs in
+    insts += [gen_real(n, s, mr, gs, t_fold=t_fold) for n, mr, gs in
               [(4, 0, (1,)), (5, 1, (1, 2)), (6, 1, (1,))] for s in range(3)]
     for inst in insts:
         errs = validate_schedule(inst, solve_exact(inst))
         checked += 1
         if errs:
             bad.append((inst.label, errs))
-    print(f'V4 reported schedule replayed from the rules: {checked} schedules, '
+    print(f'V4 reported schedule replayed from the rules (t_fold {t_fold}): '
+          f'{checked} schedules, '
           f'{len(bad)} with violations')
     for label, errs in bad[:5]:
         print(f'   {label}: {errs[:3]}')
     return not bad
 
 
+# p1_g21 A1: the only t_fold values this file is run at. 0 = G7/G8.
+T_FOLDS = (0.0, 50.80, 126.80)
+
+
 def main():
-    checks = [('V0', v0_traverse), ('V1', v1_stop_duration),
-              ('V2', v2_solver), ('V3', v3_pathological),
-              ('V4', v4_schedule_replay)]
+    checks = [('V1', v1_stop_duration)]      # stop length: no t_fold in it
+    for c in T_FOLDS:
+        checks += [(f'V0 t_fold={c}', lambda c=c: v0_traverse(c)),
+                   (f'V2 t_fold={c}', lambda c=c: v2_solver(c)),
+                   (f'V3 t_fold={c}', lambda c=c: v3_pathological(c)),
+                   (f'V4 t_fold={c}', lambda c=c: v4_schedule_replay(c))]
     results = []
     for tag, fn in checks:
         ok = fn()

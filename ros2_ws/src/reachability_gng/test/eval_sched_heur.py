@@ -41,7 +41,7 @@ sys.path.insert(0, str(HERE))
 
 from reachability_gng import sched_heur as H          # noqa: E402
 from reachability_gng.sched import gen_real, solve_exact  # noqa: E402
-from verify_sched_exact import (ref_stop_slots, ref_traverse,  # noqa: E402
+from verify_sched_exact import (ref_move, ref_stop_slots,  # noqa: E402
                                 validate_schedule)
 
 NAMES = ['pose-tour', 'fixed', 'greedy', 'sequential']
@@ -109,7 +109,7 @@ def gate(inst, sol, budget=GATE_BUDGET):
     """K4 replay. Returns (errs, n_stops_brute_forced, n_stops_over_budget).
 
     Identical in structure to validate_schedule(), and it calls the SAME
-    independent ref_traverse / ref_stop_slots. The one difference, forced by
+    independent ref_move / ref_stop_slots. The one difference, forced by
     measurement and written up as an A/B conflict in B4: ref_stop_slots is
     exponential in the tasks at one stop (2**|SR| x slots**|SR|), which at
     n >= 20 reaches 1e9..1e24 placements and never returns. Stops above the
@@ -125,9 +125,7 @@ def gate(inst, sol, budget=GATE_BUDGET):
         view = H.GantryView(inst, g)
         for st in stops:
             p = st['pose']
-            if p != cur:
-                t += ref_traverse(inst.poses[g][cur][0], inst.poses[g][cur][1],
-                                  inst.poses[g][p][0], inst.poses[g][p][1])
+            t += ref_move(inst, g, cur, p)
             if abs(t - st['start']) > 1e-9:
                 errs.append(f'g{g} stop start {st["start"]} != replay {t}')
             tasks = [i for i in range(inst.n) if st['tasks'] >> i & 1]
@@ -175,7 +173,8 @@ def cmd_part1(a):
         k = _key(rec)
         if k in res:
             continue
-        inst = gen_real(n, seed, mr, gs, maps=(a.map1, a.map2))
+        inst = gen_real(n, seed, mr, gs, maps=(a.map1, a.map2),
+                        t_fold=a.t_fold)
         t0 = time.time()
         sol = solve_exact(inst)
         rec['exact'] = float(sol.makespan)
@@ -201,7 +200,8 @@ def cmd_part2(a):
         k = _key(rec)
         if k in res and 'sched' in res[k]:
             continue
-        inst = gen_real(n, seed, mr, (1, 2), maps=(a.map1, a.map2))
+        inst = gen_real(n, seed, mr, (1, 2), maps=(a.map1, a.map2),
+                        t_fold=a.t_fold)
         rec['sched'] = _run_all(inst, big=True)
         lb, lr, lw = H.lb_analytic(inst)
         rec['lb_analytic'] = float(lb)
@@ -227,7 +227,8 @@ def cmd_part2lb(a):
         if 'lb_subset' in rec:
             continue
         inst = gen_real(rec['n'], rec['seed'], rec['n_mr'],
-                        tuple(rec['gantries']), maps=(a.map1, a.map2))
+                        tuple(rec['gantries']), maps=(a.map1, a.map2),
+                        t_fold=a.t_fold)
         t0 = time.time()
         lb, used = H.lb_subset(inst, a.sub_size, a.sub_draws, rec['seed'])
         rec['lb_subset'] = float(lb)
@@ -252,7 +253,7 @@ def cmd_rescore(a):
     for k in sorted(res, key=lambda k: (res[k]['n'], res[k]['seed'])):
         r = res[k]
         inst = gen_real(r['n'], r['seed'], r['n_mr'], tuple(r['gantries']),
-                        maps=(a.map1, a.map2))
+                        maps=(a.map1, a.map2), t_fold=a.t_fold)
         r['sched'] = _run_all(inst, names, big=r['n'] > 10)
         if 'lb_analytic' in r:
             lb, lr, lw = H.lb_analytic(inst)
@@ -280,7 +281,8 @@ def cmd_holdout(a):
         k = _key(rec)
         if k in res:
             continue
-        inst = gen_real(n, seed, mr, gs, maps=(a.map1, a.map2))
+        inst = gen_real(n, seed, mr, gs, maps=(a.map1, a.map2),
+                        t_fold=a.t_fold)
         t0 = time.time()
         sol = solve_exact(inst)
         rec['exact'] = float(sol.makespan)
@@ -310,7 +312,8 @@ def cmd_ablate(a):
         k = f'n{n}_s{seed}_g{len(gs)}_mr{mr}'
         if k in res:
             continue
-        inst = gen_real(n, seed, mr, gs, maps=(a.map1, a.map2))
+        inst = gen_real(n, seed, mr, gs, maps=(a.map1, a.map2),
+                        t_fold=a.t_fold)
         row = {}
         for v, kw in variants.items():
             t0 = time.time()
@@ -484,6 +487,8 @@ def main(argv=None):
     def maps(q):
         q.add_argument('--map1', default='/tmp/cap_g1_rail160.npz')
         q.add_argument('--map2', default='/tmp/cap_g2_rail160.npz')
+        q.add_argument('--t-fold', type=float, default=0.0,
+                       help='arm retract+extend per gantry move (p1_g21 A1)')
 
     q = sub.add_parser('part1'); maps(q)
     q.add_argument('--out', default='/tmp/g8_part1.json')
