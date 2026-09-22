@@ -455,3 +455,77 @@ G17 enam, G18 tujuh, G19 tujuh.
   dikeluarkan — itu keputusan **sebelum** sesi berikutnya, bukan sesudah data.
 
 Lanjutan dari [p1_g19_hw.md](p1_g19_hw.md) §D; g19 tidak diubah.
+
+## D. Prompt sesi berikutnya — G21 (OFFLINE, salin ke chat BARU)
+
+**Kenapa ini berikutnya.** §8c langkah 0–5 **selesai**. Yang sekarang
+menggantung adalah klaim paper: semua evaluasi scheduler G7–G15 memakai
+`t_fold = 0.0` (`sched.py:140`, default di semua generator) — biaya pindah =
+**traverse saja**. g19 §B1.2 mengukur satu pindah ≈ **148 s**, traverse hanya
+**21 s (14 %)**. Kalau biaya tetap per pindah ~50–130 s, optimum bergeser dari
+"pose mana / jarak berapa" ke "**berapa kali pindah**", dan kalimat g7/g8
+(74–92 % makespan = gerak gantry; urutan tur 0.00 %) belum pernah diuji pada
+biaya itu. Nol gerak perangkat keras; risiko rendah, dampak ke naskah tinggi.
+
+**Rekomendasi: Opus 5, effort SEDANG** — ground truth (`solve_exact`, V0–V4 g7)
+sudah tegak dan menangkap kesalahan solver; yang bisa salah diam-diam hanya
+pemilihan nilai `t_fold`, dan itu dikunci sebelum data.
+
+```
+Sesi G21 -- p1_state.md §6: scheduler di bawah biaya setup TERUKUR.
+OFFLINE, nol gerak perangkat keras. Repo ceiling_arm, branch feat/rgbd-topo-deploy.
+
+BACA PENUH sebelum menulis kode:
+1. CLAUDE.md (Working Rules; Rule 6 dikecualikan untuk sesi protokol P1, g16 A10).
+2. docs/p1_state.md §5.6, §6, §7 (disiplin: ground truth dulu), §8c.
+3. docs/p1_g3_timing.md §C (model T_setup TERKUNCI: retract + T_traverse + extend).
+4. docs/p1_g19_hw.md §B1.2 -- biaya setup TERUKUR: retract 48.8 s (gerak 29.0 = durasi
+   yang KITA perintah + overhead return_rest 19.7), traverse 21.1, extend 71.1
+   (rencana+saringan ~51, eksekusi ~22), sela ~4.6. SATU Δ saja (400 mm), satu gantry.
+5. docs/p1_g20_hw.md §B2 (4 lengan, rel tetap: tugas median 140.2 s) dan §C.
+6. docs/p1_g7_sched.md §A1, §B3, §B5; docs/p1_g8_sched2.md §B2, §B6, §B7;
+   docs/p1_g9_sched3.md §B6 (larangan mengutip Δ subset).
+7. ros2_ws/src/reachability_gng/reachability_gng/sched.py (traverse_time, t_fold,
+   Instance, gen_real), sched_heur.py, test/verify_sched_exact.py, test/eval_sched_heur.py.
+
+=== TUGAS ===
+1. Tulis docs/p1_g21_sched_tfold.md §A DULU, KUNCI sebelum satu pun solve:
+   a. Nilai t_fold yang diuji, masing-masing DITURUNKAN dari g19 B1.2 dengan
+      rumusnya tertulis -- minimal: 0 (lama), FISIK (gerak retract + eksekusi
+      extend, tanpa perangkat lunak), DINDING (retract + extend + sela, apa adanya).
+      Nyatakan mana yang boleh dikutip naskah dan kenapa (overhead penyaringan
+      adalah artefak alat kita, bukan fisika sel).
+   b. Apakah t_fold dibebankan per GANTRY yang pindah (kedua lengannya berhenti,
+      g19 A1) -- periksa bahwa model sched.py memang begitu, jangan asumsikan.
+   c. Instance: set yang SAMA dengan g7/g8 (seed, n, peta) supaya selisihnya
+      hanya t_fold. Batas exact n <= 10 (g7).
+   d. Besaran yang dilaporkan: makespan, jumlah pindah, pangsa traverse vs
+      t_fold vs dwell, gap heuristik pose-tour vs exact, kontribusi urutan tur.
+   e. Dugaan D71+ dikunci SEBELUM data (skor masuk: 40 meleset, 30 tepat).
+2. Verifikasi dulu: verify_sched_exact (V0-V4) LULUS dengan t_fold > 0 --
+   exactness g7 dibuktikan di t_fold = 0 saja. Kalau DP/segitiga-ketaksamaan
+   bergantung pada t_fold = 0, itu ditemukan di sini, bukan di hasil.
+3. Jalankan, nilai apa adanya. Klaim g7 §B5 / g8 §B6 / g8 §B7 yang berubah
+   ditulis sebagai KOREKSI dengan nilai t_fold-nya, bukan diganti diam-diam.
+4. Tugas sampingan (opsional, offline): kalibrasi ulang penyaring torsi
+   joint_2 dari data yang sudah ada (g18 B2.4 19 rencana + g19 + g20 43 rencana;
+   docs/results/p1_g1{8,9}/, p1_g20/g20_scored.json). Laporkan distribusi
+   (terukur - RNEA) per lengan dan ambang usulan; JANGAN mengubah kode penyaring
+   -- itu keputusan operator (g20 §C).
+5. Perbarui p1_state.md §6 (dan tally papan skor §9 yang basi sejak G9).
+
+=== ATURAN ===
+- 7.1: ground truth dulu. 7.2: UKUR, jangan menduga; dugaan dikunci sebelum data.
+- DILARANG memilih t_fold sesudah melihat hasil.
+- Kalau B bertentangan dengan A, B menang dan pertentangannya DITULIS.
+  G19 tujuh, G20 sembilan.
+- validate_schedule() eksponensial di n >= 20 (g8 B4).
+- Checkpoint (Rule 10) setelah tiap tahap; Rule 12.
+```
+
+**Alternatif perangkat keras (kalau operator lebih memilih):** G21-HW = jalankan
+satu **jadwal keluaran scheduler** end-to-end di sel nyata (empat lengan, dua
+gantry, gantry bergerak) dan bandingkan makespan terukur vs prediksi. Prasyarat:
+keputusan penyaring `joint_2` (§C), `rail_to` untuk gantry 2, dan origin gantry 2
+dikonfirmasi lagi. **Lebih masuk akal SETELAH G21**, karena G21 menentukan model
+biaya yang prediksinya akan diuji.
