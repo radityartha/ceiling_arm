@@ -1,0 +1,31 @@
+[
+ {
+  "seed": 0,
+  "samples": [
+   "t4:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 0 sampel 1/3",
+   "    [0] task t2 arm_1 -> [1.0, 0.3882, 1.32] @rail 0.550: PLANNED (30.3 s)",
+   "    [1] retract g1: se-gantry 559.9 / antar 546.1 mm -> CLEAR",
+   "    [2] traverse g1 0.550->0.450: CLEAR min 546.1 mm (t1_platform_link_0 <-> t2_a1_shoulder_link_0)",
+   "    [3] task t4 arm_1 -> [0.5714, 0.5294, 1.32] @rail 0.450: TORQUE-UNSAFE (0.0 s)"
+  ],
+  "t": 1790057395.4271955
+ },
+ {
+  "seed": 35,
+  "samples": [
+   "t0:arm_2:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 35 sampel 1/3",
+   "    [0] retract g1: sudah REST -> dilewati",
+   "    [1] traverse g1 0.550->0.400: CLEAR min 546.1 mm (t1_platform_link_0 <-> t2_a1_shoulder_link_0)",
+   "    [2] task t0 arm_2 -> [0.1429, 0.6, 1.4] @rail 0.400: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790057395.5144117
+ }
+]

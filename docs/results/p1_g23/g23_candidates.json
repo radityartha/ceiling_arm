@@ -1,0 +1,1946 @@
+[
+ {
+  "seed": 0,
+  "nodes": [
+   2664,
+   1994,
+   1600,
+   844,
+   964,
+   128
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    167,
+    22
+   ],
+   "2": [
+    53,
+    6
+   ]
+  },
+  "ok_i": true,
+  "ok_ii": true,
+  "conflict": "None",
+  "moves": {
+   "1": 2,
+   "2": 1
+  },
+  "ntask": {
+   "1": 4,
+   "2": 2
+  },
+  "same_schedule_FISIK_DINDING": true,
+  "makespan": {
+   "FISIK": 133.6448,
+   "DINDING": 285.64480000000003
+  },
+  "decomp": {
+   "FISIK": {
+    "1": {
+     "moves": 2,
+     "T_lin": 26.04480000000001,
+     "T_cmd": 44.444460336185216,
+     "dwell": 6.0,
+     "legs": [
+      {
+       "from_mm": 550.0,
+       "to_mm": 450.0,
+       "T_lin": 3.473,
+       "T_cmd": 5.556
+      },
+      {
+       "from_mm": 450.0,
+       "to_mm": 1150.0,
+       "T_lin": 22.572,
+       "T_cmd": 38.889
+      }
+     ],
+     "finish_model": 133.6448,
+     "finish_solver": 133.6448
+    },
+    "2": {
+     "moves": 1,
+     "T_lin": 51.2196,
+     "T_cmd": 88.8889206723704,
+     "dwell": 4.0,
+     "legs": [
+      {
+       "from_mm": 0.0,
+       "to_mm": 1600.0,
+       "T_lin": 51.22,
+       "T_cmd": 88.889
+      }
+     ],
+     "finish_model": 106.0196,
+     "finish_solver": 106.0196
+    }
+   },
+   "DINDING": {
+    "1": {
+     "moves": 2,
+     "T_lin": 26.04480000000001,
+     "T_cmd": 44.444460336185216,
+     "dwell": 6.0,
+     "legs": [
+      {
+       "from_mm": 550.0,
+       "to_mm": 450.0,
+       "T_lin": 3.473,
+       "T_cmd": 5.556
+      },
+      {
+       "from_mm": 450.0,
+       "to_mm": 1150.0,
+       "T_lin": 22.572,
+       "T_cmd": 38.889
+      }
+     ],
+     "finish_model": 285.64480000000003,
+     "finish_solver": 285.64480000000003
+    },
+    "2": {
+     "moves": 1,
+     "T_lin": 51.2196,
+     "T_cmd": 88.8889206723704,
+     "dwell": 4.0,
+     "legs": [
+      {
+       "from_mm": 0.0,
+       "to_mm": 1600.0,
+       "T_lin": 51.22,
+       "T_cmd": 88.889
+      }
+     ],
+     "finish_model": 182.0196,
+     "finish_solver": 182.0196
+    }
+   }
+  },
+  "schedule_FISIK": {
+   "1": [
+    {
+     "rail_m": 0.55,
+     "rot_deg": 0.0,
+     "start": 0.0,
+     "dur": 2.0,
+     "tasks": {
+      "2": "arm1"
+     },
+     "xyz": {
+      "2": [
+       1.0,
+       0.3882,
+       1.32
+      ]
+     }
+    },
+    {
+     "rail_m": 0.45,
+     "rot_deg": 0.0,
+     "start": 56.273,
+     "dur": 2.0,
+     "tasks": {
+      "4": "arm1"
+     },
+     "xyz": {
+      "4": [
+       0.5714,
+       0.5294,
+       1.32
+      ]
+     }
+    },
+    {
+     "rail_m": 1.15,
+     "rot_deg": 0.0,
+     "start": 131.645,
+     "dur": 2.0,
+     "tasks": {
+      "0": "arm1",
+      "3": "arm2"
+     },
+     "xyz": {
+      "0": [
+       1.7143,
+       0.2471,
+       1.0
+      ],
+      "3": [
+       0.5,
+       0.3882,
+       1.32
+      ]
+     }
+    }
+   ],
+   "2": [
+    {
+     "rail_m": 0.0,
+     "rot_deg": 0.0,
+     "start": 0.0,
+     "dur": 2.0,
+     "tasks": {
+      "5": "arm3"
+     },
+     "xyz": {
+      "5": [
+       0.0714,
+       -0.3882,
+       1.16
+      ]
+     }
+    },
+    {
+     "rail_m": 1.6,
+     "rot_deg": 0.0,
+     "start": 104.02,
+     "dur": 2.0,
+     "tasks": {
+      "1": "arm4"
+     },
+     "xyz": {
+      "1": [
+       1.2857,
+       -0.0353,
+       1.16
+      ]
+     }
+    }
+   ]
+  },
+  "schedule_DINDING": {
+   "1": [
+    {
+     "rail_m": 0.55,
+     "rot_deg": 0.0,
+     "start": 0.0,
+     "dur": 2.0,
+     "tasks": {
+      "2": "arm1"
+     },
+     "xyz": {
+      "2": [
+       1.0,
+       0.3882,
+       1.32
+      ]
+     }
+    },
+    {
+     "rail_m": 0.45,
+     "rot_deg": 0.0,
+     "start": 132.273,
+     "dur": 2.0,
+     "tasks": {
+      "4": "arm1"
+     },
+     "xyz": {
+      "4": [
+       0.5714,
+       0.5294,
+       1.32
+      ]
+     }
+    },
+    {
+     "rail_m": 1.15,
+     "rot_deg": 0.0,
+     "start": 283.645,
+     "dur": 2.0,
+     "tasks": {
+      "0": "arm1",
+      "3": "arm2"
+     },
+     "xyz": {
+      "0": [
+       1.7143,
+       0.2471,
+       1.0
+      ],
+      "3": [
+       0.5,
+       0.3882,
+       1.32
+      ]
+     }
+    }
+   ],
+   "2": [
+    {
+     "rail_m": 0.0,
+     "rot_deg": 0.0,
+     "start": 0.0,
+     "dur": 2.0,
+     "tasks": {
+      "5": "arm3"
+     },
+     "xyz": {
+      "5": [
+       0.0714,
+       -0.3882,
+       1.16
+      ]
+     }
+    },
+    {
+     "rail_m": 1.6,
+     "rot_deg": 0.0,
+     "start": 180.02,
+     "dur": 2.0,
+     "tasks": {
+      "1": "arm4"
+     },
+     "xyz": {
+      "1": [
+       1.2857,
+       -0.0353,
+       1.16
+      ]
+     }
+    }
+   ]
+  }
+ },
+ {
+  "seed": 1,
+  "nodes": [
+   1482,
+   1603,
+   2365,
+   2976,
+   109,
+   451
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    94,
+    35
+   ],
+   "2": [
+    49,
+    10
+   ]
+  },
+  "ok_i": false,
+  "why": "task 3 is infeasible on every gantry",
+  "infeasible_tasks": [
+   3,
+   4
+  ]
+ },
+ {
+  "seed": 2,
+  "nodes": [
+   2623,
+   819,
+   342,
+   934,
+   1296,
+   2550
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    93,
+    6
+   ],
+   "2": [
+    116,
+    17
+   ]
+  },
+  "ok_i": false,
+  "why": "task 1 is infeasible on every gantry",
+  "infeasible_tasks": [
+   1,
+   3,
+   4
+  ]
+ },
+ {
+  "seed": 3,
+  "nodes": [
+   2541,
+   268,
+   562,
+   741,
+   568,
+   2509
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    88,
+    2
+   ],
+   "2": [
+    149,
+    19
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   1
+  ]
+ },
+ {
+  "seed": 4,
+  "nodes": [
+   2275,
+   2953,
+   2760,
+   1601,
+   2945,
+   3057
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    65,
+    6
+   ],
+   "2": [
+    63,
+    7
+   ]
+  },
+  "ok_i": false,
+  "why": "task 2 is infeasible on every gantry",
+  "infeasible_tasks": [
+   2,
+   5
+  ]
+ },
+ {
+  "seed": 5,
+  "nodes": [
+   2100,
+   2521,
+   70,
+   2530,
+   1468,
+   1613
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    132,
+    2
+   ],
+   "2": [
+    105,
+    4
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   2,
+   4
+  ]
+ },
+ {
+  "seed": 6,
+  "nodes": [
+   1393,
+   1685,
+   1621,
+   1075,
+   2963,
+   1155
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    164,
+    7
+   ],
+   "2": [
+    95,
+    0
+   ]
+  },
+  "ok_i": false,
+  "why": "task 2 is infeasible on every gantry",
+  "infeasible_tasks": [
+   2,
+   4
+  ]
+ },
+ {
+  "seed": 7,
+  "nodes": [
+   2959,
+   1957,
+   2142,
+   2810,
+   1811,
+   2429
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    93,
+    14
+   ],
+   "2": [
+    95,
+    8
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   3,
+   5
+  ]
+ },
+ {
+  "seed": 8,
+  "nodes": [
+   2253,
+   1024,
+   734,
+   3092,
+   551,
+   998
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    118,
+    10
+   ],
+   "2": [
+    128,
+    11
+   ]
+  },
+  "ok_i": false,
+  "why": "task 1 is infeasible on every gantry",
+  "infeasible_tasks": [
+   1,
+   3
+  ]
+ },
+ {
+  "seed": 9,
+  "nodes": [
+   1320,
+   2725,
+   3009,
+   898,
+   358,
+   1889
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    81,
+    1
+   ],
+   "2": [
+    160,
+    22
+   ]
+  },
+  "ok_i": false,
+  "why": "task 4 is infeasible on every gantry",
+  "infeasible_tasks": [
+   4,
+   5
+  ]
+ },
+ {
+  "seed": 10,
+  "nodes": [
+   2432,
+   2994,
+   826,
+   650,
+   2482,
+   2594
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    101,
+    9
+   ],
+   "2": [
+    97,
+    0
+   ]
+  },
+  "ok_i": false,
+  "why": "task 3 is infeasible on every gantry",
+  "infeasible_tasks": [
+   3,
+   4,
+   5
+  ]
+ },
+ {
+  "seed": 11,
+  "nodes": [
+   419,
+   402,
+   2496,
+   1563,
+   1847,
+   1883
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    124,
+    13
+   ],
+   "2": [
+    134,
+    12
+   ]
+  },
+  "ok_i": false,
+  "why": "task 3 is infeasible on every gantry",
+  "infeasible_tasks": [
+   3
+  ]
+ },
+ {
+  "seed": 12,
+  "nodes": [
+   1918,
+   785,
+   3047,
+   2965,
+   201,
+   592
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    122,
+    8
+   ],
+   "2": [
+    108,
+    3
+   ]
+  },
+  "ok_i": false,
+  "why": "task 3 is infeasible on every gantry",
+  "infeasible_tasks": [
+   3,
+   5
+  ]
+ },
+ {
+  "seed": 13,
+  "nodes": [
+   2806,
+   2708,
+   2567,
+   2678,
+   217,
+   2540
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    82,
+    9
+   ],
+   "2": [
+    62,
+    0
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   1,
+   4
+  ]
+ },
+ {
+  "seed": 14,
+  "nodes": [
+   470,
+   2602,
+   2046,
+   1130,
+   277,
+   2200
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    103,
+    0
+   ],
+   "2": [
+    130,
+    1
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   1,
+   2,
+   4,
+   5
+  ]
+ },
+ {
+  "seed": 15,
+  "nodes": [
+   2916,
+   2169,
+   2209,
+   2555,
+   757,
+   1078
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    82,
+    2
+   ],
+   "2": [
+    103,
+    0
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ]
+ },
+ {
+  "seed": 16,
+  "nodes": [
+   1686,
+   1775,
+   2580,
+   1349,
+   2401,
+   294
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    128,
+    27
+   ],
+   "2": [
+    105,
+    9
+   ]
+  },
+  "ok_i": false,
+  "why": "task 3 is infeasible on every gantry",
+  "infeasible_tasks": [
+   3
+  ]
+ },
+ {
+  "seed": 17,
+  "nodes": [
+   2320,
+   2646,
+   336,
+   504,
+   1434,
+   1746
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    56,
+    10
+   ],
+   "2": [
+    99,
+    38
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   1
+  ]
+ },
+ {
+  "seed": 18,
+  "nodes": [
+   2798,
+   1250,
+   667,
+   2246,
+   2720,
+   879
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    84,
+    6
+   ],
+   "2": [
+    116,
+    18
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0
+  ]
+ },
+ {
+  "seed": 19,
+  "nodes": [
+   1844,
+   1316,
+   1117,
+   2899,
+   1187,
+   857
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    100,
+    7
+   ],
+   "2": [
+    107,
+    12
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   4
+  ]
+ },
+ {
+  "seed": 20,
+  "nodes": [
+   2794,
+   877,
+   819,
+   1444,
+   2803,
+   381
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    129,
+    2
+   ],
+   "2": [
+    132,
+    10
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   2,
+   3,
+   5
+  ]
+ },
+ {
+  "seed": 21,
+  "nodes": [
+   944,
+   2446,
+   1209,
+   1897,
+   1459,
+   2223
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    153,
+    14
+   ],
+   "2": [
+    120,
+    11
+   ]
+  },
+  "ok_i": false,
+  "why": "task 1 is infeasible on every gantry",
+  "infeasible_tasks": [
+   1,
+   3,
+   4,
+   5
+  ]
+ },
+ {
+  "seed": 22,
+  "nodes": [
+   2415,
+   1147,
+   2066,
+   624,
+   2957,
+   277
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    103,
+    17
+   ],
+   "2": [
+    80,
+    6
+   ]
+  },
+  "ok_i": false,
+  "why": "task 5 is infeasible on every gantry",
+  "infeasible_tasks": [
+   5
+  ]
+ },
+ {
+  "seed": 23,
+  "nodes": [
+   112,
+   2173,
+   1322,
+   2009,
+   825,
+   402
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    98,
+    12
+   ],
+   "2": [
+    145,
+    15
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0
+  ]
+ },
+ {
+  "seed": 24,
+  "nodes": [
+   1198,
+   1034,
+   2352,
+   1269,
+   2457,
+   1800
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    149,
+    37
+   ],
+   "2": [
+    70,
+    0
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   1
+  ]
+ },
+ {
+  "seed": 25,
+  "nodes": [
+   1579,
+   503,
+   2676,
+   0,
+   725,
+   678
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    126,
+    16
+   ],
+   "2": [
+    81,
+    13
+   ]
+  },
+  "ok_i": false,
+  "why": "task 3 is infeasible on every gantry",
+  "infeasible_tasks": [
+   3
+  ]
+ },
+ {
+  "seed": 26,
+  "nodes": [
+   2699,
+   1539,
+   1735,
+   734,
+   1227,
+   211
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    107,
+    8
+   ],
+   "2": [
+    113,
+    14
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   4,
+   5
+  ]
+ },
+ {
+  "seed": 27,
+  "nodes": [
+   8,
+   2185,
+   668,
+   982,
+   3071,
+   379
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    30,
+    0
+   ],
+   "2": [
+    157,
+    12
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   3,
+   4,
+   5
+  ]
+ },
+ {
+  "seed": 28,
+  "nodes": [
+   2086,
+   2667,
+   692,
+   2771,
+   2609,
+   2398
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    80,
+    1
+   ],
+   "2": [
+    144,
+    5
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   2,
+   3
+  ]
+ },
+ {
+  "seed": 29,
+  "nodes": [
+   2927,
+   156,
+   1878,
+   1585,
+   720,
+   1626
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    57,
+    22
+   ],
+   "2": [
+    65,
+    12
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   1,
+   2
+  ]
+ },
+ {
+  "seed": 30,
+  "nodes": [
+   331,
+   738,
+   2362,
+   1343,
+   1251,
+   288
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    151,
+    21
+   ],
+   "2": [
+    104,
+    3
+   ]
+  },
+  "ok_i": false,
+  "why": "task 2 is infeasible on every gantry",
+  "infeasible_tasks": [
+   2,
+   4
+  ]
+ },
+ {
+  "seed": 31,
+  "nodes": [
+   1717,
+   2828,
+   1545,
+   211,
+   1793,
+   2106
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    118,
+    2
+   ],
+   "2": [
+    90,
+    7
+   ]
+  },
+  "ok_i": false,
+  "why": "task 3 is infeasible on every gantry",
+  "infeasible_tasks": [
+   3,
+   5
+  ]
+ },
+ {
+  "seed": 32,
+  "nodes": [
+   2750,
+   501,
+   2690,
+   1792,
+   1325,
+   1181
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    164,
+    2
+   ],
+   "2": [
+    108,
+    4
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   2,
+   3
+  ]
+ },
+ {
+  "seed": 33,
+  "nodes": [
+   2752,
+   1389,
+   1190,
+   1780,
+   2602,
+   2844
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    93,
+    5
+   ],
+   "2": [
+    126,
+    6
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   2,
+   3,
+   4
+  ]
+ },
+ {
+  "seed": 34,
+  "nodes": [
+   197,
+   12,
+   370,
+   2731,
+   356,
+   760
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    59,
+    2
+   ],
+   "2": [
+    134,
+    15
+   ]
+  },
+  "ok_i": false,
+  "why": "task 2 is infeasible on every gantry",
+  "infeasible_tasks": [
+   2,
+   5
+  ]
+ },
+ {
+  "seed": 35,
+  "nodes": [
+   323,
+   1058,
+   2584,
+   1436,
+   2931,
+   2928
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    98,
+    11
+   ],
+   "2": [
+    63,
+    11
+   ]
+  },
+  "ok_i": true,
+  "ok_ii": true,
+  "conflict": "None",
+  "moves": {
+   "1": 3,
+   "2": 2
+  },
+  "ntask": {
+   "1": 3,
+   "2": 3
+  },
+  "same_schedule_FISIK_DINDING": true,
+  "makespan": {
+   "FISIK": 194.28409999999997,
+   "DINDING": 422.28409999999997
+  },
+  "decomp": {
+   "FISIK": {
+    "1": {
+     "moves": 3,
+     "T_lin": 35.884100000000004,
+     "T_cmd": 61.11113296225466,
+     "dwell": 6.0,
+     "legs": [
+      {
+       "from_mm": 550.0,
+       "to_mm": 400.0,
+       "T_lin": 5.065,
+       "T_cmd": 8.333
+      },
+      {
+       "from_mm": 400.0,
+       "to_mm": 900.0,
+       "T_lin": 16.206,
+       "T_cmd": 27.778
+      },
+      {
+       "from_mm": 900.0,
+       "to_mm": 1350.0,
+       "T_lin": 14.614,
+       "T_cmd": 25.0
+      }
+     ],
+     "finish_model": 194.28409999999997,
+     "finish_solver": 194.2841
+    },
+    "2": {
+     "moves": 2,
+     "T_lin": 51.50959999999999,
+     "T_cmd": 88.8889206723704,
+     "dwell": 4.0,
+     "legs": [
+      {
+       "from_mm": 0.0,
+       "to_mm": 1350.0,
+       "T_lin": 43.262,
+       "T_cmd": 75.0
+      },
+      {
+       "from_mm": 1350.0,
+       "to_mm": 1600.0,
+       "T_lin": 8.248,
+       "T_cmd": 13.889
+      }
+     ],
+     "finish_model": 157.1096,
+     "finish_solver": 157.1096
+    }
+   },
+   "DINDING": {
+    "1": {
+     "moves": 3,
+     "T_lin": 35.884100000000004,
+     "T_cmd": 61.11113296225466,
+     "dwell": 6.0,
+     "legs": [
+      {
+       "from_mm": 550.0,
+       "to_mm": 400.0,
+       "T_lin": 5.065,
+       "T_cmd": 8.333
+      },
+      {
+       "from_mm": 400.0,
+       "to_mm": 900.0,
+       "T_lin": 16.206,
+       "T_cmd": 27.778
+      },
+      {
+       "from_mm": 900.0,
+       "to_mm": 1350.0,
+       "T_lin": 14.614,
+       "T_cmd": 25.0
+      }
+     ],
+     "finish_model": 422.28409999999997,
+     "finish_solver": 422.28409999999997
+    },
+    "2": {
+     "moves": 2,
+     "T_lin": 51.50959999999999,
+     "T_cmd": 88.8889206723704,
+     "dwell": 4.0,
+     "legs": [
+      {
+       "from_mm": 0.0,
+       "to_mm": 1350.0,
+       "T_lin": 43.262,
+       "T_cmd": 75.0
+      },
+      {
+       "from_mm": 1350.0,
+       "to_mm": 1600.0,
+       "T_lin": 8.248,
+       "T_cmd": 13.889
+      }
+     ],
+     "finish_model": 309.1096,
+     "finish_solver": 309.1096
+    }
+   }
+  },
+  "schedule_FISIK": {
+   "1": [
+    {
+     "rail_m": 0.4,
+     "rot_deg": 0.0,
+     "start": 55.865,
+     "dur": 2.0,
+     "tasks": {
+      "0": "arm2"
+     },
+     "xyz": {
+      "0": [
+       0.1429,
+       0.6,
+       1.4
+      ]
+     }
+    },
+    {
+     "rail_m": 0.9,
+     "rot_deg": 0.0,
+     "start": 124.87,
+     "dur": 2.0,
+     "tasks": {
+      "1": "arm2"
+     },
+     "xyz": {
+      "1": [
+       0.6429,
+       0.3882,
+       1.16
+      ]
+     }
+    },
+    {
+     "rail_m": 1.35,
+     "rot_deg": 0.0,
+     "start": 192.284,
+     "dur": 2.0,
+     "tasks": {
+      "2": "arm1"
+     },
+     "xyz": {
+      "2": [
+       1.6429,
+       0.5294,
+       1.32
+      ]
+     }
+    }
+   ],
+   "2": [
+    {
+     "rail_m": 1.35,
+     "rot_deg": 0.0,
+     "start": 94.062,
+     "dur": 2.0,
+     "tasks": {
+      "3": "arm4",
+      "5": "arm3"
+     },
+     "xyz": {
+      "3": [
+       0.9286,
+       -0.2471,
+       1.16
+      ],
+      "5": [
+       1.9286,
+       -0.4588,
+       1.0
+      ]
+     }
+    },
+    {
+     "rail_m": 1.6,
+     "rot_deg": 0.0,
+     "start": 155.11,
+     "dur": 2.0,
+     "tasks": {
+      "4": "arm3"
+     },
+     "xyz": {
+      "4": [
+       1.9286,
+       -0.4588,
+       1.24
+      ]
+     }
+    }
+   ]
+  },
+  "schedule_DINDING": {
+   "1": [
+    {
+     "rail_m": 0.4,
+     "rot_deg": 0.0,
+     "start": 131.865,
+     "dur": 2.0,
+     "tasks": {
+      "0": "arm2"
+     },
+     "xyz": {
+      "0": [
+       0.1429,
+       0.6,
+       1.4
+      ]
+     }
+    },
+    {
+     "rail_m": 0.9,
+     "rot_deg": 0.0,
+     "start": 276.87,
+     "dur": 2.0,
+     "tasks": {
+      "1": "arm2"
+     },
+     "xyz": {
+      "1": [
+       0.6429,
+       0.3882,
+       1.16
+      ]
+     }
+    },
+    {
+     "rail_m": 1.35,
+     "rot_deg": 0.0,
+     "start": 420.284,
+     "dur": 2.0,
+     "tasks": {
+      "2": "arm1"
+     },
+     "xyz": {
+      "2": [
+       1.6429,
+       0.5294,
+       1.32
+      ]
+     }
+    }
+   ],
+   "2": [
+    {
+     "rail_m": 1.35,
+     "rot_deg": 0.0,
+     "start": 170.062,
+     "dur": 2.0,
+     "tasks": {
+      "3": "arm4",
+      "5": "arm3"
+     },
+     "xyz": {
+      "3": [
+       0.9286,
+       -0.2471,
+       1.16
+      ],
+      "5": [
+       1.9286,
+       -0.4588,
+       1.0
+      ]
+     }
+    },
+    {
+     "rail_m": 1.6,
+     "rot_deg": 0.0,
+     "start": 307.11,
+     "dur": 2.0,
+     "tasks": {
+      "4": "arm3"
+     },
+     "xyz": {
+      "4": [
+       1.9286,
+       -0.4588,
+       1.24
+      ]
+     }
+    }
+   ]
+  }
+ },
+ {
+  "seed": 36,
+  "nodes": [
+   1200,
+   565,
+   1330,
+   1247,
+   1370,
+   2799
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    124,
+    2
+   ],
+   "2": [
+    141,
+    27
+   ]
+  },
+  "ok_i": false,
+  "why": "task 2 is infeasible on every gantry",
+  "infeasible_tasks": [
+   2,
+   3,
+   5
+  ]
+ },
+ {
+  "seed": 37,
+  "nodes": [
+   499,
+   2205,
+   1981,
+   2072,
+   819,
+   216
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    86,
+    0
+   ],
+   "2": [
+    134,
+    11
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   4,
+   5
+  ]
+ },
+ {
+  "seed": 38,
+  "nodes": [
+   781,
+   1521,
+   1011,
+   782,
+   1221,
+   2256
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    60,
+    6
+   ],
+   "2": [
+    196,
+    29
+   ]
+  },
+  "ok_i": false,
+  "why": "task 1 is infeasible on every gantry",
+  "infeasible_tasks": [
+   1
+  ]
+ },
+ {
+  "seed": 39,
+  "nodes": [
+   3061,
+   1571,
+   725,
+   1689,
+   2405,
+   425
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    167,
+    5
+   ],
+   "2": [
+    124,
+    1
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   1,
+   5
+  ]
+ },
+ {
+  "seed": 40,
+  "nodes": [
+   1758,
+   2286,
+   66,
+   2171,
+   1370,
+   2950
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    62,
+    9
+   ],
+   "2": [
+    90,
+    23
+   ]
+  },
+  "ok_i": false,
+  "why": "task 3 is infeasible on every gantry",
+  "infeasible_tasks": [
+   3,
+   5
+  ]
+ },
+ {
+  "seed": 41,
+  "nodes": [
+   2080,
+   2988,
+   2595,
+   2405,
+   2217,
+   394
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    83,
+    7
+   ],
+   "2": [
+    134,
+    8
+   ]
+  },
+  "ok_i": false,
+  "why": "task 2 is infeasible on every gantry",
+  "infeasible_tasks": [
+   2,
+   5
+  ]
+ },
+ {
+  "seed": 42,
+  "nodes": [
+   279,
+   2424,
+   2050,
+   1374,
+   1356,
+   2689
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    136,
+    18
+   ],
+   "2": [
+    30,
+    0
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0,
+   1,
+   2,
+   4
+  ]
+ },
+ {
+  "seed": 43,
+  "nodes": [
+   1582,
+   2043,
+   1256,
+   137,
+   1807,
+   62
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    181,
+    12
+   ],
+   "2": [
+    94,
+    2
+   ]
+  },
+  "ok_i": false,
+  "why": "task 5 is infeasible on every gantry",
+  "infeasible_tasks": [
+   5
+  ]
+ },
+ {
+  "seed": 44,
+  "nodes": [
+   2088,
+   383,
+   2565,
+   808,
+   2085,
+   1270
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    145,
+    12
+   ],
+   "2": [
+    126,
+    7
+   ]
+  },
+  "ok_i": false,
+  "why": "task 1 is infeasible on every gantry",
+  "infeasible_tasks": [
+   1,
+   3
+  ]
+ },
+ {
+  "seed": 45,
+  "nodes": [
+   2895,
+   1795,
+   2291,
+   1655,
+   1665,
+   2391
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    99,
+    9
+   ],
+   "2": [
+    143,
+    9
+   ]
+  },
+  "ok_i": false,
+  "why": "task 4 is infeasible on every gantry",
+  "infeasible_tasks": [
+   4
+  ]
+ },
+ {
+  "seed": 46,
+  "nodes": [
+   1574,
+   2836,
+   687,
+   241,
+   1720,
+   853
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    133,
+    7
+   ],
+   "2": [
+    106,
+    11
+   ]
+  },
+  "ok_i": false,
+  "why": "task 0 is infeasible on every gantry",
+  "infeasible_tasks": [
+   0
+  ]
+ },
+ {
+  "seed": 47,
+  "nodes": [
+   304,
+   2323,
+   1702,
+   2360,
+   1350,
+   1456
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    178,
+    17
+   ],
+   "2": [
+    59,
+    0
+   ]
+  },
+  "ok_i": false,
+  "why": "task 1 is infeasible on every gantry",
+  "infeasible_tasks": [
+   1,
+   4,
+   5
+  ]
+ },
+ {
+  "seed": 48,
+  "nodes": [
+   407,
+   1214,
+   1565,
+   1865,
+   2110,
+   1609
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    155,
+    9
+   ],
+   "2": [
+    161,
+    12
+   ]
+  },
+  "ok_i": false,
+  "why": "task 2 is infeasible on every gantry",
+  "infeasible_tasks": [
+   2,
+   4
+  ]
+ },
+ {
+  "seed": 49,
+  "nodes": [
+   133,
+   1136,
+   2667,
+   1857,
+   145,
+   1227
+  ],
+  "reach_true_L1_to_oracle": {
+   "1": [
+    85,
+    3
+   ],
+   "2": [
+    164,
+    14
+   ]
+  },
+  "ok_i": false,
+  "why": "task 5 is infeasible on every gantry",
+  "infeasible_tasks": [
+   5
+  ]
+ }
+]
