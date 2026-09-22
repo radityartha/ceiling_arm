@@ -454,6 +454,26 @@ G17 enam, G18 tujuh, G19 tujuh.
   diperketat (mis. prediksi + 7.2 ≤ 14, atau + 6.6 ≤ 13) **atau** kuartet 2/10
   dikeluarkan — itu keputusan **sebelum** sesi berikutnya, bukan sesudah data.
 
+### C1. 🔴 Addendum 2026-09-22 — error Kortex SESUDAH sesi, stack dimatikan
+
+Ditemukan saat mematikan stack (`kill -INT 932613`, mati dalam 11 s — SIGINT
+bekerja, B1.1). Log launch: **17:59:15** (15 menit setelah percobaan 10 selesai
+17:44:45, sesudah retract) satu lengan melapor `WRONG_SERVOING_MODE` *"must be
+low level servoing mode"*, lalu `RefreshFeedback` timeout, lalu
+**238 953×** `INVALID_USER_SESSION_ACCESS` sampai shutdown 2026-09-22 12:07.
+Tidak ada baris *deactivate* hardware saat shutdown.
+
+- **Data g20 tidak terdampak:** kejadian mulai sesudah seluruh percobaan +
+  retract dan sesudah perekam berhenti (17:47). Pernyataan §C "nol fault" benar
+  **pada saat ditulis**; sesudahnya tidak.
+- **Lengan mana — TIDAK DIKETAHUI:** pesan tidak menyebut hardware, perekam
+  sudah berhenti. Pola cocok dengan lengan yang keluar dari servoing tingkat-
+  rendah (web UI / tombol / power-cycle / fault) — **tidak ditentukan**.
+- 2026-09-22: keempat lengan menjawab ICMP. 🔴 **Operator: periksa LED keempat
+  lengan secara fisik sebelum bring-up berikutnya.**
+- Crash dump `move_group` 197 MB (shutdown ini) dihapus; `ros2 node list
+  --no-daemon` kosong. Cuplikan log: [g20_postsession_kortex_errors.log](results/p1_g20/g20_postsession_kortex_errors.log).
+
 Lanjutan dari [p1_g19_hw.md](p1_g19_hw.md) §D; g19 tidak diubah.
 
 ## D. Prompt sesi berikutnya — G21 (OFFLINE, salin ke chat BARU)
