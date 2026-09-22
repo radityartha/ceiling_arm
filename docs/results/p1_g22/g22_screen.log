@@ -1,0 +1,201 @@
+  seed 0 sampel 1/3
+[INFO] [1790054012.775495823] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=3.46->11.16/14, 3=2.55->9.15/10, 4=0.46->2.44/7, 5=0.12->2.10/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 91 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:168: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1790054045.994929959] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 469.3 mm di titik 126 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+    [0] task t2 arm_1 -> [1.0, 0.3882, 1.32] @rail 0.550: PLANNED (33.3 s)
+[INFO] [1790054046.049941879] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=7.70->15.40/14, 3=2.44->9.04/10, 4=0.41->2.39/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 110 %)
+[ERROR] [1790054046.050283905] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a2_joint_2 diperkirakan 15.40 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [1] task t4 arm_2 -> [0.5714, 0.5294, 1.32] @rail 0.550: TORQUE-UNSAFE (0.1 s)
+seed 0: t4:arm_2:TORQUE-UNSAFE -> ditolak
+  seed 2 sampel 1/3
+[INFO] [1790054046.111413291] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=9.01->16.71/14, 3=1.37->7.97/10, 4=0.24->2.22/7, 5=0.08->2.06/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 119 %)
+[ERROR] [1790054046.111694989] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 16.71 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [0] task t3 arm_1 -> [0.5714, 0.1765, 1.32] @rail 0.550: TORQUE-UNSAFE (0.1 s)
+seed 2: t3:arm_1:TORQUE-UNSAFE -> ditolak
+  seed 3 sampel 1/3
+    [0] task t3 arm_1 -> [0.4286, 0.4588, 1.24] @rail 0.550: NO-PLAN (15.0 s)
+seed 3: t3:arm_1:NO-PLAN -> ditolak
+  seed 4 sampel 1/3
+    [0] retract g1: sudah REST -> dilewati
+    [1] traverse g1 0.550->1.400: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [2] task t2 arm_1 -> [1.7857, 0.1059, 1.0] @rail 1.400: NO-PLAN (15.0 s)
+seed 4: t2:arm_1:NO-PLAN -> ditolak
+  seed 5 sampel 1/3
+[INFO] [1790054076.378174661] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.14->6.74/10, 2=7.10->14.80/14, 3=0.62->7.22/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 106 %)
+[ERROR] [1790054076.378546838] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.80 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [0] task t5 arm_1 -> [1.0, 0.5294, 1.4] @rail 0.550: TORQUE-UNSAFE (0.1 s)
+seed 5: t5:arm_1:TORQUE-UNSAFE -> ditolak
+  seed 6 sampel 1/3
+    [0] retract g1: sudah REST -> dilewati
+    [1] traverse g1 0.550->1.050: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1790054076.565606341] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.34->6.94/10, 2=8.71->16.41/14, 3=2.47->9.07/10, 4=0.39->2.37/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 117 %)
+[ERROR] [1790054076.565980785] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 16.41 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [2] task t1 arm_1 -> [1.0714, 0.1059, 1.4] @rail 1.050: TORQUE-UNSAFE (0.1 s)
+seed 6: t1:arm_1:TORQUE-UNSAFE -> ditolak
+  seed 7 sampel 1/3
+[INFO] [1790054076.654935715] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=3.25->10.95/14, 3=2.48->9.08/10, 4=0.27->2.25/7, 5=0.11->2.09/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 91 %)
+[INFO] [1790054098.381656080] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+    [0] task t4 arm_1 -> [1.1429, 0.3176, 1.4] @rail 0.550: PLANNED (21.8 s)
+    [1] retract g1: se-gantry 622.7 / antar 546.1 mm -> CLEAR
+    [2] traverse g1 0.550->1.400: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [3] task t0 arm_1 -> [1.9286, -0.1059, 1.08] @rail 1.400: NO-PLAN (15.0 s)
+seed 7: t0:arm_1:NO-PLAN -> ditolak
+  seed 9 sampel 1/3
+[INFO] [1790054124.052187417] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.21->6.81/10, 2=9.69->17.39/14, 3=2.07->8.67/10, 4=0.36->2.34/7, 5=0.11->2.09/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 124 %)
+[ERROR] [1790054124.052472932] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 17.39 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [0] task t5 arm_1 -> [1.2143, -0.0353, 1.4] @rail 0.550: TORQUE-UNSAFE (0.1 s)
+seed 9: t5:arm_1:TORQUE-UNSAFE -> ditolak
+  seed 10 sampel 1/3
+    [0] task t4 arm_1 -> [1.5714, 0.6, 1.32] @rail 0.550: NO-PLAN (15.0 s)
+seed 10: t4:arm_1:NO-PLAN -> ditolak
+  seed 12 sampel 1/3
+[INFO] [1790054139.155165350] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=3.79->11.49/14, 3=2.48->9.08/10, 4=0.36->2.34/7, 5=0.10->2.08/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 91 %)
+[INFO] [1790054162.972523457] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+    [0] task t0 arm_1 -> [1.2143, 0.3176, 1.32] @rail 0.550: PLANNED (23.9 s)
+[INFO] [1790054163.045943418] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=5.86->13.56/14, 3=1.62->8.22/10, 4=0.26->2.24/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 97 %)
+[INFO] [1790054191.279721463] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 546.1 mm di titik 15 (t1_a2_shoulder_link_0 <-> t2_platform_link_0) -> CLEAR
+    [1] task t4 arm_2 -> [0.0714, 0.4588, 1.24] @rail 0.550: PLANNED (28.3 s)
+    [2] retract g1: se-gantry 576.4 / antar 546.1 mm -> CLEAR
+    [3] traverse g1 0.550->1.250: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [4] task t3 arm_1 -> [1.9286, -0.0353, 1.08] @rail 1.250: NO-PLAN (15.0 s)
+seed 12: t3:arm_1:NO-PLAN -> ditolak
+  seed 13 sampel 1/3
+    [0] retract g1: sudah REST -> dilewati
+    [1] traverse g1 0.550->0.800: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [2] task t0 arm_1 -> [1.7857, 0.6, 1.32] @rail 0.800: NO-PLAN (15.0 s)
+seed 13: t0:arm_1:NO-PLAN -> ditolak
+  seed 14 sampel 1/3
+    [0] task t3 arm_1 -> [0.7143, -0.0353, 1.16] @rail 0.550: NO-PLAN (15.0 s)
+seed 14: t3:arm_1:NO-PLAN -> ditolak
+  seed 15 sampel 1/3
+    [0] retract g1: sudah REST -> dilewati
+    [1] traverse g1 0.550->0.750: CLEAR min 500.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [2] task t2 arm_1 -> [1.4286, -0.0353, 1.08] @rail 0.750: NO-PLAN (15.0 s)
+seed 15: t2:arm_1:NO-PLAN -> ditolak
+  seed 16 sampel 1/3
+[INFO] [1790054264.330499936] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=3.88->11.58/14, 3=1.59->8.19/10, 4=0.22->2.20/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 83 %)
+[INFO] [1790054280.899724255] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+    [0] task t0 arm_1 -> [1.0714, 0.1765, 1.0] @rail 0.550: PLANNED (16.6 s)
+[INFO] [1790054281.081626318] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=2.66->10.36/14, 3=1.00->7.60/10, 4=0.18->2.16/7, 5=0.07->2.05/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 76 %)
+[INFO] [1790054318.395180452] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 546.1 mm di titik 122 (t1_a2_shoulder_link_0 <-> t2_platform_link_0) -> CLEAR
+    [1] task t5 arm_2 -> [0.1429, 0.3176, 1.0] @rail 0.550: PLANNED (37.5 s)
+[INFO] [1790054318.448955272] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=9.54->17.24/14, 3=2.56->9.16/10, 4=0.41->2.39/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 123 %)
+[ERROR] [1790054318.449267149] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 17.24 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [2] task t1 arm_1 -> [1.1429, -0.1059, 1.4] @rail 0.550: TORQUE-UNSAFE (0.1 s)
+seed 16: t1:arm_1:TORQUE-UNSAFE -> ditolak
+  seed 17 sampel 1/3
+    [0] task t0 arm_1 -> [1.5, -0.0353, 1.32] @rail 0.550: NO-PLAN (15.0 s)
+seed 17: t0:arm_1:NO-PLAN -> ditolak
+  seed 18 sampel 1/3
+    [0] task t3 arm_1 -> [1.4286, 0.3882, 1.16] @rail 0.550: NO-PLAN (15.0 s)
+seed 18: t3:arm_1:NO-PLAN -> ditolak
+  seed 19 sampel 1/3
+[INFO] [1790054348.554868391] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.14->6.74/10, 2=9.72->17.42/14, 3=2.09->8.69/10, 4=0.37->2.35/7, 5=0.11->2.09/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 124 %)
+[ERROR] [1790054348.555205713] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 17.42 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [0] task t5 arm_1 -> [0.5, 0.5294, 1.4] @rail 0.550: TORQUE-UNSAFE (0.1 s)
+seed 19: t5:arm_1:TORQUE-UNSAFE -> ditolak
+  seed 22 sampel 1/3
+    [0] retract g1: sudah REST -> dilewati
+    [1] traverse g1 0.550->1.100: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [2] task t0 arm_1 -> [1.5714, -0.1765, 1.24] @rail 1.100: NO-PLAN (15.0 s)
+seed 22: t0:arm_1:NO-PLAN -> ditolak
+  seed 25 sampel 1/3
+    [0] retract g1: sudah REST -> dilewati
+    [1] traverse g1 0.550->0.950: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [2] task t2 arm_1 -> [1.7143, 0.3882, 1.0] @rail 0.950: NO-PLAN (15.0 s)
+seed 25: t2:arm_1:NO-PLAN -> ditolak
+  seed 26 sampel 1/3
+    [0] task t4 arm_1 -> [0.7857, -0.1765, 1.24] @rail 0.550: NO-PLAN (15.0 s)
+seed 26: t4:arm_1:NO-PLAN -> ditolak
+  seed 27 sampel 1/3
+[INFO] [1790054393.907858392] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=5.88->13.58/14, 3=1.98->8.58/10, 4=0.33->2.31/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 97 %)
+[INFO] [1790054419.282102519] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 322.8 mm di titik 128 (t1_a2_gripper_base_link_0 <-> t2_a1_upper_wrist_link_0) -> CLEAR
+    [0] task t5 arm_2 -> [0.2143, 0.0353, 1.08] @rail 0.550: PLANNED (25.4 s)
+    [1] retract g1: se-gantry 605.4 / antar 322.1 mm -> CLEAR
+    [2] traverse g1 0.550->1.100: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [3] task t4 arm_1 -> [2.0, -0.1059, 1.4] @rail 1.100: NO-PLAN (15.0 s)
+seed 27: t4:arm_1:NO-PLAN -> ditolak
+  seed 28 sampel 1/3
+    [0] retract g1: sudah REST -> dilewati
+    [1] traverse g1 0.550->0.750: CLEAR min 500.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [2] task t0 arm_1 -> [1.3571, -0.2471, 1.32] @rail 0.750: NO-PLAN (15.0 s)
+seed 28: t0:arm_1:NO-PLAN -> ditolak
+  seed 31 sampel 1/3
+[INFO] [1790054461.734005962] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=1.32->9.02/14, 3=2.00->8.60/10, 4=0.36->2.34/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 86 %)
+[INFO] [1790054482.958419095] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 610.5 mm di titik 38 (t1_a1_lower_wrist_link_0 <-> t1_a2_upper_wrist_link_0) -> CLEAR
+    [0] task t0 arm_1 -> [1.0714, 0.5294, 1.08] @rail 0.550: PLANNED (21.3 s)
+[INFO] [1790054483.011600762] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.09->6.69/10, 2=5.93->13.63/14, 3=0.38->6.98/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 97 %)
+[INFO] [1790054504.817380961] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 546.1 mm di titik 9 (t1_a2_shoulder_link_0 <-> t2_platform_link_0) -> CLEAR
+    [1] task t3 arm_2 -> [0.0714, 0.6, 1.08] @rail 0.550: PLANNED (21.9 s)
+    [2] task t2 arm_1 -> [1.0, -0.2471, 1.24] @rail 0.550: NO-PLAN (15.0 s)
+seed 31: t2:arm_1:NO-PLAN -> ditolak
+  seed 32 sampel 1/3
+    [0] retract g1: sudah REST -> dilewati
+    [1] traverse g1 0.550->1.000: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [2] task t0 arm_1 -> [1.7857, -0.0353, 1.16] @rail 1.000: NO-PLAN (15.0 s)
+seed 32: t0:arm_1:NO-PLAN -> ditolak
+  seed 33 sampel 1/3
+[INFO] [1790054535.013642876] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.17->6.77/10, 2=9.26->16.96/14, 3=1.60->8.20/10, 4=0.26->2.24/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 121 %)
+[ERROR] [1790054535.013961117] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 16.96 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [0] task t3 arm_1 -> [1.1429, -0.0353, 1.32] @rail 0.550: TORQUE-UNSAFE (0.1 s)
+seed 33: t3:arm_1:TORQUE-UNSAFE -> ditolak
+  seed 35 sampel 1/3
+[INFO] [1790054535.072091992] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.05->6.65/10, 2=7.28->14.98/14, 3=0.38->6.98/10, 4=0.06->2.04/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 107 %)
+[ERROR] [1790054535.072358016] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.98 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [0] task t1 arm_1 -> [0.6429, 0.3882, 1.16] @rail 0.550: TORQUE-UNSAFE (0.1 s)
+seed 35: t1:arm_1:TORQUE-UNSAFE -> ditolak
+  seed 36 sampel 1/3
+    [0] retract g1: sudah REST -> dilewati
+    [1] traverse g1 0.550->0.800: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [2] task t5 arm_1 -> [1.7857, 0.5294, 1.24] @rail 0.800: NO-PLAN (15.0 s)
+seed 36: t5:arm_1:NO-PLAN -> ditolak
+  seed 37 sampel 1/3
+    [0] task t4 arm_1 -> [0.5, 0.1059, 1.24] @rail 0.550: NO-PLAN (15.0 s)
+seed 37: t4:arm_1:NO-PLAN -> ditolak
+  seed 39 sampel 1/3
+[INFO] [1790054565.251636708] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=5.68->13.38/14, 3=2.58->9.18/10, 4=0.43->2.41/7, 5=0.14->2.12/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 96 %)
+[INFO] [1790054589.431100462] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 339.8 mm di titik 50 (t1_a1_right_finger_dist_link_0 <-> t1_a2_upper_wrist_link_0) -> CLEAR
+    [0] task t1 arm_1 -> [1.0, 0.0353, 1.4] @rail 0.550: PLANNED (24.3 s)
+[INFO] [1790054589.486593818] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.12->6.72/10, 2=5.36->13.06/14, 3=2.55->9.15/10, 4=0.39->2.37/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 93 %)
+[INFO] [1790054619.632259923] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 304.0 mm di titik 68 (t1_a2_left_finger_prox_link_0 <-> t2_a1_upper_wrist_link_0) -> CLEAR
+    [1] task t2 arm_2 -> [0.4286, 0.2471, 1.4] @rail 0.550: PLANNED (30.2 s)
+[INFO] [1790054619.692200446] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.19->6.79/10, 2=6.97->14.67/14, 3=2.56->9.16/10, 4=0.42->2.40/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 105 %)
+[ERROR] [1790054619.692530608] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.67 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [2] task t3 arm_1 -> [1.0714, 0.1765, 1.24] @rail 0.550: TORQUE-UNSAFE (0.1 s)
+seed 39: t3:arm_1:TORQUE-UNSAFE -> ditolak
+  seed 40 sampel 1/3
+[INFO] [1790054619.750544511] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=5.30->13.00/14, 3=1.54->8.14/10, 4=0.21->2.19/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 93 %)
+[INFO] [1790054634.944502376] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 539.1 mm di titik 33 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+    [0] task t4 arm_1 -> [0.8571, 0.2471, 1.16] @rail 0.550: PLANNED (15.2 s)
+[INFO] [1790054635.023286942] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.05->6.65/10, 2=4.02->11.72/14, 3=0.62->7.22/10, 4=0.14->2.12/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 84 %)
+[INFO] [1790054665.166515030] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 467.5 mm di titik 72 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0) -> CLEAR
+    [1] task t2 arm_2 -> [0.0, 0.1765, 1.0] @rail 0.550: PLANNED (30.2 s)
+    [2] retract g1: se-gantry 526.7 / antar 467.5 mm -> CLEAR
+    [3] traverse g1 0.550->1.200: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [4] task t5 arm_1 -> [1.9286, -0.2471, 1.32] @rail 1.200: NO-PLAN (15.0 s)
+seed 40: t5:arm_1:NO-PLAN -> ditolak
+  seed 41 sampel 1/3
+    [0] task t4 arm_1 -> [1.4286, 0.0353, 1.24] @rail 0.550: NO-PLAN (15.0 s)
+seed 41: t4:arm_1:NO-PLAN -> ditolak
+  seed 42 sampel 1/3
+[INFO] [1790054710.665614399] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=7.36->15.06/14, 3=2.47->9.07/10, 4=0.40->2.38/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 108 %)
+[ERROR] [1790054710.665954527] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 15.06 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [0] task t2 arm_1 -> [1.2857, 0.6, 1.32] @rail 0.550: TORQUE-UNSAFE (0.1 s)
+seed 42: t2:arm_1:TORQUE-UNSAFE -> ditolak
+  seed 44 sampel 1/3
+[INFO] [1790054710.738300229] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=6.45->14.15/14, 3=1.23->7.83/10, 4=0.19->2.17/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 101 %)
+[ERROR] [1790054710.738568910] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.15 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+    [0] task t5 arm_1 -> [0.7857, 0.3176, 1.32] @rail 0.550: TORQUE-UNSAFE (0.1 s)
+seed 44: t5:arm_1:TORQUE-UNSAFE -> ditolak
+  seed 45 sampel 1/3
+[INFO] [1790054710.810631955] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=3.71->11.41/14, 3=2.17->8.77/10, 4=0.36->2.34/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 88 %)
+[INFO] [1790054735.377936359] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+    [0] task t1 arm_1 -> [1.1429, 0.1765, 1.08] @rail 0.550: PLANNED (24.6 s)
+    [1] task t3 arm_1 -> [1.0714, -0.2471, 1.4] @rail 0.550: NO-PLAN (15.0 s)
+seed 45: t3:arm_1:NO-PLAN -> ditolak
+  seed 49 sampel 1/3
+    [0] task t5 arm_1 -> [0.7857, -0.1765, 1.24] @rail 0.550: NO-PLAN (15.0 s)
+seed 49: t5:arm_1:NO-PLAN -> ditolak

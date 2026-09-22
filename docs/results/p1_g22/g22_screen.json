@@ -1,0 +1,462 @@
+[
+ {
+  "seed": 0,
+  "samples": [
+   "t4:arm_2:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 0 sampel 1/3",
+   "    [0] task t2 arm_1 -> [1.0, 0.3882, 1.32] @rail 0.550: PLANNED (33.3 s)",
+   "    [1] task t4 arm_2 -> [0.5714, 0.5294, 1.32] @rail 0.550: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054046.0503829
+ },
+ {
+  "seed": 2,
+  "samples": [
+   "t3:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 2 sampel 1/3",
+   "    [0] task t3 arm_1 -> [0.5714, 0.1765, 1.32] @rail 0.550: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054046.1117706
+ },
+ {
+  "seed": 3,
+  "samples": [
+   "t3:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 3 sampel 1/3",
+   "    [0] task t3 arm_1 -> [0.4286, 0.4588, 1.24] @rail 0.550: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054061.1342337
+ },
+ {
+  "seed": 4,
+  "samples": [
+   "t2:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 4 sampel 1/3",
+   "    [0] retract g1: sudah REST -> dilewati",
+   "    [1] traverse g1 0.550->1.400: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [2] task t2 arm_1 -> [1.7857, 0.1059, 1.0] @rail 1.400: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054076.3257687
+ },
+ {
+  "seed": 5,
+  "samples": [
+   "t5:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 5 sampel 1/3",
+   "    [0] task t5 arm_1 -> [1.0, 0.5294, 1.4] @rail 0.550: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054076.3786259
+ },
+ {
+  "seed": 6,
+  "samples": [
+   "t1:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 6 sampel 1/3",
+   "    [0] retract g1: sudah REST -> dilewati",
+   "    [1] traverse g1 0.550->1.050: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [2] task t1 arm_1 -> [1.0714, 0.1059, 1.4] @rail 1.050: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054076.5661712
+ },
+ {
+  "seed": 7,
+  "samples": [
+   "t0:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 7 sampel 1/3",
+   "    [0] task t4 arm_1 -> [1.1429, 0.3176, 1.4] @rail 0.550: PLANNED (21.8 s)",
+   "    [1] retract g1: se-gantry 622.7 / antar 546.1 mm -> CLEAR",
+   "    [2] traverse g1 0.550->1.400: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [3] task t0 arm_1 -> [1.9286, -0.1059, 1.08] @rail 1.400: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054123.988119
+ },
+ {
+  "seed": 9,
+  "samples": [
+   "t5:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 9 sampel 1/3",
+   "    [0] task t5 arm_1 -> [1.2143, -0.0353, 1.4] @rail 0.550: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054124.052554
+ },
+ {
+  "seed": 10,
+  "samples": [
+   "t4:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 10 sampel 1/3",
+   "    [0] task t4 arm_1 -> [1.5714, 0.6, 1.32] @rail 0.550: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054139.0821445
+ },
+ {
+  "seed": 12,
+  "samples": [
+   "t3:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 12 sampel 1/3",
+   "    [0] task t0 arm_1 -> [1.2143, 0.3176, 1.32] @rail 0.550: PLANNED (23.9 s)",
+   "    [1] task t4 arm_2 -> [0.0714, 0.4588, 1.24] @rail 0.550: PLANNED (28.3 s)",
+   "    [2] retract g1: se-gantry 576.4 / antar 546.1 mm -> CLEAR",
+   "    [3] traverse g1 0.550->1.250: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [4] task t3 arm_1 -> [1.9286, -0.0353, 1.08] @rail 1.250: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054219.1180856
+ },
+ {
+  "seed": 13,
+  "samples": [
+   "t0:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 13 sampel 1/3",
+   "    [0] retract g1: sudah REST -> dilewati",
+   "    [1] traverse g1 0.550->0.800: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [2] task t0 arm_1 -> [1.7857, 0.6, 1.32] @rail 0.800: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054234.1936843
+ },
+ {
+  "seed": 14,
+  "samples": [
+   "t3:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 14 sampel 1/3",
+   "    [0] task t3 arm_1 -> [0.7143, -0.0353, 1.16] @rail 0.550: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054249.2208989
+ },
+ {
+  "seed": 15,
+  "samples": [
+   "t2:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 15 sampel 1/3",
+   "    [0] retract g1: sudah REST -> dilewati",
+   "    [1] traverse g1 0.550->0.750: CLEAR min 500.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [2] task t2 arm_1 -> [1.4286, -0.0353, 1.08] @rail 0.750: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054264.285481
+ },
+ {
+  "seed": 16,
+  "samples": [
+   "t1:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 16 sampel 1/3",
+   "    [0] task t0 arm_1 -> [1.0714, 0.1765, 1.0] @rail 0.550: PLANNED (16.6 s)",
+   "    [1] task t5 arm_2 -> [0.1429, 0.3176, 1.0] @rail 0.550: PLANNED (37.5 s)",
+   "    [2] task t1 arm_1 -> [1.1429, -0.1059, 1.4] @rail 0.550: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054318.4493666
+ },
+ {
+  "seed": 17,
+  "samples": [
+   "t0:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 17 sampel 1/3",
+   "    [0] task t0 arm_1 -> [1.5, -0.0353, 1.32] @rail 0.550: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054333.472113
+ },
+ {
+  "seed": 18,
+  "samples": [
+   "t3:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 18 sampel 1/3",
+   "    [0] task t3 arm_1 -> [1.4286, 0.3882, 1.16] @rail 0.550: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054348.4826703
+ },
+ {
+  "seed": 19,
+  "samples": [
+   "t5:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 19 sampel 1/3",
+   "    [0] task t5 arm_1 -> [0.5, 0.5294, 1.4] @rail 0.550: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054348.5552847
+ },
+ {
+  "seed": 22,
+  "samples": [
+   "t0:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 22 sampel 1/3",
+   "    [0] retract g1: sudah REST -> dilewati",
+   "    [1] traverse g1 0.550->1.100: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [2] task t0 arm_1 -> [1.5714, -0.1765, 1.24] @rail 1.100: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054363.6952543
+ },
+ {
+  "seed": 25,
+  "samples": [
+   "t2:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 25 sampel 1/3",
+   "    [0] retract g1: sudah REST -> dilewati",
+   "    [1] traverse g1 0.550->0.950: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [2] task t2 arm_1 -> [1.7143, 0.3882, 1.0] @rail 0.950: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054378.8086953
+ },
+ {
+  "seed": 26,
+  "samples": [
+   "t4:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 26 sampel 1/3",
+   "    [0] task t4 arm_1 -> [0.7857, -0.1765, 1.24] @rail 0.550: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054393.8366153
+ },
+ {
+  "seed": 27,
+  "samples": [
+   "t4:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 27 sampel 1/3",
+   "    [0] task t5 arm_2 -> [0.2143, 0.0353, 1.08] @rail 0.550: PLANNED (25.4 s)",
+   "    [1] retract g1: se-gantry 605.4 / antar 322.1 mm -> CLEAR",
+   "    [2] traverse g1 0.550->1.100: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [3] task t4 arm_1 -> [2.0, -0.1059, 1.4] @rail 1.100: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054446.6082752
+ },
+ {
+  "seed": 28,
+  "samples": [
+   "t0:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 28 sampel 1/3",
+   "    [0] retract g1: sudah REST -> dilewati",
+   "    [1] traverse g1 0.550->0.750: CLEAR min 500.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [2] task t0 arm_1 -> [1.3571, -0.2471, 1.32] @rail 0.750: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054461.6790786
+ },
+ {
+  "seed": 31,
+  "samples": [
+   "t2:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 31 sampel 1/3",
+   "    [0] task t0 arm_1 -> [1.0714, 0.5294, 1.08] @rail 0.550: PLANNED (21.3 s)",
+   "    [1] task t3 arm_2 -> [0.0714, 0.6, 1.08] @rail 0.550: PLANNED (21.9 s)",
+   "    [2] task t2 arm_1 -> [1.0, -0.2471, 1.24] @rail 0.550: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054519.8442473
+ },
+ {
+  "seed": 32,
+  "samples": [
+   "t0:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 32 sampel 1/3",
+   "    [0] retract g1: sudah REST -> dilewati",
+   "    [1] traverse g1 0.550->1.000: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [2] task t0 arm_1 -> [1.7857, -0.0353, 1.16] @rail 1.000: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054534.9491096
+ },
+ {
+  "seed": 33,
+  "samples": [
+   "t3:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 33 sampel 1/3",
+   "    [0] task t3 arm_1 -> [1.1429, -0.0353, 1.32] @rail 0.550: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054535.0140839
+ },
+ {
+  "seed": 35,
+  "samples": [
+   "t1:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 35 sampel 1/3",
+   "    [0] task t1 arm_1 -> [0.6429, 0.3882, 1.16] @rail 0.550: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054535.0724342
+ },
+ {
+  "seed": 36,
+  "samples": [
+   "t5:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 36 sampel 1/3",
+   "    [0] retract g1: sudah REST -> dilewati",
+   "    [1] traverse g1 0.550->0.800: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [2] task t5 arm_1 -> [1.7857, 0.5294, 1.24] @rail 0.800: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054550.1492903
+ },
+ {
+  "seed": 37,
+  "samples": [
+   "t4:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 37 sampel 1/3",
+   "    [0] task t4 arm_1 -> [0.5, 0.1059, 1.24] @rail 0.550: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054565.1772945
+ },
+ {
+  "seed": 39,
+  "samples": [
+   "t3:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 39 sampel 1/3",
+   "    [0] task t1 arm_1 -> [1.0, 0.0353, 1.4] @rail 0.550: PLANNED (24.3 s)",
+   "    [1] task t2 arm_2 -> [0.4286, 0.2471, 1.4] @rail 0.550: PLANNED (30.2 s)",
+   "    [2] task t3 arm_1 -> [1.0714, 0.1765, 1.24] @rail 0.550: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054619.6926467
+ },
+ {
+  "seed": 40,
+  "samples": [
+   "t5:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 40 sampel 1/3",
+   "    [0] task t4 arm_1 -> [0.8571, 0.2471, 1.16] @rail 0.550: PLANNED (15.2 s)",
+   "    [1] task t2 arm_2 -> [0.0, 0.1765, 1.0] @rail 0.550: PLANNED (30.2 s)",
+   "    [2] retract g1: se-gantry 526.7 / antar 467.5 mm -> CLEAR",
+   "    [3] traverse g1 0.550->1.200: CLEAR min 498.9 mm (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+   "    [4] task t5 arm_1 -> [1.9286, -0.2471, 1.32] @rail 1.200: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054695.5748475
+ },
+ {
+  "seed": 41,
+  "samples": [
+   "t4:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 41 sampel 1/3",
+   "    [0] task t4 arm_1 -> [1.4286, 0.0353, 1.24] @rail 0.550: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054710.6056588
+ },
+ {
+  "seed": 42,
+  "samples": [
+   "t2:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 42 sampel 1/3",
+   "    [0] task t2 arm_1 -> [1.2857, 0.6, 1.32] @rail 0.550: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054710.6660936
+ },
+ {
+  "seed": 44,
+  "samples": [
+   "t5:arm_1:TORQUE-UNSAFE"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 44 sampel 1/3",
+   "    [0] task t5 arm_1 -> [0.7857, 0.3176, 1.32] @rail 0.550: TORQUE-UNSAFE (0.1 s)"
+  ],
+  "t": 1790054710.7386465
+ },
+ {
+  "seed": 45,
+  "samples": [
+   "t3:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 45 sampel 1/3",
+   "    [0] task t1 arm_1 -> [1.1429, 0.1765, 1.08] @rail 0.550: PLANNED (24.6 s)",
+   "    [1] task t3 arm_1 -> [1.0714, -0.2471, 1.4] @rail 0.550: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054750.4206448
+ },
+ {
+  "seed": 49,
+  "samples": [
+   "t5:arm_1:NO-PLAN"
+  ],
+  "ok": false,
+  "log": [
+   "  seed 49 sampel 1/3",
+   "    [0] task t5 arm_1 -> [0.7857, -0.1765, 1.24] @rail 0.550: NO-PLAN (15.0 s)"
+  ],
+  "t": 1790054765.453376
+ }
+]

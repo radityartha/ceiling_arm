@@ -108,7 +108,12 @@ JOINT_EFFORT_LIMIT = {1: 10.0, 2: 14.0, 3: 10.0, 4: 7.0, 5: 7.0, 6: 7.0}
 # Still 3.3x above the largest wrist torque G16 ever measured, so it stays
 # conservative; it is not a threshold move, it is the same measured constant
 # applied only where it was measured to apply.
-JOINT_TORQUE_OFFSET_NM = {1: 6.6, 2: 6.6, 3: 6.6, 4: 1.98, 5: 1.98, 6: 1.98}
+#
+# G22 (docs/p1_g22_hw.md A8-1, operator decision): joint_2 raised 6.6 -> 7.7.
+# g21 B8 over 81 executed plans (g18-g20): measured - RNEA reached +7.15 and
+# grows with the prediction; g20 trial 8 passed at 13.72 and measured 14.27.
+# +7.7 = max offset 7.15 + largest overshoot 0.55. joint_1/joint_3 unchanged.
+JOINT_TORQUE_OFFSET_NM = {1: 6.6, 2: 7.7, 3: 6.6, 4: 1.98, 5: 1.98, 6: 1.98}
 # STEP 3. Minimum distance allowed between the two arms that share a gantry,
 # anywhere along a planned trajectory. MoveIt cannot supply this: 112 of the 121
 # geometry-bearing t1_a1_* <-> t1_a2_* pairs are disabled in the SRDF with
@@ -292,6 +297,13 @@ class Probe(Node):
             for s in self.status:
                 if s.get('event') == 'concurrent' and s.get('n_arms', 0) >= len(arms):
                     return 'CONCURRENT', set(arms)
+                # G22 (docs/p1_g22_hw.md B0): the monitor never publishes
+                # `concurrent` for ONE arm (g20 B1.2), so N = 1 used to sit out
+                # the whole --settle after its own success -- dead time that a
+                # timed schedule would book as makespan. N = 1 ends on success.
+                if len(arms) == 1 and s.get('event') == 'success' \
+                        and s.get('arm') == arms[0]:
+                    return 'SUCCESS', set(arms)
         won = {s.get('arm') for s in self.status if s.get('event') == 'success'}
         won &= set(arms)
         if won == set(arms):
