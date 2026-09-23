@@ -1,0 +1,14 @@
+== retract arm_1 arm_2
+mengirim: 60 titik selama 30 s. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+selesai: galat akhir 0.041 deg, torsi puncak 5.222 N.m pada t1_a1_joint_2
+== retract arm_3 arm_4
+mengirim: 60 titik selama 30 s. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+selesai: galat akhir 0.044 deg, torsi puncak 5.474 N.m pada t2_a1_joint_2
+== g1 DRY
+{"dry": true, "gantry": 1, "start": 1.249862, "goal": 0.0, "sweep": "CLEAR", "sweep_min_mm": 539.7, "T_cmd": 69.437}
+== g1 MOVE
+akhir: t1_linear_joint = 0.000712 m (galat +0.71 mm); t_traverse 67.083 s (T_cmd 69.44, T_lin 40.074); lengan (keempat) bergeser maks 0.0470 deg; rel lain 0.000 mm
+== g2 DRY
+{"dry": true, "gantry": 2, "start": 1.34945, "goal": 0.0, "sweep": "CLEAR", "sweep_min_mm": 539.7, "T_cmd": 74.969}
+== g2 MOVE
+akhir: t2_linear_joint = 0.000681 m (galat +0.68 mm); t_traverse 72.523 s (T_cmd 74.97, T_lin 43.244); lengan (keempat) bergeser maks 0.1494 deg; rel lain 0.000 mm

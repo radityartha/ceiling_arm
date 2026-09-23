@@ -1,0 +1,9 @@
+# 1790144936.6192 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g22/rail_to_g.py --gantry 2 --seed 2 1.250 --move --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g26/g26_candidates.json
+1790144938.3175 S12: lengan gantry 2 maks |q - REST| = 0.040 deg (batas 0.5)
+1790144938.3175 S23: rotasi t1 +0.000 deg, t2 +0.010 deg (batas 0.5)
+1790144941.8017 S24: sapuan t2_linear_joint 1.0990 -> 1.2500 m, lengan lain TERUKUR: CLEAR, min 546.1 mm di titik 0 (t1_platform_link_0 <-> t2_a1_shoulder_link_0)
+1790144941.8017 t2_linear_joint: 1.099034 -> 1.250000 m (+151.0 mm), T_cmd 8.39 s, T_lin model 5.10 s
+1790144941.8020 setpoint pertama 1.45 mm (arm_tol 5 mm)
+1790144950.2620 JTC error_code: 0
+1790144951.5042 akhir: t2_linear_joint = 1.249411 m (galat -0.59 mm); t_traverse 8.02 s (T_cmd 8.39, T_lin 5.095); lengan (keempat) bergeser maks 0.1585 deg; rel lain 0.000 mm
+1790144951.5042 {"gantry": 2, "goal": 1.25, "start": 1.099034, "end": 1.249411, "err_mm": -0.589, "T_cmd": 8.387, "T_lin_model": 5.095, "t_send": 1790144941.8605673, "t_jtc_done": 1790144950.2619147, "t_first_move": 1790144942.4695818, "t_stop": 1790144950.489207, "t_traverse": 8.02, "arm_drift_deg": 0.1585, "other_rail_drift_mm": 0.0, "arm_tau_peak": 2.084, "arm_tau_joint": "t2_a1_joint_2", "sweep_min_mm": 546.1, "jtc_error_code": "0"}

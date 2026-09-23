@@ -405,6 +405,18 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > layak di dua gantry** → alokasi terpaksa. Berikutnya: G26-HW replikasi, `p0` = 0/0
 > ([g25 §D](p1_g25_task_cost.md)).
 
+> 🟢 **Sesi G26-HW (2026-09-23, sel NYATA) — [p1_g26_hw.md](p1_g26_hw.md). Replikasi: 3 seed
+> jadwal P1′ dijalankan utuh, 18/18 tugas SUCCESS; model P1′ (terkunci, tidak dikalibrasi ulang)
+> meleset −11.9 / −0.4 / −5.6 % (gabungan −5.9 %), selalu di bawah terukur.** `p0` = rel terbaca
+> 0/0; (i)–(iii) 46/50 (KG1 45/45 bit-identik); (iv) **3/14** lolos (seed 1, 2, 13). Makespan
+> 557.69 / 585.59 / 550.59 s; P1 lama −39…−58 %. Bias di suku **non-tugas** (−23 s/seed: overhead
+> `rail_to_g` 6.8–9.1 vs 4.74; retract dilewati tetap 2.5 s, model 0); suku tugas hampir tak bias
+> dalam jumlah tetapi \|galat\| rerata **8.2 s** (lintasan pendek +15…+21, panjang −5…−15). Torsi
+> j2 ≤ 9.66. Rel g1 ke **1.50 m** pertama kali (galat −0.85 mm). 🔴 **Pasca-data: lolos (iv) ⟺ tanpa
+> tugas z = 1.40** (14/14; 11/11 penolakan TORQUE-UNSAFE di z = 1.40; 29/46 seed memuatnya) —
+> terima-palsu oracle‴ terkonsentrasi di lapis teratas. Klaim "dapat dieksekusi" = subset lolos (iv).
+> Semua G22–G26 = rel saja (R0 / S23). Berikutnya: G27 offline — diagnosis z = 1.40 ([g26 §D](p1_g26_hw.md)).
+
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
 > 🔴 Perhatikan §0 di sana: **lengan sedang dilepas fisik**, jadi seluruh jalur
@@ -697,6 +709,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
+| **`p1_g26_hw.md`** | **Sesi G26-HW — replikasi 3 seed P1′ di sel nyata: 18/18 tugas, galat −11.9/−0.4/−5.6 % (§B1–B2); (iv) 3/14, lolos ⟺ tanpa z = 1.40 (§B3); prompt G27 (§D)** |
 | **`p1_g25_task_cost.md`** | **Sesi G25 — dekomposisi cap waktu (§A1, §B1), model P1′ terkunci (§A2), prediksi G24b −4.8 % (§B2), 45 instance: min-pindah 44/45, bias K2 ≤ 20 % (§B3); prompt G26 (§D)** |
 | **`p1_g24_roll_oracle.md`** | **Sesi G24b (§E) — jadwal pertama di sel nyata: (iv) seed 1 lolos, tahap 2 rel g2 pertama, tahap 3 6/6 sukses, makespan 480.44 s vs P1–P4.** Sesi G24 (offline) — sapuan roll: oracle″ gagal (miring + singularitas pergelangan, §B1), oracle‴ lulus (§B′1), tugas dari node layak-oracle, 45/50 instance (§B′2); prompt G24b (§D)** |
 | **`p1_g23_oracle_hw.md`** | **Sesi G23 — oracle L2-torsi: margin terukur (§B0), validasi vs 49 rencana G22 (§B1), (iv) 0/2 + roll bebas = kurva IK (§B3); prompt G24 (§D)** |
@@ -778,7 +791,7 @@ menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawa
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
 
-**Tally G10–G25** (diperbarui 2026-09-23, G25; tiap baris dari §B dokumen
+**Tally G10–G26** (diperbarui 2026-09-23, G26; tiap baris dari §B dokumen
 sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 
 | sesi | ditambah (meleset / tepat) | papan skor |
@@ -799,7 +812,8 @@ sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 | G23 | 7 / 4 (D79–D89; D90 tidak dinilai) | 48 / 41 |
 | G24 | 4 / 8 (D91–D97, D102–D106) | 52 / 49 |
 | G24b | 0 / 4 (D98–D101) | 52 / 53 |
-| **G25** | **4 / 2** (D108–D113; D107 terkontaminasi, tidak dihitung) | **56 meleset / 55 tepat** |
+| G25 | 4 / 2 (D108–D113; D107 terkontaminasi, tidak dihitung) | 56 / 55 |
+| **G26** | **3 / 6** (D114–D122) | **59 meleset / 61 tepat** |
 
 ➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
 atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
@@ -831,3 +845,9 @@ mengubah keputusan — meleset karena **struktur instance** (0/270 tugas dua-gan
 diperiksa sebelum menduga: arah "kendala lebih mengikat", prior lama. D112 (kode sendiri
 lebih salah) meleset untuk `sched.py`, tetapi skrip analisis memang crash sekali. Papan
 skor kembali **lebih banyak meleset** (56/55).
+
+➜ Yang G26 tambahkan: keenam yang tepat dari mekanisme terukur (jalur kode `return_rest`, bias alat
+G22+, saringan ∝ lintasan, sebaran torsi). D115 meleset ke arah "kendala lebih **longgar** dari
+kenyataan" — saringan (iv) menolak hampir semua seed dengan tugas z = 1.40; ini kendala
+**kelayakan** yang lebih mengikat, berlawanan dengan prior lama (seperti D95 G24). D117/D122:
+besaran/rentang dari n kecil. Papan skor kembali **lebih banyak tepat** (59/61).

@@ -1,0 +1,18 @@
+== retract arm_1 arm_2
+
+mengirim: 60 titik selama 30 s. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+selesai: galat akhir 0.042 deg, torsi puncak 4.008 N.m pada t1_a1_joint_2
+== retract arm_3 arm_4
+
+mengirim: 60 titik selama 30 s. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+selesai: galat akhir 0.046 deg, torsi puncak 6.596 N.m pada t2_a1_joint_2
+== g1 DRY
+{"dry": true, "gantry": 1, "start": 0.698994, "goal": 0.0, "sweep": "CLEAR", "sweep_min_mm": 572.2, "T_cmd": 38.833}
+== g1 MOVE
+akhir: t1_linear_joint = 0.000586 m (galat +0.59 mm); t_traverse 37.239 s (T_cmd 38.83, T_lin 22.54); lengan (keempat) bergeser maks 0.0596 deg; rel lain 0.000 mm
+{"gantry": 1, "goal": 0.0, "start": 0.698994, "end": 0.000586, "err_mm": 0.586, "T_cmd": 38.833, "T_lin_model": 22.54, "t_send": 1790144205.4388058, "t_jtc_done": 1790144244.2905157, "t_first_move": 1790144206.602014, "t_stop": 1790144243.8407855, "t_traverse": 37.239, "arm_drift_deg": 0.0596, "other_rail_drift_mm": 0.0, "arm_tau_peak": 1.099, "arm_tau_joint": "t1_a1_joint_2", "sweep_min_mm": 572.2, "jtc_error_code": "0"}
+== g2 DRY
+{"dry": true, "gantry": 2, "start": 1.449458, "goal": 0.0, "sweep": "CLEAR", "sweep_min_mm": 539.7, "T_cmd": 80.525}
+== g2 MOVE
+akhir: t2_linear_joint = 0.000356 m (galat +0.36 mm); t_traverse 78.489 s (T_cmd 80.53, T_lin 46.428); lengan (keempat) bergeser maks 0.1541 deg; rel lain 0.000 mm
+{"gantry": 2, "goal": 0.0, "start": 1.449458, "end": 0.000356, "err_mm": 0.356, "T_cmd": 80.525, "T_lin_model": 46.428, "t_send": 1790144256.314645, "t_jtc_done": 1790144336.866911, "t_first_move": 1790144257.8962228, "t_stop": 1790144336.385629, "t_traverse": 78.489, "arm_drift_deg": 0.1541, "other_rail_drift_mm": 0.0, "arm_tau_peak": 2.222, "arm_tau_joint": "t2_a1_joint_2", "sweep_min_mm": 539.7, "jtc_error_code": "0"}

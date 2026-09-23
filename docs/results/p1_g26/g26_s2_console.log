@@ -1,0 +1,53 @@
+pids monitor [1143137] recorder [1143120] ros2_control_node [1133033]
+  event 0: {'kind': 'retract', 'gantry': 1, 'stop': 0}
+  event 1: {'kind': 'traverse', 'gantry': 1, 'stop': 0, 'frm': 0.0, 'to': 1.1}
+  event 2: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 2, 'xyz': [1.6429, 0.1765, 1.0]}
+  event 3: {'kind': 'retract', 'gantry': 1, 'stop': 1}
+  event 4: {'kind': 'traverse', 'gantry': 1, 'stop': 1, 'frm': 1.1, 'to': 1.5}
+  event 5: {'kind': 'task', 'gantry': 1, 'stop': 1, 'arm': 'arm_1', 'task': 4, 'xyz': [2.0, 0.3882, 1.08]}
+  event 6: {'kind': 'retract', 'gantry': 2, 'stop': 0}
+  event 7: {'kind': 'traverse', 'gantry': 2, 'stop': 0, 'frm': 0.0, 'to': 0.7}
+  event 8: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 5, 'xyz': [1.1429, -0.3882, 1.16]}
+  event 9: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_4', 'task': 1, 'xyz': [0.2143, -0.3882, 1.0]}
+  event 10: {'kind': 'retract', 'gantry': 2, 'stop': 1}
+  event 11: {'kind': 'traverse', 'gantry': 2, 'stop': 1, 'frm': 0.7, 'to': 1.1}
+  event 12: {'kind': 'task', 'gantry': 2, 'stop': 1, 'arm': 'arm_3', 'task': 3, 'xyz': [1.5, -0.4588, 1.08]}
+  event 13: {'kind': 'retract', 'gantry': 2, 'stop': 2}
+  event 14: {'kind': 'traverse', 'gantry': 2, 'stop': 2, 'frm': 1.1, 'to': 1.25}
+  event 15: {'kind': 'task', 'gantry': 2, 'stop': 2, 'arm': 'arm_3', 'task': 0, 'xyz': [1.7143, -0.2471, 1.08]}
+awal: maks |q - REST| keempat lengan 0.034 deg; rel t1 0.000586 t2 0.000356
+===== t0 1790144393.2820
+  [0] retract g1  
+  [0] rc=0 2.50 s
+  [1] traverse g1  1.1
+  [1] rc=0 67.51 s
+  [2] task g1 arm_1 [1.6429, 0.1765, 1.0]
+  [2] rc=0 40.85 s success@110.79
+  [3] retract g1  
+  [3] rc=0 54.36 s
+  [4] traverse g1  1.5
+  [4] rc=0 28.49 s
+  [5] task g1 arm_1 [2.0, 0.3882, 1.08]
+  [5] rc=0 28.17 s success@221.89
+  [6] retract g2  
+  [6] rc=0 2.50 s
+  [7] traverse g2  0.7
+  [7] rc=0 45.27 s
+  [8] task g2 arm_3 [1.1429, -0.3882, 1.16]
+  [8] rc=0 46.74 s success@316.54
+  [9] task g2 arm_4 [0.2143, -0.3882, 1.0]
+  [9] rc=0 45.96 s success@362.54
+  [10] retract g2  
+  [10] rc=0 53.07 s
+  [11] traverse g2  1.1
+  [11] rc=0 28.53 s
+  [12] task g2 arm_3 [1.5, -0.4588, 1.08]
+  [12] rc=0 46.78 s success@491.04
+  [13] retract g2  
+  [13] rc=0 52.04 s
+  [14] traverse g2  1.25
+  [14] rc=0 15.05 s
+  [15] task g2 arm_3 [1.7143, -0.2471, 1.08]
+  [15] rc=0 27.34 s success@585.59
+SELESAI: 6/6 tugas sukses; makespan terukur 585.59 s
+terminate called without an active exception

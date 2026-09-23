@@ -1,0 +1,41 @@
+pids monitor [1143137] recorder [1143120] ros2_control_node [1133033]
+  event 0: {'kind': 'retract', 'gantry': 1, 'stop': 0}
+  event 1: {'kind': 'traverse', 'gantry': 1, 'stop': 0, 'frm': 0.0, 'to': 0.55}
+  event 2: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 0, 'xyz': [0.9286, 0.3176, 1.0]}
+  event 3: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 1, 'xyz': [1.0, 0.4588, 1.08]}
+  event 4: {'kind': 'retract', 'gantry': 1, 'stop': 1}
+  event 5: {'kind': 'traverse', 'gantry': 1, 'stop': 1, 'frm': 0.55, 'to': 0.7}
+  event 6: {'kind': 'task', 'gantry': 1, 'stop': 1, 'arm': 'arm_1', 'task': 5, 'xyz': [1.2857, 0.2471, 1.0]}
+  event 7: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 2, 'xyz': [0.2857, -0.3882, 1.08]}
+  event 8: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 3, 'xyz': [0.5, -0.3176, 1.0]}
+  event 9: {'kind': 'retract', 'gantry': 2, 'stop': 1}
+  event 10: {'kind': 'traverse', 'gantry': 2, 'stop': 1, 'frm': 0.0, 'to': 1.45}
+  event 11: {'kind': 'task', 'gantry': 2, 'stop': 1, 'arm': 'arm_3', 'task': 4, 'xyz': [1.7857, -0.3882, 1.24]}
+awal: maks |q - REST| keempat lengan 0.082 deg; rel t1 0.000503 t2 0.000534
+===== t0 1790143501.1815
+  [0] retract g1  
+  [0] rc=0 2.49 s
+  [1] traverse g1  0.55
+  [1] rc=0 36.70 s
+  [2] task g1 arm_1 [0.9286, 0.3176, 1.0]
+  [2] rc=0 56.98 s success@96.04
+  [3] task g1 arm_1 [1.0, 0.4588, 1.08]
+  [3] rc=0 49.97 s success@146.04
+  [4] retract g1  
+  [4] rc=0 51.91 s
+  [5] traverse g1  0.7
+  [5] rc=0 14.78 s
+  [6] task g1 arm_1 [1.2857, 0.2471, 1.0]
+  [6] rc=0 58.72 s success@271.49
+  [7] task g2 arm_3 [0.2857, -0.3882, 1.08]
+  [7] rc=0 47.35 s success@318.89
+  [8] task g2 arm_3 [0.5, -0.3176, 1.0]
+  [8] rc=0 49.21 s success@368.15
+  [9] retract g2  
+  [9] rc=0 53.33 s
+  [10] traverse g2  1.45
+  [10] rc=0 86.99 s
+  [11] task g2 arm_3 [1.7857, -0.3882, 1.24]
+  [11] rc=0 49.15 s success@557.69
+SELESAI: 6/6 tugas sukses; makespan terukur 557.69 s
+terminate called without an active exception
