@@ -63,10 +63,10 @@ def model(arm):
     return _M[arm]
 
 
-def seed_rounds(lo, hi):
+def seed_rounds(lo, hi, rounds_n=ROUNDS):
     rng = np.random.default_rng(24)
     out, first = [], True
-    for n in ROUNDS:
+    for n in rounds_n:
         b = [rng.uniform(lo, hi) for _ in range(n - 1 if first else n)]
         out.append(([np.array(O.REST)] if first else []) + b)
         first = False
@@ -96,8 +96,11 @@ TILT_DEG = [(2, 0), (-2, 0), (0, 2), (0, -2), (2, 2), (2, -2), (-2, 2), (-2, -2)
 ENV_TOL = 0.01                                                                     # A'2
 
 
-def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, envelope=False):
-    """tilt/envelope = ORACLE''' (A'1/A'2); defaults = ORACLE'' exactly."""
+def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, envelope=False,
+          rounds_n=ROUNDS, min_rounds=2, tilt_cont=False):
+    """tilt/envelope = ORACLE''' (A'1/A'2); defaults = ORACLE'' exactly.
+    G27 (A2 T1/T2, defaults unchanged): rounds_n / min_rounds widen discovery; tilt_cont reaches
+    each tilt by continuation 1/4 -> 2/4 -> 3/4 -> 1 of the angle instead of one Newton jump."""
     A = model(arm)
     pin, m, d = A['pin'], A['m'], A['d']
     lo, hi, iq, iv, tool = A['lo'], A['hi'], A['iq'], A['iv'], A['tool']
@@ -128,6 +131,8 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
     env = np.zeros(6)
     tilt_fail = [0]
     TR = [_rx(np.radians(a)) @ _ry(np.radians(b)) for a, b in TILT_DEG]
+    TRS = [[_rx(np.radians(a * f)) @ _ry(np.radians(b * f)) for f in (0.25, 0.5, 0.75, 1.0)]
+           for a, b in TILT_DEG]
 
     def add(k, s):
         nonlocal env
@@ -137,8 +142,15 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
         sols[k].append(s)
         if tilt:
             env = np.maximum(env, gravity(arm, s, rail))
-            for M in TR:
-                st = newton(s, k, CONT_ITERS, Rt[k] @ M)
+            for M, Ms in zip(TR, TRS):
+                if tilt_cont:
+                    st = s
+                    for Mf in Ms:
+                        st = newton(st, k, CONT_ITERS, Rt[k] @ Mf)
+                        if st is None:
+                            break
+                else:
+                    st = newton(s, k, CONT_ITERS, Rt[k] @ M)
                 if st is None:
                     tilt_fail[0] += 1
                 else:
@@ -159,7 +171,7 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
         return n
 
     rounds, saturated = 0, False
-    for r, seeds in enumerate(seed_rounds(lo, hi)):
+    for r, seeds in enumerate(seed_rounds(lo, hi, rounds_n)):
         rounds = r + 1
         new = 0
         env0, roll0 = env.copy(), sum(bool(ss) for ss in sols)
@@ -172,7 +184,7 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
             done = (sum(bool(ss) for ss in sols) == roll0 and np.all(env - env0 <= ENV_TOL))
         else:
             done = new == 0
-        if r >= 1 and done:
+        if r >= min_rounds - 1 and done:
             saturated = True
             break
 

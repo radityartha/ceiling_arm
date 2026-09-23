@@ -286,6 +286,8 @@ di tugas itu). Rencana tugas z = 1.40 di saringan: PLANNED 5, TORQUE-UNSAFE 11. 
 Tafsiran (belum diuji): terima-palsu oracle‴ (Newton-miring tak konvergen, g24 B′2) terkonsentrasi
 di lapis grid teratas, yang paling dekat bahu dan menuntut `joint_2` terbesar. Kalimat naskah
 "jadwal optimum dapat dieksekusi" berlaku untuk seed yang **lolos (iv)**: 3/14 disaring.
+➜ **G27** ([p1_g27_z140_diag.md](p1_g27_z140_diag.md)): tafsiran "miring tak konvergen" **salah** — puncak
+torsi z = 1.40 ada di **transit** dari REST (T0 11/11), bukan di titik akhir; oracle⁗ ≡ oracle‴ tanpa z = 1.40.
 
 ### B4. Papan skor — D114–D122
 
@@ -337,6 +339,25 @@ z menolak hampir semua; D117 besaran; D122 rentang dari n = 2 (G24b) terlalu sem
   diagnosis oracle‴ di z = 1.40 (B3); rotasi gantry (R0: seluruh G22–G26 adalah masalah 1-D rel,
   S23 — penyaring S18/S24 tidak memuat sendi rotasi).
 
+### C1. Utang yang DIPUTUSKAN operator (2026-09-23, sesudah §C) — urutan kerja
+
+Operator: **(A) G27 = diagnosis z = 1.40 dulu; rotasi gantry SESUDAHNYA, jangan dilupakan.**
+
+1. **G27** — terima-palsu oracle‴ di z = 1.40 (§D).
+2. **G28/G29 — ROTASI gantry** (belum pernah di jalur jadwal; hanya motor-level G3 B3d: 10.000 °/s,
+   t₀ 0.26 s, konkuren dengan linier). Syarat berurutan: (a) S18/S24 memuat sendi rotasi + kontrol
+   positif/negatif; (b) tabrakan struktur gantry–gantry pada rot ≠ 0 (G9: 13/40 jadwal melanggar;
+   solver terkopel tanpa ground truth W2) atau batas rotasi yang terbukti aman; (c) kecepatan ujung
+   lengan ~244 mm/s pada 10 °/s — keputusan operator; (d) oracle‴ untuk rot ≠ 0; (e) HW bertahap:
+   ±10° lengan REST → jadwal dengan rotasi.
+3. **Peta lingkungan 3D TIDAK aktif pada gerak G22–G26** (diperiksa dari g26_launch.log.gz): keempat
+   octomap updater `move_group` **gagal dimuat** (plugin load error — tercatat sebagai "baseline" sejak
+   G18/G20, tidak pernah diperbaiki); tidak ada node kamera; probe tidak menambah `CollisionObject`;
+   peta topo statis G6 tidak tersambung ke perencanaan. Pengaman lingkungan satu-satunya = **sel
+   dikosongkan operator**. Hasil G22–G26 sah untuk sel kosong; naskah **tidak boleh** menyiratkan
+   penghindaran tabrakan berbasis persepsi pada eksperimen ini. Perbaikan (plugin octomap / objek
+   statis / peta topo → planning scene) = sesi tersendiri, sesudah rotasi atau bila ada objek di sel.
+
 ## D. Prompt G27 (salin ke chat BARU) — OFFLINE
 
 **Kenapa ini berikutnya.** G26 menjawab replikasi: **4 seed, 24/24 tugas** (G24b + G26), makespan
@@ -372,6 +393,8 @@ PLANNED 5 / ditolak 11; 29/46 seed memuat z = 1.40. Sumber: docs/results/p1_g26/
 4. Sekunder, bila waktu: P1'' = P1' + c_rovh dari rail_to_g (G24b+G26, n = 14) + retract-dilewati 2.5 s;
    dikunci sebelum fit, dievaluasi leave-one-seed-out atas 4 seed (G24b, G26 x3). c_task TIDAK diubah.
 5. p1_state 6 + tally; prompt G28 (HW: saringan (iv) pada seed baru dengan oracle terkoreksi).
+   JANGAN LUPA g26 C1: sesudah z = 1.40 -> ROTASI gantry (C1-2), lalu peta lingkungan 3D (C1-3:
+   octomap updater gagal dimuat di setiap bring-up; G22-G26 = sel kosong).
 
 ATURAN: 7.1 ground truth dulu; 7.2 dugaan dikunci sebelum data; B menang atas A dan DITULIS.
 DILARANG memilih aturan oracle sesudah melihat hasilnya pada 16 rencana z = 1.40 yang sama.
