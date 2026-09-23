@@ -1,0 +1,31 @@
+konstanta {
+ "n_first": 21,
+ "task_to_success": 43.475,
+ "n_end": 11,
+ "t_end": 0.171,
+ "c_ret": 50.874,
+ "r": 0.9501746602515893,
+ "c_rovh": 4.739500000000001,
+ "gap": 0.0,
+ "c_task": 43.646,
+ "t_fold": 55.6135,
+ "t_fold_first": 4.739500000000001
+}
+  ev0 task     g1  pred   43.65  terukur   52.20  galat   -8.55 s ( -16.4 %)
+  ev1 task     g1  pred   43.65  terukur   52.44  galat   -8.79 s ( -16.8 %)
+  ev2 retract  g1  pred   50.87  terukur   52.71  galat   -1.84 s (  -3.5 %)
+  ev3 traverse g1  pred   12.66  terukur   14.75  galat   -2.09 s ( -14.2 %)
+  ev4 task     g1  pred   43.65  terukur   49.59  galat   -5.94 s ( -12.0 %)
+  ev5 task     g2  pred   43.65  terukur   27.73  galat  +15.91 s ( +57.4 %)
+  ev6 task     g2  pred   43.65  terukur   41.49  galat   +2.16 s (  +5.2 %)
+  ev7 retract  g2  pred   50.87  terukur   52.76  galat   -1.88 s (  -3.6 %)
+  ev8 traverse g2  pred   81.28  terukur   86.98  galat   -5.70 s (  -6.6 %)
+  ev9 task     g2  pred   43.48  terukur   49.62  galat   -6.14 s ( -12.4 %)
+P1'-serial 457.39 vs terukur 480.44 -> galat -23.05 s (-4.80 %); sela runner terukur 0.18 s (model 0)
+  task     pred  261.71 terukur  273.06 galat  -11.36
+  retract  pred  101.75 terukur  105.47 galat   -3.72
+  traverse pred   93.94 terukur  101.73 galat   -7.79
+  P1-serial  165.11 -> galat -315.33 s (-65.6 %)
+  P2-serial  202.49 -> galat -277.95 s (-57.9 %)
+  P3-serial  317.11 -> galat -163.33 s (-34.0 %)
+  P4-serial  354.49 -> galat -125.95 s (-26.2 %)

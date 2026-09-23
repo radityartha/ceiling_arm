@@ -315,6 +315,7 @@ class PoseCost:
     """
 
     def __init__(self, inst, dp, g):
+        assert inst.default_costs, 'sched_coupled: G25 cost fields not supported'
         self.inst, self.dp, self.g = inst, dp, g
         self.P = inst.poses[g]
         self.kp = self.P[dp.keep]

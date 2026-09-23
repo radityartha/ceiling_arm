@@ -67,7 +67,7 @@ from __future__ import annotations
 import argparse
 import itertools
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 import numpy as np
 
@@ -87,27 +87,35 @@ DWELL = 2.0                              # p1_state 5.8 / 8b, continuous hold
 GANTRY_ARMS = {1: ('arm1', 'arm2'), 2: ('arm3', 'arm4')}
 
 
-def traverse_time(dlin_m, drot_rad, t_fold=0.0):
+def traverse_time(dlin_m, drot_rad, t_fold=0.0, rail_cmd=0.0):
     """Scalar/array T_traverse for a linear and a rotational delta.
 
     The offset is charged only on an axis that actually moves: T(p, p) = 0.
     Charging 0.29 s to stand still would make the gantry pay for not moving,
     and would also break the triangle inequality the DP leans on.
+
+    rail_cmd > 0 replaces the linear axis by the MEASURED bridge behaviour
+    (docs/p1_g25_task_cost.md A2): rail_cmd * T_cmd, T_cmd = max(3, pi*d /
+    (2*0.9*v_lin)) -- the cosine setpoint of g19 rail_to / g22_plan.t_cmd.
     """
     dl = np.abs(np.asarray(dlin_m, float)) * 1000.0
     dr = np.degrees(np.abs(np.asarray(drot_rad, float)))
     dr = np.minimum(dr, 360.0 - dr)                  # rotation axis is cyclic
-    tl = np.where(dl > 1e-6, T_LIN_OFFSET + dl / V_LIN_MM_S, 0.0)
+    if rail_cmd:
+        tl = np.where(dl > 1e-6, rail_cmd * np.maximum(
+            3.0, np.pi * dl / (2 * 0.9 * V_LIN_MM_S)), 0.0)
+    else:
+        tl = np.where(dl > 1e-6, T_LIN_OFFSET + dl / V_LIN_MM_S, 0.0)
     tr = np.where(dr > 1e-6, T_ROT_OFFSET + dr / V_ROT_DEG_S, 0.0)
     t = np.maximum(tl, tr)
     return np.where(t > 0, t + t_fold, 0.0) if t_fold else t
 
 
-def traverse_matrix(poses, t_fold=0.0):
+def traverse_matrix(poses, t_fold=0.0, rail_cmd=0.0):
     """(P, P) pairwise setup times for a pose set (P, 2) = (lin m, rot rad)."""
     lin, rot = poses[:, 0], poses[:, 1]
     return traverse_time(lin[:, None] - lin[None, :],
-                         rot[:, None] - rot[None, :], t_fold)
+                         rot[:, None] - rot[None, :], t_fold, rail_cmd)
 
 
 # ---------------------------------------------------------------------------
@@ -140,6 +148,16 @@ class Instance:
     t_fold: float = 0.0
     label: str = ''
     meta: dict = field(default_factory=dict)
+    # G25 measured-cost model (docs/p1_g25_task_cost.md A2/A3). Defaults are the
+    # old model, bit-identical. Only solve_exact honours them (default_costs).
+    serial_arms: bool = False         # stop = (#tasks) * dwell: one arm moves at a time
+    t_fold_first: float = None        # first move off p0 with no task done there
+    rail_cmd: float = 0.0             # > 0: linear axis = rail_cmd * T_cmd
+
+    @property
+    def default_costs(self):
+        return (not self.serial_arms and self.t_fold_first is None
+                and not self.rail_cmd)
 
     @property
     def n(self):
@@ -152,9 +170,8 @@ class Instance:
     def without_mutex(self):
         """Same instance with the r=0.20 zone removed. Ablation only."""
         z = {g: np.zeros_like(v) for g, v in self.zone.items()}
-        return Instance(self.kind, self.poses, self.reach, z, self.hand,
-                        self.p0, self.xyz, self.dwell, self.t_fold,
-                        self.label + '+nomutex', dict(self.meta))
+        return replace(self, zone=z, label=self.label + '+nomutex',
+                       meta=dict(self.meta))
 
     def describe(self):
         out = [f'instance {self.label!r}: {self.n} tasks '
@@ -210,7 +227,8 @@ def stop_duration(inst, g, U, p):
             continue
         s = [v.count(0), v.count(1)]
         z = sum(inst.zone[g][i, p, a] for i, a in zip(sr, v))
-        slots = max(m + s[0], m + s[1], m + int(z))
+        slots = m + len(sr) if inst.serial_arms else \
+            max(m + s[0], m + s[1], m + int(z))
         if slots < best:
             best, best_v = slots, v
     if best_v is None:
@@ -250,8 +268,11 @@ def _dur_table(inst, g):
                 zc += zone[i, :, a]
             if not feas.any():
                 continue
-            load = max(m + v.count(0), m + v.count(1))
-            slots = np.maximum(load, m + zc).astype(float)
+            if inst.serial_arms:
+                slots = np.full(P, float(m + len(sr)))
+            else:
+                load = max(m + v.count(0), m + v.count(1))
+                slots = np.maximum(load, m + zc).astype(float)
             np.minimum(best, np.where(feas, slots, np.inf), out=best)
         dur[U] = best * inst.dwell
     return dur
@@ -275,10 +296,15 @@ class GantryDP:
     h: np.ndarray          # (2**n, K) cost-to-go
     w: np.ndarray          # (2**n, K) cost-to-go given we are ALREADY at p'
     r0: int                # index of p0 inside `keep`
+    T0: np.ndarray = None  # (K,) first move off p0 (t_fold_first); None = T[r0]
 
     @property
     def cost(self):
-        return self.h[:, self.r0]
+        if self.T0 is None:
+            return self.h[:, self.r0]
+        c = np.min(self.T0[None, :] + self.w, axis=1)
+        c[0] = 0.0
+        return c
 
 
 def solve_gantry(inst, g):
@@ -291,7 +317,9 @@ def solve_gantry(inst, g):
     if p0 not in keep:
         keep = np.sort(np.append(keep, p0))
     r0 = int(np.searchsorted(keep, p0))
-    T = traverse_matrix(inst.poses[g][keep], inst.t_fold)
+    T = traverse_matrix(inst.poses[g][keep], inst.t_fold, inst.rail_cmd)
+    T0 = None if inst.t_fold_first is None else traverse_matrix(
+        inst.poses[g][keep], inst.t_fold_first, inst.rail_cmd)[r0]
     dur = dur_full[:, keep]
     K = len(keep)
 
@@ -308,7 +336,7 @@ def solve_gantry(inst, g):
         cols = np.flatnonzero(np.isfinite(wr))
         if len(cols):
             np.min(T[:, cols] + wr[cols], axis=1, out=h[R])
-    return GantryDP(g, keep, T, dur, h, w, r0)
+    return GantryDP(g, keep, T, dur, h, w, r0, T0)
 
 
 def _reconstruct(inst, dp, A):
@@ -316,9 +344,10 @@ def _reconstruct(inst, dp, A):
     stops, R, r, t = [], A, dp.r0, 0.0
     while R:
         wr = dp.w[R]
-        cand = dp.T[r] + wr
+        row = dp.T0 if (not stops and dp.T0 is not None) else dp.T[r]
+        cand = row + wr
         r2 = int(np.argmin(cand))
-        t += dp.T[r, r2]
+        t += row[r2]
         bestU, bestc = None, np.inf
         U = R
         while U:

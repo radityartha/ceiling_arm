@@ -69,6 +69,8 @@ class GantryView:
     """
 
     def __init__(self, inst, g):
+        # G25 cost fields are honoured by sched.solve_exact only.
+        assert inst.default_costs, 'sched_heur: G25 cost fields not supported'
         self.inst = inst
         self.g = g
         self.poses = inst.poses[g]
