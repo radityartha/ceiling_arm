@@ -1,0 +1,35 @@
+pids monitor [1109800] recorder [1109757] ros2_control_node [1099849]
+  event 0: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 0, 'xyz': [0.9286, 0.3176, 1.0]}
+  event 1: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 1, 'xyz': [1.0, 0.4588, 1.08]}
+  event 2: {'kind': 'retract', 'gantry': 1, 'stop': 1}
+  event 3: {'kind': 'traverse', 'gantry': 1, 'stop': 1, 'frm': 0.55, 'to': 0.7}
+  event 4: {'kind': 'task', 'gantry': 1, 'stop': 1, 'arm': 'arm_1', 'task': 5, 'xyz': [1.2857, 0.2471, 1.0]}
+  event 5: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 2, 'xyz': [0.2857, -0.3882, 1.08]}
+  event 6: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 3, 'xyz': [0.5, -0.3176, 1.0]}
+  event 7: {'kind': 'retract', 'gantry': 2, 'stop': 1}
+  event 8: {'kind': 'traverse', 'gantry': 2, 'stop': 1, 'frm': 0.0, 'to': 1.45}
+  event 9: {'kind': 'task', 'gantry': 2, 'stop': 1, 'arm': 'arm_3', 'task': 4, 'xyz': [1.7857, -0.3882, 1.24]}
+awal: maks |q - REST| keempat lengan 0.036 deg; rel t1 0.550910 t2 0.000555
+===== t0 1790129308.0442
+  [0] task g1 arm_1 [0.9286, 0.3176, 1.0]
+  [0] rc=0 52.20 s success@52.04
+  [1] task g1 arm_1 [1.0, 0.4588, 1.08]
+  [1] rc=0 52.44 s success@104.49
+  [2] retract g1  
+  [2] rc=0 52.71 s
+  [3] traverse g1  0.7
+  [3] rc=0 14.75 s
+  [4] task g1 arm_1 [1.2857, 0.2471, 1.0]
+  [4] rc=0 49.59 s success@221.59
+  [5] task g2 arm_3 [0.2857, -0.3882, 1.08]
+  [5] rc=0 27.73 s success@249.34
+  [6] task g2 arm_3 [0.5, -0.3176, 1.0]
+  [6] rc=0 41.49 s success@290.84
+  [7] retract g2  
+  [7] rc=0 52.76 s
+  [8] traverse g2  1.45
+  [8] rc=0 86.98 s
+  [9] task g2 arm_3 [1.7857, -0.3882, 1.24]
+  [9] rc=0 49.79 s success@480.44
+SELESAI: 6/6 tugas sukses; makespan terukur 480.44 s
+terminate called without an active exception

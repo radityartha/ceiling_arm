@@ -1,0 +1,9 @@
+=== 11:00:10 rail_to_g --gantry 2 --seed 1 1.45 
+S12: lengan gantry 2 maks |q - REST| = 0.045 deg (batas 0.5)
+S23: rotasi t1 +0.000 deg, t2 +0.030 deg (batas 0.5)
+S24: sapuan t2_linear_joint 0.0001 -> 1.4500 m, lengan lain TERUKUR: CLEAR, min 539.7 mm di titik 93 (t1_a1_base_link_0 <-> t2_platform_link_0)
+t2_linear_joint: 0.000094 -> 1.450000 m (+1449.9 mm), T_cmd 80.55 s, T_lin model 46.44 s
+setpoint pertama 0.14 mm (arm_tol 5 mm)
+DRY RUN: tidak ada yang dikirim.
+{"dry": true, "gantry": 2, "start": 9.4e-05, "goal": 1.45, "sweep": "CLEAR", "sweep_min_mm": 539.7, "T_cmd": 80.55}
+rc=0 -> /home/user1/Documents/ceiling_arm/docs/results/p1_g24/g24b_rail_g2_1.45_dry_110010.log

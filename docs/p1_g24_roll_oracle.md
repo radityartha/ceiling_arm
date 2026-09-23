@@ -433,3 +433,165 @@ ATURAN: B menang atas A dan DITULIS; pgrep -f jangan cocok dengan bash sendiri;
 launch python3 -c "...SIG_DFL...execvp" &, cek SigIgn sebelum kill -INT; disk ~1.9 GB,
 hapus crash dump move_group milikmu.
 ```
+
+---
+
+## E. G24b — sel NYATA, 2026-09-23
+
+### E0. Tahap 0 — nol gerak
+
+| Gerbang | Hasil |
+|---|---|
+| Operator (ditanya ULANG, 2026-09-23) | LED 4/4 tidak merah; origin g2 = home fisik; rel + ruang antar-gantry bebas ✅ |
+| pra-cek | nol proses ROS basi; enp112s0 192.168.2.100; `ros2_kortex` **e712295**; disk **4.3 GB** (S27 ✅) |
+| `remount_check.py` | **GERBANG LULUS**; ICMP .10–.13 ✅ |
+| bring-up (`/tmp/g24b_t1.log`, PID 1098829, SigIgn `0x1001001` = tanpa SIGINT) | **4×** "Actuator count … '6'"; **7/7** controller active; nol FAULT / Kortex exception; 7 spawner "process has died" (= G23) ✅ |
+| `/joint_states` (40 pesan) | rel **0.550910 / 0.000094** → R1 0.55 / 0.00 ✅; rotasi g1 0, **g2 0.03°** (G23: 0; < 0.5°) |
+| lengan | maks \|q − REST\| arm_1 0.654°, arm_2 0.467°, arm_3 **1.065°** (G23 0.838), arm_4 0.716° |
+| validator penilai | **7/7 PASS**; penilai 0 sebelum / 0 sesudah (penghitung melewati argv[0] bash) ✅ |
+
+### E1. 🔒 Saringan (iv) — **seed 1 LOLOS 3/3** ([log](results/p1_g24/g24_screen.log), [json](results/p1_g24/g24_screen.json), sha `b9d870fed33cc3fe`)
+
+| seed | hasil |
+|---|---|
+| 0 | t1 arm_1 @0.55 PLANNED; retract/traverse g1 0.55→0.75 CLEAR; **t5 arm_1 `(1.2857, 0.3882, 1.4)` @0.75 TORQUE-UNSAFE** — RNEA j2 **7.17** → 14.87 > 14. Batas statis oracle‴ j2 = 14 − 7.7 − 0.659 = 5.64 → **terima-palsu oracle‴** (kelas B′2: miring tak konvergen / cabang terlewat — tidak dipilah) |
+| **1** | **PLANNED / PLANNED / PLANNED → LOLOS** (6 tugas × 3; retract 2 × 3 CLEAR; S24 g1 0.55→0.70 min 507.6 mm, g2 0.00→1.45 min **452.7** mm) |
+
+**Instance = seed 1** (A2 mekanis): g1 1 pindah 0.55 → 0.70 (t0, t1 @0.55; t5 @0.70; semua arm_1);
+g2 1 pindah **0.00 → 1.45** (t2, t3 @0.00; t4 @1.45; semua arm_3); FISIK = DINDING jadwal sama.
+
+### E2. 🔒 Prediksi (A4) — DIKUNCI SEBELUM GERAK
+
+| | F1 | F2 | max (model) | serial (A3) |
+|---|---|---|---|---|
+| **P1** FISIK T_lin | 61.86 | 103.24 | **103.24** (= solver) | 165.11 |
+| **P2** FISIK T_cmd | 65.13 | 137.36 | 137.36 | **202.49** |
+| **P3** DINDING T_lin | 137.86 | 179.24 | 179.24 | 317.11 |
+| **P4** DINDING T_cmd | 141.13 | 213.36 | 213.36 | 354.49 |
+
+(Σ T_lin g1 5.065 / g2 46.445; Σ T_cmd 8.333 / 80.556; m = 1 / 1; D = 6.0 / 6.0.)
+D101 dinilai terhadap **P2-serial 202.49 s**.
+
+### E3. Papan skor (iv) — D98–D100 (dikunci g24 A7, dinilai di sini)
+
+| # | Terukur | |
+|---|---|---|
+| D98 | lolos pertama = seed ke-**2** (≤ 5) | ✅ |
+| D99 | per rencana PLANNED **20 / 21** = 95 % (≥ 80 %) | ✅ |
+| D100 | sesudah pindah PLANNED **6 / 7** = 86 % (≥ 70 %) | ✅ |
+| D101 | tahap 3 | ⏳ |
+
+### E4. Tahap 1 (sisa) + tahap 2 — izin operator per gerak
+
+| Langkah | Hasil |
+|---|---|
+| `return_rest` DRY ([log](results/p1_g24/g24b_rest_dry.log)) | g1 / g2 CLEAR (se-gantry 622.7 / 622.1, antar 546.1 mm), rc 0 |
+| **GERAK** `return_rest --move` ([log](results/p1_g24/g24b_rest_move.log)) | g1 0.65° → **0.028°**, torsi puncak 4.47 (t1_a1_j2); g2 1.07° → **0.046°**, 4.70 (t2_a1_j2); rc 0 |
+| `rail_to_g` DRY g1 0.55→0.70 / g2 0→1.45 | S12/S23 ✅; S24 CLEAR **507.4 / 539.7** mm; T_cmd 8.28 / 80.55 s |
+| penilai + perekam | `reach_dwell_monitor` PID 1109800 (`/tmp/g24b_step_*`), `js_record` PID 1109757 (`/tmp/g24b_js.csv`), keduanya SigIgn tanpa SIGINT |
+| `run_g22 --dry` ([wrapper](results/p1_g24/g24b_run.sh)) | 10 event = urutan (iv); awal 0.046°, rel 0.550910 / 0.000094; S26 bersih; "DRY: tidak ada yang dikirim". ⚠ keluar **rc 134** (`terminate called without an active exception`: thread spin rclpy hidup saat interpreter mati) — SESUDAH semua kerja; `finish()` menyalin arsip sebelum `sys.exit`. Alat tidak diubah (A0) |
+| **GERAK tahap 2** (S25, operator melihat carriage) g2 0.000094 → 1.45 ([log](results/p1_g24/)) | akhir 1.449416, galat **−0.58 mm**, t_traverse **78.20 s** (T_cmd 80.55, T_lin 46.44), drift lengan 0.149°, rel g1 0.000 mm, torsi lengan puncak 2.29, JTC 0 |
+| **GERAK tahap 2** g2 1.449416 → 0 | akhir 0.000555, galat **+0.56 mm**, t_traverse **78.20 s**, drift 0.139°, rel g1 0.000 mm, JTC 0 |
+| log launch sesudah gerak | nol ERROR/FAULT baru; satu-satunya kecocokan pola fault = `table1 NOT armed` saat bring-up (baseline, ts sebelum controller aktif) |
+
+➜ **Tahap 2 LULUS** (≤ 2 mm, < 0.5°, nol fault). Gerak rel gantry 2 **pertama di proyek ini**, 1.45 m, dua arah; traverse ≈ T_cmd (bridge debounce, g19) — 1.68× T_lin.
+
+### E5. 🟢 Tahap 3 — JADWAL PENUH seed 1: **6 / 6 tugas sukses, makespan terukur 480.44 s** ([run.json](results/p1_g24/g24b_run.json), [runner.log](results/p1_g24/g24b_runner.log), log per event `g24b_ev*`)
+
+Pertama kali **satu jadwal keluaran scheduler dijalankan utuh di sel nyata**, kedua
+rel bergerak (G22 0/35, G23 0/2 lolos saringan). Nol auto-stop S26, nol HALTED,
+semua verdict probe `SUCCESS`. t0 = 1790129308.04.
+
+| # | event | mulai (s) | durasi (s) | hasil |
+|---|---|---|---|---|
+| 0 | t0 arm_1 `(0.9286, 0.3176, 1.0)` @0.55 | 0.02 | 52.20 | success @**52.04** |
+| 1 | t1 arm_1 `(1.0, 0.4588, 1.08)` @0.55 | 52.23 | 52.44 | success @**104.49** |
+| 2 | retract g1 | 104.69 | 52.71 | rc 0, torsi puncak 7.24 |
+| 3 | traverse g1 0.55 → 0.70 | 157.42 | 14.75 | t_traverse **8.01** (T_cmd 8.28, T_lin 5.04), galat −0.13 mm, drift 0.099° |
+| 4 | t5 arm_1 `(1.2857, 0.2471, 1.0)` @0.70 | 172.19 | 49.59 | success @**221.59** |
+| 5 | t2 arm_3 `(0.2857, −0.3882, 1.08)` @0.00 | 221.79 | 27.73 | success @**249.34** |
+| 6 | t3 arm_3 `(0.5, −0.3176, 1.0)` @0.00 | 249.54 | 41.49 | success @**290.84** |
+| 7 | retract g2 | 291.05 | 52.76 | rc 0, torsi puncak 6.21 |
+| 8 | traverse g2 0.00 → 1.45 | 343.82 | 86.98 | t_traverse **78.25** (T_cmd 80.53, T_lin 46.43), galat −0.54 mm, drift 0.151° |
+| 9 | t4 arm_3 `(1.7857, −0.3882, 1.24)` @1.45 | 430.82 | 49.79 | success @**480.44** |
+
+**Terukur lawan prediksi E2 (dikunci sebelum gerak):**
+
+| | terukur | P1 FISIK T_lin | P2 FISIK T_cmd | P3 DINDING T_lin | P4 DINDING T_cmd |
+|---|---|---|---|---|---|
+| W_1 (g1) | **221.57** | 61.86 | 65.13 | 137.86 | 141.13 |
+| W_2 (g2) | **258.65** | 103.24 | 137.36 | 179.24 | 213.36 |
+| makespan (serial A3) | **480.44** | 165.11 (×2.91) | 202.49 (×2.37) | 317.11 (×1.52) | 354.49 (×1.36) |
+
+- **Rel:** t_traverse ≈ T_cmd (8.01 / 8.28; 78.25 / 80.53) — lagi bridge debounce g19,
+  **bukan** T_lin (×1.59 / ×1.69). Overhead alat `rail_to_g` (saringan S24 + tunggu
+  diam 1 s) +6.7 / +8.7 s di atas t_traverse.
+- **Retract:** 52.7 / 52.8 s per panggilan (30 s gerak + saringan + overhead) vs
+  g19 FISIK 29.02 / DINDING 48.81 — **di atas DINDING**.
+- **Tugas:** 27.7–52.4 s per tugas (rencana + saringan + eksekusi + dwell 2 s) vs model
+  D = 2.0 s per slot. Ini suku terbesar: Σ tugas **273.2 s** = 57 % makespan; model
+  hanya memberinya 12 s.
+- **Torsi terukur:** puncak `joint_2` seluruh run **9.62** (t1_a1) / **9.46** (t2_a1)
+  / 1.33 / 0.71 N·m — < 12 dan < 14. t5 arm_1 yang disaring RNEA 5.21 + 7.7 = **12.91**
+  terukur **≤ 9.62** (puncak run memuat t5) → offset efektif ≤ 4.4 di rencana ini;
+  +7.7 (A8-1) konservatif ≥ 3.3 N·m di sini. Tidak dipakai untuk mengubah apa pun.
+- **Retract penutup** (tidak dihitung, [log](results/p1_g24/g24b_rest_move_closing.log)):
+  g1 170.3° → 0.036°, puncak 4.72; g2 170.4° → 0.045°, 5.27; rc 0 / 0.
+- Runner keluar **rc 134** lagi sesudah `SELESAI` (sama seperti DRY, E4); arsip sudah
+  tersalin (`finish()` sebelum abort).
+
+### E6. Papan skor G24b — D98–D101
+
+| # | Dugaan | Terukur | |
+|---|---|---|---|
+| D98 | (iv) lolos dalam ≤ 5 seed | seed ke-**2** | ✅ |
+| D99 | per rencana PLANNED ≥ 80 % | **20/21** = 95 % | ✅ |
+| D100 | sesudah pindah PLANNED ≥ 70 % | **6/7** = 86 % | ✅ |
+| D101 | makespan terukur > P2-serial | **480.44 > 202.49** | ✅ |
+
+**G24b: 0 meleset / 4 tepat → papan skor 52 meleset / 53 tepat.** Keempatnya
+ditarik dari mekanisme terukur (oracle‴ membuang kelas statis; overhead perangkat
+lunak M3 + debounce rel g19) — pola G21/G24. D101 tepat, tetapi **besarnya**
+(×2.37) tidak diduga: suku tugas (rencana 12–30 s tiap tugas), bukan rel, yang
+mendominasi.
+
+### E7. Pertentangan §E lawan §A / prompt — G24b
+
+| # | Pertentangan |
+|---|---|
+| **(1)** | Prompt G24b: "`run_g22 --plan --out-dir --archive --prefix` DRY" — di `run_g22` `--plan` = jalur kandidat; DRY adalah **`--dry`** |
+| **(2)** | g22 A5 tahap 1 / g24 A8: `rail_to_g` DRY + `run_g22` DRY "nol gerak" — keduanya **MENOLAK** (S12 / A3-awal) bila lengan > 0.5° dari REST, dan bring-up memberi 0.47–1.07°. DRY yang bermakna menuntut `return_rest --move` **dulu** (gerak, izin operator) |
+| **(3)** | `rail_to_g` DRY menyapu dari rel **terukur** ke goal, bukan `frm` jadwal; sapuan jadwal sebenarnya hanya dicakup `sched_screen` (iv) |
+| **(4)** | `run_g22` keluar rc **134** (thread spin rclpy) sesudah selesai, DRY maupun gerak — "rc ≠ 0" tidak dapat dipakai sebagai tanda gagal runner |
+| **(5)** | Seed 0 ditolak di rencana yang oracle‴ terima (RNEA j2 7.17 vs batas statis 5.64) — terima-palsu yang **diprediksi** B′2 (Newton miring tak konvergen), bukan pertentangan dengan A, dicatat sebagai bukti pertama |
+
+**G24b: EMPAT** (1)–(4).
+
+### E8. Keadaan akhir G24b (Rule 12)
+
+- **Rel dikembalikan** (izin operator): g1 0.70 → **0.549999**, g2 1.45 → **0.000534**,
+  lalu — permintaan operator — **g1 0.55 → 0.000503** (galat +0.50 mm, t_traverse
+  29.19 s, drift 0.045°). ⚠ Tujuan 0.00 **bukan** nilai jadwal; S13′ dipenuhi lewat
+  rencana pemulihan eksplisit [g24b_recovery_plan.json](results/p1_g24/g24b_recovery_plan.json)
+  (seed 9001, catatan di dalamnya), `rail_to_g` **apa adanya** via
+  [g24b_home_g1.sh](results/p1_g24/g24b_home_g1.sh), DRY dulu (S24 CLEAR 546.0 mm).
+  Operator mengonfirmasi fisik sebelumnya: **enkoder g1 0 = home fisik** (carriage
+  ~55 cm dari home saat 0.550) — menutup keraguan origin 2026-09-21.
+  **Sesi berikut: R1 membaca g1 ≈ 0.00, bukan 0.55** — instance G22–G24 memakai
+  p0 = 0.55 dan harus dibuat ulang atau rel dikembalikan dulu.
+- Lengan: keempatnya REST (≤ 0.05° sesudah retract penutup, drift traverse ≤ 0.15°).
+- **Stack dimatikan:** SIGINT penilai (1109800) + perekam (1109757), lalu launch
+  1098829 (SigIgn tanpa SIGINT) → keluar ≤ 30 s; launch meng-eskalasi ke SIGKILL
+  untuk `ros2_control_node` / `move_group` / `rviz2` **sesudah** 14 baris *deactivate*
+  (= G23); nol FAULT / Kortex exception / `INVALID_USER_SESSION`; `ros2 node list
+  --no-daemon` kosong. Crash dump `move_group` sesi ini (196 MB, 11:25) dihapus;
+  dump python 09-21 (bukan milik sesi) dibiarkan. Disk **4.1 GB**.
+- Arsip: log launch [g24b_launch.log.gz](results/p1_g24/g24b_launch.log.gz); `/tmp/g24b_js.csv`
+  (perekam) dan `/tmp/g24b_step_*` (penilai) **tidak** disalin ke repo (ukuran), masih di `/tmp`.
+- **Tidak diubah:** `sched.py`, peta, `make_instance.py`, alat G22 (`rail_to_g`,
+  `run_g22`, `sched_screen`, `return_rest`). **Baru:** wrapper `g24b_{rest,rail,run,home_g1}.sh`,
+  `g24b_recovery_plan.json`. `.claude/settings.local.json` (izin Bash untuk wrapper,
+  dibuat operator) — belum ada di `.gitignore`.
+- **Belum dikerjakan / tidak diukur:** dekomposisi per tugas rencana vs eksekusi vs dwell
+  dari `g24b_ev*_task.log` (hanya durasi per event di E5); torsi puncak **per tugas**
+  (hanya puncak seluruh run); M2/M3 koreksi A4; perbandingan dengan g19 per-langkah.

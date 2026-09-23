@@ -1,0 +1,10 @@
+=== 11:04:22 rail_to_g --gantry 2 --seed 1 0.00 --move
+S12: lengan gantry 2 maks |q - REST| = 0.037 deg (batas 0.5)
+S23: rotasi t1 +0.000 deg, t2 +0.020 deg (batas 0.5)
+S24: sapuan t2_linear_joint 1.4494 -> 0.0000 m, lengan lain TERUKUR: CLEAR, min 539.7 mm di titik 35 (t1_a1_base_link_0 <-> t2_platform_link_0)
+t2_linear_joint: 1.449416 -> 0.000000 m (-1449.4 mm), T_cmd 80.52 s, T_lin model 46.43 s
+setpoint pertama 0.14 mm (arm_tol 5 mm)
+JTC error_code: 0
+akhir: t2_linear_joint = 0.000555 m (galat +0.56 mm); t_traverse 78.197 s (T_cmd 80.52, T_lin 46.426); lengan (keempat) bergeser maks 0.1390 deg; rel lain 0.000 mm
+{"gantry": 2, "goal": 0.0, "start": 1.449416, "end": 0.000555, "err_mm": 0.555, "T_cmd": 80.523, "T_lin_model": 46.426, "t_send": 1790129068.4406536, "t_jtc_done": 1790129149.010275, "t_first_move": 1790129070.0056705, "t_stop": 1790129148.2027667, "t_traverse": 78.197, "arm_drift_deg": 0.139, "other_rail_drift_mm": 0.0, "arm_tau_peak": 1.718, "arm_tau_joint": "t2_a2_joint_2", "sweep_min_mm": 539.7, "jtc_error_code": "0"}
+rc=0 -> /home/user1/Documents/ceiling_arm/docs/results/p1_g24/g24b_rail_g2_0.00_move_110422.log

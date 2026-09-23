@@ -1,0 +1,18 @@
+=== 11:16:52 return_rest --arms arm_1 arm_2 --move
+lengan: ['arm_1', 'arm_2']   galat terbesar dari rest: 170.33 deg
+rel t1_linear_joint = 0.699874 m
+penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+penyaring antar-gantry: CLEAR, minimum 571.5 mm di titik 41/60 (t1_a1_shoulder_link_0 <-> t2_platform_link_0)
+
+mengirim: 60 titik selama 30 s. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+selesai: galat akhir 0.036 deg, torsi puncak 4.718 N.m pada t1_a1_joint_2
+rc=0
+=== 11:17:45 return_rest --arms arm_3 arm_4 --move
+lengan: ['arm_3', 'arm_4']   galat terbesar dari rest: 170.40 deg
+rel t2_linear_joint = 1.449458 m
+penyaring se-gantry: CLEAR, minimum 449.5 mm di titik 9/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+penyaring antar-gantry: CLEAR, minimum 572.0 mm di titik 59/60 (t1_platform_link_0 <-> t2_a2_shoulder_link_0)
+
+mengirim: 60 titik selama 30 s. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+selesai: galat akhir 0.045 deg, torsi puncak 5.268 N.m pada t2_a1_joint_2
+rc=0

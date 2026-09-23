@@ -378,6 +378,17 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > 3.96 pindah. ⚠️ 19 % Newton-miring tidak konvergen dan tidak dipilah — sumber
 > terima-palsu paling mungkin di (iv). Nol gerak. Berikutnya: G24b ([g24 §D](p1_g24_roll_oracle.md)).
 
+> 🟢 **Sesi G24b (2026-09-23, sel NYATA) — [p1_g24_roll_oracle.md §E](p1_g24_roll_oracle.md).
+> JADWAL SCHEDULER PERTAMA yang dijalankan UTUH di sel nyata: seed 1, 6/6 tugas
+> sukses, kedua rel bergerak, makespan terukur 480.44 s.** (iv): seed 0 ditolak
+> (t5 arm_1 RNEA j2 7.17 → 14.87, terima-palsu oracle‴), **seed 1 lolos 3/3**
+> (g1 0.55→0.70, g2 0→**1.45**; 3+3 tugas; model FISIK 103.2 s). Tahap 2: gerak rel
+> g2 **pertama di proyek**, 0→1.45→0, galat −0.58/+0.56 mm. Tahap 3 vs prediksi
+> terkunci: ×2.91 P1-serial, ×2.37 P2-serial, ×1.36 P4-serial; suku terbesar =
+> **tugas** (Σ 273 s = 57 %: rencana 12–30 s + eksekusi per tugas, model 2 s),
+> lalu retract 52.7 s (> DINDING 48.8), rel ≈ T_cmd (debounce g19). Torsi puncak
+> j2 9.62 < 12. D98–D101 4/4 tepat.
+
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
 > 🔴 Perhatikan §0 di sana: **lengan sedang dilepas fisik**, jadi seluruh jalur
@@ -612,7 +623,7 @@ lemah — padahal 5 cm adalah L1, yang memang tidak pernah dimaksudkan sebagai a
 | **3** | Dua lengan se-gantry — ~~kopling geser-π terlihat~~ **jendela dwell BERSAMA** | ✅ **LULUS 9/10 CONCURRENT** [g18 §B2](p1_g18_hw.md) — ⚠️ lihat pertentangan di bawah |
 | **4** | Tambah gerak gantry antar tugas — setup cost nyata | ✅ **LULUS 10/10 CONCURRENT** [g19 §B1](p1_g19_hw.md) — pindah 400 mm ≈ **148 s**, traverse hanya **21 s** (14 %); 5/10 di atas 12 N·m nominal |
 | **5** | Dua gantry, empat lengan | ✅ **LULUS 10/10 CONCURRENT** [g20 §B2](p1_g20_hw.md) — SATU jendela 2.0 s untuk keempat lengan; rel **tetap** (0.550 / 0.000, nol gerak gantry); 🔴 rating `joint_2` **dilewati sekali** (14.27 N·m, arm_3) oleh rencana yang lolos penyaring; 5/10 di atas 12 |
-| **6** | SATU jadwal scheduler end-to-end, gantry bergerak | ❌ **TIDAK DIJALANKAN** [g22 §B1](p1_g22_hw.md) — saringan plan-only jadwal lolos **0/35** (A2 terkunci: jadwal tidak dijalankan); nol gerak. Oracle L1 ≠ L2 ; **G23:** oracle L2-torsi → (i) 2/50, (iv) **0/2** [g23 §B3](p1_g23_oracle_hw.md) — cabang IK tak aman terlewat (roll bebas); nol gerak; **G24 (offline):** oracle‴ (roll + miring) → (i)–(iii) **45/50**, (iv) belum [g24 §B′2](p1_g24_roll_oracle.md) |
+| **6** | SATU jadwal scheduler end-to-end, gantry bergerak | ❌ **TIDAK DIJALANKAN** [g22 §B1](p1_g22_hw.md) — saringan plan-only jadwal lolos **0/35** (A2 terkunci: jadwal tidak dijalankan); nol gerak. Oracle L1 ≠ L2 ; **G23:** oracle L2-torsi → (i) 2/50, (iv) **0/2** [g23 §B3](p1_g23_oracle_hw.md) — cabang IK tak aman terlewat (roll bebas); nol gerak; **G24 (offline):** oracle‴ (roll + miring) → (i)–(iii) **45/50**, (iv) belum [g24 §B′2](p1_g24_roll_oracle.md); ✅ **G24b: DIJALANKAN** — seed 1, **6/6 sukses, makespan 480.44 s**, rel g1 0.55→0.70 + g2 0→1.45 [g24 §E5](p1_g24_roll_oracle.md) |
 
 > 🔴 **Pertentangan (dicatat 2026-09-21, G19; g18 B0.10 no. 7).** Tabel ini
 > dulu mendefinisikan langkah 3 sebagai *"kopling geser-π terlihat"*. Protokol
@@ -670,7 +681,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
-| **`p1_g24_roll_oracle.md`** | **Sesi G24 (offline) — sapuan roll: oracle″ gagal (miring + singularitas pergelangan, §B1), oracle‴ lulus (§B′1), tugas dari node layak-oracle, 45/50 instance (§B′2); prompt G24b (§D)** |
+| **`p1_g24_roll_oracle.md`** | **Sesi G24b (§E) — jadwal pertama di sel nyata: (iv) seed 1 lolos, tahap 2 rel g2 pertama, tahap 3 6/6 sukses, makespan 480.44 s vs P1–P4.** Sesi G24 (offline) — sapuan roll: oracle″ gagal (miring + singularitas pergelangan, §B1), oracle‴ lulus (§B′1), tugas dari node layak-oracle, 45/50 instance (§B′2); prompt G24b (§D)** |
 | **`p1_g23_oracle_hw.md`** | **Sesi G23 — oracle L2-torsi: margin terukur (§B0), validasi vs 49 rencana G22 (§B1), (iv) 0/2 + roll bebas = kurva IK (§B3); prompt G24 (§D)** |
 | **`p1_g22_hw.md`** | **Sesi G22 — jadwal scheduler di sel nyata: 0/35 lolos saringan plan-only; oracle L1 ≠ L2 (§B1); prompt G23 (§D)** |
 | **`p1_g21_sched_tfold.md`** | **Sesi G21 — scheduler di bawah `t_fold` terukur (FISIK 50.80 s); koreksi g7 §B3/§B5, g8 §B2/§B6/§B7; offset torsi `joint_2` (§B8)** |
@@ -750,7 +761,7 @@ menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawa
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
 
-**Tally G10–G24** (diperbarui 2026-09-23, G24; tiap baris dari §B dokumen
+**Tally G10–G24b** (diperbarui 2026-09-23, G24b; tiap baris dari §B dokumen
 sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 
 | sesi | ditambah (meleset / tepat) | papan skor |
@@ -769,7 +780,8 @@ sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 | G21 | 1 / 7 | 41 / 37 |
 | G22 | 0 / 0 (tidak ada dugaan dikunci sebelum saringan — kesalahan proses, g22 B2) | 41 / 37 |
 | G23 | 7 / 4 (D79–D89; D90 tidak dinilai) | 48 / 41 |
-| **G24** | **4 / 8** (D91–D97, D102–D106; D98–D101 menunggu G24b) | **52 meleset / 49 tepat** |
+| G24 | 4 / 8 (D91–D97, D102–D106) | 52 / 49 |
+| **G24b** | **0 / 4** (D98–D101) | **52 meleset / 53 tepat** |
 
 ➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
 atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
@@ -788,3 +800,9 @@ diukur di sesi yang sama** (diagnosis miring/singularitas → D102–D105). Yang
 meleset: tiga tentang **kontrol/aturan sendiri** (PC2 ambang, jenuh, IK), dan
 D95 menduga ruang kerja aman **lebih sempit** (34.6 % node, bukan ≤ 25 %) — arah
 "kendala lebih mengikat", berlawanan dengan G23.
+
+➜ Yang G24b tambahkan: keempat tepat, semuanya dari mekanisme terukur (oracle‴
+membuang kelas statis; overhead M3 + debounce rel). Tetapi **besaran** D101
+(×2.37 di atas P2-serial) tidak diduga siapa pun: suku yang model anggap 2 s per
+tugas ternyata 28–52 s. Papan skor kini **lebih banyak tepat daripada meleset**
+untuk pertama kali.

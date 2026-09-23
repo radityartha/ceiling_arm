@@ -1,0 +1,8 @@
+S12: lengan gantry 1 maks |q - REST| = 0.032 deg (batas 0.5)
+S23: rotasi t1 +0.000 deg, t2 +0.020 deg (batas 0.5)
+S24: sapuan t1_linear_joint 0.5500 -> 0.0000 m, lengan lain TERUKUR: CLEAR, min 546.0 mm di titik 0 (t1_platform_link_0 <-> t2_a1_shoulder_link_0)
+t1_linear_joint: 0.549999 -> 0.000000 m (-550.0 mm), T_cmd 30.56 s, T_lin model 17.80 s
+setpoint pertama 0.36 mm (arm_tol 5 mm)
+JTC error_code: 0
+akhir: t1_linear_joint = 0.000503 m (galat +0.50 mm); t_traverse 29.186 s (T_cmd 30.56, T_lin 17.797); lengan (keempat) bergeser maks 0.0446 deg; rel lain 0.000 mm
+{"gantry": 1, "goal": 0.0, "start": 0.549999, "end": 0.000503, "err_mm": 0.503, "T_cmd": 30.555, "T_lin_model": 17.797, "t_send": 1790130255.3555548, "t_jtc_done": 1790130285.9578025, "t_first_move": 1790130256.4516084, "t_stop": 1790130285.6374583, "t_traverse": 29.186, "arm_drift_deg": 0.0446, "other_rail_drift_mm": 0.0, "arm_tau_peak": 0.894, "arm_tau_joint": "t1_a2_joint_3", "sweep_min_mm": 546.0, "jtc_error_code": "0"}
