@@ -259,3 +259,59 @@ docs/p1_g22_hw.md A5 (tahap 0); docs/p1_g26_hw.md B0 (contoh tahap 0).
 
 ATURAN: B menang atas A dan DITULIS; nol gerak lengan; §A G28 TIDAK diubah; disk ~3 GB.
 ```
+
+## E. Prompt G29 (salin ke chat BARU) — ROTASI gantry, OFFLINE (boleh sebelum G28-ON)
+
+**Kenapa ini berikutnya.** Urutan operator (g26 C1): sesudah z = 1.40 → **ROTASI gantry**, lalu peta 3D. Seluruh
+G22–G28 = masalah rel 1-D (rotasi 0). Bagian (a), (b), (d) g26 C1-2 murni hitungan (pinocchio/URDF): lengan
+**mati**, operator tidak perlu di lokasi. (c) = keputusan operator; (e) = HW, sesi lain. G29 **tidak bergantung**
+pada hasil V28 (oracle⁗ membuang z = 1.40 apa pun hasilnya) — boleh dikerjakan sebelum G28-ON.
+
+**Yang sudah diketahui (dicek 2026-09-23, jangan diulang, tapi verifikasi di A0):**
+- `CrossGantryChecker` (scripts/interarm_collision.py) **membuang** pasangan struktur–struktur antar-gantry
+  (platform, link rotasi, pelat mount) dengan asumsi "rel sejajar di y ±0.36 → hanya bertranslasi, jarak tetap
+  429 mm". Asumsi itu **batal** pada rotasi ≠ 0 → S24 yang ada **buta** terhadap tabrakan struktur ber-rotasi.
+- `g22_plan.sweep_screen` (S24) hanya menyapu `t{g}_linear_joint`; `sched_screen.walk`, `run_g22`, `v28_screen`
+  menaruh `t{g}_rotation_joint = 0.0` keras. `make_instance_g24` memakai `restrict_rot0` (`REF.rot`, ROT0).
+- URDF `rotation_joint` revolute ±π (moving_table.urdf.xacro:77–82); motor G3: 10.0 °/s @ speed 1000, 1000 °/s².
+- Model tabrakan terkopel G9 (A2, `sched_coll`): gerbang ground truth W0–W4 **TIDAK LULUS** (g9 B4) → jangan
+  dipakai sebagai kebenaran.
+- `oracle2.model` mengunci semua sendi selain rel + 6 sendi lengan pada acuan G23 (rotasi 0).
+
+**Rekomendasi: Opus, effort TINGGI** — geometri + penyaring baru; kesalahan paling mungkin **diam** (penyaring
+yang salah tetap bilang CLEAR, seperti asumsi rel-sejajar di atas). Kontrol positif wajib.
+
+```
+Sesi G29 -- ROTASI gantry, OFFLINE (g26 C1-2 a, b, d). Nol HW; lengan mati. Repo ceiling_arm, branch
+feat/rgbd-topo-deploy. Stack mock (use_fake_hardware:=true) boleh HANYA untuk menguji alat.
+
+BACA PENUH: CLAUDE.md; docs/p1_g26_hw.md C1; docs/p1_g28_hw.md B0b, C, E; docs/p1_g9_sched3.md A2, B1-B4, B9;
+docs/p1_g3_timing.md (rotasi); scripts/interarm_collision.py (CrossGantryChecker, docstring struktur);
+docs/results/p1_g22/g22_plan.py; docs/results/p1_g24/oracle2.py, make_instance_g24.py; p1_state 5-6.
+
+0. INSTRUMEN sebelum kunci: grep setiap tempat rotasi = 0 diasumsikan (rotation_joint, rot0, ROT0,
+   restrict_rot0, "0.0" rotasi di start_joints) -> tabel. Geometri: sumbu rotasi, pusat, jari-jari platform
+   + mount + lengan REST; jarak struktur antar-gantry vs (x1 - x2, rot1, rot2). Apa yang dicakup REF.rot.
+   Batas rotasi di URDF / joint_limits.yaml / bridge / dual_table_controller (bandingkan; lihat B0b G28:
+   yaml bisa lebih longgar dari URDF).
+1. KUNCI §A (sebelum hitung): hipotesis, kontrol, aturan, dugaan D146+ (prior tally: mekanisme terukur tepat,
+   kode sendiri meleset, "kendala lebih longgar" meleset).
+2. (a) Penyaring S18/S24 BERROTASI -- modul BARU (alat G22 tidak diubah): sapuan (lin, rot) <= 10 mm / <= 1 deg,
+   pasangan struktur-struktur antar-gantry IKUT dihitung bila rot != 0.
+   Kontrol NEGATIF: rot = 0 -> jarak lengan-lengan identik dengan CrossGantryChecker lama pada sapuan arsip
+   G22-G26. Kontrol POSITIF: tabrakan yang dibangun sengaja (dua gantry diputar saling menghadap di x sama)
+   HARUS terdeteksi; juga lengan-vs-struktur gantry lain.
+3. (b) Peta jarak struktur gantry-gantry atas grid (x1 - x2, rot1, rot2), lengan REST (dan lengan di tugas bila
+   relevan): amplop rotasi AMAN (mis. |rot| <= theta*(dx)), hull vs mesh dicatat (g20 B0: hull bisa +0.4 mm).
+4. (d) oracle''' dengan rotasi != 0: argumen rot opsional di oracle2 (DEFAULT TIDAK BERUBAH; K0 = rot 0
+   bit-identik dengan g24_oracle3_cache pada >= 72 tuple). Sampel tuple per rot grid: berapa node/tugas
+   baru jadi layak vs rot = 0 (nilai rotasi bagi scheduler), + PATH (oracle'''') bila z = 1.40 ikut.
+5. (c) kecepatan ujung lengan pada 10 deg/s (REST dan pose terjauh) -> TABEL untuk operator; JANGAN putuskan.
+6. Laporan §B (B menang atas A, DITULIS), §C Rule 12, p1_state 6 + tally, prompt G30 = HW tahap (e):
+   +-10 deg lengan REST dulu. GERBANG sebelum gerak apa pun: joint_limits.yaml <= URDF (G28 B0b) + G28-ON
+   selesai atau ditunda eksplisit oleh operator.
+
+ATURAN: nol HW; sched.py / sched_coll / alat G22 / probe / peta TIDAK diubah (modul baru saja); oracle2 hanya
+argumen opsional dengan default identik; disk ~3 GB; stack mock dimatikan, node list --no-daemon kosong,
+crash dump milikmu dihapus.
+```
