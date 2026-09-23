@@ -387,7 +387,7 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > terkunci: ×2.91 P1-serial, ×2.37 P2-serial, ×1.36 P4-serial; suku terbesar =
 > **tugas** (Σ 273 s = 57 %: rencana 12–30 s + eksekusi per tugas, model 2 s),
 > lalu retract 52.7 s (> DINDING 48.8), rel ≈ T_cmd (debounce g19). Torsi puncak
-> j2 9.62 < 12. D98–D101 4/4 tepat.
+> j2 9.62 < 12. D98–D101 4/4 tepat. Berikutnya: G25 offline — model biaya tugas terukur ([g24 §F](p1_g24_roll_oracle.md)).
 
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.

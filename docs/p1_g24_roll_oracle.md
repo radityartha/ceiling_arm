@@ -593,5 +593,50 @@ mendominasi.
   `g24b_recovery_plan.json`. `.claude/settings.local.json` (izin Bash untuk wrapper,
   dibuat operator) — belum ada di `.gitignore`.
 - **Belum dikerjakan / tidak diukur:** dekomposisi per tugas rencana vs eksekusi vs dwell
-  dari `g24b_ev*_task.log` (hanya durasi per event di E5); torsi puncak **per tugas**
-  (hanya puncak seluruh run); M2/M3 koreksi A4; perbandingan dengan g19 per-langkah.
+  dari `g24b_ev*_task.log` (hanya durasi per event di E5); M2/M3 koreksi A4; perbandingan
+  dengan g19 per-langkah. *(Koreksi sesudah E8 ditulis: torsi puncak **per tugas** ADA di
+  `g24b_ev*_probe.json` `tau_peak`, mis. t5 arm_1 **9.25** N·m — belum ditabelkan.)*
+
+## F. Prompt G25 (salin ke chat BARU) — offline
+
+**Kenapa ini berikutnya.** G24b menjawab "dapat dieksekusi?" — **ya** (6/6). Tetapi model
+biaya scheduler meleset ×2.37 (P2-serial), hampir seluruhnya di suku yang model beri
+2 s/tugas (terukur 28–52 s; contoh t5: rencana + saringan ~34 s, eksekusi ~12.7 s).
+Klaim "optimum = minimum pindah" (G21) belum diuji di bawah biaya nyata; replikasi
+hardware sebelum model benar hanya mengulang prediksi yang sudah diketahui salah.
+
+**Rekomendasi: Opus, effort TINGGI** — kesalahan paling mungkin DIAM: kalibrasi yang
+tanpa sadar melihat G24b, dan "rencana 34 s" yang belum dipilah perencana vs saringan.
+
+```
+Sesi G25 -- model biaya tugas TERUKUR, lalu scheduler ulang (OFFLINE, nol perangkat keras).
+Repo ceiling_arm, branch feat/rgbd-topo-deploy.
+
+BACA PENUH: CLAUDE.md; docs/p1_state.md 6 + 7 + tally; docs/p1_g24_roll_oracle.md E (E2, E5-E8);
+docs/p1_g21_sched_tfold.md (t_fold FISIK 50.80, B2, B8); docs/p1_g22_hw.md A3, A4;
+docs/p1_g19_hw.md B1 (median g19 = sumber M2/M3).
+
+LATAR: G24b seed 1 = 6/6, makespan 480.44 s vs P2-serial 202.49 (x2.37). Sigma tugas 273 s (57 %),
+model memberi 2 s/tugas. Retract 52.7 s/panggil. Rel = T_cmd (debounce g19).
+
+1. Dekomposisi (instrumen, bukan model): dari log per event (cap waktu tiap baris)
+   pisahkan per tugas: t_rnea, t_plan+screen, t_exec, t_to_success, torsi puncak (probe.json);
+   per retract: saringan / gerak / overhead; per traverse: overhead rail_to_g vs t_traverse.
+   Sumber: results/p1_g19, p1_g20, p1_g23 (calib 81 rencana), p1_g24 (g24b_ev*).
+   Tulis dulu dari mana tiap angka dan apa yang TIDAK bisa dipilah.
+2. KUNCI sebelum fitting (A): bentuk model per tugas/retract/traverse, set kalibrasi = G19-G23 SAJA,
+   set uji = G24b (10 event + makespan). Catat: total G24b SUDAH terlihat (kontaminasi, seperti PC2').
+   Dugaan D107+ dikunci SEBELUM kalibrasi: galat prediksi makespan G24b, dan apakah optimum
+   45 instance G24 berubah (jumlah pindah, jadwal).
+3. Kalibrasi -> prediksi G24b (per event + makespan). Lalu sched.py dengan biaya baru pada 45 instance
+   g24_candidates.json: optimum = min pindah masih? berapa jadwal berubah? P1' vs P1.
+   sched.py BOLEH diparameterisasi biaya tugas, tapi default lama harus mereproduksi G21/G24 bit-identik (kontrol).
+4. Perbarui p1_state 6 + tally 9; prompt G26 (replikasi hardware, p0 = 0.00/0.00 -- rel diakhiri di 0/0).
+
+ATURAN: 7.1 ground truth dulu; 7.2 dugaan dikunci sebelum data; B menang atas A dan DITULIS.
+DILARANG memilih bentuk model / set kalibrasi sesudah melihat galat G24b.
+Nol perangkat keras; tidak ada ros2 launch.
+```
+
+**Sesudah G25 → G26 (hardware):** replikasi beberapa seed (n = 1 tipis untuk naskah), p0 =
+0.00 / 0.00 (instance dibuat ulang, atau rel dikembalikan ke 0.55 dulu).
