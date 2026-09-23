@@ -226,6 +226,11 @@ tiap lengan **di dalam** URDF (terdekat t2_a2_j6 2.509 / 2.60, t1_a1_j1 2.490 / 
 - Commit: G27 `2b7813f`, G28-OFF `9cef07c`; B0b sesudahnya.
 - 🔴 **Keputusan operator (2026-09-23, sesudah B0b):** V28 memakai perencana **apa adanya** (§A tetap); `joint_limits.yaml`
   diperbaiki (≤ URDF) **sesudah** G28-ON dan **sebelum eksekusi apa pun** berikutnya — gerbang wajib.
+- 📣 **Permintaan operator (2026-09-23):** laporkan bila batas ≤ URDF membuat gerak **sering gagal**. Ukuran wajib:
+  (1) G28-ON — fraksi rencana PLANNED (per z) yang keluar batas URDF di titik mana pun (`v28_score`, pelanggaran
+  batas URDF) = perkiraan rencana yang **akan hilang**; (2) sesi perbaikan yaml — saringan sebelum/sesudah pada
+  set yang sama (V28 z = 1.32 + seed (iv) G28): laju PLANNED / NO-PLAN / waktu rencana, dilaporkan ke operator
+  secara eksplisit walau kecil. Bukti sejauh ini: eksekusi G24b/G26 + C′ = 0 pelanggaran (B0b).
 
 ## D. Prompt G28-ON (salin ke chat BARU saat operator di lokasi) — HW, PLAN-ONLY
 
@@ -253,7 +258,8 @@ docs/p1_g22_hw.md A5 (tahap 0); docs/p1_g26_hw.md B0 (contoh tahap 0).
 6. Tidak ada eksekusi jadwal kecuali operator minta. Matikan stack: kill -INT launch, node list --no-daemon
    kosong, hapus crash dump milikmu. gzip v28_plans.jsonl bila > 10 MB.
 7. p1_state (blok G28 + tally). GERBANG sebelum eksekusi apa pun: joint_limits.yaml <= URDF (B0b,
-   keputusan operator) -- sesi tersendiri sesudah G28-ON. Prompt G29 = ROTASI gantry offline (g26 C1-2 a-d), lalu 3D map (C1-3).
+   keputusan operator) -- sesi tersendiri sesudah G28-ON. LAPORKAN KE OPERATOR (permintaannya, §C): fraksi
+   PLANNED yang keluar batas URDF per z = rencana yang akan hilang sesudah yaml <= URDF. Prompt G29 = ROTASI gantry offline (g26 C1-2 a-d), lalu 3D map (C1-3).
    Bila D144 benar: catat opsi "oracle per-cabang + kendala cabang tujuan di perencana" untuk
    menyelamatkan z = 1.40 (keputusan operator, bukan G29).
 
