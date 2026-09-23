@@ -250,6 +250,9 @@ tinggi pada 11/16 (6.4–8.1). Di z ≤ 1.32 puncak lintasan = titik akhir (0/21
 ⚠️ Proksi garis lurus **bukan** lintasan perencana: 5 rencana PLANNED z = 1.40 (RNEA 2.4–3.7) berada **di
 bawah** min P₂ 6.38 — perencana kadang menemukan rute terlipat yang aman. Aturan PATH ∀-solusi karena itu
 **konservatif** (tolak-palsu) di z = 1.40, sesuai kebijakan (terima-palsu lebih mahal).
+➜ **G28 B0b** ([p1_g28_hw.md](p1_g28_hw.md), tuple dev s0 t5 arm_1, n = 1): rencana PLANNED z = 1.40 berakhir dengan
+`joint_5` **di luar batas URDF vendor** (±2.53; `joint_limits.yaml` MoveIt ±2.70) — "rute terlipat aman" kemungkinan
+**salah**; oracle‴ benar menolak. V28 mengukurnya.
 
 ### B2. Oracle⁗ = oracle‴ ∧ PATH ([log](results/p1_g27/g27_oracle4.log), [json](results/p1_g27/g27_oracle4.json), cache [g27_oracle4_cache.jsonl](results/p1_g27/g27_oracle4_cache.jsonl))
 

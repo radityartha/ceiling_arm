@@ -1,0 +1,20 @@
+tuple (2033, 1, 15, 0) arm_1: oracle n_sol 180, statis j2 solusi [5.33, 5.52], P2 garis lurus [6.44, 7.32]
+  [0] s1 PLANNED       pos 1.81 mm, miring 1.23 deg, batas False; statis j2 1.43, P2 garis 2.40, RNEA 2.40; solusi terdekat 3.179 rad (statis 5.35, P2 6.44) -> KENDALA
+      q_f     [-0.503, 0.014, 2.583, 1.608, -2.562, -0.925]
+      terdekat [2.432, 2.086, 2.609, -1.571, 0.522, -1.996]
+  [0] s2 PLANNED       pos 1.10 mm, miring 2.24 deg, batas False; statis j2 1.71, P2 garis 2.58, RNEA 2.57; solusi terdekat 3.133 rad (statis 5.35, P2 6.44) -> KENDALA
+      q_f     [-0.564, -0.023, 2.547, 1.562, -2.609, -1.444]
+      terdekat [2.432, 2.086, 2.609, -1.571, 0.522, -1.996]
+  [0] s3 PLANNED       pos 1.57 mm, miring 0.91 deg, batas False; statis j2 1.31, P2 garis 2.41, RNEA 2.40; solusi terdekat 2.164 rad (statis 5.35, P2 6.44) -> KENDALA
+      q_f     [0.268, 0.032, 2.608, -1.599, 2.571, -0.281]
+      terdekat [2.432, 2.086, 2.609, -1.571, 0.523, -1.908]
+tuple (83, 1, 11, 1) arm_2: oracle n_sol 179, statis j2 solusi [5.39, 5.57], P2 garis lurus [6.67, 7.53]
+  [1] s1 TORQUE-UNSAFE pos 1.36 mm, miring 0.93 deg, batas True; statis j2 5.39, P2 garis 7.57, RNEA 7.57; solusi terdekat 0.040 rad (statis 5.39, P2 7.53) -> ADA
+      q_f     [-0.596, -2.172, -2.497, 1.586, 0.31, 0.668]
+      terdekat [-0.582, -2.161, -2.511, 1.571, 0.35, 0.669]
+  [1] s2 TORQUE-UNSAFE pos 1.46 mm, miring 1.40 deg, batas True; statis j2 5.57, P2 garis 7.30, RNEA 7.29; solusi terdekat 0.064 rad (statis 5.57, P2 7.29) -> LUBANG
+      q_f     [0.214, -2.145, -2.529, -1.635, -0.379, 0.125]
+      terdekat [0.169, -2.144, -2.54, -1.571, -0.396, 0.093]
+  [1] s3 TORQUE-UNSAFE pos 1.86 mm, miring 2.11 deg, batas True; statis j2 5.32, P2 garis 7.43, RNEA 7.43; solusi terdekat 0.091 rad (statis 5.39, P2 7.53) -> LUBANG
+      q_f     [-0.572, -2.147, -2.551, 1.558, 0.44, -0.896]
+      terdekat [-0.582, -2.161, -2.511, 1.571, 0.35, -0.902]

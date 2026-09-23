@@ -166,6 +166,43 @@ resume melewati 9/9 tanpa merencana ulang. ~85 KB/rencana → V28 ≈ 16 MB. Wal
 | **D144** | V28 z = 1.40: setiap rencana PLANNED ber-lintasan \|statis j2\| akhir **< 4.0** dan setiap rencana TORQUE **≥ 4.5** (kelas dipisah cabang tujuan) | pengamatan dev (3); o_j2 z 1.40 median 5.61 |
 | **D145** | V28 semua rencana ber-lintasan: \|RNEA2 − P2_own\| ≤ 0.30 pada **≥ 80 %** | pengamatan dev (2); C′ median −0.022 |
 
+### B0b. Diagnosis dev: cabang aman z = 1.40 = DI LUAR BATAS SENDI URDF (2026-09-23, offline)
+
+[dev_branch.py](results/p1_g28/dev_branch.py) → [log](results/p1_g28/dev_branch.log), [json](results/p1_g28/dev_branch.json).
+Kriteria ditulis di docstring **sebelum** hitung (KENDALA / LUBANG / ADA). Tuple dev saja (smoke), bukan V28.
+
+| rencana dev z = 1.40 | pos err | miring | batas URDF | \|statis j2\| akhir | jarak ke solusi oracle‴ | kelas |
+|---|---|---|---|---|---|---|
+| (a) PLANNED ×3 | 1.1–1.8 mm | 0.9–2.2° | ❌ **joint_5 = −2.562 / −2.609 / +2.571** (URDF ±2.53) | 1.31–1.71 | 2.2–3.2 rad (cabang lain) | **KENDALA** |
+| (b) TORQUE ×3 | 1.4–1.9 mm | 0.9–2.1° | ✅ | 5.32–5.57 | 0.040 / 0.064 / 0.091 rad, statis sama | ADA (2× "LUBANG" = artefak ambang: grid roll 5° = 0.087 rad) |
+
+Oracle‴ tuple (a): 180 solusi, statis j2 [5.33, 5.52], garis lurus P2 [6.44, 7.32] — **tidak ada** cabang j2-rendah
+**dalam batas URDF**. Cabang aman yang dipakai perencana hanya ada karena joint_5 melewati ±2.53.
+
+**Sebab:** `workcell_moveit_config/config/joint_limits.yaml` (sejak 2026-06, `877a4fc` terakhir) menimpa batas posisi
+URDF dengan batas yang **lebih longgar** pada 6 sendi — MoveIt merencanakan dengan yaml:
+
+| sendi | URDF (vendor) | yaml MoveIt |
+|---|---|---|
+| `t1_a1_joint_2`, `t2_a1_joint_2`, `t2_a2_joint_2` | ±2.61 | **±2.76** |
+| `t1_a1_joint_5` | ±2.53 | **±2.70** |
+| `t2_a1_joint_3`, `t2_a2_joint_3` | ±2.61 | **±2.85** |
+
+(`arm_2` tidak ada; tidak seragam antar-lengan. Mock ros2_control j5 ±2.57 — berbeda lagi.)
+
+**Riwayat eksekusi aman:** rekaman `/joint_states` G24b + G26 (`/tmp/g24b_js.csv`, `/tmp/g26_js.csv`): maks \|q\| tiap sendi
+tiap lengan **di dalam** URDF (terdekat t2_a2_j6 2.509 / 2.60, t1_a1_j1 2.490 / 2.68); C′ (81 dieksekusi g18–g20) q_akhir
+0 pelanggaran. Tidak ada gerak nyata yang pernah melewati batas vendor. Probe/saringan **tidak** memeriksa batas URDF.
+
+**Akibat (dari n = 1 tuple; V28 akan mengukur):**
+1. g27 B1 "rute terlipat aman ada (5/16)" **kemungkinan salah**: rencana PLANNED z = 1.40 = titik akhir **di luar batas
+   sendi vendor**, bukan rute lain ke cabang sah. Oracle‴ benar memakai batas URDF.
+2. Kelas SAFE di V28 z = 1.40 bisa berisi rencana ilegal → `v28_score` kini melaporkan pelanggaran batas URDF per
+   (z, verdict) — **tambahan pasca-kunci, informatif**, tidak mengubah A4/D.
+3. D144 ("PLANNED z 1.40 statis akhir < 4.0") kini punya penjelas: cabang j2-rendah = cabang j5 > 2.53.
+4. 🔴 Sebelum **eksekusi** apa pun berikutnya: rencana yang lolos saringan dapat memerintah sendi melewati batas
+   vendor. Perbaikan (yaml ≤ URDF) = keputusan operator (§C).
+
 ### B5. Pertentangan §B lawan §A — bagian OFF
 
 | # | Pertentangan |
@@ -173,6 +210,7 @@ resume melewati 9/9 tanpa merencana ulang. ~85 KB/rencana → V28 ≈ 16 MB. Wal
 | (1) | D143 dinilai `v28_score` sebagai Σ wall **per rencana** (tanpa overhead start/ROS); wall sesi dicetak alat di akhir — G28-ON melaporkan keduanya, D143 dinilai pada wall **sesi** |
 | (2) | D144–D145 ditulis sesudah melihat data smoke dev (tidak ada di A4) — dihitung terpisah dari tally utama, seperti D107 G25 |
 | (3) | Penyadap `_violates_tuck` diteruskan dengan `*args` (tanda tangan asli punya `tol_deg=10.0` opsional) — `_plan_and_screen` memanggilnya dengan 2 argumen; nilai balik identik |
+| (4) | `v28_score` mendapat laporan pelanggaran batas URDF **sesudah** §A dikunci (B0b) — informatif, di luar A2/A4 |
 
 ---
 
@@ -185,7 +223,9 @@ resume melewati 9/9 tanpa merencana ulang. ~85 KB/rencana → V28 ≈ 16 MB. Wal
 - **Tidak diubah:** probe, `sched_screen`, `g22_plan`, oracle, peta, kandidat G26. **Baru:** `docs/results/p1_g28/`.
 - **Belum dikerjakan (butuh operator):** tahap 0, R1, V28, (iv), penilaian A2/A4 + D144–D145, p1_state tally,
   prompt G29.
-- G27 (dok + `results/p1_g27/` + `oracle2.py`) dan G28-OFF **belum di-commit**.
+- Commit: G27 `2b7813f`, G28-OFF `9cef07c`; B0b sesudahnya.
+- 🔴 **Keputusan operator (2026-09-23, sesudah B0b):** V28 memakai perencana **apa adanya** (§A tetap); `joint_limits.yaml`
+  diperbaiki (≤ URDF) **sesudah** G28-ON dan **sebelum eksekusi apa pun** berikutnya — gerbang wajib.
 
 ## D. Prompt G28-ON (salin ke chat BARU saat operator di lokasi) — HW, PLAN-ONLY
 
@@ -198,7 +238,7 @@ Sesi G28-ON -- V28 + saringan (iv) di stack NYATA, PLAN-ONLY. Repo ceiling_arm, 
 feat/rgbd-topo-deploy. Operator di lokasi. Bagian OFF SELESAI: docs/p1_g28_hw.md §A (dikunci 18:22,
 sha 124fface5d4e), §B0 (DRY, smoke mock, D144-D145), §D.
 
-BACA PENUH: CLAUDE.md; docs/p1_g28_hw.md (semua); docs/p1_g27_z140_diag.md A4, B1-B2, D;
+BACA PENUH: CLAUDE.md; docs/p1_g28_hw.md (semua, terutama B0b); docs/p1_g27_z140_diag.md A4, B1-B2, D;
 docs/p1_g22_hw.md A5 (tahap 0); docs/p1_g26_hw.md B0 (contoh tahap 0).
 
 1. Tahap 0 g22 A5: tanya operator ULANG (LED 4/4, origin g1+g2 = home, sel kosong); remount_check.py;
@@ -209,10 +249,11 @@ docs/p1_g22_hw.md A5 (tahap 0); docs/p1_g26_hw.md B0 (contoh tahap 0).
 4. python3 ../p1_g22/sched_screen.py --plan ../p1_g26/g26_candidates.json --repeats 3
    --out g28_screen.json --seeds 16 17 18 20 21 22 23 26 29 33 35 36 40 42 2>&1 | tee g28_screen.log
 5. python3 v28_score.py | tee v28_score.log  -> isi §B1 (V28: A4 ketat, presisi/recall, D132, posisi
-   puncak per z), §B2 ((iv)), §B3 papan skor D132-D143 (+ D144-D145 terpisah), §B5, §C.
+   puncak per z, pelanggaran batas URDF per (z, verdict) -- B0b: SAFE z=1.40 bisa ilegal), §B2 ((iv)), §B3 papan skor D132-D143 (+ D144-D145 terpisah), §B5, §C.
 6. Tidak ada eksekusi jadwal kecuali operator minta. Matikan stack: kill -INT launch, node list --no-daemon
    kosong, hapus crash dump milikmu. gzip v28_plans.jsonl bila > 10 MB.
-7. p1_state (blok G28 + tally); prompt G29 = ROTASI gantry offline (g26 C1-2 a-d), lalu 3D map (C1-3).
+7. p1_state (blok G28 + tally). GERBANG sebelum eksekusi apa pun: joint_limits.yaml <= URDF (B0b,
+   keputusan operator) -- sesi tersendiri sesudah G28-ON. Prompt G29 = ROTASI gantry offline (g26 C1-2 a-d), lalu 3D map (C1-3).
    Bila D144 benar: catat opsi "oracle per-cabang + kendala cabang tujuan di perencana" untuk
    menyelamatkan z = 1.40 (keputusan operator, bukan G29).
 

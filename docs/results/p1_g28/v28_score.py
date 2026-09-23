@@ -18,6 +18,7 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'p1_g27'))
+sys.path.insert(0, os.path.join(HERE, '..', 'p1_g24'))
 
 M2 = 0.659
 
@@ -129,6 +130,24 @@ def score_v28(recs, n_samples=3):
     d145 = [abs(r['rnea2'] - p2_own(r)) for r in wt]
     D['D145 (dev)'] = (len(d145) > 0 and sum(x <= 0.30 for x in d145) >= 0.80 * len(d145),
                        f'{sum(x <= 0.30 for x in d145)}/{len(d145)} |RNEA2 - P2_own| <= 0.30 (>= 80 %)')
+    # Post-lock, INFORMATIVE only (B0b): MoveIt joint_limits.yaml is looser than the vendor URDF on
+    # 6 joints, so a plan can pass every screen while leaving the URDF range the oracle uses.
+    import oracle2 as O2
+    print('\npelanggaran batas URDF (lintasan mana pun, informatif, pasca-kunci):')
+    out['urdf_viol'] = {}
+    for z in sorted({r['z'] for r in wt}):
+        for v in sorted({r['verdict'] for r in wt if r['z'] == z}):
+            rs = [r for r in wt if r['z'] == z and r['verdict'] == v]
+            hit = []
+            for r in rs:
+                A = O2.model(r['arm'])
+                jn = r['traj']['joint_names']
+                q = np.array([[p[jn.index(n)] for n in r['arm_joints']] for p in r['traj']['pos']])
+                ex = np.maximum(q - A['hi'], A['lo'] - q).max(axis=0)
+                if ex.max() > 1e-6:
+                    hit.append((r['i'], r['sample'], int(ex.argmax()) + 1, round(float(ex.max()), 3)))
+            print(f'  z {z:.2f} {v}: {len(hit)}/{len(rs)} {hit[:8]}')
+            out['urdf_viol'][f'{z}/{v}'] = dict(n=len(rs), hit=hit)
     wall = sum(r['wall'] for r in recs)
     D['D143'] = (wall <= 3600, f'Σ wall rencana {wall / 60:.1f} menit (<= 60; wall sesi ada di log)')
     out['tuples'] = tup

@@ -440,6 +440,9 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > dengan probe: K-RNEA 200/200) + `v28_score.py`; DRY lulus; smoke di stack **mock** pada 3 tuple **dev**:
 > puncak TORQUE interior, lintasan ≈ garis lurus ruang-sendi, rencana aman z = 1.40 berakhir di cabang j2-rendah
 > (statis 1.3–1.7 vs 5.3–5.6) → D144–D145 (berbasis-dev). V28 + (iv) menunggu operator: prompt [g28 §D](p1_g28_hw.md).
+> 🔴 **B0b:** cabang "aman" itu = `joint_5` **di luar batas URDF vendor** (−2.61…+2.57 vs ±2.53): `joint_limits.yaml` MoveIt
+> lebih longgar dari URDF di 6 sendi (arm_1 j2/j5, arm_3/4 j2/j3); tidak ada saringan yang memeriksa. Eksekusi G24b/G26
+> tetap di dalam URDF. Operator: V28 apa adanya; yaml ≤ URDF **sesudah G28-ON, sebelum eksekusi apa pun**.
 
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
