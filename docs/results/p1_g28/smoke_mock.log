@@ -1,0 +1,19 @@
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:66: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:168: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+KD2 lulus: /tmp/reach_dwell_live.urdf sha f02e7c532cdb
+KD3 lulus: offset joint_2 = 7.7
+[ 0] s1 arm_1 z1.40 @0.75 oracle4 F: PLANNED (27.4 s) RNEA j2 2.40 @ 74/128 statis-akhir 1.43
+[ 0] s2 arm_1 z1.40 @0.75 oracle4 F: PLANNED (21.3 s) RNEA j2 2.57 @ 75/126 statis-akhir 1.71
+[ 0] s3 arm_1 z1.40 @0.75 oracle4 F: PLANNED (22.7 s) RNEA j2 2.40 @ 70/117 statis-akhir 1.31
+[ERROR] [1790155525.200739765] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a2_joint_2 diperkirakan 15.27 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[ 1] s1 arm_2 z1.40 @0.55 oracle4 F: TORQUE-UNSAFE (0.1 s) RNEA j2 7.57 @ 84/127 statis-akhir 5.39
+[ERROR] [1790155525.268725789] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a2_joint_2 diperkirakan 14.99 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[ 1] s2 arm_2 z1.40 @0.55 oracle4 F: TORQUE-UNSAFE (0.1 s) RNEA j2 7.29 @ 78/114 statis-akhir 5.57
+[ERROR] [1790155525.344411683] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a2_joint_2 diperkirakan 15.13 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[ 1] s3 arm_2 z1.40 @0.55 oracle4 F: TORQUE-UNSAFE (0.1 s) RNEA j2 7.43 @ 84/126 statis-akhir 5.32
+[ 2] s1 arm_1 z1.32 @0.55 oracle4 T: PLANNED (25.4 s) RNEA j2 3.74 @ 127/127 statis-akhir 3.78
+[ 2] s2 arm_1 z1.32 @0.55 oracle4 T: PLANNED (24.8 s) RNEA j2 4.88 @ 123/127 statis-akhir 4.91
+[ 2] s3 arm_1 z1.32 @0.55 oracle4 T: PLANNED (21.6 s) RNEA j2 3.19 @ 126/126 statis-akhir 3.22
+wall total sesi ini 144 s

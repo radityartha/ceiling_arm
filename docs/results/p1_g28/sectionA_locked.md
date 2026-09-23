@@ -1,0 +1,114 @@
+<!-- locked 2026-09-23 18:22 sha256 124fface5d4eb66ceb3cf71e82f3e3a2b60b419143a7bf3493f574466b816e35 -->
+## A. Protokol — ditulis 2026-09-23 SEBELUM alat baru ditulis, SEBELUM data apa pun
+
+### A0. Keputusan operator (dijawab SEBELUM §A ini ditulis)
+
+| # | Pertanyaan | Jawaban |
+|---|---|---|
+| 1 | V28 + (iv) plan-only boleh di stack **mock** sekarang, atau tunggu stack **nyata**? | **Tetap NYATA.** Offline sekarang: §A, alat + DRY, kontrol, smoke test mock **hanya** pada tuple pengembangan (bukan V28) |
+
+Pembagian sesi:
+
+| Bagian | Kapan | Isi |
+|---|---|---|
+| **OFF** (sekarang) | tanpa operator | §A dikunci; `v28_screen.py` + `v28_score.py`; DRY; K-RNEA offline; smoke test **mock** pada tuple dev (A5) |
+| **ON** (operator di lokasi) | G28-ON | tahap 0 g22 A5; R1; V28 (A1–A2); (iv) (A3); penilaian; p1_state; prompt G29 |
+
+### A1. 🔒 Alat `v28_screen.py` — spesifikasi
+
+- **Masukan:** `g27_oracle4.json['V28']` apa adanya (61 tuple, urutan berkas). Tidak ada tuple ditambah/dibuang.
+- **Per tuple, 3 sampel, SELALU ketiganya** (tanpa berhenti di penolakan pertama — beda dengan
+  `sched_screen`; tujuan = laju per rencana, bukan lolos/gagal jadwal).
+- **Start (ditempatkan, nol gerak):** `t{g}_linear_joint` = rel tuple (`rail`), rel gantry lain = **R1**
+  (rel terbaca bring-up, dibulatkan grid 0.05 m), kedua rotasi 0, **keempat lengan REST**
+  (`g22_plan.REST`). Sama untuk ketiga sampel (tidak berantai).
+- **Panggilan:** `_plan_and_screen(arm, pose(xyz), node, 0.002, 2.0, 0.15, 15.0, 12.0, others=3 lengan
+  lain, start_joints)` — **argumen identik** `sched_screen.walk`, `pose()` identik (x = 1, w = 0).
+- **Penyadap (pass-through, nilai balik tidak berubah):** `reach_dwell_probe._violates_tuck` dan
+  `reach_dwell_probe.predict_peak_torque` dibungkus di namespace modul agar lintasan **setiap** rencana
+  yang dikembalikan MoveIt (termasuk yang lalu ditolak TORQUE / INTERARM / TUCK) tersimpan.
+  `_plan_and_screen` sendiri tidak disentuh.
+- **Disimpan per sampel (JSONL, append, resume per `(indeks, sampel)`):** verdict, wall s,
+  `joint_names`, per titik `positions / velocities / accelerations / time_from_start`, per titik
+  RNEA penuh (6) dan gravitasi statis (6, v = a = 0), puncak probe tersadap, `k_peak2` = argmax pertama
+  |RNEA j2|, `N` titik, |statis j2| di titik terakhir.
+- **Model RNEA per titik = model probe persis:** `pin.neutral(m)` + 6 sendi lengan dari titik, `v`,
+  `a` dari titik (nol bila kosong), URDF = `_urdf_path(node)` (cache `/tmp/reach_dwell_live.urdf`).
+
+**Gerbang (gagal ⇒ berhenti, tidak ada data):**
+
+| # | Gerbang | Harus |
+|---|---|---|
+| **KD1** | V28 dimuat | 61 tuple = 41 z = 1.40 (`ok4` false) + 20 z = 1.32 (`ok4` true); rel ∈ [0, 1.60] |
+| **KD2** | sha256 `/tmp/reach_dwell_live.urdf` | `f02e7c53…` (= URDF G23/G27; cache basi ⇒ berhenti) |
+| **KD3** | `JOINT_TORQUE_OFFSET_NM[2]` | 7.7 |
+| **K-RNEA off** | 200 lintasan sintetis acak (4 lengan, dalam batas sendi, v/a acak) | maks_k \|RNEA per titik\| == `predict_peak_torque` **bit-identik** per sendi |
+| **K-RNEA on** | setiap rencana ber-lintasan di V28 | maks_k \|RNEA per titik\| == puncak probe tersadap (≤ 1e-9); pelanggaran ⇒ berhenti |
+
+### A2. 🔒 Penilaian V28 (`v28_score.py`)
+
+**Dikunci G27 — dikutip, TIDAK ditulis ulang:** A4: oracle⁗ **tolak** ⇒ tuple ≥ 1/3 TORQUE-UNSAFE;
+oracle⁗ **terima** ⇒ tuple 3/3 PLANNED. D132: pada setiap rencana V28 z = 1.40 dengan RNEA j2 > 6.30,
+indeks puncak RNEA j2 < titik terakhir **dan** gravitasi statis j2 di titik akhir ≤ 5.83.
+
+Definisi (dikunci di sini):
+
+- **Kebenaran per tuple** (dari 3 sampel): **UNSAFE** ⇔ ≥ 1/3 TORQUE-UNSAFE; **SAFE** ⇔ 3/3 PLANNED;
+  **LAIN** ⇔ selainnya (0 TORQUE tetapi ≥ 1 NO-PLAN / INTERARM / TUCK / UNSCREENED).
+- **A4 ketat:** tuple tolak benar ⇔ UNSAFE; tuple terima benar ⇔ SAFE. LAIN = **salah** di kedua arah.
+  Dilaporkan juga varian **torsi-saja** (terima benar ⇔ 0/3 TORQUE) — informatif, bukan penilaian A4.
+- **Presisi / recall** (positif = oracle⁗ **terima**): presisi = terima ∩ SAFE / terima; recall =
+  terima ∩ SAFE / SAFE. Plus: laju tolak-benar = tolak ∩ UNSAFE / tolak.
+- **D132:** atas **setiap** rencana z = 1.40 ber-lintasan dengan RNEA j2 (dari RNEA per titik) > 6.30:
+  `k_peak2 < N − 1` **dan** \|statis j2\|(titik N − 1) ≤ 5.83. Satu pelanggaran ⇒ D132 ❌.
+- **Posisi puncak per z** (semua rencana ber-lintasan): `k_peak2 = 0` (start), interior, `= N − 1`
+  (akhir); dan `RNEA j2 puncak − |statis j2 akhir|`.
+- **Proksi G27 di rencana nyata:** `P2_own` = maks \|statis j2\| sepanjang garis lurus ruang-sendi
+  REST → q_akhir **rencana itu** (101 titik, `g27_diag.path_max`); dilaporkan `RNEA j2 − P2_own`.
+
+### A3. 🔒 Saringan (iv) — 14 seed baru
+
+`sched_screen.py --plan docs/results/p1_g26/g26_candidates.json --repeats 3 --out
+docs/results/p1_g28/g28_screen.json --seeds 16 17 18 20 21 22 23 26 29 33 35 36 40 42` **apa adanya**
+(berhenti per seed di penolakan pertama, k-of-k). Diperiksa offline 2026-09-23: 14/14 `ok_ii`, 6 tugas
+tiap seed (84 tugas), z ∈ {1.00 … 1.32}, **nol** tugas z = 1.40; `p0` di kandidat = 0.00 / 0.00.
+Bila R1 ≠ 0.00 / 0.00: kandidat **dibuat ulang** (g26 A1) sebelum (iv), dicatat. Tidak ada eksekusi
+jadwal (prompt 5) kecuali operator minta.
+
+### A4. 🔒 Dugaan D133–D143 — DITULIS SEBELUM alat, DRY, smoke, dan data
+
+Prior (tally 61 meleset / 68 tepat): dugaan dari **mekanisme terukur** tepat; tentang **kode sendiri**
+meleset; "kendala lebih longgar" meleset (D115). Data acuan: S16 G26 (z = 1.40: TORQUE 11/16, RNEA j2
+PLANNED 2.41–3.74 / TORQUE 6.43–8.14); 145/145 rencana diterima-z < 1.40 aman; C′ `RNEA₂ − P₂` median
+−0.022, maks +0.054; `m₂` = 0.659; T3b z ≤ 1.32 puncak garis lurus = titik akhir (0/21 027 solusi);
+waktu saringan G26 PLANNED 23.2 s, TORQUE 0.1 s per rencana.
+
+| # | Dugaan | Dasar |
+|---|---|---|
+| **D133** | V28 z = 1.40: **≥ 38 / 41** tuple UNSAFE | laju S16 0.69 per rencana ⇒ P(≥ 1/3) ≈ 0.97, E ≈ 39.8 |
+| **D134** | laju TORQUE per rencana di V28 z = 1.40 ∈ **[0.55, 0.85]** | S16 11/16 = 0.69; P2 V28 6.45–7.54 ≈ S12 |
+| **D135** | V28 z = 1.32: **20 / 20** tuple 0/3 TORQUE (torsi-saja) | T3b 0/21 027; 145/145 z < 1.40 |
+| **D136** | V28 z = 1.32: **≥ 19 / 20** tuple SAFE (A4 ketat) | idem; NO-PLAN / INTERARM tidak muncul pada tuple oracle‴ G24b/G26 |
+| **D137** | RNEA j2 rencana z = 1.40 bimodal: **≤ 10 %** rencana ber-lintasan di (4.0, 6.0) | celah 3.74–6.43 pada tuple yang sama (A0 G27) |
+| **D138** | tiap rencana TORQUE z = 1.40: \|statis j2\| di titik puncak ≥ RNEA j2 − 0.659 pada **≥ 90 %** | vel/acc scale 0.15; C′ Δ_final (memuat dinamika) ≤ 0.659 |
+| **D139** | rencana PLANNED z = 1.32: RNEA j2 puncak − \|statis j2 akhir\| ≤ 0.659 pada **≥ 95 %** | T3b z ≤ 1.32 (P₂ − statis-akhir) median 0.00; C′ |
+| **D140** | rencana TORQUE z = 1.40: RNEA j2 − P2_own ∈ **[−0.5, +0.7]** pada **≥ 70 %** | C′ RNEA₂ − P₂ median −0.022; 7/11 S16 di [min P₂, maks P₂ + m₂ᵖ] |
+| **D141** | (iv): **≥ 12 / 14** seed LOLOS | tugas z < 1.40 diterima oracle‴: 145/145 aman; 3/3 seed G26 tanpa z = 1.40 lolos; risiko: start non-REST, INTERARM |
+| **D142** | (iv): **nol** TORQUE-UNSAFE (z apa pun) di seluruh rencana | idem |
+| **D143** | wall V28 (183 rencana) **≤ 60 menit** | ~60 × 23 s (z 1.32) + ~40 × 23 s + ~83 × 0.1 s (z 1.40) ≈ 38 menit + overhead |
+
+### A5. 🔒 Smoke test MOCK (bagian OFF) — BUKAN data
+
+Tujuan: membuktikan alat (penyadap, penyimpanan lintasan TORQUE, K-RNEA on, resume) di `move_group`
+nyata dengan `use_fake_hardware:=true`, `enable_gantry_bridge:=false`, tanpa jaringan lengan.
+Tuple = **pengembangan saja** (bukan V28), dari `g27_table.json`: (a) S12 `(2033, 1, 15, 0)` arm_1
+(1.2857, 0.3882, 1.40) @0.75 (G26: PLANNED 2.41 / 2.54, TORQUE 7.18); (b) S12 `(83, 1, 11, 1)` arm_2
+(0.0, 0.3176, 1.40) @0.55 (TORQUE 7.39); (c) z = 1.32 G22 seed 0 t2 arm_1 (1.0, 0.3882, 1.32) @0.55
+(PLANNED 3.46). 3 sampel masing-masing. Hasil disimpan terpisah (`smoke_mock_*`), **tidak** dinilai, **tidak** dipakai untuk
+mengubah dugaan A4 (sudah dikunci di atas). Launch: `python3 -c "…SIG_DFL…execvp" &`, SigIgn dicek,
+`ros2 node list --no-daemon` kosong di akhir, crash dump milik sesi dihapus.
+
+🔒 **DILARANG** mengubah A1–A4 sesudah DRY / smoke / data terlihat. §B menang atas §A; pertentangan ditulis.
+
+---
+

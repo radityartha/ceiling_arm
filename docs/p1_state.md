@@ -435,6 +435,12 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > ([g27 §D](p1_g27_z140_diag.md)). Rute terlipat aman ada (5/16) — oracle⁗ membuang z = 1.40, tidak
 > menyelamatkannya. Sesudah G28: ROTASI (g26 C1-2), lalu peta 3D (C1-3).
 
+> 🟡 **Sesi G28-OFF (2026-09-23, offline) — [p1_g28_hw.md](p1_g28_hw.md).** §A dikunci (V28 3 sampel/tuple
+> dari REST, lintasan disimpan; D133–D143). `v28_screen.py` (penyadap pass-through, RNEA per titik bit-identik
+> dengan probe: K-RNEA 200/200) + `v28_score.py`; DRY lulus; smoke di stack **mock** pada 3 tuple **dev**:
+> puncak TORQUE interior, lintasan ≈ garis lurus ruang-sendi, rencana aman z = 1.40 berakhir di cabang j2-rendah
+> (statis 1.3–1.7 vs 5.3–5.6) → D144–D145 (berbasis-dev). V28 + (iv) menunggu operator: prompt [g28 §D](p1_g28_hw.md).
+
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
 > 🔴 Perhatikan §0 di sana: **lengan sedang dilepas fisik**, jadi seluruh jalur
@@ -727,6 +733,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
+| **`p1_g28_hw.md`** | **Sesi G28 — §A terkunci (V28 + (iv) plan-only), bagian OFF: alat + DRY + smoke mock dev (§B0); prompt G28-ON (§D)** |
 | **`p1_g27_z140_diag.md`** | **Sesi G27 — diagnosis z = 1.40: instrumen (§A0), hipotesis terkunci (§A), T0 11/11 transit bukan titik akhir (§B1), oracle⁗ ≡ tanpa z = 1.40 (§B2), P1″ LOSO (§B3); prompt G28 plan-only (§D)** |
 | **`p1_g26_hw.md`** | **Sesi G26-HW — replikasi 3 seed P1′ di sel nyata: 18/18 tugas, galat −11.9/−0.4/−5.6 % (§B1–B2); (iv) 3/14, lolos ⟺ tanpa z = 1.40 (§B3); prompt G27 (§D)** |
 | **`p1_g25_task_cost.md`** | **Sesi G25 — dekomposisi cap waktu (§A1, §B1), model P1′ terkunci (§A2), prediksi G24b −4.8 % (§B2), 45 instance: min-pindah 44/45, bias K2 ≤ 20 % (§B3); prompt G26 (§D)** |
