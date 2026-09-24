@@ -1,0 +1,28 @@
+1. sumbu g1 lin 0.55 rot 0.0: asal [0.55, 0.36, 2.01], sumbu-z [0.0, 0.0, 1.0], batang (y lokal) -> dunia [-1.0, 0.0, 0.0]
+1. sumbu g1 lin 0.55 rot 0.7: asal [0.55, 0.36, 2.01], sumbu-z [0.0, 0.0, 1.0], batang (y lokal) -> dunia [-0.764842, -0.644218, 0.0]
+1. sumbu g2 lin 1.2 rot -1.1: asal [1.2, -0.36, 2.01], sumbu-z [0.0, 0.0, 1.0], batang (y lokal) -> dunia [-0.453596, 0.891207, 0.0]
+2. t1_a1_                           r_maks dari sumbu   439.9 mm   z [0.9259, 1.9525]
+2. t1_a2_                           r_maks dari sumbu   439.9 mm   z [0.9259, 1.9525]
+2. t1_struct:mount_plate_left       r_maks dari sumbu   455.0 mm   z [1.9525, 2.0025]
+2. t1_struct:mount_plate_right      r_maks dari sumbu   455.0 mm   z [1.9525, 2.0025]
+2. t1_struct:platform_link          r_maks dari sumbu   244.0 mm   z [2.0175, 2.0825]
+2. t1_struct:rotation_link          r_maks dari sumbu   402.0 mm   z [2.0025, 2.0175]
+2. t2_a1_                           r_maks dari sumbu   439.9 mm   z [0.9259, 1.9525]
+2. t2_a2_                           r_maks dari sumbu   439.9 mm   z [0.9259, 1.9525]
+2. t2_struct:mount_plate_left       r_maks dari sumbu   455.0 mm   z [1.9525, 2.0025]
+2. t2_struct:mount_plate_right      r_maks dari sumbu   455.0 mm   z [1.9525, 2.0025]
+2. t2_struct:platform_link          r_maks dari sumbu   244.0 mm   z [2.0175, 2.0825]
+2. t2_struct:rotation_link          r_maks dari sumbu   402.0 mm   z [2.0025, 2.0175]
+3. SS (tanpa platform, = G9 A2.1) pinocchio-3D vs G9 2-D: platform kontak saat G9 bebas: 0; 3605 sampel; keduanya >0 3304 (maks |beda| 0.0022 mm), keduanya kontak 301, TANDA BEDA 0
+   [0.8 0.  0.8 0. ]: SS   380.0 mm (t1_platform_link_0 <-> t2_platform_link_0), G9   610.0
+   [ 0.8   -1.571  0.8    1.571]: SS   -30.0 mm (t1_mount_plate_right_0 <-> t2_mount_plate_right_0), G9     0.0
+   [ 0.8   -1.571  0.85   1.571]: SS   -15.7 mm (t1_mount_plate_right_0 <-> t2_mount_plate_right_0), G9     0.0
+   [ 0.8   -1.571  0.9    1.571]: SS     5.0 mm (t1_rotation_link_0 <-> t2_mount_plate_right_0), G9     5.0
+   [ 0.8   -1.571  0.895  1.571]: SS    -0.0 mm (t1_mount_plate_right_0 <-> t2_rotation_link_0), G9     0.0
+4. rot 0/0, lengan REST, per kelas pasangan:
+   dx 0.0: LL  605.6 (t1_a2_arm_link_0<->t2_a2_shoulder_link_0)  LS  575.1 (t1_platform_link_0<->t2_a2_base_link_0)  SS  380.0 (t1_platform_link_0<->t2_platform_link_0)
+   dx 0.2: LL  634.2 (t1_a1_lower_wrist_link_0<->t2_a1_right_finger_prox_link_0)  LS  546.6 (t1_platform_link_0<->t2_a1_shoulder_link_0)  SS  380.0 (t1_platform_link_0<->t2_platform_link_0)
+   dx 0.4: LL  616.0 (t1_a2_right_finger_prox_link_0<->t2_a1_right_finger_prox_link_0)  LS  546.1 (t1_platform_link_0<->t2_a1_shoulder_link_0)  SS  383.3 (t1_platform_link_0<->t2_platform_link_0)
+   dx 0.8: LL  498.9 (t1_a2_right_finger_prox_link_0<->t2_a1_right_finger_prox_link_0)  LS  587.7 (t1_platform_link_0<->t2_a1_shoulder_link_0)  SS  539.5 (t1_platform_link_0<->t2_mount_plate_right_0)
+   dx 1.2: LL  641.9 (t1_a2_right_finger_prox_link_0<->t2_a1_right_finger_prox_link_0)  LS  740.3 (t1_mount_plate_left_0<->t2_a1_arm_link_0)  SS  713.7 (t1_mount_plate_left_0<->t2_mount_plate_right_0)
+   dx 1.6: LL  945.9 (t1_a2_right_finger_prox_link_0<->t2_a1_right_finger_prox_link_0)  LS  990.2 (t1_a2_shoulder_link_0<->t2_mount_plate_right_0)  SS  966.3 (t1_mount_plate_left_0<->t2_mount_plate_right_0)

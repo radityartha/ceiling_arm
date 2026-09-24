@@ -1,0 +1,11 @@
+pasangan: induk 660, baru ber-lengan 660 + SS 16
+Traceback (most recent call last):
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g29/g29_rot_screen.py", line 351, in <module>
+    controls()
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g29/g29_rot_screen.py", line 313, in controls
+    res['P4'] = p4(new, rng)
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g29/g29_rot_screen.py", line 292, in p4
+    _, p = IS.base_pose(arm, l1 if g == 1 else l2, r1 if g == 1 else r2)
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g29/../../../ros2_ws/src/reachability_gng/reachability_gng/irm_sweep.py", line 89, in base_pose
+    tbl, _, side = ARMS[arm]
+KeyError: 'arm_1'

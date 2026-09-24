@@ -8,6 +8,8 @@ and the margin / limit mutants cost nothing.
 
 Model: the G23 URDF (sha f02e7c53...), reduced to the arm's 6 joints + its rail
 (everything else locked at the G23 reference: neutral, other arms REST).
+G29 (docs/p1_g29_rot.md A4): optional `rot` locks the arm's gantry rotation joint at `rot` instead of 0;
+default rot=0.0 leaves the reference, and therefore every result, unchanged (K0).
 """
 import os
 import sys
@@ -35,32 +37,35 @@ def _rz(a):
     return np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]])
 
 
-def q_ref_full(m, pin):
+def q_ref_full(m, pin, rot=0.0, gantry=None):
     """G23 oracle.solve reference: neutral, every arm at REST (rail set later)."""
     q = pin.neutral(m)
     for p in O.PREFIX.values():
         for i, v in enumerate(O.REST, 1):
             q[m.joints[m.getJointId(f'{p}joint_{i}')].idx_q] = v
+    if rot != 0.0:
+        q[m.joints[m.getJointId(f't{gantry}_rotation_joint')].idx_q] = rot
     return q
 
 
-def model(arm):
-    if arm not in _M:
+def model(arm, rot=0.0):
+    key = arm if rot == 0.0 else (arm, float(rot))
+    if key not in _M:
         import pinocchio as pin
         full = pin.buildModelFromUrdf(O.URDF)
-        qr = q_ref_full(full, pin)
+        qr = q_ref_full(full, pin, rot, O.GANTRY[arm])
         keep = {f't{O.GANTRY[arm]}_linear_joint'} | {f'{O.PREFIX[arm]}joint_{i}' for i in range(1, 7)}
         lock = [j for j in range(1, full.njoints) if full.names[j] not in keep]
         m = pin.buildReducedModel(full, lock, qr)
         ids = [m.getJointId(f'{O.PREFIX[arm]}joint_{i}') for i in range(1, 7)]
-        _M[arm] = dict(pin=pin, m=m, d=m.createData(),
+        _M[key] = dict(pin=pin, m=m, d=m.createData(),
                        iq=np.array([m.joints[j].idx_q for j in ids]),
                        iv=np.array([m.joints[j].idx_v for j in ids]),
                        rail=m.joints[m.getJointId(f't{O.GANTRY[arm]}_linear_joint')].idx_q,
                        tool=m.getFrameId(f'{O.PREFIX[arm]}tool_frame'),
                        lo=m.lowerPositionLimit[[m.joints[j].idx_q for j in ids]],
                        hi=m.upperPositionLimit[[m.joints[j].idx_q for j in ids]])
-    return _M[arm]
+    return _M[key]
 
 
 def seed_rounds(lo, hi, rounds_n=ROUNDS):
@@ -73,8 +78,8 @@ def seed_rounds(lo, hi, rounds_n=ROUNDS):
     return out
 
 
-def gravity(arm, q6, rail):
-    A = model(arm)
+def gravity(arm, q6, rail, rot=0.0):
+    A = model(arm, rot)
     pin, m, d = A['pin'], A['m'], A['d']
     q = np.zeros(m.nq)
     q[A['rail']] = rail
@@ -97,11 +102,12 @@ ENV_TOL = 0.01                                                                  
 
 
 def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, envelope=False,
-          rounds_n=ROUNDS, min_rounds=2, tilt_cont=False):
+          rounds_n=ROUNDS, min_rounds=2, tilt_cont=False, rot=0.0):
     """tilt/envelope = ORACLE''' (A'1/A'2); defaults = ORACLE'' exactly.
     G27 (A2 T1/T2, defaults unchanged): rounds_n / min_rounds widen discovery; tilt_cont reaches
-    each tilt by continuation 1/4 -> 2/4 -> 3/4 -> 1 of the angle instead of one Newton jump."""
-    A = model(arm)
+    each tilt by continuation 1/4 -> 2/4 -> 3/4 -> 1 of the angle instead of one Newton jump.
+    G29: rot = the gantry rotation the tuple is solved at (default 0 = unchanged)."""
+    A = model(arm, rot)
     pin, m, d = A['pin'], A['m'], A['d']
     lo, hi, iq, iv, tool = A['lo'], A['hi'], A['iq'], A['iv'], A['tool']
     K = int(round(360.0 / grid_deg))
@@ -141,7 +147,7 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
                 return False
         sols[k].append(s)
         if tilt:
-            env = np.maximum(env, gravity(arm, s, rail))
+            env = np.maximum(env, gravity(arm, s, rail, rot))
             for M, Ms in zip(TR, TRS):
                 if tilt_cont:
                     st = s
@@ -154,7 +160,7 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
                 if st is None:
                     tilt_fail[0] += 1
                 else:
-                    env = np.maximum(env, gravity(arm, st, rail))
+                    env = np.maximum(env, gravity(arm, st, rail, rot))
         return True
 
     def trace(s, k):
@@ -188,7 +194,7 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
             saturated = True
             break
 
-    taus = [gravity(arm, s, rail) for ss in sols for s in ss]
+    taus = [gravity(arm, s, rail, rot) for ss in sols for s in ss]
     out = dict(n_sol=len(taus), n_roll=sum(bool(ss) for ss in sols), rounds=rounds,
                saturated=saturated,
                taumax=(np.max(taus, axis=0) if taus else np.full(6, np.nan)))

@@ -443,6 +443,18 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > 🔴 **B0b:** cabang "aman" itu = `joint_5` **di luar batas URDF vendor** (−2.61…+2.57 vs ±2.53): `joint_limits.yaml` MoveIt
 > lebih longgar dari URDF di 6 sendi (arm_1 j2/j5, arm_3/4 j2/j3); tidak ada saringan yang memeriksa. Eksekusi G24b/G26
 > tetap di dalam URDF. Operator: V28 apa adanya; yaml ≤ URDF **sesudah G28-ON, sebelum eksekusi apa pun**.
+>
+> 🟡 **Sesi G29 (2026-09-23/24, OFFLINE) — [p1_g29_rot.md](p1_g29_rot.md). Rotasi gantry: penyaring berrotasi, amplop,
+> oracle‴ rot ≠ 0.** 🔴 **Temuan utama (pasca-kunci, B1):** `coal` tanpa qhull → "hull" `CrossGantryChecker` (S18/S24
+> antar-gantry G20–G28, dan V28) **bukan hull**: jarak terbaca terlalu JAUH hingga +78 mm (satu arah, tidak aman); 1/105
+> lintasan uji: tabrakan −0.5 mm terbaca CLEAR 50.3. Traverse HW G24b/G26 tetap CLEAR (min benar 452 mm; arsip 543.5 →
+> 514.7). Perbaikan hanya di `g29_rot_screen.true_hull`; operator: **laporkan saja**, `interarm_collision.py` tidak dipatch.
+> 🔴 S18 probe tidak meneruskan sendi rotasi (menilai rot 0). (a) `RotCrossChecker` + `sweep_rot` (rect ≤ 10 mm/1°, SS ikut):
+> N1–N3, P1–P4 lulus. (b) lengan REST: **|dx| ≥ 0.8 m → rotasi bebas**; satu gantry ≤ 10° (kontinu; grid 20°) → yang lain
+> bebas; keduanya ≤ **35°** → aman di dx apa pun (1° terverifikasi, 1.6 × 10⁶ konfigurasi). (d) K0 72/72; 83/150 node
+> tidak-layak rot 0 jadi layak (jalur tengah 43/51), z = 1.40 PATH 0; cakupan node ≈ 35 % → ≈ 71 % (ekstrapolasi,
+> tanpa tabrakan). (c) 10 °/s: REST 71–77 mm/s, tuple layak ≤ 110, teoretis 245 — keputusan operator. Berikutnya: G30 HW
+> ±10° REST, gerbang yaml ≤ URDF + G28-ON + keputusan C-1/C-2 ([g29 §D](p1_g29_rot.md)).
 
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
@@ -736,6 +748,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
+| **`p1_g29_rot.md`** | **Sesi G29 — rotasi offline: hull palsu CrossGantryChecker (§B1), penyaring berrotasi (§B2), amplop REST (§B3), oracle‴ rot ≠ 0 (§B4), kecepatan ujung (§B5); prompt G30 HW (§D)** |
 | **`p1_g28_hw.md`** | **Sesi G28 — §A terkunci (V28 + (iv) plan-only), bagian OFF: alat + DRY + smoke mock dev (§B0); prompt G28-ON (§D)** |
 | **`p1_g27_z140_diag.md`** | **Sesi G27 — diagnosis z = 1.40: instrumen (§A0), hipotesis terkunci (§A), T0 11/11 transit bukan titik akhir (§B1), oracle⁗ ≡ tanpa z = 1.40 (§B2), P1″ LOSO (§B3); prompt G28 plan-only (§D)** |
 | **`p1_g26_hw.md`** | **Sesi G26-HW — replikasi 3 seed P1′ di sel nyata: 18/18 tugas, galat −11.9/−0.4/−5.6 % (§B1–B2); (iv) 3/14, lolos ⟺ tanpa z = 1.40 (§B3); prompt G27 (§D)** |
@@ -820,7 +833,7 @@ menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawa
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
 
-**Tally G10–G27** (diperbarui 2026-09-23, G27; tiap baris dari §B dokumen
+**Tally G10–G29** (diperbarui 2026-09-24, G29; tiap baris dari §B dokumen
 sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 
 | sesi | ditambah (meleset / tepat) | papan skor |
@@ -843,7 +856,9 @@ sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 | G24b | 0 / 4 (D98–D101) | 52 / 53 |
 | G25 | 4 / 2 (D108–D113; D107 terkontaminasi, tidak dihitung) | 56 / 55 |
 | G26 | 3 / 6 (D114–D122) | 59 / 61 |
-| **G27** | **2 / 7** (D123–D131; D132 dinilai G28) | **61 meleset / 68 tepat** |
+| G27 | 2 / 7 (D123–D131; D132 dinilai G28) | 61 / 68 |
+| G28 | — (D132–D145 dinilai G28-ON, belum jalan) | 61 / 68 |
+| **G29** | **5 / 6** (D146–D156) | **66 meleset / 74 tepat** |
 
 ➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
 atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
@@ -885,3 +900,8 @@ besaran/rentang dari n kecil. Papan skor kembali **lebih banyak tepat** (59/61).
 ➜ Yang G27 tambahkan: ketujuh yang tepat dari mekanisme yang **diukur di langkah 1 sesi yang sama** (RNEA bimodal
 pada tuple sama, tilt_fail tidak terkonsentrasi, Δ_final naik dengan z) — pola G24 berulang. D126 meleset tentang
 **kode sendiri** (miring gagal ternyata bukan divergensi Newton); D131 besaran dari n = 4 dengan derau per tugas 8 s.
+
+➜ Yang G29 tambahkan: keenam yang tepat dari mekanisme yang diukur di A0 (jarak y base→node menentukan kelayakan,
+transit z = 1.40, ekuivariansi yaw). Meleset: **kode sendiri** lagi (D152 crash kunci, D153 pembanding NaN) dan
+**besaran geometri** tanpa hitung (D148–D150); D149 ke arah "kendala lebih longgar". Temuan terbesar (hull palsu) tidak
+diduga siapa pun — ditemukan karena kontrol negatif arsip (N2) **gagal**, bukan karena lulus.

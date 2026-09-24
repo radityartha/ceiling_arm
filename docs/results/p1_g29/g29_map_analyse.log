@@ -1,0 +1,11 @@
+invarian translasi (200 sampel, lin mutlak lain): maks |beda| 1.48e-14 m
+(i) theta_one (grid 5 deg, margin 50 mm): 20.0 deg; tersertifikasi Lipschitz (grid >= 94.7 mm): 10.0 deg; satu gantry di 0/180: min 96.2 mm
+(ii) theta_both sekitar 0: min atas dx 35 deg (di dx 0.44); |dx| >= 1.00: min 180
+(ii) theta_both sekitar 180: min atas dx 35 deg (di dx 0.44); |dx| >= 1.00: min 180
+     theta_both(|dx|): 0.0:40, 0.1:45, 0.2:55, 0.3:45, 0.4:40, 0.5:35, 0.6:40, 0.8:180, 1.0:180, 1.2:180, 1.4:180, 1.6:180
+(iii) pasangan (rot1, rot2) tidak aman pada dx terburuk: 43.7 %; konfigurasi tidak aman 4.4 %
+(iv) SS <= 0 & lengan >= 50 mm (lama buta pada KONTAK): 0; 0 < SS < 50 & lengan >= 50: 6708; SS <= 0 total 32028; SS < 50 total 59140
+     contoh (dx, rot1, rot2, SS mm, lengan mm): [(-0.6, -50.0, -50.0, 47.8, 63.3), (-0.6, -50.0, -45.0, 48.7, 64.3), (-0.6, -50.0, 130.0, 47.8, 63.3), (-0.6, -50.0, 135.0, 48.7, 64.3), (-0.6, -45.0, -50.0, 48.7, 64.3)]
+     kelas pengikat pada konfigurasi tidak aman: {'LL': 34548, 'LS': 0, 'SS': 38380}
+verifikasi 1 deg |rot| <= 35: 1618161 konfigurasi, min 82.4 mm, di bawah 50 mm: 0
+hull vs mesh (50 konfigurasi lengan ~50 mm): hull - mesh maks +0.001 / min -0.279 mm; hull > mesh pada 16

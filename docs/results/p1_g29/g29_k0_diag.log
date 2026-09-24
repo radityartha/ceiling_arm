@@ -1,0 +1,5 @@
+/home/user1/Documents/ceiling_arm/docs/results/p1_g29/g29_k0_diag.py:44: RuntimeWarning: All-NaN slice encountered
+  dt = [np.nanmax(np.abs(np.array(o['orig']['taumax']) - np.array(d['taumax']))) for d, o in res]
+cur == orig (semua field): 53/72; orig == cache: 53/72
+field beda orig vs cache: {'taumax': 19}
+ok berbeda vs cache: 0; maks |dtaumax| 0.000e+00; tuple beda: [(895, 2, 11, 0), (0, 2, 8, 1), (2012, 2, 19, 0), (1266, 1, 14, 0), (2281, 2, 31, 0), (1444, 1, 21, 1)]

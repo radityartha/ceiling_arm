@@ -1,0 +1,28 @@
+pasangan: induk 660, baru ber-lengan 660 + SS 16
+P4 FK base vs irm_sweep.base_pose: maks 2.22e-16 m; nama ketat True; tolak tanpa rotasi True -> LULUS
+N1 lama APA ADANYA (hull palsu, data hangat; G22-G28) - baru: maks +77.86 / min -0.00 mm, |err| > 0.1 mm pada 1396/2000
+N1 2000 keadaan: beda (vs lama-segar) 0 -> LULUS; N3 SS min rot0 380.000 mm
+P1 dx 0.00: SS  -30.00 mm ('t1_mount_plate_right_0', 't2_mount_plate_right_0'); lengan  -44.65 ('t1_a1_forearm_link_0', 't2_a1_forearm_link_0')
+P1 dx 0.09: SS   -0.00 mm ('t1_mount_plate_right_0', 't2_rotation_link_0'); lengan    9.93 ('t1_a1_forearm_link_0', 't2_a1_forearm_link_0')
+P1 dx 0.10: SS    5.00 mm ('t1_mount_plate_right_0', 't2_rotation_link_0'); lengan   19.92 ('t1_a1_forearm_link_0', 't2_a1_forearm_link_0')
+P1 -> LULUS
+P2 g1 rot -130 -> -63 deg (g2 +90, lin sama): sapuan COLLIDE -59.6 mm ('t1_a1_upper_wrist_link_0', 't2_a1_upper_wrist_link_0') di -106 deg (lengan -59.6, SS -30.0); ujung CLEAR 53.7 / CLEAR 50.3 -> LULUS
+P3 arm_1 -> t2_mount_plate_left [ 0.6   -0.706  1.977] IK False: LS 178.5 ('t1_platform_link_0', 't2_a1_base_link_0'), LL 258.2
+P3 arm_1 -> t2_mount_plate_right [ 1.    -0.014  1.977] IK True: LS -34.4 ('t1_a1_right_finger_dist_link_0', 't2_mount_plate_right_0'), LL -23.1
+P3 -> LULUS
+  N2 g24b_run.jso g1 0.5509->0.70: arsip 507.6, lama-hangat 507.579, lama-segar 506.181, baru-lengan 506.181 (SS 429.6), CLEAR/CLEAR, bit True
+  N2 g24b_run.jso g2 0.0006->1.45: arsip 464.6, lama-hangat 464.639, lama-segar 455.212, baru-lengan 455.212 (SS 380.0), CLEAR/CLEAR, bit True
+  N2 g26_s1_run.j g1 0.0005->0.55: arsip 543.5, lama-hangat 543.481, lama-segar 514.691, baru-lengan 514.691 (SS 380.0), CLEAR/CLEAR, bit True
+  N2 g26_s1_run.j g1 0.5495->0.70: arsip 507.6, lama-hangat 507.569, lama-segar 506.228, baru-lengan 506.228 (SS 429.0), CLEAR/CLEAR, bit True
+  N2 g26_s1_run.j g2 0.0005->1.45: arsip 459.6, lama-hangat 459.569, lama-segar 452.490, baru-lengan 452.490 (SS 380.0), CLEAR/CLEAR, bit True
+  N2 g26_s2_run.j g1 0.0006->1.10: arsip 502.7, lama-hangat 502.738, lama-segar 498.957, baru-lengan 498.957 (SS 380.0), CLEAR/CLEAR, bit True
+  N2 g26_s2_run.j g1 1.0999->1.50: arsip 584.3, lama-hangat 584.326, lama-segar 584.326, baru-lengan 584.326 (SS 669.8), CLEAR/CLEAR, bit True
+  N2 g26_s2_run.j g2 0.0004->0.70: arsip 499.0, lama-hangat 498.963, lama-segar 498.963, baru-lengan 498.963 (SS 539.1), CLEAR/CLEAR, bit True
+  N2 g26_s2_run.j g2 0.6997->1.10: arsip 498.9, lama-hangat 498.875, lama-segar 498.875, baru-lengan 498.875 (SS 383.2), CLEAR/CLEAR, bit True
+  N2 g26_s2_run.j g2 1.0990->1.25: arsip 546.1, lama-hangat 546.078, lama-segar 514.760, baru-lengan 514.760 (SS 380.0), CLEAR/CLEAR, bit True
+  N2 g26_s13_run. g1 0.0004->0.75: arsip 502.8, lama-hangat 502.782, lama-segar 500.911, baru-lengan 500.911 (SS 380.0), CLEAR/CLEAR, bit True
+  N2 g26_s13_run. g1 0.7491->1.25: arsip 498.8, lama-hangat 498.803, lama-segar 498.803, baru-lengan 498.803 (SS 521.8), CLEAR/CLEAR, bit True
+  N2 g26_s13_run. g2 0.0007->0.50: arsip 498.9, lama-hangat 498.886, lama-segar 498.886, baru-lengan 498.886 (SS 522.3), CLEAR/CLEAR, bit True
+  N2 g26_s13_run. g2 0.4996->1.35: arsip 500.8, lama-hangat 500.822, lama-segar 500.822, baru-lengan 500.822 (SS 380.0), CLEAR/CLEAR, bit True
+N2 14 traverse: rekonstruksi |d| <= 1 mm 14/14; bit-identik+verdict LULUS; SS min 380.0 mm
+N3 -> LULUS

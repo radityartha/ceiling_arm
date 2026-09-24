@@ -1,0 +1,15 @@
+flags default: True DefaultGuess
+B fresh 543.481
+B after A 546.013
+B after A, reset 546.013
+after A: cached_support_func_guess sample [(0, 218), (0, 137), (0, 2806)] enable_cached True
+B after A, fresh geom_data 543.481
+sweep B: per-pair |seq - fresh| max 129.160 mm, pairs affected 602/660, min-over-pairs seq 543.481 fresh 546.013
+  worst pair t1_platform_link_0 t2_a1_forearm_link_0 seq 894.2106695858267 fresh 765.0507045834877
+  mesh (exact) same pair/state: 765.051 mm
+  hull, gjk_max_iterations 5000: 765.051 mm
+seq(warm, default iters)   err max +129.160 / min -119.469 mm; |err|>0.1mm on 9501 of 36960 pair-pts; min-over-pairs 543.481 vs ref 546.013
+fresh(default iters)       err max +0.000 / min +0.000 mm; |err|>0.1mm on 0 of 36960 pair-pts; min-over-pairs 546.013 vs ref 546.013
+nocache seq: err max +128.4692 / min -119.0983 mm; time/pt nocache 2.61 ms, warm 1.03 ms, fresh-data 4.72 ms
+reset support hint per call: err max +128.4692 / min -119.0983 mm, 3.44 ms/pt
+distance_functors? ['collision_functors', 'contact_patch_functors', 'distance_functors']
