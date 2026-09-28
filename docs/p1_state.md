@@ -464,6 +464,15 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > drift lengan ≤ 0.10°, torsi ≤ 2.56 N·m, rel 0.000 mm. Arah = URDF (+z; CW dilihat dari bawah); tali-busur ujung gripper
 > ≈ 70 mm = 69.9 terhitung → **skala 100 pulsa/° benar fisik** (pertama kali diukur independen). Sel akhir: rot 0.00 / −0.29°.
 > Berikutnya: G31 patch C-1/C-2 + jadwal berrotasi plan-only ([g30 §D](p1_g30_rot_hw.md)).
+>
+> 🟢 **Sesi G28-ON (2026-09-28, stack NYATA, PLAN-ONLY) — [p1_g28_hw.md](p1_g28_hw.md) §B0c–B3, C-ON.** R1 0.00 / 0.00; K-RNEA on
+> 183/183 bit-identik; nol kelas LAIN. **V28:** z 1.32 60/60 PLANNED (terima ⇒ SAFE **20/20**, presisi 1.000); z 1.40 TORQUE
+> 102/123 = 0.829, puncak interior 123/123, tolak ⇒ UNSAFE **39/41** (tuple 5, 40 arm_1 SAFE — 6/6 rencana di luar URDF j5).
+> **(iv) 14/14 seed LOLOS**, 252/252 PLANNED (seed tanpa z = 1.40: 17/17 gabung G26). D132–D143 **12/12**; D144 ❌ (ambang), D145 ✅.
+> 🔴 **Batas URDF:** PLANNED z 1.40 **20/21 keluar batas vendor** (arm_1 j5 16, arm_3 j3 4) — kelas "aman" z = 1.40 = artefak
+> yaml; PLANNED z 1.32 **0/60** → yaml ≤ URDF diperkirakan **tidak** menghilangkan rencana jadwal (dilaporkan ke operator).
+> 🟡 1 rencana z 1.40 j2-rendah **sah** (arm_2 tuple 4). C-1 hull palsu tidak mengubah verdict (min 326.8 − 78 ≫ 50).
+> Berikutnya: **G28-YAML** (yaml ≤ URDF, ukuran sebelum/sesudah — [g28 §F](p1_g28_hw.md)), lalu G31.
 
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
@@ -759,7 +768,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
 | **`p1_g30_rot_hw.md`** | **Sesi G30 — rotasi HW ±10° lengan REST: gerbang (§A0), `rot_to_g` (§A1), 8/8 kaki (§B1), D157–D166 1/9 (§B3); prompt G31 (§D)** |
 | **`p1_g29_rot.md`** | **Sesi G29 — rotasi offline: hull palsu CrossGantryChecker (§B1), penyaring berrotasi (§B2), amplop REST (§B3), oracle‴ rot ≠ 0 (§B4), kecepatan ujung (§B5); prompt G30 HW (§D)** |
-| **`p1_g28_hw.md`** | **Sesi G28 — §A terkunci (V28 + (iv) plan-only), bagian OFF: alat + DRY + smoke mock dev (§B0); prompt G28-ON (§D)** |
+| **`p1_g28_hw.md`** | **Sesi G28 — §A terkunci (V28 + (iv) plan-only), bagian OFF: alat + DRY + smoke mock dev (§B0); bagian ON 2026-09-28: V28 (§B1), (iv) 14/14 (§B2), D132–D143 12/12 (§B3), laporan batas URDF (§C-ON); prompt G28-YAML (§F)** |
 | **`p1_g27_z140_diag.md`** | **Sesi G27 — diagnosis z = 1.40: instrumen (§A0), hipotesis terkunci (§A), T0 11/11 transit bukan titik akhir (§B1), oracle⁗ ≡ tanpa z = 1.40 (§B2), P1″ LOSO (§B3); prompt G28 plan-only (§D)** |
 | **`p1_g26_hw.md`** | **Sesi G26-HW — replikasi 3 seed P1′ di sel nyata: 18/18 tugas, galat −11.9/−0.4/−5.6 % (§B1–B2); (iv) 3/14, lolos ⟺ tanpa z = 1.40 (§B3); prompt G27 (§D)** |
 | **`p1_g25_task_cost.md`** | **Sesi G25 — dekomposisi cap waktu (§A1, §B1), model P1′ terkunci (§A2), prediksi G24b −4.8 % (§B2), 45 instance: min-pindah 44/45, bias K2 ≤ 20 % (§B3); prompt G26 (§D)** |
@@ -843,7 +852,7 @@ menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawa
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
 
-**Tally G10–G30** (diperbarui 2026-09-28, G30; tiap baris dari §B dokumen
+**Tally G10–G30** (diperbarui 2026-09-28, G28-ON; tiap baris dari §B dokumen
 sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 
 | sesi | ditambah (meleset / tepat) | papan skor |
@@ -867,9 +876,9 @@ sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 | G25 | 4 / 2 (D108–D113; D107 terkontaminasi, tidak dihitung) | 56 / 55 |
 | G26 | 3 / 6 (D114–D122) | 59 / 61 |
 | G27 | 2 / 7 (D123–D131; D132 dinilai G28) | 61 / 68 |
-| G28 | — (D132–D145 dinilai G28-ON, belum jalan) | 61 / 68 |
-| G29 | 5 / 6 (D146–D156) | 66 / 74 |
-| **G30** | **1 / 9** (D157–D166) | **67 meleset / 83 tepat** |
+| G28 | 0 / 12 (D132–D143, dinilai G28-ON 2026-09-28; D144–D145 berbasis-dev terpisah 1 / 1) | 61 / 80 |
+| G29 | 5 / 6 (D146–D156) | 66 / 86 |
+| **G30** | **1 / 9** (D157–D166) | **67 meleset / 95 tepat** |
 
 ➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
 atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
@@ -921,3 +930,8 @@ diduga siapa pun — ditemukan karena kontrol negatif arsip (N2) **gagal**, buka
 kirim pertama dilewati; lantai `T_cmd` → waktu ≈ 3 s) atau **dihitung** (sapuan A0.2, r_h → tali-busur 70 mm). Satu-satunya
 meleset (D157) adalah prior "kode sendiri gagal jalan pertama": alat disalin dari pola yang sudah teruji di HW dan diuji
 sintetis + mock sebelum HW — prior itu tidak berlaku untuk kode **salinan teruji**.
+
+➜ Yang G28-ON tambahkan: kedua belas yang tepat, semuanya dari **mekanisme terukur G26/G27** (transit z = 1.40, T3b, C′,
+bimodal RNEA) — dikunci 5 hari sebelum data, di stack berbeda (nyata vs arsip). Satu-satunya yang salah (D144, dev, terpisah)
+= **ambang** dari n = 1 tuple per kelas: cabang j2-tinggi lolos 3× dengan margin 0.02–0.08 N·m. Yang tidak diduga siapa pun:
+kelas "aman" z = 1.40 = 20/21 artefak batas yaml (B0b hanya n = 1).

@@ -1,7 +1,7 @@
 # P1 / G28-HW — validasi oracle⁗ (G27) di stack NYATA, PLAN-ONLY: V28 + saringan (iv) 14 seed baru
 
-> Sesi 2026-09-23. Bagian **offline** dikerjakan dulu (operator **tidak** di lokasi); V28 + (iv) menunggu
-> operator. Sumber prompt: [p1_g27_z140_diag.md §D](p1_g27_z140_diag.md). Kode/hasil: `docs/results/p1_g28/`.
+> Sesi 2026-09-23. Bagian **offline** dikerjakan dulu (operator **tidak** di lokasi); **bagian ON 2026-09-28**
+> (stack nyata, plan-only): §B0c–B3, §C-ON, prompt yaml §F. Sumber prompt: [p1_g27_z140_diag.md §D](p1_g27_z140_diag.md). Kode/hasil: `docs/results/p1_g28/`.
 > Alat G22 (`sched_screen`, `g22_plan`), probe (`reach_dwell_probe._plan_and_screen`), oracle, peta:
 > **tidak diubah**.
 
@@ -203,6 +203,92 @@ tiap lengan **di dalam** URDF (terdekat t2_a2_j6 2.509 / 2.60, t1_a1_j1 2.490 / 
 4. 🔴 Sebelum **eksekusi** apa pun berikutnya: rencana yang lolos saringan dapat memerintah sendi melewati batas
    vendor. Perbaikan (yaml ≤ URDF) = keputusan operator (§C).
 
+### B0c. Tahap 0 G28-ON (2026-09-28, sel NYATA, operator di lokasi)
+
+| Gerbang | Hasil |
+|---|---|
+| operator (ditanya ULANG) | LED 4/4 normal; origin g1 + g2 = home; sel/ruang kosong. G30 di-commit dulu (`3084a0b`, izin operator) |
+| `remount_check.py` + ICMP | **GERBANG LULUS**; .10–.13 ✅; nol stack sisa (hanya `ros2-daemon`); enp112s0 = 192.168.2.100 |
+| bring-up `use_fake_hardware:=false enable_gantry_bridge:=true use_sim_time:=false` | launch PID **1334927** (dicari ulang via pgrep sesudah controller naik, PPID 1), SigIgn `0x1001000` (SIGINT tidak diabaikan); **4×** "Actuator count … '6'"; **7/7** controller active; 7 spawner "process has died" + KDL "not a chain" `gantry_*_with_arm` = baseline; nol fault ([launch log](results/p1_g28/g28on_launch.log.gz)) |
+| `/joint_states` (40 pesan) | rel **0.000712 / 0.000681** → **R1 = 0.00 / 0.00** (kandidat (iv) **tidak** dibuat ulang); rot **0.000° / −0.290°** (= akhir G30, ≤ 0.5°) |
+| DRY ON ([log](results/p1_g28/v28_dry_on.log)) | KD1 ✅ KD2 ✅ (`f02e7c532cdb`) KD3 ✅; **K-RNEA off 200/200 bit-identik** |
+| disk | **2.1 GB** bebas di awal (prompt ~3; S27 ≥ 1.5 ✅) |
+
+**Nol gerak** lengan / rel / rotasi sepanjang sesi (plan-only).
+
+### B1. V28 — 61 tuple × 3 = **183 rencana** ([v28_screen.log](results/p1_g28/v28_screen.log), [v28_plans.jsonl.gz](results/p1_g28/v28_plans.jsonl.gz), [v28_score.log](results/p1_g28/v28_score.log), [json](results/p1_g28/v28_score.json))
+
+Wall sesi **1971 s (32.9 menit)**, Σ wall rencana 32.8 menit; rc 0; sampel lengkap 183/183.
+**K-RNEA on: 183/183 rencana ber-lintasan, maks `krnea_err` = 0** (bit-identik dengan puncak probe tersadap).
+Kelas LAIN: **0** (nol NO-PLAN / INTERARM / TUCK / UNSCREENED).
+
+| z | rencana | PLANNED | TORQUE-UNSAFE |
+|---|---|---|---|
+| 1.32 (oracle⁗ terima, 20 tuple) | 60 | **60** | 0 |
+| 1.40 (oracle⁗ tolak, 41 tuple) | 123 | 21 | **102** (0.829) |
+
+**A4 ketat:** tolak ⇒ UNSAFE **39/41** (salah: tuple **5**, **40** = SAFE 3/3, keduanya arm_1); terima ⇒ SAFE **20/20**.
+Presisi terima **1.000**; recall SAFE 20/22 = **0.909**; tolak-benar 39/41. Torsi-saja terima ⇒ 0/3 TORQUE 20/20.
+➜ **A4 tidak berlaku penuh** (2 tolak-palsu) — tetapi lihat batas URDF di bawah: keenam rencana tuple 5 dan 40 keluar batas vendor.
+
+**Posisi puncak RNEA j2:** z 1.32 — interior 22 / akhir 38, `RNEA2 − statis_akhir` median −0.032, maks +0.001 (puncak = titik akhir,
+= T3b G27); z 1.40 — **interior 123/123**, `k/(N−1)` median 0.70, `RNEA2 − statis_akhir` median **+1.228**, maks +2.156
+(= transit G27 B1, kini 123/123 di stack nyata). `RNEA2 − P2_own` TORQUE z 1.40: median −0.002, [−0.007, −0.001] — lintasan
+perencana = garis lurus ruang-sendi ke q_akhir-nya sendiri.
+
+**Pelanggaran batas URDF vendor (informatif, pasca-kunci B0b; lintasan titik mana pun):**
+
+| z / verdict | keluar URDF | sendi | per lengan |
+|---|---|---|---|
+| 1.32 PLANNED | **0 / 60** | — | — |
+| 1.40 PLANNED | **20 / 21** | j5 (arm_1, 16), j3 (arm_3, 4) | arm_1 16/16, arm_2 **0/1**, arm_3 4/4 |
+| 1.40 TORQUE-UNSAFE | 20 / 102 | j3 (arm_3 13, arm_4 7), ≤ 0.053 rad | — |
+
+Kelas PLANNED z = 1.40 per lengan (sendi yaml > URDF di kurung): **arm_1 (j2, j5) 16/30**, arm_2 (tidak ada) **1/30**,
+arm_3 (j2, j3) 4/39, arm_4 (j2, j3) 0/24. Kelas "aman" z = 1.40 **hampir seluruhnya = efek batas yaml yang lebih longgar**
+(B0b terkonfirmasi 20/21; kelebihan 0.006–0.073 rad).
+
+Tiga jenis rencana PLANNED z = 1.40:
+1. **j2-rendah lewat j5 > 2.53** (arm_1, 16): statis akhir 0.86–2.10, RNEA 2.23–2.81 — pola tuple dev (a).
+2. **j2-tinggi di bawah ambang** (arm_3: 18/s2, 30/s2, 31/s3): statis akhir **5.32–5.34**, RNEA **6.22–6.28** = 0.02–0.08 di
+   bawah 6.30 (prediksi **13.92–13.98 N·m / rating 14 = 99.4–99.9 %**); j3 keluar URDF. Ini yang menjatuhkan D144.
+3. 🟡 **j2-rendah DALAM URDF** (arm_2, tuple 4 sampel 1, rel 0.90): statis akhir **1.48**, RNEA 2.43, nol pelanggaran. Satu
+   rencana; sampel 2–3 tuple yang sama TORQUE. Membantah generalisasi B0b ("tidak ada cabang j2-rendah dalam URDF", n = 1 arm_1)
+   untuk arm_2 — cabang sah **ada** kadang-kadang; oracle⁗ (PATH ∀-solusi) menolaknya.
+
+**G27 B1 "rute terlipat aman ada (5/16)"**: di V28, 20/21 rencana aman z = 1.40 memerlukan batas yaml > URDF; 1/21 sah.
+Klaim itu **salah untuk 20/21**, benar untuk 1 (arm_2).
+
+### B2. Saringan (iv) — **14/14 seed LOLOS** ([g28_screen.log](results/p1_g28/g28_screen.log), [json](results/p1_g28/g28_screen.json))
+
+Seed 16 17 18 20 21 22 23 26 29 33 35 36 40 42 — **semuanya PLANNED/PLANNED/PLANNED**; **252/252** rencana tugas PLANNED, nol
+TORQUE / NO-PLAN / INTERARM / TUCK; rc 0; wall ≈ 110 menit (11:27–13:17). Traverse/retract: semua CLEAR, minimum terbaca
+antar-gantry **326.8 mm** (retract), traverse **386.0 mm**. Prediksi G27 A5 (seed tanpa z = 1.40 lolos) — **14/14**.
+Gabung G26: seed tanpa z = 1.40 lolos **17/17** (1, 2, 13 + 14).
+`g28_screen.json` tidak menyimpan lintasan → pelanggaran batas URDF di (iv) **tidak terukur** sesi ini (lihat §C).
+
+### B3. Papan skor D132–D143 — **12 / 12 tepat** (+ D144–D145 berbasis-dev terpisah: 1 / 2)
+
+| # | Dugaan | Hasil | |
+|---|---|---|---|
+| D132 | z 1.40 RNEA j2 > 6.30 ⇒ puncak interior ∧ statis akhir ≤ 5.83 | 102/102 | ✅ |
+| D133 | ≥ 38/41 tuple z 1.40 UNSAFE | 39/41 | ✅ |
+| D134 | laju TORQUE z 1.40 ∈ [0.55, 0.85] | 0.829 | ✅ |
+| D135 | 20/20 tuple z 1.32 0/3 TORQUE | 20/20 | ✅ |
+| D136 | ≥ 19/20 tuple z 1.32 SAFE | 20/20 | ✅ |
+| D137 | ≤ 10 % rencana z 1.40 RNEA j2 ∈ (4, 6) | 0/123 | ✅ |
+| D138 | ≥ 90 % TORQUE: statis@puncak ≥ RNEA − 0.659 | 102/102 | ✅ |
+| D139 | ≥ 95 % PLANNED z 1.32: RNEA2 − statis akhir ≤ 0.659 | 60/60 | ✅ |
+| D140 | ≥ 70 % TORQUE: RNEA2 − P2_own ∈ [−0.5, +0.7] | 102/102 (median −0.002) | ✅ |
+| D141 | (iv) ≥ 12/14 lolos | 14/14 | ✅ |
+| D142 | (iv) nol TORQUE | 0 | ✅ |
+| D143 | V28 ≤ 60 menit | sesi 32.9 / Σ rencana 32.8 menit | ✅ |
+| D144 (dev) | PLANNED z 1.40 statis akhir < 4.0 ∧ TORQUE ≥ 4.5 | 3 PLANNED arm_3 di 5.32–5.34 | ❌ |
+| D145 (dev) | ≥ 80 % \|RNEA2 − P2_own\| ≤ 0.30 | 183/183 | ✅ |
+
+D144 salah karena **ambang**, bukan karena cabang: cabang j2-tinggi tidak otomatis TORQUE — tiga rencana lolos dengan
+margin 0.02–0.08 N·m. Bagian "cabang j2-rendah ⇒ aman" benar 18/18.
+
 ### B5. Pertentangan §B lawan §A — bagian OFF
 
 | # | Pertentangan |
@@ -211,6 +297,18 @@ tiap lengan **di dalam** URDF (terdekat t2_a2_j6 2.509 / 2.60, t1_a1_j1 2.490 / 
 | (2) | D144–D145 ditulis sesudah melihat data smoke dev (tidak ada di A4) — dihitung terpisah dari tally utama, seperti D107 G25 |
 | (3) | Penyadap `_violates_tuck` diteruskan dengan `*args` (tanda tangan asli punya `tol_deg=10.0` opsional) — `_plan_and_screen` memanggilnya dengan 2 argumen; nilai balik identik |
 | (4) | `v28_score` mendapat laporan pelanggaran batas URDF **sesudah** §A dikunci (B0b) — informatif, di luar A2/A4 |
+
+**Bagian ON (2026-09-28):**
+
+| # | Pertentangan |
+|---|---|
+| (5) | Start V28 / (iv) = rotasi **0 / 0 ditempatkan** (A1), sel nyata g2 = −0.29° (sisa G30). Plan-only dengan start eksplisit → tidak memengaruhi perencanaan; dicatat |
+| (6) | G29 C-1 ditemukan **sesudah** §A: `CrossGantryChecker` (INTERARM + CLEAR traverse/retract) memakai hull palsu, jarak terbaca ≤ +78 mm terlalu jauh. Nol penolakan INTERARM di V28/(iv); minimum terbaca 326.8 mm − 78 = 248.8 ≫ margin 50 → **verdict tidak berubah** walau kasus terburuk. Tidak dipatch (operator G29/G30: laporkan saja) |
+| (7) | Prompt §D langkah 7 "Prompt G29" **basi**: G29 (offline) dan G30 (HW rotasi) dikerjakan **sebelum** G28-ON. Berikutnya = sesi yaml ≤ URDF (§F), lalu G31 ([g30 §D](p1_g30_rot_hw.md)); gerbang G1 G31 kini terjawab (G28-ON selesai) |
+| (8) | `v28_plans.jsonl` di-gzip (15.3 → 5.8 MB, prompt langkah 6); `v28_score.py` membaca berkas tak-terkompresi → reproduksi: `gunzip -k v28_plans.jsonl.gz` dulu |
+| (9) | Disk awal 2.1 GB (prompt ~3); cukup (S27 ≥ 1.5) |
+| (10) | D143 dinilai pada wall **sesi** (B5 (1)): 1971 s = 32.9 menit; Σ per rencana 32.8 — keduanya ≤ 60 |
+| (11) | "Kebenaran" A2 memakai verdict perencana dengan batas **yaml**; 2 tolak-palsu A4 (tuple 5, 40) = 6/6 rencana di luar batas vendor. Dengan yaml ≤ URDF keduanya **tidak lagi SAFE** (kelas baru tidak diukur: bisa UNSAFE atau LAIN) — informatif, A4 tetap dinilai apa adanya (39/41) |
 
 ---
 
@@ -231,6 +329,60 @@ tiap lengan **di dalam** URDF (terdekat t2_a2_j6 2.509 / 2.60, t1_a1_j1 2.490 / 
   batas URDF) = perkiraan rencana yang **akan hilang**; (2) sesi perbaikan yaml — saringan sebelum/sesudah pada
   set yang sama (V28 z = 1.32 + seed (iv) G28): laju PLANNED / NO-PLAN / waktu rencana, dilaporkan ke operator
   secara eksplisit walau kecil. Bukti sejauh ini: eksekusi G24b/G26 + C′ = 0 pelanggaran (B0b).
+
+### C-ON. Keadaan akhir bagian ON (2026-09-28, Rule 12)
+
+- **Nol gerak.** Stack nyata dimatikan: SIGINT ke launch 1334927 → keluar **12 s**; `ros2 node list --no-daemon` **0**; nol proses
+  ROS sisa. Crash dump `move_group` 13:18 (198 MB, milik sesi) **dihapus**; dump python 09-21 (`table_keyboard.py`, bukan milik
+  sesi) dibiarkan. Disk akhir **1.7 GB**.
+- **Keadaan sel:** tidak berubah dari akhir G30 (rel ≈ 0.7 mm, rot 0.00 / −0.29°, lengan REST/bring-up).
+- **Tidak diubah:** probe, `sched_screen`, `g22_plan`, oracle, peta, kandidat G26, `joint_limits.yaml`, `interarm_collision.py`,
+  §A. **Baru:** `v28_dry_on.log`, `v28_screen.log`, `v28_plans.jsonl.gz`, `v28_score.{log,json}`, `g28_screen.{log,json}`,
+  `g28on_launch.log.gz`.
+- **Tidak ada eksekusi jadwal** (operator tidak meminta; gerbang yaml ≤ URDF juga menutupnya).
+- **Tidak diukur:** pelanggaran batas URDF pada rencana (iv) (saringan tidak menyimpan lintasan); kelas V28 **sesudah** yaml ≤ URDF.
+
+📣 **LAPORAN KE OPERATOR (permintaan §C, ukuran (1)) — fraksi PLANNED yang keluar batas URDF = rencana yang akan hilang
+sesudah yaml ≤ URDF:**
+
+| z | PLANNED keluar URDF | Arti |
+|---|---|---|
+| **1.32** (dan lapis yang dipakai jadwal: oracle⁗ terima) | **0 / 60 (0 %)** | tidak ada rencana tugas yang akan hilang di set ini |
+| **1.40** (oracle⁗ sudah menolak semuanya) | **20 / 21 (95 %)** | "aman" z = 1.40 ≈ artefak batas yaml; hilang tidak mengubah jadwal (oracle⁗ tidak memakai z = 1.40) |
+
+Bukti tambahan: eksekusi G24b/G26 + C′ 0 pelanggaran (B0b). Ukuran (2) (sebelum/sesudah pada V28 z 1.32 + seed (iv)) = sesi §F.
+**Perkiraan:** yaml ≤ URDF **tidak** membuat gerak sering gagal di lapis z ≤ 1.32; yang hilang = rencana z = 1.40 yang memang ilegal.
+
+**Opsi untuk keputusan operator (bukan G29/G31):** D144 **salah** (ambang), tetapi rencana arm_2 tuple 4 menunjukkan cabang
+j2-rendah **sah** kadang ada di z = 1.40. "Oracle per-cabang + kendala cabang tujuan di perencana" dapat menyelamatkan sebagian
+z = 1.40 — hanya bila cabang sah itu ada (arm_2 1/30 rencana; arm_1 0 sah). Nilai kecil; tidak dikerjakan.
+
+## F. Prompt G28-YAML (salin ke chat BARU) — `joint_limits.yaml` ≤ URDF, PLAN-ONLY, stack NYATA atau mock
+
+**Rekomendasi: Opus, effort SEDANG** — perubahan kecil (6 angka yaml) dengan kebenaran dasar jelas (URDF vendor) dan
+saringan sebelum/sesudah yang sudah ada; naikkan ke TINGGI bila laju NO-PLAN z ≤ 1.32 naik > 5 % (butuh diagnosis).
+
+```
+Sesi G28-YAML -- joint_limits.yaml <= URDF vendor (gerbang G28 B0b/C sebelum eksekusi rencana lengan APA PUN).
+Repo ceiling_arm, branch feat/rgbd-topo-deploy. PLAN-ONLY.
+
+BACA PENUH: CLAUDE.md; docs/p1_g28_hw.md B0b, B1, C, C-ON, F; workcell_moveit_config/config/joint_limits.yaml;
+URDF vendor gen3_lite (batas posisi); docs/results/p1_g28/v28_screen.py, v28_score.py (bagian urdf_viol).
+
+GERBANG: tanya operator (a) stack NYATA atau mock (plan-only; mock cukup bila ros2_control tidak dipakai perencana),
+(b) izin ubah joint_limits.yaml (6 sendi B0b: t1_a1_j2/j5, t2_a1_j2/j3, t2_a2_j2/j3; periksa SEMUA 24 sendi lengan,
+bukan hanya 6), (c) batas = URDF persis atau URDF - margin (mis. 0.01 rad).
+1. INSTRUMEN: tabel 24 sendi URDF vs yaml vs mock ros2_control; kunci §A (dugaan D167+ prior tally: mekanisme terukur
+   tepat, kode sendiri meleset) SEBELUM ubah.
+2. SEBELUM (yaml lama, bila belum ada data di stack yang sama): V28 z 1.32 (20 tuple x 3) + (iv) seed G28 (14) -- laju
+   PLANNED / NO-PLAN / waktu rencana. Data G28-ON (stack nyata) boleh dipakai sebagai SEBELUM bila stack sama.
+3. Ubah yaml (izin b) -> rebuild (symlink) -> SESUDAH: set sama. Plus V28 z 1.40 (41 x 3) untuk kelas baru tuple 5/40.
+   Kontrol: v28_score urdf_viol HARUS 0 pada semua rencana SESUDAH.
+4. LAPORKAN KE OPERATOR (permintaan G28 C, ukuran (2)): laju PLANNED/NO-PLAN/waktu sebelum vs sesudah per z, walau kecil.
+5. p1_state + tally; berikutnya G31 (g30 §D; G1 terjawab).
+ATURAN: nol gerak; B menang atas A dan DITULIS; stack dimatikan bersih (PID launch ASLI via pgrep sesudah controller naik,
+SigIgn, node list --no-daemon 0, crash dump milikmu dihapus); disk ~1.7 GB -- gzip jsonl > 10 MB.
+```
 
 ## D. Prompt G28-ON (salin ke chat BARU saat operator di lokasi) — HW, PLAN-ONLY
 
