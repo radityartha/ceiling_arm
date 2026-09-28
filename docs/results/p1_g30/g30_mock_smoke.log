@@ -1,0 +1,41 @@
+### MOCK (use_fake_hardware, domain 77) -- BUKAN data
+## g1 -> 10.0
+S12: maks |q - REST| arm_1 0.000, arm_2 0.000, arm_3 0.000, arm_4 0.000 deg (batas 0.5 untuk gantry 1)
+S23': t1_rotation_joint +0.000 deg (batas 10.5), t2_rotation_joint +0.000 deg (batas 0.5); target +10.000
+S28: sapuan t1_rotation_joint +0.000 -> +10.000 deg (rel 0.0000 m, sisanya TERUKUR): CLEAR, min 380.0 mm ('t1_platform_link_0', 't2_platform_link_0') di +0.00 deg; lengan 493.1, SS 380.0, n 22
+t1_rotation_joint: +0.000 -> +10.000 deg (+10.000), T_cmd 3.00 s, T_rot model 1.26 s
+setpoint pertama 0.245 deg (arm_tol 1.0 deg)
+JTC error_code: 0
+akhir: t1_rotation_joint = +10.0000 deg (galat +0.0000); t_rot 2.91 s (T_cmd 3.00, T_rot 1.26); lengan (keempat) bergeser maks 0.0000 deg; rel sendiri 0.000 mm, rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 0.0 t2_a2_joint_6
+{"gantry": 1, "goal_deg": 10.0, "start_deg": 0.0, "end_deg": 10.0, "err_deg": 0.0, "T_cmd": 3.0, "T_rot_model": 1.26, "t_send": 1790558515.5726702, "t_jtc_done": 1790558518.624106, "t_first_move": 1790558515.6787999, "t_stop": 1790558518.5891287, "t_rot": 2.91, "arm_drift_deg": 0.0, "other_rot_drift_deg": 0.0, "rail_drift_mm": 0.0, "other_rail_drift_mm": 0.0, "arm_tau_peak": 0.0, "arm_tau_joint": "t2_a2_joint_6", "sweep_min_mm": 380.0, "sweep_arm_mm": 493.1, "sweep_pair": ["t1_platform_link_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 606}
+rc=0
+## g1 -> 0.0
+S12: maks |q - REST| arm_1 0.000, arm_2 0.000, arm_3 0.000, arm_4 0.000 deg (batas 0.5 untuk gantry 1)
+S23': t1_rotation_joint +10.000 deg (batas 10.5), t2_rotation_joint +0.000 deg (batas 0.5); target +0.000
+S28: sapuan t1_rotation_joint +10.000 -> +0.000 deg (rel 0.0000 m, sisanya TERUKUR): CLEAR, min 380.0 mm ('t1_platform_link_0', 't2_platform_link_0') di +10.00 deg; lengan 493.1, SS 380.0, n 22
+t1_rotation_joint: +10.000 -> +0.000 deg (-10.000), T_cmd 3.00 s, T_rot model 1.26 s
+setpoint pertama 0.245 deg (arm_tol 1.0 deg)
+JTC error_code: 0
+akhir: t1_rotation_joint = +0.0000 deg (galat +0.0000); t_rot 2.91 s (T_cmd 3.00, T_rot 1.26); lengan (keempat) bergeser maks 0.0000 deg; rel sendiri 0.000 mm, rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 0.0 t2_a2_joint_6
+{"gantry": 1, "goal_deg": 0.0, "start_deg": 10.0, "end_deg": 0.0, "err_deg": 0.0, "T_cmd": 3.0, "T_rot_model": 1.26, "t_send": 1790558525.7330017, "t_jtc_done": 1790558528.7842138, "t_first_move": 1790558525.8388388, "t_stop": 1790558528.7491624, "t_rot": 2.91, "arm_drift_deg": 0.0, "other_rot_drift_deg": 0.0, "rail_drift_mm": 0.0, "other_rail_drift_mm": 0.0, "arm_tau_peak": 0.0, "arm_tau_joint": "t2_a2_joint_6", "sweep_min_mm": 380.0, "sweep_arm_mm": 493.1, "sweep_pair": ["t1_platform_link_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 606}
+rc=0
+## g1 -> -10.0
+S12: maks |q - REST| arm_1 0.000, arm_2 0.000, arm_3 0.000, arm_4 0.000 deg (batas 0.5 untuk gantry 1)
+S23': t1_rotation_joint +0.000 deg (batas 10.5), t2_rotation_joint +0.000 deg (batas 0.5); target -10.000
+S28: sapuan t1_rotation_joint +0.000 -> -10.000 deg (rel 0.0000 m, sisanya TERUKUR): CLEAR, min 380.0 mm ('t1_platform_link_0', 't2_platform_link_0') di +0.00 deg; lengan 493.1, SS 380.0, n 22
+t1_rotation_joint: +0.000 -> -10.000 deg (-10.000), T_cmd 3.00 s, T_rot model 1.26 s
+setpoint pertama 0.245 deg (arm_tol 1.0 deg)
+JTC error_code: 0
+akhir: t1_rotation_joint = -10.0000 deg (galat +0.0000); t_rot 2.91 s (T_cmd 3.00, T_rot 1.26); lengan (keempat) bergeser maks 0.0000 deg; rel sendiri 0.000 mm, rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 0.0 t2_a2_joint_6
+{"gantry": 1, "goal_deg": -10.0, "start_deg": 0.0, "end_deg": -10.0, "err_deg": 0.0, "T_cmd": 3.0, "T_rot_model": 1.26, "t_send": 1790558535.8968635, "t_jtc_done": 1790558538.9481025, "t_first_move": 1790558535.998817, "t_stop": 1790558538.9088824, "t_rot": 2.91, "arm_drift_deg": 0.0, "other_rot_drift_deg": 0.0, "rail_drift_mm": 0.0, "other_rail_drift_mm": 0.0, "arm_tau_peak": 0.0, "arm_tau_joint": "t2_a2_joint_6", "sweep_min_mm": 380.0, "sweep_arm_mm": 493.1, "sweep_pair": ["t1_platform_link_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 606}
+rc=0
+## g1 -> 0.0
+S12: maks |q - REST| arm_1 0.000, arm_2 0.000, arm_3 0.000, arm_4 0.000 deg (batas 0.5 untuk gantry 1)
+S23': t1_rotation_joint -10.000 deg (batas 10.5), t2_rotation_joint +0.000 deg (batas 0.5); target +0.000
+S28: sapuan t1_rotation_joint -10.000 -> +0.000 deg (rel 0.0000 m, sisanya TERUKUR): CLEAR, min 380.0 mm ('t1_platform_link_0', 't2_platform_link_0') di -10.00 deg; lengan 493.1, SS 380.0, n 22
+t1_rotation_joint: -10.000 -> +0.000 deg (+10.000), T_cmd 3.00 s, T_rot model 1.26 s
+setpoint pertama 0.245 deg (arm_tol 1.0 deg)
+JTC error_code: 0
+akhir: t1_rotation_joint = +0.0000 deg (galat +0.0000); t_rot 2.91 s (T_cmd 3.00, T_rot 1.26); lengan (keempat) bergeser maks 0.0000 deg; rel sendiri 0.000 mm, rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 0.0 t2_a2_joint_6
+{"gantry": 1, "goal_deg": 0.0, "start_deg": -10.0, "end_deg": 0.0, "err_deg": 0.0, "T_cmd": 3.0, "T_rot_model": 1.26, "t_send": 1790558546.1642797, "t_jtc_done": 1790558549.2156644, "t_first_move": 1790558546.269182, "t_stop": 1790558549.1790738, "t_rot": 2.91, "arm_drift_deg": 0.0, "other_rot_drift_deg": 0.0, "rail_drift_mm": 0.0, "other_rail_drift_mm": 0.0, "arm_tau_peak": 0.0, "arm_tau_joint": "t2_a2_joint_6", "sweep_min_mm": 380.0, "sweep_arm_mm": 493.1, "sweep_pair": ["t1_platform_link_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 606}
+rc=0

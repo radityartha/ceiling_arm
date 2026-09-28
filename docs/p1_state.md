@@ -455,6 +455,15 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > tidak-layak rot 0 jadi layak (jalur tengah 43/51), z = 1.40 PATH 0; cakupan node ≈ 35 % → ≈ 71 % (ekstrapolasi,
 > tanpa tabrakan). (c) 10 °/s: REST 71–77 mm/s, tuple layak ≤ 110, teoretis 245 — keputusan operator. Berikutnya: G30 HW
 > ±10° REST, gerbang yaml ≤ URDF + G28-ON + keputusan C-1/C-2 ([g29 §D](p1_g29_rot.md)).
+>
+> 🟢 **Sesi G30 (2026-09-28, sel NYATA) — [p1_g30_rot_hw.md](p1_g30_rot_hw.md). Rotasi gantry pertama di jalur
+> ros2_control: ±10°, lengan REST, 8/8 kaki lulus.** Gerbang: G1 (yaml/G28-ON) **ditunda eksplisit** operator, G2 C-1/C-2
+> **tidak dipatch**, G3 10 °/s hanya REST, ±10° bebas henti/kabel. Alat baru `rot_to_g.py` (S12, S23′, S28 = `sweep_rot`
+> hull sejati dari keadaan terukur). Galat akhir **selalu kurang**, maks **0.29°** (debounce 0.3° + deadband 50 pulsa = 0.5°;
+> kirim pertama tiap kaki dilewati — tepat dari kode); t_rot 2.42–2.87 s = **≈ T_cmd** (lantai 3 s), **1.9–2.3× T_rot** motor;
+> drift lengan ≤ 0.10°, torsi ≤ 2.56 N·m, rel 0.000 mm. Arah = URDF (+z; CW dilihat dari bawah); tali-busur ujung gripper
+> ≈ 70 mm = 69.9 terhitung → **skala 100 pulsa/° benar fisik** (pertama kali diukur independen). Sel akhir: rot 0.00 / −0.29°.
+> Berikutnya: G31 patch C-1/C-2 + jadwal berrotasi plan-only ([g30 §D](p1_g30_rot_hw.md)).
 
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
@@ -748,6 +757,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
+| **`p1_g30_rot_hw.md`** | **Sesi G30 — rotasi HW ±10° lengan REST: gerbang (§A0), `rot_to_g` (§A1), 8/8 kaki (§B1), D157–D166 1/9 (§B3); prompt G31 (§D)** |
 | **`p1_g29_rot.md`** | **Sesi G29 — rotasi offline: hull palsu CrossGantryChecker (§B1), penyaring berrotasi (§B2), amplop REST (§B3), oracle‴ rot ≠ 0 (§B4), kecepatan ujung (§B5); prompt G30 HW (§D)** |
 | **`p1_g28_hw.md`** | **Sesi G28 — §A terkunci (V28 + (iv) plan-only), bagian OFF: alat + DRY + smoke mock dev (§B0); prompt G28-ON (§D)** |
 | **`p1_g27_z140_diag.md`** | **Sesi G27 — diagnosis z = 1.40: instrumen (§A0), hipotesis terkunci (§A), T0 11/11 transit bukan titik akhir (§B1), oracle⁗ ≡ tanpa z = 1.40 (§B2), P1″ LOSO (§B3); prompt G28 plan-only (§D)** |
@@ -833,7 +843,7 @@ menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawa
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
 
-**Tally G10–G29** (diperbarui 2026-09-24, G29; tiap baris dari §B dokumen
+**Tally G10–G30** (diperbarui 2026-09-28, G30; tiap baris dari §B dokumen
 sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 
 | sesi | ditambah (meleset / tepat) | papan skor |
@@ -858,7 +868,8 @@ sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 | G26 | 3 / 6 (D114–D122) | 59 / 61 |
 | G27 | 2 / 7 (D123–D131; D132 dinilai G28) | 61 / 68 |
 | G28 | — (D132–D145 dinilai G28-ON, belum jalan) | 61 / 68 |
-| **G29** | **5 / 6** (D146–D156) | **66 meleset / 74 tepat** |
+| G29 | 5 / 6 (D146–D156) | 66 / 74 |
+| **G30** | **1 / 9** (D157–D166) | **67 meleset / 83 tepat** |
 
 ➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
 atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
@@ -905,3 +916,8 @@ pada tuple sama, tilt_fail tidak terkonsentrasi, Δ_final naik dengan z) — pol
 transit z = 1.40, ekuivariansi yaw). Meleset: **kode sendiri** lagi (D152 crash kunci, D153 pembanding NaN) dan
 **besaran geometri** tanpa hitung (D148–D150); D149 ke arah "kendala lebih longgar". Temuan terbesar (hull palsu) tidak
 diduga siapa pun — ditemukan karena kontrol negatif arsip (N2) **gagal**, bukan karena lulus.
+
+➜ Yang G30 tambahkan: kesembilan yang tepat dari **jalur kode yang dibaca** (debounce/deadband bridge → galat selalu kurang dan
+kirim pertama dilewati; lantai `T_cmd` → waktu ≈ 3 s) atau **dihitung** (sapuan A0.2, r_h → tali-busur 70 mm). Satu-satunya
+meleset (D157) adalah prior "kode sendiri gagal jalan pertama": alat disalin dari pola yang sudah teruji di HW dan diuji
+sintetis + mock sebelum HW — prior itu tidak berlaku untuk kode **salinan teruji**.

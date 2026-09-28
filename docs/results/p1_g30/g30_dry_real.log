@@ -1,0 +1,16 @@
+## DRY g1 +10 10:28:37
+S12: maks |q - REST| arm_1 0.239, arm_2 0.335, arm_3 0.425, arm_4 0.555 deg (batas 0.5 untuk gantry 1)
+S23': t1_rotation_joint +0.000 deg (batas 10.5), t2_rotation_joint +0.020 deg (batas 0.5); target +10.000
+S28: sapuan t1_rotation_joint +0.000 -> +10.000 deg (rel 0.0007 m, sisanya TERUKUR): CLEAR, min 380.0 mm ('t1_platform_link_0', 't2_platform_link_0') di +0.00 deg; lengan 493.1, SS 380.0, n 22
+t1_rotation_joint: +0.000 -> +10.000 deg (+10.000), T_cmd 3.00 s, T_rot model 1.26 s
+setpoint pertama 0.245 deg (arm_tol 1.0 deg)
+DRY RUN: tidak ada yang dikirim.
+{"dry": true, "gantry": 1, "start_deg": 0.0, "goal_deg": 10.0, "sweep": "CLEAR", "sweep_min_mm": 380.0, "sweep_arm_mm": 493.1, "T_cmd": 3.0}
+rc=0
+## DRY g2 +10 10:28:43
+S12: maks |q - REST| arm_1 0.239, arm_2 0.336, arm_3 0.425, arm_4 0.556 deg (batas 0.5 untuk gantry 2)
+REFUSE: S12 -- lengan BELUM di REST, gantry tidak diputar
+rc=1
+S12: maks |q - REST| arm_1 0.239, arm_2 0.336, arm_3 0.038, arm_4 0.030 deg (batas 0.5 untuk gantry 2)
+S23': t2_rotation_joint +0.020 deg (batas 10.5), t1_rotation_joint +0.000 deg (batas 0.5); target +10.000
+S28: sapuan t2_rotation_joint +0.020 -> +10.000 deg (rel 0.0007 m, sisanya TERUKUR): CLEAR, min 380.0 mm ('t1_platform_link_0', 't2_platform_link_0') di +0.02 deg; lengan 493.1, SS 380.0, n 22
