@@ -491,6 +491,14 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > 🔴 Gerbang G32: `return_rest` held tanpa rotasi; `run_g22`/`rail_to_g` tolak rot ≠ 0; tak ada alat pose lin+rot; HW hanya ±10°.
 > Berikutnya: **G32** HW satu jadwal berotasi ([g31 §D](p1_g31_rot_sched.md)).
 
+> 🟢 **Sesi G32-OFF (2026-10-06, operator TIDAK di lokasi, nol gerak fisik) — [p1_g32_rot_exec.md](p1_g32_rot_exec.md).**
+> Gerbang: `return_rest` patch IZIN, **R10**, satu JTC lin+rot, **seed 36**. Jadwal ulang + pemutus seri rot 0 (ε di skrip):
+> g1 tanpa rotasi, g2 **(0.60, −10°)** → (1.45, 0), 311.478875 (K-S0 = G31). Patch `return_rest` (held += kedua rotasi, nama ketat):
+> rot 0/0 bit-identik, rot −10/−10 antar 514.8 → 583.8 mm, hilang/nama asing → TOLAK. Alat baru `pose_to_g` (K-P 7/7) + `run_g32`.
+> Mock: plan-only **LOLOS 3/3** (18 PLANNED), DRY 14 event, smoke `--move` 6/6 (bukan data). 🔶 Runner serial → P1′-serial R10
+> **530.39 vs R0 581.26 = −8.75 %**, di dalam bias model G26 → G32-HW perlu R0 sama-sesi. D189–D199 10/11.
+> Berikutnya: **G32-HW** ([g32 §D](p1_g32_rot_exec.md)).
+
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
 > 🔴 Perhatikan §0 di sana: **lengan sedang dilepas fisik**, jadi seluruh jalur
@@ -783,6 +791,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
+| **`p1_g32_rot_exec.md`** | **Sesi G32-OFF — jadwal seed 36 R10 + pemutus seri (§B1), patch `return_rest` (§B2), `pose_to_g`/`run_g32` (§B3–B4), plan-only/DRY/smoke mock (§B5), D189–D199 10/11 (§B6); prompt G32-HW (§D)** |
 | **`p1_g31_rot_sched.md`** | **Sesi G31 — patch C-1/C-2 + `rot_cmd` (§A1–A3, §B1), scheduler (lin, rot) 17 seed (§B2), plan-only mock 17/17 (§B3), D175–D188 10/14 (§B4), gerbang G32 (§C); prompt G32 (§D)** |
 | **`p1_g28_yaml.md`** | **Sesi G28-YAML — `joint_limits.yaml` = URDF: 24 sendi (§A1), sebelum/sesudah stack nyata (§B1), D167–D174 7/8 (§B2), laporan operator (§C); berikutnya G31 (§D)** |
 | **`p1_g30_rot_hw.md`** | **Sesi G30 — rotasi HW ±10° lengan REST: gerbang (§A0), `rot_to_g` (§A1), 8/8 kaki (§B1), D157–D166 1/9 (§B3); prompt G31 (§D)** |
@@ -871,7 +880,7 @@ menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawa
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
 
-**Tally G10–G31** (diperbarui 2026-10-06, G31; tiap baris dari §B dokumen
+**Tally G10–G32-OFF** (diperbarui 2026-10-06, G32-OFF; tiap baris dari §B dokumen
 sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 
 | sesi | ditambah (meleset / tepat) | papan skor |
@@ -899,7 +908,8 @@ sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 | G29 | 5 / 6 (D146–D156) | 66 / 86 |
 | G30 | 1 / 9 (D157–D166) | 67 / 95 |
 | G28-YAML | 1 / 7 (D167–D174) | 68 / 102 |
-| **G31** | **4 / 10** (D175–D188) | **72 meleset / 112 tepat** |
+| G31 | 4 / 10 (D175–D188) | 72 / 112 |
+| **G32-OFF** | **1 / 10** (D189–D199) | **73 meleset / 122 tepat** |
 
 ➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
 atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
@@ -964,3 +974,7 @@ cabang j2-rendah sah" untuk satu tuple dev dijadikan aturan umum; terukur 4/41 t
 ➜ Yang G31 tambahkan: kesepuluh yang tepat dari **kode/mekanisme yang dibaca atau diukur sebelumnya** (patch hull dan rotasi,
 hangat/segar 0.003 mm, amplop B3). Empat meleset: tiga **besaran perilaku baru tanpa hitung** (berapa sering rotasi menolong 10/17,
 R10 menangkap 97 %, iterasi oracle malas sampai 44) + satu **desain kontrol sendiri** (D178 mencampur hangat/segar).
+
+➜ Yang G32-OFF tambahkan: kesepuluh yang tepat lagi dari **mekanisme kode yang dibaca** (seri DP, `neutral`, `events`, rumus T_cmd).
+Satu meleset (D195): prior "kode sendiri gagal jalan pertama" dipakai untuk alat yang **disalin dekat dari dua alat teruji** — prior itu
+tidak berlaku untuk salinan; galat terjadi di harness uji yang ditulis dari nol.

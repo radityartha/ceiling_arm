@@ -1,0 +1,16 @@
+# 1791288703.5449 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_3 --target=0.7857,-0.4588,1.0000 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/g32_step_samples.csv
+1791288703.9901 probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 12.0 N.m
+1791288703.9902 sumber target: arm_3 (0.7857, -0.4588, 1.0), [] []
+1791288703.9902 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791288703.9902 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791288703.9902 
+1791288705.1024 [INFO] [1791288705.102354354] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=2.77->10.47/14, 3=1.36->7.96/10, 4=0.23->2.21/7, 5=0.08->2.06/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 80 %)
+1791288705.1081 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791288705.1081   self.geom = pin.buildGeomFromUrdf(
+1791288708.2688 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:189: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791288708.2688   self.geom = pin.buildGeomFromUrdf(
+1791288742.5841 [INFO] [1791288742.583653653] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 492.9 mm di titik 127 (t2_a1_gripper_base_link_0 <-> t2_a2_upper_wrist_link_0) -> CLEAR
+1791288755.3244        arm_3: moveit MOVED
+1791288757.0648   [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_3']) torsi puncak  0.00 N.m
+1791288757.0653   TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+1791288757.0655   -> /tmp/g20_step5.json

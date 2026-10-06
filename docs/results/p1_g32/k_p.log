@@ -1,0 +1,36 @@
+=== a   fake_js    pose_to_g --gantry 2 0.60 -10
+  S12: maks |q - REST| arm_1 0.000, arm_2 0.000, arm_3 0.000, arm_4 0.000 deg (batas 0.5 untuk gantry 2)
+  S23": t2_rotation_joint +0.000 deg (batas 10.5), t1_rotation_joint +0.000 deg (batas 10.5); target -10.000
+  S28: sapuan g2 (0.0000 m, +0.000 deg) -> (0.6000, -10.000), sisanya TERUKUR: CLEAR, min 380.0 mm ('t1_platform_link_0', 't2_platform_link_0') di (0.030, +0.00); lengan 446.1, SS 380.0, n 671
+  g2: lin 0.000000 -> 0.600000 m (+600.0 mm), rot +0.000 -> -10.000 deg (-10.000); T_cmd 33.33 s (lin 33.33, rot 3.00)
+  setpoint pertama 0.34 mm / 0.006 deg (arm_tol 5 mm / 1.0 deg)
+  DRY RUN: tidak ada yang dikirim.
+  {"dry": true, "gantry": 2, "start": [0.0, 0.0], "goal": [0.6, -10.0], "sweep": "CLEAR", "sweep_min_mm": 380.0, "sweep_arm_mm": 446.1, "T_cmd": 33.333, "T_cmd_lin": 33.333, "T_cmd_rot": 3.0}
+  rc=0
+=== b   fake_js --r1 0.9   pose_to_g --gantry 1 1.35 0
+  S12: maks |q - REST| arm_1 0.000, arm_2 0.000, arm_3 0.000, arm_4 0.000 deg (batas 0.5 untuk gantry 1)
+  S23": t1_rotation_joint +0.000 deg (batas 10.5), t2_rotation_joint +0.000 deg (batas 10.5); target +0.000
+  S28: sapuan g1 (0.9000 m, +0.000 deg) -> (1.3500, +0.000), sisanya TERUKUR: CLEAR, min 509.7 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0') di (0.900, +0.00); lengan 509.7, SS 584.0, n 47
+  g1: lin 0.900000 -> 1.350000 m (+450.0 mm), rot +0.000 -> +0.000 deg (+0.000); T_cmd 25.00 s (lin 25.00, rot 0.00)
+  setpoint pertama 0.44 mm / 0.000 deg (arm_tol 5 mm / 1.0 deg)
+  DRY RUN: tidak ada yang dikirim.
+  {"dry": true, "gantry": 1, "start": [0.9, 0.0], "goal": [1.35, 0.0], "sweep": "CLEAR", "sweep_min_mm": 509.7, "sweep_arm_mm": 509.7, "T_cmd": 25.0, "T_cmd_lin": 25.0, "T_cmd_rot": 0.0}
+  rc=0
+=== c   fake_js --off-deg 1.0 --arms arm_3   pose_to_g --gantry 2 0.60 -10
+  S12: maks |q - REST| arm_1 0.000, arm_2 0.000, arm_3 1.000, arm_4 0.000 deg (batas 0.5 untuk gantry 2)
+  REFUSE: S12 -- lengan BELUM di REST, gantry tidak digerakkan
+  rc=1
+=== d   fake_js    pose_to_g --gantry 2 0.50 0
+  REFUSE: S13" -- gantry 2 hanya [(0.0, 0.0), (0.6, -10.0), (1.45, 0.0)] (jadwal seed 36 R10), rel <= 1.6
+  rc=1
+=== e1   fake_js    pose_to_g --gantry 2 0.60 15
+  REFUSE: S13" -- gantry 2 hanya [(0.0, 0.0), (0.6, -10.0), (1.45, 0.0)] (jadwal seed 36 R10), rel <= 1.6
+  rc=1
+=== e2   fake_js --rot1 12   pose_to_g --gantry 2 0.60 -10
+  S12: maks |q - REST| arm_1 0.000, arm_2 0.000, arm_3 0.000, arm_4 0.000 deg (batas 0.5 untuk gantry 2)
+  S23": t2_rotation_joint +0.000 deg (batas 10.5), t1_rotation_joint +12.000 deg (batas 10.5); target -10.000
+  REFUSE: S23" -- rotasi terukur di luar R10
+  rc=1
+=== f   fake_js --drop t2_rotation_joint   pose_to_g --gantry 2 0.60 -10
+  REFUSE: /joint_states tidak lengkap, hilang ['t2_rotation_joint']
+  rc=1

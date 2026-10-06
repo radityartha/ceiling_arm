@@ -1,0 +1,13 @@
+seed 36 R0
+    iterasi 1: makespan 362.353, tuple rot!=0 terpakai belum terverifikasi 0
+  R0: makespan sejati 362.352875 (DP 362.352875000), iterasi 1, rot {'1': [0.0, 0.0], '2': [0.0, 0.0, 0.0]}, pindah {'1': 2, '2': 2}
+seed 36 R10_noeps
+    iterasi 1: makespan 311.479, tuple rot!=0 terpakai belum terverifikasi 0
+  R10_noeps: makespan sejati 311.478875 (DP 311.478875000), iterasi 1, rot {'1': [0.0, -10.0], '2': [-10.0, 0.0]}, pindah {'1': 2, '2': 2}
+seed 36 R10
+    iterasi 1: makespan 311.479, tuple rot!=0 terpakai belum terverifikasi 0
+  R10: makespan sejati 311.478875 (DP 311.478876000), iterasi 1, rot {'1': [0.0, 0.0], '2': [-10.0, 0.0]}, pindah {'1': 2, '2': 2}
+  selisih biaya bukan-nol terkecil 0.080024 s; ε total maks 3.30e-04 (ε·pindah berotasi terpakai 2.0e-06)
+K-S0 tanpa ε == G31 R10 (makespan 311.478875 + jadwal): True
+K-S1 |sejati ε − tanpa ε| = 0.000e+00 -> LULUS
+R0 362.352875 G31 R0 362.352875

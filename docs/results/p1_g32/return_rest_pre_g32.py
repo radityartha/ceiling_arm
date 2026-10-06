@@ -147,11 +147,8 @@ def main():
     node.watch = tuple(PREFIX[x] for x in a.arms)
     names = [f'{PREFIX[x]}joint_{i}' for x in a.arms for i in range(1, 7)]
     # The OTHER gantry, held still, for the cross-gantry screen (g20).
-    # docs/p1_g32_rot_exec.md A2: BOTH gantry rotations, always. Without them
-    # the cross screen started from URDF neutral and judged rot = 0 silently.
     held = [f'{PREFIX[x]}joint_{i}' for x in PREFIX if GANTRY[x] == og
-            for i in range(1, 7)] + [f't{og}_linear_joint',
-                                     't1_rotation_joint', 't2_rotation_joint']
+            for i in range(1, 7)] + [f't{og}_linear_joint']
     # A single-arm call holds its PARTNER still; before g20 the partner was
     # left at URDF neutral (all joints 0) in the screen instead of measured.
     partner = [f'{PREFIX[x]}joint_{i}' for x in PREFIX
@@ -186,22 +183,12 @@ def main():
         from interarm_collision import CrossGantryChecker, InterArmChecker
         res = []
         chk = InterArmChecker(gantry=f'gantry_{g}')
-        cross = CrossGantryChecker()
-        # Strict names: q_from drops a name its model does not know, without a word.
-        unknown = sorted({n for c, ns in ((chk, names + [rail] + partner),
-                                          (cross, names + [rail] + held))
-                          for n in ns if not c.model.existJointName(n)})
-        if unknown:
-            print(f'🔴 sendi tidak dikenal model penyaring {unknown} -- MENOLAK '
-                  'menyaring dengan nama yang akan dibuang diam-diam.')
-            node.destroy_node()
-            rclpy.shutdown()
-            return 1
         res.append(('se-gantry', chk.screen_trajectory(
             names, [p.positions for p in pts],
             {n: state[n] for n in [rail] + partner})))
         # g20: the other gantry's arms, HELD at their measured pose. Pairs
         # restricted to the arms of THIS gantry (only='t{g}_a').
+        cross = CrossGantryChecker()
         res.append(('antar-gantry', cross.screen_trajectory(
             names, [p.positions for p in pts],
             {n: state[n] for n in [rail] + held}, only=f't{g}_a')))
