@@ -473,6 +473,14 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > yaml; PLANNED z 1.32 **0/60** → yaml ≤ URDF diperkirakan **tidak** menghilangkan rencana jadwal (dilaporkan ke operator).
 > 🟡 1 rencana z 1.40 j2-rendah **sah** (arm_2 tuple 4). C-1 hull palsu tidak mengubah verdict (min 326.8 − 78 ≫ 50).
 > Berikutnya: **G28-YAML** (yaml ≤ URDF, ukuran sebelum/sesudah — [g28 §F](p1_g28_hw.md)), lalu G31.
+>
+> 🟢 **Sesi G28-YAML (2026-09-28, stack NYATA, PLAN-ONLY) — [p1_g28_yaml.md](p1_g28_yaml.md).** `joint_limits.yaml` 6 sendi
+> (t1_a1 j2/j5, t2_a1 j2/j3, t2_a2 j2/j3) → **URDF persis**; 24/24 sendi kini = URDF, KY1 runtime 6/6. **Gerbang yaml TERTUTUP.**
+> Sebelum → sesudah: z 1.32 PLANNED 60/60 → **60/60**, median 24.19 → 24.93 s; (iv) 14/14 → **14/14**, 252/252 PLANNED;
+> z 1.40 PLANNED 21 → 5 (yang hilang 20 = ilegal), NO-PLAN 0 → 0; pelanggaran URDF **0/183**. A4 tolak ⇒ UNSAFE **41/41**
+> (tuple 5, 40 kini 3/3 TORQUE). 🟡 Cabang j2-rendah sah z 1.40 ada di 4 tuple (arm_3 ×3, arm_1 ×1), tuple tetap UNSAFE.
+> 🔶 ros2_control Kortex j2 max **+2.36** < URDF 2.61 (0/183 menyentuh; keputusan operator). D134 G28 kini 0.959 (pita basi).
+> Berikutnya: **G31** ([g30 §D](p1_g30_rot_hw.md); G1 terjawab; dugaan mulai D175).
 
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
@@ -766,6 +774,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
+| **`p1_g28_yaml.md`** | **Sesi G28-YAML — `joint_limits.yaml` = URDF: 24 sendi (§A1), sebelum/sesudah stack nyata (§B1), D167–D174 7/8 (§B2), laporan operator (§C); berikutnya G31 (§D)** |
 | **`p1_g30_rot_hw.md`** | **Sesi G30 — rotasi HW ±10° lengan REST: gerbang (§A0), `rot_to_g` (§A1), 8/8 kaki (§B1), D157–D166 1/9 (§B3); prompt G31 (§D)** |
 | **`p1_g29_rot.md`** | **Sesi G29 — rotasi offline: hull palsu CrossGantryChecker (§B1), penyaring berrotasi (§B2), amplop REST (§B3), oracle‴ rot ≠ 0 (§B4), kecepatan ujung (§B5); prompt G30 HW (§D)** |
 | **`p1_g28_hw.md`** | **Sesi G28 — §A terkunci (V28 + (iv) plan-only), bagian OFF: alat + DRY + smoke mock dev (§B0); bagian ON 2026-09-28: V28 (§B1), (iv) 14/14 (§B2), D132–D143 12/12 (§B3), laporan batas URDF (§C-ON); prompt G28-YAML (§F)** |
@@ -852,7 +861,7 @@ menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawa
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
 
-**Tally G10–G30** (diperbarui 2026-09-28, G28-ON; tiap baris dari §B dokumen
+**Tally G10–G30** (diperbarui 2026-09-28, G28-YAML; tiap baris dari §B dokumen
 sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 
 | sesi | ditambah (meleset / tepat) | papan skor |
@@ -878,7 +887,8 @@ sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 | G27 | 2 / 7 (D123–D131; D132 dinilai G28) | 61 / 68 |
 | G28 | 0 / 12 (D132–D143, dinilai G28-ON 2026-09-28; D144–D145 berbasis-dev terpisah 1 / 1) | 61 / 80 |
 | G29 | 5 / 6 (D146–D156) | 66 / 86 |
-| **G30** | **1 / 9** (D157–D166) | **67 meleset / 95 tepat** |
+| G30 | 1 / 9 (D157–D166) | 67 / 95 |
+| **G28-YAML** | **1 / 7** (D167–D174) | **68 meleset / 102 tepat** |
 
 ➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
 atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
@@ -935,3 +945,7 @@ sintetis + mock sebelum HW — prior itu tidak berlaku untuk kode **salinan teru
 bimodal RNEA) — dikunci 5 hari sebelum data, di stack berbeda (nyata vs arsip). Satu-satunya yang salah (D144, dev, terpisah)
 = **ambang** dari n = 1 tuple per kelas: cabang j2-tinggi lolos 3× dengan margin 0.02–0.08 N·m. Yang tidak diduga siapa pun:
 kelas "aman" z = 1.40 = 20/21 artefak batas yaml (B0b hanya n = 1).
+
+➜ Yang G28-YAML tambahkan: ketujuh yang tepat dari **mekanisme terukur** (B0b, data G28-ON: batas tidak aktif di z 1.32,
+tuple 5/40 = j5 > 2.53). Satu-satunya meleset (D171, PLANNED z 1.40 ≤ 3) = **generalisasi dari n = 1** lagi: oracle‴ "tak ada
+cabang j2-rendah sah" untuk satu tuple dev dijadikan aturan umum; terukur 4/41 tuple punya cabang itu. Pola G28-ON berulang.

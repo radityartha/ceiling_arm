@@ -1,0 +1,35 @@
+tuple: 61; sampel tidak lengkap: tidak ada
+
+A4 (dikunci G27) -- ketat:
+  tolak => UNSAFE : 41/41 (100%)   (salah: [])
+  terima => SAFE  : 20/20 (100%)   (salah: [])
+  presisi terima = 1.000; recall (SAFE) = 1.000 (20/20 SAFE); laju tolak-benar = 41/41 (100%)
+  varian torsi-saja: terima => 0/3 TORQUE: 20/20 (100%)
+  A4 berlaku penuh: True
+
+verdict per z (per rencana):
+  z 1.32: {'PLANNED': 60}
+  z 1.40: {'TORQUE-UNSAFE': 118, 'PLANNED': 5}
+
+posisi puncak RNEA j2 per z (rencana ber-lintasan):
+  z 1.32: n 60 {'akhir': 33, 'interior': 27}; RNEA2 - statis_akhir median -0.029 maks +0.049; k/(N-1) median 1.00
+  z 1.40: n 123 {'interior': 123}; RNEA2 - statis_akhir median +1.542 maks +2.184; k/(N-1) median 0.70
+
+pelanggaran batas URDF (lintasan mana pun, informatif, pasca-kunci):
+  z 1.32 PLANNED: 0/60 []
+  z 1.40 PLANNED: 0/5 []
+  z 1.40 TORQUE-UNSAFE: 0/118 []
+
+papan skor:
+  D132: ✅  118/118 memenuhi; langgar []
+  D133: ✅  41/41 tuple z1.40 UNSAFE (>= 38)
+  D134: ❌  laju TORQUE z1.40 118/123 = 0.959 ([0.55, 0.85])
+  D135: ✅  20/20 tuple z1.32 0/3 TORQUE (20/20)
+  D136: ✅  20/20 tuple z1.32 SAFE (>= 19)
+  D137: ✅  0/123 rencana z1.40 dengan RNEA j2 di (4.0, 6.0) (<= 10 %)
+  D138: ✅  118/118 TORQUE z1.40: statis@puncak >= RNEA - 0.659 (>= 90 %)
+  D139: ✅  60/60 PLANNED z1.32: RNEA2 - statis_akhir <= 0.659 (>= 95 %)
+  D140: ✅  118/118 TORQUE z1.40: RNEA2 - P2_own di [-0.5, 0.7] (>= 70 %); median -0.002 min -0.007 maks -0.001
+  D143: ✅  Σ wall rencana 26.8 menit (<= 60; wall sesi ada di log)
+  D144 (dev): ✅  PLANNED z1.40 statis_akhir < 4.0 (5), TORQUE >= 4.5 (118); langgar []
+  D145 (dev): ✅  183/183 |RNEA2 - P2_own| <= 0.30 (>= 80 %)
