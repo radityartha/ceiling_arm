@@ -481,6 +481,15 @@ dan kendala **10 file konsumen** yang menuntut `gcs.py` API-kompatibel dengan `G
 > (tuple 5, 40 kini 3/3 TORQUE). 🟡 Cabang j2-rendah sah z 1.40 ada di 4 tuple (arm_3 ×3, arm_1 ×1), tuple tetap UNSAFE.
 > 🔶 ros2_control Kortex j2 max **+2.36** < URDF 2.61 (0/183 menyentuh; keputusan operator). D134 G28 kini 0.959 (pita basi).
 > Berikutnya: **G31** ([g30 §D](p1_g30_rot_hw.md); G1 terjawab; dugaan mulai D175).
+>
+> 🟢 **Sesi G31 (2026-10-06, OFFLINE + plan-only MOCK, nol gerak) — [p1_g31_rot_sched.md](p1_g31_rot_sched.md).** Patch:
+> **C-1** hull sejati di `CrossGantryChecker` (V28 183 lintasan: galat lama satu arah, maks +107.7 mm, verdict berubah 0);
+> **C-2** probe S18 meneruskan kedua rotasi, nama ketat (P3 rot +60°: CLEAR 169.7 → COLLIDE −34.4 mm); **`rot_cmd`** di
+> `sched.traverse_time` (default 0 bit-identik G25 90/90, G26 50/50; nilai 0.9235 = median G30; tanpa bungkus).
+> Scheduler (lin, rot), oracle‴ malas-eksak, 17 seed (iv): **R35 < R0 pada 10/17** (Σ −80.5 s; seed 36 −14 % = retract hilang),
+> **R10 menangkap 97 %**; plan-only mock R35 **17/17 LOLOS 3/3** (306 tugas, traverse berotasi min 304.1 mm). K-G3e: rot_cmd tak teruji.
+> 🔴 Gerbang G32: `return_rest` held tanpa rotasi; `run_g22`/`rail_to_g` tolak rot ≠ 0; tak ada alat pose lin+rot; HW hanya ±10°.
+> Berikutnya: **G32** HW satu jadwal berotasi ([g31 §D](p1_g31_rot_sched.md)).
 
 > ➜ Urutan kerja konkret + prompt sesi siap-pakai:
 > [p1_next_steps.md](p1_next_steps.md) §1 Jalur A dan §3.
@@ -774,6 +783,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
+| **`p1_g31_rot_sched.md`** | **Sesi G31 — patch C-1/C-2 + `rot_cmd` (§A1–A3, §B1), scheduler (lin, rot) 17 seed (§B2), plan-only mock 17/17 (§B3), D175–D188 10/14 (§B4), gerbang G32 (§C); prompt G32 (§D)** |
 | **`p1_g28_yaml.md`** | **Sesi G28-YAML — `joint_limits.yaml` = URDF: 24 sendi (§A1), sebelum/sesudah stack nyata (§B1), D167–D174 7/8 (§B2), laporan operator (§C); berikutnya G31 (§D)** |
 | **`p1_g30_rot_hw.md`** | **Sesi G30 — rotasi HW ±10° lengan REST: gerbang (§A0), `rot_to_g` (§A1), 8/8 kaki (§B1), D157–D166 1/9 (§B3); prompt G31 (§D)** |
 | **`p1_g29_rot.md`** | **Sesi G29 — rotasi offline: hull palsu CrossGantryChecker (§B1), penyaring berrotasi (§B2), amplop REST (§B3), oracle‴ rot ≠ 0 (§B4), kecepatan ujung (§B5); prompt G30 HW (§D)** |
@@ -861,7 +871,7 @@ menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawa
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
 
-**Tally G10–G30** (diperbarui 2026-09-28, G28-YAML; tiap baris dari §B dokumen
+**Tally G10–G31** (diperbarui 2026-10-06, G31; tiap baris dari §B dokumen
 sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 
 | sesi | ditambah (meleset / tepat) | papan skor |
@@ -888,7 +898,8 @@ sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 | G28 | 0 / 12 (D132–D143, dinilai G28-ON 2026-09-28; D144–D145 berbasis-dev terpisah 1 / 1) | 61 / 80 |
 | G29 | 5 / 6 (D146–D156) | 66 / 86 |
 | G30 | 1 / 9 (D157–D166) | 67 / 95 |
-| **G28-YAML** | **1 / 7** (D167–D174) | **68 meleset / 102 tepat** |
+| G28-YAML | 1 / 7 (D167–D174) | 68 / 102 |
+| **G31** | **4 / 10** (D175–D188) | **72 meleset / 112 tepat** |
 
 ➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
 atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
@@ -949,3 +960,7 @@ kelas "aman" z = 1.40 = 20/21 artefak batas yaml (B0b hanya n = 1).
 ➜ Yang G28-YAML tambahkan: ketujuh yang tepat dari **mekanisme terukur** (B0b, data G28-ON: batas tidak aktif di z 1.32,
 tuple 5/40 = j5 > 2.53). Satu-satunya meleset (D171, PLANNED z 1.40 ≤ 3) = **generalisasi dari n = 1** lagi: oracle‴ "tak ada
 cabang j2-rendah sah" untuk satu tuple dev dijadikan aturan umum; terukur 4/41 tuple punya cabang itu. Pola G28-ON berulang.
+
+➜ Yang G31 tambahkan: kesepuluh yang tepat dari **kode/mekanisme yang dibaca atau diukur sebelumnya** (patch hull dan rotasi,
+hangat/segar 0.003 mm, amplop B3). Empat meleset: tiga **besaran perilaku baru tanpa hitung** (berapa sering rotasi menolong 10/17,
+R10 menangkap 97 %, iterasi oracle malas sampai 44) + satu **desain kontrol sendiri** (D178 mencampur hangat/segar).

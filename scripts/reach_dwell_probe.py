@@ -557,6 +557,19 @@ def screen_interarm(traj, arm, node, other_arm, margin=INTERARM_MARGIN_M,
         want += [f'{JOINT_PREFIX[o]}joint_{i}' for i in range(1, 7)]
         if RAIL_JOINT[GANTRY_OF[o]] not in want:
             want.append(RAIL_JOINT[GANTRY_OF[o]])
+    # docs/p1_g31_rot_sched.md A2 (G29 C-2): BOTH gantry rotations, always.
+    # Without them q_from starts from neutral and S18 silently judged rot = 0.
+    want += ['t1_rotation_joint', 't2_rotation_joint']
+    # Strict names: q_from drops a name its model does not know, without a word.
+    used = ([node._interarm[g]] if same else []) + \
+        ([node._interarm['cross']] if cross else [])
+    unknown = sorted({n for n in want + list(traj.joint_trajectory.joint_names)
+                      for c in used if not c.model.existJointName(n)})
+    if unknown:
+        node.get_logger().error(
+            f'penyaring tabrakan: sendi tidak dikenal model {unknown} -- '
+            'MENOLAK menyaring dengan nama yang akan dibuang diam-diam.')
+        return None
     other = {n: other_joints[n] for n in want if n in other_joints} \
         if other_joints is not None else node.wait_joints(want)
     if len(other) < len(want):

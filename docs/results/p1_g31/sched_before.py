@@ -87,7 +87,7 @@ DWELL = 2.0                              # p1_state 5.8 / 8b, continuous hold
 GANTRY_ARMS = {1: ('arm1', 'arm2'), 2: ('arm3', 'arm4')}
 
 
-def traverse_time(dlin_m, drot_rad, t_fold=0.0, rail_cmd=0.0, rot_cmd=0.0):
+def traverse_time(dlin_m, drot_rad, t_fold=0.0, rail_cmd=0.0):
     """Scalar/array T_traverse for a linear and a rotational delta.
 
     The offset is charged only on an axis that actually moves: T(p, p) = 0.
@@ -97,36 +97,25 @@ def traverse_time(dlin_m, drot_rad, t_fold=0.0, rail_cmd=0.0, rot_cmd=0.0):
     rail_cmd > 0 replaces the linear axis by the MEASURED bridge behaviour
     (docs/p1_g25_task_cost.md A2): rail_cmd * T_cmd, T_cmd = max(3, pi*d /
     (2*0.9*v_lin)) -- the cosine setpoint of g19 rail_to / g22_plan.t_cmd.
-
-    rot_cmd > 0 does the same for the rotation axis (docs/p1_g31_rot_sched.md
-    A3, G30 rot_to_g): rot_cmd * max(3, pi*d / (2*0.9*v_rot)). d is |drot|
-    UNWRAPPED, because the bridge drives the encoder to an absolute target in
-    [-180, 180] and never goes the short way round (G29 C-4); rot_cmd = 0 keeps
-    the cyclic shortest rotation of the locked model.
     """
     dl = np.abs(np.asarray(dlin_m, float)) * 1000.0
     dr = np.degrees(np.abs(np.asarray(drot_rad, float)))
-    if not rot_cmd:
-        dr = np.minimum(dr, 360.0 - dr)              # rotation axis is cyclic
+    dr = np.minimum(dr, 360.0 - dr)                  # rotation axis is cyclic
     if rail_cmd:
         tl = np.where(dl > 1e-6, rail_cmd * np.maximum(
             3.0, np.pi * dl / (2 * 0.9 * V_LIN_MM_S)), 0.0)
     else:
         tl = np.where(dl > 1e-6, T_LIN_OFFSET + dl / V_LIN_MM_S, 0.0)
-    if rot_cmd:
-        tr = np.where(dr > 1e-6, rot_cmd * np.maximum(
-            3.0, np.pi * dr / (2 * 0.9 * V_ROT_DEG_S)), 0.0)
-    else:
-        tr = np.where(dr > 1e-6, T_ROT_OFFSET + dr / V_ROT_DEG_S, 0.0)
+    tr = np.where(dr > 1e-6, T_ROT_OFFSET + dr / V_ROT_DEG_S, 0.0)
     t = np.maximum(tl, tr)
     return np.where(t > 0, t + t_fold, 0.0) if t_fold else t
 
 
-def traverse_matrix(poses, t_fold=0.0, rail_cmd=0.0, rot_cmd=0.0):
+def traverse_matrix(poses, t_fold=0.0, rail_cmd=0.0):
     """(P, P) pairwise setup times for a pose set (P, 2) = (lin m, rot rad)."""
     lin, rot = poses[:, 0], poses[:, 1]
     return traverse_time(lin[:, None] - lin[None, :],
-                         rot[:, None] - rot[None, :], t_fold, rail_cmd, rot_cmd)
+                         rot[:, None] - rot[None, :], t_fold, rail_cmd)
 
 
 # ---------------------------------------------------------------------------
@@ -164,12 +153,11 @@ class Instance:
     serial_arms: bool = False         # stop = (#tasks) * dwell: one arm moves at a time
     t_fold_first: float = None        # first move off p0 with no task done there
     rail_cmd: float = 0.0             # > 0: linear axis = rail_cmd * T_cmd
-    rot_cmd: float = 0.0              # > 0: rotation axis = rot_cmd * T_cmd (G31)
 
     @property
     def default_costs(self):
         return (not self.serial_arms and self.t_fold_first is None
-                and not self.rail_cmd and not self.rot_cmd)
+                and not self.rail_cmd)
 
     @property
     def n(self):
@@ -329,10 +317,9 @@ def solve_gantry(inst, g):
     if p0 not in keep:
         keep = np.sort(np.append(keep, p0))
     r0 = int(np.searchsorted(keep, p0))
-    T = traverse_matrix(inst.poses[g][keep], inst.t_fold, inst.rail_cmd,
-                        inst.rot_cmd)
+    T = traverse_matrix(inst.poses[g][keep], inst.t_fold, inst.rail_cmd)
     T0 = None if inst.t_fold_first is None else traverse_matrix(
-        inst.poses[g][keep], inst.t_fold_first, inst.rail_cmd, inst.rot_cmd)[r0]
+        inst.poses[g][keep], inst.t_fold_first, inst.rail_cmd)[r0]
     dur = dur_full[:, keep]
     K = len(keep)
 

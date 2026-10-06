@@ -1,0 +1,45 @@
+### fake --off-deg 1.0 --arms arm_3 arm_4 --r1 0.000712 --r2 0.000681 --rot2 -0.29  | return_rest --arms arm_3 arm_4 (DRY)
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move (A6/S7).
+
+lengan: ['arm_3', 'arm_4']   galat terbesar dari rest: 1.00 deg
+rel t2_linear_joint = 0.000681 m
+penyaring se-gantry: CLEAR, minimum 615.2 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+penyaring antar-gantry: CLEAR, minimum 558.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a1_base_link_0)
+
+DRY RUN selesai: 60 titik, 30 s, 12 sendi. Tidak ada yang dikirim.
+rc=0
+Traceback (most recent call last):
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g31/fake_js.py", line 40, in <module>
+    rclpy.spin(n)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+    executor.spin_once()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 681, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException
+### fake --off-deg 1.0 --arms arm_1 arm_2 --r1 0.000712 --r2 0.000681  | return_rest --arms arm_3 arm_4 (DRY)
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move (A6/S7).
+
+lengan: ['arm_3', 'arm_4']   galat terbesar dari rest: 0.00 deg
+rel t2_linear_joint = 0.000681 m
+sudah di rest (< 0.5 deg) -- tidak ada yang perlu dikerjakan.
+rc=0
+Traceback (most recent call last):
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g31/fake_js.py", line 40, in <module>
+    rclpy.spin(n)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+    executor.spin_once()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 681, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException

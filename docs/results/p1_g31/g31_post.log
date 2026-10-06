@@ -1,0 +1,24 @@
+K-C1c 183 lintasan: lama − baru min -0.000 / median +1.415 / maks +107.650 mm; satu arah (≥ −0.01) 183/183; > 0.1 mm 115; verdict berubah 0 (PLANNED 0/81); min baru PLANNED 323.1 mm, semua 317.9
+K-C2n sesudah C-2 == resep pra-C-2 (rotasi tidak diteruskan), checker sama: 183/183
+K-C1a 2000 keadaan terpatch(hangat) − OldFresh: maks |Δ| 0.001375 mm, > 0.001 mm 6, verdict beda 0
+K-C1d RotCrossChecker (hull-dari-hull) − terpatch: maks |Δ| 0.001375 mm
+  K-C1b g24b_run.jso g1: arsip 507.6, terpatch 506.181, OldFresh 506.181, CLEAR/CLEAR
+  K-C1b g24b_run.jso g2: arsip 464.6, terpatch 455.212, OldFresh 455.212, CLEAR/CLEAR
+  K-C1b g26_s1_run.j g1: arsip 543.5, terpatch 514.691, OldFresh 514.691, CLEAR/CLEAR
+  K-C1b g26_s1_run.j g1: arsip 507.6, terpatch 506.228, OldFresh 506.228, CLEAR/CLEAR
+  K-C1b g26_s1_run.j g2: arsip 459.6, terpatch 452.490, OldFresh 452.490, CLEAR/CLEAR
+  K-C1b g26_s2_run.j g1: arsip 502.7, terpatch 498.957, OldFresh 498.957, CLEAR/CLEAR
+  K-C1b g26_s2_run.j g1: arsip 584.3, terpatch 584.326, OldFresh 584.326, CLEAR/CLEAR
+  K-C1b g26_s2_run.j g2: arsip 499.0, terpatch 498.963, OldFresh 498.963, CLEAR/CLEAR
+  K-C1b g26_s2_run.j g2: arsip 498.9, terpatch 498.875, OldFresh 498.875, CLEAR/CLEAR
+  K-C1b g26_s2_run.j g2: arsip 546.1, terpatch 514.760, OldFresh 514.760, CLEAR/CLEAR
+  K-C1b g26_s13_run. g1: arsip 502.8, terpatch 500.911, OldFresh 500.911, CLEAR/CLEAR
+  K-C1b g26_s13_run. g1: arsip 498.8, terpatch 498.803, OldFresh 498.803, CLEAR/CLEAR
+  K-C1b g26_s13_run. g2: arsip 498.9, terpatch 498.886, OldFresh 498.886, CLEAR/CLEAR
+  K-C1b g26_s13_run. g2: arsip 500.8, terpatch 500.822, OldFresh 500.822, CLEAR/CLEAR
+K-C2p sebelum: rot60 {'v': 'CLEAR', 'd_mm': 169.7046178042419, 'pair': ['t1_a1_right_finger_prox_link_0', 't2_platform_link_0'], 'k': 20}  tanpa-rot {'v': 'CLEAR', 'd_mm': 169.7046178042419}
+K-C2p sesudah: rot60 {'v': 'COLLIDE', 'd_mm': -34.367960383044085, 'pair': ['t1_a1_right_finger_dist_link_0', 't2_mount_plate_right_0'], 'k': 20}  tanpa-rot None ["penyaring tabrakan: hanya 21/22 sendi untuk lengan lain -- MENOLAK menyaring dengan keadaan yang tidak lengkap (hilang ['t2_rotation_joint'])."]
+
+real	22m41.759s
+user	299m39.783s
+sys	0m25.443s

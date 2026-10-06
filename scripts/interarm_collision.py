@@ -56,6 +56,22 @@ def _package_dirs():
             for p in os.environ.get('AMENT_PREFIX_PATH', '').split(':') if p]
 
 
+def true_hull(g):
+    """coal.Convex of the scipy ConvexHull of g's points (g = coal's qhull-less
+    pseudo-hull, which holds every mesh vertex). docs/p1_g29_rot.md B1."""
+    import coal
+    from scipy.spatial import ConvexHull
+    X = np.array([g.points(t) for t in range(g.num_points)])
+    H = ConvexHull(X)
+    idx = {v: i for i, v in enumerate(H.vertices)}
+    pts, tris = coal.StdVec_Vec3s(), coal.StdVec_Triangle()
+    for v in H.vertices:
+        pts.append(X[v])
+    for a, b, c in H.simplices:
+        tris.append(coal.Triangle(idx[a], idx[b], idx[c]))
+    return coal.Convex(pts, tris)
+
+
 class InterArmChecker:
     """Distance between the two arms of one gantry, at a full configuration."""
 
@@ -148,18 +164,23 @@ class CrossGantryChecker(InterArmChecker):
 
     CONVEX HULLS, not the shipped meshes, and that is measured rather than
     chosen: mesh distance cost 469 ms per waypoint for 121 pairs; the 676 pairs
-    here would cost ~2.6 s per waypoint, ~100 s per plan. Hulls cost 1.07 ms for
-    all 676. A hull CONTAINS its mesh, so in exact arithmetic the hull distance
-    is <= the mesh distance. MEASURED, it is not quite: GJK at default
-    tolerance read up to 0.4 mm ABOVE mesh at 13 / 59 / 143 mm gaps (and -15.0
-    vs 0.0 in contact). Tightening gjk_tolerance made it worse (+3.8 mm, GJK
-    stops unconverged on an upper bound), so default is kept. 0.4 mm against a
-    50 mm margin; stated, not assumed away (docs/p1_g20_hw.md B0).
+    here would cost ~2.6 s per waypoint, ~100 s per plan. A hull CONTAINS its
+    mesh, so the hull distance is <= the mesh distance.
+
+    TRUE hulls, built here (docs/p1_g29_rot.md B1, patched G31): coal on this
+    machine is built WITHOUT qhull, so buildConvexRepresentation alone keeps
+    every mesh vertex with the NON-convex mesh adjacency, GJK's hill-climbing
+    support stops at local maxima, and distances read up to +78 mm too FAR
+    (195.9 vs mesh 54.4 mm on one gripper pair; one real collision read CLEAR
+    in 105 test paths). true_hull() replaces each one by the scipy ConvexHull
+    of the same points: hull <= mesh on 2 436 / 2 436 pairs (max +0.001 mm).
+    The "0.4 mm above mesh" of g20 B0 was measured on the pseudo-hull.
 
     Structure-vs-structure pairs (platform, rotation link, mount plates of both
-    gantries) are dropped: the two rails are parallel in x at fixed y +-0.36,
-    so those can only translate past each other and sit at a constant 429 mm
-    that would otherwise be reported as "the minimum" on every waypoint.
+    gantries) are dropped: at rotation 0 / 0 the two rails are parallel in x at
+    fixed y +-0.36, so those only translate past each other (measured 380 mm,
+    platform-platform). At rotation != 0 they CAN collide -- use
+    docs/results/p1_g29/g29_rot_screen.RotCrossChecker, which adds them.
     """
 
     def __init__(self, urdf=LIVE_URDF, margin=DEFAULT_MARGIN_M):
@@ -171,7 +192,7 @@ class CrossGantryChecker(InterArmChecker):
         for g in self.geom.geometryObjects:
             if hasattr(g.geometry, 'buildConvexRepresentation'):
                 g.geometry.buildConvexRepresentation(False)
-                g.geometry = g.geometry.convex
+                g.geometry = true_hull(g.geometry.convex)
         names = [g.name for g in self.geom.geometryObjects]
         arm = tuple(ARM_PREFIX.values())
         ia = [i for i, n in enumerate(names) if n.startswith('t1_')]
