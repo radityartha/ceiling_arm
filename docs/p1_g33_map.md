@@ -242,6 +242,34 @@ menjelaskan pola G32-HW: R0 (rot 0) lolos tanpa kontak, R10 (−10°) menabrak. 
   menggabungkan — regresi pada `capture_a` **identik voxel-per-voxel** (71 763). **Bring-up HW nyata DITOLAK
   pengklasifikasi izin** (sama seperti G32 §B5(2)) → gerak gantry menunggu operator (§C).
 
+### B9. Tangkapan ke-2 di HW (izin operator: bring-up + gerak gantry)
+
+- Bring-up NYATA (launch 2043415, `enable_gantry_bridge:=true`): 4× Actuator '6', table1/table2 **ARMED** 0.8 / 0.4 mm,
+  7/7 controller active (galat spawner = balapan baseline), `env_static_map` di scene (publisher keep-alive), perekam
+  `g33hw_joint_states.csv.gz`. **Hanya gantry yang bergerak, lengan REST**, titik henti R0 seed 36:
+
+| gerak | S28 | lingkungan G33 | akhir | lengan maks | torsi |
+|---|---|---|---|---|---|
+| g1 0 → 0.90 | CLEAR 380 mm | CLEAR 96.5 mm | −0.20 mm, 48.4 s | 0.061° | 1.05 |
+| g2 0 → 1.45 | CLEAR 380 mm | CLEAR 69.5 mm | −0.42 mm, 78.7 s | 0.091° | 1.23 |
+| g2 1.45 → 0 | CLEAR | CLEAR 69.6 mm | +0.88 mm, 78.0 s | 0.114° | 1.20 |
+| g1 0.90 → 0 | CLEAR | CLEAR 96.6 mm | +0.20 mm, 48.5 s | 0.048° | 0.98 |
+
+- `capture_b.npz` di g1 0.8998 / g2 1.4496: rgbd 33 frame, rgbd2 34; `/joint_states` 32 sendi, rentang maks 0.00007 (diam).
+- 🔴 **Registrasi B ≠ A:** rgbd t (−0.105, +0.081, **+0.085**) yaw −0.96°; rgbd2 t (−0.091, +0.134, +0.038) yaw **−2.03°**
+  (A: tz ≈ 0.005, yaw −0.15/−0.27°); residual tetap 1.7 / 2.1 cm. ICP peta-A vs peta-B (masing-masing teregistrasi ke
+  robot di posisinya): **t (−0.022, −0.003, +0.057), rot 0.98°**, median sesudah 1.2 cm. → **galat model robot ↔ ruangan
+  BERGANTUNG posisi gantry** (rel tidak sejajar sumbu x URDF / tinggi rel tidak rata / skala encoder) — satu koreksi kaku
+  per peta tidak cukup untuk semua posisi.
+- Peta gabungan A+B (`env_map_ab.npz`, 122 351 voxel): +50 588 voxel, sebagian besar **permukaan ganda** bergeser; zona
+  buta bawah lengan home terisi 3 467 voxel (z 0.31–0.81). Kontrol: (P+) sama (COLLIDE −0.012, −2.0 s), tapi (N−) **R0
+  11/14** (ev01 traverse g1 MARGIN 0.039, ev04 0.047, ev13 0.026) dan R10 ev0–7 **6/8** — penolakan palsu baru dari
+  penebalan. **Keputusan: peta kanonik TETAP tangkapan A** (`env_static_map.npz` tidak diubah); B disimpan untuk G34
+  sesudah kinematika rel dikalibrasi.
+- Pulang: lengan ≤ 0.105° dari REST, g1 0.2 mm, g2 0.88 mm, rot 0/0. Kamera/perekam/publisher SIGINT (`depth_cloud` butuh
+  TERM ke anak); launch HW SIGINT → 6 s; `ros2 node list --no-daemon` **0**. Crash dump (`ros2_control_node` saat shutdown,
+  `move_group` mock 13:16, `ros2`) dihapus.
+
 ### B7. Papan skor D213–D218
 
 | # | Dugaan | Hasil |
@@ -266,7 +294,7 @@ bukan dari dugaan.
 
 ## C. Keadaan akhir (Rule 12)
 
-- **Nol aktuasi.** Lengan dan gantry tidak digerakkan (operator pergi); sel tetap: 4 lengan REST, rel 0.76/0.36 mm, rot 0/0.
+- **Lengan tidak pernah digerakkan.** Selama operator pergi nol aktuasi; sesudah izin hanya gantry (B9). Akhir: 4 lengan REST (≤ 0.105°), rel 0.2/0.88 mm, rot 0/0.
 - Kamera (domain 0): launch 2009454 SIGINT; `depth_cloud` mengabaikan SIGINT di wrapper → SIGINT anak 2009464 lalu TERM;
   `ros2 node list --no-daemon` **0**, nol proses realsense/static_tf sisa. Mock (domain 77): launch 2013363 SIGINT → keluar
   10 s; node list **0**. Crash dump sesi (`ros2` 12:03 = `topic hz` di-timeout, `move_group` 12:49 = crash shutdown 186 MB)
@@ -276,15 +304,9 @@ bukan dari dugaan.
   **belum diuji di bring-up**), `CLAUDE.md` (1 baris). **Baru:** `scripts/env_collision.py`, `scripts/env_static_map_pub.py`,
   `docs/results/p1_g33/` (tangkap, bangun peta, kontrol, rescreen, plan-only).
 - **Sistem:** MoveIt 2.5.9 → **2.5.10** (26 paket) + `moveit-ros-perception` 2.5.10 (izin sudo operator, B8). Klon dihapus.
-- **Tidak dikerjakan / belum bisa:** tangkapan ke-2 (bring-up HW ditolak pengklasifikasi — operator menyalakan stack, lalu
-  perintah di bawah); penerbit `collision_cloud` untuk octomap hidup di HW; penyebab akar offset kamera↔URDF; pose simpan
-  tinggi; HW ulang R10.
-- **Tangkapan ke-2 (operator, lengan tetap REST, semua titik = henti R0 seed 36 yang sudah dijalankan):**
-  `my_workcell.launch.py use_fake_hardware:=false enable_gantry_bridge:=true` → `realsense_dual.launch.py
-  with_color_cloud:=false` + `depth_cloud stride:=2 min_depth:=0.3 max_depth:=4.5` → `pose_to_g.py --gantry 1 --seed 36
-  --variant R0 0.90 0 --move` dan `--gantry 2 ... 1.45 0 --move` (S28 + penyaring lingkungan) → `capture_cloud.py --out
-  capture_b.npz --seconds 20 --joints` → `pose_to_g` keduanya ke `0 0` → `build_env_map.py --capture capture_a.npz
-  capture_b.npz --config ../p1_g32hw/g32hw_joint_states2.csv.gz capture --register --self-pad 0.20 --ray-pad 0.05`.
+- **Gerak (B9, izin operator):** hanya gantry, 4 traverse rc 0, lengan REST; sel dipulangkan (g1 0.2 mm, g2 0.88 mm, rot 0/0).
+- **Tidak dikerjakan:** kalibrasi kinematika rel (offset bergantung posisi gantry, B9) → peta gabungan belum dipakai;
+  penerbit `collision_cloud` untuk octomap hidup di HW; pose simpan tinggi; HW ulang R10.
 - ⚠ `env_collision.EnvChecker` dibangun ±8 s (hull 52 geometri) per proses; probe men-cache-nya per node.
 - Anggaran token Rule 6 (30k/sesi) **terlampaui** — sesi multi-langkah panjang; dilaporkan.
 
@@ -304,12 +326,12 @@ GERBANG (tanya operator SEBELUM apa pun):
  K0. Sel sama seperti akhir G33 (4 lengan REST, rel ~0/0, rot 0/0, rak tidak dipindah)? Benda lain berubah?
  K1. (G33 B8: MoveIt kini 2.5.10 + perception; octomap hidup terbukti di mock.) Nyalakan penerbit collision_cloud di HW
      sekarang, atau tetap peta beku saja di G34?
- K2. Izin gerak gantry untuk TANGKAPAN KE-2 (lengan REST, g1/g2 ke rel ~0.8, rot 0) -- mengisi daerah buta B3.
-1. Penyebab akar offset B2 (nol gerak): bandingkan t registrasi dengan URDF t*_base (y +-0.36, z 2.05) + memori kalibrasi
-   (pojok gantry-1 via t1_a1_tool_frame 07-25) + memori gantry-origin 09-21. Putuskan: perbaiki URDF / ekstrinsik, atau
-   tetap registrasi-per-peta (DITULIS). Registrasi dengan gantry di posisi lain = uji apakah offset konstan.
-2. Tangkapan ke-2 (bila K2): gantry di posisi lain, build_env_map --register dengan DUA tangkapan (dua konfigurasi:
-   perlu dukungan --config per tangkapan -- tulis); kontrol P+/N- ulang; laporkan daerah buta yang tersisa.
+ K2. Izin gerak gantry (lengan REST) untuk tangkapan kalibrasi rel di >= 4 posisi per gantry.
+1. KALIBRASI KINEMATIKA REL (G33 B9: offset kamera<->URDF BERUBAH dengan posisi gantry: A tz 0.005 yaw -0.2 deg, B tz
+   0.085 yaw -1/-2 deg; peta A vs B 0.98 deg / 5.7 cm). Tangkap lengan REST di >= 4 posisi per gantry (rel 0..1.45, rot 0),
+   registrasi per tangkapan -> modelkan arah/kemiringan rel (+ skala encoder) per gantry di URDF t*_base/t*_linear axis,
+   ATAU per-posisi koreksi; tujuan: satu peta yang konsisten (ICP A<->B < 2 cm / 0.3 deg). capture_b.npz sudah ada.
+2. Bangun peta gabungan sesudah 1; kontrol P+/N- ulang (G33: gabungan TANPA kalibrasi -> R0 11/14, penolakan palsu).
 3. Retract sadar-lingkungan: bila interpolasi lurus return_rest ditolak lingkungan, rencanakan pulang via MoveIt
    (env_static_map di scene) + semua penyaring (antar-lengan, torsi, lingkungan); plan-only R10 seed 36 harus 3/3.
 4. HW R10 seed 36 HANYA bila: (P+) lulus pada peta final, R10 plan-only 3/3, operator di e-stop. Bring-up nyata +
