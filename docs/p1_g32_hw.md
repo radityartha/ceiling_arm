@@ -224,23 +224,24 @@ scripts/reach_dwell_probe.py (_plan_and_screen); log docs/results/p1_g32hw/g32hw
 
 GERBANG (tanya operator SEBELUM apa pun):
  K0. Sel dipulangkan di akhir G32-HW (C1: 4 lengan REST, rel 0/0, rot 0/0). Ada yang berubah sejak itu?
- K1. Geometri rak (dan benda tetap lain di sel): posisi x/y/z + ukuran terhadap world (rel 0, y gantry). Diukur pita atau dari kamera?
- K2. Jalur: (a) objek kolisi statis dari ukuran (cepat, pasti) dan/atau (b) octomap dari 2x D455 (umum, butuh kamera + fix plugin).
-     Usul: (a) dulu sebagai penyaring wajib, (b) menyusul.
+ K1. Kedua D455 terhubung + rak dan benda tetap lain di sel TERLIHAT kamera (tidak tertutup)? Ruang kosong dari orang saat tangkap?
+ K2. (opsional) ukuran pita rak -- HANYA pembanding untuk peta kamera, bukan penyaring.
+KEPUTUSAN OPERATOR (2026-10-07): JALUR KAMERA = jalur utama dan permanen (octomap/peta dari 2x D455); objek kolisi dari ukuran
+pita TIDAK dibangun sebagai penyaring. Urutan: perbaiki plugin octomap -> node kamera di bring-up -> peta statis beku -> octomap hidup.
 FAKTA (operator 2026-10-07): 2x D455 TETAP di pojok atas sel; world->camera sudah dikalibrasi (memori rgbd-extrinsic-calibration,
 <5 cm antar-kamera) dan dicek di RViz -> TF kamera statis; hanya TF ROBOT yang perlu sinkron waktu.
 SELF-FILTER (kamera melihat lengan/gantry sendiri) -- rencana yang disetujui untuk dikunci di §A:
  - Peta STATIS dulu: tangkap sekali, keempat lengan REST, gantry home, robot DIAM; buang titik di dalam mesh link robot
    (4 lengan, 4 gripper, 2 platform) pada TF di cap waktu awan, padding >= 5 cm (= ketidakpastian antar-kamera); bekukan
    sisanya jadi objek kolisi statis (rak dll). Lengan tidak ada di peta beku -> tidak bisa "menabrak bayangan sendiri".
-   Daerah tertutup lengan: tangkapan ke-2 dengan gantry di posisi lain, atau tambal dari ukuran pita (K1).
+   Daerah tertutup lengan: tangkapan ke-2 dengan gantry di posisi lain (bukan tambal manual); daerah buta kamera DILAPORKAN.
  - Nama/TF ketat: link hilang/basi -> TOLAK awan (memori gng-collision: self-filter no-op diam saat TF hilang); jangan filter
    lengan yang dicopot (memori G6: lubang di lengan hantu).
  - ⚠ Kotak platform_link URDF (0.35x0.34 m) != pelat carriage nyata (memori kalibrasi) -> sisa pelat bisa jadi "penghalang";
    periksa sisa titik dekat platform, perbesar bentuk/padding platform bila perlu (DITULIS).
  - Kontrol self-filter: (N) titik peta dalam 5 cm dari mesh robot = 0, di REST dan >= 2 pose tugas, dan MoveIt tanpa
    "start state in collision"; (P) filter MATI -> titik lengan MUNCUL (bukti filter benar-benar membuang).
- - Octomap hidup (benda berpindah) = sesudah plugin diperbaiki; bukan syarat G34.
+ - Octomap hidup (benda berpindah) dari kamera yang sama = tahap berikut sesudah peta statis lulus kontrol; arah jangka panjang.
 POSE SIMPAN (operator 2026-10-07): REST menggantung lengan sampai z ~0.96 m -> ruang rumah yang sempit terasa penuh dan risiko
 tabrakan dengan PENGHUNI/benda besar. Operator ingin pose default lengan TINGGI. Angka URDF (frame, arm_3; permukaan mesh ~5 cm lebih rendah):
    REST      terendah z 0.956  jorok horiz 0.094 m  tau_g j2 0.10
