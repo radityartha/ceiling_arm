@@ -205,9 +205,15 @@ def main():
         res.append(('antar-gantry', cross.screen_trajectory(
             names, [p.positions for p in pts],
             {n: state[n] for n in [rail] + held}, only=f't{g}_a')))
+        # G33: vs the frozen camera map, everything else HELD as measured
+        # (state covers all 28 CONFIG_JOINTS). Missing map -> raises -> REFUSE.
+        from env_collision import EnvChecker
+        res.append(('lingkungan', EnvChecker().screen_trajectory(
+            names, [p.positions for p in pts], state)))
         for label, (v, d, pair, k) in res:
+            what = pair if isinstance(pair, str) else f'{pair[0]} <-> {pair[1]}'
             print(f'penyaring {label}: {v}, minimum {d * 1000:.1f} mm '
-                  f'di titik {k}/{len(pts)} ({pair[0]} <-> {pair[1]})')
+                  f'di titik {k}/{len(pts)} ({what})')
         v = 'CLEAR' if all(r[1][0] == 'CLEAR' for r in res) else 'NOT-CLEAR'
         if v != 'CLEAR':
             print('🔴 jalur PEMULIHAN sendiri bertabrakan -- MENOLAK. '
@@ -215,8 +221,9 @@ def main():
             node.destroy_node()
             rclpy.shutdown()
             return 1
-    except ImportError:
-        print('🔴 penyaring antar-lengan tidak dapat dimuat -- MENOLAK (S9).')
+    except (ImportError, FileNotFoundError, KeyError, ValueError) as e:
+        print(f'🔴 penyaring antar-lengan/lingkungan tidak dapat dimuat ({e}) '
+              '-- MENOLAK (S9/G33).')
         node.destroy_node()
         rclpy.shutdown()
         return 1

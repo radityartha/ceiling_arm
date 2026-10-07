@@ -117,6 +117,23 @@ print(f"S28: sapuan g{G} ({sl:.4f} m, {s_deg:+.3f} deg) -> ({GL:.4f}, {GR_DEG:+.
 if sw['verdict'] != 'CLEAR':
     print('REFUSE: S28 -- sapuan (lin, rot) tidak bebas (margin 50 mm)')
     sys.exit(1)
+# G33 (docs/p1_g33_map.md): the same (lin, rot) sweep against the frozen camera
+# map. S28 is robot-vs-robot only; G32-HW hit a rack. Missing map -> REFUSE.
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    try:
+        sys.path.insert(0, os.path.join(HERE, '..', '..', '..', 'scripts'))
+        from env_collision import EnvChecker
+        ev, ed, eg, ek = EnvChecker().screen_trajectory(
+            [f't{G}_linear_joint', f't{G}_rotation_joint'],
+            R.rect_points((sl, sr), (GL, GR)), state)
+    except Exception as e:                                   # noqa: BLE001
+        print(f'REFUSE: G33 -- penyaring lingkungan tidak bisa jalan ({e!r})')
+        sys.exit(1)
+print(f'G33: sapuan g{G} vs peta lingkungan: {ev}, min {ed * 1000:.1f} mm ({eg}) di titik {ek}')
+if ev != 'CLEAR':
+    print('REFUSE: G33 -- sapuan (lin, rot) terlalu dekat lingkungan (margin 50 mm)')
+    sys.exit(1)
 DL, DR = abs(GL - sl), abs(GR_DEG - s_deg)
 T_LIN = P.t_cmd(DL) if DL > 1e-6 else 0.0
 T_ROT = max(3.0, math.pi * DR / (2 * 0.9 * V_ROT)) if DR > 1e-6 else 0.0

@@ -1,0 +1,35 @@
+/home/user1/Documents/ceiling_arm/docs/results/p1_g33/../../../scripts/env_collision.py:67: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+(P+) ev8 task: d_min +0.017 t2_a1_right_finger_dist_link_0 @ +0.19s -> MARGIN; at contact +0.018 t2_a1_right_finger_dist_link_0; first reject -0.7081000804901123
+(R0) ev00 retract   d_min +0.133 t1_a2_right_finger_dist_link_0   CLEAR
+(R0) ev01 traverse  d_min +0.027 t1_a2_right_finger_dist_link_0   MARGIN
+(R0) ev02 task      d_min +0.072 t1_a1_right_finger_dist_link_0   CLEAR
+(R0) ev03 retract   d_min +0.071 t1_a1_right_finger_dist_link_0   CLEAR
+(R0) ev04 traverse  d_min +0.072 t1_a1_right_finger_dist_link_0   CLEAR
+(R0) ev05 task      d_min +0.135 t2_a1_lower_wrist_link_0         CLEAR
+(R0) ev06 task      d_min +0.071 t2_a1_forearm_link_0             CLEAR
+(R0) ev07 retract   d_min +0.071 t2_a1_forearm_link_0             CLEAR
+(R0) ev08 traverse  d_min +0.071 t2_a2_right_finger_prox_link_0   CLEAR
+(R0) ev09 task      d_min +0.082 t2_a2_right_finger_prox_link_0   CLEAR
+(R0) ev10 retract   d_min +0.082 t2_a2_right_finger_prox_link_0   CLEAR
+(R0) ev11 traverse  d_min -0.024 t2_a2_gripper_base_link_0        COLLIDE
+(R0) ev12 task      d_min +0.150 t2_a2_right_finger_prox_link_0   CLEAR
+(R0) ev13 task      d_min +0.103 t2_a2_right_finger_prox_link_0   CLEAR
+(R10) ev00 retract   d_min +0.134 t1_a1_right_finger_dist_link_0   CLEAR
+(R10) ev01 traverse  d_min +0.028 t1_a2_right_finger_dist_link_0   MARGIN
+(R10) ev02 task      d_min +0.071 t1_a1_right_finger_dist_link_0   CLEAR
+(R10) ev03 retract   d_min +0.071 t1_a1_right_finger_dist_link_0   CLEAR
+(R10) ev04 traverse  d_min +0.072 t1_a1_right_finger_dist_link_0   CLEAR
+(R10) ev05 task      d_min +0.135 t2_a1_lower_wrist_link_0         CLEAR
+(R10) ev06 retract   d_min +0.135 t2_a1_lower_wrist_link_0         CLEAR
+(R10) ev07 traverse  d_min +0.057 t2_a1_left_finger_prox_link_0    CLEAR
+Traceback (most recent call last):
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g33/g33_controls.py", line 117, in <module>
+    main()
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g33/g33_controls.py", line 106, in main
+    vv, d, g, k = ec.screen_trajectory(r['traj']['joint_names'], r['traj']['pos'],
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g33/../../../scripts/env_collision.py", line 193, in screen_trajectory
+    d, g = self.check(self.q_from(j), only)
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g33/../../../scripts/env_collision.py", line 178, in check
+    d = coal.distance(g.geometry, coal.Transform3s(M.rotation, M.translation),
+KeyboardInterrupt

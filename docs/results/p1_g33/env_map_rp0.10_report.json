@@ -1,0 +1,102 @@
+{
+ "captures": [
+  "capture_a.npz"
+ ],
+ "config": {
+  "t1_a1_joint_1": -0.463173,
+  "t1_a1_joint_2": 0.107106,
+  "t1_a1_joint_3": 0.129001,
+  "t1_a1_joint_4": -1.386305,
+  "t1_a1_joint_5": -0.175761,
+  "t1_a1_joint_6": 1.73883,
+  "t1_a2_joint_1": -0.463396,
+  "t1_a2_joint_2": 0.107065,
+  "t1_a2_joint_3": 0.128881,
+  "t1_a2_joint_4": -1.386246,
+  "t1_a2_joint_5": -0.176128,
+  "t1_a2_joint_6": 1.739026,
+  "t1_linear_joint": 0.000764,
+  "t1_rotation_joint": 0.0,
+  "t2_a1_joint_1": -0.463382,
+  "t2_a1_joint_2": 0.107008,
+  "t2_a1_joint_3": 0.128845,
+  "t2_a1_joint_4": -1.386286,
+  "t2_a1_joint_5": -0.176586,
+  "t2_a1_joint_6": 1.739332,
+  "t2_a2_joint_1": -0.463557,
+  "t2_a2_joint_2": 0.107106,
+  "t2_a2_joint_3": 0.12892,
+  "t2_a2_joint_4": -1.388221,
+  "t2_a2_joint_5": -0.176649,
+  "t2_a2_joint_6": 1.739111,
+  "t2_linear_joint": 0.000356,
+  "t2_rotation_joint": 0.0
+ },
+ "pad": 0.05,
+ "self_pad": 0.15,
+ "ray_pad": 0.1,
+ "res": 0.02,
+ "crop": {
+  "x": [
+   -1.2,
+   3.0
+  ],
+  "y": [
+   -2.0,
+   2.0
+  ],
+  "z": [
+   0.3,
+   2.0
+  ]
+ },
+ "min_frames": 2,
+ "nb": [
+  0.05,
+  3
+ ],
+ "capture_a.npz:rgbd_cells_1cm": 607803,
+ "capture_a.npz:rgbd_cells_in_crop": 250174,
+ "capture_a.npz:rgbd2_cells_1cm": 541175,
+ "capture_a.npz:rgbd2_cells_in_crop": 217873,
+ "voxels_2cm": 99145,
+ "drop_frames_lt2": 17119,
+ "drop_isolated": 92,
+ "config_t": 1791340806.4845,
+ "P_filter_off_removed": {
+  "t1_a2": 735,
+  "t1_a1": 1045,
+  "t2_a2": 494,
+  "t2_mount_plate_right": 14,
+  "t2_a1": 905
+ },
+ "self_filter_removed": 3193,
+ "shell_struct_pad_to_0.25": 0,
+ "shell_struct_pts": [],
+ "shell_arm_pad_to_0.25": 335,
+ "ray_shadow_votes": [
+  9001,
+  9040
+ ],
+ "ray_shadow_removed": 17425,
+ "corridor_removed": 1,
+ "final_voxels": 61315,
+ "final_seen_by": {
+  "rgbd_only": 29901,
+  "rgbd2_only": 29727,
+  "both": 1687
+ },
+ "bbox": [
+  [
+   -1.19,
+   -1.69,
+   0.31
+  ],
+  [
+   2.99,
+   1.49,
+   1.95
+  ]
+ ],
+ "seconds": 16.7
+}

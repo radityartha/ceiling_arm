@@ -791,6 +791,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
+| **`p1_g33_map.md`** | **Sesi G33 — plugin octomap: perception tak terpasang → dipasang + MoveIt 2.5.10 (§A0.1, §B8); peta beku 2× D455 71 763 voxel (§B0–B3), 🔴 dunia kamera ↔ URDF ~0.1 m → registrasi ke robot (§B2); (P+) lintasan nyata ev 8 COLLIDE, ditolak 2.0 s sebelum kontak (§B4); penyaring lingkungan di probe/return_rest/pose_to_g/g31_screen (§B5); plan-only R0 3/3, R10 ditolak di retract g2 (§B6); rencana lama 27/726 ditolak, semua gantry 2; D213–D218 3/3 (§B7); prompt G34 (§D)** |
 | **`p1_g32_hw.md`** | **Sesi G32-HW — kaki uji lin+rot 2/2 (§B1), R0 seed 36 6/6 647.47 s = 1.114× (§B2), 🔴 R10 ev 8 arm_3 MENABRAK RAK di g2 −10° (§B3), D200–D212 9/3 (§B4), sel TIDAK dipulangkan (§C); prompt G33 peta 3D (§D)** |
 | **`p1_g32_rot_exec.md`** | **Sesi G32-OFF — jadwal seed 36 R10 + pemutus seri (§B1), patch `return_rest` (§B2), `pose_to_g`/`run_g32` (§B3–B4), plan-only/DRY/smoke mock (§B5), D189–D199 10/11 (§B6); prompt G32-HW (§D)** |
 | **`p1_g31_rot_sched.md`** | **Sesi G31 — patch C-1/C-2 + `rot_cmd` (§A1–A3, §B1), scheduler (lin, rot) 17 seed (§B2), plan-only mock 17/17 (§B3), D175–D188 10/14 (§B4), gerbang G32 (§C); prompt G32 (§D)** |
@@ -881,7 +882,7 @@ menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawa
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
 
-**Tally G10–G32-HW** (diperbarui 2026-10-07, G32-HW; tiap baris dari §B dokumen
+**Tally G10–G33** (diperbarui 2026-10-07, G33; tiap baris dari §B dokumen
 sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 
 | sesi | ditambah (meleset / tepat) | papan skor |
@@ -911,7 +912,8 @@ sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 | G28-YAML | 1 / 7 (D167–D174) | 68 / 102 |
 | G31 | 4 / 10 (D175–D188) | 72 / 112 |
 | G32-OFF | 1 / 10 (D189–D199) | 73 / 122 |
-| **G32-HW** | **3 / 9** (D200–D212; D211 tidak dinilai, D210/D212 sebagian) | **76 meleset / 131 tepat** |
+| G32-HW | 3 / 9 (D200–D212; D211 tidak dinilai, D210/D212 sebagian) | 76 / 131 |
+| **G33** | **3 / 3** (D213–D218) | **79 meleset / 134 tepat** |
 
 ➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
 atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
@@ -985,3 +987,8 @@ tidak berlaku untuk salinan; galat terjadi di harness uji yang ditulis dari nol.
 t ≈ 0.96·T_cmd, bias R0 1.114). Tiga meleset: pemicu kirim yang **tidak dibaca** (target ARMED → 1 lewati), drift lengan kaki 1
 0.29° (prior arsip, bukan hitung), dan 🔴 **D209: tabrakan lengan-vs-RAK** — bukan galat besaran: tidak ada dugaan, penyaring, atau
 model yang mengandung lingkungan. Semua "LOLOS/CLEAR" G22–G32 = robot-vs-robot + torsi saja.
+
+➜ Yang G33 tambahkan: ketiga yang tepat = **apa yang terlihat** (rak terlihat, 4/4 lengan terlihat, ev 8 ditolak). Ketiga yang
+meleset = **seberapa bersih dunia nyata**: R0 nyata ternyata nyaris menabrak rak (D215), tak ada sisa pelat (D217), rencana
+lama yang ditolak lebih sedikit dari dugaan tapi terkonsentrasi di gantry 2 (D218). Temuan terbesar — dunia kamera vs URDF
+bergeser ~0.1 m — **tidak diduga sama sekali**; ia muncul dari residual self-filter, bukan dari dugaan.

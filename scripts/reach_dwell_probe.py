@@ -590,6 +590,59 @@ def screen_interarm(traj, arm, node, other_arm, margin=INTERARM_MARGIN_M,
     return min(res, key=lambda r: r[1])
 
 
+def screen_env(traj, node, start_joints=None):
+    """G33: the plan against the frozen camera map (scripts/env_collision.py),
+    with every other joint HELD at its measured value (or `start_joints`).
+
+    Until G33 nothing here saw the environment and G32-HW R10 ev 8 drove arm_3
+    into a rack after passing every screen (docs/p1_g32_hw.md B3). Also asks
+    move_group whether `env_static_map` is really in its planning scene: a plan
+    made without it was planned blind, whatever this screen says afterwards.
+
+    Returns None when the screen cannot run -- the caller must REFUSE."""
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from env_collision import CONFIG_JOINTS, EnvChecker
+        from env_static_map_pub import OBJECT_ID
+        if not hasattr(node, '_env'):
+            node._env = EnvChecker()
+    except Exception as e:                                    # noqa: BLE001
+        node.get_logger().error(f'penyaring lingkungan tidak bisa dimuat: {e}')
+        return None
+    from moveit_msgs.msg import PlanningSceneComponents
+    from moveit_msgs.srv import GetPlanningScene
+    if not hasattr(node, '_gps'):
+        node._gps = node.create_client(GetPlanningScene, '/get_planning_scene')
+    if not node._gps.wait_for_service(timeout_sec=5.0):
+        node.get_logger().error('/get_planning_scene tidak ada')
+        return None
+    rq = GetPlanningScene.Request()
+    rq.components.components = PlanningSceneComponents.WORLD_OBJECT_NAMES
+    f = node._gps.call_async(rq)
+    rclpy.spin_until_future_complete(node, f, timeout_sec=10.0)
+    ids = [o.id for o in f.result().scene.world.collision_objects] \
+        if f.result() is not None else []
+    if OBJECT_ID not in ids:
+        node.get_logger().error(
+            f'{OBJECT_ID} TIDAK ada di planning scene ({ids}) -- MoveIt merencana '
+            'buta lingkungan. Jalankan scripts/env_static_map_pub.py.')
+        return None
+    base = node.wait_joints(CONFIG_JOINTS)
+    if start_joints:
+        base.update({k: v for k, v in start_joints.items() if k in CONFIG_JOINTS})
+    if len(base) < len(CONFIG_JOINTS):
+        node.get_logger().error(
+            f'penyaring lingkungan: hilang {sorted(set(CONFIG_JOINTS) - set(base))}')
+        return None
+    jt = traj.joint_trajectory
+    try:
+        return node._env.screen_trajectory(
+            list(jt.joint_names), [list(p.positions) for p in jt.points], base)
+    except KeyError as e:
+        node.get_logger().error(f'penyaring lingkungan: {e}')
+        return None
+
+
 def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
             vel_scale=0.15, plan_time=15.0, plan_only=False, tau_max=None,
             other_arm=None, attempts=1):
@@ -781,6 +834,24 @@ def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
                 'MoveIt menilai rencana ini SAH karena pasangan itu dimatikan '
                 'di SRDF.')
             return 'INTERARM-COLLIDE', None
+
+    # G33: arm vs ENVIRONMENT (frozen camera map). Always, not only with
+    # other_arm: a single arm hit the rack in G32-HW.
+    se = screen_env(traj, node, start_joints)
+    if se is None:
+        node.get_logger().error(
+            'TIDAK BISA menyaring tabrakan lingkungan -- MENOLAK bergerak.')
+        return 'ENV-UNSCREENED', None
+    verdict, dist, geom, k = se
+    node.get_logger().info(
+        f'jarak ke peta lingkungan minimum: {dist * 1000:.1f} mm di titik {k} '
+        f'({geom}) -> {verdict}')
+    if verdict != 'CLEAR':
+        node.get_logger().error(
+            f'TABRAKAN LINGKUNGAN: rencana DITOLAK SEBELUM GERAK -- '
+            f'{dist * 1000:.1f} mm di titik {k} ({geom}), di bawah margin '
+            f'{node._env.margin * 1000:.0f} mm.')
+        return 'ENV-COLLIDE', None
 
     return 'PLANNED', traj
 

@@ -5,32 +5,14 @@ octomap_resolution: 0.02 # 2 cm voxels: finer, follows the sensed shape more
 max_range: 5.0
 
 sensors:
-  - default_sensor
-  - kinect_depthimage
+  # default_sensor / kinect_depthimage (MoveIt Setup Assistant sample, topic
+  # /head_mount_kinect/... -- not in this cell) removed G33 2026-10-07.
+  # NOTE: these load only with ros-humble-moveit-ros-perception (installed
+  # 2026-10-07 with MoveIt 2.5.10, docs/p1_g33_map.md B8). On HW nothing
+  # publishes collision_cloud yet; the environment is in the planning scene as
+  # the frozen camera map `env_static_map` (scripts/env_static_map_pub.py).
   - rgbd_scene
   - rgbd2_scene
-default_sensor:
-  far_clipping_plane_distance: 5.0
-  filtered_cloud_topic: filtered_cloud
-  image_topic: /head_mount_kinect/depth_registered/image_raw
-  max_update_rate: 1.0
-  near_clipping_plane_distance: 0.3
-  padding_offset: 0.03
-  padding_scale: 4.0
-  queue_size: 5
-  sensor_plugin: occupancy_map_monitor/DepthImageOctomapUpdater
-  shadow_threshold: 0.2
-kinect_depthimage:
-  far_clipping_plane_distance: 5.0
-  filtered_cloud_topic: filtered_cloud
-  image_topic: /head_mount_kinect/depth_registered/image_raw
-  max_update_rate: 1.0
-  near_clipping_plane_distance: 0.3
-  padding_offset: 0.03
-  padding_scale: 4.0
-  queue_size: 5
-  sensor_plugin: occupancy_map_monitor/DepthImageOctomapUpdater
-  shadow_threshold: 0.2
 # --- ISAAC RGBD CAMERAS (sim / GNG workflow) ---
 # collision_cloud publishes the FULL depth reading (whole scene: work table,
 # fixtures and objects) per camera in the optical frame; these updaters voxelize

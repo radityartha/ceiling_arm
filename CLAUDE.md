@@ -95,7 +95,7 @@ ros2 launch workcell_moveit_config my_workcell.launch.py use_sim_time:=false
 Key config files:
 - `moveit_controllers.yaml` — FollowJointTrajectory (tables + arms) + GripperCommand
 - `kinematics.yaml` — KDL per group
-- `sensors_3d.yaml` — octomap from the two RGBD collision clouds (`/rgbd/collision_cloud`, `/rgbd2/collision_cloud`)
+- `sensors_3d.yaml` — octomap from the two RGBD collision clouds (`/rgbd/collision_cloud`, `/rgbd2/collision_cloud`). Updaters load since 2026-10-07 (MoveIt upgraded 2.5.9 → 2.5.10 + `moveit-ros-perception`), but nothing publishes `collision_cloud` in the HW bring-up yet. Environment collision on HW = frozen D455 map `env_static_map` (`scripts/env_static_map_pub.py` + `scripts/env_collision.py`, [docs/p1_g33_map.md](docs/p1_g33_map.md))
 - `joint_limits.yaml`, `pilz_cartesian_limits.yaml` — safety limits
 - `initial_positions.yaml` — home joints
 

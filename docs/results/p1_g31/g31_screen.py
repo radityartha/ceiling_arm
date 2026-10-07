@@ -50,6 +50,18 @@ def events(sched_g, p0):
     return ev
 
 
+_ENV = []
+
+
+def env_checker():
+    """G33: frozen camera map (scripts/env_collision.py). Missing map RAISES."""
+    if not _ENV:
+        sys.path.insert(0, os.path.join(HERE, '..', '..', '..', 'scripts'))
+        from env_collision import EnvChecker
+        _ENV.append(EnvChecker())
+    return _ENV[0]
+
+
 def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen, log, save):
     p0 = {g: rec['p0'][str(g)] for g in (1, 2)}
     placed = {'t1_linear_joint': p0[1], 't2_linear_joint': p0[2],
@@ -70,9 +82,10 @@ def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen
             held = {x: v for x, v in placed.items() if x not in names}
             r1 = chk_same[g].screen_trajectory(names, pts, held)
             r2 = chk_cross.screen_trajectory(names, pts, held, only=f't{g}_a')
-            v = 'CLEAR' if r1[0] == r2[0] == 'CLEAR' else f'{r1[0]}/{r2[0]}'
+            r3 = env_checker().screen_trajectory(names, pts, placed)
+            v = 'CLEAR' if r1[0] == r2[0] == r3[0] == 'CLEAR' else f'{r1[0]}/{r2[0]}/{r3[0]}'
             log(f'    [{k}] retract g{g} @rot {math.degrees(placed[f"t{g}_rotation_joint"]):+.0f}: se-gantry '
-                f'{r1[1]*1000:.1f} / antar {r2[1]*1000:.1f} mm -> {v}')
+                f'{r1[1]*1000:.1f} / antar {r2[1]*1000:.1f} / lingkungan {r3[1]*1000:.1f} mm -> {v}')
             if v != 'CLEAR':
                 return f'retract g{g}:{v}'
             placed.update(dict(zip(names, goal)))
@@ -85,6 +98,11 @@ def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen
                 f'(lengan {sw["d_arm"]*1000:.1f}, SS {sw["d_ss"]*1000:.1f}, n {sw["n"]}) {sw["pair"]}')
             if sw['verdict'] != 'CLEAR':
                 return f'traverse g{g}:{sw["verdict"]}'
+            ev_ = env_checker().screen_trajectory([f't{g}_linear_joint', f't{g}_rotation_joint'],
+                                                  R.rect_points(ev['frm'], ev['to']), placed)
+            log(f'    [{k}] traverse g{g} vs lingkungan: {ev_[0]} min {ev_[1]*1000:.1f} mm ({ev_[2]})')
+            if ev_[0] != 'CLEAR':
+                return f'traverse g{g}:ENV-{ev_[0]}'
             placed[f't{g}_linear_joint'], placed[f't{g}_rotation_joint'] = ev['to']
         else:
             arm = ev['arm']
