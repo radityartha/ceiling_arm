@@ -360,7 +360,7 @@ melewatkan tabrakan adalah galat yang tidak terlihat sampai lengan menabrak.
 
 ```
 Sesi G35 -- OFFLINE (nol gerak): overhead penyaring lingkungan mendominasi makespan HW; ukur, percepat TANPA mengubah verdict.
-Repo ceiling_arm, branch feat/rgbd-topo-deploy. BACA PENUH: CLAUDE.md; docs/p1_g34_rail_calib.md (B7, B8, C2);
+Repo ceiling_arm, branch feat/rgbd-deploy (dulu feat/rgbd-topo-deploy). BACA PENUH: CLAUDE.md; docs/p1_g34_rail_calib.md (B7, B8, C2);
 scripts/env_collision.py (EnvChecker.screen_trajectory, self_filter); docs/results/p1_g32/pose_to_g.py (sapuan); scripts/
 reach_dwell_probe.py (screen_env); scripts/return_rest.py (main: muat penyaring).
 FAKTA G34b: HW seed 36 R0 6/6 783.33 s (1.348x P1'-serial), R10 6/6 849.29 s (1.601x); ev 8 (tabrakan rak G32) SUCCESS
