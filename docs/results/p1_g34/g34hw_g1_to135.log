@@ -1,0 +1,9 @@
+S12: maks |q - REST| arm_1 0.084, arm_2 0.050, arm_3 0.051, arm_4 0.108 deg (batas 0.5 untuk gantry 1)
+S23": t1_rotation_joint +0.000 deg (batas 10.5), t2_rotation_joint +0.000 deg (batas 10.5); target +0.000
+S28: sapuan g1 (0.8995 m, +0.000 deg) -> (1.3500, +0.000), sisanya TERUKUR: CLEAR, min 509.8 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0') di (0.899, +0.00); lengan 509.8, SS 583.3, n 47
+G33: sapuan g1 vs peta lingkungan: CLEAR, min 90.7 mm (t1_a1_right_finger_dist_link_0) di titik 5
+g1: lin 0.899469 -> 1.350000 m (+450.5 mm), rot +0.000 -> +0.000 deg (+0.000); T_cmd 25.03 s (lin 25.03, rot 0.00)
+setpoint pertama 0.44 mm / 0.000 deg (arm_tol 5 mm / 1.0 deg)
+JTC error_code: 0
+akhir: g1 = (1.349440 m, +0.0000 deg), galat -0.56 mm / +0.0000 deg; t_traverse 23.792 s (lin 23.792, rot None; T_cmd 25.03); lengan (keempat) bergeser maks 0.0456 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 0.99 t1_a2_joint_3
+{"gantry": 1, "goal": [1.35, 0.0], "start": [0.899469, 0.0], "end": [1.34944, 0.0], "err_mm": -0.56, "err_deg": 0.0, "T_cmd": 25.029, "T_cmd_lin": 25.029, "T_cmd_rot": 0.0, "t_send": 1791349421.8541386, "t_jtc_done": 1791349446.9079978, "t_first_move": 1791349422.890123, "t_stop": 1791349446.681719, "t_traverse": 23.792, "t_lin": 23.792, "t_rot": null, "arm_drift_deg": 0.0456, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 0.99, "arm_tau_joint": "t1_a2_joint_3", "sweep_min_mm": 509.8, "sweep_arm_mm": 509.8, "sweep_pair": ["t1_a2_right_finger_prox_link_0", "t2_a1_right_finger_prox_link_0"], "jtc_error_code": "0", "n_log": 3067}

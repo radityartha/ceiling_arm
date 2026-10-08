@@ -71,24 +71,34 @@ def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen
     for k, ev in enumerate(events(rec[var]['schedule'], p0)):
         g = ev['gantry']
         if ev['kind'] == 'retract':
-            names = [f'{P.PREFIX[a]}joint_{i}' for a in P.ARMS[g] for i in range(1, 7)]
-            start = [placed[x] for x in names]
-            goal = P.REST * 2
-            if max(abs(s - q) for s, q in zip(start, goal)) < REST_TOL:
-                log(f'    [{k}] retract g{g}: sudah REST -> dilewati')
-                continue
-            pts = [[s + (q - s) * 0.5 * (1 - math.cos(math.pi * j / 60))
-                    for s, q in zip(start, goal)] for j in range(1, 61)]
-            held = {x: v for x, v in placed.items() if x not in names}
-            r1 = chk_same[g].screen_trajectory(names, pts, held)
-            r2 = chk_cross.screen_trajectory(names, pts, held, only=f't{g}_a')
-            r3 = env_checker().screen_trajectory(names, pts, placed)
-            v = 'CLEAR' if r1[0] == r2[0] == r3[0] == 'CLEAR' else f'{r1[0]}/{r2[0]}/{r3[0]}'
-            log(f'    [{k}] retract g{g} @rot {math.degrees(placed[f"t{g}_rotation_joint"]):+.0f}: se-gantry '
-                f'{r1[1]*1000:.1f} / antar {r2[1]*1000:.1f} / lingkungan {r3[1]*1000:.1f} mm -> {v}')
+            # G34: return_rest.plan_retract -- the SAME logic the HW tool runs:
+            # straight both-arm line, else arm by arm with a MoveIt plan home
+            # (every screen) when the straight line is refused (G33 B6).
+            from return_rest import plan_retract
+            others = lambda arm: [x for x in P.PREFIX if x != arm]  # noqa: E731
+
+            def plan_fn(arm, goal, at, _first):
+                return _plan_and_screen(arm, goal, node, 0.002, 2.0, 0.15, 15.0, TAU_MAX,
+                                        others(arm), start_joints=dict(at))
+            lines = []
+            v, segs = plan_retract(g, P.ARMS[g], placed, chk_same[g], chk_cross, env_checker(),
+                                   plan_fn, log=lines.append)
+            for s_ in lines:
+                log(f'    [{k}] {s_}')
+            log(f'    [{k}] retract g{g} @rot {math.degrees(placed[f"t{g}_rotation_joint"]):+.0f}: {v}'
+                + (f' ({"+".join(x[0] for x in segs)})' if segs else ''))
             if v != 'CLEAR':
                 return f'retract g{g}:{v}'
-            placed.update(dict(zip(names, goal)))
+            for kind, arm, nm, pos, traj in segs:
+                if traj is not None:
+                    jt = traj.joint_trajectory
+                    save(dict(k=k, task=None, arm=arm, kind='retract-moveit', verdict='PLANNED',
+                              start=dict(placed),
+                              traj=dict(joint_names=list(jt.joint_names),
+                                        t=[q.time_from_start.sec + q.time_from_start.nanosec * 1e-9
+                                           for q in jt.points],
+                                        pos=[list(q.positions) for q in jt.points])))
+                placed.update(zip(nm, pos[-1]))
         elif ev['kind'] == 'traverse':
             dev = max(abs(placed[f'{P.PREFIX[a]}joint_{i}'] - P.REST[i - 1]) for a in P.ARMS[g] for i in range(1, 7))
             assert dev < REST_TOL, f'traverse g{g} dengan lengan TIDAK REST ({math.degrees(dev):.2f} deg)'

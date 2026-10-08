@@ -39,8 +39,10 @@ import pinocchio as pin
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from interarm_collision import LIVE_URDF, _package_dirs, true_hull  # noqa: E402
 
+# G34: 8 captures (rails 0..1.45), ONE fixed 4-DOF correction per camera
+# (docs/p1_g34_rail_calib.md B2). G33's reg3 map stays at p1_g33/env_static_map.npz.
 ENV_MAP = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'docs',
-                       'results', 'p1_g33', 'env_static_map.npz')
+                       'results', 'p1_g34', 'env_static_map.npz')
 ENV_MARGIN_M = 0.05     # = cross-camera calibration uncertainty (rgbd-extrinsic-calibration)
 ARM_LINKS = ['base_link', 'shoulder_link', 'arm_link', 'forearm_link',
              'lower_wrist_link', 'upper_wrist_link', 'gripper_base_link',

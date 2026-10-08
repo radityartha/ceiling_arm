@@ -65,6 +65,8 @@ CONTROLLER = '/gantry_{}_with_arm_controller/follow_joint_trajectory'
 # bar; it is ABOVE the KA-75+ 12.0 nominal and must never be used as a trial
 # value (g16 B4.2).
 TAU_REPORT_NM = 13.5
+# G34: the MoveIt fallback is screened like a task plan (g31_screen TAU_MAX).
+TAU_MAX_PLAN = 12.0
 
 
 class RestMover(Node):
@@ -118,6 +120,77 @@ def build(names, start, goal, seconds, steps):
     return pts
 
 
+def _rest_line(start, steps=60):
+    """Positions only, the same cosine as build() (screens need no timing)."""
+    return [[s + (g - s) * 0.5 * (1.0 - math.cos(math.pi * k / steps))
+             for s, g in zip(start, REST * (len(start) // 6))]
+            for k in range(1, steps + 1)]
+
+
+def plan_retract(g, arms, state, chk_same, chk_cross, env, plan_fn=None, log=print):
+    """G34 env-aware retract, shared by this tool (HW) and g31_screen (plan-only).
+
+    1. Both arms of gantry g, ONE straight joint line to REST (the G16 rule) --
+       screened same-gantry, cross-gantry and against the frozen map.
+    2. Refused and plan_fn given -> arm by arm, both orders: that arm's straight
+       line if it screens CLEAR, else plan_fn(arm, {joint: REST}, placed), which
+       must run every screen itself (reach_dwell_probe._plan_and_screen: S18,
+       torque, environment) and return ('PLANNED', traj) or (refusal, None).
+    G33 B6: the straight line home from the rack edge went THROUGH the rack.
+
+    state: every CONFIG_JOINTS joint (measured or placed). Returns
+    ('CLEAR', [(kind, arm|None, names, positions, traj|None), ...]) or
+    (refusal, None). Positions are waypoint lists; traj is the MoveIt one."""
+    rail = f't{g}_linear_joint'
+
+    def screen(names, pts, placed):
+        held = {n: v for n, v in placed.items() if n not in names}
+        r = [('se-gantry', chk_same.screen_trajectory(names, pts, held)),
+             ('antar-gantry', chk_cross.screen_trajectory(names, pts, held, only=f't{g}_a')),
+             ('lingkungan', env.screen_trajectory(names, pts, placed))]
+        for label, (v, d, pair, k) in r:
+            what = pair if isinstance(pair, str) else f'{pair[0]} <-> {pair[1]}'
+            log(f'  penyaring {label}: {v}, minimum {d * 1000:.1f} mm di titik {k}/{len(pts)} ({what})')
+        return 'CLEAR' if all(x[1][0] == 'CLEAR' for x in r) else '/'.join(x[1][0] for x in r)
+
+    todo = [x for x in arms
+            if max(abs(state[f'{PREFIX[x]}joint_{i}'] - REST[i - 1]) for i in range(1, 7))
+            >= math.radians(0.5)]
+    if not todo:
+        return 'CLEAR', []
+    names = [f'{PREFIX[x]}joint_{i}' for x in todo for i in range(1, 7)]
+    pts = _rest_line([state[n] for n in names])
+    log(f'retract g{g} {todo} lurus (rel {state[rail]:.3f}):')
+    v = screen(names, pts, state)
+    if v == 'CLEAR':
+        return 'CLEAR', [('lurus', None, names, pts, None)]
+    if plan_fn is None:
+        return f'LURUS-{v}', None
+    for order in (todo, todo[::-1]) if len(todo) > 1 else (todo,):
+        placed, segs, fail = dict(state), [], None
+        for arm in order:
+            nm = [f'{PREFIX[arm]}joint_{i}' for i in range(1, 7)]
+            p1 = _rest_line([placed[n] for n in nm])
+            log(f'retract {arm} sendiri lurus:')
+            v1 = screen(nm, p1, placed)
+            if v1 == 'CLEAR':
+                segs.append(('lurus', arm, nm, p1, None))
+            else:
+                v2, traj = plan_fn(arm, dict(zip(nm, REST)), placed, not segs)
+                log(f'retract {arm} via MoveIt: {v2}')
+                if v2 != 'PLANNED':
+                    fail = f'{arm}:{v1}+{v2}'
+                    break
+                jt = traj.joint_trajectory
+                segs.append(('moveit', arm, list(jt.joint_names),
+                             [list(q.positions) for q in jt.points], traj))
+            placed.update(zip(segs[-1][2], segs[-1][3][-1]))
+        if fail is None:
+            return 'CLEAR', segs
+        log(f'urutan {order} gagal: {fail}')
+    return f'RETRACT-{fail}', None
+
+
 def main():
     ap = argparse.ArgumentParser(
         description=__doc__,
@@ -129,6 +202,8 @@ def main():
     ap.add_argument('--steps', type=int, default=60)
     ap.add_argument('--move', action='store_true',
                     help='A6/S7: benar-benar menggerakkan. Tanpa ini DRY RUN.')
+    ap.add_argument('--no-plan', action='store_true',
+                    help='G34: tanpa cadangan MoveIt (hanya garis lurus, perilaku G33).')
     a = ap.parse_args()
     gs = {GANTRY[x] for x in a.arms}
     if len(gs) != 1:
@@ -178,13 +253,12 @@ def main():
         rclpy.shutdown()
         return 0
 
-    pts = build(names, start, goal, a.seconds, a.steps)
-
-    # S8/S9. Both arms move in this trajectory, so the screen gets both sets of
-    # joints per waypoint and only the rail comes from the measured state.
+    # S8/S9 + G33 + G34: plan_retract screens the straight line (same-gantry,
+    # cross-gantry, environment) and, when the environment refuses it, finds a
+    # way home arm by arm (MoveIt + every screen). Executed ONE segment at a
+    # time, re-measured and re-planned before each.
     try:
         from interarm_collision import CrossGantryChecker, InterArmChecker
-        res = []
         chk = InterArmChecker(gantry=f'gantry_{g}')
         cross = CrossGantryChecker()
         # Strict names: q_from drops a name its model does not know, without a word.
@@ -197,30 +271,8 @@ def main():
             node.destroy_node()
             rclpy.shutdown()
             return 1
-        res.append(('se-gantry', chk.screen_trajectory(
-            names, [p.positions for p in pts],
-            {n: state[n] for n in [rail] + partner})))
-        # g20: the other gantry's arms, HELD at their measured pose. Pairs
-        # restricted to the arms of THIS gantry (only='t{g}_a').
-        res.append(('antar-gantry', cross.screen_trajectory(
-            names, [p.positions for p in pts],
-            {n: state[n] for n in [rail] + held}, only=f't{g}_a')))
-        # G33: vs the frozen camera map, everything else HELD as measured
-        # (state covers all 28 CONFIG_JOINTS). Missing map -> raises -> REFUSE.
         from env_collision import EnvChecker
-        res.append(('lingkungan', EnvChecker().screen_trajectory(
-            names, [p.positions for p in pts], state)))
-        for label, (v, d, pair, k) in res:
-            what = pair if isinstance(pair, str) else f'{pair[0]} <-> {pair[1]}'
-            print(f'penyaring {label}: {v}, minimum {d * 1000:.1f} mm '
-                  f'di titik {k}/{len(pts)} ({what})')
-        v = 'CLEAR' if all(r[1][0] == 'CLEAR' for r in res) else 'NOT-CLEAR'
-        if v != 'CLEAR':
-            print('🔴 jalur PEMULIHAN sendiri bertabrakan -- MENOLAK. '
-                  'Pulihkan satu lengan lebih dulu (--arms arm_1).')
-            node.destroy_node()
-            rclpy.shutdown()
-            return 1
+        env = EnvChecker()
     except (ImportError, FileNotFoundError, KeyError, ValueError) as e:
         print(f'🔴 penyaring antar-lengan/lingkungan tidak dapat dimuat ({e}) '
               '-- MENOLAK (S9/G33).')
@@ -228,53 +280,90 @@ def main():
         rclpy.shutdown()
         return 1
 
-    if not a.move:
-        print(f'\nDRY RUN selesai: {len(pts)} titik, {a.seconds:.0f} s, '
-              f'{len(names)} sendi. Tidak ada yang dikirim.')
+    probe = []
+
+    def plan_fn(arm, goal, at, first):
+        if a.no_plan:
+            return 'MOVEIT-MATI', None
+        from moveit_msgs.action import MoveGroup
+        from reach_dwell_probe import Probe, _plan_and_screen
+        if not probe:
+            probe.append(Probe(arm, 0.0, TAU_MAX_PLAN, False, arms=list(PREFIX)))
+            probe[0]._plan_ac = ActionClient(probe[0], MoveGroup, 'move_action')
+        if not probe[0]._plan_ac.wait_for_server(timeout_sec=15.0):
+            return 'NO-MOVE-GROUP', None
+        # The FIRST segment executes, so it plans from the MEASURED state;
+        # later ones are lookahead only (re-planned from measured before sending).
+        return _plan_and_screen(arm, goal, probe[0], 0.002, 2.0, 0.15, 15.0, TAU_MAX_PLAN,
+                                [x for x in PREFIX if x != arm],
+                                start_joints=None if first else dict(at))
+
+    def done(rc):
+        for pn in probe:
+            pn.destroy_node()
         node.destroy_node()
         rclpy.shutdown()
-        return 0
+        return rc
 
-    ctl = CONTROLLER.format(g)
-    ac = ActionClient(node, FollowJointTrajectory, ctl)
-    if not ac.wait_for_server(timeout_sec=15.0):
-        print(f'🔴 {ctl} tidak ada. Controller aktif? '
-              '(enable_gantry_bridge WAJIB di perangkat keras nyata)')
-        node.destroy_node()
-        rclpy.shutdown()
-        return 1
+    ac = None
+    tau_all, tau_who, sent = 0.0, '', []
+    for _ in range(4):
+        v, segs = plan_retract(g, a.arms, state, chk, cross, env, plan_fn)
+        if v != 'CLEAR':
+            print(f'🔴 jalur PEMULIHAN ditolak ({v}) -- MENOLAK. Lengan tetap di tempat.')
+            return done(1)
+        if not segs:
+            break
+        print('rencana pulang: ' + ' -> '.join(
+            f'{k}:{x or "+".join(sorted({n[:6] for n in nm_}))}' for k, x, nm_, *_ in segs))
+        if not a.move:
+            print(f'\nDRY RUN selesai: {len(segs)} segmen. Tidak ada yang dikirim.')
+            return done(0)
+        kind, arm, nm, pos, traj = segs[0]
+        if kind == 'lurus':
+            pts = build(nm, [state[n] for n in nm], REST * (len(nm) // 6), a.seconds, a.steps)
+        else:
+            pts = traj.joint_trajectory.points
+        if ac is None:
+            ctl = CONTROLLER.format(g)
+            ac = ActionClient(node, FollowJointTrajectory, ctl)
+            if not ac.wait_for_server(timeout_sec=15.0):
+                print(f'🔴 {ctl} tidak ada. Controller aktif? '
+                      '(enable_gantry_bridge WAJIB di perangkat keras nyata)')
+                return done(1)
+        goal_msg = FollowJointTrajectory.Goal()
+        goal_msg.trajectory.joint_names = nm
+        goal_msg.trajectory.points = pts
+        node.tau_peak, node.tau_worst = 0.0, ''
+        print(f'\nmengirim segmen {kind} ({arm or "+".join(sorted({n[:6] for n in nm}))}): '
+              f'{len(pts)} titik. '
+              'TIDAK akan dibatalkan penjaga torsi (g16 B4.4).')
+        fut = ac.send_goal_async(goal_msg)
+        rclpy.spin_until_future_complete(node, fut, timeout_sec=20.0)
+        gh = fut.result()
+        if gh is None or not gh.accepted:
+            print('🔴 goal DITOLAK controller.')
+            return done(1)
+        t_end = pts[-1].time_from_start
+        rf = gh.get_result_async()
+        rclpy.spin_until_future_complete(node, rf, timeout_sec=t_end.sec + 60.0)
+        sent.append(kind)
+        if node.tau_peak > tau_all:
+            tau_all, tau_who = node.tau_peak, node.tau_worst
+        state = node.wait_joints(list(state), seconds=1.0)
+    else:
+        print('🔴 4 putaran tanpa sampai REST -- berhenti.')
+        return done(1)
 
-    goal_msg = FollowJointTrajectory.Goal()
-    goal_msg.trajectory.joint_names = names
-    goal_msg.trajectory.points = pts
-    node.tau_peak, node.tau_worst = 0.0, ''
-    print(f'\nmengirim: {len(pts)} titik selama {a.seconds:.0f} s. '
-          'TIDAK akan dibatalkan penjaga torsi (g16 B4.4).')
-
-    fut = ac.send_goal_async(goal_msg)
-    rclpy.spin_until_future_complete(node, fut, timeout_sec=20.0)
-    gh = fut.result()
-    if gh is None or not gh.accepted:
-        print('🔴 goal DITOLAK controller.')
-        node.destroy_node()
-        rclpy.shutdown()
-        return 1
-    rf = gh.get_result_async()
-    rclpy.spin_until_future_complete(node, rf, timeout_sec=a.seconds + 60.0)
-
-    node.wait_joints(names, seconds=1.0)
-    final = max(abs(node.joint_pos.get(n, float('nan')) - g)
-                for n, g in zip(names, goal))
+    final = max(abs(node.joint_pos.get(n, float('nan')) - q)
+                for n, q in zip(names, goal))
     print(f'selesai: galat akhir {math.degrees(final):.3f} deg, '
-          f'torsi puncak {node.tau_peak:.3f} N.m pada {node.tau_worst}')
-    if node.tau_peak > TAU_REPORT_NM:
-        print(f'\033[31m⚠️  torsi puncak {node.tau_peak:.2f} N.m melewati '
+          f'torsi puncak {tau_all:.3f} N.m pada {tau_who}, segmen {sent}')
+    if tau_all > TAU_REPORT_NM:
+        print(f'\033[31m⚠️  torsi puncak {tau_all:.2f} N.m melewati '
               f'{TAU_REPORT_NM} N.m. TIDAK dibatalkan, disengaja (B4.4) -- '
               'tetapi catat ini dan periksa lengan.\033[0m')
-    node.destroy_node()
-    rclpy.shutdown()
-    return 0
-
+    return done(0)
 
 if __name__ == '__main__':
     sys.exit(main())

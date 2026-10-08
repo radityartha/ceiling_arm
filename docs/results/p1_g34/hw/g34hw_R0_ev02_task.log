@@ -1,0 +1,20 @@
+# 1791421426.7398 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.3571,0.3882,1.2400 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/g34hw_step_samples.csv
+1791421427.5868 probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 12.0 N.m
+1791421427.5869 sumber target: arm_1 (1.3571, 0.3882, 1.24), [] []
+1791421427.5869 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791421427.5869 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791421427.5869 
+1791421448.7393 [INFO] [1791421448.739221627] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya NO-PLAN -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791421448.9148 [INFO] [1791421448.914705861] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.09->6.69/10, 2=4.14->11.84/14, 3=2.40->9.00/10, 4=0.38->2.36/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 90 %)
+1791421448.9210 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791421448.9210   self.geom = pin.buildGeomFromUrdf(
+1791421452.1524 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:189: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791421452.1524   self.geom = pin.buildGeomFromUrdf(
+1791421477.2984 [INFO] [1791421477.298337424] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 548.1 mm di titik 43 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+1791421477.3491 /home/user1/Documents/ceiling_arm/scripts/env_collision.py:69: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791421477.3491   self.geom = pin.buildGeomFromUrdf(
+1791421486.9737 [INFO] [1791421486.973630402] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 88.6 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+1791421496.0514        arm_1: moveit MOVED
+1791421497.9387   [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_1']) torsi puncak  8.25 N.m
+1791421497.9387   TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+1791421497.9387   -> /tmp/g20_step5.json

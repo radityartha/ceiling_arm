@@ -1,0 +1,19 @@
+# 1791358026.9966 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_3 --target=0.7857,-0.4588,1.0000 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/g34mock_step_samples.csv
+1791358027.4437 probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 12.0 N.m
+1791358027.4437 sumber target: arm_3 (0.7857, -0.4588, 1.0), [] []
+1791358027.4437 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791358027.4437 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791358027.4437 
+1791358027.7309 [INFO] [1791358027.730873756] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=4.14->11.84/14, 3=0.38->6.98/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 85 %)
+1791358027.7362 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791358027.7362   self.geom = pin.buildGeomFromUrdf(
+1791358030.8356 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:189: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791358030.8356   self.geom = pin.buildGeomFromUrdf(
+1791358049.0048 [INFO] [1791358049.004652645] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 494.8 mm di titik 58 (t2_a1_upper_wrist_link_0 <-> t2_a2_upper_wrist_link_0) -> CLEAR
+1791358049.0433 /home/user1/Documents/ceiling_arm/scripts/env_collision.py:69: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791358049.0433   self.geom = pin.buildGeomFromUrdf(
+1791358058.0442 [INFO] [1791358058.044097343] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 100.8 mm di titik 58 (t2_a1_right_finger_prox_link_0) -> CLEAR
+1791358063.9280        arm_3: moveit MOVED
+1791358065.6427   [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_3']) torsi puncak  0.00 N.m
+1791358065.6428   TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+1791358065.6432   -> /tmp/g20_step5.json

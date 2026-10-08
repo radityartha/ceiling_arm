@@ -1,0 +1,14 @@
+[INFO] [1791419498.120183186] [env_static_map_pub]: /home/user1/Documents/ceiling_arm/scripts/../docs/results/p1_g34/env_static_map.npz: 136558 voxel -> 22246 kotak (bin 0.02, +0.05 m)
+[INFO] [1791419498.703055605] [env_static_map_pub]: env_static_map di planning scene: True
+Traceback (most recent call last):
+  File "/home/user1/Documents/ceiling_arm/scripts/env_static_map_pub.py", line 137, in <module>
+    main()
+  File "/home/user1/Documents/ceiling_arm/scripts/env_static_map_pub.py", line 133, in main
+    rclpy.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 130, in shutdown
+    _shutdown(context=context)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/utilities.py", line 58, in shutdown
+    return context.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/context.py", line 102, in shutdown
+    self.__context.shutdown()
+rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:241

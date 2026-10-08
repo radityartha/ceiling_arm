@@ -1,0 +1,839 @@
+{
+ "captures": [
+  "cal_00.npz",
+  "cal_01.npz",
+  "cal_02.npz",
+  "cal_03.npz",
+  "cal_04.npz",
+  "cal_05.npz",
+  "cal_06.npz",
+  "cal_07.npz"
+ ],
+ "configs": [
+  "capture",
+  "capture",
+  "capture",
+  "capture",
+  "capture",
+  "capture",
+  "capture",
+  "capture"
+ ],
+ "pad": 0.05,
+ "self_pad": 0.2,
+ "ray_pad": 0.05,
+ "res": 0.02,
+ "crop": {
+  "x": [
+   -1.2,
+   3.0
+  ],
+  "y": [
+   -2.0,
+   2.0
+  ],
+  "z": [
+   0.3,
+   2.0
+  ]
+ },
+ "min_frames": 2,
+ "nb": [
+  0.05,
+  3
+ ],
+ "register": false,
+ "transform": {
+  "rgbd": {
+   "R": [
+    [
+     0.999954,
+     0.009585,
+     0.0
+    ],
+    [
+     -0.009585,
+     0.999954,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "t": [
+    -0.09922,
+    0.07054,
+    0.00365
+   ]
+  },
+  "rgbd2": {
+   "R": [
+    [
+     0.999743,
+     0.022684,
+     0.0
+    ],
+    [
+     -0.022684,
+     0.999743,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "t": [
+    -0.07945,
+    0.10905,
+    0.01379
+   ]
+  }
+ },
+ "cal_00.npz:config": {
+  "t1_a1_joint_1": -0.46294634703618076,
+  "t1_a1_joint_2": 0.10710168639862665,
+  "t1_a1_joint_3": 0.12871563548960072,
+  "t1_a1_joint_4": -1.3855947782686062,
+  "t1_a1_joint_5": -0.17505117634756306,
+  "t1_a1_joint_6": 1.7387810715060428,
+  "t1_a2_joint_1": -0.46330374325446844,
+  "t1_a2_joint_2": 0.10704922212515208,
+  "t1_a2_joint_3": 0.12837741403116065,
+  "t1_a2_joint_4": -1.3858680185964483,
+  "t1_a2_joint_5": -0.17565358338613812,
+  "t1_a2_joint_6": 1.7392508531223325,
+  "t1_linear_joint": 0.00019896753472736667,
+  "t1_rotation_joint": 0.0,
+  "t2_a1_joint_1": -0.4633090695766491,
+  "t2_a1_joint_2": 0.10697758309182895,
+  "t2_a1_joint_3": 0.12827514864530162,
+  "t2_a1_joint_4": -1.3861124967845173,
+  "t2_a1_joint_5": -0.17672630467322215,
+  "t2_a1_joint_6": 1.739558181912128,
+  "t2_a2_joint_1": -0.4636227899530603,
+  "t2_a2_joint_2": 0.10710701272080679,
+  "t2_a2_joint_3": 0.1286474585656947,
+  "t2_a2_joint_4": -1.3884241206107069,
+  "t2_a2_joint_5": -0.17680833003479623,
+  "t2_a2_joint_6": 1.7393137037240587,
+  "t2_linear_joint": 0.0008796459430051999,
+  "t2_rotation_joint": 0.0
+ },
+ "cal_00.npz:config_t": 1791349169.868306,
+ "cal_00.npz:rgbd_transform": {
+  "n_pts": 8400,
+  "dof": 4,
+  "median_absd_before": 0.09138643793628656,
+  "median_absd_after": 0.011516800041633772,
+  "inliers_after": 8202,
+  "t": [
+   -0.0992,
+   0.0705,
+   0.0037
+  ],
+  "yaw_deg": -0.5491856059821121,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -0.549
+  ]
+ },
+ "cal_00.npz:rgbd_cells_1cm": 642230,
+ "cal_00.npz:rgbd_cells_in_crop": 246532,
+ "cal_00.npz:rgbd2_transform": {
+  "n_pts": 3600,
+  "dof": 4,
+  "median_absd_before": 0.08591294516773991,
+  "median_absd_after": 0.016581932917328464,
+  "inliers_after": 3598,
+  "t": [
+   -0.0795,
+   0.1091,
+   0.0138
+  ],
+  "yaw_deg": -1.2997985369408278,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -1.3
+  ]
+ },
+ "cal_00.npz:rgbd2_cells_1cm": 749469,
+ "cal_00.npz:rgbd2_cells_in_crop": 281102,
+ "cal_00.npz:voxels_2cm": 115161,
+ "cal_00.npz:drop_frames_lt2": 25948,
+ "cal_00.npz:drop_isolated": 135,
+ "cal_00.npz:P_filter_off_removed": {
+  "t1_a2": 701,
+  "t1_a1": 960,
+  "t2_a2": 488,
+  "t2_mount_plate_right": 4,
+  "t2_a1": 930
+ },
+ "cal_00.npz:self_filter_removed": 3083,
+ "cal_00.npz:shell_struct_pad_to_0.30": 0,
+ "cal_00.npz:shell_arm_pad_to_0.30": 340,
+ "cal_00.npz:ray_shadow_votes": [
+  3611,
+  4801
+ ],
+ "cal_00.npz:ray_shadow_removed": 7874,
+ "cal_00.npz:voxels_after_filters": 78121,
+ "cal_01.npz:config": {
+  "t1_a1_joint_1": -0.46292450911524163,
+  "t1_a1_joint_2": 0.10709662639255549,
+  "t1_a1_joint_3": 0.12866210595169014,
+  "t1_a1_joint_4": -1.3854871865605674,
+  "t1_a1_joint_5": -0.17502134894335342,
+  "t1_a1_joint_6": 1.738792789414839,
+  "t1_a2_joint_1": -0.4632968190356346,
+  "t1_a2_joint_2": 0.10703031368141251,
+  "t1_a2_joint_3": 0.12816063271842823,
+  "t1_a2_joint_4": -1.385801439569196,
+  "t1_a2_joint_5": -0.17559818963546459,
+  "t1_a2_joint_6": 1.7392732236754893,
+  "t1_linear_joint": 0.44937341316951357,
+  "t1_rotation_joint": 0.0,
+  "t2_a1_joint_1": -0.4633090695766491,
+  "t2_a1_joint_2": 0.10697838204015597,
+  "t2_a1_joint_3": 0.1282679581103584,
+  "t2_a1_joint_4": -1.3861231494288777,
+  "t2_a1_joint_5": -0.1767454794330714,
+  "t2_a1_joint_6": 1.7395544534866016,
+  "t2_a2_joint_1": -0.46362545311415015,
+  "t2_a2_joint_2": 0.10710621377247978,
+  "t2_a2_joint_3": 0.1286378711857704,
+  "t2_a2_joint_4": -1.3884017500575494,
+  "t2_a2_joint_5": -0.17681152582810533,
+  "t2_a2_joint_6": 1.7393323458516892,
+  "t2_linear_joint": 0.0008796459430051999,
+  "t2_rotation_joint": 0.0
+ },
+ "cal_01.npz:config_t": 1791349278.1818528,
+ "cal_01.npz:rgbd_transform": {
+  "n_pts": 8400,
+  "dof": 4,
+  "median_absd_before": 0.09138643793628656,
+  "median_absd_after": 0.011516800041633772,
+  "inliers_after": 8202,
+  "t": [
+   -0.0992,
+   0.0705,
+   0.0037
+  ],
+  "yaw_deg": -0.5491856059821121,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -0.549
+  ]
+ },
+ "cal_01.npz:rgbd_cells_1cm": 579102,
+ "cal_01.npz:rgbd_cells_in_crop": 236816,
+ "cal_01.npz:rgbd2_transform": {
+  "n_pts": 3600,
+  "dof": 4,
+  "median_absd_before": 0.08591294516773991,
+  "median_absd_after": 0.016581932917328464,
+  "inliers_after": 3598,
+  "t": [
+   -0.0795,
+   0.1091,
+   0.0138
+  ],
+  "yaw_deg": -1.2997985369408278,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -1.3
+  ]
+ },
+ "cal_01.npz:rgbd2_cells_1cm": 708147,
+ "cal_01.npz:rgbd2_cells_in_crop": 257177,
+ "cal_01.npz:voxels_2cm": 106966,
+ "cal_01.npz:drop_frames_lt2": 23034,
+ "cal_01.npz:drop_isolated": 90,
+ "cal_01.npz:P_filter_off_removed": {
+  "t1_a2": 803,
+  "t1_a1": 590,
+  "t2_rotation_link": 6,
+  "t2_a2": 98,
+  "t2_mount_plate_right": 4,
+  "t2_a1": 905
+ },
+ "cal_01.npz:self_filter_removed": 2406,
+ "cal_01.npz:shell_struct_pad_to_0.30": 0,
+ "cal_01.npz:shell_arm_pad_to_0.30": 73,
+ "cal_01.npz:ray_shadow_votes": [
+  2802,
+  4410
+ ],
+ "cal_01.npz:ray_shadow_removed": 6903,
+ "cal_01.npz:voxels_after_filters": 74533,
+ "cal_02.npz:config": {
+  "t1_a1_joint_1": -0.46292450911524163,
+  "t1_a1_joint_2": 0.10709316428313838,
+  "t1_a1_joint_3": 0.1286668996416523,
+  "t1_a1_joint_4": -1.3854983718371452,
+  "t1_a1_joint_5": -0.1750101636667747,
+  "t1_a1_joint_6": 1.7387853325637868,
+  "t1_a2_joint_1": -0.46329948219672445,
+  "t1_a2_joint_2": 0.10703910211300978,
+  "t1_a2_joint_3": 0.12829698656624028,
+  "t1_a2_joint_4": -1.3857982437758887,
+  "t1_a2_joint_5": -0.17559499384215727,
+  "t1_a2_joint_6": 1.7392806805265417,
+  "t1_linear_joint": 0.8994693926493529,
+  "t1_rotation_joint": 0.0,
+  "t2_a1_joint_1": -0.46330374325446844,
+  "t2_a1_joint_2": 0.10697545256295687,
+  "t2_a1_joint_3": 0.12827275180032055,
+  "t2_a1_joint_4": -1.386097583082413,
+  "t2_a1_joint_5": -0.17672310887991483,
+  "t2_a1_joint_6": 1.7395507250610756,
+  "t2_a2_joint_1": -0.4636201267919713,
+  "t2_a2_joint_2": 0.10710621377247978,
+  "t2_a2_joint_3": 0.1286304143347182,
+  "t2_a2_joint_4": -1.3884203921851803,
+  "t2_a2_joint_5": -0.17680833003479623,
+  "t2_a2_joint_6": 1.7393254216328549,
+  "t2_linear_joint": 0.0008796459430051999,
+  "t2_rotation_joint": 0.0
+ },
+ "cal_02.npz:config_t": 1791349378.0670712,
+ "cal_02.npz:rgbd_transform": {
+  "n_pts": 8400,
+  "dof": 4,
+  "median_absd_before": 0.09138643793628656,
+  "median_absd_after": 0.011516800041633772,
+  "inliers_after": 8202,
+  "t": [
+   -0.0992,
+   0.0705,
+   0.0037
+  ],
+  "yaw_deg": -0.5491856059821121,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -0.549
+  ]
+ },
+ "cal_02.npz:rgbd_cells_1cm": 563776,
+ "cal_02.npz:rgbd_cells_in_crop": 191064,
+ "cal_02.npz:rgbd2_transform": {
+  "n_pts": 3600,
+  "dof": 4,
+  "median_absd_before": 0.08591294516773991,
+  "median_absd_after": 0.016581932917328464,
+  "inliers_after": 3598,
+  "t": [
+   -0.0795,
+   0.1091,
+   0.0138
+  ],
+  "yaw_deg": -1.2997985369408278,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -1.3
+  ]
+ },
+ "cal_02.npz:rgbd2_cells_1cm": 730268,
+ "cal_02.npz:rgbd2_cells_in_crop": 255898,
+ "cal_02.npz:voxels_2cm": 96392,
+ "cal_02.npz:drop_frames_lt2": 18929,
+ "cal_02.npz:drop_isolated": 117,
+ "cal_02.npz:P_filter_off_removed": {
+  "t1_a2": 948,
+  "t1_a1": 1376,
+  "t2_platform_link": 10,
+  "t2_rotation_link": 2,
+  "t2_a2": 486,
+  "t2_mount_plate_right": 5,
+  "t2_a1": 814
+ },
+ "cal_02.npz:self_filter_removed": 3641,
+ "cal_02.npz:shell_struct_pad_to_0.30": 0,
+ "cal_02.npz:shell_arm_pad_to_0.30": 862,
+ "cal_02.npz:ray_shadow_votes": [
+  3201,
+  4833
+ ],
+ "cal_02.npz:ray_shadow_removed": 7712,
+ "cal_02.npz:voxels_after_filters": 65993,
+ "cal_03.npz:config": {
+  "t1_a1_joint_1": -0.46291705226418944,
+  "t1_a1_joint_2": 0.10708863690928525,
+  "t1_a1_joint_3": 0.12867675333768558,
+  "t1_a1_joint_4": -1.385490914986093,
+  "t1_a1_joint_5": -0.17499951102241518,
+  "t1_a1_joint_6": 1.7387741472872085,
+  "t1_a2_joint_1": -0.46328456849462096,
+  "t1_a2_joint_2": 0.1070361726358107,
+  "t1_a2_joint_3": 0.12814864849352287,
+  "t1_a2_joint_4": -1.385827538547879,
+  "t1_a2_joint_5": -0.17560245069320857,
+  "t1_a2_joint_6": 1.7392657668244371,
+  "t1_linear_joint": 1.3494397084230487,
+  "t1_rotation_joint": 0.0,
+  "t2_a1_joint_1": -0.4633090695766491,
+  "t2_a1_joint_2": 0.10697385466630283,
+  "t2_a1_joint_3": 0.12826529494926833,
+  "t2_a1_joint_4": -1.3861156925778255,
+  "t2_a1_joint_5": -0.17674867522637872,
+  "t2_a1_joint_6": 1.7395619103376538,
+  "t2_a2_joint_1": -0.46362545311415015,
+  "t2_a2_joint_2": 0.10710621377247978,
+  "t2_a2_joint_3": 0.12862562064475605,
+  "t2_a2_joint_4": -1.3884166637596538,
+  "t2_a2_joint_5": -0.176833896381261,
+  "t2_a2_joint_6": 1.7393105079307503,
+  "t2_linear_joint": 0.0008796459430051999,
+  "t2_rotation_joint": 0.0
+ },
+ "cal_03.npz:config_t": 1791349468.8338854,
+ "cal_03.npz:rgbd_transform": {
+  "n_pts": 8400,
+  "dof": 4,
+  "median_absd_before": 0.09138643793628656,
+  "median_absd_after": 0.011516800041633772,
+  "inliers_after": 8202,
+  "t": [
+   -0.0992,
+   0.0705,
+   0.0037
+  ],
+  "yaw_deg": -0.5491856059821121,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -0.549
+  ]
+ },
+ "cal_03.npz:rgbd_cells_1cm": 498164,
+ "cal_03.npz:rgbd_cells_in_crop": 178226,
+ "cal_03.npz:rgbd2_transform": {
+  "n_pts": 3600,
+  "dof": 4,
+  "median_absd_before": 0.08591294516773991,
+  "median_absd_after": 0.016581932917328464,
+  "inliers_after": 3598,
+  "t": [
+   -0.0795,
+   0.1091,
+   0.0138
+  ],
+  "yaw_deg": -1.2997985369408278,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -1.3
+  ]
+ },
+ "cal_03.npz:rgbd2_cells_1cm": 581314,
+ "cal_03.npz:rgbd2_cells_in_crop": 203864,
+ "cal_03.npz:voxels_2cm": 80575,
+ "cal_03.npz:drop_frames_lt2": 12572,
+ "cal_03.npz:drop_isolated": 89,
+ "cal_03.npz:P_filter_off_removed": {
+  "t1_a2": 641,
+  "t1_a1": 1115,
+  "t2_rotation_link": 6,
+  "t2_mount_plate_right": 6,
+  "t2_a1": 931
+ },
+ "cal_03.npz:self_filter_removed": 2699,
+ "cal_03.npz:shell_struct_pad_to_0.30": 0,
+ "cal_03.npz:shell_arm_pad_to_0.30": 729,
+ "cal_03.npz:ray_shadow_votes": [
+  2382,
+  3648
+ ],
+ "cal_03.npz:ray_shadow_removed": 5785,
+ "cal_03.npz:voxels_after_filters": 59430,
+ "cal_04.npz:config": {
+  "t1_a1_joint_1": -0.462919182793061,
+  "t1_a1_joint_2": 0.10709955586975459,
+  "t1_a1_joint_3": 0.1286208269547939,
+  "t1_a1_joint_4": -1.3854983718371452,
+  "t1_a1_joint_5": -0.17498086889478515,
+  "t1_a1_joint_6": 1.7387666904361563,
+  "t1_a2_joint_1": -0.4632893621845824,
+  "t1_a2_joint_2": 0.10704123264188184,
+  "t1_a2_joint_3": 0.12826529494926833,
+  "t1_a2_joint_4": -1.3857865258670916,
+  "t1_a2_joint_5": -0.17560990754426076,
+  "t1_a2_joint_6": 1.7392657668244371,
+  "t1_linear_joint": 0.00033510321638293333,
+  "t1_rotation_joint": 0.0,
+  "t2_a1_joint_1": -0.463301612725596,
+  "t2_a1_joint_2": 0.1069624030736155,
+  "t2_a1_joint_3": 0.12815344218348498,
+  "t2_a1_joint_4": -1.3861013115079395,
+  "t2_a1_joint_5": -0.17677104577953617,
+  "t2_a1_joint_6": 1.7395619103376538,
+  "t2_a2_joint_1": -0.46363024680411336,
+  "t2_a2_joint_2": 0.10710701272080679,
+  "t2_a2_joint_3": 0.12815823587344716,
+  "t2_a2_joint_4": -1.3884353058872847,
+  "t2_a2_joint_5": -0.17685946272772668,
+  "t2_a2_joint_6": 1.7393254216328549,
+  "t2_linear_joint": 0.4495304928021931,
+  "t2_rotation_joint": 0.0
+ },
+ "cal_04.npz:config_t": 1791349689.8964832,
+ "cal_04.npz:rgbd_transform": {
+  "n_pts": 8400,
+  "dof": 4,
+  "median_absd_before": 0.09138643793628656,
+  "median_absd_after": 0.011516800041633772,
+  "inliers_after": 8202,
+  "t": [
+   -0.0992,
+   0.0705,
+   0.0037
+  ],
+  "yaw_deg": -0.5491856059821121,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -0.549
+  ]
+ },
+ "cal_04.npz:rgbd_cells_1cm": 602818,
+ "cal_04.npz:rgbd_cells_in_crop": 220135,
+ "cal_04.npz:rgbd2_transform": {
+  "n_pts": 3600,
+  "dof": 4,
+  "median_absd_before": 0.08591294516773991,
+  "median_absd_after": 0.016581932917328464,
+  "inliers_after": 3598,
+  "t": [
+   -0.0795,
+   0.1091,
+   0.0138
+  ],
+  "yaw_deg": -1.2997985369408278,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -1.3
+  ]
+ },
+ "cal_04.npz:rgbd2_cells_1cm": 632195,
+ "cal_04.npz:rgbd2_cells_in_crop": 239834,
+ "cal_04.npz:voxels_2cm": 97170,
+ "cal_04.npz:drop_frames_lt2": 19211,
+ "cal_04.npz:drop_isolated": 75,
+ "cal_04.npz:P_filter_off_removed": {
+  "t1_a2": 730,
+  "t1_a1": 554,
+  "t2_mount_plate_left": 14,
+  "t2_a2": 913,
+  "t2_a1": 1021
+ },
+ "cal_04.npz:self_filter_removed": 3232,
+ "cal_04.npz:shell_struct_pad_to_0.30": 0,
+ "cal_04.npz:shell_arm_pad_to_0.30": 467,
+ "cal_04.npz:ray_shadow_votes": [
+  3930,
+  3840
+ ],
+ "cal_04.npz:ray_shadow_removed": 7650,
+ "cal_04.npz:voxels_after_filters": 67002,
+ "cal_05.npz:config": {
+  "t1_a1_joint_1": -0.46292184595415087,
+  "t1_a1_joint_2": 0.10709875692142755,
+  "t1_a1_joint_3": 0.12862801748973712,
+  "t1_a1_joint_4": -1.3854946434116195,
+  "t1_a1_joint_5": -0.1749771404692586,
+  "t1_a1_joint_6": 1.7387704188616824,
+  "t1_a2_joint_1": -0.46328243796574853,
+  "t1_a2_joint_2": 0.10704203159020886,
+  "t1_a2_joint_3": 0.12827514864530162,
+  "t1_a2_joint_4": -1.385801439569196,
+  "t1_a2_joint_5": -0.17559818963546459,
+  "t1_a2_joint_6": 1.739269495249963,
+  "t1_linear_joint": 0.00033510321638293333,
+  "t1_rotation_joint": 0.0,
+  "t2_a1_joint_1": -0.463301612725596,
+  "t2_a1_joint_2": 0.10696373465416055,
+  "t2_a1_joint_3": 0.1281728832594426,
+  "t2_a1_joint_4": -1.3861013115079395,
+  "t2_a1_joint_5": -0.17679341633269274,
+  "t2_a1_joint_6": 1.7395544534866016,
+  "t2_a2_joint_1": -0.46363024680411336,
+  "t2_a2_joint_2": 0.10710701272080679,
+  "t2_a2_joint_3": 0.12815823587344716,
+  "t2_a2_joint_4": -1.3884464911638634,
+  "t2_a2_joint_5": -0.17684881008336628,
+  "t2_a2_joint_6": 1.7393360742772153,
+  "t2_linear_joint": 0.8998359117922717,
+  "t2_rotation_joint": 0.0
+ },
+ "cal_05.npz:config_t": 1791349779.2975295,
+ "cal_05.npz:rgbd_transform": {
+  "n_pts": 8400,
+  "dof": 4,
+  "median_absd_before": 0.09138643793628656,
+  "median_absd_after": 0.011516800041633772,
+  "inliers_after": 8202,
+  "t": [
+   -0.0992,
+   0.0705,
+   0.0037
+  ],
+  "yaw_deg": -0.5491856059821121,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -0.549
+  ]
+ },
+ "cal_05.npz:rgbd_cells_1cm": 631254,
+ "cal_05.npz:rgbd_cells_in_crop": 237736,
+ "cal_05.npz:rgbd2_transform": {
+  "n_pts": 3600,
+  "dof": 4,
+  "median_absd_before": 0.08591294516773991,
+  "median_absd_after": 0.016581932917328464,
+  "inliers_after": 3598,
+  "t": [
+   -0.0795,
+   0.1091,
+   0.0138
+  ],
+  "yaw_deg": -1.2997985369408278,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -1.3
+  ]
+ },
+ "cal_05.npz:rgbd2_cells_1cm": 700093,
+ "cal_05.npz:rgbd2_cells_in_crop": 285734,
+ "cal_05.npz:voxels_2cm": 112940,
+ "cal_05.npz:drop_frames_lt2": 25323,
+ "cal_05.npz:drop_isolated": 76,
+ "cal_05.npz:P_filter_off_removed": {
+  "t1_a2": 746,
+  "t1_a1": 937,
+  "t2_mount_plate_left": 4,
+  "t2_a2": 842,
+  "t2_a1": 1113
+ },
+ "cal_05.npz:self_filter_removed": 3642,
+ "cal_05.npz:shell_struct_pad_to_0.30": 0,
+ "cal_05.npz:shell_arm_pad_to_0.30": 586,
+ "cal_05.npz:ray_shadow_votes": [
+  4481,
+  4323
+ ],
+ "cal_05.npz:ray_shadow_removed": 8362,
+ "cal_05.npz:voxels_after_filters": 75537,
+ "cal_06.npz:config": {
+  "t1_a1_joint_1": -0.46292184595415087,
+  "t1_a1_joint_2": 0.10709955586975459,
+  "t1_a1_joint_3": 0.12862322379977498,
+  "t1_a1_joint_4": -1.3854834581350408,
+  "t1_a1_joint_5": -0.1749845973203099,
+  "t1_a1_joint_6": 1.73876296201063,
+  "t1_a2_joint_1": -0.4632866990234925,
+  "t1_a2_joint_2": 0.10703963474522779,
+  "t1_a2_joint_3": 0.1282679581103584,
+  "t1_a2_joint_4": -1.3857833300737843,
+  "t1_a2_joint_5": -0.17559499384215727,
+  "t1_a2_joint_6": 1.739269495249963,
+  "t1_linear_joint": 0.00033510321638293333,
+  "t1_rotation_joint": 0.0,
+  "t2_a1_joint_1": -0.46329948219672445,
+  "t2_a1_joint_2": 0.10696533255081458,
+  "t2_a1_joint_3": 0.12814358848745172,
+  "t2_a1_joint_4": -1.386086397805835,
+  "t2_a1_joint_5": -0.17677104577953617,
+  "t2_a1_joint_6": 1.7395544534866016,
+  "t2_a2_joint_1": -0.46364995419617827,
+  "t2_a2_joint_2": 0.10710701272080679,
+  "t2_a2_joint_3": 0.12819978118645237,
+  "t2_a2_joint_4": -1.3884353058872847,
+  "t2_a2_joint_5": -0.17684508165783974,
+  "t2_a2_joint_6": 1.739328617426163,
+  "t2_linear_joint": 1.449143387272483,
+  "t2_rotation_joint": 0.0
+ },
+ "cal_06.npz:config_t": 1791349877.709401,
+ "cal_06.npz:rgbd_transform": {
+  "n_pts": 8400,
+  "dof": 4,
+  "median_absd_before": 0.09138643793628656,
+  "median_absd_after": 0.011516800041633772,
+  "inliers_after": 8202,
+  "t": [
+   -0.0992,
+   0.0705,
+   0.0037
+  ],
+  "yaw_deg": -0.5491856059821121,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -0.549
+  ]
+ },
+ "cal_06.npz:rgbd_cells_1cm": 662086,
+ "cal_06.npz:rgbd_cells_in_crop": 250181,
+ "cal_06.npz:rgbd2_transform": {
+  "n_pts": 3600,
+  "dof": 4,
+  "median_absd_before": 0.08591294516773991,
+  "median_absd_after": 0.016581932917328464,
+  "inliers_after": 3598,
+  "t": [
+   -0.0795,
+   0.1091,
+   0.0138
+  ],
+  "yaw_deg": -1.2997985369408278,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -1.3
+  ]
+ },
+ "cal_06.npz:rgbd2_cells_1cm": 692864,
+ "cal_06.npz:rgbd2_cells_in_crop": 308032,
+ "cal_06.npz:voxels_2cm": 116463,
+ "cal_06.npz:drop_frames_lt2": 21485,
+ "cal_06.npz:drop_isolated": 82,
+ "cal_06.npz:P_filter_off_removed": {
+  "t1_a2": 719,
+  "t1_a1": 946,
+  "t2_a2": 1610,
+  "t2_a1": 908
+ },
+ "cal_06.npz:self_filter_removed": 4183,
+ "cal_06.npz:shell_struct_pad_to_0.30": 0,
+ "cal_06.npz:shell_arm_pad_to_0.30": 1425,
+ "cal_06.npz:ray_shadow_votes": [
+  2327,
+  2397
+ ],
+ "cal_06.npz:ray_shadow_removed": 4459,
+ "cal_06.npz:voxels_after_filters": 86254,
+ "cal_07.npz:config": {
+  "t1_a1_joint_1": -0.46292450911524163,
+  "t1_a1_joint_2": 0.10710115376640862,
+  "t1_a1_joint_3": 0.1286378711857704,
+  "t1_a1_joint_4": -1.3854983718371452,
+  "t1_a1_joint_5": -0.17496595519267988,
+  "t1_a1_joint_6": 1.7387853325637868,
+  "t1_a2_joint_1": -0.4632893621845824,
+  "t1_a2_joint_2": 0.10703910211300978,
+  "t1_a2_joint_3": 0.12826289810428726,
+  "t1_a2_joint_4": -1.3858238101223526,
+  "t1_a2_joint_5": -0.17559499384215727,
+  "t1_a2_joint_6": 1.7392732236754893,
+  "t1_linear_joint": 0.00033510321638293333,
+  "t1_rotation_joint": 0.0,
+  "t2_a1_joint_1": -0.46329948219672445,
+  "t2_a1_joint_2": 0.10696799571190467,
+  "t2_a1_joint_3": 0.12813160426254636,
+  "t2_a1_joint_4": -1.386105039933466,
+  "t2_a1_joint_5": -0.17676731735400963,
+  "t2_a1_joint_6": 1.7395507250610756,
+  "t2_a2_joint_1": -0.46363290996520234,
+  "t2_a2_joint_2": 0.10710541482415274,
+  "t2_a2_joint_3": 0.12817048641446152,
+  "t2_a2_joint_4": -1.3884496869571707,
+  "t2_a2_joint_5": -0.17686372378547066,
+  "t2_a2_joint_6": 1.739328617426163,
+  "t2_linear_joint": 0.0008272860654453667,
+  "t2_rotation_joint": 0.0
+ },
+ "cal_07.npz:config_t": 1791350051.0482986,
+ "cal_07.npz:rgbd_transform": {
+  "n_pts": 8400,
+  "dof": 4,
+  "median_absd_before": 0.09138643793628656,
+  "median_absd_after": 0.011516800041633772,
+  "inliers_after": 8202,
+  "t": [
+   -0.0992,
+   0.0705,
+   0.0037
+  ],
+  "yaw_deg": -0.5491856059821121,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -0.549
+  ]
+ },
+ "cal_07.npz:rgbd_cells_1cm": 616844,
+ "cal_07.npz:rgbd_cells_in_crop": 238681,
+ "cal_07.npz:rgbd2_transform": {
+  "n_pts": 3600,
+  "dof": 4,
+  "median_absd_before": 0.08591294516773991,
+  "median_absd_after": 0.016581932917328464,
+  "inliers_after": 3598,
+  "t": [
+   -0.0795,
+   0.1091,
+   0.0138
+  ],
+  "yaw_deg": -1.2997985369408278,
+  "rpy_deg": [
+   0.0,
+   -0.0,
+   -1.3
+  ]
+ },
+ "cal_07.npz:rgbd2_cells_1cm": 769383,
+ "cal_07.npz:rgbd2_cells_in_crop": 297656,
+ "cal_07.npz:voxels_2cm": 117332,
+ "cal_07.npz:drop_frames_lt2": 26744,
+ "cal_07.npz:drop_isolated": 112,
+ "cal_07.npz:P_filter_off_removed": {
+  "t1_a2": 726,
+  "t1_a1": 954,
+  "t2_a2": 450,
+  "t2_mount_plate_right": 5,
+  "t2_a1": 935
+ },
+ "cal_07.npz:self_filter_removed": 3070,
+ "cal_07.npz:shell_struct_pad_to_0.30": 0,
+ "cal_07.npz:shell_arm_pad_to_0.30": 380,
+ "cal_07.npz:ray_shadow_votes": [
+  3322,
+  4870
+ ],
+ "cal_07.npz:ray_shadow_removed": 7663,
+ "cal_07.npz:voxels_after_filters": 79743,
+ "union_voxels": 138707,
+ "corridor_removed": 0,
+ "final_voxels": 138707,
+ "final_seen_by": {
+  "rgbd_only": 51190,
+  "rgbd2_only": 82866,
+  "both": 4651
+ },
+ "bbox": [
+  [
+   -1.19,
+   -1.97,
+   0.31
+  ],
+  [
+   2.99,
+   1.61,
+   1.97
+  ]
+ ],
+ "seconds": 36.1
+}

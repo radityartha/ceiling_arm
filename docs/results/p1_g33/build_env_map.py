@@ -90,13 +90,21 @@ def _nearest_on_arms(rg, oMg, pts, arm_idx, dmax):
     return np.abs(best) < dmax, near, best
 
 
-def register_to_robot(rg, q, pts, frames, n_per_arm=400, iters=12, seed=0):
+def register_to_robot(rg, q, pts, frames, n_per_arm=400, iters=12, seed=0,
+                      arms=('t1_a1', 't1_a2', 't2_a1', 't2_a2')):
     """4-DOF (translation + yaw about world z) correction camera-world -> URDF
-    world, using the four arms standing still at the capture config as the
-    target (B-over-A, docs/p1_g33_map.md B2). Returns (R, t, report)."""
-    oMg = rg.place(q)
+    world, using the arms standing still at the capture config as the
+    target (B-over-A, docs/p1_g33_map.md B2). `arms`: G34 registers each
+    gantry's pair alone to see the rail. Returns (R, t, report)."""
+    P, per_arm = select_arm_points(rg, q, pts, frames, arms, n_per_arm, seed)
+    R, t, rep = icp_to_robot(rg, [(rg.place(q), P)], arms, dof=4, iters=iters)
+    rep['per_arm'] = per_arm
+    return R, t, rep
+
+
+def select_arm_points(rg, q, pts, frames, arms, n_per_arm=400, seed=0):
+    """Up to n_per_arm points (seen in >= 3 frames) within 0.25 m of each arm."""
     rng = np.random.default_rng(seed)
-    arms = ('t1_a1', 't1_a2', 't2_a1', 't2_a2')
     d0, _ = point_distances(rg, q, pts, 0.25, only=list(arms))
     sel_all = []
     for arm in arms:
@@ -106,30 +114,58 @@ def register_to_robot(rg, q, pts, frames, n_per_arm=400, iters=12, seed=0):
         if len(idx) > n_per_arm:
             idx = rng.choice(idx, n_per_arm, replace=False)
         sel_all.append(idx)
-    sel = np.concatenate(sel_all)
-    P = pts[sel]
-    arm_idx = [i for i, n in enumerate(rg.names) if n[3] == 'a']
+    return pts[np.concatenate(sel_all)], [int(len(s)) for s in sel_all]
+
+
+def icp_to_robot(rg, sets, arms, dof=4, iters=12):
+    """Point-to-surface ICP camera-world -> URDF world. sets = [(oMg, P)], one per
+    capture (each with ITS robot pose); one transform for all of them.
+    dof 4 = translation + yaw about world z (G33); 6 = full rigid (G34: a tilted
+    camera world only shows when the arms are spread along the rails)."""
+    arm_idx = [i for i, n in enumerate(rg.names) if n[:5] in arms]
     R, t = np.eye(3), np.zeros(3)
-    rep = {'n_pts': int(len(sel)), 'per_arm': [int(len(s)) for s in sel_all]}
-    for it in range(iters):
-        X = P @ R.T + t
-        m, Y, d = _nearest_on_arms(rg, oMg, X, arm_idx, 0.25 if it < 3 else 0.12)
+    rep = {'n_pts': int(sum(len(P) for _, P in sets)), 'dof': dof}
+
+    def match(dmax):
+        ms, Xs, Ys, ds = [], [], [], []
+        for oMg, P in sets:
+            X = P @ R.T + t
+            m, Y, d = _nearest_on_arms(rg, oMg, X, arm_idx, dmax)
+            ms.append(m), Xs.append(X), Ys.append(Y), ds.append(d)
+        return np.concatenate(ms), np.concatenate(Xs), np.concatenate(Ys), np.concatenate(ds)
+
+    # dof 6 starts with `iters` 4-DOF steps: from identity, a free tilt grabs the
+    # ~0.1 m offset and falls into a wrong minimum (G34 A0.1: median 4.8 cm).
+    stages = [4] * iters + ([6] * iters if dof == 6 else [])
+    for it, sd in enumerate(stages):
+        k = it % iters
+        m, X, Y, d = match(0.25 if k < 3 else 0.12)
         if it == 0:
             rep['median_absd_before'] = float(np.median(np.abs(d[m])))
         A, B = X[m], Y[m]
         ca, cb = A.mean(0), B.mean(0)
-        H = (A[:, :2] - ca[:2]).T @ (B[:, :2] - cb[:2])
-        yaw = np.arctan2(H[0, 1] - H[1, 0], H[0, 0] + H[1, 1])
-        Rz = np.array([[np.cos(yaw), -np.sin(yaw), 0], [np.sin(yaw), np.cos(yaw), 0], [0, 0, 1]])
-        dt = cb - Rz @ ca
-        R, t = Rz @ R, Rz @ t + dt
-    X = P @ R.T + t
-    m, _, d = _nearest_on_arms(rg, oMg, X, arm_idx, 0.25)
+        if sd == 4:
+            H = (A[:, :2] - ca[:2]).T @ (B[:, :2] - cb[:2])
+            yaw = np.arctan2(H[0, 1] - H[1, 0], H[0, 0] + H[1, 1])
+            Rs = np.array([[np.cos(yaw), -np.sin(yaw), 0], [np.sin(yaw), np.cos(yaw), 0], [0, 0, 1]])
+        else:
+            U, _, Vt = np.linalg.svd((A - ca).T @ (B - cb))
+            D = np.diag([1, 1, np.sign(np.linalg.det(Vt.T @ U.T))])
+            Rs = Vt.T @ D @ U.T
+        dt = cb - Rs @ ca
+        R, t = Rs @ R, Rs @ t + dt
+    m, _, _, d = match(0.25)
     rep['median_absd_after'] = float(np.median(np.abs(d[m])))
     rep['inliers_after'] = int(m.sum())
     rep['t'] = t.round(4).tolist()
     rep['yaw_deg'] = float(np.degrees(np.arctan2(R[1, 0], R[0, 0])))
+    rep['rpy_deg'] = np.degrees(_rpy(R)).round(3).tolist()
     return R, t, rep
+
+
+def _rpy(R):
+    return np.array([np.arctan2(R[2, 1], R[2, 2]), -np.arcsin(np.clip(R[2, 0], -1, 1)),
+                     np.arctan2(R[1, 0], R[0, 0])])
 
 
 def ray_hits(rg, oMg, o, pts, pad):
@@ -197,7 +233,15 @@ def capture_voxels(f, cfg, rg, a, rep):
         p, fr = cap[f'{ns}_xyz'], cap[f'{ns}_frames']
         o = cap[f'{ns}_tf'][:3]
         ci = 0 if ns == 'rgbd' else 1
-        if a.register:
+        if a.transform:
+            # G34: ONE fixed correction per camera, fitted over every capture
+            # (p1_g34/rail_calib.py --joint, background-subtracted).
+            Rr = np.array(a.transform[ns]['R'])
+            tr = np.array(a.transform[ns]['t'])
+            rep[f'{b}:{ns}_transform'] = a.transform[ns]['fit']
+            p = (p.astype(float) @ Rr.T + tr).astype(np.float32)
+            o = Rr @ o + tr
+        elif a.register:
             m0 = np.ones(len(p), bool)
             for i, ax in enumerate('xyz'):
                 m0 &= (p[:, i] >= CROP[ax][0]) & (p[:, i] <= CROP[ax][1])
@@ -226,7 +270,12 @@ def capture_voxels(f, cfg, rg, a, rep):
     centers = (uk + 0.5) * RES
     rep[f'{b}:voxels_2cm'] = int(len(uk))
 
-    keep = vf >= MIN_FRAMES
+    # G34 B: MIN_FRAMES = 2 keeps TRANSIENTS (a person near x 2.0 in 3 of 30 frames of
+    # cal_00 blocked a task goal). --min-frac: seen in >= that fraction of the frames.
+    nmin = max(MIN_FRAMES, int(np.ceil(a.min_frac * min(int(cap[f'{ns}_nframes'])
+                                                        for ns in ('rgbd', 'rgbd2')))))
+    keep = vf >= nmin
+    rep[f'{b}:min_frames'] = nmin
     rep[f'{b}:drop_frames_lt2'] = int((~keep).sum())
     centers, vc, vf = centers[keep], vc[keep], vf[keep]
     nn = cKDTree(centers).query_ball_point(centers, NB_R, return_length=True) - 1
@@ -282,14 +331,26 @@ def main():
     # B-over-A (B2): camera-world vs URDF-world disagree by ~0.1 m; register each
     # camera's cloud to the four arms (4-DOF) before anything else.
     ap.add_argument('--register', action='store_true')
+    ap.add_argument('--min-frac', type=float, default=0.0)
+    ap.add_argument('--min-captures', type=int, default=1)
+    # G34: fixed per-camera correction from rail_calib.py --joint (json: {ns: {R, t, fit}})
+    ap.add_argument('--transform')
     a = ap.parse_args()
+    if a.transform:
+        if a.register:
+            raise SystemExit('--transform dan --register saling meniadakan -- TOLAK')
+        fn = a.transform
+        a.transform = json.load(open(fn))
+        if sorted(a.transform) != ['rgbd', 'rgbd2']:
+            raise SystemExit(f'{fn}: harus memuat rgbd dan rgbd2 -- TOLAK')
     if len(a.config) != len(a.capture):
         raise SystemExit('--config harus satu per --capture -- TOLAK')
     t0 = time.time()
     rep = {'captures': a.capture, 'configs': a.config, 'pad': a.pad, 'self_pad': a.self_pad,
            'ray_pad': a.ray_pad, 'res': RES,
            'crop': CROP, 'min_frames': MIN_FRAMES, 'nb': [NB_R, NB_MIN],
-           'register': a.register}
+           'min_frac': a.min_frac, 'min_captures': a.min_captures, 'register': a.register, 'transform': a.transform and {
+               k: dict(R=v['R'], t=v['t']) for k, v in a.transform.items()}}
     rg = RobotGeom()
     parts = []
     for f, c in zip(a.capture, a.config):
@@ -307,6 +368,20 @@ def main():
     np.logical_or.at(vc, inv, V)
     centers = (uk + 0.5) * RES
     rep['union_voxels'] = int(len(uk))
+    # G34 B: a TRANSIENT (person near x 2.0, 3 of 30 frames, cal_00 only -- cal_07 with the
+    # SAME config saw nothing) blocked a task goal. Static scenery shows up in several
+    # captures; a frame-fraction filter instead also ate the rack's thin top edge (ev13).
+    # Support is counted in the 26-NEIGHBOURHOOD (r = res*sqrt(3)): edge noise of
+    # 1-2 cm moves a thin edge between neighbouring voxels capture to capture, and
+    # an exact-voxel count ate the rack edge too (ev13 MARGIN 0.026 -> CLEAR 0.068).
+    if a.min_captures > 1:
+        ncap = np.zeros(len(uk), np.int32)
+        for p in parts:
+            hit = cKDTree(p[0]).query(centers, distance_upper_bound=RES * np.sqrt(3) + 1e-6)[0]
+            ncap += np.isfinite(hit)
+        keep = ncap >= a.min_captures
+        rep['drop_single_capture'] = int((~keep).sum())
+        centers, vc = centers[keep], vc[keep]
 
     cm = corridor_mask(centers, a.pad)
     rep['corridor_removed'] = int(cm.sum())

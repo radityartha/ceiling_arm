@@ -1,0 +1,22 @@
+/home/user1/Documents/ceiling_arm/docs/results/p1_g33/../../../scripts/env_collision.py:67: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+rgbd {"n_pts": 2100, "dof": 6, "median_absd_before": 0.08877391268781928, "median_absd_after": 0.04914886420319493, "inliers_after": 1191, "t": [-0.0275, 0.1005, 0.0852], "yaw_deg": -2.0637810187199306, "rpy_deg": [1.179, -1.656, -2.064]}
+  {"capture": "capture_a.npz", "group": "g1", "s1": 0.0008, "s2": 0.0004, "n": 268, "per_arm": [300, 300], "median_absd": 0.0625, "resid": [0.0497, -0.0263, 0.0048], "centroid": [0.437, 0.39, 1.501]}
+/usr/local/lib/python3.10/dist-packages/numpy/core/fromnumeric.py:3464: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/usr/local/lib/python3.10/dist-packages/numpy/core/_methods.py:192: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/home/user1/Documents/ceiling_arm/docs/results/p1_g34/rail_calib.py:103: RuntimeWarning: Mean of empty slice.
+  resid=(Y[m] - X[m]).mean(0).round(4).tolist(),
+/usr/local/lib/python3.10/dist-packages/numpy/core/_methods.py:184: RuntimeWarning: invalid value encountered in divide
+  ret = um.true_divide(
+/home/user1/Documents/ceiling_arm/docs/results/p1_g34/rail_calib.py:104: RuntimeWarning: Mean of empty slice.
+  centroid=X[m].mean(0).round(3).tolist())
+  {"capture": "capture_a.npz", "group": "g2", "s1": 0.0008, "s2": 0.0004, "n": 0, "per_arm": [300, 300], "median_absd": NaN, "resid": [NaN, NaN, NaN], "centroid": [NaN, NaN, NaN]}
+  {"capture": "capture_b.npz", "group": "g1", "s1": 0.8998, "s2": 1.4496, "n": 498, "per_arm": [300, 300], "median_absd": 0.0291, "resid": [-0.0194, -0.0001, 0.0003], "centroid": [0.876, 0.361, 1.41]}
+  {"capture": "capture_b.npz", "group": "g2", "s1": 0.8998, "s2": 1.4496, "n": 245, "per_arm": [0, 300], "median_absd": 0.0293, "resid": [-0.0149, 0.0295, -0.0011], "centroid": [1.111, -0.45, 1.348]}
+rgbd2 {"n_pts": 1800, "dof": 6, "median_absd_before": 0.09524641313196508, "median_absd_after": 0.03571374818493629, "inliers_after": 1464, "t": [-0.1557, 0.1197, 0.1592], "yaw_deg": -2.540662721654494, "rpy_deg": [-0.909, 4.336, -2.541]}
+  {"capture": "capture_a.npz", "group": "g1", "s1": 0.0008, "s2": 0.0004, "n": 155, "per_arm": [300, 0], "median_absd": 0.088, "resid": [0.0625, -0.0334, 0.0088], "centroid": [0.414, 0.402, 1.653]}
+  {"capture": "capture_a.npz", "group": "g2", "s1": 0.0008, "s2": 0.0004, "n": 0, "per_arm": [300, 0], "median_absd": NaN, "resid": [NaN, NaN, NaN], "centroid": [NaN, NaN, NaN]}
+  {"capture": "capture_b.npz", "group": "g1", "s1": 0.8998, "s2": 1.4496, "n": 445, "per_arm": [300, 300], "median_absd": 0.0179, "resid": [-0.0018, -0.0027, -0.0018], "centroid": [0.781, 0.36, 1.426]}
+  {"capture": "capture_b.npz", "group": "g2", "s1": 0.8998, "s2": 1.4496, "n": 566, "per_arm": [300, 300], "median_absd": 0.0286, "resid": [-0.0171, 0.0127, -0.0003], "centroid": [1.482, -0.391, 1.376]}

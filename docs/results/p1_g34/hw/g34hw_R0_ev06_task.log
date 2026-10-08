@@ -1,0 +1,19 @@
+# 1791421670.7929 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_3 --target=0.3571,-0.3176,1.0800 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/g34hw_step_samples.csv
+1791421671.2840 probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 12.0 N.m
+1791421671.2840 sumber target: arm_3 (0.3571, -0.3176, 1.08), [] []
+1791421671.2840 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791421671.2840 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791421671.2840 
+1791421671.9372 [INFO] [1791421671.937136212] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=2.53->10.23/14, 3=1.83->8.43/10, 4=0.31->2.29/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 84 %)
+1791421671.9432 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791421671.9432   self.geom = pin.buildGeomFromUrdf(
+1791421675.3181 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:189: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791421675.3181   self.geom = pin.buildGeomFromUrdf(
+1791421710.0362 [INFO] [1791421710.036142157] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.8 mm di titik 0 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+1791421710.0765 /home/user1/Documents/ceiling_arm/scripts/env_collision.py:69: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791421710.0765   self.geom = pin.buildGeomFromUrdf(
+1791421722.5598 [INFO] [1791421722.559763632] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 209.3 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+1791421735.2483        arm_3: moveit MOVED
+1791421737.0886   [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_3']) torsi puncak  7.35 N.m
+1791421737.0886   TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+1791421737.0886   -> /tmp/g20_step5.json

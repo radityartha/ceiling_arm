@@ -1,0 +1,8 @@
+S12: maks |q - REST| arm_1 0.088, arm_2 0.052, arm_3 0.057, arm_4 0.110 deg (batas 0.5 untuk gantry 2)
+S23": t2_rotation_joint +0.000 deg (batas 10.5), t1_rotation_joint +0.000 deg (batas 10.5); target +0.000
+S28: sapuan g2 (1.4491 m, +0.000 deg) -> (0.0000, +0.000), sisanya TERUKUR: CLEAR, min 380.0 mm ('t1_platform_link_0', 't2_platform_link_0') di (0.020, +0.00); lengan 514.8, SS 380.0, n 146
+G33: sapuan g2 vs peta lingkungan: CLEAR, min 69.6 mm (t2_a2_right_finger_prox_link_0) di titik 10
+g2: lin 1.449143 -> 0.000000 m (-1449.1 mm), rot +0.000 -> +0.000 deg (+0.000); T_cmd 80.51 s (lin 80.51, rot 0.00)
+setpoint pertama 0.14 mm / 0.000 deg (arm_tol 5 mm / 1.0 deg)
+DRY RUN: tidak ada yang dikirim.
+{"dry": true, "gantry": 2, "start": [1.449143, 0.0], "goal": [0.0, 0.0], "sweep": "CLEAR", "sweep_min_mm": 380.0, "sweep_arm_mm": 514.8, "T_cmd": 80.508, "T_cmd_lin": 80.508, "T_cmd_rot": 0.0}

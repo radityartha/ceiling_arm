@@ -56,8 +56,9 @@ import time
 import rclpy
 from geometry_msgs.msg import PoseStamped
 from moveit_msgs.action import ExecuteTrajectory, MoveGroup
-from moveit_msgs.msg import (BoundingVolume, Constraints, MoveItErrorCodes,
-                             OrientationConstraint, PositionConstraint)
+from moveit_msgs.msg import (BoundingVolume, Constraints, JointConstraint,
+                             MoveItErrorCodes, OrientationConstraint,
+                             PositionConstraint)
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
@@ -410,6 +411,19 @@ def _goal_constraints(link, p_cmd, pos_tol, ori_tol_deg):
     return c
 
 
+def _joint_goal(joints, tol=math.radians(0.2)):
+    """A joint-space goal {joint: pos} (G34: env-aware retract plans to REST)."""
+    c = Constraints()
+    for n, v in joints.items():
+        jc = JointConstraint()
+        jc.joint_name = n
+        jc.position = float(v)
+        jc.tolerance_above = jc.tolerance_below = tol
+        jc.weight = 1.0
+        c.joint_constraints.append(jc)
+    return c
+
+
 def _violates_tuck(traj, arm, tol_deg=10.0):
     """A6/S2, enforced where the joint command actually EXISTS.
 
@@ -745,8 +759,10 @@ def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
     goal.request.allowed_planning_time = plan_time
     goal.request.max_velocity_scaling_factor = vel_scale
     goal.request.max_acceleration_scaling_factor = vel_scale
+    # p_cmd: a PoseStamped on the tool frame, or (G34) a {joint: pos} dict.
     goal.request.goal_constraints.append(
-        _goal_constraints(TOOL_FRAME[arm], p_cmd, pos_tol, ori_tol_deg))
+        _joint_goal(p_cmd) if isinstance(p_cmd, dict)
+        else _goal_constraints(TOOL_FRAME[arm], p_cmd, pos_tol, ori_tol_deg))
     goal.planning_options.plan_only = True
 
     fut = node._plan_ac.send_goal_async(goal)

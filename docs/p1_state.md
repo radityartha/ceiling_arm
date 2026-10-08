@@ -791,6 +791,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_prompt_gcs_msbl.md` | prompt sesi port MS-BL-GNG + GCS — **sudah dieksekusi**, lihat `p1_g5_msbl_gcs.md` |
 | `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
+| **`p1_g34_rail_calib.md`** | **Sesi G34 + G34b — rel = URDF ≤ 1 cm, offset kamera↔URDF tetap per kamera (§B2); peta gabungan g34n 136 558 voxel, (P+) ev 8 ditolak 1.7 s, (N−) R0 13/14 (§B4–B5); retract sadar-lingkungan `plan_retract` (§B3); D219–D224 5/1 (§B6); **G34b HW seed 36 R0 6/6 783.33 s, R10 6/6 849.29 s — ev 8 (tabrakan rak G32) SUCCESS**, semua retract lurus, Δ R10−R0 +65.96 s = overhead saringan sapuan (§B7); prompt G35 (§E)** |
 | **`p1_g33_map.md`** | **Sesi G33 — plugin octomap: perception tak terpasang → dipasang + MoveIt 2.5.10 (§A0.1, §B8); peta beku 2× D455 71 763 voxel (§B0–B3), 🔴 dunia kamera ↔ URDF ~0.1 m → registrasi ke robot (§B2); (P+) lintasan nyata ev 8 COLLIDE, ditolak 2.0 s sebelum kontak (§B4); penyaring lingkungan di probe/return_rest/pose_to_g/g31_screen (§B5); plan-only R0 3/3, R10 ditolak di retract g2 (§B6); rencana lama 27/726 ditolak, semua gantry 2; D213–D218 3/3 (§B7); prompt G34 (§D)** |
 | **`p1_g32_hw.md`** | **Sesi G32-HW — kaki uji lin+rot 2/2 (§B1), R0 seed 36 6/6 647.47 s = 1.114× (§B2), 🔴 R10 ev 8 arm_3 MENABRAK RAK di g2 −10° (§B3), D200–D212 9/3 (§B4), sel TIDAK dipulangkan (§C); prompt G33 peta 3D (§D)** |
 | **`p1_g32_rot_exec.md`** | **Sesi G32-OFF — jadwal seed 36 R10 + pemutus seri (§B1), patch `return_rest` (§B2), `pose_to_g`/`run_g32` (§B3–B4), plan-only/DRY/smoke mock (§B5), D189–D199 10/11 (§B6); prompt G32-HW (§D)** |
@@ -882,7 +883,7 @@ menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawa
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
 
-**Tally G10–G33** (diperbarui 2026-10-07, G33; tiap baris dari §B dokumen
+**Tally G10–G34b** (diperbarui 2026-10-08, G34b; tiap baris dari §B dokumen
 sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 
 | sesi | ditambah (meleset / tepat) | papan skor |
@@ -913,7 +914,9 @@ sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 | G31 | 4 / 10 (D175–D188) | 72 / 112 |
 | G32-OFF | 1 / 10 (D189–D199) | 73 / 122 |
 | G32-HW | 3 / 9 (D200–D212; D211 tidak dinilai, D210/D212 sebagian) | 76 / 131 |
-| **G33** | **3 / 3** (D213–D218) | **79 meleset / 134 tepat** |
+| G33 | 3 / 3 (D213–D218) | 79 / 134 |
+| G34 | 1 / 5 (D219–D224; D221 sebagian = tepat, seperti D210/D212) | 80 / 139 |
+| **G34b** | **0 / 0** (tidak ada dugaan dikunci sebelum bring-up — kesalahan proses, g34 B8.1) | **80 meleset / 139 tepat** |
 
 ➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
 atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
@@ -992,3 +995,10 @@ model yang mengandung lingkungan. Semua "LOLOS/CLEAR" G22–G32 = robot-vs-robot
 meleset = **seberapa bersih dunia nyata**: R0 nyata ternyata nyaris menabrak rak (D215), tak ada sisa pelat (D217), rencana
 lama yang ditolak lebih sedikit dari dugaan tapi terkonsentrasi di gantry 2 (D218). Temuan terbesar — dunia kamera vs URDF
 bergeser ~0.1 m — **tidak diduga sama sekali**; ia muncul dari residual self-filter, bukan dari dugaan.
+
+➜ Yang G34 tambahkan: kelima yang tepat dari **mekanisme yang diukur di sesi yang sama** (keterulangan, H-cam, kontrol P+/N−).
+Satu meleset (D222) = **besaran** kemiringan tanpa hitung. Temuan terbesar lagi tidak diduga: "rel melendut" = meja di radius
+pilih, dan bug aliasing `oMg` di alat sendiri.
+
+➜ G34b tidak menambah dugaan (lupa dikunci). Temuan yang tidak diduga siapa pun: **biaya hitung penyaring** — tak ada di model P1′
+— membalik tanda Δ(R10 − R0) di HW (+65.96 s vs −50.87), karena sapuan berotasi 5–6× lebih banyak sampel.
