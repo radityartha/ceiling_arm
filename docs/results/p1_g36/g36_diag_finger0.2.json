@@ -1,0 +1,148 @@
+{
+ "tag": "finger0.2",
+ "plan_time": 15.0,
+ "finger": 0.2,
+ "has_map": true,
+ "configs": {
+  "hw_s0_+103.7": {
+   "arm3_deg": [
+    103.7,
+    16.2,
+    48.9,
+    89.5,
+    -32.7,
+    -87.2
+   ],
+   "start_valid": {
+    "valid": false,
+    "contacts": [
+     "t2_a1_right_finger_prox_link|env_static_map"
+    ]
+   },
+   "rest_valid": {
+    "valid": true,
+    "contacts": []
+   },
+   "plans": [
+    {
+     "code": "INVALID_MOTION_PLAN",
+     "s": 0.54,
+     "n_pts": 178,
+     "planning_time": 0.09665125499999999,
+     "mg": [
+      "[move_group-2] [INFO] [1791435349.081380053] [moveit_ros.fix_start_state_collision]: Found a valid state near the start state at distance 0.225071 after 0 attempts",
+      "[move_group-2] [INFO] [1791435349.109942282] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm_3' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.",
+      "[move_group-2] [INFO] [1791435349.229157118] [moveit.ros_planning.planning_pipeline]: Planning adapters have added states at index positions: [ 0 ]",
+      "[move_group-2] [ERROR] [1791435349.450771713] [moveit.ros_planning.planning_pipeline]: Computed path is not valid. Invalid states at index locations: [ 0 1 2 ] out of 178. Explanations follow in command line. Contacts are published on /display_contacts",
+      "[move_group-2] [INFO] [1791435349.463832993] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435349.463850157] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435349.495009539] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435349.495027957] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435349.526386765] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435349.526405767] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [ERROR] [1791435349.543997630] [moveit.ros_planning.planning_pipeline]: Completed listing of explanations for invalid states.",
+      "[move_group-2] [INFO] [1791435349.544286700] [moveit_move_group_default_capabilities.move_action_capability]: Motion plan was found but it seems to be invalid (possibly due to postprocessing). Not executing."
+     ],
+     "j1_range": [
+      -26.4,
+      116.3
+     ]
+    },
+    {
+     "code": "SUCCESS",
+     "s": 0.32,
+     "n_pts": 140,
+     "planning_time": 0.075890971,
+     "mg": [
+      "[move_group-2] [INFO] [1791435350.050534018] [moveit_move_group_default_capabilities.move_action_capability]: Received request",
+      "[move_group-2] [INFO] [1791435350.050671043] [moveit_move_group_default_capabilities.move_action_capability]: executing..",
+      "[move_group-2] [INFO] [1791435350.059817366] [moveit_move_group_default_capabilities.move_action_capability]: Planning request received for MoveGroup action. Forwarding to planning pipeline.",
+      "[move_group-2] [INFO] [1791435350.211996568] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435350.212016590] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435350.212026683] [moveit_ros.fix_start_state_collision]: Start state appears to be in collision with respect to group arm_3",
+      "[move_group-2] [INFO] [1791435350.214598658] [moveit_ros.fix_start_state_collision]: Found a valid state near the start state at distance 0.147949 after 0 attempts",
+      "[move_group-2] [INFO] [1791435350.221600658] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm_3' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.",
+      "[move_group-2] [INFO] [1791435350.311127296] [moveit.ros_planning.planning_pipeline]: Planning adapters have added states at index positions: [ 0 ]",
+      "[move_group-2] [INFO] [1791435350.368204967] [moveit_move_group_default_capabilities.move_action_capability]: Motion plan was computed successfully."
+     ],
+     "j1_range": [
+      -26.4,
+      103.7
+     ]
+    },
+    {
+     "code": "INVALID_MOTION_PLAN",
+     "s": 0.68,
+     "n_pts": 142,
+     "planning_time": 0.192397114,
+     "mg": [
+      "[move_group-2] [INFO] [1791435351.055537596] [moveit_ros.fix_start_state_collision]: Found a valid state near the start state at distance 0.069221 after 0 attempts",
+      "[move_group-2] [INFO] [1791435351.096502405] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm_3' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.",
+      "[move_group-2] [INFO] [1791435351.304145391] [moveit.ros_planning.planning_pipeline]: Planning adapters have added states at index positions: [ 0 ]",
+      "[move_group-2] [ERROR] [1791435351.451075468] [moveit.ros_planning.planning_pipeline]: Computed path is not valid. Invalid states at index locations: [ 0 1 2 ] out of 142. Explanations follow in command line. Contacts are published on /display_contacts",
+      "[move_group-2] [INFO] [1791435351.464645545] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435351.464682426] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435351.496981248] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435351.497018223] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435351.529190141] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435351.529208786] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [ERROR] [1791435351.547899757] [moveit.ros_planning.planning_pipeline]: Completed listing of explanations for invalid states.",
+      "[move_group-2] [INFO] [1791435351.548202834] [moveit_move_group_default_capabilities.move_action_capability]: Motion plan was found but it seems to be invalid (possibly due to postprocessing). Not executing."
+     ],
+     "j1_range": [
+      -26.6,
+      106.7
+     ]
+    },
+    {
+     "code": "INVALID_MOTION_PLAN",
+     "s": 0.55,
+     "n_pts": 167,
+     "planning_time": 0.168396204,
+     "mg": [
+      "[move_group-2] [INFO] [1791435352.121031867] [moveit_ros.fix_start_state_collision]: Found a valid state near the start state at distance 0.149027 after 0 attempts",
+      "[move_group-2] [INFO] [1791435352.152103747] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm_3' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.",
+      "[move_group-2] [INFO] [1791435352.338984769] [moveit.ros_planning.planning_pipeline]: Planning adapters have added states at index positions: [ 0 ]",
+      "[move_group-2] [ERROR] [1791435352.505384029] [moveit.ros_planning.planning_pipeline]: Computed path is not valid. Invalid states at index locations: [ 0 1 2 ] out of 167. Explanations follow in command line. Contacts are published on /display_contacts",
+      "[move_group-2] [INFO] [1791435352.518127818] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435352.518144139] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435352.550181730] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435352.550198673] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435352.581174737] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435352.581213034] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [ERROR] [1791435352.599385783] [moveit.ros_planning.planning_pipeline]: Completed listing of explanations for invalid states.",
+      "[move_group-2] [INFO] [1791435352.599898051] [moveit_move_group_default_capabilities.move_action_capability]: Motion plan was found but it seems to be invalid (possibly due to postprocessing). Not executing."
+     ],
+     "j1_range": [
+      -26.6,
+      110.5
+     ]
+    },
+    {
+     "code": "INVALID_MOTION_PLAN",
+     "s": 0.5,
+     "n_pts": 158,
+     "planning_time": 0.14144525000000002,
+     "mg": [
+      "[move_group-2] [INFO] [1791435353.179790074] [moveit_ros.fix_start_state_collision]: Found a valid state near the start state at distance 0.101126 after 0 attempts",
+      "[move_group-2] [INFO] [1791435353.222913220] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm_3' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.",
+      "[move_group-2] [INFO] [1791435353.380699144] [moveit.ros_planning.planning_pipeline]: Planning adapters have added states at index positions: [ 0 ]",
+      "[move_group-2] [ERROR] [1791435353.509334470] [moveit.ros_planning.planning_pipeline]: Computed path is not valid. Invalid states at index locations: [ 0 1 2 ] out of 158. Explanations follow in command line. Contacts are published on /display_contacts",
+      "[move_group-2] [INFO] [1791435353.522485647] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435353.522502545] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435353.554038443] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435353.554056582] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435353.586512926] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435353.586530807] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [ERROR] [1791435353.605129163] [moveit.ros_planning.planning_pipeline]: Completed listing of explanations for invalid states.",
+      "[move_group-2] [INFO] [1791435353.605419401] [moveit_move_group_default_capabilities.move_action_capability]: Motion plan was found but it seems to be invalid (possibly due to postprocessing). Not executing."
+     ],
+     "j1_range": [
+      -26.8,
+      108.2
+     ]
+    }
+   ]
+  }
+ }
+}

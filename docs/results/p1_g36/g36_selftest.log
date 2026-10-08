@@ -1,0 +1,12 @@
+  self.geom = pin.buildGeomFromUrdf(
+  V = np.array([G.vertices(i) for i in range(G.num_vertices)])
+pasangan silang diperiksa: 121
+  A. dua lengan MENGGANTUNG      : jarak    622.7 mm  BEBAS ✓   ('t1_a1_arm_link_0', 't1_a2_arm_link_0')
+  B. dua lengan ke titik SAMA [0.55 0.36 1.4 ] : jarak      0.0 mm  TABRAKAN ✓ (benar)   ('t1_a1_left_finger_prox_link_0', 't1_a2_left_finger_prox_link_0')
+     (IK konvergen: arm_1 True, arm_2 True)
+  C. arm_1 REST->kontak      : terpangkas COLLIDE +0.000 39 vs padat COLLIDE +0.000 39  SAMA ✓
+  C. dua lengan kontak->REST : terpangkas COLLIDE +0.000 0 vs padat COLLIDE +0.000 0  SAMA ✓
+
+SWA-UJI: LULUS -- pemeriksa membedakan bebas dari tabrakan.
+
+SWA-UJI ANTAR-GANTRY: LULUS

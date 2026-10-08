@@ -2,7 +2,7 @@
 
 From p1_g22/rail_to_g.py + p1_g30/rot_to_g.py. docs/p1_g32_rot_exec.md A3:
   S12  REFUSES unless BOTH arms of gantry g are within 0.5 deg of REST
-  S13" (LIN, ROT) must be a stop of gantry g in the locked plan (seed, variant) or p0 (0, 0); LIN in [0, 1.600]
+  S13" (LIN, ROT) must be a stop of gantry g in the locked plan (seed, variant), p0 (0, 0) or PARK; LIN in [0, 1.600]
   S23" |ROT| <= 10.0 deg; measured |rot g| <= 10.5; measured |rot other| <= 10.5 (R10, G29 B3 envelope)
   S28  sweep_rot(RotCrossChecker, rect) from the MEASURED state -- all 24 arm joints, both rails, BOTH
        rotations, strict names -- (lin, rot) -> (LIN, ROT). Not CLEAR / cannot screen -> REFUSE.
@@ -52,8 +52,12 @@ LJ, OLJ = f't{G}_linear_joint', f't{3 - G}_linear_joint'
 RJ, ORJ = f't{G}_rotation_joint', f't{3 - G}_rotation_joint'
 ALL_ARMS = [f'{p}joint_{j}' for p in P.PREFIX.values() for j in range(1, 7)]
 row = {r['seed']: r for r in json.load(open(a.plan))}[a.seed]
-ok = {(round(row['p0'][str(G)], 3), 0.0)} | {(round(st['rail_m'], 3), round(st['rot_deg'], 3))
-                                             for st in row[a.variant]['schedule'][str(G)]}
+# G36 (operator 2026-10-08): between runs gantry 1 PARKS at the far end -- both gantries parked at the
+# home end loaded the ceiling to one side. Parking pose only: encoder 0 = p0 of every plan is unchanged,
+# so a run still starts from p0 (pose_to_g ... 0 0 first). 1.500 = 100 mm inside bridge.max_mm 1600.
+PARK = {1: (1.500, 0.0), 2: (0.0, 0.0)}
+ok = {(round(row['p0'][str(G)], 3), 0.0), PARK[G]} | {(round(st['rail_m'], 3), round(st['rot_deg'], 3))
+                                                      for st in row[a.variant]['schedule'][str(G)]}
 if (round(GL, 3), round(GR_DEG, 3)) not in ok or not 0.0 <= GL <= P.RAIL_MAX:
     print(f'REFUSE: S13" -- gantry {G} hanya {sorted(ok)} (jadwal seed {a.seed} {a.variant}), rel <= {P.RAIL_MAX}')
     sys.exit(1)

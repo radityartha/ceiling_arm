@@ -26,6 +26,7 @@ sys.path.insert(0, os.path.join(HERE, '../p1_g29'))
 import g22_plan as P  # noqa: E402
 
 TAU_MAX = 12.0
+TASK_ATTEMPTS = 3     # = reach_dwell_probe --plan-attempts default (run_g32 does not pass it)
 REST_TOL = math.radians(0.5)
 
 
@@ -119,8 +120,15 @@ def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen
             others = [x for x in P.PREFIX if x != arm]
             t0 = time.time()
             start = dict(placed)
-            v, traj = _plan_and_screen(arm, pose(ev['xyz']), node, 0.002, 2.0, 0.15,
-                                       15.0, TAU_MAX, others, start_joints=start)
+            # G36: as the HW probe does (move_to, --plan-attempts 3): retake a
+            # RETRYABLE refusal, and refuse plans that end where the arm cannot go home.
+            for _ in range(TASK_ATTEMPTS):
+                v, traj = _plan_and_screen(arm, pose(ev['xyz']), node, 0.002, 2.0, 0.15,
+                                           15.0, TAU_MAX, others, start_joints=start,
+                                           retract_check=True)
+                log(f'    [{k}]   percobaan tugas: {v}')
+                if v not in RETRYABLE:
+                    break
             log(f'    [{k}] task t{ev["task"]} {arm} -> {ev["xyz"]} @({placed[f"t{g}_linear_joint"]:.3f}, '
                 f'{math.degrees(placed[f"t{g}_rotation_joint"]):+.0f}): {v} ({time.time()-t0:.1f} s)')
             row = dict(k=k, task=ev['task'], arm=arm, xyz=ev['xyz'], verdict=v, start=start)
@@ -151,6 +159,8 @@ def main():
     from moveit_msgs.action import MoveGroup
     from rclpy.action import ActionClient
     from reach_dwell_probe import JOINT_TORQUE_OFFSET_NM, Probe, _plan_and_screen
+    global RETRYABLE
+    from reach_dwell_probe import RETRYABLE
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
         from interarm_collision import CrossGantryChecker, InterArmChecker

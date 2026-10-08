@@ -122,6 +122,10 @@ JOINT_TORQUE_OFFSET_NM = {1: 6.6, 2: 7.7, 3: 6.6, 4: 1.98, 5: 1.98, 6: 1.98}
 # (scripts/interarm_collision.py). 5 cm is chosen to absorb the discrete
 # waypoint sampling, not because contact at 4 cm would be acceptable.
 INTERARM_MARGIN_M = 0.05
+# move_to() asks for another OMPL sample after these refusals (see there).
+# G36: + RETRACT-BLOCKED (the plan ends where the arm cannot go home).
+RETRYABLE = ('NO-PLAN', 'TUCK-REFUSED', 'TORQUE-UNSAFE', 'INTERARM-COLLIDE',
+             'RETRACT-BLOCKED')
 
 
 class Probe(Node):
@@ -659,7 +663,7 @@ def screen_env(traj, node, start_joints=None):
 
 def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
             vel_scale=0.15, plan_time=15.0, plan_only=False, tau_max=None,
-            other_arm=None, attempts=1):
+            other_arm=None, attempts=1, retract_check=False):
     """Plan to p_cmd, CHECK the plan against A6/S2, then execute it.
 
     Reuses the MoveIt path hardware_check.py --arms drives (MoveGroup action,
@@ -682,7 +686,8 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
     def _plan_once():
         """Ask for one plan and run every screen on it. (verdict, traj)."""
         return _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg,
-                                vel_scale, plan_time, tau_max, other_arm)
+                                vel_scale, plan_time, tau_max, other_arm,
+                                retract_check=retract_check)
 
     # RETRY, and this is a feasibility change rather than a safety one.
     # docs/p1_g17_hw.md B1.9 measured the same target from the same rest pose
@@ -701,7 +706,6 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
     # Not retried: TORQUE-UNSCREENED / INTERARM-UNSCREENED / EXEC-FAIL. Those
     # say the screen or the machinery is unavailable, and repeating a broken
     # tool just hides that it is broken.
-    RETRYABLE = ('NO-PLAN', 'TUCK-REFUSED', 'TORQUE-UNSAFE', 'INTERARM-COLLIDE')
     verdict, traj = _plan_once()
     for k in range(2, max(1, attempts) + 1):
         if verdict not in RETRYABLE:
@@ -737,7 +741,8 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
 
 
 def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
-                     plan_time, tau_max, other_arm, start_joints=None):
+                     plan_time, tau_max, other_arm, start_joints=None,
+                     retract_check=False):
     """One plan request plus every pre-execution screen. ('PLANNED', traj) or
     (refusal, None). Split out of move_to so a refusal can be re-sampled
     without duplicating a single line of the screening logic.
@@ -869,7 +874,63 @@ def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
             f'{node._env.margin * 1000:.0f} mm.')
         return 'ENV-COLLIDE', None
 
+    # G36: a task plan is accepted only if the arm can go home from where it
+    # ENDS by the straight line return_rest tries first (same screens). G35b:
+    # an ev 10 plan ended on the +100 deg IK branch at the rack edge, the
+    # straight retract went through the rack and MoveIt could not plan home
+    # either -- on hardware that strands the arm at the rack. Refusing here
+    # costs one more OMPL sample (move_to retries it); the arm has not moved.
+    if retract_check:
+        rv = screen_retract(traj, arm, node, start_joints)
+        if rv is None:
+            node.get_logger().error('TIDAK BISA menyaring jalur pulang -- MENOLAK.')
+            return 'RETRACT-UNSCREENED', None
+        if rv != 'CLEAR':
+            node.get_logger().error(
+                f'JALUR PULANG TERHALANG: rencana DITOLAK SEBELUM GERAK -- garis lurus '
+                f'ke REST dari titik akhirnya {rv}.')
+            return 'RETRACT-BLOCKED', None
+
     return 'PLANNED', traj
+
+
+def screen_retract(traj, arm, node, start_joints=None):
+    """G36: return_rest.plan_retract (straight line only, no MoveIt) for `arm`
+    alone from the END of traj, everything else held as screen_env holds it.
+    'CLEAR' | 'LURUS-<verdicts>' | None when it cannot run."""
+    try:
+        from env_collision import CONFIG_JOINTS
+        from interarm_collision import CrossGantryChecker, InterArmChecker
+        from return_rest import plan_retract
+    except ImportError:
+        return None
+    g = GANTRY_OF[arm]
+    if not hasattr(node, '_interarm'):
+        node._interarm = {}
+    try:
+        if g not in node._interarm:
+            node._interarm[g] = InterArmChecker(gantry=g, margin=INTERARM_MARGIN_M)
+        if 'cross' not in node._interarm:
+            node._interarm['cross'] = CrossGantryChecker(margin=INTERARM_MARGIN_M)
+    except Exception:                                        # noqa: BLE001
+        return None
+    if not hasattr(node, '_env'):
+        return None                     # screen_env ran first and loaded it
+    base = node.wait_joints(CONFIG_JOINTS)
+    if start_joints:
+        base.update({k: v for k, v in start_joints.items() if k in CONFIG_JOINTS})
+    if len(base) < len(CONFIG_JOINTS):
+        return None
+    jt = traj.joint_trajectory
+    base.update(zip(jt.joint_names, jt.points[-1].positions))
+    try:
+        v, _ = plan_retract(int(g[-1]), [arm], base, node._interarm[g],
+                            node._interarm['cross'], node._env,
+                            log=lambda s: node.get_logger().info(s))
+    except KeyError as e:
+        node.get_logger().error(f'penyaring jalur pulang: {e}')
+        return None
+    return v
 
 
 def dual_trial(node, a, i, arms, fixed2):
@@ -935,7 +996,7 @@ def dual_trial(node, a, i, arms, fixed2):
             other = _others(arm)
             mv = move_to(arm, cmds[arm], node, plan_only=True,
                          tau_max=a.tau_max, other_arm=other,
-                         attempts=a.plan_attempts) \
+                         attempts=a.plan_attempts, retract_check=True) \
                 if a.plan_check else 'DRY'
             c = cmds[arm].pose.position
             print(f'  [{i:2d}] DRY {arm}: p_cmd = ({c.x:+.3f}, {c.y:+.3f}, '
@@ -947,7 +1008,8 @@ def dual_trial(node, a, i, arms, fixed2):
     for arm in arms:
         other = _others(arm)
         moves[arm] = move_to(arm, cmds[arm], node, tau_max=a.tau_max,
-                             other_arm=other, attempts=a.plan_attempts)
+                             other_arm=other, attempts=a.plan_attempts,
+                             retract_check=True)
         print(f'       {arm}: moveit {moves[arm]}')
         if moves[arm] != 'MOVED':
             break

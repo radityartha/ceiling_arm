@@ -1,0 +1,140 @@
+{
+ "tag": "finger0.3",
+ "plan_time": 15.0,
+ "finger": 0.3,
+ "has_map": true,
+ "configs": {
+  "hw_s0_+103.7": {
+   "arm3_deg": [
+    103.7,
+    16.2,
+    48.9,
+    89.5,
+    -32.7,
+    -87.2
+   ],
+   "start_valid": {
+    "valid": false,
+    "contacts": [
+     "t2_a1_right_finger_prox_link|env_static_map"
+    ]
+   },
+   "rest_valid": {
+    "valid": true,
+    "contacts": []
+   },
+   "plans": [
+    {
+     "code": "SUCCESS",
+     "s": 0.36,
+     "n_pts": 139,
+     "planning_time": 0.069547002,
+     "mg": [
+      "[move_group-2] [INFO] [1791435282.691022114] [moveit_move_group_default_capabilities.move_action_capability]: Received request",
+      "[move_group-2] [INFO] [1791435282.691133245] [moveit_move_group_default_capabilities.move_action_capability]: executing..",
+      "[move_group-2] [INFO] [1791435282.699789341] [moveit_move_group_default_capabilities.move_action_capability]: Planning request received for MoveGroup action. Forwarding to planning pipeline.",
+      "[move_group-2] [INFO] [1791435282.859045526] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435282.859073734] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435282.859085774] [moveit_ros.fix_start_state_collision]: Start state appears to be in collision with respect to group arm_3",
+      "[move_group-2] [INFO] [1791435282.869762800] [moveit_ros.fix_start_state_collision]: Found a valid state near the start state at distance 0.847692 after 1 attempts",
+      "[move_group-2] [INFO] [1791435282.878256487] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm_3' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.",
+      "[move_group-2] [INFO] [1791435282.963400122] [moveit.ros_planning.planning_pipeline]: Planning adapters have added states at index positions: [ 0 ]",
+      "[move_group-2] [INFO] [1791435283.044469717] [moveit_move_group_default_capabilities.move_action_capability]: Motion plan was computed successfully."
+     ],
+     "j1_range": [
+      -26.7,
+      106.3
+     ]
+    },
+    {
+     "code": "SUCCESS",
+     "s": 0.7,
+     "n_pts": 153,
+     "planning_time": 0.290513706,
+     "mg": [
+      "[move_group-2] [INFO] [1791435283.549790032] [moveit_move_group_default_capabilities.move_action_capability]: Received request",
+      "[move_group-2] [INFO] [1791435283.549920306] [moveit_move_group_default_capabilities.move_action_capability]: executing..",
+      "[move_group-2] [INFO] [1791435283.559817721] [moveit_move_group_default_capabilities.move_action_capability]: Planning request received for MoveGroup action. Forwarding to planning pipeline.",
+      "[move_group-2] [INFO] [1791435283.724019876] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435283.724064909] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435283.724077594] [moveit_ros.fix_start_state_collision]: Start state appears to be in collision with respect to group arm_3",
+      "[move_group-2] [INFO] [1791435283.725418764] [moveit_ros.fix_start_state_collision]: Found a valid state near the start state at distance 0.290609 after 0 attempts",
+      "[move_group-2] [INFO] [1791435283.733766981] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm_3' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.",
+      "[move_group-2] [INFO] [1791435284.040049794] [moveit.ros_planning.planning_pipeline]: Planning adapters have added states at index positions: [ 0 ]",
+      "[move_group-2] [INFO] [1791435284.242484616] [moveit_move_group_default_capabilities.move_action_capability]: Motion plan was computed successfully."
+     ],
+     "j1_range": [
+      -26.4,
+      103.7
+     ]
+    },
+    {
+     "code": "SUCCESS",
+     "s": 0.23,
+     "n_pts": 147,
+     "planning_time": 0.091775868,
+     "mg": [
+      "[move_group-2] [INFO] [1791435284.747994194] [moveit_move_group_default_capabilities.move_action_capability]: Received request",
+      "[move_group-2] [INFO] [1791435284.748114950] [moveit_move_group_default_capabilities.move_action_capability]: executing..",
+      "[move_group-2] [INFO] [1791435284.749753763] [moveit_move_group_default_capabilities.move_action_capability]: Planning request received for MoveGroup action. Forwarding to planning pipeline.",
+      "[move_group-2] [INFO] [1791435284.799789985] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435284.799810298] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435284.799822906] [moveit_ros.fix_start_state_collision]: Start state appears to be in collision with respect to group arm_3",
+      "[move_group-2] [INFO] [1791435284.802277543] [moveit_ros.fix_start_state_collision]: Found a valid state near the start state at distance 0.212459 after 0 attempts",
+      "[move_group-2] [INFO] [1791435284.808613818] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm_3' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.",
+      "[move_group-2] [INFO] [1791435284.919475802] [moveit.ros_planning.planning_pipeline]: Planning adapters have added states at index positions: [ 0 ]",
+      "[move_group-2] [INFO] [1791435284.973345044] [moveit_move_group_default_capabilities.move_action_capability]: Motion plan was computed successfully."
+     ],
+     "j1_range": [
+      -26.5,
+      103.7
+     ]
+    },
+    {
+     "code": "SUCCESS",
+     "s": 0.52,
+     "n_pts": 186,
+     "planning_time": 0.26963557,
+     "mg": [
+      "[move_group-2] [INFO] [1791435285.484546151] [moveit_move_group_default_capabilities.move_action_capability]: Received request",
+      "[move_group-2] [INFO] [1791435285.484710547] [moveit_move_group_default_capabilities.move_action_capability]: executing..",
+      "[move_group-2] [INFO] [1791435285.489744617] [moveit_move_group_default_capabilities.move_action_capability]: Planning request received for MoveGroup action. Forwarding to planning pipeline.",
+      "[move_group-2] [INFO] [1791435285.646327332] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435285.646347532] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435285.646358382] [moveit_ros.fix_start_state_collision]: Start state appears to be in collision with respect to group arm_3",
+      "[move_group-2] [INFO] [1791435285.651452112] [moveit_ros.fix_start_state_collision]: Found a valid state near the start state at distance 0.853702 after 1 attempts",
+      "[move_group-2] [INFO] [1791435285.657291309] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm_3' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.",
+      "[move_group-2] [INFO] [1791435285.946178483] [moveit.ros_planning.planning_pipeline]: Planning adapters have added states at index positions: [ 0 ]",
+      "[move_group-2] [INFO] [1791435285.997969336] [moveit_move_group_default_capabilities.move_action_capability]: Motion plan was computed successfully."
+     ],
+     "j1_range": [
+      -26.4,
+      104.5
+     ]
+    },
+    {
+     "code": "SUCCESS",
+     "s": 0.31,
+     "n_pts": 141,
+     "planning_time": 0.050091031,
+     "mg": [
+      "[move_group-2] [INFO] [1791435286.503384514] [moveit_move_group_default_capabilities.move_action_capability]: Received request",
+      "[move_group-2] [INFO] [1791435286.503528945] [moveit_move_group_default_capabilities.move_action_capability]: executing..",
+      "[move_group-2] [INFO] [1791435286.509832077] [moveit_move_group_default_capabilities.move_action_capability]: Planning request received for MoveGroup action. Forwarding to planning pipeline.",
+      "[move_group-2] [INFO] [1791435286.661831488] [moveit_collision_detection_fcl.collision_common]: Found a contact between 'env_static_map' (type 'Object') and 't2_a1_right_finger_prox_link' (type 'Robot link'), which constitutes a collision. Contact information is not stored.",
+      "[move_group-2] [INFO] [1791435286.661851095] [moveit_collision_detection_fcl.collision_common]: Collision checking is considered complete (collision was found and 0 contacts are stored)",
+      "[move_group-2] [INFO] [1791435286.661922106] [moveit_ros.fix_start_state_collision]: Start state appears to be in collision with respect to group arm_3",
+      "[move_group-2] [INFO] [1791435286.664359389] [moveit_ros.fix_start_state_collision]: Found a valid state near the start state at distance 0.795960 after 1 attempts",
+      "[move_group-2] [INFO] [1791435286.671842677] [moveit.ompl_planning.model_based_planning_context]: Planner configuration 'arm_3' will use planner 'geometric::RRTConnect'. Additional configuration parameters will be set when the planner is constructed.",
+      "[move_group-2] [INFO] [1791435286.735030250] [moveit.ros_planning.planning_pipeline]: Planning adapters have added states at index positions: [ 0 ]",
+      "[move_group-2] [INFO] [1791435286.811083279] [moveit_move_group_default_capabilities.move_action_capability]: Motion plan was computed successfully."
+     ],
+     "j1_range": [
+      -26.4,
+      111.3
+     ]
+    }
+   ]
+  }
+ }
+}

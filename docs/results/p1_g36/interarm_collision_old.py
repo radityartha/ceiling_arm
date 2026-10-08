@@ -132,58 +132,6 @@ class InterArmChecker:
         return best, worst
 
     def screen_trajectory(self, joint_names, points, other_joints, only=None):
-        """screen_trajectory_dense() -- same verdict, d_min, pair and waypoint --
-        computed by EXACT branch-and-bound (G36, docs/p1_g36_retract_branch.md C;
-        the G35 env_collision method applied to PAIRS). Distance is 1-Lipschitz
-        in rigid motion of either body, so for a pair (a, b)
-            d(k) >= d(last evaluated) - disp_a - disp_b,
-            disp = |dt| + r * ||dR||_F   (Frobenius >= spectral),
-        r = largest |vertex| about the geometry's origin. A (waypoint, pair) is
-        skipped only when that bound, less SLACK for round-off, is > 0 and >= the
-        running minimum: it cannot change the minimum, its pair or its waypoint.
-        Same iteration order and strict `<` as check() + the dense loop. A pair
-        whose bodies do not move is computed once. S18 meshes cost ~1.5 ms per
-        pair, 121 pairs, ~190 ms per waypoint -- the 24-38 s per task of G35b."""
-        SLACK = 1e-3
-        if not hasattr(self, '_r'):
-            self._r = _radii(self.geom, {x for cp in self.geom.collisionPairs
-                                         for x in (cp.first, cp.second)})
-        base = self.q_from(other_joints)
-        pairs = [(k, cp.first, cp.second) for k, cp in enumerate(self.geom.collisionPairs)
-                 if not only or self.names[cp.first].startswith(only)
-                 or self.names[cp.second].startswith(only)]
-        last = {}
-        worst_d, worst_pair, worst_k = float('inf'), None, -1
-        for w, pt in enumerate(points):
-            q = self.q_from(dict(zip(joint_names, pt)), q=base)
-            pin.updateGeometryPlacements(self.model, self.data, self.geom,
-                                         self.geom_data, q)
-            oMg = self.geom_data.oMg
-            place = {}
-            for k, i, j in pairs:
-                for x in (i, j):
-                    if x not in place:
-                        # copies: oMg is pinocchio's internal storage (pinocchio-omg-aliasing)
-                        place[x] = (np.array(oMg[x].rotation), np.array(oMg[x].translation))
-                (Ri, ti), (Rj, tj) = place[i], place[j]
-                if k in last:
-                    d0, Ri0, ti0, Rj0, tj0 = last[k]
-                    lb = (d0 - np.linalg.norm(ti - ti0) - self._r[i] * np.linalg.norm(Ri - Ri0)
-                          - np.linalg.norm(tj - tj0) - self._r[j] * np.linalg.norm(Rj - Rj0)
-                          - SLACK)
-                    if lb > 0.0 and lb >= worst_d:
-                        continue
-                d = pin.computeDistance(self.geom, self.geom_data, k).min_distance
-                last[k] = (d, Ri, ti, Rj, tj)
-                if d < worst_d:
-                    worst_d, worst_pair, worst_k = d, (self.names[i], self.names[j]), w
-        if worst_d <= 0.0:
-            return 'COLLIDE', worst_d, worst_pair, worst_k
-        if worst_d < self.margin:
-            return 'MARGIN', worst_d, worst_pair, worst_k
-        return 'CLEAR', worst_d, worst_pair, worst_k
-
-    def screen_trajectory_dense(self, joint_names, points, other_joints, only=None):
         """Screen one arm's planned waypoints against the other arm HELD still.
 
         Returns (verdict, min_distance_m, worst_pair, waypoint_index) where
@@ -260,37 +208,6 @@ class CrossGantryChecker(InterArmChecker):
         self.names = names
         self.n_pairs = len(self.geom.collisionPairs)
 
-    # G36: hull-vs-hull is cheap (0.18 s per task plan, 660 pairs) and the Python
-    # bookkeeping of the pruned loop cost MORE than it saved (0.4 s) -- dense,
-    # through check(), which RotCrossChecker overrides.
-    screen_trajectory = InterArmChecker.screen_trajectory_dense
-
-
-def _radii(geom, used):
-    """Largest |vertex| about each paired geometry's origin (inf for the rest,
-    never read). NOT aabb_local: on the S18 BVH meshes it is never computed and
-    reads inf (G36) -- harmless (never prunes) but a too-small radius would not
-    be, so a non-finite one for a used geometry RAISES."""
-    r = []
-    for x, g in enumerate(geom.geometryObjects):
-        if x not in used:
-            r.append(float('inf'))
-            continue
-        G = g.geometry
-        if hasattr(G, 'num_vertices'):                       # BVHModel (meshes)
-            V = np.array([G.vertices(i) for i in range(G.num_vertices)])
-        elif hasattr(G, 'num_points'):                       # Convex (hulls)
-            V = np.array([G.points(i) for i in range(G.num_points)])
-        else:
-            G.computeLocalAABB()
-            bb = G.aabb_local                                # local AABB corner (G35)
-            V = np.maximum(np.abs(np.array(bb.min_)), np.abs(np.array(bb.max_)))[None]
-        v = float(np.linalg.norm(V, axis=1).max()) if len(V) else float('inf')
-        if not np.isfinite(v):
-            raise ValueError(f'{g.name}: radius {v} -- refusing to prune on it')
-        r.append(v)
-    return r
-
 
 def _ik(model, data, prefix, target, q0, iters=300):
     """Position-only damped least squares -- same solver as torque_safe_workspace."""
@@ -346,26 +263,7 @@ def self_test(urdf=LIVE_URDF, lin=0.550):
           f'{"TABRAKAN ✓ (benar)" if ok_hit else "BEBAS ✗ (pemeriksa MATI)"}   {pair2}')
     print(f'     (IK konvergen: arm_1 {o1}, arm_2 {o2})')
 
-    # G36: the pruned sweep must equal the dense one -- arm_1 swept from REST to
-    # the contact pose (moving AND still bodies, skipped waypoints, a COLLIDE end),
-    # and both arms moving together back out of it.
-    jn = [f't1_a1_joint_{i}' for i in range(1, 7)]
-    jb = jn + [f't1_a2_joint_{i}' for i in range(1, 7)]
-    q1 = [q[c.model.joints[c.model.getJointId(n)].idx_q] for n in jn]
-    qb = [q[c.model.joints[c.model.getJointId(n)].idx_q] for n in jb]
-    r1 = [rest[n] for n in jn]
-    held = {**rest, **{n: q[c.model.joints[c.model.getJointId(n)].idx_q] for n in jb[6:]}}
-    ok_bb = True
-    for name, names, a, b in (('arm_1 REST->kontak', jn, r1, q1),
-                              ('dua lengan kontak->REST', jb, qb, r1 + r1)):
-        pts = [[x + (y - x) * f for x, y in zip(a, b)] for f in np.linspace(0, 1, 41)]
-        got = c.screen_trajectory(names, pts, held)
-        ref = c.screen_trajectory_dense(names, pts, held)
-        print(f'  C. {name:24s}: terpangkas {got[0]} {got[1] * 1000:+.3f} {got[3]} vs '
-              f'padat {ref[0]} {ref[1] * 1000:+.3f} {ref[3]}  {"SAMA ✓" if got == ref else "BEDA ✗"}')
-        ok_bb &= got == ref
-
-    good = ok_rest and ok_hit and o1 and o2 and ok_bb
+    good = ok_rest and ok_hit and o1 and o2
     print(f'\nSWA-UJI: {"LULUS" if good else "GAGAL"} -- pemeriksa '
           f'{"membedakan" if good else "TIDAK membedakan"} bebas dari tabrakan.')
     return 0 if good else 1
