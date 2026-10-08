@@ -217,6 +217,10 @@ warisan benign (G24b).
    0.067°, g2/rot tidak bergerak, torsi puncak 1.72 N·m** ([log](results/p1_g36/hw/g36park_g1.log)). Stack dimatikan
    (`node list --no-daemon` 0; crash dump shutdown baseline dihapus), regresi dilanjutkan (SIGCONT).
    **Keadaan sel sekarang: g1 PARKIR 1.499 m, g2 0.36 mm, rot 0/0, lengan REST.**
+   **Keputusan operator sesudahnya (2026-10-08):** parkir 1.5 m = posisi istirahat TETAP sel. p0 jadwal = input P1
+   (`make_instance`, kaki pertama dari p0), jadi: **G36b tetap p0 0/0** (g1 → 0 sekali di awal sesi, di luar makespan;
+   sebanding dengan G24b–G35b); **blok eksperimen berikutnya (seed baru) dibuat dengan p0 g1 = 1.5** (instansi baru:
+   make_instance → solve → oracle → plan-only mock k ≥ 3 → HW) — lebih realistis: sel mulai dari posisi istirahatnya.
 7. Muat checker (S18 3.1 s + lintas 4.7 s per proses) kini dominan di fase antar-lengan (~8 s/tugas); cache geometri seperti
    G35 belum dikerjakan.
 
@@ -249,8 +253,9 @@ jari t2_a1 <-> env_static_map; mock dari konfigurasi yang sama SUCCESS 15/15; ti
 CLEAR (return_rest.plan_retract tanpa MoveIt) -> RETRACT-BLOCKED -> sampel OMPL lain (move_to, --plan-attempts 3).
 Plan-only mock R10 10/10 (CI95 gagal [0, 0.31]), ev 11 lurus 10/10, cabang +100 diterima 0/10; R0 3/3; P+ ev 8 COLLIDE
 -12.04. S18 = branch-and-bound eksak (regresi lama-vs-baru: lihat B3), tugas ~24 s -> ~1-2 s. Smoke mock run_g32 R10 14/14.
-PARKIR (operator 2026-10-08): g1 diparkir di 1.500 m di ANTARA sesi (beban plafon), p0 0/0 tidak berubah; pose_to_g
-mengizinkan PARK; offline S28 CLEAR 380 mm, lingkungan CLEAR 86.6 mm. Belum pernah digerakkan ke sana di HW.
+PARKIR (operator 2026-10-08): g1 diparkir TETAP di 1.500 m (beban plafon); G36b SENGAJA tetap p0 0/0 (keterbandingan
+dengan G35b; blok seed baru nanti p0 g1 = 1.5, B6.6); sel mulai dengan g1 di 1.499 m; pose_to_g
+mengizinkan PARK; HW 2026-10-08 0 -> 1.499241 m sukses (galat -0.76 mm, 80.4 s).
 PREDIKSI KASAR (kunci versi sendiri di §A): R0 ~460-515 s (G35b 629.67; antar-lengan -120..-130 s, retract -30 s,
 saring pulang +12 s); R10 ~480-550 s (ulang sampel ev 10/13 menambah); Delta(R10-R0) tanda TIDAK pasti.
 GERBANG (tanya operator SEBELUM apa pun): K0 sel sama seperti akhir G35b (lengan REST, g1/g2 ~0 ATAU g1 di PARK 1.5,
