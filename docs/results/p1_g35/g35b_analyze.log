@@ -1,0 +1,22 @@
+makespan G34b 783.33  G35b 629.67  delta -153.65 s
+G34b peak tau (10.512879371643066, 't2_a1_joint_2')
+G35b peak tau (10.719015121459961, 't2_a2_joint_2')
+ ev kind      | G34b dur G35b dur       d | G35b phases (s)            | env mm 34b/35b | succ 34b/35b
+  0 retract   |     2.51     2.51   -0.00 | skip                       | -/-            | 
+  1 traverse  |    65.98    59.19   -6.79 | start 1.74 s28 5.66 env 0.44 motion 51.15 | 88.6/88.6      | 
+  2 task      |    71.42    51.10  -20.33 | plan 0.95 interarm 33.74 env 1.54 exec 12.73 | 88.6/88.6      | 139.7/112.6
+  3 retract   |    61.49    54.73   -6.75 | load 8.57 screens 12.41 motion 31.06 | 88.6/88.6      |  segs ["'lurus'"]
+  4 traverse  |    39.77    33.72   -6.06 | start 1.41 s28 5.59 env 0.35 motion 26.16 | 86.6/86.6      | 
+  5 task      |    71.30    37.30  -34.00 | plan 1.91 interarm 25.09 env 1.45 exec 6.83 | 151.8/151.2    | 312.3/238.4
+  6 task      |    66.51    55.55  -10.96 | plan 1.91 interarm 37.62 env 1.48 exec 12.49 | 209.3/209.3    | 378.9/293.9
+  7 retract   |    63.13    56.68   -6.45 | load 8.59 screens 13.72 motion 31.06 | 209.3/209.3    |  segs ["'lurus'"]
+  8 traverse  |    25.77    19.82   -5.95 | start 1.41 s28 5.45 env 0.27 motion 12.48 | 209.3/209.3    | 
+  9 task      |    57.59    40.94  -16.64 | plan 0.79 interarm 28.40 env 1.46 exec 8.18 | 111.3/108.9    | 525.4/411.4
+ 10 retract   |    63.74    56.17   -7.57 | load 8.66 screens 13.46 motion 31.06 | 112.1/109.5    |  segs ["'lurus'"]
+ 11 traverse  |    90.32    78.98  -11.34 | start 1.41 s28 6.04 env 0.70 motion 70.62 | 69.7/69.5      | 
+ 12 task      |    58.00    48.23   -9.77 | plan 1.78 interarm 32.34 env 1.71 exec 10.39 | 102.9/92.5     | 737.5/594.9
+ 13 task      |    45.76    34.80  -10.96 | plan 1.77 interarm 24.13 env 1.54 exec 5.24 | 58.1/61.5      | 783.3/629.7
+totals per kind (s):
+  traverse  dur 221.8->191.7 start 6.7->6.0 s28 22.2->22.7 env 31.7->1.8 motion 160.5->160.4
+  task      dur 370.6->267.9 plan 27.7->9.1 interarm 200.4->181.3 env 69.5->9.2 exec 60.7->55.8
+  retract   dur 190.9->170.1 load 38.5->25.8 screens 48.6->39.6 motion 93.2->93.2

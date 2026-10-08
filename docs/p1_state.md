@@ -792,6 +792,7 @@ bilangan bulat pulse persis → bacaan enkoder sungguhan).
 | `p1_g8_sched2.md` … `p1_g15_dense.md` | Sesi G8–G15 — heuristik + gap (G8), tabrakan gantry (G9–G10), lengan (G11–G15) |
 | `p1_g16_hw.md` … `p1_g20_hw.md` | Sesi G16–G20 — §8c langkah 2–5 di perangkat keras nyata |
 | **`p1_g34_rail_calib.md`** | **Sesi G34 + G34b — rel = URDF ≤ 1 cm, offset kamera↔URDF tetap per kamera (§B2); peta gabungan g34n 136 558 voxel, (P+) ev 8 ditolak 1.7 s, (N−) R0 13/14 (§B4–B5); retract sadar-lingkungan `plan_retract` (§B3); D219–D224 5/1 (§B6); **G34b HW seed 36 R0 6/6 783.33 s, R10 6/6 849.29 s — ev 8 (tabrakan rak G32) SUCCESS**, semua retract lurus, Δ R10−R0 +65.96 s = overhead saringan sapuan (§B7); prompt G35 (§E)** |
+| **`p1_g35_env_speed.md`** | **Sesi G35 (offline, nol gerak) — penyaring lingkungan: muat 4 s/proses + 30–62 ms/sampel (§B1); B&B Lipschitz eksak + cache geometri → sapuan rot 30–43×, muat 0.17 s (§B2); regresi 945/945 bit-identik, P+ −1.71 s (§B3); prediksi G35b R0 668–678 / R10 656–674 s, Δ < 0 (§B4); D225–D231 4/3 (§B5); **G35b HW seed 36 R0 6/6 629.67 s = 1.083× P1′-serial (G34b 783.33)**, lingkungan HW ~11 s/varian; 🔴 R10 ditolak di plan-only (ev 10 cabang IK → retract ev 11 COLLIDE, MoveIt NO-PLAN), tidak dijalankan; D232–D238 2/3 (§B7); prompt G36 (§E)** |
 | **`p1_g33_map.md`** | **Sesi G33 — plugin octomap: perception tak terpasang → dipasang + MoveIt 2.5.10 (§A0.1, §B8); peta beku 2× D455 71 763 voxel (§B0–B3), 🔴 dunia kamera ↔ URDF ~0.1 m → registrasi ke robot (§B2); (P+) lintasan nyata ev 8 COLLIDE, ditolak 2.0 s sebelum kontak (§B4); penyaring lingkungan di probe/return_rest/pose_to_g/g31_screen (§B5); plan-only R0 3/3, R10 ditolak di retract g2 (§B6); rencana lama 27/726 ditolak, semua gantry 2; D213–D218 3/3 (§B7); prompt G34 (§D)** |
 | **`p1_g32_hw.md`** | **Sesi G32-HW — kaki uji lin+rot 2/2 (§B1), R0 seed 36 6/6 647.47 s = 1.114× (§B2), 🔴 R10 ev 8 arm_3 MENABRAK RAK di g2 −10° (§B3), D200–D212 9/3 (§B4), sel TIDAK dipulangkan (§C); prompt G33 peta 3D (§D)** |
 | **`p1_g32_rot_exec.md`** | **Sesi G32-OFF — jadwal seed 36 R10 + pemutus seri (§B1), patch `return_rest` (§B2), `pose_to_g`/`run_g32` (§B3–B4), plan-only/DRY/smoke mock (§B5), D189–D199 10/11 (§B6); prompt G32-HW (§D)** |
@@ -883,7 +884,7 @@ menambah satu contoh ke sisi yang sama: pertanyaan "kenapa MS-BL lambat" terjawa
 dalam hitungan menit dengan **membaca `GNG_add` di akhir `MS_GNG_learning`**
 (satu node per batch), bukan dengan menakar biaya batch learning.
 
-**Tally G10–G34b** (diperbarui 2026-10-08, G34b; tiap baris dari §B dokumen
+**Tally G10–G35b** (diperbarui 2026-10-08, G35b; tiap baris dari §B dokumen
 sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 
 | sesi | ditambah (meleset / tepat) | papan skor |
@@ -916,7 +917,9 @@ sesinya). D9 pindah sisi di G10 (17/2 → 16/3):
 | G32-HW | 3 / 9 (D200–D212; D211 tidak dinilai, D210/D212 sebagian) | 76 / 131 |
 | G33 | 3 / 3 (D213–D218) | 79 / 134 |
 | G34 | 1 / 5 (D219–D224; D221 sebagian = tepat, seperti D210/D212) | 80 / 139 |
-| **G34b** | **0 / 0** (tidak ada dugaan dikunci sebelum bring-up — kesalahan proses, g34 B8.1) | **80 meleset / 139 tepat** |
+| G34b | 0 / 0 (tidak ada dugaan dikunci sebelum bring-up — kesalahan proses, g34 B8.1) | 80 / 139 |
+| G35 | 3 / 4 (D225–D231, offline) | 83 / 143 |
+| **G35b** | **2 / 3** (D232–D238; D233, D234 tidak dinilai — R10 tidak dijalankan) | **85 meleset / 146 tepat** |
 
 ➜ Yang G21 tambahkan ke pola: dugaan yang diturunkan dari **jalur data kode**
 atau dari **mekanisme yang sudah diukur** tepat 7/7; satu-satunya meleset (D73)
@@ -1002,3 +1005,14 @@ pilih, dan bug aliasing `oMg` di alat sendiri.
 
 ➜ G34b tidak menambah dugaan (lupa dikunci). Temuan yang tidak diduga siapa pun: **biaya hitung penyaring** — tak ada di model P1′
 — membalik tanda Δ(R10 − R0) di HW (+65.96 s vs −50.87), karena sapuan berotasi 5–6× lebih banyak sampel.
+
+➜ Yang G35 tambahkan ([p1_g35_env_speed.md](p1_g35_env_speed.md)): ketiga meleset = **besaran / mekanisme biaya** yang ditaksir
+tanpa profil (hull vs mesh, ms/sampel, faktor beban HW ~1.10); keempat tepat = sifat **algoritma** (B&B eksak → bit-identik
+945/945, 30–43× pada sapuan rot) dan atribusi dari stempel log (antar-lengan = overhead terbesar yang tersisa, 200+ s/varian).
+Prediksi G35b: R0 668–678 s, R10 656–674 s, Δ −4.5…−11.5 s — belum diuji di HW.
+
+➜ Yang G35b tambahkan: ketiga tepat = **mekanisme algoritma yang sudah diuji offline** bertahan di HW (lingkungan ≤ 1.7 s per
+tugas, verdict sama, cache tanpa miss). Kedua meleset: **besaran** hemat (R0 629.67 s, 38 s di bawah rentang — proksi plan-only
+meremehkan n tugas HW, risiko yang sudah ditulis G35 B6.3) dan **keterulangan gerbang** (R10 plan-only 3/3 di G34b ternyata
+keberuntungan ~36 %: ev 10 jatuh di cabang IK +100° pada 2/7 rencana, retract ev 11 dari sana menembus rak). Δ(R10 − R0) di HW
+masih belum terukur.

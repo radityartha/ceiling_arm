@@ -36,12 +36,12 @@ import sys
 import numpy as np
 import pinocchio as pin
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'scripts'))
 from interarm_collision import LIVE_URDF, _package_dirs, true_hull  # noqa: E402
 
 # G34: 8 captures (rails 0..1.45), ONE fixed 4-DOF correction per camera
 # (docs/p1_g34_rail_calib.md B2). G33's reg3 map stays at p1_g33/env_static_map.npz.
-ENV_MAP = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'docs',
+ENV_MAP = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'docs',
                        'results', 'p1_g34', 'env_static_map.npz')
 ENV_MARGIN_M = 0.05     # = cross-camera calibration uncertainty (rgbd-extrinsic-calibration)
 ARM_LINKS = ['base_link', 'shoulder_link', 'arm_link', 'forearm_link',
@@ -58,65 +58,6 @@ CONFIG_JOINTS = sorted(
     + [f'{g}_{a}_joint_{k}' for g in ('t1', 't2') for a in ('a1', 'a2') for k in range(1, 7)])
 
 
-GEOM_CACHE_DIR = os.path.expanduser('~/.cache/ceiling_arm')
-
-
-def _geom_cache_path(urdf):
-    """G35: the 52 true hulls cost ~4 s per process (mesh load + scipy hull) and
-    every tool is a fresh process. Key = URDF bytes + every mesh file's bytes +
-    the hull code, so a changed robot or hull rebuilds; a mesh path that cannot
-    be resolved disables the cache (None) rather than guessing."""
-    import hashlib
-    import inspect
-    import re
-    text = open(urdf, 'rb').read()
-    h = hashlib.sha256(text)
-    for ref in sorted(set(re.findall(rb'filename="([^"]+)"', text))):
-        ref = ref.decode()
-        if ref.startswith('file://'):
-            path = ref[len('file://'):]
-        elif ref.startswith('package://'):
-            pkg, rel = ref[len('package://'):].split('/', 1)
-            path = next((os.path.join(d, pkg, rel) for d in _package_dirs()
-                         if os.path.exists(os.path.join(d, pkg, rel))), None)
-        else:
-            path = ref if os.path.isabs(ref) else None
-        if path is None or not os.path.exists(path):
-            return None
-        h.update(ref.encode())
-        h.update(open(path, 'rb').read())
-    h.update(inspect.getsource(true_hull).encode())
-    h.update(f'{pin.__version__}'.encode())
-    return os.path.join(GEOM_CACHE_DIR, f'env_geom_{h.hexdigest()[:24]}.pkl')
-
-
-def _load_geom_cache(urdf):
-    import pickle
-    try:
-        p = _geom_cache_path(urdf)
-        if p is None or not os.path.exists(p):
-            return None
-        with open(p, 'rb') as f:
-            return pickle.load(f)
-    except Exception:                                         # noqa: BLE001
-        return None                                           # -> rebuilt from the URDF
-
-
-def _save_geom_cache(urdf, geom):
-    import pickle
-    try:
-        p = _geom_cache_path(urdf)
-        if p is None:
-            return
-        os.makedirs(GEOM_CACHE_DIR, exist_ok=True)
-        tmp = f'{p}.{os.getpid()}.tmp'
-        with open(tmp, 'wb') as f:
-            pickle.dump(geom, f)
-        os.replace(tmp, p)
-    except Exception:                                         # noqa: BLE001
-        pass                                                  # cache is an optimisation only
-
-
 class RobotGeom:
     """URDF collision geometry (true hulls) of the whole cell, posed by FK."""
 
@@ -125,16 +66,12 @@ class RobotGeom:
             raise FileNotFoundError(f'URDF {urdf} tidak ada -- TOLAK')
         self.model = pin.buildModelFromUrdf(urdf)
         self.data = self.model.createData()
-        self.geom = _load_geom_cache(urdf)
-        if self.geom is None:
-            self.geom = pin.buildGeomFromUrdf(
-                self.model, urdf, pin.GeometryType.COLLISION, _package_dirs())
-            for g in self.geom.geometryObjects:
-                if hasattr(g.geometry, 'buildConvexRepresentation'):
-                    g.geometry.buildConvexRepresentation(False)
-                    g.geometry = true_hull(g.geometry.convex)
-            _save_geom_cache(urdf, self.geom)
+        self.geom = pin.buildGeomFromUrdf(
+            self.model, urdf, pin.GeometryType.COLLISION, _package_dirs())
         for g in self.geom.geometryObjects:
+            if hasattr(g.geometry, 'buildConvexRepresentation'):
+                g.geometry.buildConvexRepresentation(False)
+                g.geometry = true_hull(g.geometry.convex)
             g.geometry.computeLocalAABB()
         self.names = [g.name for g in self.geom.geometryObjects]
         if sorted(self.names) != EXPECTED_GEOMS:
@@ -229,14 +166,6 @@ class EnvChecker(RobotGeom):
         self.margin = margin
         self._I = coal.Transform3s()
         self._req = coal.DistanceRequest()
-        # G35: radius about each geometry's own origin that contains it (local
-        # AABB corners) -- bounds how far any of its points moves between two
-        # placements, for the exact pruning in screen_trajectory.
-        self._r = []
-        for g in self.geom.geometryObjects:
-            bb = g.geometry.aabb_local
-            lo, hi = np.array(bb.min_), np.array(bb.max_)
-            self._r.append(float(np.linalg.norm(np.maximum(abs(lo), abs(hi)))))
 
     def check(self, q, only=None):
         """(min_distance_m, worst_geometry_name). Negative = penetrating."""
@@ -257,41 +186,15 @@ class EnvChecker(RobotGeom):
     def screen_trajectory(self, joint_names, points, base_joints, only=None):
         """('CLEAR'|'MARGIN'|'COLLIDE', d_min, worst_geom, waypoint_index).
         base_joints must name every CONFIG_JOINTS joint (the held state);
-        joint_names/points override it per waypoint. MARGIN is a REJECT on HW.
-
-        G35 (docs/p1_g35_env_speed.md): EXACT branch-and-bound, same result as
-        calling check() at every waypoint. Distance is 1-Lipschitz in rigid
-        motion, so d(geometry, k) >= d(geometry, last evaluated) - the largest
-        displacement of any of its points since (|dt| + r * ||dR||_F, Frobenius
-        >= spectral). A (geometry, waypoint) is skipped only when that lower
-        bound, less SLACK for distance round-off, is > 0 and >= the running
-        minimum -- it could not have changed the minimum, its geometry or its
-        waypoint. Bodies that do not move are thereby computed once."""
-        import coal
-        SLACK = 1e-3
+        joint_names/points override it per waypoint. MARGIN is a REJECT on HW."""
         base = dict(base_joints)
-        objs = self.geom.geometryObjects
-        idx = [i for i, g in enumerate(objs)
-               if not only or g.name.startswith(tuple(only))]
-        last = {}
         worst_d, worst_g, worst_k = float('inf'), None, -1
         for k, pt in enumerate(points):
             j = dict(base)
             j.update(zip(joint_names, pt))
-            oMg = self.place(self.q_from(j))
-            for i in idx:
-                R, t = np.array(oMg[i].rotation), np.array(oMg[i].translation)
-                if i in last:
-                    d0, R0, t0 = last[i]
-                    lb = d0 - np.linalg.norm(t - t0) - self._r[i] * np.linalg.norm(R - R0) - SLACK
-                    if lb > 0.0 and lb >= worst_d:
-                        continue
-                res = coal.DistanceResult()
-                d = coal.distance(objs[i].geometry, coal.Transform3s(R, t),
-                                  self.octree, self._I, self._req, res)
-                last[i] = (d, R, t)
-                if d < worst_d:
-                    worst_d, worst_g, worst_k = d, objs[i].name, k
+            d, g = self.check(self.q_from(j), only)
+            if d < worst_d:
+                worst_d, worst_g, worst_k = d, g, k
         if worst_d <= 0.0:
             return 'COLLIDE', worst_d, worst_g, worst_k
         if worst_d < self.margin:
@@ -321,16 +224,6 @@ def self_test(urdf=LIVE_URDF):
             np.savez(f, centers=pts, resolution=0.02, frame='world')
             ec = EnvChecker(urdf, f)
             v = ec.screen_trajectory([], [[]], j)
-            # G35: the pruned sweep must equal check() at every waypoint (arm_1 swings
-            # joint_1 through / past the box: moving AND still bodies, skipped waypoints).
-            jn = ['t1_a1_joint_1', 't1_a1_joint_2']
-            sw = [[rest[0] + a, rest[1] + 0.5 * a] for a in np.linspace(-1.5, 1.5, 31)]
-            ref = min(((*ec.check(ec.q_from({**j, **dict(zip(jn, p))})), k)
-                       for k, p in enumerate(sw)), key=lambda x: x[0])
-            got = ec.screen_trajectory(jn, sw, j)[1:]
-            print(f'  sweep {name:3s}: pruned {got[0]:+.4f} {got[1]} @{got[2]} '
-                  f'vs check() {ref[0]:+.4f} {ref[1]} @{ref[2]}')
-            ok &= got == ref
         print(f'  box {name:3s}: {v[0]:7s} d={v[1]:+.3f} {v[2]}  (want {want})')
         ok &= v[0] == want
         keep = self_filter(rg, q, pts, ENV_MARGIN_M)

@@ -1,0 +1,474 @@
+{
+ "summary": {
+  "n": 945,
+  "duplicates": 0,
+  "bad": 0,
+  "bit_identical": 945,
+  "max_abs_d_diff_m": 0.0,
+  "verdicts": {
+   "CLEAR": 888,
+   "MARGIN": 40,
+   "COLLIDE": 17
+  },
+  "n_samples": 106829,
+  "t_old": 10362.844663480762,
+  "t_new": 492.54211804503575,
+  "speedup": 21.039509686221862
+ },
+ "by_source": {
+  "P+": {
+   "n": 1,
+   "bad": 0,
+   "t_old": 25.460172716062516,
+   "t_new": 1.4208427229896188
+  },
+  "N-": {
+   "n": 22,
+   "bad": 0,
+   "t_old": 169.34258371358737,
+   "t_new": 8.24826928973198
+  },
+  "R0": {
+   "n": 7,
+   "bad": 0,
+   "t_old": 22.002830030862242,
+   "t_new": 1.5540794380940497
+  },
+  "R10": {
+   "n": 6,
+   "bad": 0,
+   "t_old": 112.27038666419685,
+   "t_new": 3.128133620135486
+  },
+  "g31_screen_plans.jsonl.gz": {
+   "n": 306,
+   "bad": 0,
+   "t_old": 3287.820591661148,
+   "t_new": 155.29635733691975
+  },
+  "g34_planonly_plans_g34_R0.jsonl": {
+   "n": 4,
+   "bad": 0,
+   "t_old": 41.555172396823764,
+   "t_new": 1.7039783210493624
+  },
+  "g34_planonly_plans_g34_R10.jsonl": {
+   "n": 18,
+   "bad": 0,
+   "t_old": 205.82385775726289,
+   "t_new": 9.554237042088062
+  },
+  "g34_planonly_plans_g34b_hw_R0.jsonl": {
+   "n": 18,
+   "bad": 0,
+   "t_old": 224.64166345167905,
+   "t_new": 9.986655348911881
+  },
+  "g34_planonly_plans_g34b_hw_R10.jsonl": {
+   "n": 18,
+   "bad": 0,
+   "t_old": 267.24765599286184,
+   "t_new": 13.161965337581933
+  },
+  "g34_planonly_plans_g34n_R0.jsonl": {
+   "n": 18,
+   "bad": 0,
+   "t_old": 255.42632583435625,
+   "t_new": 12.212096562143415
+  },
+  "g34_planonly_plans_g34n_R10.jsonl": {
+   "n": 19,
+   "bad": 0,
+   "t_old": 264.9906595838256,
+   "t_new": 11.887344140559435
+  },
+  "g34_planonly_plans_reg3_R0.jsonl": {
+   "n": 18,
+   "bad": 0,
+   "t_old": 263.46878736745566,
+   "t_new": 11.494477672502398
+  },
+  "g34_planonly_plans_reg3_R10.jsonl": {
+   "n": 20,
+   "bad": 0,
+   "t_old": 239.61000730795786,
+   "t_new": 10.658463440835476
+  },
+  "g33_planonly_plans_R0.jsonl.gz": {
+   "n": 18,
+   "bad": 0,
+   "t_old": 189.85523491585627,
+   "t_new": 7.130690785124898
+  },
+  "g33_planonly_plans_R10.jsonl.gz": {
+   "n": 5,
+   "bad": 0,
+   "t_old": 32.17385858623311,
+   "t_new": 1.6578582394868135
+  },
+  "g32hw_screen_plans_R0.jsonl.gz": {
+   "n": 18,
+   "bad": 0,
+   "t_old": 111.67902469448745,
+   "t_new": 4.634638160932809
+  },
+  "g32hw_screen_plans_R10.jsonl.gz": {
+   "n": 18,
+   "bad": 0,
+   "t_old": 87.27438095770776,
+   "t_new": 4.5263449042104185
+  },
+  "g32_screen_plans.jsonl.gz": {
+   "n": 18,
+   "bad": 0,
+   "t_old": 94.16610953910276,
+   "t_new": 4.43864898243919
+  },
+  "g31_r0_control_plans.jsonl": {
+   "n": 18,
+   "bad": 0,
+   "t_old": 114.20941111911088,
+   "t_new": 4.835608058609068
+  },
+  "smoke_mock_plans.jsonl": {
+   "n": 9,
+   "bad": 0,
+   "t_old": 101.9422973128967,
+   "t_new": 5.010507317725569
+  },
+  "v28_after_plans.jsonl.gz": {
+   "n": 183,
+   "bad": 0,
+   "t_old": 2107.6210371595807,
+   "t_new": 104.95802217442542
+  },
+  "v28_plans.jsonl.gz": {
+   "n": 183,
+   "bad": 0,
+   "t_old": 2144.262614717707,
+   "t_new": 105.04289914853871
+  }
+ },
+ "workers": {
+  "regress_controls.json": {
+   "source": "controls",
+   "n": 23,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 23,
+   "verdicts": {
+    "CLEAR": 21,
+    "MARGIN": 1,
+    "COLLIDE": 1
+   },
+   "t_old": 194.8027564296499,
+   "t_new": 9.669112012721598,
+   "speedup": 20.14691278509846,
+   "n_samples": 4256
+  },
+  "regress_hw.json": {
+   "source": "hw",
+   "n": 13,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 13,
+   "verdicts": {
+    "CLEAR": 13,
+    "MARGIN": 0,
+    "COLLIDE": 0
+   },
+   "t_old": 134.2732166950591,
+   "t_new": 4.682213058229536,
+   "speedup": 28.677297471343866,
+   "n_samples": 2352
+  },
+  "regress_plans_g31_0.json": {
+   "source": "plans",
+   "n": 51,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 51,
+   "verdicts": {
+    "CLEAR": 51,
+    "MARGIN": 0,
+    "COLLIDE": 0
+   },
+   "t_old": 438.8303278503008,
+   "t_new": 21.552840158343315,
+   "speedup": 20.360672868463013,
+   "n_samples": 4934
+  },
+  "regress_plans_g31_1.json": {
+   "source": "plans",
+   "n": 51,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 51,
+   "verdicts": {
+    "CLEAR": 51,
+    "MARGIN": 0,
+    "COLLIDE": 0
+   },
+   "t_old": 524.202081440948,
+   "t_new": 27.696070584934205,
+   "speedup": 18.926947771648788,
+   "n_samples": 5165
+  },
+  "regress_plans_g31_2.json": {
+   "source": "plans",
+   "n": 51,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 51,
+   "verdicts": {
+    "CLEAR": 51,
+    "MARGIN": 0,
+    "COLLIDE": 0
+   },
+   "t_old": 502.0557279475033,
+   "t_new": 23.471101476810873,
+   "speedup": 21.39037779899369,
+   "n_samples": 5154
+  },
+  "regress_plans_g31_3.json": {
+   "source": "plans",
+   "n": 51,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 51,
+   "verdicts": {
+    "CLEAR": 51,
+    "MARGIN": 0,
+    "COLLIDE": 0
+   },
+   "t_old": 539.4736579502933,
+   "t_new": 23.806141992565244,
+   "speedup": 22.661112334740046,
+   "n_samples": 4965
+  },
+  "regress_plans_g31_4.json": {
+   "source": "plans",
+   "n": 51,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 51,
+   "verdicts": {
+    "CLEAR": 42,
+    "MARGIN": 8,
+    "COLLIDE": 1
+   },
+   "t_old": 588.3165074801072,
+   "t_new": 26.91555473441258,
+   "speedup": 21.857862982401095,
+   "n_samples": 4920
+  },
+  "regress_plans_g31_5.json": {
+   "source": "plans",
+   "n": 51,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 51,
+   "verdicts": {
+    "CLEAR": 30,
+    "MARGIN": 14,
+    "COLLIDE": 7
+   },
+   "t_old": 694.9422889919952,
+   "t_new": 31.854648389853537,
+   "speedup": 21.81604017369568,
+   "n_samples": 4999
+  },
+  "regress_plans_head_0.json": {
+   "source": "plans",
+   "n": 72,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 72,
+   "verdicts": {
+    "CLEAR": 72,
+    "MARGIN": 0,
+    "COLLIDE": 0
+   },
+   "t_old": 766.1702951397747,
+   "t_new": 34.24219977296889,
+   "speedup": 22.375031400424124,
+   "n_samples": 7680
+  },
+  "regress_plans_head_1.json": {
+   "source": "plans",
+   "n": 70,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 70,
+   "verdicts": {
+    "CLEAR": 65,
+    "MARGIN": 5,
+    "COLLIDE": 0
+   },
+   "t_old": 764.989217617549,
+   "t_new": 35.99532412132248,
+   "speedup": 21.25246087628348,
+   "n_samples": 7031
+  },
+  "regress_plans_head_2.json": {
+   "source": "plans",
+   "n": 68,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 68,
+   "verdicts": {
+    "CLEAR": 65,
+    "MARGIN": 1,
+    "COLLIDE": 2
+   },
+   "t_old": 746.7532256282866,
+   "t_new": 32.80987504357472,
+   "speedup": 22.76001431387731,
+   "n_samples": 7176
+  },
+  "regress_plans_tail.json": {
+   "source": "plans",
+   "n": 27,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 27,
+   "verdicts": {
+    "CLEAR": 27,
+    "MARGIN": 0,
+    "COLLIDE": 0
+   },
+   "t_old": 216.15170843200758,
+   "t_new": 9.846115376334637,
+   "speedup": 21.952993659970016,
+   "n_samples": 2969
+  },
+  "regress_v28_after_plans_0.json": {
+   "source": "v28",
+   "n": 46,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 46,
+   "verdicts": {
+    "CLEAR": 44,
+    "MARGIN": 2,
+    "COLLIDE": 0
+   },
+   "t_old": 549.3690321720205,
+   "t_new": 26.487469607498497,
+   "speedup": 20.740714017336572,
+   "n_samples": 5671
+  },
+  "regress_v28_after_plans_1.json": {
+   "source": "v28",
+   "n": 46,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 46,
+   "verdicts": {
+    "CLEAR": 44,
+    "MARGIN": 2,
+    "COLLIDE": 0
+   },
+   "t_old": 509.478402714245,
+   "t_new": 24.225352180190384,
+   "speedup": 21.030794472034838,
+   "n_samples": 5748
+  },
+  "regress_v28_after_plans_2.json": {
+   "source": "v28",
+   "n": 46,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 46,
+   "verdicts": {
+    "CLEAR": 44,
+    "MARGIN": 0,
+    "COLLIDE": 2
+   },
+   "t_old": 559.1574560091831,
+   "t_new": 29.0001786747016,
+   "speedup": 19.281172791427174,
+   "n_samples": 5715
+  },
+  "regress_v28_after_plans_3.json": {
+   "source": "v28",
+   "n": 45,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 45,
+   "verdicts": {
+    "CLEAR": 44,
+    "MARGIN": 1,
+    "COLLIDE": 0
+   },
+   "t_old": 489.6161462641321,
+   "t_new": 25.24502171203494,
+   "speedup": 19.39456229624551,
+   "n_samples": 5567
+  },
+  "regress_v28_plans_0.json": {
+   "source": "v28",
+   "n": 46,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 46,
+   "verdicts": {
+    "CLEAR": 43,
+    "MARGIN": 2,
+    "COLLIDE": 1
+   },
+   "t_old": 548.3926623375155,
+   "t_new": 26.519361790735275,
+   "speedup": 20.678953990857366,
+   "n_samples": 5772
+  },
+  "regress_v28_plans_1.json": {
+   "source": "v28",
+   "n": 46,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 46,
+   "verdicts": {
+    "CLEAR": 42,
+    "MARGIN": 2,
+    "COLLIDE": 2
+   },
+   "t_old": 529.680871644523,
+   "t_new": 25.515052258502692,
+   "speedup": 20.75954484741496,
+   "n_samples": 5664
+  },
+  "regress_v28_plans_2.json": {
+   "source": "v28",
+   "n": 46,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 46,
+   "verdicts": {
+    "CLEAR": 44,
+    "MARGIN": 1,
+    "COLLIDE": 1
+   },
+   "t_old": 544.8353115129285,
+   "t_new": 26.452148877549917,
+   "speedup": 20.597015162550107,
+   "n_samples": 5578
+  },
+  "regress_v28_plans_3.json": {
+   "source": "v28",
+   "n": 45,
+   "bad": 0,
+   "skipped": 0,
+   "bit_identical": 45,
+   "verdicts": {
+    "CLEAR": 44,
+    "MARGIN": 1,
+    "COLLIDE": 0
+   },
+   "t_old": 521.3537692227401,
+   "t_new": 26.556336221750826,
+   "speedup": 19.631991584581915,
+   "n_samples": 5513
+  }
+ }
+}

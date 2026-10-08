@@ -1,0 +1,38 @@
+{
+ "n": 945,
+ "duplicates": 0,
+ "bad": 0,
+ "bit_identical": 945,
+ "max_abs_d_diff_m": 0.0,
+ "verdicts": {
+  "CLEAR": 888,
+  "MARGIN": 40,
+  "COLLIDE": 17
+ },
+ "n_samples": 106829,
+ "t_old": 10362.844663480762,
+ "t_new": 492.54211804503575,
+ "speedup": 21.039509686221862
+}
+N-                                         n   22 bad 0     169.3 ->    8.2 s  (20.5x)
+P+                                         n    1 bad 0      25.5 ->    1.4 s  (17.9x)
+R0                                         n    7 bad 0      22.0 ->    1.6 s  (14.2x)
+R10                                        n    6 bad 0     112.3 ->    3.1 s  (35.9x)
+g31_r0_control_plans.jsonl                 n   18 bad 0     114.2 ->    4.8 s  (23.6x)
+g31_screen_plans.jsonl.gz                  n  306 bad 0    3287.8 ->  155.3 s  (21.2x)
+g32_screen_plans.jsonl.gz                  n   18 bad 0      94.2 ->    4.4 s  (21.2x)
+g32hw_screen_plans_R0.jsonl.gz             n   18 bad 0     111.7 ->    4.6 s  (24.1x)
+g32hw_screen_plans_R10.jsonl.gz            n   18 bad 0      87.3 ->    4.5 s  (19.3x)
+g33_planonly_plans_R0.jsonl.gz             n   18 bad 0     189.9 ->    7.1 s  (26.6x)
+g33_planonly_plans_R10.jsonl.gz            n    5 bad 0      32.2 ->    1.7 s  (19.4x)
+g34_planonly_plans_g34_R0.jsonl            n    4 bad 0      41.6 ->    1.7 s  (24.4x)
+g34_planonly_plans_g34_R10.jsonl           n   18 bad 0     205.8 ->    9.6 s  (21.5x)
+g34_planonly_plans_g34b_hw_R0.jsonl        n   18 bad 0     224.6 ->   10.0 s  (22.5x)
+g34_planonly_plans_g34b_hw_R10.jsonl       n   18 bad 0     267.2 ->   13.2 s  (20.3x)
+g34_planonly_plans_g34n_R0.jsonl           n   18 bad 0     255.4 ->   12.2 s  (20.9x)
+g34_planonly_plans_g34n_R10.jsonl          n   19 bad 0     265.0 ->   11.9 s  (22.3x)
+g34_planonly_plans_reg3_R0.jsonl           n   18 bad 0     263.5 ->   11.5 s  (22.9x)
+g34_planonly_plans_reg3_R10.jsonl          n   20 bad 0     239.6 ->   10.7 s  (22.5x)
+smoke_mock_plans.jsonl                     n    9 bad 0     101.9 ->    5.0 s  (20.3x)
+v28_after_plans.jsonl.gz                   n  183 bad 0    2107.6 ->  105.0 s  (20.1x)
+v28_plans.jsonl.gz                         n  183 bad 0    2144.3 ->  105.0 s  (20.4x)

@@ -1,0 +1,12 @@
+  geom = pin.buildGeomFromUrdf(model, LIVE_URDF, pin.GeometryType.COLLISION, _package_dirs())
+  self.geom = pin.buildGeomFromUrdf(
+import 0.13 s; build {'model': 0.003, 'geom': 2.863, 'hull': 1.419, 'map_load': 0.007, 'octree': 0.035, 'EnvChecker_total': 4.12}
+rot_sweep_ev07               n  671    23.53 s    35.1 ms/sampel  CLEAR 88.6 mm t1_a1_right_finger_dist_link_0 @0
+rail_sweep_g1_090_135        n   47     1.83 s    39.0 ms/sampel  CLEAR 86.6 mm t1_a1_right_finger_dist_link_0 @3
+task_k2_arm_1                n  128     4.89 s    38.2 ms/sampel  CLEAR 88.5 mm t1_a1_right_finger_dist_link_0 @1
+task_k5_arm_1                n  128     5.63 s    44.0 ms/sampel  CLEAR 154.0 mm t1_a1_right_finger_dist_link_0 @0
+task_k8_arm_3                n   53     2.52 s    47.6 ms/sampel  CLEAR 105.5 mm t2_a1_left_finger_prox_link_0 @27
+task_k9_arm_4                n  126     6.38 s    50.6 ms/sampel  CLEAR 116.7 mm t2_a1_right_finger_dist_link_0 @0
+task_k10_arm_3               n   90     4.83 s    53.7 ms/sampel  CLEAR 61.4 mm t2_a1_left_finger_prox_link_0 @89
+task_k13_arm_3               n  126     7.69 s    61.0 ms/sampel  CLEAR 101.1 mm t2_a1_right_finger_prox_link_0 @116
+per-geometri (REST, ms): t1_a1_shoulder_link_0 1.6 (501 mm), t1_a1_arm_link_0 1.3 (461 mm), t1_a2_arm_link_0 1.2 (537 mm), t1_a1_base_link_0 1.2 (502 mm), t1_a1_lower_wrist_link_0 1.2 (322 mm), t1_a1_upper_wrist_link_0 1.2 (207 mm), t1_a1_gripper_base_link_0 1.1 (164 mm), t2_a2_arm_link_0 1.0 (296 mm) ... total 33.4

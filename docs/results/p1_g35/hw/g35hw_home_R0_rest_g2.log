@@ -1,0 +1,10 @@
+lengan: ['arm_3', 'arm_4']   galat terbesar dari rest: 203.46 deg
+rel t2_linear_joint = 1.449416 m
+retract g2 ['arm_3', 'arm_4'] lurus (rel 1.449):
+  penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+  penyaring antar-gantry: CLEAR, minimum 254.1 mm di titik 9/60 (t1_a1_forearm_link_0 <-> t2_a1_forearm_link_0)
+  penyaring lingkungan: CLEAR, minimum 60.7 mm di titik 17/60 (t2_a2_gripper_base_link_0)
+rencana pulang: lurus:t2_a1_+t2_a2_
+
+mengirim segmen lurus (t2_a1_+t2_a2_): 60 titik. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+selesai: galat akhir 0.082 deg, torsi puncak 5.520 N.m pada t2_a2_joint_2, segmen ['lurus']

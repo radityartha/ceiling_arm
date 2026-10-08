@@ -355,6 +355,8 @@ job > 10 menit via setsid nohup; pkill -f membunuh shell sendiri (pilih PID via 
 
 ## E. Prompt G35 (salin ke chat BARU)
 
+> ✅ Dijalankan 2026-10-08 sebagai G35 → [p1_g35_env_speed.md](p1_g35_env_speed.md).
+
 **Rekomendasi: Opus, effort TINGGI** — mengubah biaya penyaring keselamatan; penyaring yang dipercepat lalu diam-diam
 melewatkan tabrakan adalah galat yang tidak terlihat sampai lengan menabrak.
 

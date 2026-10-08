@@ -1,0 +1,13 @@
+== 12:24:09 python3 -u return_rest.py --arms arm_3 arm_4 --move
+mengirim segmen lurus (t2_a1_+t2_a2_): 60 titik. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+selesai: galat akhir 0.082 deg, torsi puncak 5.520 N.m pada t2_a2_joint_2, segmen ['lurus']
+== 12:25:08 python3 -u return_rest.py --arms arm_1 arm_2 --move
+mengirim segmen lurus (t1_a1_): 60 titik. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+selesai: galat akhir 0.110 deg, torsi puncak 5.382 N.m pada t1_a1_joint_2, segmen ['lurus']
+== 12:26:04 python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g32/pose_to_g.py --gantry 1 --seed 36 --variant R0 0 0 --move
+akhir: g1 = (0.000545 m, +0.0000 deg), galat +0.55 mm / +0.0000 deg; t_traverse 72.796 s (lin 72.796, rot None; T_cmd 74.97); lengan (keempat) bergeser maks 0.1515 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 2.245 t1_a1_joint_2
+{"gantry": 1, "goal": [0.0, 0.0], "start": [1.349534, 0.0], "end": [0.000545, 0.0], "err_mm": 0.545, "err_deg": 0.0, "T_cmd": 74.974, "T_cmd_lin": 74.974, "T_cmd_rot": 0.0, "t_send": 1791429971.9422023, "t_jtc_done": 1791430046.9433222, "t_first_move": 1791429973.535244, "t_stop": 1791430046.3313246
+== 12:27:28 python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g32/pose_to_g.py --gantry 2 --seed 36 --variant R0 0 0 --move
+akhir: g2 = (0.000356 m, +0.0000 deg), galat +0.36 mm / +0.0000 deg; t_traverse 78.476 s (lin 78.476, rot None; T_cmd 80.52); lengan (keempat) bergeser maks 0.1926 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 1.278 t2_a2_joint_3
+{"gantry": 2, "goal": [0.0, 0.0], "start": [1.449416, 0.0], "end": [0.000356, 0.0], "err_mm": 0.356, "err_deg": 0.0, "T_cmd": 80.523, "T_cmd_lin": 80.523, "T_cmd_rot": 0.0, "t_send": 1791430056.0999742, "t_jtc_done": 1791430136.6382256, "t_first_move": 1791430057.6749911, "t_stop": 1791430136.151113
+== PULANG OK
