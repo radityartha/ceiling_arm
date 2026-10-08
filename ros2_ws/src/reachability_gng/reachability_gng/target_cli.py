@@ -28,7 +28,7 @@ from reachability_gng.objn_localizer import ObjnLocalizer
 from reachability_gng.pick_cli import parse_object, split_color, _alias_group
 
 _OBJN_RE = re.compile(r'^obj_\d+$')
-STATUS_TIMEOUT = 60.0   # how long to wait for a mission result after 'g' before giving up
+STATUS_TIMEOUT = 60.0   # default of the status_timeout param (s to wait for a result after 'g')
 STATUS_POLL = 0.3
 
 
@@ -46,6 +46,14 @@ class TargetCli(Node):
     def __init__(self):
         super().__init__('target_cli')
         self.declare_parameter('set_target_topic', '/reach_fusion/set_target')
+        # Spoken requests (voice_web_ui) go through the SAME _fetch as typed ones;
+        # they only select a target -- 'g' stays the one trigger for motion.
+        # '' = off.
+        self.declare_parameter('voice_topic', '')
+        # docs/p1_demo_off.md T12: a screened demo run (<=3 plans + move + dwell +
+        # REST) can outlast 60 s.
+        self.declare_parameter('status_timeout', STATUS_TIMEOUT)
+        self.status_timeout = float(self.get_parameter('status_timeout').value)
         self._lock = threading.Lock()
         self.poses = np.empty((0, 3))
         self.tracks = []            # [{tid,label,x,y,z}] stable-identity handles
@@ -68,6 +76,13 @@ class TargetCli(Node):
         self.pub = self.create_publisher(
             String, self.get_parameter('set_target_topic').value, 1)
         self.exec_pub = self.create_publisher(Empty, '/reach_fusion/execute', 1)
+        voice = self.get_parameter('voice_topic').value
+        if voice:
+            self.create_subscription(String, voice, self._on_voice, 10)
+
+    def _on_voice(self, msg):
+        print(f'\n  [voice] "{msg.data}"')
+        _fetch(self, msg.data)
 
     def _on_objects(self, msg):
         with self._lock:
@@ -249,7 +264,7 @@ def _loop(node: TargetCli):
             # so the list isn't re-dumped on every loop tick during a long move.
             waited, status = 0.0, None
             try:
-                while rclpy.ok() and waited < STATUS_TIMEOUT:
+                while rclpy.ok() and waited < node.status_timeout:
                     status = node.pop_status()
                     if status is not None:
                         break
@@ -260,7 +275,7 @@ def _loop(node: TargetCli):
             if status is not None:
                 print(f'  ==> mission {status}')
             else:
-                print(f'  !! no result after {STATUS_TIMEOUT:g}s -- '
+                print(f'  !! no result after {node.status_timeout:g}s -- '
                       'check reach_fusion log (may still be running)')
             show_list = True   # mission ended (success/failed/timeout) -- show it again
         elif not raw:

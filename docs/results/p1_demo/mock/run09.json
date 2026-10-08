@@ -1,0 +1,58 @@
+{
+ "run": 9,
+ "t0": 1791458966.5001256,
+ "track": {
+  "tid": 107,
+  "label": "bottle",
+  "x": 1.25,
+  "y": 0.55,
+  "z": 0.97,
+  "conf": 0.9
+ },
+ "p_cmd": [
+  1.25,
+  0.55,
+  1.22
+ ],
+ "plan_only": false,
+ "arm_dist": {
+  "arm_1": 0.677,
+  "arm_2": 0.242
+ },
+ "tries": [
+  {
+   "arm": "arm_2",
+   "rc": 0,
+   "verdict": "TORQUE-UNSAFE",
+   "final": "HALTED",
+   "dt": 1.11,
+   "log": "/home/user1/Documents/ceiling_arm/docs/results/p1_demo/mock/run09_01_probe_arm_2.log",
+   "screens": [
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=6.80->14.50/14, 3=0.80->7.40/10, 4=0.09->2.07/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 104 %)",
+    "percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)",
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=7.13->14.83/14, 3=0.81->7.41/10, 4=0.08->2.06/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 106 %)",
+    "percobaan rencana 3/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)",
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=7.09->14.79/14, 3=0.79->7.39/10, 4=0.07->2.05/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 106 %)"
+   ],
+   "refusals": [
+    "DITOLAK SEBELUM GERAK -- t1_a2_joint_2 diperkirakan 14.50 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)",
+    "DITOLAK SEBELUM GERAK -- t1_a2_joint_2 diperkirakan 14.83 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)",
+    "DITOLAK SEBELUM GERAK -- t1_a2_joint_2 diperkirakan 14.79 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)"
+   ]
+  },
+  {
+   "arm": "arm_1",
+   "rc": 0,
+   "verdict": "NO-PLAN",
+   "final": "HALTED",
+   "dt": 46.9,
+   "log": "/home/user1/Documents/ceiling_arm/docs/results/p1_demo/mock/run09_02_probe_arm_1.log",
+   "screens": [
+    "percobaan rencana 2/3: yang sebelumnya NO-PLAN -- meminta lintasan LAIN (penyaring tidak dilonggarkan)",
+    "percobaan rencana 3/3: yang sebelumnya NO-PLAN -- meminta lintasan LAIN (penyaring tidak dilonggarkan)"
+   ],
+   "refusals": []
+  }
+ ],
+ "t_total": 48.02
+}

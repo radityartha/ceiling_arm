@@ -27,6 +27,10 @@
 
 ## B. Desain demo minimum (usulan, dikunci di DEMO-OFF §A)
 
+> ⚠ **Dikoreksi DEMO-OFF** ([p1_demo_off.md](p1_demo_off.md) §A1 T8, §A2): `target_cli` menyambung ke `reach_fusion`,
+> bukan `gantry_reach_executor`; desain final = `demo_runner` → `reach_dwell_probe` (semua penyaring) → `return_rest`,
+> gantry diam.
+
 ```
 mic browser → voice_web_ui → /voice/transcript ──┐
 D455 → rgbd_perception → seg_router(yoloe) → object_localizer → /detected_objects(+/tracks)

@@ -1,0 +1,886 @@
+[INFO] [launch]: All log files can be found below /home/user1/.ros/log/2026-10-08-20-36-22-271756-kubota-NUC9VXQNX-2358034
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [realsense2_camera_node-1]: process started with pid [2358053]
+[INFO] [convert_metric_node-2]: process started with pid [2358055]
+[INFO] [relay-3]: process started with pid [2358057]
+[INFO] [relay-4]: process started with pid [2358059]
+[INFO] [static_transform_publisher-5]: process started with pid [2358061]
+[INFO] [realsense2_camera_node-6]: process started with pid [2358063]
+[INFO] [convert_metric_node-7]: process started with pid [2358065]
+[INFO] [relay-8]: process started with pid [2358067]
+[INFO] [relay-9]: process started with pid [2358069]
+[INFO] [static_transform_publisher-10]: process started with pid [2358071]
+[INFO] [seg_router-11]: process started with pid [2358073]
+[static_transform_publisher-5] [INFO] [1791459382.382694310] [rgbd_world_tf]: Spinning until stopped - publishing transform
+[static_transform_publisher-5] translation: ('1.808100', '0.812400', '2.074600')
+[static_transform_publisher-5] rotation: ('-0.400038', '-0.827759', '0.311627', '0.240153')
+[static_transform_publisher-5] from 'world' to 'rgbd_camera_optical'
+[static_transform_publisher-10] [INFO] [1791459382.385180416] [rgbd2_world_tf]: Spinning until stopped - publishing transform
+[static_transform_publisher-10] translation: ('-0.049600', '-1.130200', '2.076700')
+[static_transform_publisher-10] rotation: ('-0.821111', '0.363583', '-0.241021', '0.368093')
+[static_transform_publisher-10] from 'world' to 'rgbd2_camera_optical'
+[realsense2_camera_node-1] [INFO] [1791459382.626682287] [rgbd.rgbd]: RealSense ROS v4.58.2
+[realsense2_camera_node-1] [INFO] [1791459382.626771883] [rgbd.rgbd]: Built with LibRealSense v2.58.2
+[realsense2_camera_node-1] [INFO] [1791459382.626784836] [rgbd.rgbd]: Running with LibRealSense v2.58.2
+[realsense2_camera_node-6] [INFO] [1791459382.626816404] [rgbd2.rgbd2]: RealSense ROS v4.58.2
+[realsense2_camera_node-6] [INFO] [1791459382.626890525] [rgbd2.rgbd2]: Built with LibRealSense v2.58.2
+[realsense2_camera_node-6] [INFO] [1791459382.626903599] [rgbd2.rgbd2]: Running with LibRealSense v2.58.2
+[realsense2_camera_node-1]  08/10 20:36:22,630 WARNING [138114798446144] (context.cpp:41) No valid configuration file found at : /home/user1/.realsense-config.json loading defaults
+[realsense2_camera_node-6]  08/10 20:36:22,630 WARNING [127270542894656] (context.cpp:41) No valid configuration file found at : /home/user1/.realsense-config.json loading defaults
+[seg_router-11] [INFO] [1791459382.824682398] [seg_router]: seg_router up; source=yoloe, cameras=['rgbd', 'rgbd2'], prompts=['bottle']
+[realsense2_camera_node-6] [INFO] [1791459383.025325001] [rgbd2.rgbd2]: Device with serial number 234222303079 was found.
+[realsense2_camera_node-6] 
+[realsense2_camera_node-6] [INFO] [1791459383.025400208] [rgbd2.rgbd2]: Device with physical ID /sys/devices/pci0000:00/0000:00:14.0/usb2/2-1/2-1:1.0/video4linux/video0 was found.
+[realsense2_camera_node-6] [INFO] [1791459383.025406814] [rgbd2.rgbd2]: Device with name Intel RealSense D455 was found.
+[realsense2_camera_node-1] [INFO] [1791459383.025458058] [rgbd.rgbd]: Device with serial number 234222303079 was found.
+[realsense2_camera_node-1] 
+[realsense2_camera_node-1] [INFO] [1791459383.025491542] [rgbd.rgbd]: Device with physical ID /sys/devices/pci0000:00/0000:00:14.0/usb2/2-1/2-1:1.0/video4linux/video0 was found.
+[realsense2_camera_node-1] [INFO] [1791459383.025498118] [rgbd.rgbd]: Device with name Intel RealSense D455 was found.
+[realsense2_camera_node-1] [INFO] [1791459383.025615442] [rgbd.rgbd]: Device with port number 2-1 was found.
+[realsense2_camera_node-6] [INFO] [1791459383.025562347] [rgbd2.rgbd2]: Device with port number 2-1 was found.
+[realsense2_camera_node-6] [INFO] [1791459383.025573353] [rgbd2.rgbd2]: Device USB type: 3.2
+[realsense2_camera_node-6] [INFO] [1791459383.025975261] [rgbd2.rgbd2]: getParameters...
+[realsense2_camera_node-6] [INFO] [1791459383.026794480] [rgbd2.rgbd2]: JSON file is not provided
+[realsense2_camera_node-6] [INFO] [1791459383.026812625] [rgbd2.rgbd2]: Device Name: Intel RealSense D455
+[realsense2_camera_node-6] [INFO] [1791459383.026821089] [rgbd2.rgbd2]: Device Serial No: 234222303079
+[realsense2_camera_node-6] [INFO] [1791459383.026827914] [rgbd2.rgbd2]: Device physical port: /sys/devices/pci0000:00/0000:00:14.0/usb2/2-1/2-1:1.0/video4linux/video0
+[realsense2_camera_node-6] [INFO] [1791459383.026835393] [rgbd2.rgbd2]: Device FW version: 5.17.0.10
+[realsense2_camera_node-6] [INFO] [1791459383.026849611] [rgbd2.rgbd2]: Device Product ID: 0x0B5C
+[realsense2_camera_node-6] [INFO] [1791459383.026857232] [rgbd2.rgbd2]: Sync Mode: Off
+[realsense2_camera_node-1] [INFO] [1791459383.028551336] [rgbd.rgbd]: Device with serial number 241122302297 was found.
+[realsense2_camera_node-1] 
+[realsense2_camera_node-1] [INFO] [1791459383.028569245] [rgbd.rgbd]: Device with physical ID /sys/devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/video4linux/video6 was found.
+[realsense2_camera_node-1] [INFO] [1791459383.028575752] [rgbd.rgbd]: Device with name Intel RealSense D455 was found.
+[realsense2_camera_node-1] [INFO] [1791459383.028700054] [rgbd.rgbd]: Device with port number 2-2.1.1 was found.
+[realsense2_camera_node-1] [INFO] [1791459383.028708993] [rgbd.rgbd]: Device USB type: 3.2
+[realsense2_camera_node-1] [INFO] [1791459383.028743519] [rgbd.rgbd]: getParameters...
+[realsense2_camera_node-1] [INFO] [1791459383.029384013] [rgbd.rgbd]: JSON file is not provided
+[realsense2_camera_node-1] [INFO] [1791459383.029402589] [rgbd.rgbd]: Device Name: Intel RealSense D455
+[realsense2_camera_node-1] [INFO] [1791459383.029408454] [rgbd.rgbd]: Device Serial No: 241122302297
+[realsense2_camera_node-1] [INFO] [1791459383.029413223] [rgbd.rgbd]: Device physical port: /sys/devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/video4linux/video6
+[realsense2_camera_node-1] [INFO] [1791459383.029418273] [rgbd.rgbd]: Device FW version: 5.16.0.1
+[realsense2_camera_node-1] [INFO] [1791459383.029423007] [rgbd.rgbd]: Device Product ID: 0x0B5C
+[realsense2_camera_node-1] [INFO] [1791459383.029427405] [rgbd.rgbd]: Sync Mode: Off
+[realsense2_camera_node-1] [INFO] [1791459383.130495983] [rgbd.rgbd]: Stopping Sensor: Depth Module
+[realsense2_camera_node-1] [INFO] [1791459383.130596694] [rgbd.rgbd]: Stopping Sensor: RGB Camera
+[realsense2_camera_node-1] [INFO] [1791459383.136322109] [rgbd.rgbd]: Starting Sensor: Depth Module
+[realsense2_camera_node-1] [INFO] [1791459383.137966967] [rgbd.rgbd]: Open profile: stream_type: Depth(0), Format: Z16, Width: 848, Height: 480, FPS: 30
+[realsense2_camera_node-6] [INFO] [1791459383.161662199] [rgbd2.rgbd2]: Stopping Sensor: Depth Module
+[realsense2_camera_node-6] [INFO] [1791459383.161722993] [rgbd2.rgbd2]: Stopping Sensor: RGB Camera
+[realsense2_camera_node-6] [INFO] [1791459383.165788841] [rgbd2.rgbd2]: Starting Sensor: Depth Module
+[realsense2_camera_node-6] [INFO] [1791459383.167538723] [rgbd2.rgbd2]: Open profile: stream_type: Depth(0), Format: Z16, Width: 848, Height: 480, FPS: 30
+[realsense2_camera_node-1] [INFO] [1791459383.262335463] [rgbd.rgbd]: Starting Sensor: RGB Camera
+[realsense2_camera_node-1] [INFO] [1791459383.264402182] [rgbd.rgbd]: Open profile: stream_type: Color(0), Format: RGB8, Width: 1280, Height: 720, FPS: 30
+[realsense2_camera_node-1] [INFO] [1791459383.272406116] [rgbd.rgbd]: RealSense Node Is Up!
+[realsense2_camera_node-6] [INFO] [1791459383.323229207] [rgbd2.rgbd2]: Starting Sensor: RGB Camera
+[realsense2_camera_node-6] [INFO] [1791459383.325408670] [rgbd2.rgbd2]: Open profile: stream_type: Color(0), Format: RGB8, Width: 1280, Height: 720, FPS: 30
+[realsense2_camera_node-6] [INFO] [1791459383.334802866] [rgbd2.rgbd2]: RealSense Node Is Up!
+[seg_router-11] [INFO] [1791459385.403250453] [seg_router]: loading YOLOE /home/user1/Documents/ceiling_arm/ros2_ws/yoloe-11m-seg.pt on cuda:0 ...
+[seg_router-11] [WARN] [1791459387.050956595] [seg_router]: YOLOE warm-up load failed: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.060332304] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.062081006] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.189017370] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.191403480] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.288942883] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.291647341] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.420452946] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.424644572] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.521085132] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.557539451] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.655245446] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.658099930] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.789359178] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.791975820] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.889876352] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.892444478] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459387.993525613] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.021275574] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.122272370] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.124988376] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.254787176] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.258554412] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.355705190] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.358831343] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.455907658] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.458940504] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.589396723] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.592384892] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.721392599] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.725273931] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.822340066] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.826021061] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.935988398] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459388.955363466] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.036094960] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.057899914] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.163377053] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.188667602] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.295608106] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.320799911] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.434091423] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.437779081] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.539703828] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.546307375] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.657512220] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.660455743] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.771461166] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.782694653] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.891296294] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.895625727] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459389.990973405] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.028104414] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.121388632] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.160733513] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.223292164] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.262512180] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.357479364] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.362459007] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.462964361] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.532494090] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.596048696] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.663041070] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.696128791] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.790198758] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.827532551] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.923205175] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459390.928098201] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.056831973] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.062297349] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.158961713] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.163778697] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.291359869] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.297207949] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.422325126] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.428096139] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.524541193] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.529731712] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.629716732] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.657468300] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.758137164] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.764193701] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459391.891154288] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.022633239] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.164601209] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.212773832] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.291771508] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.330613205] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.392386746] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.432887812] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.524495705] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.563963091] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.657585406] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.696996929] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.790995783] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.797956123] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.891125743] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.898030965] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.991169386] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459392.998275271] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.092332833] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.100625231] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.225395840] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.233645708] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.333407744] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.358718559] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.435079519] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.463386198] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.564768364] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.590308321] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.668501556] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.692002657] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.769731365] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.824180299] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.870407850] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.925111116] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459393.999267008] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.057566284] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.099377166] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.158700988] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.199648861] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.292325311] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.301670420] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.403846269] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.425754275] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.526215529] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.534721761] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.658572563] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.666081349] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.767361986] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.791386443] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.899817656] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459394.925612546] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.001523987] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.059174994] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.135058839] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.193526325] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.267810148] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.326263194] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.376745399] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.459121863] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.500954347] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.561019022] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.602516338] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.661119723] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.735120321] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.792540035] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.868042684] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.893050264] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459395.968545147] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.025962146] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.069167020] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.128433084] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.171669356] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.259732503] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.302166732] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.359629772] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.402305266] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.493142213] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.502461118] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.593970891] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.603491996] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.712486084] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.727099832] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.837502929] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.861380250] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.970655192] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459396.994302274] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.070985297] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.124489816] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.203676365] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.227734647] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.336298518] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.359918614] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.439035740] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.460822596] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.561002344] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.572391445] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.660811161] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.681456357] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.792520723] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.803088737] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.893675309] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.904729209] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459397.995070874] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.005494728] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.127463007] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.142448062] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.227818680] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.275805074] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.327811735] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.409134803] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.467799225] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.545416626] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.595625158] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.671847764] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.727643064] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.772411363] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.828283865] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.875353213] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.927776949] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459398.977307081] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.059527073] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.108393441] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.160791720] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.238303043] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.261201804] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.339980837] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.393734664] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.472640570] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.494410456] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.605757261] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.627806112] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.717740034] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.728727372] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.839766114] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.858368365] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.948090030] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459399.960426288] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.061365480] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.083395747] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.161490323] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.206327389] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.264642235] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.308069701] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.394463111] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.439263372] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.527251797] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.539573771] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.661828138] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.674226933] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.761550595] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.774134661] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.862521994] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.875194171] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459400.970651627] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.006464444] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.093588517] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.106583862] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.193598593] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.206804860] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.295453909] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.307429633] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.429267170] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.441303211] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.541401555] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.562677501] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.673331393] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.695290710] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.775613543] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.804608352] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.907939976] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459401.927311967] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.008178568] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.028672334] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.109372110] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.129324748] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.268290350] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.332063760] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.376035449] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.461835023] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.476727456] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.594504959] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.609095870] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.696524157] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.709036072] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.809361821] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.831245633] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.941897813] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459402.961803967] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.041855865] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.095291505] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.142444690] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.228584594] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.243546255] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.329278597] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.376799818] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.462460773] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.477029681] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.594410016] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.608810159] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.695907387] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.709283821] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.810487934] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.829947998] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459403.931309456] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.034794305] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.228924367] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.234564509] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.343856778] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.361644314] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.444011431] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.461826530] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.545269057] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.563291800] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.678116397] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.696474470] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.810691587] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.828789319] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.910815214] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459404.961757884] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.011610484] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.062778997] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.111702351] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.196743171] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.212143354] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.329713236] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.346755072] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.461577305] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.478408742] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.563087569] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.578974418] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.696573414] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.711798596] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.796977342] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.812465621] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.898098718] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459405.946701965] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.029437428] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.078807538] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.130096557] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.179354470] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.263111029] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.312810043] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.368551272] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.414496895] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.502337320] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.551718586] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.606278986] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.680497211] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.728956839] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.813585252] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.829778074] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.946939458] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459406.962987034] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.047830903] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.063426800] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.165188611] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.181024285] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.296933753] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.313638556] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.405470194] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.414526547] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.515266968] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.531068975] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.648618848] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.664513884] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.802952618] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.867063003] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.932566757] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459407.981541143] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.063125809] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.091539684] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.163618834] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.214739356] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.264630000] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.315026628] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.364585961] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.415947302] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.499064785] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.516435370] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.631372642] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.648682290] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.749470778] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.763730127] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.855337427] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.866154803] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.966970437] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459408.984398144] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.098459943] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.117371314] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.199538473] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.217803385] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.330618696] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.348827474] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.431810718] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.449869269] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.531938123] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.583841877] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.632588453] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.684159208] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.764794941] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.817278117] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.900879432] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459409.919247393] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.019475327] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.031472219] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.149716256] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.164176809] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.251994372] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.265728482] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.351851902] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.365960041] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.452173549] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.496548366] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.583373975] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.598741851] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.684692814] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.732425182] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.785746988] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.883925308] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.889103238] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459410.998034259] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.020852381] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.099514908] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.151862715] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.231532264] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.285573333] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.331559124] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.419610687] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.434361497] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.520373109] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.534222838] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.652711812] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.665905464] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.766479075] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.786356665] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.868043154] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.886783290] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.987113224] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459411.999036257] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.087252009] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.132200401] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.187418557] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.265900902] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.287713782] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.366431660] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.420006506] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.499327758] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.553736853] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.632465067] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.688363067] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.768679611] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.788442353] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.889445636] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459412.900753225] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.020385634] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.031505997] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.121033446] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.132520078] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.220977820] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.241222850] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.322587377] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.367388008] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.427065353] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.471226432] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.556949190] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.601742440] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.689330967] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.733303014] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.821924146] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.866433161] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.922101268] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459413.968482032] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.024763595] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.102132037] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.157205751] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.234951301] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.288581464] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.368480181] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.390065238] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.490570840] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.500566336] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.590951968] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.602032771] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.724257220] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.736110802] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.824622035] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.835930924] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.942387053] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459414.956813701] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.057260312] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.066839972] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.157532066] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.168120578] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.263560415] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.268975628] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.391598761] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.402592267] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.491763210] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.533959143] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.623974058] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.634282881] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.724114330] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.734922279] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.824801257] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.835810373] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.925515754] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459415.935619207] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.032985531] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.047984578] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.162207206] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.175006750] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.294696470] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.307331723] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.427003929] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.442039129] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.527180526] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.570682097] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.627958859] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.672627134] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.729683431] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.804952992] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.829989359] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.905411271] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459416.961830949] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.007708322] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.096198153] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.140830327] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.196114146] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.247637437] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.329366321] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.373104233] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.462780190] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.505358827] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.596569614] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.605382220] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.728828729] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.738806348] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.861273701] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.870297348] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.962171363] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459417.979186140] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.094312086] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.102781543] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.194610450] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.235928969] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.327081006] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.336067656] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.428407928] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.436561769] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.561064875] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.569628864] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.662231862] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.678830766] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.762313309] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.803493061] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.863082146] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.936172313] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459418.995390643] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.045081100] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.129275156] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.170430013] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.229143746] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.303221947] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.362663989] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.437326409] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.463060177] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.570065309] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.596241445] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.702850909] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.729292928] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.803818714] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.830072301] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.936043686] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459419.963120971] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.037355302] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.096941333] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.137508752] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.229637572] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.269746028] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.329717461] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.369986660] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.463563083] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.471318335] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.564303916] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.572083149] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.697847149] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.704807861] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.831136788] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.838347054] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.964163887] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459420.971208315] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.064544792] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.104561158] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.165119862] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.208804643] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.266015267] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.337328906] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.398901092] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.469694991] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.531567995] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.571529331] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.633149405] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.703379964] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.740167955] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.804553505] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.867800775] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.939752750] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459421.967907598] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.070792835] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.099161153] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.199411242] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.204075320] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.300154071] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.304136197] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.401399169] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.405321184] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.505464193] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.508577600] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.633058800] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.639364533] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.735089395] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.771841560] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.867846063] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459422.872042582] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.001200023] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.004988920] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.102552012] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.105796908] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.204012977] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.206566021] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.303676295] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.341593690] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.435546594] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.472758432] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.536887768] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.606801431] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.668138864] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.707040608] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.770621529] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.840218640] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.871845722] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459423.972866882] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.003639268] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.103622105] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.106594546] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.204085088] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.206794833] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.304286357] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.307666945] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.436782047] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.439578297] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.537674960] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.540350587] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.638599352] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.640739760] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.738429883] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.773439248] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.838431593] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.874262595] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.971207241] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459424.973820402] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.072910351] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.076794247] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.205216086] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.207695493] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.304973102] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.340512758] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.405476450] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.440520409] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.507699594] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.575353430] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.639808500] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.708485487] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.740144509] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.841233044] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.873073172] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459425.973178673] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.006856054] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.074613185] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.107251257] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.209253711] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.240057037] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.342776345] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.348840102] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.475424319] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.478052494] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.606853968] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.608988571] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.707562466] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.709954961] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.808035864] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.810155322] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.941018928] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459426.943369704] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.041528359] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.044363696] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.150426077] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.152688554] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.274139536] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.276209677] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.374753318] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.407667811] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.508529845] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.510794644] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.645254288] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.653788628] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.745232651] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.776564175] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.876293180] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.879207384] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459427.976646240] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.008517907] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.108548951] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.110609449] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.209407088] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.217752229] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.342757888] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.351709401] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.475753625] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.478229268] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.576788790] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.579328991] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.708645688] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.710783540] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.809049627] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.811333671] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.909957498] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459428.912289978] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.010533845] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.012680467] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.143818256] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.146662707] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.276273377] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.278473165] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.409306175] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.411459560] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.509673936] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.511816033] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.610465992] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.613074044] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.744122153] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.746548428] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.875328265] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.877776105] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.978396267] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459429.980765882] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459430.109490988] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459430.111636763] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459430.211390658] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459430.213699321] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459430.312159919] [seg_router]: YOLOE inference failed on rgbd: PytorchStreamReader failed reading zip archive: failed finding central directory
+[seg_router-11] [WARN] [1791459430.315606555] [seg_router]: YOLOE inference failed on rgbd2: PytorchStreamReader failed reading zip archive: failed finding central directory
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [seg_router-11]: sending signal 'SIGINT' to process[seg_router-11]
+[INFO] [static_transform_publisher-10]: sending signal 'SIGINT' to process[static_transform_publisher-10]
+[INFO] [relay-9]: sending signal 'SIGINT' to process[relay-9]
+[INFO] [relay-8]: sending signal 'SIGINT' to process[relay-8]
+[INFO] [convert_metric_node-7]: sending signal 'SIGINT' to process[convert_metric_node-7]
+[INFO] [realsense2_camera_node-6]: sending signal 'SIGINT' to process[realsense2_camera_node-6]
+[INFO] [static_transform_publisher-5]: sending signal 'SIGINT' to process[static_transform_publisher-5]
+[INFO] [relay-4]: sending signal 'SIGINT' to process[relay-4]
+[INFO] [relay-3]: sending signal 'SIGINT' to process[relay-3]
+[INFO] [convert_metric_node-2]: sending signal 'SIGINT' to process[convert_metric_node-2]
+[INFO] [realsense2_camera_node-1]: sending signal 'SIGINT' to process[realsense2_camera_node-1]
+[static_transform_publisher-10] [INFO] [1791459430.337909282] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[relay-9] [INFO] [1791459430.339585405] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[relay-8] [INFO] [1791459430.342902591] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[convert_metric_node-7] [INFO] [1791459430.343352486] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-6] [INFO] [1791459430.345887036] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-6] [INFO] [1791459430.346077020] [rgbd2.rgbd2]: Stop Sensor: Depth Module
+[realsense2_camera_node-6] [INFO] [1791459430.346091239] [rgbd2.rgbd2]: Close Sensor. 
+[relay-4] [INFO] [1791459430.348300350] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[static_transform_publisher-5] [INFO] [1791459430.348895785] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[relay-3] [INFO] [1791459430.351888272] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[convert_metric_node-2] [INFO] [1791459430.351945803] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-1] [INFO] [1791459430.354034375] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-1] [INFO] [1791459430.354433605] [rgbd.rgbd]: Stop Sensor: Depth Module
+[realsense2_camera_node-1] [INFO] [1791459430.354459673] [rgbd.rgbd]: Close Sensor. 
+[seg_router-11] Traceback (most recent call last):
+[seg_router-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/build/reachability_gng/reachability_gng/seg_router.py", line 332, in main
+[seg_router-11]     rclpy.spin(node)
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[seg_router-11]     executor.spin_once()
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+[seg_router-11]     self._spin_once_impl(timeout_sec)
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+[seg_router-11]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+[seg_router-11]     return next(self._cb_iter)
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 677, in _wait_for_ready_callbacks
+[seg_router-11]     wait_set.wait(timeout_nsec)
+[seg_router-11] KeyboardInterrupt
+[seg_router-11] 
+[seg_router-11] During handling of the above exception, another exception occurred:
+[seg_router-11] 
+[seg_router-11] Traceback (most recent call last):
+[seg_router-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/seg_router", line 33, in <module>
+[seg_router-11]     sys.exit(load_entry_point('reachability-gng', 'console_scripts', 'seg_router')())
+[seg_router-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/build/reachability_gng/reachability_gng/seg_router.py", line 335, in main
+[seg_router-11]     rclpy.shutdown()
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 130, in shutdown
+[seg_router-11]     _shutdown(context=context)
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/utilities.py", line 58, in shutdown
+[seg_router-11]     return context.shutdown()
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/context.py", line 102, in shutdown
+[seg_router-11]     self.__context.shutdown()
+[seg_router-11] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:241
+[INFO] [static_transform_publisher-10]: process has finished cleanly [pid 2358071]
+[INFO] [relay-9]: process has finished cleanly [pid 2358069]
+[INFO] [static_transform_publisher-5]: process has finished cleanly [pid 2358061]
+[INFO] [relay-8]: process has finished cleanly [pid 2358067]
+[INFO] [relay-4]: process has finished cleanly [pid 2358059]
+[INFO] [relay-3]: process has finished cleanly [pid 2358057]
+[INFO] [convert_metric_node-2]: process has finished cleanly [pid 2358055]
+[INFO] [convert_metric_node-7]: process has finished cleanly [pid 2358065]
+[ERROR] [seg_router-11]: process has died [pid 2358073, exit code 1, cmd '/home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/seg_router --ros-args -r __node:=seg_router --params-file /tmp/launch_params_7kfn17pa'].
+[realsense2_camera_node-1] [INFO] [1791459431.146325299] [rgbd.rgbd]: Close Sensor - Done. 
+[realsense2_camera_node-1] [INFO] [1791459431.146339167] [rgbd.rgbd]: Stop Sensor: RGB Camera
+[realsense2_camera_node-1] [INFO] [1791459431.146343023] [rgbd.rgbd]: Close Sensor. 
+[realsense2_camera_node-6] [INFO] [1791459431.176652525] [rgbd2.rgbd2]: Close Sensor - Done. 
+[realsense2_camera_node-6] [INFO] [1791459431.176665896] [rgbd2.rgbd2]: Stop Sensor: RGB Camera
+[realsense2_camera_node-6] [INFO] [1791459431.176669135] [rgbd2.rgbd2]: Close Sensor. 
+[realsense2_camera_node-1] [INFO] [1791459431.840982370] [rgbd.rgbd]: Close Sensor - Done. 
+[realsense2_camera_node-6] [INFO] [1791459432.087995435] [rgbd2.rgbd2]: Close Sensor - Done. 
+[INFO] [realsense2_camera_node-1]: process has finished cleanly [pid 2358053]
+[INFO] [realsense2_camera_node-6]: process has finished cleanly [pid 2358063]

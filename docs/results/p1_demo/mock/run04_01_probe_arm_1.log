@@ -1,0 +1,12 @@
+# 1791458057.5240 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=2.0500,-0.1000,1.1500 --approach 0 --trials 1 --tau-max 12.0 --monitor-csv /tmp/demo_off_mon_samples.csv --move
+1791458057.9675 probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 12.0 N.m
+1791458057.9675 sumber target: arm_1 (2.05, -0.1, 1.15), [] []
+1791458057.9676 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791458057.9676 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791458057.9676 
+1791458073.2989 [INFO] [1791458073.298794261] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya NO-PLAN -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791458088.3482 [INFO] [1791458088.348130960] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya NO-PLAN -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791458103.3970        arm_1: moveit NO-PLAN
+1791458103.3974   [ 1] HALTED       (arm_1:NO-PLAN) torsi puncak  0.00 N.m
+1791458103.3975   TIDAK VALID (mesin, A5, di LUAR penyebut): {'HALTED': 1}
+1791458103.3975   -> /tmp/g20_step5.json

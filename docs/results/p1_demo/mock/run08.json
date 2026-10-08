@@ -1,0 +1,56 @@
+{
+ "run": 8,
+ "t0": 1791458886.0601833,
+ "track": {
+  "tid": 112,
+  "label": "bottle",
+  "x": 1.75,
+  "y": 0.55,
+  "z": 0.97,
+  "conf": 0.9
+ },
+ "p_cmd": [
+  1.75,
+  0.55,
+  1.22
+ ],
+ "plan_only": false,
+ "arm_dist": {
+  "arm_1": 0.242,
+  "arm_2": 0.677
+ },
+ "tries": [
+  {
+   "arm": "arm_1",
+   "rc": 0,
+   "verdict": "MOVED",
+   "final": "SUCCESS",
+   "dt": 25.82,
+   "log": "/home/user1/Documents/ceiling_arm/docs/results/p1_demo/mock/run08_01_probe_arm_1.log",
+   "screens": [
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.10->6.70/10, 2=7.11->14.81/14, 3=0.82->7.42/10, 4=0.08->2.06/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 106 %)",
+    "percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)",
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.05->6.65/10, 2=6.78->14.48/14, 3=0.81->7.41/10, 4=0.09->2.07/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 103 %)",
+    "percobaan rencana 3/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)",
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=1.90->9.60/14, 3=2.44->9.04/10, 4=0.41->2.39/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 90 %)",
+    "jarak antar-lengan minimum sepanjang rencana: 484.1 mm di titik 58 (t1_a1_lower_wrist_link_0 <-> t1_a2_arm_link_0) -> CLEAR",
+    "jarak ke peta lingkungan minimum: 115.1 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR",
+    "retract g1 ['arm_1'] lurus (rel 1.500):",
+    "penyaring se-gantry: CLEAR, minimum 484.2 mm di titik 19/60 (t1_a1_lower_wrist_link_0 <-> t1_a2_arm_link_0)",
+    "penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+    "penyaring lingkungan: CLEAR, minimum 115.1 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)"
+   ],
+   "refusals": [
+    "DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.81 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)",
+    "DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.48 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)"
+   ]
+  }
+ ],
+ "return_rest": {
+  "rc": 0,
+  "dt": 43.01,
+  "log": "/home/user1/Documents/ceiling_arm/docs/results/p1_demo/mock/run08_02_return_rest.log",
+  "tau_peak": "0.000"
+ },
+ "t_total": 68.83
+}
