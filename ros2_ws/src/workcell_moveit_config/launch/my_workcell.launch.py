@@ -2,7 +2,7 @@ import os
 from ament_index_python.packages import (PackageNotFoundError,
                                          get_package_share_directory)
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.actions import ExecuteProcess, IncludeLaunchDescription, DeclareLaunchArgument
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -57,6 +57,16 @@ def generate_launch_description():
         # since the table joints are covered by TableFakeHardware then)
         # AND enable_gantry_bridge:=true. Defaults to false even on real hardware
         # so a first real-mode launch doesn't move the tables until reviewed.
+        # G36 (2026-10-08): the frozen D455 environment map, always. Puts
+        # `env_static_map` (boxes grown +5 cm) into MoveIt's planning scene,
+        # re-asserts it after a move_group restart, and latches the raw voxels on
+        # /env_static_map/cloud for RViz. Was started by hand every session; a
+        # launch without it planned blind to the rack. false only for work that
+        # must see an EMPTY scene (e.g. rebuilding the map).
+        DeclareLaunchArgument("env_map", default_value="true",
+                              description="Start scripts/env_static_map_pub.py "
+                                          "(env_static_map in the planning scene + "
+                                          "/env_static_map/cloud for RViz)"),
         DeclareLaunchArgument("enable_gantry_bridge", default_value="false",
                               description="Let MoveIt trajectories drive the real "
                                           "Modbus table via dual_table_controller's "
@@ -147,6 +157,19 @@ def generate_launch_description():
                 "use_sim_time": use_sim_time_config,
             }],
             condition=UnlessCondition(LaunchConfiguration("use_fake_hardware")),
+        )
+    )
+
+    # 5. Environment map (G36). scripts/ is not a ROS package: run the script by
+    # path, resolved through the --symlink-install link back to the repo.
+    env_pub = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           "..", "..", "..", "..", "scripts", "env_static_map_pub.py")
+    ld.add_action(
+        ExecuteProcess(
+            cmd=["python3", "-u", os.path.normpath(env_pub)],
+            name="env_static_map_pub",
+            output="screen",
+            condition=IfCondition(LaunchConfiguration("env_map")),
         )
     )
 

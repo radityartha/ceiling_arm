@@ -138,10 +138,11 @@ def main():
                 rclpy.spin_once(n, timeout_sec=0.5)
             if n.present() is False:
                 n.get_logger().warn(f'{OBJECT_ID} HILANG dari planning scene -- publish ulang')
-                n.assert_once()
+                n.get_logger().info(f'{OBJECT_ID} di planning scene: {n.assert_once()}')
     except KeyboardInterrupt:
         pass
-    rclpy.shutdown()
+    if rclpy.ok():                      # SIGINT (launch shutdown) already shut it down
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':

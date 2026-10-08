@@ -263,7 +263,8 @@ rot 0/0, rak + benda x~2.1 tidak dipindah)? K1 operator di e-stop selama gerak? 
 hanya menerbitkan *_right_finger_bottom_joint; G36 B6.3) -- ros2 topic echo sekali, tulis nilainya.
 0. KUNCI §A (dugaan D247+) SEBELUM bring-up.
 1. env_collision --self-test, interarm_collision --self-test (+ --cross) LULUS; remount_check; bring-up nyata (SIG_DFL +
-   setsid nohup, PID launch ASLI, SigIgn), 4x Actuator '6', 7/7, ARMED; env_static_map_pub keep-alive + --once True;
+   setsid nohup, PID launch ASLI, SigIgn), 4x Actuator '6', 7/7, ARMED; env_static_map_pub kini DIJALANKAN LAUNCH
+   (env_map:=true; log "di planning scene: True", bisa sesudah satu "HILANG -- publish ulang") + --once True;
    js_record + reach_dwell_monitor. Bila g1 di PARK: pose_to_g --gantry 1 --seed 36 --variant R0 0 0 (DRY lalu --move).
 2. Plan-only NYATA k=3 R10 lalu R0 (DOMAIN=0 docs/results/p1_g36/g36_planonly.sh g36b_hw 3 3 -- sampel independen,
    tidak berhenti di gagal pertama) -> harus 3/3 + 3/3; catat RETRACT-BLOCKED.
