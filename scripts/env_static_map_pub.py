@@ -29,14 +29,20 @@ import rclpy
 from geometry_msgs.msg import Pose
 from moveit_msgs.msg import CollisionObject, PlanningScene, PlanningSceneComponents
 from moveit_msgs.srv import GetPlanningScene
+from sensor_msgs.msg import PointCloud2
+from sensor_msgs_py.point_cloud2 import create_cloud_xyz32
 from rclpy.node import Node
 from rclpy.qos import QoSDurabilityPolicy, QoSProfile
 from shape_msgs.msg import SolidPrimitive
+from std_msgs.msg import Header
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from env_collision import ENV_MAP, ENV_MARGIN_M, load_env_map  # noqa: E402
 
 OBJECT_ID = 'env_static_map'
+# G36: the raw voxel centres for RViz (latched). The scene object above is the
+# 5 cm-GROWN boxes MoveIt plans against; this is the map EnvChecker screens with.
+CLOUD_TOPIC = '/env_static_map/cloud'
 BIN = 0.02      # = map resolution; coarser bins fatten every box
 
 
@@ -77,6 +83,8 @@ class Pub(Node):
         self.n_box, self.n_vox = len(c), len(m['centers'])
         qos = QoSProfile(depth=1, durability=QoSDurabilityPolicy.TRANSIENT_LOCAL)
         self.pub = self.create_publisher(PlanningScene, '/planning_scene', qos)
+        self.cloud_pub = self.create_publisher(PointCloud2, CLOUD_TOPIC, qos)
+        self.centers = m['centers'].astype(float)
         self.cli = self.create_client(GetPlanningScene, '/get_planning_scene')
         self.get_logger().info(f'{map_file}: {self.n_vox} voxel -> {self.n_box} kotak '
                                f'(bin {BIN}, +{ENV_MARGIN_M} m)')
@@ -117,6 +125,9 @@ def main():
     n = Pub(a.map)
     ok = n.assert_once()
     n.get_logger().info(f'{OBJECT_ID} di planning scene: {ok}')
+    # AFTER the scene is verified: sent first, this 1.6 MB latched cloud kept the
+    # scene diff from reaching move_group (G36, mock: False 3x in a row).
+    n.cloud_pub.publish(create_cloud_xyz32(Header(frame_id='world'), n.centers.tolist()))
     if a.once:
         rclpy.shutdown()
         sys.exit(0 if ok else 1)

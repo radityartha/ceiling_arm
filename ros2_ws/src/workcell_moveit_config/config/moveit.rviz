@@ -14,7 +14,7 @@ Visualization Manager:
       Name: Grid
       Value: true
     - Class: moveit_rviz_plugin/MotionPlanning
-      Name: MotionPlanning (Scene Geometry = GNG collision union, all green)
+      Name: MotionPlanning (Scene Geometry = env_static_map, boxes grown +5 cm)
       Planned Path:
         Loop Animation: true
         State Display Time: 0.05 s
@@ -22,7 +22,7 @@ Visualization Manager:
       Planning Scene Topic: monitored_planning_scene
       Robot Description: robot_description
       Scene Geometry:
-        Scene Alpha: 1
+        Scene Alpha: 0.25
         Show Scene Geometry: false
       Scene Robot:
         Robot Alpha: 0.5
@@ -51,6 +51,21 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /topo_map/markers
       Value: true
+    - Class: rviz_default_plugins/PointCloud2
+      Enabled: true
+      Name: Env map (D455 voxels, g34n)
+      Color Transformer: AxisColor
+      Axis: Z
+      Style: Points
+      Size (Pixels): 3
+      Alpha: 1
+      Topic:
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /env_static_map/cloud
+      Value: true
   Global Options:
     Fixed Frame: world
   Tools:
@@ -61,11 +76,11 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 2.0
+      Distance: 5.5
       Focal Point:
-        X: -0.1
-        Y: 0.25
-        Z: 0.30
+        X: 1.0
+        Y: 0.0
+        Z: 1.0
       Name: Current View
       Pitch: 0.5
       Target Frame: world
