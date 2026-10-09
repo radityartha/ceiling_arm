@@ -64,6 +64,20 @@ S23″ menolak |rot| > 10°, rotasi HW baru diverifikasi ±10° (G30) — jadwal
 
 sha256 `g38_A_locked.md` = `16254db0…5fb9a0` (dikunci 2026-10-09 15:10, sebelum komputasi baru).
 
+### A6. 🔒 Addendum (G39b, 2026-10-10, SEBELUM plan-only) — plan-only MOCK seed yang lolos (i)–(iii)
+
+Mock domain 77 (`use_fake_hardware:=true enable_gantry_bridge:=false`, env_map:=true), `g31_screen.py --variant R35
+--repeats 1 --plan g38_candidates.json` untuk 19 seed, apa adanya (retract_check + 3 percobaan tugas, saring S18 / lintas /
+torsi / lingkungan, urutan event g1 lalu g2 seperti runner). Atribusi gagal = verdict terakhir; INTERARM-COLLIDE dengan
+pasangan t1_*↔t2_* = **lintas-gantry**. Satu sampel per seed (penyaringan, bukan laju).
+
+| # | Dugaan |
+|---|---|
+| D295 | PLANNED ujung-ke-ujung **≤ 10 / 19** seed. |
+| D296 | **≥ 30 %** seed yang gagal, gagal pada tabrakan lengan **lintas-gantry**. |
+| D297 | **≥ 1** seed gagal pada ENV-* (tugas dinding). |
+| D298 | Gagal akhir TORQUE-UNSAFE **≤ 2** seed. |
+
 ## B. Hasil terukur
 
 ### B0. Pemeriksaan + penyimpangan dari §A (DITULIS)
@@ -80,6 +94,93 @@ sha256 `g38_A_locked.md` = `16254db0…5fb9a0` (dikunci 2026-10-09 15:10, sebelu
   `run` diubah: tarik semua seed → R35 semua seed → kontrol R10 (5 seed pertama) di akhir; hasil ditulis per seed.
   Perkiraan total ~10 jam (`setsid nohup`, cache bisa dilanjutkan).
 
-### B1. Penarikan (sementara, diisi sesudah run selesai)
+- **B3 — run dihentikan untuk G39, lalu dirantai ulang (bukan hasil):** run ke-3 dihentikan 16:3x demi CPU build G39
+  ([log](results/p1_g38/g38_make_run3_stopped_for_g39.log)); diulang otomatis 21:37 sesudah G39 selesai
+  ([g39_chain.sh](results/p1_g39/g39_chain.sh)), oracle TEPAT (kode tidak diubah), cache dipakai lagi. Selesai 05:08 (7.5 jam).
+- **B4 — kontrol R10 tidak masuk JSON:** `run` melompati `json.dump` saat (i) gagal → hasil R10 hanya di
+  [log](results/p1_g38/g38_make.log). Dibaca dari log.
 
-> ⏳ Run berjalan sejak 2026-10-09 15:43 — log `results/p1_g38/g38_make.log`, keluaran `results/p1_g38/g38_candidates.json`.
+### B1. Penarikan + penjadwalan R35 (oracle tepat) — [log](results/p1_g38/g38_make.log), [JSON](results/p1_g38/g38_candidates.json)
+
+- **20/20 seed tertarik.** Tolak TENGAH **20/80 = 25.0 %**, DINDING **1/61 = 1.6 %**, duplikat 0.
+- **R35 (i) 20/20**; (ii) 19/20 (seed 15: g1 tanpa tugas, semua 6 ke g2, 0 pindah g1); (iii) konflik struktur gantry **0/20**.
+  **Lolos (i)–(iii): 19/20.** Makespan P1′ median **328.7 s** (220.3–449.1); iterasi lazy median 34 (maks 65);
+  ~12–40 min/seed. Pembagian tugas g1/g2: 3/3 ×10, 2/4 ×5, 1/5 ×3, 4/2 ×1, 0/6 ×1.
+- **Kontrol R10 (5 seed pertama): 5/5 (i) GAGAL** — "task k is infeasible on every gantry" (tugas tengah).
+- **Tugas tengah (60):** dilayani g1 32 / g2 28; \|rot\| 5° ×1, 15° ×1, 20° ×6, 25° ×10, **30° ×24, 35° ×18**
+  (≥ 30°: 42/60). 65/86 pose berhenti memakai \|rot\| > 10°.
+- Predikat lingkungan hidup: **37** tuple lolos torsi tetapi DITOLAK lingkungan (dari 3 781 ok3; cache 35 464).
+
+### B2. 🔴 "0 konflik" bukan bukti aman — model konflik tidak melihat lengan
+
+`sched_coll.schedule_conflict` (G9 A2) memeriksa **hanya struktur gantry** (batang rotasi 0.80 × 0.08 + pelat dudukan,
+proyeksi XY) — **lengan tidak termasuk**. Di instans lama (tiap tugas di bawah gantry sendiri) itu tidak pernah penting;
+di instans G38 lengan kedua gantry menjulur ke pita tengah yang SAMA. Jadi (iii) 0/20 hanya berarti batang tidak bertabrakan;
+tabrakan lengan–lengan lintas gantry di zona tengah **tidak dimodelkan penjadwal** — hanya penyaring rencana
+(`CrossGantryChecker` di probe/plan-only) yang melihatnya. Ini kelemahan metode yang memang ingin diungkap instans sulit;
+diukur di plan-only (B5).
+
+### B3. Papan skor D280–D286
+
+| # | Dugaan | Hasil |
+|---|---|---|
+| D280 | ≥ 15/20 seed tertarik | ✓ 20/20 |
+| D281 | tolak TENGAH 10–40 % | ✓ 25.0 % |
+| D282 | tolak DINDING 40–75 % | ✗ **1.6 %** — predikat ∃-tuple di 40 pangkal terdekat hampir selalu menemukan satu tuple aman |
+| D283 | (i) R35 semua; R10 gagal 5/5 | ✓ 20/20; 5/5 |
+| D284 | tugas tengah semua \|rot\| ≥ 30° | ✗ **42/60** (5–25° ×18) — A0 hanya punya sampel G29 di ±30/60/90 |
+| D285 | konflik (iii) ≥ 30 % seed | ✗ **0/20** — dan B2: model konflik tak melihat lengan |
+| D286 | lolos (i)–(iii) ≥ 5/20 | ✓ 19/20 |
+
+**Tally G38-OFF: 4 tepat / 3 meleset.**
+
+### B4. Plan-only MOCK (A6) — 🔴 1/19, lalu 0/1 stabil
+
+sha256 `g38_A6_locked.md` = `0b579618…514518c` (dikunci 2026-10-10 06:56). Mock domain 77 (launch 2711537, SIG_DFL, SigIgn
+`0x1001001`), `env_static_map` di scene True; matikan bersih (`node list --no-daemon` 0; crash dump shutdown move_group
+baseline dihapus). [log](results/p1_g38/g38_planonly.log), [JSON](results/p1_g38/g38_planonly.json).
+
+| gagal pada | seed |
+|---|---|
+| **traverse vs lingkungan** (lengan REST, sapuan (lin, rot)) | **16**: ENV-COLLIDE −17.2…−7.9 mm ×7 (g2), ENV-MARGIN 2.0…48.7 mm ×9 (g1 7, g2 2) |
+| tugas dinding NO-PLAN 3/3 (0.7 s, MoveIt menolak cepat) | 2 (seed 1, 16) |
+| antar-lengan lintas gantry | **0** (tidak pernah tercapai) |
+| torsi | 0 |
+| **PLANNED** | **1** (seed 19) — ulang k = 3: sampel 1 **gagal** (t4 dinding: RETRACT-BLOCKED → NO-PLAN ×2) ([log](results/p1_g38/g38_planonly_s19k3.log)) |
+
+Traverse yang gagal hampir semua menuju \|rot\| 20–35° (dari 0 atau antar-stop), geometri pelanggar = **jari lengan REST**
+(t1_a1/a2 di g1, t2_a1/a2 di g2).
+
+### B5. Mekanisme — rotasi untuk tengah mendorong pasangan lengan ke dinding
+
+Batang rotasi berputar di tengahnya: rotasi θ membawa satu pelat dudukan **0.4·sin θ ke arah tengah** (≈ 0.23 m di 35°) dan
+pelat lainnya **sejauh yang sama ke arah dinding**. Lengan REST menggantung sampai z ≈ 0.96 m, jadi lengan pasangan masuk ke
+rak samping (y −0.6…−0.9, x 0.8–1.8; sisi g2) atau benda di y 0.75–0.9 (x 0.2–0.6; sisi g1). Penjadwal P1 **tidak** memeriksa
+pose gantry (lin, rot) maupun sapuan traverse terhadap lingkungan — predikat lingkungan G38 hanya untuk titik akhir LENGAN TUGAS.
+Kedua celah model penjadwal yang terungkap instans sulit:
+1. **pose/traverse gantry vs lingkungan** (B4, 16/19) — tidak dimodelkan;
+2. **lengan–lengan lintas gantry** (B2) — tidak dimodelkan (belum teruji: traverse gagal lebih dulu).
+3. Tugas dinding: predikat lingkungan-∃ (Euklides 50 mm, lengan tugas saja) lebih longgar daripada scene MoveIt (kotak
+   +5 cm L∞, semua lengan) → NO-PLAN (seed 1, 16, 19) — ketidakcocokan yang sama dengan G36 B1.
+
+### B6. Papan skor D295–D298
+
+| # | Dugaan | Hasil |
+|---|---|---|
+| D295 | PLANNED ≤ 10/19 | ✓ 1/19 (dan tidak stabil) |
+| D296 | ≥ 30 % gagal lintas-gantry | ✗ 0 % — traverse gagal LEBIH DULU (B5); belum teruji |
+| D297 | ≥ 1 gagal ENV-* | ✓ 16 traverse + 2–3 NO-PLAN dinding |
+| D298 | gagal akhir TORQUE ≤ 2 | ✓ 0 |
+
+**Tally A6: 3 tepat / 1 meleset. Total G38: 7 / 4.**
+
+## C. Keadaan akhir + langkah berikut (Rule 12)
+
+- **Nol gerak HW.** Mock domain 77 naik 06:57, mati bersih ~07:15. Kode tidak diubah (hanya `g38_make.py` baru).
+- **Kesimpulan:** instans sulit TIDAK bisa dijalankan dengan penjadwal P1 sekarang — bukan karena torsi, tetapi karena
+  penjadwal buta lingkungan untuk pose/traverse gantry. **Belum siap HW** (juga: gerbang rotasi > 10°, origin g2 −35 mm,
+  G37).
+- **G40 (usul):** tambahkan ke penjadwal (a) kelayakan pose gantry (lin, rot) dengan lengan REST vs peta (EnvChecker,
+  ≥ 50 mm) dan (b) sapuan traverse sebagai biaya/kendala tepi (rect sweep seperti `pose_to_g`), (c) samakan predikat
+  lingkungan tugas dengan scene MoveIt (kotak +5 cm L∞, semua lengan); jadwal ulang 20 seed (torsi dari tabel G39);
+  plan-only mock k ≥ 3. Lengan–lengan lintas gantry lalu diukur.
