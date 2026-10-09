@@ -57,5 +57,25 @@ sha256 `g39_A_locked.md` = `44b632f7…25fb9a0` (dikunci 2026-10-09 16:36, sebel
   ulang sebagai arm_1 @ (0.80, rot 0) pada posisi relatif TEPAT-nya: **16/16 sama** → satu tabel melayani keempat lengan
   dan semua rotasi. ~5.5 s/titik/proses.
 - Grid A1 menghasilkan **22 565** titik (perkiraan A0 22 545 dari cakram berbeda sedikit; tidak mengubah apa pun).
-- ⏳ Build mulai 16:38 (`setsid nohup`, ~1.3 titik/s → ~5 jam), log `results/p1_g39/g39_build.log`. Sesudahnya:
-  `python3 g39_table.py validate` (A3: salah-terima / salah-tolak, baca semua tuple ±90°), lalu G38 dijalankan ulang.
+- Build 16:38 → **21:37, 4.98 jam** (`setsid nohup`, 1.2 titik/s), [log](results/p1_g39/g39_build.log); validasi dan G38 ulang
+  dirantai otomatis ([g39_chain.sh](results/p1_g39/g39_chain.sh)) karena operator offline.
+
+### B1. Validasi (A3) — [log](results/p1_g39/g39_validate.log)
+
+- Tabel: 22 565 titik, **ok 667 (3.0 %)** — daerah aman torsi di bawah pangkal kecil.
+- Terhadap SEMUA 55 089 tuple tepat yang ada (z ≤ 1.32; 7 410 ok): **salah-terima 0** (rot 0: 0 / 21 696; rot ≠ 0:
+  0 / 33 393); salah-tolak **1 905 = 25.7 %** dari yang ok (rot 0: 435, rot ≠ 0: 1 470) — harga aturan 4-sudut di tepi.
+- Baca SEMUA 3 143 576 tuple L1 (|rot| ≤ 90°, z ≤ 1.32): **2.2 s**; ok 133 986 (**4.3 %**).
+- **Aturan pakai A3: salah-terima = 0 → tabel boleh menggantikan oracle torsi.** Harga: ~1/4 tuple aman dibuang
+  (jadwal bisa sedikit lebih buruk dari optimum oracle tepat, tidak pernah lebih berbahaya — pada tuple yang ada).
+
+| # | Dugaan | Hasil |
+|---|---|---|
+| D290 | salah-terima = 0 | ✓ 0 / 55 089 |
+| D291 | salah-tolak ≤ 15 % | ✗ 25.7 % |
+| D292 | build ≤ 8 jam | ✓ 4.98 jam |
+| D293 | baca semua ≤ 10 min | ✓ 2.2 s |
+| D294 | ok 15–35 % | ✗ 4.3 % |
+
+**Tally G39: 3 tepat / 2 meleset.** ⚠ Salah-terima 0 hanya pada tuple yang PERNAH dihitung tepat (sampel yang
+dipilih generator lama + G29/G31/G38, bukan seragam) — klaim di luar sampel itu belum terbukti.
