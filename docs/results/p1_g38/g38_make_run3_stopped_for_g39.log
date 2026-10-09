@@ -1,0 +1,202 @@
+kolam TENGAH 580, DINDING 170; cache G38 2129
+seed  0: tertarik [1573, 817, 927, 1190, 1304, 1086], tolak {'TENGAH': 2, 'DINDING': 0}, dup 0  [15:45:21]
+seed  1: tertarik [1573, 2330, 2971, 1189, 1514, 2941], tolak {'TENGAH': 1, 'DINDING': 0}, dup 0  [15:46:48]
+seed  2: tertarik [2640, 811, 369, 1824, 2034, 2940], tolak {'TENGAH': 0, 'DINDING': 0}, dup 0  [15:48:32]
+seed  3: tertarik [2538, 586, 710, 1531, 2936, 3006], tolak {'TENGAH': 1, 'DINDING': 0}, dup 0  [15:50:20]
+seed  4: tertarik [2311, 2965, 2755, 2172, 3045, 3062], tolak {'TENGAH': 0, 'DINDING': 0}, dup 0  [15:51:34]
+seed  5: tertarik [2533, 1459, 1575, 2484, 1812, 3063], tolak {'TENGAH': 3, 'DINDING': 0}, dup 0  [15:54:16]
+seed  6: tertarik [1359, 1676, 1662, 1854, 3051, 1938], tolak {'TENGAH': 0, 'DINDING': 0}, dup 0  [15:55:35]
+seed  7: tertarik [1988, 2113, 2850, 2352, 2929, 2943], tolak {'TENGAH': 1, 'DINDING': 0}, dup 0  [15:57:28]
+seed  8: tertarik [2222, 709, 584, 1843, 2586, 2934], tolak {'TENGAH': 2, 'DINDING': 0}, dup 0  [15:59:53]
+seed  9: tertarik [1342, 2746, 2978, 1812, 1412, 2376], tolak {'TENGAH': 0, 'DINDING': 0}, dup 0  [16:00:53]
+seed 10: tertarik [2430, 690, 2440, 2942, 2173, 1520], tolak {'TENGAH': 2, 'DINDING': 0}, dup 0  [16:03:19]
+seed 11: tertarik [386, 2528, 1880, 2376, 2833, 1092], tolak {'TENGAH': 2, 'DINDING': 0}, dup 0  [16:05:14]
+seed 12: tertarik [1896, 804, 3070, 3051, 1201, 1608], tolak {'TENGAH': 0, 'DINDING': 0}, dup 0  [16:06:25]
+seed 13: tertarik [2764, 2743, 2544, 2952, 1298, 2937], tolak {'TENGAH': 0, 'DINDING': 0}, dup 0  [16:07:59]
+seed 14: tertarik [482, 2635, 2007, 1932, 1310, 2828], tolak {'TENGAH': 0, 'DINDING': 0}, dup 0  [16:09:15]
+seed 15: tertarik [2958, 2203, 798, 1854, 1622, 1195], tolak {'TENGAH': 2, 'DINDING': 0}, dup 0  [16:11:26]
+seed 16: tertarik [1676, 2546, 2422, 1310, 2250, 1920], tolak {'TENGAH': 2, 'DINDING': 0}, dup 0  [16:13:05]
+seed 17: tertarik [2646, 368, 1452, 2274, 2924, 1938], tolak {'TENGAH': 2, 'DINDING': 0}, dup 0  [16:15:20]
+seed 18: tertarik [2763, 1243, 693, 2833, 3006, 1741], tolak {'TENGAH': 0, 'DINDING': 0}, dup 0  [16:16:10]
+seed 19: tertarik [1879, 1341, 1129, 1951, 1740, 3018], tolak {'TENGAH': 0, 'DINDING': 1}, dup 0  [16:19:27]
+  seed 0 R35
+    iterasi 1: makespan 203.078, tuple terpakai belum terverifikasi 5
+    iterasi 2: makespan 205.717, tuple terpakai belum terverifikasi 4
+    iterasi 3: makespan 208.357, tuple terpakai belum terverifikasi 5
+    iterasi 4: makespan 210.996, tuple terpakai belum terverifikasi 2
+    iterasi 5: makespan 210.996, tuple terpakai belum terverifikasi 4
+    iterasi 6: makespan 216.275, tuple terpakai belum terverifikasi 4
+    iterasi 7: makespan 220.324, tuple terpakai belum terverifikasi 0
+  seed 0 R35: makespan 220.32, pindah {'1': 2, '2': 1}, rot {'1': [35.0, 30.0], '2': [-25.0]}, tugas {'1': 3, '2': 3}, konflik None, (ii) True  [16:24:21]
+  seed 1 R35
+    iterasi 1: makespan 148.874, tuple terpakai belum terverifikasi 5
+    iterasi 2: makespan 191.104, tuple terpakai belum terverifikasi 6
+    iterasi 3: makespan 193.744, tuple terpakai belum terverifikasi 5
+    iterasi 4: makespan 196.383, tuple terpakai belum terverifikasi 5
+    iterasi 5: makespan 196.383, tuple terpakai belum terverifikasi 5
+    iterasi 6: makespan 199.023, tuple terpakai belum terverifikasi 5
+    iterasi 7: makespan 204.301, tuple terpakai belum terverifikasi 5
+    iterasi 8: makespan 204.301, tuple terpakai belum terverifikasi 5
+    iterasi 9: makespan 209.580, tuple terpakai belum terverifikasi 4
+    iterasi 10: makespan 209.580, tuple terpakai belum terverifikasi 4
+    iterasi 11: makespan 212.219, tuple terpakai belum terverifikasi 4
+Process ForkPoolWorker-2:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+  File "/usr/lib/python3.10/multiprocessing/queues.py", line 377, in put
+    self._writer.send_bytes(obj)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 411, in _send_bytes
+    self._send(header + buf)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 368, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/usr/lib/python3.10/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+  File "/usr/lib/python3.10/multiprocessing/queues.py", line 377, in put
+    self._writer.send_bytes(obj)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 411, in _send_bytes
+    self._send(header + buf)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 368, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-7:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+  File "/usr/lib/python3.10/multiprocessing/queues.py", line 377, in put
+    self._writer.send_bytes(obj)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 411, in _send_bytes
+    self._send(header + buf)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 368, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/usr/lib/python3.10/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+  File "/usr/lib/python3.10/multiprocessing/queues.py", line 377, in put
+    self._writer.send_bytes(obj)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 411, in _send_bytes
+    self._send(header + buf)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 368, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-10:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+  File "/usr/lib/python3.10/multiprocessing/queues.py", line 377, in put
+    self._writer.send_bytes(obj)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 411, in _send_bytes
+    self._send(header + buf)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 368, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/usr/lib/python3.10/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+  File "/usr/lib/python3.10/multiprocessing/queues.py", line 377, in put
+    self._writer.send_bytes(obj)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 411, in _send_bytes
+    self._send(header + buf)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 368, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-14:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+  File "/usr/lib/python3.10/multiprocessing/queues.py", line 377, in put
+    self._writer.send_bytes(obj)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 411, in _send_bytes
+    self._send(header + buf)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 368, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/usr/lib/python3.10/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+  File "/usr/lib/python3.10/multiprocessing/queues.py", line 377, in put
+    self._writer.send_bytes(obj)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 411, in _send_bytes
+    self._send(header + buf)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 368, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+Process ForkPoolWorker-5:
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/pool.py", line 131, in worker
+    put((job, i, result))
+  File "/usr/lib/python3.10/multiprocessing/queues.py", line 377, in put
+    self._writer.send_bytes(obj)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 411, in _send_bytes
+    self._send(header + buf)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 368, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/usr/lib/python3.10/multiprocessing/pool.py", line 136, in worker
+    put((job, i, (False, wrapped)))
+  File "/usr/lib/python3.10/multiprocessing/queues.py", line 377, in put
+    self._writer.send_bytes(obj)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 200, in send_bytes
+    self._send_bytes(m[offset:offset + size])
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 411, in _send_bytes
+    self._send(header + buf)
+  File "/usr/lib/python3.10/multiprocessing/connection.py", line 368, in _send
+    n = write(self._handle, buf)
+BrokenPipeError: [Errno 32] Broken pipe
