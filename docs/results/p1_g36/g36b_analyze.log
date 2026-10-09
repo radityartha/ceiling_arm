@@ -1,0 +1,57 @@
+G35b-R0   makespan 629.67 s  complete True  peak tau 10.72 t2_a2_joint_2
+G36b-R0   makespan 519.43 s  complete True  peak tau 11.02 t2_a1_joint_2
+G36b-R10  makespan 452.77 s  complete True  peak tau 10.93 t2_a2_joint_2
+G36b-R0 - G35b-R0 -110.24 s;  Delta(R10 - R0) G36b -66.67 s
+
+== G35b-R0
+  0 retract      2.51 | skip
+  1 traverse    59.19 | start 1.74 s28 5.66 env 0.44 motion 51.15 env 88.6 mm
+  2 task        51.10 | plan 0.95 interarm 33.74 env 1.54 exec 12.73 env 88.6 mm attempts 1 blocked 0 succ@112.6
+  3 retract     54.73 | load 8.57 screens 12.41 motion 31.06 env 88.6 mm segs ["'lurus'"]
+  4 traverse    33.72 | start 1.41 s28 5.59 env 0.35 motion 26.16 env 86.6 mm
+  5 task        37.30 | plan 1.91 interarm 25.09 env 1.45 exec 6.83 env 151.2 mm attempts 1 blocked 0 succ@238.4
+  6 task        55.55 | plan 1.91 interarm 37.62 env 1.48 exec 12.49 env 209.3 mm attempts 1 blocked 0 succ@293.9
+  7 retract     56.68 | load 8.59 screens 13.72 motion 31.06 env 209.3 mm segs ["'lurus'"]
+  8 traverse    19.82 | start 1.41 s28 5.45 env 0.27 motion 12.48 env 209.3 mm
+  9 task        40.94 | plan 0.79 interarm 28.40 env 1.46 exec 8.18 env 108.9 mm attempts 1 blocked 0 succ@411.4
+ 10 retract     56.17 | load 8.66 screens 13.46 motion 31.06 env 109.5 mm segs ["'lurus'"]
+ 11 traverse    78.98 | start 1.41 s28 6.04 env 0.70 motion 70.62 env 69.5 mm
+ 12 task        48.23 | plan 1.78 interarm 32.34 env 1.71 exec 10.39 env 92.5 mm attempts 1 blocked 0 succ@594.9
+ 13 task        34.80 | plan 1.77 interarm 24.13 env 1.54 exec 5.24 env 61.5 mm attempts 1 blocked 0 succ@629.7
+
+== G36b-R0
+  0 retract      2.54 | skip
+  1 traverse    59.16 | start 1.82 s28 5.61 env 0.44 motion 51.10 env 88.5 mm
+  2 task        31.85 | plan 0.93 interarm 11.57 env 1.47 retract_chk 3.05 exec 12.74 env 87.0 mm attempts 1 blocked 0 succ@93.4
+  3 retract     44.48 | load 8.37 screens 2.40 motion 31.06 env 87.1 mm segs ["'lurus'"]
+  4 traverse    33.56 | start 1.39 s28 5.43 env 0.35 motion 26.20 env 86.6 mm
+  5 task        44.67 | plan 21.75 interarm 10.34 env 1.49 retract_chk 2.31 exec 6.78 env 151.1 mm attempts 1 blocked 0 succ@216.1
+  6 task        31.85 | plan 0.91 interarm 11.44 env 1.63 retract_chk 2.89 exec 12.84 env 210.0 mm attempts 1 blocked 0 succ@248.0
+  7 retract     44.30 | load 8.33 screens 2.25 motion 31.06 env 210.0 mm segs ["'lurus'"]
+  8 traverse    20.92 | start 2.82 s28 5.27 env 0.26 motion 12.38 env 210.0 mm
+  9 task        24.34 | plan 1.83 interarm 10.42 env 1.42 retract_chk 2.14 exec 6.54 env 102.4 mm attempts 1 blocked 0 succ@337.6
+ 10 retract     43.51 | load 8.32 screens 1.45 motion 31.06 env 102.8 mm segs ["'lurus'"]
+ 11 traverse    78.73 | start 1.39 s28 5.84 env 0.68 motion 70.62 env 69.6 mm
+ 12 task        23.99 | plan 0.76 interarm 10.31 env 1.55 retract_chk 1.88 exec 7.44 env 79.0 mm attempts 1 blocked 0 succ@483.9
+ 13 task        35.48 | plan 2.06 interarm 10.71 env 1.70 retract_chk 2.15 exec 16.90 env 70.2 mm attempts 1 blocked 1 succ@519.4
+
+== G36b-R10
+  0 retract      2.53 | skip
+  1 traverse    59.10 | start 1.73 s28 5.63 env 0.44 motion 51.10 env 88.5 mm
+  2 task        26.73 | plan 0.91 interarm 10.77 env 1.48 retract_chk 2.44 exec 9.03 env 88.6 mm attempts 1 blocked 0 succ@88.2
+  3 retract     43.82 | load 8.33 screens 1.77 motion 31.05 env 88.6 mm segs ["'lurus'"]
+  4 traverse    33.39 | start 1.39 s28 5.32 env 0.36 motion 26.13 env 86.6 mm
+  5 task        24.42 | plan 1.79 interarm 10.27 env 1.41 retract_chk 2.32 exec 6.54 env 150.5 mm attempts 1 blocked 0 succ@189.9
+  6 retract      2.51 | skip
+  7 traverse    45.77 | start 1.38 s28 8.47 env 1.30 motion 34.43 env 127.6 mm
+  8 task        22.13 | plan 1.81 interarm 10.44 env 1.57 retract_chk 2.20 exec 4.12 env 96.5 mm attempts 1 blocked 0 succ@260.4
+  9 task        26.27 | plan 2.69 interarm 11.53 env 1.45 retract_chk 2.61 exec 6.04 env 121.8 mm attempts 1 blocked 0 succ@286.7
+ 10 task        32.86 | plan 1.18 interarm 11.88 env 1.63 retract_chk 2.69 exec 13.38 env 58.6 mm attempts 1 blocked 0 succ@319.6
+ 11 retract     44.63 | load 8.42 screens 2.48 motion 31.06 env 58.5 mm segs ["'lurus'"]
+ 12 traverse    62.47 | start 1.70 s28 10.61 env 1.55 motion 48.40 env 69.5 mm
+ 13 task        25.99 | plan 1.87 interarm 10.82 env 1.66 retract_chk 2.01 exec 7.59 env 82.8 mm attempts 1 blocked 0 succ@452.8
+
+totals per kind (s):  G35b-R0 / G36b-R0 / G36b-R10
+  traverse  dur 191.7/192.4/200.7  start 6.0/7.4/6.2  s28 22.7/22.1/30.0  env 1.8/1.7/3.7  motion 160.4/160.3/160.1
+  task      dur 267.9/192.2/158.4  plan 9.1/28.2/10.2  interarm 181.3/64.8/65.7  env 9.2/9.3/9.2  retract_chk 0.0/14.4/14.3  exec 55.8/63.2/46.7
+  retract   dur 170.1/134.8/93.5  load 25.8/25.0/16.7  screens 39.6/6.1/4.3  motion 93.2/93.2/62.1

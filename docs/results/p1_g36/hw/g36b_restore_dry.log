@@ -1,0 +1,22 @@
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move (A6/S7).
+
+lengan: ['arm_1', 'arm_2']   galat terbesar dari rest: 23.83 deg
+rel t1_linear_joint = 1.499241 m
+retract g1 ['arm_1', 'arm_2'] lurus (rel 1.499):
+  penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 40/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+  penyaring antar-gantry: CLEAR, minimum 911.4 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0)
+  penyaring lingkungan: CLEAR, minimum 117.7 mm di titik 42/60 (t1_a1_right_finger_dist_link_0)
+rencana pulang: lurus:t1_a1_+t1_a2_
+
+DRY RUN selesai: 1 segmen. Tidak ada yang dikirim.
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move (A6/S7).
+
+lengan: ['arm_3', 'arm_4']   galat terbesar dari rest: 104.22 deg
+rel t2_linear_joint = -0.034924 m
+retract g2 ['arm_3', 'arm_4'] lurus (rel -0.035):
+  penyaring se-gantry: CLEAR, minimum 548.8 mm di titik 0/60 (t2_a1_left_finger_prox_link_0 <-> t2_a2_left_finger_dist_link_0)
+  penyaring antar-gantry: CLEAR, minimum 911.4 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0)
+  penyaring lingkungan: CLEAR, minimum 120.4 mm di titik 0/60 (t1_a1_left_finger_dist_link_0)
+rencana pulang: lurus:t2_a1_+t2_a2_
+
+DRY RUN selesai: 1 segmen. Tidak ada yang dikirim.

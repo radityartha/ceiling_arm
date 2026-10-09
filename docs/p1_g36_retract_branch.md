@@ -224,6 +224,124 @@ warisan benign (G24b).
 7. Muat checker (S18 3.1 s + lintas 4.7 s per proses) kini dominan di fase antar-lengan (~8 s/tugas); cache geometri seperti
    G35 belum dikerjakan.
 
+### B7. G36b — HW R0 + R10 seed 36 sama-sesi, kode G36 (2026-10-09)
+
+> Prompt = §D. Gerbang (operator, sebelum apa pun): **K0 sel sama seperti akhir G36 — ya, g1 di PARKIR 1.5 m**;
+> **K1 operator di e-stop selama semua gerak — ya**; K2 (jari) dibaca sesudah bring-up. Data: `docs/results/p1_g36/hw/`.
+> **§B7.A DIKUNCI sebelum bring-up** (salinan `docs/results/p1_g36/g36b_A_locked.md` + sha256 di bawah); §B7.0+ diisi sesudah.
+
+#### B7.A 🔒 Protokol + dugaan (SEBELUM bring-up)
+
+Urutan = G35b B7 apa adanya, kode G36 (probe `retract_check`, S18 B&B, `pose_to_g` PARK): self-test env + interarm
+(+ `--cross`) → remount_check → bring-up nyata (env_map:=true) → K2 jari → g1 PARK → 0 (DRY, `--move`; di luar makespan) →
+plan-only NYATA k=3 R10 lalu R0 (`g36_planonly.sh`, sampel independen) → `g36b_run.sh` R0 DRY/`--move` → `g36b_home.sh`
+R0hm R0 0 → R10 DRY/`--move` → `g36b_home.sh` R10hm R10 1.5 (PARKIR) → matikan. Gerbang plan-only gagal (< 3/3 salah satu
+varian) → varian itu TIDAK dijalankan, operator ditanya. Fase per event = `p1_g35/hw_replay.phases()` pada log baru.
+
+| # | Dugaan |
+|---|---|
+| D247 | Makespan R0 dalam **460–515 s** (G35b 629.67: antar-lengan −120…−130, retract −30, saring pulang +12). |
+| D248 | Makespan R10 dalam **480–550 s**. |
+| D249 | **\|Δ(R10 − R0)\| ≤ 30 s**; tanda TIDAK diduga (G34b +66 dikurangi hemat rotasi G35 ~71 → ≈ −5; ulang sampel R10 menambah). |
+| D250 | Plan-only NYATA **R10 3/3, R0 3/3**; RETRACT-BLOCKED terpicu **≥ 1×** di 3 sampel R10 (mock 0.8/sampel). |
+| D251 | Eksekusi: R0 6/6 dan R10 6/6, 14/14 rc 0 per varian, nol auto-stop; **semua retract tak-kosong lurus** (MoveIt `return_rest` tidak terpicu), termasuk ev 11 R10 g2 @ −10°. |
+| D252 | Fase antar-lengan per tugas HW **≤ 12 s** (6/6 tugas R0; G35b 24.1–37.6 s). |
+| D253 | Torsi puncak terukur semua event **≤ 12 N·m** (G35b 10.72). |
+| D254 | K2: `*_right_finger_bottom_joint` \|q\| ≤ 0.01 rad keempat lengan (G36 B6.1: 0.0001 / 0 / 0 / −0.0002). |
+
+sha256 `g36b_A_locked.md` = `3eb1773a…e5282968f` (dikunci 2026-10-09 13:58, sebelum bring-up).
+
+#### B7.0 Sebelum gerak — 🔴 K0 GAGAL terukur, sel dipulihkan (izin operator)
+
+`env_collision --self-test` PASS (0.8 s); `interarm_collision --self-test` LULUS (C terpangkas == padat) + `--self-test --cross`
+LULUS (`--cross` sendirian = galat argparse, bukan uji). `remount_check` GERBANG LULUS (ICMP 4/4, nol basi). Bring-up nyata
+launch log `/tmp/g36b_launch.log` (SIG_DFL + setsid nohup), 4× Actuator '6', **7/7** active; `env_static_map` di scene
+False → HILANG → publish ulang → **True** (pola diharapkan), `--once` True. `js_record` + `reach_dwell_monitor`
+(`/tmp/g36hw_step`) hidup. **K2 (D254):** `right_finger_bottom` = 8.4e-5 / 1.06e-4 / 6.1e-5 / 4.0e-5 rad.
+
+**Keadaan terukur ≠ K0 (operator menjawab "sama, g1 PARK"):** arm_1 23.8° dari REST (j4 −103.3 vs −79.4), arm_2 3.2°,
+**arm_3 104.2°** (j3 −10.8 vs +7.4, j4 +24.8 vs −79.4), arm_4 34.9° (j4/j5); g1 1499.2 mm **−1.48°**; g2 **−34.9 mm /
++2.91°** (akhir G36: g2 0.36 mm, rot 0/0, lengan REST). Bridge: table1 ARMED di posisi aktual; table2 "NOT armed" sekali
+(sebelum controller g2 aktif). Semua launch sejak parkir G36 (2026-10-08 19:20–20:37) = **mock** (`TableFakeHardware`) +
+kamera → perubahan **bukan dari perangkat lunak PC ini** (tangan / power-cycle / alat lain — penyebab tidak diketahui, DITULIS).
+Operator memilih: pulihkan dengan alat repo, DRY + saring, tanya sebelum tiap `--move` (operator di e-stop):
+
+| langkah | saring (DRY) | hasil HW |
+|---|---|---|
+| `return_rest` arm_1+2 | lurus; se-gantry 622.7, lintas 911.4, peta 117.7 mm | rc 0, galat 0.031°, torsi 4.31 N·m, rel tidak bergerak |
+| restart `gantry_2_with_arm_controller` (deactivate/activate) | — | 7/7 active; `/table_hw_commands` diam = perintah rel = state |
+| `return_rest` arm_3+4 | lurus; 548.8 / 887.5 / 117.8 mm | rc 0, galat 0.047°, torsi 5.63 N·m |
+| `pose_to_g` g2 → (0, 0) | S28 859.1, peta 117.8 mm, T_cmd 3 s | table2 ARMED di −34.9 → 1× REJECTED (target < `min_mm` 0) → satu `go_to_absolute(0,0)` di akhir rampa; **0.000 mm / 0.000°**, 1.10 s |
+| `pose_to_g` g1 (PARK) → (0, 0) | S28 380.0, peta 86.6 mm, T_cmd 83.3 s | **0.52 mm / 0.000°**, 81.1 s, lengan geser 0.067° |
+
+Log: `hw/g36b_restore_*.log`. ⚠ **Temuan (DITULIS, tidak diubah):** restart controller ternyata tidak perlu (perintah sudah =
+state); tetapi bila perintah JTC sendi rel basi ≠ state, goal **parsial** `return_rest` (lengan saja, `allow_partial_joints_goal`)
+berpotensi membuat rampa rel dari state ke perintah basi → bridge ARM di tengah → rel bergerak bersama retract tanpa disaring
+(dibaca dari kode JTC Humble, **tidak diuji**). Sel di p0 G36b sebelum langkah 2.
+
+#### B7.1 Plan-only NYATA — R10 3/3, R0 3/3
+
+`DOMAIN=0 g36_planonly.sh g36b_hw 3 3` ([log](results/p1_g36/g36b_planonly.log)), 14:17–14:24, **~1.2 min/sampel**
+(mock G36 dengan S18 lama ~5 min). **R10 3/3, R0 3/3 LOLOS.** RETRACT-BLOCKED: **R10 2×** (sampel 1 ev 10: cabang
+ditolak MARGIN 23.7 mm lalu **COLLIDE −14.9 mm** = mode gagal G35b; percobaan ke-3 PLANNED, ev 11 g2 @ −10° **lurus dua
+lengan, lingkungan 63.4 mm**), **R0 1×** (sampel 3 ev 12). Retract MoveIt **0×**. Lingkungan min rencana tugas 62.7 mm.
+
+#### B7.2 Eksekusi R0 + R10 (`run_g32` apa adanya, DRY dulu, operator di e-stop)
+
+| | G35b R0 | **G36b R0** | **G36b R10** |
+|---|---|---|---|
+| penilai | 6/6, 14/14 rc 0 | **6/6, 14/14 rc 0**, nol auto-stop | **6/6, 14/14 rc 0**, nol auto-stop |
+| sukses @ s | 112.6 / 238.4 / 293.9 / 411.4 / 594.9 / 629.7 | 93.4 / 216.1 / 248.0 / 337.6 / 483.9 / 519.4 | 88.2 / 189.9 / 260.4 / 286.7 / 319.6 / 452.8 |
+| **makespan** | 629.67 s | **519.43 s** (−110.24) = 0.894 × P1′-serial 581.26 | **452.77 s** |
+| torsi puncak | 10.72 | 11.02 `t2_a1_joint_2` | 10.93 `t2_a2_joint_2` |
+| retract (tak-kosong) | 3 lurus | 3 lurus (ev 3/7/10), MoveIt 0 | 2 lurus (ev 3, **ev 11 g2 @ −10° dua lengan, 58.5 mm**), MoveIt 0 |
+| ulang tugas | — | ev 5 MoveIt NO-PLAN → ulang (+~20.8 s); ev 13 RETRACT-BLOCKED (MARGIN) → ulang (+~14.6 s) | **0** |
+
+**Δ(R10 − R0) = −66.67 s** — pertama kali terukur bersih di HW. Fase per jenis ([g36b_analyze.py](results/p1_g36/g36b_analyze.py),
+[log](results/p1_g36/g36b_analyze.log)); runner serial → makespan = jumlah durasi event (R0 519.4, R10 452.6 ✓):
+
+| jenis (s) | G35b R0 | G36b R0 | G36b R10 |
+|---|---|---|---|
+| traverse | 191.7 (S28 22.7, env 1.8, gerak 160.4) | 192.4 (22.1, 1.7, 160.3) | 200.7 (**30.0**, 3.7, 160.1) |
+| tugas | 267.9 (rencana 9.1, **antar-lengan 181.3**, env 9.2, eks 55.8) | 192.2 (28.2, **64.8**, 9.3, **saring pulang 14.4**, 63.2) | 158.4 (10.2, 65.7, 9.2, 14.3, 46.7) |
+| retract | 170.1 (muat 25.8, saring 39.6, gerak 93.2) | 134.8 (25.0, **6.1**, 93.2) | 93.5 (16.7, 4.3, 62.1) |
+
+- **G36b R0 vs G35b R0 (−110.24 s):** antar-lengan tugas −116.5 (B&B: 24.1–37.6 → **10.3–11.6 s/tugas**, sisanya muat 2
+  checker ~8 s), saring retract −33.5, saring garis pulang +14.4 (1.9–3.1 s/tugas), ulang tugas ev 5/13 ≈ +35.
+- **Δ(R10 − R0) −66.67 s** = retract −41.3 (R10 hanya 2 retract tak-kosong vs 3: −31 s gerak; muat −8.3) + tugas −33.8
+  (ulang R0 ≈ −35) + traverse +8.3 (sapuan berotasi S28 +7.9, env +2.0). **Tanpa ulang R0, Δ ≈ −31 s** (model P1′ −50.87).
+  Satu sampel per varian: ulang OMPL/RETRACT-BLOCKED adalah keragaman ~±35 s per run.
+- Fase lingkungan traverse berotasi R10: ev 7 1.30 s, ev 12 1.55 s (≤ 3 s, D234 G35b kini terjawab ✓).
+- Pulang ([R0](results/p1_g36/hw/g36hw_home_R0.log), [R10](results/p1_g36/hw/g36hw_home_R10.log)): semua lurus (torsi ≤ 7.10),
+  akhir R0 g1 0.96 / g2 0.78 mm; akhir R10 **g1 PARKIR 1.499859 m**, g2 0.67 mm, rot 0/0, lengan ≤ 0.037° dari REST.
+
+#### B7.3 Papan skor D247–D254
+
+| # | Dugaan | Hasil |
+|---|---|---|
+| D247 | R0 460–515 s | ✗ **519.43** (+4.4 di atas; dua ulang tugas ≈ +35 s tidak masuk prediksi) |
+| D248 | R10 480–550 s | ✗ **452.77** (27 s DI BAWAH; nol ulang, 2 retract kosong) |
+| D249 | \|Δ\| ≤ 30 s | ✗ **−66.67 s** (tanpa ulang R0 ≈ −31 — masih di luar) |
+| D250 | plan-only 3/3 + 3/3, RETRACT-BLOCKED ≥ 1× di R10 | ✓ 3/3 + 3/3, R10 2× (+ R0 1×) |
+| D251 | 6/6 + 6/6, 14/14 rc 0, nol auto-stop, semua retract lurus termasuk ev 11 R10 | ✓ (MoveIt `return_rest` tetap belum pernah dipakai lengan nyata) |
+| D252 | antar-lengan ≤ 12 s/tugas | ✓ R0 10.31–11.57, R10 10.27–11.88 (12/12) |
+| D253 | torsi ≤ 12 N·m | ✓ 11.02 |
+| D254 | jari \|q\| ≤ 0.01 rad | ✓ ≤ 1.1e-4 awal; akhir ≤ 1.9e-3 |
+
+**Tally G36b: 5 tepat / 3 meleset** (ketiganya makespan/Δ — keragaman ulang per run tidak dimodelkan).
+
+#### B7.4 Pertentangan / Rule 12
+
+1. **K0 dijawab "sama" tetapi terukur berbeda (B7.0)** — gerbang lisan tidak cukup; snapshot `/joint_states` gabungan
+   (lengan vs REST, rel + rotasi) harus jadi bagian K0 di prompt berikut. Penyebab perubahan tidak diketahui.
+2. Restart `gantry_2_with_arm_controller` dilakukan berdasarkan dugaan yang ternyata salah (perintah sudah = state); tanpa
+   efek. Risiko goal parsial + perintah rel basi (B7.0) belum diuji — kandidat G37 (cek `/table_hw_commands` diam sebelum
+   gerak, atau pose_to_g dulu).
+3. Satu run per varian; Δ −66.67 s memuat ~35 s ulang di R0. Klaim "R10 lebih cepat" butuh k ≥ 3 run per varian.
+4. Retract MoveIt (`return_rest` cabang `plan_fn`) **masih 0×** di HW — dengan `retract_check` jalur itu memang jarang.
+5. Crash dump shutdown `ros2_control_node` (baseline) dan `ros2 topic hz` milik saya yang diputus `timeout` dihapus.
+6. Perekam `hw/g36b_joint_states.csv.gz` (48 MB) **lokal saja, tidak di-commit** (seperti G32-HW … G35b).
+
 ## C. Keadaan akhir (Rule 12)
 
 - **Gerak nyata: hanya parkir g1** 0.0005 → 1.499 m (B6.6, atas izin operator, lengan diam). Mock domain 77 (launch 2242814) naik 13:5x, dimatikan bersih 15:2x (helper SIGINT, launch SIGINT,
@@ -238,6 +356,8 @@ warisan benign (G24b).
 - Anggaran token Rule 6 (30k/sesi) **terlampaui** — sesi multi-langkah dengan mock + regresi; dilaporkan.
 
 ## D. Prompt G36b (salin ke chat BARU)
+
+> ✅ Dijalankan 2026-10-09 sebagai G36b → §B7, §C2.
 
 **Rekomendasi: Opus, effort TINGGI** — aturan terima tugas baru (`retract_check`) dan S18 B&B dipakai lengan nyata untuk
 pertama kali; galat di keduanya diam (CLEAR palsu / lengan tertinggal di tepi rak) sampai terjadi. Gerbang plan-only dan
@@ -274,4 +394,45 @@ hanya menerbitkan *_right_finger_bottom_joint; G36 B6.3) -- ros2 topic echo seka
    retract lurus/moveit), tally, commit; prompt G37 (celah Fix-Start-State B6.2, cache geometri S18/lintas) + model/effort.
 ATURAN: tak ada gerak tanpa env_static_map di scene DAN EnvChecker; MARGIN = TOLAK; B menang atas A dan DITULIS;
 job > 10 menit via setsid nohup; pkill -f membunuh shell sendiri (pilih PID via ps/awk).
+```
+
+## C2. Keadaan akhir G36b (Rule 12)
+
+- **Gerak nyata:** pemulihan K0 (4 langkah, B7.0), R0 14 event + pulang, R10 14 event + pulang + PARKIR; semua rc 0, nol
+  fault launch (0 baris `ros2_control_node` ERROR / Kortex exception), nol auto-stop, tidak ada kontak dilaporkan.
+  **Akhir: keempat lengan REST (≤ 0.037°), g1 PARKIR 1.499859 m, g2 0.67 mm, rot 0/0.**
+- **Stack:** monitor + perekam SIGINT; launch 2540658 (SigIgn `0x1001001`) SIGINT → keluar 8 s; `ros2 node list --no-daemon` **0**.
+- **Kode tidak diubah** di G36b. **Baru:** `docs/results/p1_g36/` `g36b_A_locked.md`, `g36b_planonly.log` + keluaran
+  `g36_planonly_*g36b_hw*`, `g36b_analyze.{py,log,json}`, `hw/g36hw_R0_*`, `hw/g36hw_R10_*`, `hw/g36hw_home_*`,
+  `hw/g36b_*` (pemulihan, konsol, monitor, launch `.log.gz`).
+- **Belum diukur:** keragaman makespan per varian (k = 1); MoveIt `return_rest` di HW; goal parsial dengan perintah rel basi.
+- Anggaran token Rule 6 (30k/sesi) **terlampaui** — sesi HW multi-langkah; dilaporkan.
+
+## E. Prompt G37 (salin ke chat BARU)
+
+**Rekomendasi: Opus, effort TINGGI** — mengubah penyaring rencana (lompatan Fix-Start-State) dan memuat geometri dari cache;
+galat di keduanya diam (rencana berbahaya diterima / geometri basi menilai CLEAR) sampai lengan bergerak. Regresi lama-vs-baru
+tersedia sebagai ground truth, jadi offline + mock cukup; nol HW.
+
+```
+Sesi G37 -- OFFLINE + mock (domain 77), NOL gerak HW. Repo ceiling_arm, branch feat/rgbd-deploy.
+BACA PENUH: CLAUDE.md; docs/p1_g36_retract_branch.md (B1, B3, B6.2, B7.0, B7.2, B7.4); scripts/reach_dwell_probe.py
+(_plan_and_screen); scripts/interarm_collision.py; scripts/env_collision.py (cache geometri G35 = pola).
+FAKTA G36b (HW 2026-10-09): R0 519.43 s, R10 452.77 s, Delta -66.67 s (R0 punya 2 ulang tugas ~35 s); antar-lengan
+per tugas 10.3-11.9 s, ~8 s di antaranya MUAT InterArmChecker + CrossGantryChecker (S18 3.1 s + lintas 4.7 s per proses),
+muat retract 8.3 s/retract; saring garis pulang 1.9-3.1 s/tugas. K0 dijawab "sama" tetapi lengan 1/3/4 jauh dari REST,
+g2 -34.9 mm/+2.91 deg (B7.0) -> dipulihkan.
+TUJUAN (urut, A dikunci dulu, dugaan D255+):
+A. Celah Fix-Start-State (B6.2): rencana MoveIt dengan |dq| antar-waypoint > batas (usul: > 2x langkah rencana normal,
+   ukur distribusinya dulu dari arsip plans jsonl G31-G36b) DITOLAK di _plan_and_screen sebagai verdict baru yang bisa
+   diulang. Uji: konfigurasi G36 B1 jari +0.05 rad (start INVALID -> adaptor menggeser) harus DITOLAK; arsip rencana
+   G31-G36b yang dieksekusi di HW harus 100 % tetap diterima (kalau tidak: batas salah, tulis).
+B. Cache geometri S18 + lintas-gantry (pola env_collision G35: kunci = hash URDF+mesh+parameter, rusak -> bangun ulang).
+   Regresi WAJIB: verdict/pasangan/titik/d_min bit-identik vs tanpa cache pada arsip G36 regresi (2 070 kasus).
+   Ukur muat per proses (target <= 0.5 s).
+C. K0 terukur: skrip kecil (atau opsi remount_check --ros) yang mencetak gabungan /joint_states >= 0.5 s: maks |q-REST|
+   per lengan, rel + rotasi tiap gantry, jari; TOLAK bila tidak sesuai p0/PARK. Dipakai sebagai K0 di prompt HW berikut.
+D. Laporan + prompt G37b (HW: k >= 2 run per varian R0/R10 seed 36, ATAU blok seed baru p0 g1 = 1.5 sesuai B6.6 --
+   tanyakan operator mana) + rekomendasi model/effort.
+ATURAN: B menang atas A dan DITULIS; MARGIN = TOLAK; job > 10 menit via setsid nohup; pkill -f membunuh shell sendiri.
 ```
