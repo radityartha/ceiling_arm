@@ -68,7 +68,10 @@ def env_checker():
     return _ENV[0]
 
 
-def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen, log, save, final_retract=False):
+def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen, log, save, final_retract=False,
+         task_fn=None):
+    """G42 (docs/p1_g42_joint_runner.md A1): task_fn(ev, start) -> (verdict, end {joint: pos} | None) replaces the
+    in-process task planning (the HW probe CLI, task_cli below); retract/traverse unchanged."""
     p0 = {g: rec['p0'][str(g)] for g in (1, 2)}
     placed = {'t1_linear_joint': p0[1], 't2_linear_joint': p0[2],
               't1_rotation_joint': 0.0, 't2_rotation_joint': 0.0}
@@ -125,6 +128,15 @@ def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen
             others = [x for x in P.PREFIX if x != arm]
             t0 = time.time()
             start = dict(placed)
+            if task_fn is not None:
+                v, end, extra = task_fn(ev, start)
+                log(f'    [{k}] task t{ev["task"]} {arm} -> {ev["xyz"]} @({placed[f"t{g}_linear_joint"]:.3f}, '
+                    f'{math.degrees(placed[f"t{g}_rotation_joint"]):+.0f}): {v} ({time.time()-t0:.1f} s, CLI {extra})')
+                save(dict(k=k, task=ev['task'], arm=arm, xyz=ev['xyz'], verdict=v, start=start, end=end, cli=extra))
+                if v != 'PLANNED':
+                    return f't{ev["task"]}:{arm}:{v}'
+                placed.update(end)
+                continue
             # G36: as the HW probe does (move_to, --plan-attempts 3): retake a
             # RETRYABLE refusal, and refuse plans that end where the arm cannot go home.
             for _ in range(TASK_ATTEMPTS):
@@ -149,6 +161,25 @@ def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen
     return 'PLANNED'
 
 
+def task_cli(ev, start, out='/tmp/g20_step5.json'):
+    """G42 A1: one task through the HW probe CLI (run_g32.task_cmd, move=False) from the PLACED state.
+    (verdict, end, extra); a probe that did not answer = 'CLI-FAIL rc=..'."""
+    import subprocess
+    sys.path.insert(0, os.path.join(HERE, '../p1_g32'))
+    import run_g32
+    if os.path.exists(out):
+        os.remove(out)
+    cmd = run_g32.task_cmd(ev, '', move=False, start=start)
+    pr = subprocess.run(cmd, cwd=run_g32.SCRIPTS, capture_output=True, text=True)
+    txt = pr.stdout + pr.stderr
+    goal = [ln.split('ujung rencana vs target: ')[1] for ln in txt.splitlines() if 'ujung rencana vs target: ' in ln]
+    try:
+        p = json.load(open(out))[-1]['plans'][ev['arm']]
+    except (OSError, ValueError, KeyError, IndexError):
+        return f'CLI-FAIL rc={pr.returncode}', None, dict(rc=pr.returncode, tail=txt.splitlines()[-5:])
+    return p['verdict'], p['end'], dict(rc=pr.returncode, tries=p['tries'], goal_err=goal)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--seeds', type=int, nargs='+', required=True)
@@ -158,6 +189,8 @@ def main():
     ap.add_argument('--out', default=os.path.join(HERE, 'g31_screen.json'))
     ap.add_argument('--traj', default=os.path.join(HERE, 'g31_screen_plans.jsonl'))
     ap.add_argument('--final-retract', action='store_true', help='G41 A2: retract g sesudah tugas terakhirnya')
+    ap.add_argument('--task-cli', action='store_true',
+                    help='G42 A1: tugas lewat CLI probe HW (run_g32.task_cmd, tanpa --move) sebagai subproses')
     a = ap.parse_args()
 
     import rclpy
@@ -207,7 +240,7 @@ def main():
                     ftraj.write(json.dumps(dict(seed=seed, variant=a.variant, sample=_r, **row)) + '\n')
                     ftraj.flush()
                 v = walk(rec, a.variant, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen, log, save,
-                         a.final_retract)
+                         a.final_retract, task_cli if a.task_cli else None)
                 vs.append(v)
                 if v != 'PLANNED':
                     break

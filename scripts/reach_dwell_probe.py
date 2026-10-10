@@ -124,8 +124,13 @@ JOINT_TORQUE_OFFSET_NM = {1: 6.6, 2: 7.7, 3: 6.6, 4: 1.98, 5: 1.98, 6: 1.98}
 INTERARM_MARGIN_M = 0.05
 # move_to() asks for another OMPL sample after these refusals (see there).
 # G36: + RETRACT-BLOCKED (the plan ends where the arm cannot go home).
+# G42: + GOAL-MISMATCH (a joint-goal plan ending > 3 mm / 2 deg off the target).
 RETRYABLE = ('NO-PLAN', 'TUCK-REFUSED', 'TORQUE-UNSAFE', 'INTERARM-COLLIDE',
-             'RETRACT-BLOCKED')
+             'RETRACT-BLOCKED', 'GOAL-MISMATCH')
+# G42 (docs/p1_g42_joint_runner.md A1): a joint goal names no pose, so the
+# plan's end is checked against the target the monitor will score.
+GOAL_POS_TOL_M = 0.003
+GOAL_AXIS_TOL_DEG = 2.0
 
 
 class Probe(Node):
@@ -525,6 +530,49 @@ def predict_peak_torque(traj, arm, node):
     return peak
 
 
+def goal_pose_error(traj, arm, node, target, start_joints=None):
+    """G42 GOAL-MISMATCH: FK of the plan's LAST point (tool frame, live URDF;
+    rail + rotation from `start_joints` or /joint_states) vs `target`.
+    (pos_err_m, approach_axis_err_deg) or None when it cannot be computed."""
+    try:
+        import numpy as np
+        import pinocchio as pin
+    except ImportError:
+        return None
+    path = _urdf_path(node)
+    if not path:
+        return None
+    if not hasattr(node, '_pin'):
+        m = pin.buildModelFromUrdf(path)
+        node._pin = (m, m.createData())
+    m, d = node._pin
+    g = GANTRY_OF[arm]
+    base = [RAIL_JOINT[g], f't{g[-1]}_rotation_joint']
+    known = dict(start_joints) if start_joints else node.wait_joints(base)
+    jt = traj.joint_trajectory
+    known.update(zip(jt.joint_names, jt.points[-1].positions))
+    q = pin.neutral(m)
+    for n in base + [f'{JOINT_PREFIX[arm]}joint_{i}' for i in range(1, 7)]:
+        if n not in known or not m.existJointName(n):
+            return None
+        jm = m.joints[m.getJointId(n)]
+        if jm.nq != 1:
+            return None
+        q[jm.idx_q] = known[n]
+    if not m.existFrame(TOOL_FRAME[arm]):
+        return None
+    pin.framesForwardKinematics(m, d, q)
+    T = d.oMf[m.getFrameId(TOOL_FRAME[arm])]
+    p, o = target.pose.position, target.pose.orientation
+    pos = float(np.linalg.norm(np.array(T.translation) - [p.x, p.y, p.z]))
+    # +Z of the target quaternion = the approach axis the monitor scores
+    a_cmd = np.array([2 * (o.x * o.z + o.w * o.y), 2 * (o.y * o.z - o.w * o.x),
+                      1 - 2 * (o.x * o.x + o.y * o.y)])
+    a_cmd /= np.linalg.norm(a_cmd)
+    c = float(np.clip(np.dot(np.array(T.rotation)[:, 2], a_cmd), -1.0, 1.0))
+    return pos, math.degrees(math.acos(c))
+
+
 def screen_interarm(traj, arm, node, other_arm, margin=INTERARM_MARGIN_M,
                     other_joints=None):
     """Screen a plan against the OTHER arm on the same gantry, before executing.
@@ -663,8 +711,14 @@ def screen_env(traj, node, start_joints=None):
 
 def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
             vel_scale=0.15, plan_time=15.0, plan_only=False, tau_max=None,
-            other_arm=None, attempts=1, retract_check=False):
+            other_arm=None, attempts=1, retract_check=False, start_joints=None,
+            target=None):
     """Plan to p_cmd, CHECK the plan against A6/S2, then execute it.
+
+    G42: p_cmd may be a {joint: pos} goal; `target` (the PoseStamped the
+    monitor scores) then feeds the GOAL-MISMATCH screen. `start_joints` plans
+    from a PLACED state and is allowed with plan_only ONLY. A PLANNED plan's
+    last point is left in node._plan_end, the attempt count in node._plan_tries.
 
     Reuses the MoveIt path hardware_check.py --arms drives (MoveGroup action,
     15 % velocity scaling); no new motion driver is written. The one departure
@@ -677,6 +731,9 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
     NO-PLAN verdict comes from MoveIt itself rather than being inferred from
     "the monitor never saw tolerance", which is what A3 needs it to mean.
     """
+    if start_joints and not plan_only:
+        raise ValueError('start_joints hanya untuk plan_only: rencana akan '
+                         'mulai di tempat lengan TIDAK berada')
     if not hasattr(node, '_plan_ac'):
         node._plan_ac = ActionClient(node, MoveGroup, 'move_action')
         node._exec_ac = ActionClient(node, ExecuteTrajectory, 'execute_trajectory')
@@ -687,7 +744,8 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
         """Ask for one plan and run every screen on it. (verdict, traj)."""
         return _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg,
                                 vel_scale, plan_time, tau_max, other_arm,
-                                retract_check=retract_check)
+                                start_joints=start_joints,
+                                retract_check=retract_check, target=target)
 
     # RETRY, and this is a feasibility change rather than a safety one.
     # docs/p1_g17_hw.md B1.9 measured the same target from the same rest pose
@@ -707,6 +765,7 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
     # say the screen or the machinery is unavailable, and repeating a broken
     # tool just hides that it is broken.
     verdict, traj = _plan_once()
+    node._plan_tries = 1
     for k in range(2, max(1, attempts) + 1):
         if verdict not in RETRYABLE:
             break
@@ -714,8 +773,11 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
             f'percobaan rencana {k}/{attempts}: yang sebelumnya {verdict} '
             '-- meminta lintasan LAIN (penyaring tidak dilonggarkan)')
         verdict, traj = _plan_once()
+        node._plan_tries = k
     if verdict != 'PLANNED':
         return verdict
+    jt = traj.joint_trajectory
+    node._plan_end = dict(zip(jt.joint_names, map(float, jt.points[-1].positions)))
 
     # A6/S7: --move not typed means the arm does not move, but the plan was
     # still worth asking for -- it separates NO-PLAN from reachable-but-untried
@@ -742,7 +804,7 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
 
 def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
                      plan_time, tau_max, other_arm, start_joints=None,
-                     retract_check=False):
+                     retract_check=False, target=None):
     """One plan request plus every pre-execution screen. ('PLANNED', traj) or
     (refusal, None). Split out of move_to so a refusal can be re-sampled
     without duplicating a single line of the screening logic.
@@ -791,6 +853,24 @@ def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
             f'A6/S2: rencana DITOLAK -- titik {hit} berada dalam 10 deg dari '
             f'FORBIDDEN_TUCK {FORBIDDEN_TUCK}. TIDAK dieksekusi.')
         return 'TUCK-REFUSED', None
+
+    # G42: a joint goal says nothing about where the TOOL ends. The monitor
+    # scores the tool against `target`, so a goal paired with the wrong target
+    # (or a sample at the corner of the 0.2 deg joint box) is refused here.
+    if isinstance(p_cmd, dict) and target is not None:
+        ge = goal_pose_error(traj, arm, node, target, start_joints)
+        if ge is None:
+            node.get_logger().error(
+                'TIDAK BISA menghitung FK ujung rencana -- MENOLAK.')
+            return 'GOAL-UNSCREENED', None
+        node.get_logger().info(
+            f'ujung rencana vs target: {ge[0] * 1000:.2f} mm, sumbu {ge[1]:.2f} deg')
+        if ge[0] > GOAL_POS_TOL_M or ge[1] > GOAL_AXIS_TOL_DEG:
+            node.get_logger().error(
+                f'GOAL-MISMATCH: ujung rencana {ge[0] * 1000:.2f} mm / {ge[1]:.2f} '
+                f'deg dari target (batas {GOAL_POS_TOL_M * 1000:.1f} mm / '
+                f'{GOAL_AXIS_TOL_DEG:.1f} deg).')
+            return 'GOAL-MISMATCH', None
 
     # A6/S3, enforced as PREVENTION rather than detection. The --tau-max guard
     # in collect() only WATCHES: by the time it fires the trajectory has already
@@ -991,25 +1071,41 @@ def dual_trial(node, a, i, arms, fixed2):
                   'KEDUA lengan? A5, diulang, di luar penyebut.')
             return dict(trial=i, verdict='INVALID')
 
+    def _goal(arm):
+        # G42: --goal-joints plans to the arm's joints; the monitor still
+        # scores cmds[arm] (published above), and GOAL-MISMATCH ties the two.
+        if not a.goal_joints:
+            return cmds[arm]
+        return {k: v for k, v in a.goal_joints.items()
+                if k.startswith(JOINT_PREFIX[arm])}
+
+    tgt = (lambda arm: cmds[arm]) if a.goal_joints else (lambda arm: None)
+
     if not a.move:
+        plans = {}
         for arm in arms:
             other = _others(arm)
-            mv = move_to(arm, cmds[arm], node, plan_only=True,
+            node._plan_end, node._plan_tries = None, None
+            mv = move_to(arm, _goal(arm), node, plan_only=True,
                          tau_max=a.tau_max, other_arm=other,
-                         attempts=a.plan_attempts, retract_check=True) \
+                         attempts=a.plan_attempts, retract_check=True,
+                         start_joints=a.start_joints, target=tgt(arm)) \
                 if a.plan_check else 'DRY'
+            if a.plan_check:
+                plans[arm] = dict(verdict=mv, tries=node._plan_tries,
+                                  end=node._plan_end if mv == 'PLANNED' else None)
             c = cmds[arm].pose.position
             print(f'  [{i:2d}] DRY {arm}: p_cmd = ({c.x:+.3f}, {c.y:+.3f}, '
                   f'{c.z:+.3f})' + (f'   rencana: {mv}' if a.plan_check else ''))
-        return dict(trial=i, verdict='DRY')
+        return dict(trial=i, verdict='DRY', **({'plans': plans} if plans else {}))
 
     node.tau_peak, node.tau_worst_joint = 0.0, ''
     moves = {}
     for arm in arms:
         other = _others(arm)
-        moves[arm] = move_to(arm, cmds[arm], node, tau_max=a.tau_max,
+        moves[arm] = move_to(arm, _goal(arm), node, tau_max=a.tau_max,
                              other_arm=other, attempts=a.plan_attempts,
-                             retract_check=True)
+                             retract_check=True, target=tgt(arm))
         print(f'       {arm}: moveit {moves[arm]}')
         if moves[arm] != 'MOVED':
             break
@@ -1086,7 +1182,29 @@ def main():
                     help='<csv_log>_samples.csv milik reach_dwell_monitor. '
                          'Dibutuhkan untuk membedakan REACHED-NOT-HELD dari '
                          'EXEC-MISS: monitor TIDAK menerbitkan status per-sampel')
+    ap.add_argument('--goal-joints', metavar='JSON', default=None,
+                    help='G42: {sendi: rad} tujuan SENDI (tepat 6 sendi tiap '
+                         'lengan --arms); --target tetap dinilai monitor, '
+                         'GOAL-MISMATCH bila ujung > 3 mm / 2 deg darinya')
+    ap.add_argument('--start-joints', metavar='JSON', default=None,
+                    help='G42: keadaan awal TERTEMPAT {sendi: rad}; hanya DRY '
+                         '(--plan-check, tanpa --move)')
     a = ap.parse_args()
+
+    def _jdict(s, flag):
+        try:
+            d = json.loads(s)
+            if not isinstance(d, dict) or not d:
+                raise ValueError
+            return {str(k): float(v) for k, v in d.items()}
+        except (ValueError, TypeError):
+            ap.error(f'{flag} harus objek JSON {{sendi: rad}}')
+
+    a.goal_joints = _jdict(a.goal_joints, '--goal-joints') if a.goal_joints else None
+    a.start_joints = _jdict(a.start_joints, '--start-joints') if a.start_joints else None
+    if a.start_joints and (a.move or not a.plan_check):
+        ap.error('--start-joints hanya dengan --plan-check TANPA --move '
+                 '(rencana akan mulai di tempat lengan tidak berada)')
 
     def _xyz(s, flag):
         try:
@@ -1121,6 +1239,14 @@ def main():
         fixed = _xyz(a.target, '--target')
         fixed2 = [_xyz(v, f) for v, f in zip(vals[1:n], flags[1:n])]
         arms = list(a.arms_list)
+    if (a.goal_joints or a.start_joints) and not a.arms_list:
+        ap.error('--goal-joints/--start-joints hanya dengan --arms/--quad')
+    if a.goal_joints:
+        want = {f'{JOINT_PREFIX[x]}joint_{i}' for x in arms for i in range(1, 7)}
+        if set(a.goal_joints) != want:
+            ap.error(f'--goal-joints harus tepat {sorted(want)}; kurang '
+                     f'{sorted(want - set(a.goal_joints))}, lebih '
+                     f'{sorted(set(a.goal_joints) - want)}')
 
     if not a.move:
         print('\033[33mDRY RUN\033[0m -- tidak ada gerak. '

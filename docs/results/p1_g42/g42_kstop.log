@@ -1,0 +1,23 @@
+G41 s19 g2 stop 0 tugas ['1', '2']: ok (10.87 s)
+    node 1341 slot 0 dari REST: env CLEAR 202.8, se CLEAR 570.8, kotak inf mm, torsi lebih -0.03 -> ok
+    node 1129 slot 0 dari ujung tugas sebelumnya: env CLEAR 202.8, se CLEAR 524.2, kotak inf mm, torsi lebih -0.03 -> ok
+    retract kedua lengan: env CLEAR 202.8, se CLEAR 566.8, kotak inf mm, torsi lebih -0.33 -> ok
+G41 s19 g2 stop 2 tugas ['3', '4']: TOLAK (7.45 s)
+    node 1951 slot 0 dari REST: env CLEAR 70.2, se CLEAR 616.1, kotak 0.40 mm, torsi lebih -0.67 -> TOLAK
+G41b s0 g1 stop 1 tugas ['1', '2']: ok (13.27 s)
+    node 817 slot 0 dari REST: env CLEAR 233.2, se CLEAR 551.4, kotak inf mm, torsi lebih -1.21 -> ok
+    node 927 slot 0 dari ujung tugas sebelumnya: env CLEAR 233.2, se CLEAR 537.6, kotak inf mm, torsi lebih -0.40 -> ok
+    retract kedua lengan: env CLEAR 233.2, se CLEAR 622.7, kotak inf mm, torsi lebih -0.40 -> ok
+G41b s0 g2 stop 1 tugas ['3', '4']: ok (12.8 s)
+    node 1190 slot 0 dari REST: env CLEAR 89.2, se CLEAR 562.5, kotak 64.81 mm, torsi lebih -0.26 -> ok
+    node 1304 slot 0 dari ujung tugas sebelumnya: env CLEAR 108.1, se CLEAR 447.3, kotak inf mm, torsi lebih -0.26 -> ok
+    retract kedua lengan: env CLEAR 87.2, se CLEAR 622.7, kotak 10.95 mm, torsi lebih -0.39 -> ok
+G41b s10 g1 stop 0 tugas ['0', '2']: ok (11.7 s)
+    node 2430 slot 0 dari REST: env CLEAR 197.8, se CLEAR 592.7, kotak inf mm, torsi lebih -2.03 -> ok
+    node 2440 slot 0 dari ujung tugas sebelumnya: env CLEAR 197.8, se CLEAR 467.0, kotak inf mm, torsi lebih -0.24 -> ok
+    retract kedua lengan: env CLEAR 197.8, se CLEAR 465.2, kotak inf mm, torsi lebih -0.24 -> ok
+G41b s10 g2 stop 0 tugas ['1', '5']: ok (14.19 s)
+    node 1520 slot 0 dari REST: env CLEAR 77.6, se CLEAR 578.2, kotak 14.58 mm, torsi lebih -0.24 -> ok
+    node 690 slot 1 dari REST: env CLEAR 109.3, se CLEAR 574.6, kotak inf mm, torsi lebih -1.92 -> ok
+    retract kedua lengan: env CLEAR 77.6, se CLEAR 496.1, kotak 14.58 mm, torsi lebih -0.24 -> ok
+kontrol positif G41 s19: tolak 1/2; G41b stop >= 2 tugas diterima 4/4

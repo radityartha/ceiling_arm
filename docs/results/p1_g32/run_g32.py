@@ -99,6 +99,20 @@ class Watch:
             return dict(self.pos), dict(self.t_pos), dict(self.peak), list(self.status)
 
 
+def task_cmd(e, mon, move=True, start=None):
+    """The probe argv for task event e. G42 (docs/p1_g42_joint_runner.md A1): e['goal'] -> --goal-joints APPENDED
+    (no goal: the argv is the old one bit for bit). move=False = the DRY rehearsal (g31_screen --task-cli): no --move,
+    --plan-check from the PLACED state `start`."""
+    x, y, z = e['xyz']
+    cmd = ['timeout', '600', 'python3', '-u', 'reach_dwell_probe.py', '--arms', e['arm'],
+           f'--target={x:.4f},{y:.4f},{z:.4f}', '--approach', '0', '--trials', '1',
+           '--tau-max', '12.0']
+    cmd += ['--move', '--monitor-csv', mon] if move else ['--plan-check', '--start-joints=' + json.dumps(start)]
+    if e.get('goal'):
+        cmd.append('--goal-joints=' + json.dumps(e['goal']))
+    return cmd
+
+
 def run_tool(tag, cmd, logf):
     """Subprocess with every stdout line stamped on arrival. (rc, lines, t0, t1)."""
     t0 = time.time()
@@ -129,12 +143,13 @@ def main():
     ap.add_argument('--out-dir', default=OUT, help='working dir for logs (default /tmp/g32)')
     ap.add_argument('--archive', default=HERE, help='where finish() copies the logs')
     ap.add_argument('--prefix', default='g32_', help='archive file-name prefix')
+    ap.add_argument('--final-retract', action='store_true', help='G41/G42: retract g sesudah tugas terakhirnya')
     a = ap.parse_args()
     OUT = a.out_dir
     os.makedirs(OUT, exist_ok=True)
     row = {r['seed']: r for r in json.load(open(a.plan))}[a.seed]
     p0 = {g: row['p0'][str(g)] for g in (1, 2)}
-    evs = G31S.events(row[a.variant]['schedule'], p0)
+    evs = G31S.events(row[a.variant]['schedule'], p0, a.final_retract)
     rails = dict(p0)
     rots = {g: 0.0 for g in (1, 2)}                 # rad, p0 rotation 0/0 (g31 A4)
     rec = dict(seed=a.seed, events=[], stop=None)
@@ -200,6 +215,9 @@ def main():
     if why:
         finish(why)
     if a.dry:
+        for i, e in enumerate(evs):
+            if e['kind'] == 'task':
+                say(f'  perintah event {i}: {" ".join(task_cmd(e, a.mon))}')
         say('DRY: tidak ada yang dikirim.')
         W.n.destroy_node()
         return 0
@@ -219,12 +237,9 @@ def main():
                    '--seed', str(a.seed), '--plan', a.plan, '--variant', a.variant,
                    f'{e["to"][0]:.3f}', f'{math.degrees(e["to"][1]):.3f}', '--move']
         else:
-            x, y, z = e['xyz']
             if os.path.exists('/tmp/g20_step5.json'):
                 os.remove('/tmp/g20_step5.json')
-            cmd = ['timeout', '600', 'python3', '-u', 'reach_dwell_probe.py', '--arms', e['arm'],
-                   f'--target={x:.4f},{y:.4f},{z:.4f}', '--approach', '0', '--trials', '1',
-                   '--tau-max', '12.0', '--move', '--monitor-csv', a.mon]
+            cmd = task_cmd(e, a.mon)
         say(f'  [{i}] {e["kind"]} g{g} {e.get("arm", "")} {e.get("to", e.get("xyz", ""))}')
         rc, lines, ts, te = run_tool(e['kind'], cmd, logf)
         er = dict(e, rc=rc, t_start=ts, t_end=te)

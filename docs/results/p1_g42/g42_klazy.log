@@ -1,0 +1,11 @@
+    iterasi 1: makespan 384.345, tuple belum terverifikasi 2, tepi 0, stop belum terverifikasi 0, stop dilarang 1
+    iterasi 2: makespan 384.345, tuple belum terverifikasi 1, tepi 0, stop belum terverifikasi 0, stop dilarang 1
+    iterasi 3: makespan 384.345, tuple belum terverifikasi 0, tepi 0, stop belum terverifikasi 1, stop dilarang 1
+      stop (s42): (2, 19, 33, (1951, 1740), ()) ok
+    iterasi 4: makespan 384.345, tuple belum terverifikasi 0, tepi 0, stop belum terverifikasi 0, stop dilarang 1
+G41+(s42) s19: makespan 384.34 (G41 381.71), iterasi 4
+  g1 G41      : (1.5, 5.0) {'5': 'arm1'}
+  g1 G41+s42  : (1.5, 5.0) {5: 'arm1'}
+  g2 G41      : (0.45, 35.0) {'1': 'arm3', '2': 'arm3'} | (0.75, 25.0) {'0': 'arm3'} | (0.9, -15.0) {'3': 'arm3', '4': 'arm3'}
+  g2 G41+s42  : (0.45, 35.0) {1: 'arm3', 2: 'arm3'} | (0.75, 25.0) {0: 'arm3'} | (0.95, -15.0) {3: 'arm3', 4: 'arm3'}
+stop (s42): (2, 18, 33, (1951, 1740), ()) TOLAK, (2, 9, 43, (1341, 1129), ()) ok, (2, 19, 33, (1951, 1740), ()) ok
