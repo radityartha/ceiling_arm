@@ -206,12 +206,14 @@ def main():
             return f'/joint_states basi: {stale[:3]}'
         return None
 
-    # A3 awal: four arms at REST, rails at p0
-    pos = W.snap()[0]
-    dev = max(abs(pos[f'{p}joint_{j}'] - P.REST[j - 1]) for p in P.PREFIX.values() for j in range(1, 7))
-    say(f'awal: maks |q - REST| keempat lengan {math.degrees(dev):.3f} deg; '
-        f'rel t1 {pos["t1_linear_joint"]:.6f} t2 {pos["t2_linear_joint"]:.6f}')
-    why = s26('awal') or (None if math.degrees(dev) < 0.5 else 'A3: lengan tidak di REST')
+    # G45 (docs/p1_g45_k0.md): K0 MEASURED -- /joint_states merged by name for 1 s; four arms at REST, rails at p0,
+    # rotations 0, fingers closed. Replaces the single-snapshot A3 arm check.
+    k0 = subprocess.run([sys.executable, '/home/user1/Documents/ceiling_arm/scripts/k0_check.py',
+                         '--rail1', f'{p0[1]:.4f}', '--rail2', f'{p0[2]:.4f}', '--rot1', '0', '--rot2', '0',
+                         '--seconds', '1.0', '--json', f'{OUT}/k0.json'], capture_output=True, text=True)
+    for ln in k0.stdout.splitlines():
+        say(f'K0 | {ln}')
+    why = s26('awal') or (None if k0.returncode == 0 else f'K0: {(k0.stdout.strip().splitlines() or ["?"])[-1]}')
     if why:
         finish(why)
     if a.dry:
