@@ -148,6 +148,7 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
         return None
 
     sols = [[] for _ in range(K)]
+    stau = [[] for _ in range(K)]              # G49: per-branch torque envelope, parallel to sols (tilt only)
     env = np.zeros(6)
     tilt_fail = [0]
     TR = [_rx(np.radians(a)) @ _ry(np.radians(b)) for a, b in TILT_DEG]
@@ -161,7 +162,9 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
                 return False
         sols[k].append(s)
         if tilt:
-            env = np.maximum(env, gravity(arm, s, rail, rot))
+            g0 = gravity(arm, s, rail, rot)
+            env = np.maximum(env, g0)
+            stau[k].append(g0)                  # G49: this branch's own envelope (s and its tilts)
             if stop_torq is not None and _over(env, stop_torq):
                 raise _EarlyStop
             for M, Ms in zip(TR, TRS):
@@ -176,7 +179,9 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
                 if st is None:
                     tilt_fail[0] += 1
                 else:
-                    env = np.maximum(env, gravity(arm, st, rail, rot))
+                    gt = gravity(arm, st, rail, rot)
+                    env = np.maximum(env, gt)
+                    stau[k][-1] = np.maximum(stau[k][-1], gt)
                     if stop_torq is not None and _over(env, stop_torq):
                         raise _EarlyStop
         return True
@@ -228,6 +233,8 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
         out['tilt_fail'] = tilt_fail[0]
     if keep_solutions:
         out['solutions'] = [(k, s) for k, ss in enumerate(sols) for s in ss]
+        if tilt:
+            out['solutions_tau'] = [t for tt in stau for t in tt]
     return out
 
 

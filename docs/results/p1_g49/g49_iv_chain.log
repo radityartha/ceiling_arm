@@ -1,0 +1,152 @@
+  s4 g1 (1.50,+0)->(1.35,-30): CLEAR 745.4 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s4 g2 (0.00,+0)->(1.25,-10): CLEAR 380.0 mm ('t1_platform_link_0', 't2_platform_link_0')
+  s4 g2 (1.25,-10)->(1.30,+0): CLEAR 359.5 mm ('t1_mount_plate_right_0', 't2_platform_link_0')
+  s5 g1 (1.50,+0)->(1.50,-25): CLEAR 862.6 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s5 g1 (1.50,-25)->(1.60,-25): CLEAR 970.3 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s5 g2 (0.00,+0)->(1.25,-20): CLEAR 380.0 mm ('t1_platform_link_0', 't2_platform_link_0')
+  s6 g1 (1.50,+0)->(1.50,-10): CLEAR 862.6 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s6 g1 (1.50,-10)->(1.50,+5): CLEAR 852.5 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s6 g2 (0.00,+0)->(1.40,-10): CLEAR 380.0 mm ('t1_platform_link_0', 't2_platform_link_0')
+  s9 g1 (1.50,+0)->(1.45,-20): CLEAR 822.4 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s9 g2 (0.00,+0)->(1.05,-10): CLEAR 383.3 mm ('t1_platform_link_0', 't2_platform_link_0')
+  s12 g1 (1.50,+0)->(0.95,-30): CLEAR 522.2 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s12 g1 (0.95,-30)->(0.75,-110): CLEAR 294.8 mm ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+  s12 g2 (0.00,+0)->(1.40,-5): CLEAR 120.1 mm ('t1_mount_plate_right_0', 't2_platform_link_0')
+  s13 g1 (1.50,+0)->(1.45,-20): CLEAR 822.4 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s13 g2 (0.00,+0)->(1.45,-5): CLEAR 380.0 mm ('t1_platform_link_0', 't2_platform_link_0')
+(iv') lolos 6/6 {4: True, 5: True, 6: True, 9: True, 12: True, 13: True}
+  s4 [2] t0 arm_1 dari REST: env CLEAR 126.1, se CLEAR 556.0, antar CLEAR 901.5, kotak inf mm, torsi lebih -0.69 -> ok
+  s4 [3] t1 arm_1 dari ujung tugas sebelumnya: env CLEAR 126.1, se CLEAR 563.9, antar CLEAR 901.5, kotak inf mm, torsi lebih -0.28 -> ok
+  s4 [4] t2 arm_1 dari ujung tugas sebelumnya: env CLEAR 126.1, se CLEAR 639.1, antar CLEAR 901.5, kotak inf mm, torsi lebih -0.26 -> ok
+  s4 [5] retract g1: env CLEAR 126.1, se CLEAR 622.7, antar CLEAR 901.5, kotak inf mm, torsi lebih -0.26 -> ok
+  s4 [8] t3 arm_3 dari REST: env CLEAR 103.0, se CLEAR 487.7, antar CLEAR 477.7, kotak inf mm, torsi lebih -1.50 -> ok
+  s4 [9] t4 arm_3 dari ujung tugas sebelumnya: env CLEAR 85.3, se CLEAR 441.4, antar CLEAR 184.1, kotak inf mm, torsi lebih -0.14 -> ok
+  s4 [10] retract g2: env CLEAR 83.9, se CLEAR 567.4, antar CLEAR 246.1, kotak inf mm, torsi lebih -0.14 -> ok
+  s4 [12] t5 arm_3 dari REST: env CLEAR 70.9, se CLEAR 576.4, antar CLEAR 184.3, kotak inf mm, torsi lebih -0.27 -> ok
+  s4 [13] retract g2: env CLEAR 70.9, se CLEAR 576.4, antar CLEAR 184.3, kotak inf mm, torsi lebih -0.27 -> ok
+  s5 [2] t0 arm_1 dari REST: env CLEAR 77.4, se CLEAR 545.2, antar CLEAR 970.3, kotak 10.03 mm, torsi lebih -0.68 -> ok
+  s5 [3] t4 arm_2 dari REST: env CLEAR 77.4, se CLEAR 566.5, antar CLEAR 948.9, kotak 10.03 mm, torsi lebih -0.84 -> ok
+  s5 [4] retract g1: env CLEAR 77.4, se CLEAR 534.8, antar CLEAR 948.9, kotak 10.03 mm, torsi lebih -0.68 -> ok
+  s5 [6] t5 arm_1 dari REST: env CLEAR 74.3, se CLEAR 559.1, antar CLEAR 1044.2, kotak 10.03 mm, torsi lebih -0.14 -> ok
+  s5 [7] retract g1: env CLEAR 74.3, se CLEAR 559.1, antar CLEAR 1044.2, kotak 10.03 mm, torsi lebih -0.14 -> ok
+  s5 [10] t3 arm_3 dari REST: env CLEAR 74.3, se CLEAR 590.3, antar CLEAR 649.9, kotak inf mm, torsi lebih -1.97 -> ok
+  s5 [11] t1 arm_4 dari REST: env CLEAR 74.3, se CLEAR 635.5, antar CLEAR 455.3, kotak inf mm, torsi lebih -0.56 -> ok
+  s5 [12] t2 arm_4 dari ujung tugas sebelumnya: env CLEAR 74.3, se CLEAR 638.7, antar CLEAR 378.2, kotak inf mm, torsi lebih -0.14 -> ok
+  s5 [13] retract g2: env CLEAR 74.3, se CLEAR 524.5, antar CLEAR 372.1, kotak inf mm, torsi lebih -0.14 -> ok
+  s6 [2] t5 arm_2 dari REST: env CLEAR 87.6, se CLEAR 576.3, antar CLEAR 895.4, kotak inf mm, torsi lebih -1.55 -> ok
+  s6 [3] retract g1: env CLEAR 87.6, se CLEAR 576.3, antar CLEAR 895.4, kotak inf mm, torsi lebih -1.55 -> ok
+  s6 [5] t0 arm_2 dari REST: env CLEAR 113.2, se CLEAR 622.7, antar CLEAR 573.1, kotak inf mm, torsi lebih -0.03 -> ok
+  s6 [6] t1 arm_2 dari ujung tugas sebelumnya: env CLEAR 113.2, se CLEAR 644.7, antar CLEAR 577.8, kotak inf mm, torsi lebih -0.03 -> ok
+  s6 [7] retract g1: env CLEAR 113.2, se CLEAR 622.7, antar CLEAR 682.3, kotak inf mm, torsi lebih -0.03 -> ok
+  s6 [10] t4 arm_3 dari REST: env CLEAR 95.8, se CLEAR 578.5, antar CLEAR 512.8, kotak inf mm, torsi lebih -0.14 -> ok
+  s6 [11] t2 arm_4 dari REST: env CLEAR 99.1, se CLEAR 637.7, antar CLEAR 280.3, kotak inf mm, torsi lebih -1.61 -> ok
+  s6 [12] t3 arm_4 dari ujung tugas sebelumnya: env CLEAR 99.1, se CLEAR 534.5, antar CLEAR 280.3, kotak inf mm, torsi lebih -1.57 -> ok
+  s6 [13] retract g2: env CLEAR 95.8, se CLEAR 507.4, antar CLEAR 505.1, kotak inf mm, torsi lebih -0.14 -> ok
+  s9 [2] t1 arm_1 dari REST: env CLEAR 108.2, se CLEAR 539.4, antar CLEAR 906.4, kotak inf mm, torsi lebih -0.14 -> ok
+  s9 [3] t3 arm_2 dari REST: env CLEAR 107.9, se CLEAR 555.4, antar CLEAR 906.4, kotak inf mm, torsi lebih -1.85 -> ok
+  s9 [4] t2 arm_1 dari ujung tugas sebelumnya: env CLEAR 151.7, se CLEAR 404.9, antar CLEAR 934.6, kotak inf mm, torsi lebih -0.04 -> ok
+  s9 [5] retract g1: env CLEAR 107.9, se CLEAR 528.6, antar CLEAR 906.4, kotak inf mm, torsi lebih -0.04 -> ok
+  s9 [8] t5 arm_3 dari REST: env CLEAR 98.6, se CLEAR 622.7, antar CLEAR 583.8, kotak inf mm, torsi lebih -0.37 -> ok
+  s9 [9] t0 arm_4 dari REST: env CLEAR 98.6, se CLEAR 613.7, antar CLEAR 511.4, kotak inf mm, torsi lebih -0.13 -> ok
+  s9 [10] t4 arm_4 dari ujung tugas sebelumnya: env CLEAR 94.2, se CLEAR 453.1, antar CLEAR 520.3, kotak inf mm, torsi lebih -0.14 -> ok
+  s9 [11] retract g2: env CLEAR 82.5, se CLEAR 505.8, antar CLEAR 583.8, kotak 13.78 mm, torsi lebih -0.29 -> ok
+  s12 [2] t0 arm_1 dari REST: env CLEAR 229.0, se CLEAR 615.3, antar CLEAR 724.9, kotak inf mm, torsi lebih -1.42 -> ok
+  s12 [3] retract g1: env CLEAR 229.0, se CLEAR 615.4, antar CLEAR 724.9, kotak inf mm, torsi lebih -1.42 -> ok
+  s12 [5] t1 arm_1 dari REST: env CLEAR 140.8, se CLEAR 594.0, antar CLEAR 186.8, kotak inf mm, torsi lebih -1.99 -> ok
+  s12 [6] t5 arm_2 dari REST: env CLEAR 140.8, se CLEAR 633.2, antar CLEAR 186.8, kotak inf mm, torsi lebih -1.70 -> ok
+  s12 [7] retract g1: env CLEAR 140.8, se CLEAR 551.8, antar CLEAR 187.0, kotak inf mm, torsi lebih -1.70 -> ok
+  s12 [10] t2 arm_3 dari REST: env CLEAR 117.7, se CLEAR 513.3, antar CLEAR 389.3, kotak inf mm, torsi lebih -0.14 -> ok
+  s12 [11] t4 arm_4 dari REST: env CLEAR 61.7, se CLEAR 701.6, antar CLEAR 372.8, kotak 10.42 mm, torsi lebih -0.22 -> ok
+  s12 [12] t3 arm_3 dari ujung tugas sebelumnya: env CLEAR 98.6, se CLEAR 703.6, antar CLEAR 374.8, kotak inf mm, torsi lebih -0.15 -> ok
+  s12 [13] retract g2: env CLEAR 61.7, se CLEAR 622.7, antar CLEAR 372.8, kotak 10.42 mm, torsi lebih -0.14 -> ok
+  s13 [2] t0 arm_1 dari REST: env CLEAR 108.2, se CLEAR 575.8, antar CLEAR 906.4, kotak inf mm, torsi lebih -0.14 -> ok
+  s13 [3] t1 arm_1 dari ujung tugas sebelumnya: env CLEAR 108.2, se CLEAR 575.8, antar CLEAR 906.4, kotak inf mm, torsi lebih -0.14 -> ok
+  s13 [4] t2 arm_1 dari ujung tugas sebelumnya: env CLEAR 108.2, se CLEAR 573.9, antar CLEAR 906.4, kotak inf mm, torsi lebih -0.65 -> ok
+  s13 [5] retract g1: env CLEAR 108.2, se CLEAR 560.7, antar CLEAR 906.4, kotak inf mm, torsi lebih -1.51 -> ok
+  s13 [8] t3 arm_3 dari REST: env CLEAR 94.0, se CLEAR 605.4, antar CLEAR 347.3, kotak 18.26 mm, torsi lebih -1.63 -> ok
+  s13 [9] t4 arm_4 dari REST: env CLEAR 78.7, se CLEAR 684.7, antar CLEAR 347.3, kotak 18.26 mm, torsi lebih -0.18 -> ok
+  s13 [10] t5 arm_3 dari ujung tugas sebelumnya: env CLEAR 85.5, se CLEAR 596.4, antar CLEAR 347.3, kotak 17.97 mm, torsi lebih -0.03 -> ok
+  s13 [11] retract g2: env CLEAR 78.7, se CLEAR 576.9, antar CLEAR 372.9, kotak 44.35 mm, torsi lebih -0.03 -> ok
+(iv'') R180: lolos 6/6 {4: [], 5: [], 6: [], 9: [], 12: [], 13: []}
+  s2 g1 (1.50,+0)->(1.25,-30): CLEAR 674.5 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s2 g1 (1.25,-30)->(0.45,-65): CLEAR 309.3 mm ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+  s2 g1 (0.45,-65)->(0.30,-105): CLEAR 110.1 mm ('t1_mount_plate_right_0', 't2_platform_link_0')
+  s2 g2 (0.00,+0)->(1.30,+0): CLEAR 109.7 mm ('t1_mount_plate_right_0', 't2_platform_link_0')
+  s11 g1 (1.50,+0)->(1.60,+85): CLEAR 804.7 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+  s11 g2 (0.00,+0)->(0.30,+95): CLEAR 795.4 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+  s11 g2 (0.30,+95)->(0.55,-10): CLEAR 554.9 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+  s11 g2 (0.55,-10)->(1.35,-5): CLEAR 102.8 mm ('t1_mount_plate_left_0', 't2_platform_link_0')
+  s11 g2 (1.35,-5)->(1.45,-35): CLEAR 97.7 mm ('t1_mount_plate_left_0', 't2_platform_link_0')
+  s14 g1 (1.50,+0)->(1.55,+35): CLEAR 804.7 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+  s14 g1 (1.55,+35)->(1.60,+90): CLEAR 847.5 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+  s14 g2 (0.00,+0)->(0.15,+55): CLEAR 933.7 mm ('t1_platform_link_0', 't2_mount_plate_right_0')
+  s14 g2 (0.15,+55)->(0.45,-20): CLEAR 664.6 mm ('t1_platform_link_0', 't2_mount_plate_right_0')
+  s14 g2 (0.45,-20)->(1.40,-10): CLEAR 98.2 mm ('t1_mount_plate_left_0', 't2_platform_link_0')
+  s16 g1 (1.50,+0)->(1.35,-30): CLEAR 745.4 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s16 g1 (1.35,-30)->(1.60,-15): CLEAR 810.8 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s16 g1 (1.60,-15)->(1.60,+85): CLEAR 889.4 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+  s16 g2 (0.00,+0)->(0.45,-20): CLEAR 674.1 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+  s16 g2 (0.45,-20)->(0.80,+50): CLEAR 320.0 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+  s17 g1 (1.50,+0)->(1.20,-30): CLEAR 641.9 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s17 g1 (1.20,-30)->(0.75,+5): CLEAR 464.7 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+  s17 g1 (0.75,+5)->(0.35,-100): CLEAR 134.3 mm ('t1_mount_plate_right_0', 't2_platform_link_0')
+  s17 g2 (0.00,+0)->(1.20,-20): CLEAR 79.3 mm ('t1_mount_plate_right_0', 't2_mount_plate_left_0')
+  s17 g2 (1.20,-20)->(1.50,-30): CLEAR 425.3 mm ('t1_platform_link_0', 't2_mount_plate_left_0')
+(iv') lolos 5/5 {2: True, 11: True, 14: True, 16: True, 17: True}
+  s2 [0] t3 arm_2 dari REST: env CLEAR 88.0, se CLEAR 583.5, antar CLEAR 862.6, kotak inf mm, torsi lebih -1.80 -> ok
+  s2 [1] t4 arm_2 dari ujung tugas sebelumnya: env CLEAR 90.6, se CLEAR 511.2, antar CLEAR 909.5, kotak inf mm, torsi lebih -1.52 -> ok
+  s2 [2] retract g1: env CLEAR 115.1, se CLEAR 511.3, antar CLEAR 862.6, kotak inf mm, torsi lebih -1.52 -> ok
+  s2 [4] t0 arm_1 dari REST: env CLEAR 197.8, se CLEAR 622.7, antar CLEAR 844.0, kotak inf mm, torsi lebih -1.04 -> ok
+  s2 [5] retract g1: env CLEAR 197.8, se CLEAR 622.7, antar CLEAR 844.0, kotak inf mm, torsi lebih -1.04 -> ok
+  s2 [7] t1 arm_1 dari REST: env CLEAR 115.3, se CLEAR 554.8, antar CLEAR 204.1, kotak inf mm, torsi lebih -1.18 -> ok
+  s2 [8] retract g1: env CLEAR 115.3, se CLEAR 554.8, antar CLEAR 204.3, kotak inf mm, torsi lebih -1.18 -> ok
+  s2 [10] t2 arm_1 dari REST: env CLEAR 120.2, se CLEAR 517.4, antar CLEAR 142.1, kotak inf mm, torsi lebih -0.03 -> ok
+  s2 [11] retract g1: env CLEAR 120.2, se CLEAR 517.4, antar CLEAR 142.1, kotak inf mm, torsi lebih -0.03 -> ok
+  s2 [14] t5 arm_3 dari REST: env CLEAR 70.9, se CLEAR 622.7, antar CLEAR 659.0, kotak inf mm, torsi lebih -0.49 -> ok
+  s2 [15] retract g2: env CLEAR 70.9, se CLEAR 622.7, antar CLEAR 659.0, kotak inf mm, torsi lebih -0.50 -> ok
+  s11 [2] t1 arm_2 dari REST: env CLEAR 97.6, se CLEAR 512.7, antar CLEAR 1114.2, kotak inf mm, torsi lebih -0.10 -> ok
+  s11 [3] retract g1: env CLEAR 97.6, se CLEAR 512.8, antar CLEAR 1114.2, kotak inf mm, torsi lebih -0.10 -> ok
+  s11 [6] t0 arm_3 dari REST: env CLEAR 97.6, se CLEAR 520.8, antar CLEAR 1132.2, kotak inf mm, torsi lebih -0.14 -> ok
+  s11 [7] retract g2: env CLEAR 97.6, se CLEAR 520.8, antar CLEAR 1132.2, kotak inf mm, torsi lebih -0.14 -> ok
+  s11 [9] t5 arm_3 dari REST: env CLEAR 97.6, se CLEAR 473.7, antar CLEAR 639.5, kotak inf mm, torsi lebih -1.60 -> ok
+  s11 [10] retract g2: env CLEAR 97.6, se CLEAR 473.8, antar CLEAR 639.5, kotak inf mm, torsi lebih -1.60 -> ok
+  s11 [12] t4 arm_3 dari REST: env CLEAR 97.6, se CLEAR 574.2, antar CLEAR 240.6, kotak inf mm, torsi lebih -0.30 -> ok
+  s11 [13] retract g2: env CLEAR 97.6, se CLEAR 574.3, antar CLEAR 240.6, kotak inf mm, torsi lebih -0.30 -> ok
+  s11 [15] t3 arm_3 dari REST: env CLEAR 97.0, se CLEAR 537.2, antar CLEAR 354.7, kotak inf mm, torsi lebih -1.53 -> ok
+  s11 [16] t2 arm_4 dari REST: env CLEAR 97.0, se CLEAR 491.4, antar CLEAR 196.6, kotak inf mm, torsi lebih -0.60 -> ok
+  s11 [17] retract g2: env CLEAR 97.1, se CLEAR 506.9, antar CLEAR 196.6, kotak inf mm, torsi lebih -0.60 -> ok
+  s14 [0] t3 arm_2 dari REST: env CLEAR 95.0, se CLEAR 570.8, antar CLEAR 862.6, kotak inf mm, torsi lebih -1.54 -> ok
+  s14 [1] retract g1: env CLEAR 95.0, se CLEAR 570.8, antar CLEAR 862.6, kotak inf mm, torsi lebih -1.55 -> ok
+  s14 [3] t2 arm_2 dari REST: env CLEAR 65.9, se CLEAR 438.9, antar CLEAR 862.7, kotak inf mm, torsi lebih -0.12 -> ok
+  s14 [4] retract g1: env CLEAR 65.9, se CLEAR 439.0, antar CLEAR 862.7, kotak inf mm, torsi lebih -0.13 -> ok
+  s14 [6] t1 arm_2 dari REST: env CLEAR 88.6, se CLEAR 564.2, antar CLEAR 1147.4, kotak inf mm, torsi lebih -0.30 -> ok
+  s14 [7] retract g1: env CLEAR 88.6, se CLEAR 564.2, antar CLEAR 1147.4, kotak inf mm, torsi lebih -0.30 -> ok
+  s14 [10] t0 arm_3 dari REST: env CLEAR 88.6, se CLEAR 573.9, antar CLEAR 1031.6, kotak inf mm, torsi lebih -0.12 -> ok
+  s14 [11] retract g2: env CLEAR 88.6, se CLEAR 573.9, antar CLEAR 1031.6, kotak inf mm, torsi lebih -0.12 -> ok
+  s14 [13] t4 arm_3 dari REST: env CLEAR 59.2, se CLEAR 588.2, antar CLEAR 675.9, kotak inf mm, torsi lebih -0.40 -> ok
+  s14 [14] retract g2: env CLEAR 59.2, se CLEAR 588.2, antar CLEAR 675.9, kotak inf mm, torsi lebih -0.40 -> ok
+  s14 [16] t5 arm_3 dari REST: env CLEAR 88.6, se CLEAR 509.9, antar CLEAR 214.7, kotak inf mm, torsi lebih -0.18 -> ok
+  s14 [17] retract g2: env CLEAR 88.6, se CLEAR 509.9, antar CLEAR 214.9, kotak inf mm, torsi lebih -0.18 -> ok
+  s16 [2] t1 arm_1 dari REST: env CLEAR 126.1, se CLEAR 581.0, antar CLEAR 901.5, kotak inf mm, torsi lebih -0.43 -> ok
+  s16 [3] retract g1: env CLEAR 126.1, se CLEAR 581.0, antar CLEAR 901.5, kotak inf mm, torsi lebih -0.44 -> ok
+  s16 [5] t4 arm_2 dari REST: env CLEAR 97.6, se CLEAR 485.4, antar CLEAR 994.5, kotak inf mm, torsi lebih -1.50 -> ok
+  s16 [6] t5 arm_2 dari ujung tugas sebelumnya: env CLEAR 125.0, se CLEAR 485.4, antar CLEAR 997.8, kotak inf mm, torsi lebih -1.35 -> ok
+  s16 [7] retract g1: env CLEAR 105.7, se CLEAR 549.9, antar CLEAR 994.5, kotak inf mm, torsi lebih -1.35 -> ok
+  s16 [9] t2 arm_2 dari REST: env CLEAR 97.6, se CLEAR 549.0, antar CLEAR 1114.2, kotak inf mm, torsi lebih -0.03 -> ok
+  s16 [10] retract g1: env CLEAR 97.6, se CLEAR 549.0, antar CLEAR 1114.2, kotak inf mm, torsi lebih -0.03 -> ok
+  s16 [13] t3 arm_3 dari REST: env CLEAR 59.2, se CLEAR 588.2, antar CLEAR 650.0, kotak inf mm, torsi lebih -0.40 -> ok
+  s16 [14] retract g2: env CLEAR 59.2, se CLEAR 588.2, antar CLEAR 650.0, kotak inf mm, torsi lebih -0.40 -> ok
+  s16 [16] t0 arm_3 dari REST: env CLEAR 97.6, se CLEAR 521.1, antar CLEAR 395.3, kotak inf mm, torsi lebih -0.13 -> ok
+  s16 [17] retract g2: env CLEAR 97.6, se CLEAR 521.1, antar CLEAR 395.3, kotak inf mm, torsi lebih -0.13 -> ok
+  s17 [2] t0 arm_1 dari REST: env CLEAR 237.2, se CLEAR 622.7, antar CLEAR 818.3, kotak inf mm, torsi lebih -0.40 -> ok
+  s17 [3] retract g1: env CLEAR 237.2, se CLEAR 622.7, antar CLEAR 818.3, kotak inf mm, torsi lebih -0.40 -> ok
+  s17 [5] t5 arm_1 dari REST: env CLEAR 70.0, se CLEAR 599.8, antar CLEAR 465.9, kotak 10.49 mm, torsi lebih -1.50 -> ok
+  s17 [6] retract g1: env CLEAR 70.0, se CLEAR 599.8, antar CLEAR 465.9, kotak 10.49 mm, torsi lebih -1.51 -> ok
+  s17 [8] t1 arm_1 dari REST: env CLEAR 115.7, se CLEAR 591.6, antar CLEAR 116.8, kotak inf mm, torsi lebih -0.11 -> ok
+  s17 [9] retract g1: env CLEAR 115.7, se CLEAR 591.6, antar CLEAR 116.8, kotak inf mm, torsi lebih -0.11 -> ok
+  s17 [12] t3 arm_3 dari REST: env CLEAR 82.5, se CLEAR 589.6, antar CLEAR 456.5, kotak 18.01 mm, torsi lebih -1.43 -> ok
+  s17 [13] t2 arm_4 dari REST: env CLEAR 82.5, se CLEAR 557.7, antar CLEAR 456.5, kotak inf mm, torsi lebih -1.51 -> ok
+  s17 [14] retract g2: env CLEAR 82.6, se CLEAR 538.9, antar CLEAR 456.5, kotak 18.01 mm, torsi lebih -1.43 -> ok
+  s17 [16] t4 arm_3 dari REST: env CLEAR 115.7, se CLEAR 503.9, antar CLEAR 683.2, kotak inf mm, torsi lebih -0.13 -> ok
+  s17 [17] retract g2: env CLEAR 115.7, se CLEAR 504.0, antar CLEAR 683.2, kotak inf mm, torsi lebih -0.13 -> ok
+(iv'') R180: lolos 5/5 {2: [], 11: [], 14: [], 16: [], 17: []}

@@ -38,7 +38,8 @@
 
 ## Langkah berikut
 
-**2026-10-11, operator di lokasi:** ikuti `docs/p1_hw_runbook.md` §0–§3: remount_check → TANYA bring-up nyata → K0 → kamera +
-capture g2 origin (tanpa gerak) → keputusan Δx (baseline rgbd −0.0936 m). Setiap gerak nyata (termasuk pemulihan K0) DITANYA.
-Dokumen fase: buat `docs/p1_g49_hw.md` (§A dikunci sebelum menyentuh HW). Malam ini: job G43 13 seed sisa (log
-`results/p1_g43/g43_run.log`) → diagnosa A3, §B4 G43, commit.
+**Malam 10-10 (operator: "analisis yang gagal, perbaiki"):** G49 `docs/p1_g49_exists_branch.md` — torsi per cabang terpakai (∃)
+alih-alih ∀ cabang; K-SUP 40/40. Job `results/p1_g49/g49_make.py run` (seed 1 4 5 6 9 12 13 15 19; dapat dilanjut, log
+`g49_run.log`). Sesudahnya: (iv′)/(iv″) seed baru, diagnosa sisa, §B G49, commit.
+**2026-10-11, operator di lokasi:** ikuti `docs/p1_hw_runbook.md` §0–§3 (remount_check → TANYA bring-up nyata → K0 → kamera +
+capture g2 origin, tanpa gerak → keputusan Δx, baseline rgbd −0.0936 m). Setiap gerak nyata DITANYA. Dokumen: `docs/p1_g50_hw.md`.
