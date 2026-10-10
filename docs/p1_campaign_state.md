@@ -38,8 +38,8 @@
 
 ## Langkah berikut
 
-**Malam 10-10 (operator: "analisis yang gagal, perbaiki"):** G49 `docs/p1_g49_exists_branch.md` — torsi per cabang terpakai (∃)
-alih-alih ∀ cabang; K-SUP 40/40. Job `results/p1_g49/g49_make.py run` (seed 1 4 5 6 9 12 13 15 19; dapat dilanjut, log
-`g49_run.log`). Sesudahnya: (iv′)/(iv″) seed baru, diagnosa sisa, §B G49, commit.
+G49 selesai (commit 0d82b45): R180 **17/20** seed lolos (i)–(iv″); sisa s1 t3, s15 t5, s19 t3 = dinding rendah terikat kotak peta
++5 cm + IK + torsi (butuh keputusan operator: kalibrasi kamera / pose simpan / tool miring). Kandidat Fase 6 tetap 6 jadwal
+G47; jadwal G43/G49 baru (s2 s4 s5 s6 s9 s11 s12 s13 s14 s16 s17) perlu DRY-CLI k=3 + smoke sebelum HW.
 **2026-10-11, operator di lokasi:** ikuti `docs/p1_hw_runbook.md` §0–§3 (remount_check → TANYA bring-up nyata → K0 → kamera +
 capture g2 origin, tanpa gerak → keputusan Δx, baseline rgbd −0.0936 m). Setiap gerak nyata DITANYA. Dokumen: `docs/p1_g50_hw.md`.
