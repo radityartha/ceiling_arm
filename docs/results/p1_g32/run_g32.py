@@ -99,7 +99,7 @@ class Watch:
             return dict(self.pos), dict(self.t_pos), dict(self.peak), list(self.status)
 
 
-def task_cmd(e, mon, move=True, start=None):
+def task_cmd(e, mon, move=True, start=None, goal_tol=None):
     """The probe argv for task event e. G42 (docs/p1_g42_joint_runner.md A1): e['goal'] -> --goal-joints APPENDED
     (no goal: the argv is the old one bit for bit). move=False = the DRY rehearsal (g31_screen --task-cli): no --move,
     --plan-check from the PLACED state `start`."""
@@ -110,6 +110,8 @@ def task_cmd(e, mon, move=True, start=None):
     cmd += ['--move', '--monitor-csv', mon] if move else ['--plan-check', '--start-joints=' + json.dumps(start)]
     if e.get('goal'):
         cmd.append('--goal-joints=' + json.dumps(e['goal']))
+        if goal_tol is not None:                     # G47: task joint-goal tolerance (absent = old argv)
+            cmd.append(f'--goal-tol-deg={goal_tol:g}')
     return cmd
 
 
@@ -144,6 +146,10 @@ def main():
     ap.add_argument('--archive', default=HERE, help='where finish() copies the logs')
     ap.add_argument('--prefix', default='g32_', help='archive file-name prefix')
     ap.add_argument('--final-retract', action='store_true', help='G41/G42: retract g sesudah tugas terakhirnya')
+    ap.add_argument('--goal-tol-deg', type=float, default=None,
+                    help='G47: toleransi tujuan sendi tugas diteruskan ke probe (tanpa = 0.2 bawaan probe)')
+    ap.add_argument('--rot-max', type=float, default=10.0,
+                    help='G46: diteruskan ke pose_to_g (S23"); jadwal dengan |rot| di atasnya ditolak sebelum event 0')
     a = ap.parse_args()
     OUT = a.out_dir
     os.makedirs(OUT, exist_ok=True)
@@ -213,13 +219,16 @@ def main():
                          '--seconds', '1.0', '--json', f'{OUT}/k0.json'], capture_output=True, text=True)
     for ln in k0.stdout.splitlines():
         say(f'K0 | {ln}')
-    why = s26('awal') or (None if k0.returncode == 0 else f'K0: {(k0.stdout.strip().splitlines() or ["?"])[-1]}')
+    rmax = max([abs(math.degrees(e['to'][1])) for e in evs if e['kind'] == 'traverse'] + [0.0])
+    say(f'rotasi jadwal maks {rmax:.1f} deg, --rot-max {a.rot_max:g}')
+    why = s26('awal') or (None if k0.returncode == 0 else f'K0: {(k0.stdout.strip().splitlines() or ["?"])[-1]}') \
+        or (None if rmax <= a.rot_max + 1e-9 else f'G46: rotasi jadwal {rmax:.1f} > --rot-max {a.rot_max:g}')
     if why:
         finish(why)
     if a.dry:
         for i, e in enumerate(evs):
             if e['kind'] == 'task':
-                say(f'  perintah event {i}: {" ".join(task_cmd(e, a.mon))}')
+                say(f'  perintah event {i}: {" ".join(task_cmd(e, a.mon, goal_tol=a.goal_tol_deg))}')
         say('DRY: tidak ada yang dikirim.')
         W.n.destroy_node()
         return 0
@@ -237,11 +246,11 @@ def main():
         elif e['kind'] == 'traverse':
             cmd = ['python3', '-u', os.path.join(HERE, 'pose_to_g.py'), '--gantry', str(g),
                    '--seed', str(a.seed), '--plan', a.plan, '--variant', a.variant,
-                   f'{e["to"][0]:.3f}', f'{math.degrees(e["to"][1]):.3f}', '--move']
+                   f'{e["to"][0]:.3f}', f'{math.degrees(e["to"][1]):.3f}', '--move', '--rot-max', f'{a.rot_max:g}']
         else:
             if os.path.exists('/tmp/g20_step5.json'):
                 os.remove('/tmp/g20_step5.json')
-            cmd = task_cmd(e, a.mon)
+            cmd = task_cmd(e, a.mon, goal_tol=a.goal_tol_deg)
         say(f'  [{i}] {e["kind"]} g{g} {e.get("arm", "")} {e.get("to", e.get("xyz", ""))}')
         rc, lines, ts, te = run_tool(e['kind'], cmd, logf)
         er = dict(e, rc=rc, t_start=ts, t_end=te)

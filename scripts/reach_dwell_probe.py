@@ -132,6 +132,10 @@ RETRYABLE = ('NO-PLAN', 'TUCK-REFUSED', 'TORQUE-UNSAFE', 'INTERARM-COLLIDE',
 # plan's end is checked against the target the monitor will score.
 GOAL_POS_TOL_M = 0.003
 GOAL_AXIS_TOL_DEG = 2.0
+# G47: joint tolerance of a TASK joint goal (one with a scored target). A
+# sample anywhere in the +-0.2 deg box can land > 3 mm from the target
+# (GOAL-MISMATCH 6-8 %, G42/G47); retract goals to REST keep 0.2.
+TASK_GOAL_TOL_DEG = 0.2
 
 
 # G44 (docs/p1_g44_start_jump.md B1/B2): 3 x p99.9 of 853 archived mock plans
@@ -162,13 +166,18 @@ def start_valid(node, start_joints=None):
     if start_joints:
         req.robot_state.joint_state.name = list(start_joints)
         req.robot_state.joint_state.position = [float(v) for v in start_joints.values()]
-    fut = cli.call_async(req)
-    rclpy.spin_until_future_complete(node, fut, timeout_sec=10.0)
-    res = fut.result()
-    if res is None:
-        return None, []
-    return bool(res.valid), sorted({f'{c.contact_body_1}|{c.contact_body_2}'
-                                    for c in res.contacts})
+    # G47 B1: a fresh process can lose the FIRST response ("failed to send
+    # response ... client will not receive response" in move_group: the
+    # client's response reader not yet matched). Re-send up to 3 times; still
+    # nothing = None = the caller refuses (START-UNSCREENED).
+    for _ in range(3):
+        fut = cli.call_async(req)
+        rclpy.spin_until_future_complete(node, fut, timeout_sec=10.0)
+        res = fut.result()
+        if res is not None:
+            return bool(res.valid), sorted({f'{c.contact_body_1}|{c.contact_body_2}'
+                                            for c in res.contacts})
+    return None, []
 
 
 def start_jump(pts, start=None):
@@ -819,6 +828,7 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
     # tool just hides that it is broken.
     verdict, traj = _plan_once()
     node._plan_tries = 1
+    node._plan_verdicts = [verdict]          # G46: every attempt's verdict (G42 B1 logging gap)
     for k in range(2, max(1, attempts) + 1):
         if verdict not in RETRYABLE:
             break
@@ -827,6 +837,7 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
             '-- meminta lintasan LAIN (penyaring tidak dilonggarkan)')
         verdict, traj = _plan_once()
         node._plan_tries = k
+        node._plan_verdicts.append(verdict)
     if verdict != 'PLANNED':
         return verdict
     jt = traj.joint_trajectory
@@ -894,7 +905,8 @@ def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
     goal.request.max_acceleration_scaling_factor = vel_scale
     # p_cmd: a PoseStamped on the tool frame, or (G34) a {joint: pos} dict.
     goal.request.goal_constraints.append(
-        _joint_goal(p_cmd) if isinstance(p_cmd, dict)
+        (_joint_goal(p_cmd) if target is None else _joint_goal(p_cmd, math.radians(TASK_GOAL_TOL_DEG)))
+        if isinstance(p_cmd, dict)
         else _goal_constraints(TOOL_FRAME[arm], p_cmd, pos_tol, ori_tol_deg))
     goal.planning_options.plan_only = True
 
@@ -1163,7 +1175,7 @@ def dual_trial(node, a, i, arms, fixed2):
         plans = {}
         for arm in arms:
             other = _others(arm)
-            node._plan_end, node._plan_tries = None, None
+            node._plan_end, node._plan_tries, node._plan_verdicts = None, None, None
             mv = move_to(arm, _goal(arm), node, plan_only=True,
                          tau_max=a.tau_max, other_arm=other,
                          attempts=a.plan_attempts, retract_check=True,
@@ -1171,6 +1183,7 @@ def dual_trial(node, a, i, arms, fixed2):
                 if a.plan_check else 'DRY'
             if a.plan_check:
                 plans[arm] = dict(verdict=mv, tries=node._plan_tries,
+                                  verdicts=node._plan_verdicts,
                                   end=node._plan_end if mv == 'PLANNED' else None)
             c = cmds[arm].pose.position
             print(f'  [{i:2d}] DRY {arm}: p_cmd = ({c.x:+.3f}, {c.y:+.3f}, '
@@ -1178,13 +1191,15 @@ def dual_trial(node, a, i, arms, fixed2):
         return dict(trial=i, verdict='DRY', **({'plans': plans} if plans else {}))
 
     node.tau_peak, node.tau_worst_joint = 0.0, ''
-    moves = {}
+    moves, pverd = {}, {}
     for arm in arms:
         other = _others(arm)
+        node._plan_verdicts = None
         moves[arm] = move_to(arm, _goal(arm), node, tau_max=a.tau_max,
                              other_arm=other, attempts=a.plan_attempts,
                              retract_check=True, target=tgt(arm))
-        print(f'       {arm}: moveit {moves[arm]}')
+        pverd[arm] = node._plan_verdicts
+        print(f'       {arm}: moveit {moves[arm]}  (percobaan rencana: {pverd[arm]})')
         if moves[arm] != 'MOVED':
             break
 
@@ -1193,13 +1208,13 @@ def dual_trial(node, a, i, arms, fixed2):
         v = 'HALTED'
         print(f'  [{i:2d}] {v:12s} ({", ".join(bad) or "tidak lengkap"}) '
               f'torsi puncak {node.tau_peak:5.2f} N.m')
-        return dict(trial=i, verdict=v, move_status=moves,
+        return dict(trial=i, verdict=v, move_status=moves, plan_verdicts=pverd,
                     tau_peak=round(node.tau_peak, 3))
 
     v, won = node.collect_concurrent(a.settle, arms)
     print(f'  [{i:2d}] {v:12s} (lengan sukses sendiri-sendiri: '
           f'{sorted(won) or "tidak ada"}) torsi puncak {node.tau_peak:5.2f} N.m')
-    return dict(trial=i, verdict=v, move_status=moves,
+    return dict(trial=i, verdict=v, move_status=moves, plan_verdicts=pverd,
                 per_arm_success=sorted(won),
                 tau_peak=round(node.tau_peak, 3),
                 targets={k: [round(c.pose.position.x, 4),
@@ -1267,7 +1282,14 @@ def main():
     ap.add_argument('--start-joints', metavar='JSON', default=None,
                     help='G42: keadaan awal TERTEMPAT {sendi: rad}; hanya DRY '
                          '(--plan-check, tanpa --move)')
+    ap.add_argument('--goal-tol-deg', type=float, default=0.2,
+                    help='G47: toleransi tujuan SENDI tugas (--goal-joints), '
+                         'deg; retract REST tetap 0.2')
     a = ap.parse_args()
+    global TASK_GOAL_TOL_DEG
+    if not 0.01 <= a.goal_tol_deg <= 0.2:
+        ap.error('--goal-tol-deg harus di [0.01, 0.2]')
+    TASK_GOAL_TOL_DEG = a.goal_tol_deg
 
     def _jdict(s, flag):
         try:

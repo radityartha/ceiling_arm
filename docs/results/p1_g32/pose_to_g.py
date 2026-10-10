@@ -46,7 +46,13 @@ ap.add_argument('--variant', default='R10')
 ap.add_argument('lin', type=float, help='m')
 ap.add_argument('rot', type=float, help='deg')
 ap.add_argument('--move', action='store_true')
+ap.add_argument('--rot-max', type=float, default=10.0,
+                help='G46: S23" |rot| limit (deg). Default 10 = the HW-verified envelope (G30); raised only explicitly '
+                     'as the stepwise HW rotation sweep (campaign phase 6b) verifies more. Never above 175.')
 a = ap.parse_args()
+if not 0.0 < a.rot_max <= 175.0:
+    ap.error('--rot-max harus di (0, 175]')
+ROT_MAX = a.rot_max
 G, GL, GR_DEG = a.gantry, a.lin, a.rot
 LJ, OLJ = f't{G}_linear_joint', f't{3 - G}_linear_joint'
 RJ, ORJ = f't{G}_rotation_joint', f't{3 - G}_rotation_joint'
@@ -61,8 +67,8 @@ ok = {(round(row['p0'][str(G)], 3), 0.0), PARK[G]} | {(round(st['rail_m'], 3), r
 if (round(GL, 3), round(GR_DEG, 3)) not in ok or not 0.0 <= GL <= P.RAIL_MAX:
     print(f'REFUSE: S13" -- gantry {G} hanya {sorted(ok)} (jadwal seed {a.seed} {a.variant}), rel <= {P.RAIL_MAX}')
     sys.exit(1)
-if abs(GR_DEG) > 10.0:
-    print(f'REFUSE: S23" -- target rot {GR_DEG:+.3f} deg, batas |rot| <= 10.0')
+if abs(GR_DEG) > ROT_MAX:
+    print(f'REFUSE: S23" -- target rot {GR_DEG:+.3f} deg, batas |rot| <= {ROT_MAX:.1f}')
     sys.exit(1)
 
 rclpy.init()
@@ -97,9 +103,10 @@ if any(math.degrees(dev[x]) >= 0.5 for x in P.ARMS[G]):
     sys.exit(1)
 sl, sr = pos[LJ], pos[RJ]
 s_deg, o_deg = math.degrees(sr), math.degrees(pos[ORJ])
-print(f'S23": {RJ} {s_deg:+.3f} deg (batas 10.5), {ORJ} {o_deg:+.3f} deg (batas 10.5); target {GR_DEG:+.3f}')
-if abs(s_deg) > 10.5 or abs(o_deg) > 10.5:
-    print('REFUSE: S23" -- rotasi terukur di luar R10')
+print(f'S23": {RJ} {s_deg:+.3f} deg (batas {ROT_MAX + 0.5:.1f}), {ORJ} {o_deg:+.3f} deg (batas {ROT_MAX + 0.5:.1f}); '
+      f'target {GR_DEG:+.3f}')
+if abs(s_deg) > ROT_MAX + 0.5 or abs(o_deg) > ROT_MAX + 0.5:
+    print(f'REFUSE: S23" -- rotasi terukur di luar |rot| <= {ROT_MAX + 0.5:.1f}')
     sys.exit(1)
 state = {k: pos[k] for k in need}
 GR = math.radians(GR_DEG)

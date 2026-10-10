@@ -169,7 +169,8 @@ def task_cli(ev, start, out='/tmp/g20_step5.json'):
     import run_g32
     if os.path.exists(out):
         os.remove(out)
-    cmd = run_g32.task_cmd(ev, '', move=False, start=start)
+    gt = os.environ.get('G47_GOAL_TOL_DEG')            # G47 A/B: task joint-goal tolerance
+    cmd = run_g32.task_cmd(ev, '', move=False, start=start, goal_tol=float(gt) if gt else None)
     pr = subprocess.run(cmd, cwd=run_g32.SCRIPTS, capture_output=True, text=True)
     txt = pr.stdout + pr.stderr
     goal = [ln.split('ujung rencana vs target: ')[1] for ln in txt.splitlines() if 'ujung rencana vs target: ' in ln]
@@ -177,7 +178,7 @@ def task_cli(ev, start, out='/tmp/g20_step5.json'):
         p = json.load(open(out))[-1]['plans'][ev['arm']]
     except (OSError, ValueError, KeyError, IndexError):
         return f'CLI-FAIL rc={pr.returncode}', None, dict(rc=pr.returncode, tail=txt.splitlines()[-5:])
-    return p['verdict'], p['end'], dict(rc=pr.returncode, tries=p['tries'], goal_err=goal)
+    return p['verdict'], p['end'], dict(rc=pr.returncode, tries=p['tries'], verdicts=p.get('verdicts'), goal_err=goal)
 
 
 def main():
