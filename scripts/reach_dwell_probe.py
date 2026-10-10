@@ -125,12 +125,65 @@ INTERARM_MARGIN_M = 0.05
 # move_to() asks for another OMPL sample after these refusals (see there).
 # G36: + RETRACT-BLOCKED (the plan ends where the arm cannot go home).
 # G42: + GOAL-MISMATCH (a joint-goal plan ending > 3 mm / 2 deg off the target).
+# G44: + START-JUMP (MoveIt sees the start in collision; see start_valid).
 RETRYABLE = ('NO-PLAN', 'TUCK-REFUSED', 'TORQUE-UNSAFE', 'INTERARM-COLLIDE',
-             'RETRACT-BLOCKED', 'GOAL-MISMATCH')
+             'RETRACT-BLOCKED', 'GOAL-MISMATCH', 'START-JUMP')
 # G42 (docs/p1_g42_joint_runner.md A1): a joint goal names no pose, so the
 # plan's end is checked against the target the monitor will score.
 GOAL_POS_TOL_M = 0.003
 GOAL_AXIS_TOL_DEG = 2.0
+
+
+# G44 (docs/p1_g44_start_jump.md B1/B2): 3 x p99.9 of 853 archived mock plans
+# (d01 0.005, d_in 0.048 rad -- TOTG output resampled every 0.1 s). A guard for
+# a trajectory that was NOT resampled; the start-validity check is the real one.
+START_JUMP_T01 = 0.015
+START_JUMP_TIN = 0.144
+
+
+def start_valid(node, start_joints=None):
+    """G44 B2: is the start valid in MoveIt's OWN scene? (valid, contacts), or
+    (None, []) when /check_state_validity does not answer. group_name '' = the
+    whole robot (a group name checks only that group's links, G40). The state
+    is move_group's monitored state + the `start_joints` diff -- exactly what
+    the planner starts from. An invalid start is the trigger of
+    FixStartStateCollision: it jiggles the start, plans from the shifted copy
+    and returns SUCCESS for a path whose first part MoveIt never checked."""
+    from moveit_msgs.srv import GetStateValidity
+    cli = getattr(node, '_csv_cli', None)
+    if cli is None:
+        cli = node._csv_cli = node.create_client(GetStateValidity,
+                                                 '/check_state_validity')
+    if not cli.wait_for_service(timeout_sec=10.0):
+        return None, []
+    req = GetStateValidity.Request()
+    req.group_name = ''
+    req.robot_state.is_diff = True
+    if start_joints:
+        req.robot_state.joint_state.name = list(start_joints)
+        req.robot_state.joint_state.position = [float(v) for v in start_joints.values()]
+    fut = cli.call_async(req)
+    rclpy.spin_until_future_complete(node, fut, timeout_sec=10.0)
+    res = fut.result()
+    if res is None:
+        return None, []
+    return bool(res.valid), sorted({f'{c.contact_body_1}|{c.contact_body_2}'
+                                    for c in res.contacts})
+
+
+def start_jump(pts, start=None):
+    """G44 (docs/p1_g44_start_jump.md): (d01, d_in, d0s) in rad, each the max over
+    the planned joints -- |p1 - p0|, the largest later waypoint step, and |p0 -
+    start|. pts = trajectory positions (one list per waypoint), start = the
+    start positions in the same joint order or None. FixStartStateCollision
+    prepends the original start as waypoint 0 and its shifted copy follows, so
+    a start the planner found "in collision" shows up as a jump that no
+    waypoint screen ever looks inside."""
+    import numpy as np
+    p = np.asarray(pts, float)
+    d = np.abs(np.diff(p, axis=0)).max(axis=1) if len(p) > 1 else np.zeros(1)
+    d0s = 0.0 if start is None else float(np.abs(p[0] - np.asarray(start, float)).max())
+    return float(d[0]), float(d[1:].max()) if len(d) > 1 else 0.0, d0s
 
 
 class Probe(Node):
@@ -815,6 +868,19 @@ def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
     it lets a rail position and a partner-arm pose be screened with zero motion.
     Never pass it on a path that executes: the plan would start somewhere the
     arm is not."""
+    # G44: refuse BEFORE planning when MoveIt itself sees the start in collision
+    # -- otherwise FixStartStateCollision answers SUCCESS from a shifted start.
+    sv, contacts = start_valid(node, start_joints)
+    if sv is None:
+        node.get_logger().error(
+            '/check_state_validity tidak menjawab -- start tidak tersaring, MENOLAK.')
+        return 'START-UNSCREENED', None
+    if not sv:
+        node.get_logger().error(
+            f'START-JUMP: start TIDAK VALID di scene MoveIt ({", ".join(contacts[:4])}) '
+            '-- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.')
+        return 'START-JUMP', None
+
     goal = MoveGroup.Goal()
     goal.request.group_name = arm
     if start_joints:
@@ -846,6 +912,18 @@ def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
     traj = res.result.planned_trajectory
     if not traj.joint_trajectory.points:
         return 'NO-PLAN', None
+
+    jt_ = traj.joint_trajectory
+    known = dict(start_joints) if start_joints else (
+        node.wait_joints(list(jt_.joint_names)) if hasattr(node, 'wait_joints') else {})
+    st_ = [known[n] for n in jt_.joint_names] if known and all(
+        n in known for n in jt_.joint_names) else None
+    d01, d_in, d0s = start_jump([list(p.positions) for p in jt_.points], st_)
+    if d01 > START_JUMP_T01 or d_in > START_JUMP_TIN or d0s > START_JUMP_T01:
+        node.get_logger().error(
+            f'START-JUMP: langkah waypoint 0->1 {d01:.4f} / maks {d_in:.4f} / '
+            f'p0-start {d0s:.4f} rad (batas {START_JUMP_T01} / {START_JUMP_TIN}). DITOLAK.')
+        return 'START-JUMP', None
 
     hit = _violates_tuck(traj, arm)
     if hit is not None and hit >= 0:

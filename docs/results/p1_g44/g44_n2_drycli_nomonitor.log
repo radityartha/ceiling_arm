@@ -1,0 +1,6 @@
+  seed 0 G42 sampel 1/1
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (0.550, -30): CLEAR min 429.4 mm (lengan 498.9, SS 429.4, n 2976) ('t1_platform_link_0', 't2_platform_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+    [2] task t0 arm_1 -> [1.0, 0.1059, 1.08] @(0.550, -30): CLI-FAIL rc=0 (15.7 s, CLI {'rc': 0, 'tail': ['memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.', '', '  [ 1] TIDAK VALID (mesin): tidak ada pelanggan di /reach_dwell/target/arm_1 -- monitor tidak memantau KEDUA lengan? A5, diulang, di luar penyebut.', "  TIDAK VALID (mesin, A5, di LUAR penyebut): {'INVALID': 1}", '  -> /tmp/g20_step5.json']})
+seed 0 G42: t0:arm_1:CLI-FAIL rc=0 -> ditolak
