@@ -30,8 +30,10 @@ TASK_ATTEMPTS = 3     # = reach_dwell_probe --plan-attempts default (run_g32 doe
 REST_TOL = math.radians(0.5)
 
 
-def events(sched_g, p0):
-    """g22_plan.events with rotation: [retract, traverse] when (rail, rot) changes, then tasks per arm."""
+def events(sched_g, p0, final_retract=False):
+    """g22_plan.events with rotation: [retract, traverse] when (rail, rot) changes, then tasks per arm.
+    G41 (docs/p1_g41_joint_goal.md A2): final_retract adds a retract of g after its LAST task (before the next
+    gantry's events); a stop's optional 'goal' {task: {joint: pos}} is carried as ev['goal']."""
     ev = []
     cur = {g: (p0[g], 0.0) for g in (1, 2)}
     for g in (1, 2):
@@ -47,7 +49,10 @@ def events(sched_g, p0):
                 for a in P.ARMS[g]:
                     if j < len(per[a]):
                         t = per[a][j]
-                        ev.append(dict(kind='task', gantry=g, stop=k, arm=a, task=t, xyz=st['xyz'][str(t)]))
+                        ev.append(dict(kind='task', gantry=g, stop=k, arm=a, task=t, xyz=st['xyz'][str(t)],
+                                       goal=st.get('goal', {}).get(str(t))))
+        if final_retract and sched_g[str(g)]:
+            ev.append(dict(kind='retract', gantry=g, stop=len(sched_g[str(g)])))
     return ev
 
 
@@ -63,13 +68,13 @@ def env_checker():
     return _ENV[0]
 
 
-def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen, log, save):
+def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen, log, save, final_retract=False):
     p0 = {g: rec['p0'][str(g)] for g in (1, 2)}
     placed = {'t1_linear_joint': p0[1], 't2_linear_joint': p0[2],
               't1_rotation_joint': 0.0, 't2_rotation_joint': 0.0}
     for p in P.PREFIX.values():
         placed.update({f'{p}joint_{i}': v for i, v in enumerate(P.REST, 1)})
-    for k, ev in enumerate(events(rec[var]['schedule'], p0)):
+    for k, ev in enumerate(events(rec[var]['schedule'], p0, final_retract)):
         g = ev['gantry']
         if ev['kind'] == 'retract':
             # G34: return_rest.plan_retract -- the SAME logic the HW tool runs:
@@ -123,7 +128,7 @@ def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen
             # G36: as the HW probe does (move_to, --plan-attempts 3): retake a
             # RETRYABLE refusal, and refuse plans that end where the arm cannot go home.
             for _ in range(TASK_ATTEMPTS):
-                v, traj = _plan_and_screen(arm, pose(ev['xyz']), node, 0.002, 2.0, 0.15,
+                v, traj = _plan_and_screen(arm, ev['goal'] or pose(ev['xyz']), node, 0.002, 2.0, 0.15,
                                            15.0, TAU_MAX, others, start_joints=start,
                                            retract_check=True)
                 log(f'    [{k}]   percobaan tugas: {v}')
@@ -152,6 +157,7 @@ def main():
     ap.add_argument('--plan', default=os.path.join(HERE, 'g31_candidates.json'))
     ap.add_argument('--out', default=os.path.join(HERE, 'g31_screen.json'))
     ap.add_argument('--traj', default=os.path.join(HERE, 'g31_screen_plans.jsonl'))
+    ap.add_argument('--final-retract', action='store_true', help='G41 A2: retract g sesudah tugas terakhirnya')
     a = ap.parse_args()
 
     import rclpy
@@ -200,7 +206,8 @@ def main():
                 def save(row, _r=r):
                     ftraj.write(json.dumps(dict(seed=seed, variant=a.variant, sample=_r, **row)) + '\n')
                     ftraj.flush()
-                v = walk(rec, a.variant, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen, log, save)
+                v = walk(rec, a.variant, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen, log, save,
+                         a.final_retract)
                 vs.append(v)
                 if v != 'PLANNED':
                     break

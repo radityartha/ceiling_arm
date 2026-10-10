@@ -1,0 +1,66 @@
+seed 0 G41  [11:45:57]
+    iterasi 1: makespan 254.636, tuple belum terverifikasi 6, tepi 0
+      tuple terpakai lolos (c) 5/6
+    iterasi 2: makespan 254.636, tuple belum terverifikasi 1, tepi 1
+      tuple terpakai lolos (c) 1/1
+      tepi terpakai CLEAR 1/1 
+    iterasi 3: makespan 254.636, tuple belum terverifikasi 0, tepi 0
+  seed 0: makespan 254.64 (G40e 254.63600000000002), pindah {'1': 2, '2': 2}, rot {'1': [-30.0, -35.0], '2': [-30.0, -25.0]}, tugas {'1': 3, '2': 3}, konflik None, (ii) True, iterasi 3  [11:49:21]
+seed 1 G41  [11:49:21]
+  seed 1: (i) GAGAL -- task 2 is infeasible on every gantry
+seed 2 G41  [11:49:21]
+  seed 2: (i) GAGAL -- task 2 is infeasible on every gantry
+seed 3 G41  [11:49:21]
+    iterasi 1: makespan 323.809, tuple belum terverifikasi 6, tepi 0
+      tuple terpakai lolos (c) 6/6
+    iterasi 2: makespan 323.809, tuple belum terverifikasi 0, tepi 0
+  seed 3: makespan 323.81 (G40e 323.8089654747587), pindah {'1': 2, '2': 3}, rot {'1': [0.0, -30.0, -35.0], '2': [35.0, -10.0, -10.0]}, tugas {'1': 3, '2': 3}, konflik None, (ii) True, iterasi 2  [11:51:24]
+seed 4 G41  [11:51:24]
+  seed 4: (i) GAGAL -- task 1 is infeasible on every gantry
+seed 5 G41  [11:51:24]
+  seed 5: (i) GAGAL -- task 0 is infeasible on every gantry
+seed 6 G41  [11:51:24]
+  seed 6: (i) GAGAL -- task 4 is infeasible on every gantry
+seed 7 G41  [11:51:24]
+  seed 7: (i) GAGAL -- task 2 is infeasible on every gantry
+seed 8 G41  [11:51:24]
+    iterasi 1: makespan 315.891, tuple belum terverifikasi 6, tepi 0
+      tuple terpakai lolos (c) 6/6
+    iterasi 2: makespan 315.891, tuple belum terverifikasi 0, tepi 0
+  seed 8: makespan 315.89 (G40e 315.8908404747587), pindah {'1': 3, '2': 3}, rot {'1': [5.0, -25.0, -35.0], '2': [35.0, -20.0, -5.0]}, tugas {'1': 3, '2': 3}, konflik None, (ii) True, iterasi 2  [11:54:15]
+seed 9 G41  [11:54:15]
+  seed 9: (i) GAGAL -- task 1 is infeasible on every gantry
+seed 10 G41  [11:54:15]
+    iterasi 1: makespan 367.092, tuple belum terverifikasi 6, tepi 0
+      tuple terpakai lolos (c) 6/6
+    iterasi 2: makespan 367.092, tuple belum terverifikasi 0, tepi 0
+  seed 10: makespan 367.09 (G40e 367.092375), pindah {'1': 1, '2': 3}, rot {'1': [-30.0], '2': [-20.0, -20.0, 0.0]}, tugas {'1': 2, '2': 4}, konflik None, (ii) True, iterasi 2  [11:56:29]
+seed 11 G41  [11:56:29]
+  seed 11: (i) GAGAL -- task 1 is infeasible on every gantry
+seed 12 G41  [11:56:29]
+  seed 12: (i) GAGAL -- task 2 is infeasible on every gantry
+seed 13 G41  [11:56:29]
+  seed 13: (i) GAGAL -- task 1 is infeasible on every gantry
+seed 14 G41  [11:56:29]
+  seed 14: (i) GAGAL -- task 1 is infeasible on every gantry
+seed 15 G41  [11:56:29]
+  seed 15: (i) GAGAL -- task 0 is infeasible on every gantry
+seed 16 G41  [11:56:29]
+  seed 16: (i) GAGAL -- task 2 is infeasible on every gantry
+seed 17 G41  [11:56:29]
+  seed 17: (i) GAGAL -- task 1 is infeasible on every gantry
+seed 18 G41  [11:56:29]
+    iterasi 1: makespan 318.168, tuple belum terverifikasi 5, tepi 0
+      tuple terpakai lolos (c) 5/5
+    iterasi 2: makespan 318.168, tuple belum terverifikasi 0, tepi 0
+  seed 18: makespan 318.17 (G40e 318.16762500000004), pindah {'1': 2, '2': 3}, rot {'1': [0.0, -30.0, 35.0], '2': [30.0, -20.0, -5.0]}, tugas {'1': 3, '2': 3}, konflik None, (ii) True, iterasi 2  [11:57:28]
+seed 19 G41  [11:57:28]
+    iterasi 1: makespan 379.428, tuple belum terverifikasi 6, tepi 0
+      tuple terpakai lolos (c) 5/6
+    iterasi 2: makespan 381.705, tuple belum terverifikasi 0, tepi 0
+  seed 19: makespan 381.71 (G40e 379.4284654747587), pindah {'1': 1, '2': 3}, rot {'1': [5.0], '2': [35.0, 25.0, -15.0]}, tugas {'1': 1, '2': 5}, konflik None, (ii) True, iterasi 2  [12:02:47]
+
+lolos (i)-(iii) G41: 6/20 seed [0, 3, 8, 10, 18, 19]; tuple 400, tepi 5686
+D311: (c41) menerima 272/274 tuple layak-G40e (99.3 %); alasan cabang ditolak (jumlah cabang, tuple ditolak): {'garis-env': 278, 'garis-kotak': 330}
+D317: CPU per tuple median 16.67 s, p90 34.72, maks 252.11 (n 400)
+    cabang terpilih: jarak dari REST median 79.7 deg; tuple dihitung 400, ok41 350

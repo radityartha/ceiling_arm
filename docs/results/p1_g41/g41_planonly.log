@@ -1,0 +1,1468 @@
+  seed 0 G41 sampel 1/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (0.550, -30): CLEAR min 429.4 mm (lengan 498.9, SS 429.4, n 2976) ('t1_platform_link_0', 't2_platform_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791601416.670366783] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=0.43->8.13/14, 3=2.22->8.82/10, 4=0.33->2.31/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 88 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1791601425.543603529] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 590.5 mm di titik 48 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601426.937818104] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 241.5 mm di titik 0 (t1_a2_base_link_0) -> CLEAR
+[INFO] [1791601427.943251863] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.550):
+[INFO] [1791601428.743054724] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 590.5 mm di titik 11/60 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601428.743393960] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 624.4 mm di titik 0/60 (t1_a1_base_link_0 <-> t2_mount_plate_right_0)
+[INFO] [1791601428.743665494] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 241.5 mm di titik 0/60 (t1_a2_base_link_0)
+    [2]   percobaan tugas: PLANNED
+    [2] task t0 arm_1 -> [1.0, 0.1059, 1.08] @(0.550, -30): PLANNED (12.3 s)
+    [3] retract g1 ['arm_1'] lurus (rel 0.550):
+    [3]   penyaring se-gantry: CLEAR, minimum 590.5 mm di titik 11/60 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0)
+    [3]   penyaring antar-gantry: CLEAR, minimum 624.4 mm di titik 10/60 (t1_a1_base_link_0 <-> t2_mount_plate_right_0)
+    [3]   penyaring lingkungan: CLEAR, minimum 241.5 mm di titik 0/60 (t1_a2_base_link_0)
+    [3] retract g1 @rot -30: CLEAR (lurus)
+    [4] traverse g1 (0.550, -30) -> (0.300, -35): CLEAR min 380.0 mm (lengan 437.3, SS 380.0, n 189) ('t1_platform_link_0', 't2_platform_link_0')
+    [4] traverse g1 vs lingkungan: CLEAR min 211.1 mm (t1_a2_shoulder_link_0)
+[INFO] [1791601431.445727652] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=4.33->12.03/14, 3=1.35->7.95/10, 4=0.18->2.16/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 86 %)
+[INFO] [1791601432.334720645] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 249.2 mm di titik 54 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601433.540427160] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 233.2 mm di titik 0 (t1_a2_base_link_0) -> CLEAR
+[INFO] [1791601434.543439822] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.300):
+[INFO] [1791601435.883396050] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 551.4 mm di titik 28/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601435.883846780] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 249.3 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601435.884183614] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 233.2 mm di titik 0/60 (t1_a2_base_link_0)
+    [5]   percobaan tugas: PLANNED
+    [5] task t1 arm_1 -> [0.5, 0.1059, 1.08] @(0.300, -35): PLANNED (4.6 s)
+[INFO] [1791601435.992768428] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.11->6.71/10, 2=4.89->12.59/14, 3=2.15->8.75/10, 4=0.37->2.35/7, 5=0.15->2.13/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791601438.548238885] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 200.7 mm di titik 151 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601440.014113714] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 233.2 mm di titik 0 (t1_a2_base_link_0) -> CLEAR
+[INFO] [1791601441.023222910] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.300):
+[INFO] [1791601442.827132222] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601442.827723800] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 200.9 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601442.828232511] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 233.2 mm di titik 0/60 (t1_a2_base_link_0)
+    [6]   percobaan tugas: PLANNED
+    [6] task t2 arm_1 -> [0.5714, 0.1059, 1.24] @(0.300, -35): PLANNED (6.9 s)
+    [7] retract g1 ['arm_1'] lurus (rel 0.300):
+    [7]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [7]   penyaring antar-gantry: CLEAR, minimum 200.9 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [7]   penyaring lingkungan: CLEAR, minimum 233.2 mm di titik 0/60 (t1_a2_base_link_0)
+    [7] retract g1 @rot -35: CLEAR (lurus)
+    [8] retract g2 @rot +0: CLEAR
+    [9] traverse g2 (0.000, +0) -> (0.150, -30): CLEAR min 380.0 mm (lengan 385.8, SS 380.0, n 496) ('t1_platform_link_0', 't2_platform_link_0')
+    [9] traverse g2 vs lingkungan: CLEAR min 233.2 mm (t1_a2_base_link_0)
+[INFO] [1791601448.801316707] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.05->6.65/10, 2=4.93->12.63/14, 3=0.84->7.44/10, 4=0.09->2.07/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 90 %)
+[INFO] [1791601452.814657225] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 587.4 mm di titik 21 (t1_a1_shoulder_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601453.975639784] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 124.1 mm di titik 31 (t2_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601454.983242955] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.150):
+[INFO] [1791601455.677410789] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601455.677760436] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 440.8 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601455.678085454] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 124.2 mm di titik 0/60 (t2_a1_right_finger_dist_link_0)
+    [10]   percobaan tugas: PLANNED
+    [10] task t5 arm_3 -> [0.7143, -0.5294, 1.0] @(0.150, -30): PLANNED (7.0 s)
+    [11] retract g2 ['arm_3'] lurus (rel 0.150):
+    [11]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 440.8 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 124.2 mm di titik 0/60 (t2_a1_right_finger_dist_link_0)
+    [11] retract g2 @rot -30: CLEAR (lurus)
+    [12] traverse g2 (0.150, -30) -> (0.400, -25): CLEAR min 270.3 mm (lengan 293.0, SS 270.3, n 156) ('t1_mount_plate_right_0', 't2_platform_link_0')
+    [12] traverse g2 vs lingkungan: CLEAR min 79.4 mm (t2_a1_left_finger_dist_link_0)
+[INFO] [1791601458.445702472] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=2.59->10.29/14, 3=2.30->8.90/10, 4=0.40->2.38/7, 5=0.11->2.09/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 89 %)
+[INFO] [1791601460.489334908] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 455.5 mm di titik 126 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601461.688650434] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 89.2 mm di titik 0 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791601462.693428756] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.400):
+[INFO] [1791601464.474346038] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 562.1 mm di titik 28/60 (t2_a1_left_finger_dist_link_0 <-> t2_a2_upper_wrist_link_0)
+[INFO] [1791601464.474946729] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 357.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601464.475260950] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 89.2 mm di titik 59/60 (t2_a1_left_finger_prox_link_0)
+    [13]   percobaan tugas: PLANNED
+    [13] task t3 arm_3 -> [0.7857, -0.6, 1.16] @(0.400, -25): PLANNED (6.2 s)
+[INFO] [1791601464.675515122] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.09->6.69/10, 2=2.86->10.56/14, 3=2.32->8.92/10, 4=0.43->2.41/7, 5=0.10->2.08/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 89 %)
+[INFO] [1791601466.353125954] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 424.2 mm di titik 102 (t1_a1_lower_wrist_link_0 <-> t2_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601467.595518907] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 109.2 mm di titik 151 (t2_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601468.603070984] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.400):
+[INFO] [1791601470.036392523] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601470.036781110] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 357.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601470.037146318] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 88.4 mm di titik 50/60 (t2_a1_left_finger_prox_link_0)
+    [14]   percobaan tugas: PLANNED
+    [14] task t4 arm_3 -> [0.8571, -0.5294, 1.16] @(0.400, -25): PLANNED (5.6 s)
+    [15] retract g2 ['arm_3'] lurus (rel 0.400):
+    [15]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [15]   penyaring antar-gantry: CLEAR, minimum 357.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+    [15]   penyaring lingkungan: CLEAR, minimum 88.4 mm di titik 50/60 (t2_a1_left_finger_prox_link_0)
+    [15] retract g2 @rot -25: CLEAR (lurus)
+  seed 0 G41 sampel 2/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (0.550, -30): CLEAR min 429.4 mm (lengan 498.9, SS 429.4, n 2976) ('t1_platform_link_0', 't2_platform_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791601489.819777513] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=0.43->8.13/14, 3=2.20->8.80/10, 4=0.33->2.31/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 88 %)
+[INFO] [1791601490.570968696] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 590.8 mm di titik 48 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601491.770553166] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 241.5 mm di titik 0 (t1_a2_base_link_0) -> CLEAR
+[INFO] [1791601492.773307668] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.550):
+[INFO] [1791601493.626068978] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 590.8 mm di titik 12/60 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601493.626502608] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 624.4 mm di titik 0/60 (t1_a1_base_link_0 <-> t2_mount_plate_right_0)
+[INFO] [1791601493.626833043] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 241.5 mm di titik 0/60 (t1_a2_base_link_0)
+    [2]   percobaan tugas: PLANNED
+    [2] task t0 arm_1 -> [1.0, 0.1059, 1.08] @(0.550, -30): PLANNED (4.0 s)
+    [3] retract g1 ['arm_1'] lurus (rel 0.550):
+    [3]   penyaring se-gantry: CLEAR, minimum 590.8 mm di titik 12/60 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0)
+    [3]   penyaring antar-gantry: CLEAR, minimum 624.4 mm di titik 5/60 (t1_a1_base_link_0 <-> t2_mount_plate_right_0)
+    [3]   penyaring lingkungan: CLEAR, minimum 241.5 mm di titik 0/60 (t1_a2_base_link_0)
+    [3] retract g1 @rot -30: CLEAR (lurus)
+    [4] traverse g1 (0.550, -30) -> (0.300, -35): CLEAR min 380.0 mm (lengan 437.3, SS 380.0, n 189) ('t1_platform_link_0', 't2_platform_link_0')
+    [4] traverse g1 vs lingkungan: CLEAR min 211.1 mm (t1_a2_shoulder_link_0)
+[INFO] [1791601496.076816853] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=4.32->12.02/14, 3=1.35->7.95/10, 4=0.18->2.16/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 86 %)
+[INFO] [1791601496.968994065] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 249.1 mm di titik 54 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601498.163382298] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 233.2 mm di titik 0 (t1_a2_base_link_0) -> CLEAR
+[INFO] [1791601499.173641456] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.300):
+[INFO] [1791601500.526394614] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 551.6 mm di titik 28/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601500.526761585] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 249.3 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601500.527071241] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 233.2 mm di titik 0/60 (t1_a2_base_link_0)
+    [5]   percobaan tugas: PLANNED
+    [5] task t1 arm_1 -> [0.5, 0.1059, 1.08] @(0.300, -35): PLANNED (4.6 s)
+[INFO] [1791601500.743100667] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.11->6.71/10, 2=4.88->12.58/14, 3=2.15->8.75/10, 4=0.37->2.35/7, 5=0.15->2.13/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791601503.310649434] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 200.9 mm di titik 151 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601504.819105244] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 233.2 mm di titik 0 (t1_a2_base_link_0) -> CLEAR
+[INFO] [1791601505.823238829] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.300):
+[INFO] [1791601507.634209911] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601507.634703044] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 201.2 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601507.635090107] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 233.2 mm di titik 0/60 (t1_a2_base_link_0)
+    [6]   percobaan tugas: PLANNED
+    [6] task t2 arm_1 -> [0.5714, 0.1059, 1.24] @(0.300, -35): PLANNED (7.1 s)
+    [7] retract g1 ['arm_1'] lurus (rel 0.300):
+    [7]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [7]   penyaring antar-gantry: CLEAR, minimum 201.2 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [7]   penyaring lingkungan: CLEAR, minimum 233.2 mm di titik 0/60 (t1_a2_base_link_0)
+    [7] retract g1 @rot -35: CLEAR (lurus)
+    [8] retract g2 @rot +0: CLEAR
+    [9] traverse g2 (0.000, +0) -> (0.150, -30): CLEAR min 380.0 mm (lengan 385.8, SS 380.0, n 496) ('t1_platform_link_0', 't2_platform_link_0')
+    [9] traverse g2 vs lingkungan: CLEAR min 233.2 mm (t1_a2_base_link_0)
+[INFO] [1791601513.738202086] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.05->6.65/10, 2=4.95->12.65/14, 3=0.84->7.44/10, 4=0.09->2.07/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 90 %)
+[INFO] [1791601514.275728969] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 587.4 mm di titik 23 (t1_a1_shoulder_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601515.426056233] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 125.1 mm di titik 31 (t2_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601516.432835349] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.150):
+[INFO] [1791601517.082569890] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601517.082983253] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 440.8 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601517.083318297] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 125.2 mm di titik 0/60 (t2_a1_right_finger_dist_link_0)
+    [10]   percobaan tugas: PLANNED
+    [10] task t5 arm_3 -> [0.7143, -0.5294, 1.0] @(0.150, -30): PLANNED (3.5 s)
+    [11] retract g2 ['arm_3'] lurus (rel 0.150):
+    [11]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 440.8 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 125.2 mm di titik 0/60 (t2_a1_right_finger_dist_link_0)
+    [11] retract g2 @rot -30: CLEAR (lurus)
+    [12] traverse g2 (0.150, -30) -> (0.400, -25): CLEAR min 270.3 mm (lengan 293.0, SS 270.3, n 156) ('t1_mount_plate_right_0', 't2_platform_link_0')
+    [12] traverse g2 vs lingkungan: CLEAR min 79.4 mm (t2_a1_left_finger_dist_link_0)
+[INFO] [1791601519.326442243] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=2.58->10.28/14, 3=2.30->8.90/10, 4=0.40->2.38/7, 5=0.11->2.09/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 89 %)
+[INFO] [1791601521.293719535] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 455.6 mm di titik 126 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601522.499602172] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 89.2 mm di titik 0 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791601523.502840462] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.400):
+[INFO] [1791601525.222641717] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 562.6 mm di titik 28/60 (t2_a1_left_finger_dist_link_0 <-> t2_a2_upper_wrist_link_0)
+[INFO] [1791601525.223043721] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 357.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601525.223296062] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 89.2 mm di titik 59/60 (t2_a1_left_finger_prox_link_0)
+    [13]   percobaan tugas: PLANNED
+    [13] task t3 arm_3 -> [0.7857, -0.6, 1.16] @(0.400, -25): PLANNED (6.0 s)
+[INFO] [1791601525.427371450] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.09->6.69/10, 2=2.86->10.56/14, 3=2.32->8.92/10, 4=0.43->2.41/7, 5=0.10->2.08/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 89 %)
+[INFO] [1791601527.230451695] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 423.5 mm di titik 102 (t1_a1_lower_wrist_link_0 <-> t2_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601528.496464876] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 109.6 mm di titik 151 (t2_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601529.502972348] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.400):
+[INFO] [1791601530.895671440] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601530.896077233] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 357.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601530.896380857] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 88.5 mm di titik 50/60 (t2_a1_left_finger_prox_link_0)
+    [14]   percobaan tugas: PLANNED
+    [14] task t4 arm_3 -> [0.8571, -0.5294, 1.16] @(0.400, -25): PLANNED (5.7 s)
+    [15] retract g2 ['arm_3'] lurus (rel 0.400):
+    [15]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [15]   penyaring antar-gantry: CLEAR, minimum 357.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+    [15]   penyaring lingkungan: CLEAR, minimum 88.5 mm di titik 50/60 (t2_a1_left_finger_prox_link_0)
+    [15] retract g2 @rot -25: CLEAR (lurus)
+  seed 0 G41 sampel 3/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (0.550, -30): CLEAR min 429.4 mm (lengan 498.9, SS 429.4, n 2976) ('t1_platform_link_0', 't2_platform_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791601548.590691556] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=0.44->8.14/14, 3=2.20->8.80/10, 4=0.33->2.31/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 88 %)
+[INFO] [1791601549.308473405] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 590.3 mm di titik 48 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601550.511110599] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 241.5 mm di titik 0 (t1_a2_base_link_0) -> CLEAR
+[INFO] [1791601551.513263130] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.550):
+[INFO] [1791601552.293456356] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 590.3 mm di titik 11/60 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601552.293908387] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 624.4 mm di titik 0/60 (t1_a1_base_link_0 <-> t2_mount_plate_right_0)
+[INFO] [1791601552.294230712] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 241.5 mm di titik 0/60 (t1_a2_base_link_0)
+    [2]   percobaan tugas: PLANNED
+    [2] task t0 arm_1 -> [1.0, 0.1059, 1.08] @(0.550, -30): PLANNED (3.9 s)
+    [3] retract g1 ['arm_1'] lurus (rel 0.550):
+    [3]   penyaring se-gantry: CLEAR, minimum 590.3 mm di titik 11/60 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0)
+    [3]   penyaring antar-gantry: CLEAR, minimum 624.4 mm di titik 5/60 (t1_a1_base_link_0 <-> t2_mount_plate_right_0)
+    [3]   penyaring lingkungan: CLEAR, minimum 241.5 mm di titik 0/60 (t1_a2_base_link_0)
+    [3] retract g1 @rot -30: CLEAR (lurus)
+    [4] traverse g1 (0.550, -30) -> (0.300, -35): CLEAR min 380.0 mm (lengan 437.3, SS 380.0, n 189) ('t1_platform_link_0', 't2_platform_link_0')
+    [4] traverse g1 vs lingkungan: CLEAR min 211.1 mm (t1_a2_shoulder_link_0)
+[INFO] [1791601554.538507796] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=4.31->12.01/14, 3=1.33->7.93/10, 4=0.18->2.16/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 86 %)
+[INFO] [1791601555.389458026] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 248.2 mm di titik 54 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601556.578030444] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 233.2 mm di titik 0 (t1_a2_base_link_0) -> CLEAR
+[INFO] [1791601557.583206012] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.300):
+[INFO] [1791601558.862738540] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 551.3 mm di titik 28/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601558.863162833] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 248.4 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601558.863464088] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 233.2 mm di titik 0/60 (t1_a2_base_link_0)
+    [5]   percobaan tugas: PLANNED
+    [5] task t1 arm_1 -> [0.5, 0.1059, 1.08] @(0.300, -35): PLANNED (4.5 s)
+[INFO] [1791601559.094379555] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.11->6.71/10, 2=4.90->12.60/14, 3=2.15->8.75/10, 4=0.37->2.35/7, 5=0.15->2.13/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791601561.546469694] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 200.8 mm di titik 151 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601563.006101509] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 233.2 mm di titik 0 (t1_a2_base_link_0) -> CLEAR
+[INFO] [1791601564.012994880] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.300):
+[INFO] [1791601565.720250752] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601565.720658736] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 201.0 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601565.721023978] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 233.2 mm di titik 0/60 (t1_a2_base_link_0)
+    [6]   percobaan tugas: PLANNED
+    [6] task t2 arm_1 -> [0.5714, 0.1059, 1.24] @(0.300, -35): PLANNED (6.9 s)
+    [7] retract g1 ['arm_1'] lurus (rel 0.300):
+    [7]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [7]   penyaring antar-gantry: CLEAR, minimum 201.0 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [7]   penyaring lingkungan: CLEAR, minimum 233.2 mm di titik 0/60 (t1_a2_base_link_0)
+    [7] retract g1 @rot -35: CLEAR (lurus)
+    [8] retract g2 @rot +0: CLEAR
+    [9] traverse g2 (0.000, +0) -> (0.150, -30): CLEAR min 380.0 mm (lengan 385.8, SS 380.0, n 496) ('t1_platform_link_0', 't2_platform_link_0')
+    [9] traverse g2 vs lingkungan: CLEAR min 233.2 mm (t1_a2_base_link_0)
+[INFO] [1791601571.337252462] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.05->6.65/10, 2=5.09->12.79/14, 3=0.87->7.47/10, 4=0.10->2.08/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 91 %)
+[INFO] [1791601571.840376666] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 587.4 mm di titik 22 (t1_a1_shoulder_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601573.003779461] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 120.6 mm di titik 31 (t2_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601574.013001846] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.150):
+[INFO] [1791601574.665079672] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601574.665518989] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 440.8 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601574.665806358] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 120.7 mm di titik 0/60 (t2_a1_right_finger_dist_link_0)
+    [10]   percobaan tugas: PLANNED
+    [10] task t5 arm_3 -> [0.7143, -0.5294, 1.0] @(0.150, -30): PLANNED (3.5 s)
+    [11] retract g2 ['arm_3'] lurus (rel 0.150):
+    [11]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 440.8 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 120.7 mm di titik 0/60 (t2_a1_right_finger_dist_link_0)
+    [11] retract g2 @rot -30: CLEAR (lurus)
+    [12] traverse g2 (0.150, -30) -> (0.400, -25): CLEAR min 270.3 mm (lengan 293.0, SS 270.3, n 156) ('t1_mount_plate_right_0', 't2_platform_link_0')
+    [12] traverse g2 vs lingkungan: CLEAR min 79.4 mm (t2_a1_left_finger_dist_link_0)
+[INFO] [1791601576.882980678] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=2.56->10.26/14, 3=2.30->8.90/10, 4=0.40->2.38/7, 5=0.11->2.09/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 89 %)
+[INFO] [1791601578.850524535] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 456.4 mm di titik 126 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601580.029728479] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 89.2 mm di titik 0 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791601581.033545600] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.400):
+[INFO] [1791601582.743317117] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 562.3 mm di titik 28/60 (t2_a1_left_finger_dist_link_0 <-> t2_a2_upper_wrist_link_0)
+[INFO] [1791601582.743790068] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 357.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601582.744099053] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 89.2 mm di titik 59/60 (t2_a1_left_finger_prox_link_0)
+    [13]   percobaan tugas: PLANNED
+    [13] task t3 arm_3 -> [0.7857, -0.6, 1.16] @(0.400, -25): PLANNED (6.0 s)
+[INFO] [1791601582.865135509] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.09->6.69/10, 2=2.84->10.54/14, 3=2.32->8.92/10, 4=0.43->2.41/7, 5=0.10->2.08/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 89 %)
+[INFO] [1791601584.459672959] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 422.6 mm di titik 102 (t1_a1_lower_wrist_link_0 <-> t2_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601585.687923789] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 109.4 mm di titik 151 (t2_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601586.693026789] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.400):
+[INFO] [1791601588.083365584] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601588.083739330] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 357.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601588.084096355] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 88.6 mm di titik 50/60 (t2_a1_left_finger_prox_link_0)
+    [14]   percobaan tugas: PLANNED
+    [14] task t4 arm_3 -> [0.8571, -0.5294, 1.16] @(0.400, -25): PLANNED (5.3 s)
+    [15] retract g2 ['arm_3'] lurus (rel 0.400):
+    [15]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [15]   penyaring antar-gantry: CLEAR, minimum 357.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+    [15]   penyaring lingkungan: CLEAR, minimum 88.6 mm di titik 50/60 (t2_a1_left_finger_prox_link_0)
+    [15] retract g2 @rot -25: CLEAR (lurus)
+seed 0 G41: PLANNED/PLANNED/PLANNED -> LOLOS
+  seed 3 G41 sampel 1/3
+[INFO] [1791601589.564803784] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=0.30->8.00/14, 3=1.61->8.21/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 82 %)
+[INFO] [1791601589.969940448] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 592.0 mm di titik 36 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601591.078640676] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 113.7 mm di titik 6 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601592.083364461] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.500):
+[INFO] [1791601592.710164731] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 592.1 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601592.710741600] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601592.711268687] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 113.7 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [0]   percobaan tugas: PLANNED
+    [0] task t5 arm_1 -> [1.9286, 0.4588, 1.0] @(1.500, +0): PLANNED (3.2 s)
+    [1] retract g1 ['arm_1'] lurus (rel 1.500):
+    [1]   penyaring se-gantry: CLEAR, minimum 592.1 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [1]   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [1]   penyaring lingkungan: CLEAR, minimum 113.7 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [1] retract g1 @rot +0: CLEAR (lurus)
+    [2] traverse g1 (1.500, +0) -> (1.150, -30): CLEAR min 611.7 mm (lengan 611.7, SS 690.6, n 1147) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [2] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791601599.822741189] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.13->6.73/10, 2=4.88->12.58/14, 3=0.44->7.04/10, 4=0.02->2.00/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791601600.451016724] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601601.586580632] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 233.7 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601602.593106913] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.150):
+[INFO] [1791601603.495072274] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601603.495516599] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 794.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601603.495827236] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 233.7 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [3]   percobaan tugas: PLANNED
+    [3] task t0 arm_1 -> [1.6429, 0.0353, 1.0] @(1.150, -30): PLANNED (3.7 s)
+    [4] retract g1 ['arm_1'] lurus (rel 1.150):
+    [4]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [4]   penyaring antar-gantry: CLEAR, minimum 794.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [4]   penyaring lingkungan: CLEAR, minimum 233.7 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [4] retract g1 @rot -30: CLEAR (lurus)
+    [5] traverse g1 (1.150, -30) -> (0.200, -35): CLEAR min 380.0 mm (lengan 398.2, SS 380.0, n 672) ('t1_platform_link_0', 't2_platform_link_0')
+    [5] traverse g1 vs lingkungan: CLEAR min 211.1 mm (t1_a2_shoulder_link_0)
+[INFO] [1791601608.795983992] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=4.58->12.28/14, 3=1.89->8.49/10, 4=0.27->2.25/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 88 %)
+[INFO] [1791601609.713657204] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 178.5 mm di titik 73 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601610.873153150] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601611.883096049] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.200):
+[INFO] [1791601613.090759760] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 553.3 mm di titik 32/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601613.091249730] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 178.7 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601613.091528137] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [6]   percobaan tugas: PLANNED
+    [6] task t2 arm_1 -> [0.4286, 0.1059, 1.16] @(0.200, -35): PLANNED (4.4 s)
+    [7] retract g1 ['arm_1'] lurus (rel 0.200):
+    [7]   penyaring se-gantry: CLEAR, minimum 553.3 mm di titik 32/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [7]   penyaring antar-gantry: CLEAR, minimum 178.7 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [7]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [7] retract g1 @rot -35: CLEAR (lurus)
+    [8] retract g2 @rot +0: CLEAR
+    [9] traverse g2 (0.000, +0) -> (0.100, +35): CLEAR min 169.6 mm (lengan 185.1, SS 169.6, n 396) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [9] traverse g2 vs lingkungan: CLEAR min 194.4 mm (t2_a2_forearm_link_0)
+[INFO] [1791601616.837339712] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=4.67->12.37/14, 3=2.49->9.09/10, 4=0.39->2.37/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 91 %)
+[INFO] [1791601617.649587624] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 185.1 mm di titik 0 (t1_mount_plate_right_0 <-> t2_a1_base_link_0) -> CLEAR
+[INFO] [1791601618.840262171] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601619.843038806] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.100):
+[INFO] [1791601620.530102388] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 417.9 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601620.530558582] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+[INFO] [1791601620.530895278] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [10]   percobaan tugas: PLANNED
+    [10] task t1 arm_3 -> [0.3571, -0.1059, 1.32] @(0.100, +35): PLANNED (3.8 s)
+    [11] retract g2 ['arm_3'] lurus (rel 0.100):
+    [11]   penyaring se-gantry: CLEAR, minimum 417.9 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [11] retract g2 @rot +35: CLEAR (lurus)
+    [12] traverse g2 (0.100, +35) -> (0.500, -10): CLEAR min 151.1 mm (lengan 165.5, SS 151.1, n 1886) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [12] traverse g2 vs lingkungan: CLEAR min 128.4 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791601633.073072368] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=0.51->8.21/14, 3=2.21->8.81/10, 4=0.33->2.31/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 88 %)
+[INFO] [1791601633.677264911] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 504.3 mm di titik 55 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601634.815629517] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 128.4 mm di titik 0 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791601635.822980915] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.500):
+[INFO] [1791601636.496999181] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 563.5 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601636.497473993] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 446.1 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601636.497851263] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 128.4 mm di titik 59/60 (t2_a1_left_finger_prox_link_0)
+    [13]   percobaan tugas: PLANNED
+    [13] task t3 arm_3 -> [1.0, -0.3882, 1.08] @(0.500, -10): PLANNED (3.6 s)
+    [14] retract g2 ['arm_3'] lurus (rel 0.500):
+    [14]   penyaring se-gantry: CLEAR, minimum 563.5 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [14]   penyaring antar-gantry: CLEAR, minimum 446.1 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+    [14]   penyaring lingkungan: CLEAR, minimum 128.4 mm di titik 59/60 (t2_a1_left_finger_prox_link_0)
+    [14] retract g2 @rot -10: CLEAR (lurus)
+    [15] traverse g2 (0.500, -10) -> (1.450, -10): CLEAR min 266.0 mm (lengan 288.9, SS 266.0, n 96) ('t1_mount_plate_right_0', 't2_platform_link_0')
+    [15] traverse g2 vs lingkungan: CLEAR min 119.6 mm (t2_a1_right_finger_dist_link_0)
+[INFO] [1791601638.036844126] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=1.70->9.40/14, 3=2.44->9.04/10, 4=0.38->2.36/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791601638.767505777] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 516.8 mm di titik 74 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791601640.078112972] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 70.3 mm di titik 56 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791601641.082833226] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.450):
+[INFO] [1791601641.794117781] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 516.8 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601641.794559197] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 580.9 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+[INFO] [1791601641.794970206] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 70.3 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [16]   percobaan tugas: PLANNED
+    [16] task t4 arm_3 -> [1.9286, -0.3882, 1.16] @(1.450, -10): PLANNED (3.9 s)
+    [17] retract g2 ['arm_3'] lurus (rel 1.450):
+    [17]   penyaring se-gantry: CLEAR, minimum 516.8 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [17]   penyaring antar-gantry: CLEAR, minimum 580.9 mm di titik 6/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+    [17]   penyaring lingkungan: CLEAR, minimum 70.3 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [17] retract g2 @rot -10: CLEAR (lurus)
+  seed 3 G41 sampel 2/3
+[INFO] [1791601642.687498293] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=0.30->8.00/14, 3=1.62->8.22/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 82 %)
+[INFO] [1791601643.081120707] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 591.9 mm di titik 36 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601644.198031549] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 113.7 mm di titik 6 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601645.203030569] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.500):
+[INFO] [1791601645.792378190] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 591.9 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601645.792834050] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601645.793144498] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 113.7 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [0]   percobaan tugas: PLANNED
+    [0] task t5 arm_1 -> [1.9286, 0.4588, 1.0] @(1.500, +0): PLANNED (3.3 s)
+    [1] retract g1 ['arm_1'] lurus (rel 1.500):
+    [1]   penyaring se-gantry: CLEAR, minimum 591.9 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [1]   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [1]   penyaring lingkungan: CLEAR, minimum 113.7 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [1] retract g1 @rot +0: CLEAR (lurus)
+    [2] traverse g1 (1.500, +0) -> (1.150, -30): CLEAR min 611.7 mm (lengan 611.7, SS 690.6, n 1147) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [2] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791601653.511739680] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.13->6.73/10, 2=4.86->12.56/14, 3=0.44->7.04/10, 4=0.02->2.00/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791601654.150446154] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601655.275249945] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 233.7 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601656.283428157] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.150):
+[INFO] [1791601657.191200803] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601657.191611709] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 794.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601657.191936741] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 233.7 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [3]   percobaan tugas: PLANNED
+    [3] task t0 arm_1 -> [1.6429, 0.0353, 1.0] @(1.150, -30): PLANNED (3.9 s)
+    [4] retract g1 ['arm_1'] lurus (rel 1.150):
+    [4]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [4]   penyaring antar-gantry: CLEAR, minimum 794.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [4]   penyaring lingkungan: CLEAR, minimum 233.7 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [4] retract g1 @rot -30: CLEAR (lurus)
+    [5] traverse g1 (1.150, -30) -> (0.200, -35): CLEAR min 380.0 mm (lengan 398.2, SS 380.0, n 672) ('t1_platform_link_0', 't2_platform_link_0')
+    [5] traverse g1 vs lingkungan: CLEAR min 211.1 mm (t1_a2_shoulder_link_0)
+[INFO] [1791601662.503395735] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=4.56->12.26/14, 3=1.90->8.50/10, 4=0.27->2.25/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 88 %)
+[INFO] [1791601663.402635229] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 179.2 mm di titik 73 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601664.563670785] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601665.573472751] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.200):
+[INFO] [1791601666.810063701] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 553.3 mm di titik 32/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601666.810442187] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 179.4 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601666.810733792] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [6]   percobaan tugas: PLANNED
+    [6] task t2 arm_1 -> [0.4286, 0.1059, 1.16] @(0.200, -35): PLANNED (4.5 s)
+    [7] retract g1 ['arm_1'] lurus (rel 0.200):
+    [7]   penyaring se-gantry: CLEAR, minimum 553.3 mm di titik 32/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [7]   penyaring antar-gantry: CLEAR, minimum 179.4 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [7]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [7] retract g1 @rot -35: CLEAR (lurus)
+    [8] retract g2 @rot +0: CLEAR
+    [9] traverse g2 (0.000, +0) -> (0.100, +35): CLEAR min 169.6 mm (lengan 185.1, SS 169.6, n 396) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [9] traverse g2 vs lingkungan: CLEAR min 194.4 mm (t2_a2_forearm_link_0)
+[INFO] [1791601670.515890851] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=4.68->12.38/14, 3=2.49->9.09/10, 4=0.39->2.37/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 91 %)
+[INFO] [1791601671.329654822] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 185.1 mm di titik 0 (t1_mount_plate_right_0 <-> t2_a1_base_link_0) -> CLEAR
+[INFO] [1791601672.525336060] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601673.533049166] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.100):
+[INFO] [1791601674.232412666] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 417.8 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601674.232956309] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 1/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+[INFO] [1791601674.233237227] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [10]   percobaan tugas: PLANNED
+    [10] task t1 arm_3 -> [0.3571, -0.1059, 1.32] @(0.100, +35): PLANNED (3.8 s)
+    [11] retract g2 ['arm_3'] lurus (rel 0.100):
+    [11]   penyaring se-gantry: CLEAR, minimum 417.8 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [11] retract g2 @rot +35: CLEAR (lurus)
+    [12] traverse g2 (0.100, +35) -> (0.500, -10): CLEAR min 151.1 mm (lengan 165.5, SS 151.1, n 1886) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [12] traverse g2 vs lingkungan: CLEAR min 128.4 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791601686.922651871] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=0.49->8.19/14, 3=2.22->8.82/10, 4=0.33->2.31/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 88 %)
+[INFO] [1791601687.513685852] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 504.8 mm di titik 55 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601688.656016091] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 128.4 mm di titik 0 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791601689.663053792] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.500):
+[INFO] [1791601690.352054055] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 564.3 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601690.352608596] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 446.1 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601690.352972689] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 128.4 mm di titik 59/60 (t2_a1_left_finger_prox_link_0)
+    [13]   percobaan tugas: PLANNED
+    [13] task t3 arm_3 -> [1.0, -0.3882, 1.08] @(0.500, -10): PLANNED (3.6 s)
+    [14] retract g2 ['arm_3'] lurus (rel 0.500):
+    [14]   penyaring se-gantry: CLEAR, minimum 564.3 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [14]   penyaring antar-gantry: CLEAR, minimum 446.1 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+    [14]   penyaring lingkungan: CLEAR, minimum 128.4 mm di titik 59/60 (t2_a1_left_finger_prox_link_0)
+    [14] retract g2 @rot -10: CLEAR (lurus)
+    [15] traverse g2 (0.500, -10) -> (1.450, -10): CLEAR min 266.0 mm (lengan 288.9, SS 266.0, n 96) ('t1_mount_plate_right_0', 't2_platform_link_0')
+    [15] traverse g2 vs lingkungan: CLEAR min 119.6 mm (t2_a1_right_finger_dist_link_0)
+[INFO] [1791601691.964595475] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=1.73->9.43/14, 3=2.44->9.04/10, 4=0.38->2.36/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791601692.691696252] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 516.0 mm di titik 74 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791601694.023022346] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 71.6 mm di titik 56 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791601695.032852737] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.450):
+[INFO] [1791601695.761828651] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 516.1 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601695.762408428] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 580.9 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+[INFO] [1791601695.762701462] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 71.6 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [16]   percobaan tugas: PLANNED
+    [16] task t4 arm_3 -> [1.9286, -0.3882, 1.16] @(1.450, -10): PLANNED (4.0 s)
+    [17] retract g2 ['arm_3'] lurus (rel 1.450):
+    [17]   penyaring se-gantry: CLEAR, minimum 516.1 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [17]   penyaring antar-gantry: CLEAR, minimum 580.9 mm di titik 6/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+    [17]   penyaring lingkungan: CLEAR, minimum 71.6 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [17] retract g2 @rot -10: CLEAR (lurus)
+  seed 3 G41 sampel 3/3
+[INFO] [1791601696.671443944] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=0.32->8.02/14, 3=1.62->8.22/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 82 %)
+[INFO] [1791601697.065478659] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 592.2 mm di titik 35 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601698.177025531] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 113.6 mm di titik 6 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601699.183129958] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.500):
+[INFO] [1791601699.779246899] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 592.2 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601699.779676088] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601699.780039059] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 113.6 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [0]   percobaan tugas: PLANNED
+    [0] task t5 arm_1 -> [1.9286, 0.4588, 1.0] @(1.500, +0): PLANNED (3.3 s)
+    [1] retract g1 ['arm_1'] lurus (rel 1.500):
+    [1]   penyaring se-gantry: CLEAR, minimum 592.2 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [1]   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [1]   penyaring lingkungan: CLEAR, minimum 113.6 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [1] retract g1 @rot +0: CLEAR (lurus)
+    [2] traverse g1 (1.500, +0) -> (1.150, -30): CLEAR min 611.7 mm (lengan 611.7, SS 690.6, n 1147) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [2] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791601706.953170745] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.13->6.73/10, 2=4.89->12.59/14, 3=0.44->7.04/10, 4=0.02->2.00/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791601707.616233214] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601708.746061148] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 233.7 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601709.752856354] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.150):
+[INFO] [1791601710.666449266] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601710.666886096] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 794.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601710.667188945] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 233.7 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [3]   percobaan tugas: PLANNED
+    [3] task t0 arm_1 -> [1.6429, 0.0353, 1.0] @(1.150, -30): PLANNED (3.9 s)
+    [4] retract g1 ['arm_1'] lurus (rel 1.150):
+    [4]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [4]   penyaring antar-gantry: CLEAR, minimum 794.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [4]   penyaring lingkungan: CLEAR, minimum 233.7 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [4] retract g1 @rot -30: CLEAR (lurus)
+    [5] traverse g1 (1.150, -30) -> (0.200, -35): CLEAR min 380.0 mm (lengan 398.2, SS 380.0, n 672) ('t1_platform_link_0', 't2_platform_link_0')
+    [5] traverse g1 vs lingkungan: CLEAR min 211.1 mm (t1_a2_shoulder_link_0)
+[INFO] [1791601716.054325828] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=4.56->12.26/14, 3=1.90->8.50/10, 4=0.27->2.25/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 88 %)
+[INFO] [1791601716.947245189] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 178.7 mm di titik 73 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601718.109831658] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601719.112952831] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.200):
+[INFO] [1791601720.350472761] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 553.5 mm di titik 32/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601720.350976650] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 178.9 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601720.351293436] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [6]   percobaan tugas: PLANNED
+    [6] task t2 arm_1 -> [0.4286, 0.1059, 1.16] @(0.200, -35): PLANNED (4.5 s)
+    [7] retract g1 ['arm_1'] lurus (rel 0.200):
+    [7]   penyaring se-gantry: CLEAR, minimum 553.5 mm di titik 32/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [7]   penyaring antar-gantry: CLEAR, minimum 178.9 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [7]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [7] retract g1 @rot -35: CLEAR (lurus)
+    [8] retract g2 @rot +0: CLEAR
+    [9] traverse g2 (0.000, +0) -> (0.100, +35): CLEAR min 169.6 mm (lengan 185.1, SS 169.6, n 396) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [9] traverse g2 vs lingkungan: CLEAR min 194.4 mm (t2_a2_forearm_link_0)
+[INFO] [1791601724.171852677] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=4.68->12.38/14, 3=2.49->9.09/10, 4=0.39->2.37/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 91 %)
+[INFO] [1791601724.996451509] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 185.1 mm di titik 0 (t1_mount_plate_right_0 <-> t2_a1_base_link_0) -> CLEAR
+[INFO] [1791601726.205087349] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601727.213110468] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.100):
+[INFO] [1791601727.898733805] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 417.9 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601727.899224930] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+[INFO] [1791601727.899526403] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [10]   percobaan tugas: PLANNED
+    [10] task t1 arm_3 -> [0.3571, -0.1059, 1.32] @(0.100, +35): PLANNED (3.9 s)
+    [11] retract g2 ['arm_3'] lurus (rel 0.100):
+    [11]   penyaring se-gantry: CLEAR, minimum 417.9 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [11] retract g2 @rot +35: CLEAR (lurus)
+    [12] traverse g2 (0.100, +35) -> (0.500, -10): CLEAR min 151.1 mm (lengan 165.5, SS 151.1, n 1886) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [12] traverse g2 vs lingkungan: CLEAR min 128.4 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791601740.400750063] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=0.50->8.20/14, 3=2.21->8.81/10, 4=0.33->2.31/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 88 %)
+[INFO] [1791601740.990332581] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 504.2 mm di titik 55 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601742.136686409] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 128.4 mm di titik 0 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791601743.143120039] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.500):
+[INFO] [1791601743.824273464] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 563.9 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601743.824673754] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 446.1 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+[INFO] [1791601743.824994534] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 128.4 mm di titik 59/60 (t2_a1_left_finger_prox_link_0)
+    [13]   percobaan tugas: PLANNED
+    [13] task t3 arm_3 -> [1.0, -0.3882, 1.08] @(0.500, -10): PLANNED (3.6 s)
+    [14] retract g2 ['arm_3'] lurus (rel 0.500):
+    [14]   penyaring se-gantry: CLEAR, minimum 563.9 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [14]   penyaring antar-gantry: CLEAR, minimum 446.1 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+    [14]   penyaring lingkungan: CLEAR, minimum 128.4 mm di titik 59/60 (t2_a1_left_finger_prox_link_0)
+    [14] retract g2 @rot -10: CLEAR (lurus)
+    [15] traverse g2 (0.500, -10) -> (1.450, -10): CLEAR min 266.0 mm (lengan 288.9, SS 266.0, n 96) ('t1_mount_plate_right_0', 't2_platform_link_0')
+    [15] traverse g2 vs lingkungan: CLEAR min 119.6 mm (t2_a1_right_finger_dist_link_0)
+[INFO] [1791601745.356268520] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=1.72->9.42/14, 3=2.44->9.04/10, 4=0.38->2.36/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791601746.095505481] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 516.3 mm di titik 74 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791601747.412836210] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 71.9 mm di titik 56 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791601748.423314808] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.450):
+[INFO] [1791601749.144494380] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 516.4 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601749.145001133] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 580.9 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+[INFO] [1791601749.145254671] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 71.9 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [16]   percobaan tugas: PLANNED
+    [16] task t4 arm_3 -> [1.9286, -0.3882, 1.16] @(1.450, -10): PLANNED (3.9 s)
+    [17] retract g2 ['arm_3'] lurus (rel 1.450):
+    [17]   penyaring se-gantry: CLEAR, minimum 516.4 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [17]   penyaring antar-gantry: CLEAR, minimum 580.9 mm di titik 6/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+    [17]   penyaring lingkungan: CLEAR, minimum 71.9 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [17] retract g2 @rot -10: CLEAR (lurus)
+seed 3 G41: PLANNED/PLANNED/PLANNED -> LOLOS
+  seed 8 G41 sampel 1/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (1.150, +5): CLEAR min 590.9 mm (lengan 590.9, SS 660.1, n 222) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 111.5 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791601751.324087784] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=4.92->12.62/14, 3=0.94->7.54/10, 4=0.11->2.09/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791601751.864023778] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601752.989474500] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 107.2 mm di titik 5 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601753.993025225] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.150):
+[INFO] [1791601754.789815069] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601754.790348067] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 590.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601754.790701027] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 107.2 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [2]   percobaan tugas: PLANNED
+    [2] task t4 arm_1 -> [1.6429, 0.6, 1.0] @(1.150, +5): PLANNED (3.6 s)
+    [3] retract g1 ['arm_1'] lurus (rel 1.150):
+    [3]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [3]   penyaring antar-gantry: CLEAR, minimum 590.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [3]   penyaring lingkungan: CLEAR, minimum 107.2 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [3] retract g1 @rot +5: CLEAR (lurus)
+    [4] traverse g1 (1.150, +5) -> (1.050, -25): CLEAR min 535.0 mm (lengan 535.0, SS 619.8, n 341) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [4] traverse g1 vs lingkungan: CLEAR min 85.9 mm (t1_a1_left_finger_dist_link_0)
+[INFO] [1791601758.045346418] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.14->6.74/10, 2=4.98->12.68/14, 3=1.60->8.20/10, 4=0.30->2.28/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 91 %)
+[INFO] [1791601759.096678350] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601760.257443670] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 211.4 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601761.262902613] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.050):
+[INFO] [1791601762.570941346] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601762.571385744] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 720.2 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601762.571679123] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 211.4 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [5]   percobaan tugas: PLANNED
+    [5] task t0 arm_1 -> [1.4286, 0.1059, 1.16] @(1.050, -25): PLANNED (4.7 s)
+    [6] retract g1 ['arm_1'] lurus (rel 1.050):
+    [6]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [6]   penyaring antar-gantry: CLEAR, minimum 720.2 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [6]   penyaring lingkungan: CLEAR, minimum 211.4 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [6] retract g1 @rot -25: CLEAR (lurus)
+    [7] traverse g1 (1.050, -25) -> (0.200, -35): CLEAR min 380.0 mm (lengan 398.2, SS 380.0, n 957) ('t1_platform_link_0', 't2_platform_link_0')
+    [7] traverse g1 vs lingkungan: CLEAR min 201.6 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791601769.632583577] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=3.80->11.50/14, 3=1.56->8.16/10, 4=0.22->2.20/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 82 %)
+[INFO] [1791601770.584573563] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 213.2 mm di titik 56 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601771.728675342] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601772.733419746] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.200):
+[INFO] [1791601774.268344015] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 566.2 mm di titik 31/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601774.268683904] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 213.4 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601774.268995240] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [8]   percobaan tugas: PLANNED
+    [8] task t1 arm_1 -> [0.4286, 0.1059, 1.08] @(0.200, -35): PLANNED (4.8 s)
+    [9] retract g1 ['arm_1'] lurus (rel 0.200):
+    [9]   penyaring se-gantry: CLEAR, minimum 566.2 mm di titik 31/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [9]   penyaring antar-gantry: CLEAR, minimum 213.4 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [9]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [9] retract g1 @rot -35: CLEAR (lurus)
+    [10] retract g2 @rot +0: CLEAR
+    [11] traverse g2 (0.000, +0) -> (0.100, +35): CLEAR min 169.6 mm (lengan 185.1, SS 169.6, n 396) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [11] traverse g2 vs lingkungan: CLEAR min 194.4 mm (t2_a2_forearm_link_0)
+[INFO] [1791601778.181144699] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=2.44->10.14/14, 3=2.37->8.97/10, 4=0.36->2.34/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791601778.899627228] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 185.1 mm di titik 0 (t1_mount_plate_right_0 <-> t2_a1_base_link_0) -> CLEAR
+[INFO] [1791601780.048032022] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601781.053024816] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.100):
+[INFO] [1791601781.802297590] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 545.2 mm di titik 20/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601781.802782385] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+[INFO] [1791601781.803106310] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [12]   percobaan tugas: PLANNED
+    [12] task t2 arm_3 -> [0.3571, -0.1059, 1.16] @(0.100, +35): PLANNED (3.7 s)
+    [13] retract g2 ['arm_3'] lurus (rel 0.100):
+    [13]   penyaring se-gantry: CLEAR, minimum 545.2 mm di titik 20/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [13]   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+    [13]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [13] retract g2 @rot +35: CLEAR (lurus)
+    [14] traverse g2 (0.100, +35) -> (0.750, -20): CLEAR min 151.1 mm (lengan 165.5, SS 151.1, n 3696) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [14] traverse g2 vs lingkungan: CLEAR min 58.0 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791601803.884204662] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.10->6.70/10, 2=4.60->12.30/14, 3=1.13->7.73/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 88 %)
+[INFO] [1791601804.627291076] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791601805.901531476] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 74.2 mm di titik 52 (t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791601806.903004894] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.750):
+[INFO] [1791601808.023565438] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601808.023978244] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 291.2 mm di titik 2/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+[INFO] [1791601808.024311199] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 74.2 mm di titik 17/60 (t2_a1_left_finger_dist_link_0)
+    [15]   percobaan tugas: PLANNED
+    [15] task t3 arm_3 -> [1.2143, -0.5294, 1.08] @(0.750, -20): PLANNED (4.4 s)
+    [16] retract g2 ['arm_3'] lurus (rel 0.750):
+    [16]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [16]   penyaring antar-gantry: CLEAR, minimum 291.2 mm di titik 4/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+    [16]   penyaring lingkungan: CLEAR, minimum 74.2 mm di titik 17/60 (t2_a1_left_finger_dist_link_0)
+    [16] retract g2 @rot -20: CLEAR (lurus)
+    [17] traverse g2 (0.750, -20) -> (1.300, -5): CLEAR min 243.8 mm (lengan 259.3, SS 243.8, n 896) ('t1_mount_plate_right_0', 't2_mount_plate_left_0')
+    [17] traverse g2 vs lingkungan: CLEAR min 81.3 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791601814.334092432] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.15->6.75/10, 2=4.87->12.57/14, 3=1.05->7.65/10, 4=0.13->2.11/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 90 %)
+[INFO] [1791601814.868977580] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791601816.019904600] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 70.4 mm di titik 30 (t2_a1_right_finger_prox_link_0) -> CLEAR
+[INFO] [1791601817.023482132] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.300):
+[INFO] [1791601817.777381867] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601817.777850089] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 495.0 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+[INFO] [1791601817.778150800] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 70.6 mm di titik 0/60 (t2_a1_right_finger_prox_link_0)
+    [18]   percobaan tugas: PLANNED
+    [18] task t5 arm_3 -> [1.9286, -0.3882, 1.0] @(1.300, -5): PLANNED (3.6 s)
+    [19] retract g2 ['arm_3'] lurus (rel 1.300):
+    [19]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [19]   penyaring antar-gantry: CLEAR, minimum 495.0 mm di titik 10/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+    [19]   penyaring lingkungan: CLEAR, minimum 70.6 mm di titik 0/60 (t2_a1_right_finger_prox_link_0)
+    [19] retract g2 @rot -5: CLEAR (lurus)
+  seed 8 G41 sampel 2/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (1.150, +5): CLEAR min 590.9 mm (lengan 590.9, SS 660.1, n 222) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 111.5 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791601819.974153428] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=4.90->12.60/14, 3=0.94->7.54/10, 4=0.11->2.09/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791601820.492633635] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601821.637760793] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 107.2 mm di titik 5 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601822.642875372] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.150):
+[INFO] [1791601823.410200836] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601823.410671212] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 590.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601823.411042529] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 107.2 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [2]   percobaan tugas: PLANNED
+    [2] task t4 arm_1 -> [1.6429, 0.6, 1.0] @(1.150, +5): PLANNED (3.5 s)
+    [3] retract g1 ['arm_1'] lurus (rel 1.150):
+    [3]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [3]   penyaring antar-gantry: CLEAR, minimum 590.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [3]   penyaring lingkungan: CLEAR, minimum 107.2 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [3] retract g1 @rot +5: CLEAR (lurus)
+    [4] traverse g1 (1.150, +5) -> (1.050, -25): CLEAR min 535.0 mm (lengan 535.0, SS 619.8, n 341) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [4] traverse g1 vs lingkungan: CLEAR min 85.9 mm (t1_a1_left_finger_dist_link_0)
+[INFO] [1791601826.423748080] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.14->6.74/10, 2=4.97->12.67/14, 3=1.60->8.20/10, 4=0.30->2.28/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 91 %)
+[INFO] [1791601827.479403218] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601828.639537084] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 211.4 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601829.642907695] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.050):
+[INFO] [1791601830.964632624] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601830.965053836] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 720.2 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601830.965371561] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 211.4 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [5]   percobaan tugas: PLANNED
+    [5] task t0 arm_1 -> [1.4286, 0.1059, 1.16] @(1.050, -25): PLANNED (4.6 s)
+    [6] retract g1 ['arm_1'] lurus (rel 1.050):
+    [6]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [6]   penyaring antar-gantry: CLEAR, minimum 720.2 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [6]   penyaring lingkungan: CLEAR, minimum 211.4 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [6] retract g1 @rot -25: CLEAR (lurus)
+    [7] traverse g1 (1.050, -25) -> (0.200, -35): CLEAR min 380.0 mm (lengan 398.2, SS 380.0, n 957) ('t1_platform_link_0', 't2_platform_link_0')
+    [7] traverse g1 vs lingkungan: CLEAR min 201.6 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791601838.113025173] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=3.80->11.50/14, 3=1.56->8.16/10, 4=0.22->2.20/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 82 %)
+[INFO] [1791601839.057943385] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 214.1 mm di titik 56 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601840.202772326] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601841.212989811] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.200):
+[INFO] [1791601842.551008043] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 566.0 mm di titik 31/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601842.551416573] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 214.2 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601842.551773681] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [8]   percobaan tugas: PLANNED
+    [8] task t1 arm_1 -> [0.4286, 0.1059, 1.08] @(0.200, -35): PLANNED (4.5 s)
+    [9] retract g1 ['arm_1'] lurus (rel 0.200):
+    [9]   penyaring se-gantry: CLEAR, minimum 566.0 mm di titik 31/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [9]   penyaring antar-gantry: CLEAR, minimum 214.2 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [9]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [9] retract g1 @rot -35: CLEAR (lurus)
+    [10] retract g2 @rot +0: CLEAR
+    [11] traverse g2 (0.000, +0) -> (0.100, +35): CLEAR min 169.6 mm (lengan 185.1, SS 169.6, n 396) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [11] traverse g2 vs lingkungan: CLEAR min 194.4 mm (t2_a2_forearm_link_0)
+[INFO] [1791601846.402704771] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=2.43->10.13/14, 3=2.37->8.97/10, 4=0.36->2.34/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791601847.148555552] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 185.1 mm di titik 0 (t1_mount_plate_right_0 <-> t2_a1_base_link_0) -> CLEAR
+[INFO] [1791601848.293526778] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601849.303009282] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.100):
+[INFO] [1791601850.050425307] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 545.8 mm di titik 20/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601850.050971922] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+[INFO] [1791601850.051278268] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [12]   percobaan tugas: PLANNED
+    [12] task t2 arm_3 -> [0.3571, -0.1059, 1.16] @(0.100, +35): PLANNED (3.7 s)
+    [13] retract g2 ['arm_3'] lurus (rel 0.100):
+    [13]   penyaring se-gantry: CLEAR, minimum 545.8 mm di titik 20/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [13]   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+    [13]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [13] retract g2 @rot +35: CLEAR (lurus)
+    [14] traverse g2 (0.100, +35) -> (0.750, -20): CLEAR min 151.1 mm (lengan 165.5, SS 151.1, n 3696) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [14] traverse g2 vs lingkungan: CLEAR min 58.0 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791601872.294152738] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.10->6.70/10, 2=4.62->12.32/14, 3=1.13->7.73/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 88 %)
+[INFO] [1791601873.048115407] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791601874.314460709] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 72.3 mm di titik 52 (t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791601875.322871136] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.750):
+[INFO] [1791601876.460385632] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601876.460893576] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 291.2 mm di titik 2/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+[INFO] [1791601876.461191636] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 72.3 mm di titik 17/60 (t2_a1_left_finger_dist_link_0)
+    [15]   percobaan tugas: PLANNED
+    [15] task t3 arm_3 -> [1.2143, -0.5294, 1.08] @(0.750, -20): PLANNED (4.5 s)
+    [16] retract g2 ['arm_3'] lurus (rel 0.750):
+    [16]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [16]   penyaring antar-gantry: CLEAR, minimum 291.2 mm di titik 4/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+    [16]   penyaring lingkungan: CLEAR, minimum 72.3 mm di titik 17/60 (t2_a1_left_finger_dist_link_0)
+    [16] retract g2 @rot -20: CLEAR (lurus)
+    [17] traverse g2 (0.750, -20) -> (1.300, -5): CLEAR min 243.8 mm (lengan 259.3, SS 243.8, n 896) ('t1_mount_plate_right_0', 't2_mount_plate_left_0')
+    [17] traverse g2 vs lingkungan: CLEAR min 81.3 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791601882.750746920] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.15->6.75/10, 2=4.80->12.50/14, 3=1.04->7.64/10, 4=0.12->2.10/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 89 %)
+[INFO] [1791601883.293315788] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791601884.445444626] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 74.1 mm di titik 30 (t2_a1_right_finger_prox_link_0) -> CLEAR
+[INFO] [1791601885.453057828] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.300):
+[INFO] [1791601886.219147341] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601886.219597221] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 495.0 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+[INFO] [1791601886.219835669] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 74.2 mm di titik 0/60 (t2_a1_right_finger_prox_link_0)
+    [18]   percobaan tugas: PLANNED
+    [18] task t5 arm_3 -> [1.9286, -0.3882, 1.0] @(1.300, -5): PLANNED (3.7 s)
+    [19] retract g2 ['arm_3'] lurus (rel 1.300):
+    [19]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [19]   penyaring antar-gantry: CLEAR, minimum 495.0 mm di titik 10/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+    [19]   penyaring lingkungan: CLEAR, minimum 74.2 mm di titik 0/60 (t2_a1_right_finger_prox_link_0)
+    [19] retract g2 @rot -5: CLEAR (lurus)
+  seed 8 G41 sampel 3/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (1.150, +5): CLEAR min 590.9 mm (lengan 590.9, SS 660.1, n 222) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 111.5 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791601888.533975144] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=5.03->12.73/14, 3=0.97->7.57/10, 4=0.11->2.09/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 91 %)
+[INFO] [1791601889.054042729] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601890.180605345] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 107.2 mm di titik 5 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601891.183018443] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.150):
+[INFO] [1791601891.974504054] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601891.975002580] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 590.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601891.975301635] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 107.2 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [2]   percobaan tugas: PLANNED
+    [2] task t4 arm_1 -> [1.6429, 0.6, 1.0] @(1.150, +5): PLANNED (3.6 s)
+    [3] retract g1 ['arm_1'] lurus (rel 1.150):
+    [3]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [3]   penyaring antar-gantry: CLEAR, minimum 590.9 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [3]   penyaring lingkungan: CLEAR, minimum 107.2 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [3] retract g1 @rot +5: CLEAR (lurus)
+    [4] traverse g1 (1.150, +5) -> (1.050, -25): CLEAR min 535.0 mm (lengan 535.0, SS 619.8, n 341) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [4] traverse g1 vs lingkungan: CLEAR min 85.9 mm (t1_a1_left_finger_dist_link_0)
+[INFO] [1791601895.040010211] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.14->6.74/10, 2=4.99->12.69/14, 3=1.60->8.20/10, 4=0.30->2.28/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 91 %)
+[INFO] [1791601896.136686232] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601897.314207608] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 211.4 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601898.323041371] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.050):
+[INFO] [1791601899.629945404] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601899.630362799] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 720.2 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601899.630673876] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 211.4 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [5]   percobaan tugas: PLANNED
+    [5] task t0 arm_1 -> [1.4286, 0.1059, 1.16] @(1.050, -25): PLANNED (4.7 s)
+    [6] retract g1 ['arm_1'] lurus (rel 1.050):
+    [6]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [6]   penyaring antar-gantry: CLEAR, minimum 720.2 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [6]   penyaring lingkungan: CLEAR, minimum 211.4 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+    [6] retract g1 @rot -25: CLEAR (lurus)
+    [7] traverse g1 (1.050, -25) -> (0.200, -35): CLEAR min 380.0 mm (lengan 398.2, SS 380.0, n 957) ('t1_platform_link_0', 't2_platform_link_0')
+    [7] traverse g1 vs lingkungan: CLEAR min 201.6 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791601906.725779024] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=3.79->11.49/14, 3=1.57->8.17/10, 4=0.22->2.20/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 82 %)
+[INFO] [1791601907.680972414] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 214.0 mm di titik 56 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791601908.825331181] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601909.833052730] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 0.200):
+[INFO] [1791601911.199939082] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 566.2 mm di titik 31/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601911.200364974] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 214.2 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791601911.200674976] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [8]   percobaan tugas: PLANNED
+    [8] task t1 arm_1 -> [0.4286, 0.1059, 1.08] @(0.200, -35): PLANNED (4.7 s)
+    [9] retract g1 ['arm_1'] lurus (rel 0.200):
+    [9]   penyaring se-gantry: CLEAR, minimum 566.2 mm di titik 31/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [9]   penyaring antar-gantry: CLEAR, minimum 214.2 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [9]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [9] retract g1 @rot -35: CLEAR (lurus)
+    [10] retract g2 @rot +0: CLEAR
+    [11] traverse g2 (0.000, +0) -> (0.100, +35): CLEAR min 169.6 mm (lengan 185.1, SS 169.6, n 396) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [11] traverse g2 vs lingkungan: CLEAR min 194.4 mm (t2_a2_forearm_link_0)
+[INFO] [1791601915.159652202] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=2.42->10.12/14, 3=2.37->8.97/10, 4=0.36->2.34/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791601915.885345262] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 185.1 mm di titik 0 (t1_mount_plate_right_0 <-> t2_a1_base_link_0) -> CLEAR
+[INFO] [1791601917.048638766] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 234.6 mm di titik 0 (t1_a2_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791601918.052914495] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.100):
+[INFO] [1791601918.809970586] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 545.9 mm di titik 20/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601918.810367861] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+[INFO] [1791601918.810658172] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [12]   percobaan tugas: PLANNED
+    [12] task t2 arm_3 -> [0.3571, -0.1059, 1.16] @(0.100, +35): PLANNED (3.8 s)
+    [13] retract g2 ['arm_3'] lurus (rel 0.100):
+    [13]   penyaring se-gantry: CLEAR, minimum 545.9 mm di titik 20/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [13]   penyaring antar-gantry: CLEAR, minimum 185.1 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a1_base_link_0)
+    [13]   penyaring lingkungan: CLEAR, minimum 234.6 mm di titik 0/60 (t1_a2_right_finger_dist_link_0)
+    [13] retract g2 @rot +35: CLEAR (lurus)
+    [14] traverse g2 (0.100, +35) -> (0.750, -20): CLEAR min 151.1 mm (lengan 165.5, SS 151.1, n 3696) ('t1_mount_plate_right_0', 't2_mount_plate_right_0')
+    [14] traverse g2 vs lingkungan: CLEAR min 58.0 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791601941.290377593] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.10->6.70/10, 2=4.60->12.30/14, 3=1.13->7.73/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 88 %)
+[INFO] [1791601942.030862695] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791601943.299231583] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 74.3 mm di titik 52 (t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791601944.303051039] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.750):
+[INFO] [1791601945.426202607] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601945.426595880] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 291.2 mm di titik 2/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+[INFO] [1791601945.426929449] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 74.3 mm di titik 17/60 (t2_a1_left_finger_dist_link_0)
+    [15]   percobaan tugas: PLANNED
+    [15] task t3 arm_3 -> [1.2143, -0.5294, 1.08] @(0.750, -20): PLANNED (4.4 s)
+    [16] retract g2 ['arm_3'] lurus (rel 0.750):
+    [16]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [16]   penyaring antar-gantry: CLEAR, minimum 291.2 mm di titik 4/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+    [16]   penyaring lingkungan: CLEAR, minimum 74.3 mm di titik 17/60 (t2_a1_left_finger_dist_link_0)
+    [16] retract g2 @rot -20: CLEAR (lurus)
+    [17] traverse g2 (0.750, -20) -> (1.300, -5): CLEAR min 243.8 mm (lengan 259.3, SS 243.8, n 896) ('t1_mount_plate_right_0', 't2_mount_plate_left_0')
+    [17] traverse g2 vs lingkungan: CLEAR min 81.3 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791601951.675403255] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.15->6.75/10, 2=4.84->12.54/14, 3=1.05->7.65/10, 4=0.13->2.11/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 90 %)
+[INFO] [1791601952.228716563] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791601953.375019486] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 72.7 mm di titik 30 (t2_a1_right_finger_prox_link_0) -> CLEAR
+[INFO] [1791601954.383042936] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.300):
+[INFO] [1791601955.187205982] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601955.187583716] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 495.0 mm di titik 0/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+[INFO] [1791601955.187825294] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 72.9 mm di titik 0/60 (t2_a1_right_finger_prox_link_0)
+    [18]   percobaan tugas: PLANNED
+    [18] task t5 arm_3 -> [1.9286, -0.3882, 1.0] @(1.300, -5): PLANNED (3.6 s)
+    [19] retract g2 ['arm_3'] lurus (rel 1.300):
+    [19]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [19]   penyaring antar-gantry: CLEAR, minimum 495.0 mm di titik 10/60 (t1_mount_plate_right_0 <-> t2_a2_base_link_0)
+    [19]   penyaring lingkungan: CLEAR, minimum 72.9 mm di titik 0/60 (t2_a1_right_finger_prox_link_0)
+    [19] retract g2 @rot -5: CLEAR (lurus)
+seed 8 G41: PLANNED/PLANNED/PLANNED -> LOLOS
+  seed 10 G41 sampel 1/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (1.250, -30): CLEAR min 674.5 mm (lengan 674.5, SS 739.1, n 806) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791601960.677278950] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=3.47->11.17/14, 3=0.57->7.17/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 80 %)
+[INFO] [1791601961.970900745] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 592.8 mm di titik 22 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601963.163034757] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 197.8 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791601964.172982888] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.250):
+[INFO] [1791601965.659389401] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 592.8 mm di titik 38/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601965.659788142] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 844.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601965.660112633] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 197.8 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [2]   percobaan tugas: PLANNED
+    [2] task t0 arm_1 -> [1.5714, 0.0353, 1.0] @(1.250, -30): PLANNED (5.2 s)
+[INFO] [1791601965.855556228] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.09->6.69/10, 2=4.92->12.62/14, 3=2.34->8.94/10, 4=0.39->2.37/7, 5=0.07->2.05/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791601967.245083354] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 466.9 mm di titik 98 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791601968.443635298] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 197.8 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791601969.453014179] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.250):
+[INFO] [1791601970.185540857] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 465.1 mm di titik 13/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791601970.186008108] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 844.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791601970.186302757] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 197.8 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [3]   percobaan tugas: PLANNED
+    [3] task t2 arm_1 -> [1.5714, 0.1059, 1.32] @(1.250, -30): PLANNED (4.5 s)
+    [4] retract g1 ['arm_1'] lurus (rel 1.250):
+    [4]   penyaring se-gantry: CLEAR, minimum 465.1 mm di titik 13/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [4]   penyaring antar-gantry: CLEAR, minimum 844.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [4]   penyaring lingkungan: CLEAR, minimum 197.8 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [4] retract g1 @rot -30: CLEAR (lurus)
+    [5] retract g2 @rot +0: CLEAR
+    [6] traverse g2 (0.000, +0) -> (0.700, -20): CLEAR min 429.4 mm (lengan 514.8, SS 429.4, n 1491) ('t1_platform_link_0', 't2_platform_link_0')
+    [6] traverse g2 vs lingkungan: CLEAR min 58.0 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791601979.516541060] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=2.34->10.04/14, 3=2.33->8.93/10, 4=0.40->2.38/7, 5=0.11->2.09/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 89 %)
+[INFO] [1791601981.375729295] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 577.8 mm di titik 66 (t2_a1_left_finger_prox_link_0 <-> t2_a2_upper_wrist_link_0) -> CLEAR
+[INFO] [1791601982.713216507] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 77.3 mm di titik 33 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791601983.722959228] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.700):
+[INFO] [1791601985.436131532] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 577.8 mm di titik 28/60 (t2_a1_left_finger_prox_link_0 <-> t2_a2_upper_wrist_link_0)
+[INFO] [1791601985.436553394] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 650.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a1_base_link_0)
+[INFO] [1791601985.436931340] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 77.5 mm di titik 38/60 (t2_a1_left_finger_prox_link_0)
+    [7]   percobaan tugas: PLANNED
+    [7] task t5 arm_3 -> [1.0, -0.5294, 1.16] @(0.700, -20): PLANNED (6.2 s)
+[INFO] [1791601985.611499249] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=3.56->11.26/14, 3=0.44->7.04/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 80 %)
+[INFO] [1791601986.886391285] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 574.0 mm di titik 21 (t2_a1_lower_wrist_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791601988.016995588] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 108.6 mm di titik 0 (t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791601989.023053425] [reach_dwell_probe]: retract g2 ['arm_4'] lurus (rel 0.700):
+[INFO] [1791601990.605573198] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 574.0 mm di titik 33/60 (t2_a1_lower_wrist_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601990.605913709] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 650.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a1_base_link_0)
+[INFO] [1791601990.606220177] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 108.6 mm di titik 0/60 (t2_a1_left_finger_dist_link_0)
+    [8]   percobaan tugas: PLANNED
+    [8] task t1 arm_4 -> [0.4286, -0.1059, 1.0] @(0.700, -20): PLANNED (5.2 s)
+    [9] retract g2 ['arm_3', 'arm_4'] lurus (rel 0.700):
+    [9]   penyaring se-gantry: CLEAR, minimum 496.2 mm di titik 29/60 (t2_a1_left_finger_dist_link_0 <-> t2_a2_right_finger_prox_link_0)
+    [9]   penyaring antar-gantry: CLEAR, minimum 650.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a1_base_link_0)
+    [9]   penyaring lingkungan: CLEAR, minimum 77.5 mm di titik 38/60 (t2_a1_left_finger_prox_link_0)
+    [9] retract g2 @rot -20: CLEAR (lurus)
+    [10] traverse g2 (0.700, -20) -> (1.000, -20): CLEAR min 380.0 mm (lengan 512.7, SS 380.0, n 32) ('t1_platform_link_0', 't2_platform_link_0')
+    [10] traverse g2 vs lingkungan: CLEAR min 81.3 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791601993.557018692] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=4.08->11.78/14, 3=1.46->8.06/10, 4=0.26->2.24/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 84 %)
+[INFO] [1791601994.812820787] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 439.2 mm di titik 126 (t1_a1_forearm_link_0 <-> t2_a1_forearm_link_0) -> CLEAR
+[INFO] [1791601996.147760756] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 78.7 mm di titik 52 (t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791601997.152979653] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.000):
+[INFO] [1791601998.467596726] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.3 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791601998.467996141] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 439.3 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_forearm_link_0)
+[INFO] [1791601998.468275039] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 78.7 mm di titik 32/60 (t2_a1_left_finger_dist_link_0)
+    [11]   percobaan tugas: PLANNED
+    [11] task t4 arm_3 -> [1.4286, -0.4588, 1.08] @(1.000, -20): PLANNED (5.0 s)
+    [12] retract g2 ['arm_3'] lurus (rel 1.000):
+    [12]   penyaring se-gantry: CLEAR, minimum 622.3 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [12]   penyaring antar-gantry: CLEAR, minimum 439.3 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_forearm_link_0)
+    [12]   penyaring lingkungan: CLEAR, minimum 78.7 mm di titik 32/60 (t2_a1_left_finger_dist_link_0)
+    [12] retract g2 @rot -20: CLEAR (lurus)
+    [13] traverse g2 (1.000, -20) -> (1.450, +0): CLEAR min 295.4 mm (lengan 317.6, SS 295.4, n 966) ('t1_mount_plate_right_0', 't2_platform_link_0')
+    [13] traverse g2 vs lingkungan: CLEAR min 69.4 mm (t2_a2_right_finger_prox_link_0)
+[INFO] [1791602005.256475005] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=1.87->9.57/14, 3=2.44->9.04/10, 4=0.37->2.35/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791602005.984397475] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 379.8 mm di titik 74 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791602007.296208096] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 90.2 mm di titik 57 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791602008.303037452] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.450):
+[INFO] [1791602009.063758054] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 525.5 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602009.064184203] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 379.9 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791602009.064492979] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 90.2 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [14]   percobaan tugas: PLANNED
+    [14] task t3 arm_3 -> [1.9286, -0.3176, 1.16] @(1.450, +0): PLANNED (3.9 s)
+    [15] retract g2 ['arm_3'] lurus (rel 1.450):
+    [15]   penyaring se-gantry: CLEAR, minimum 525.5 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [15]   penyaring antar-gantry: CLEAR, minimum 379.9 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [15]   penyaring lingkungan: CLEAR, minimum 90.2 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [15] retract g2 @rot +0: CLEAR (lurus)
+  seed 10 G41 sampel 2/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (1.250, -30): CLEAR min 674.5 mm (lengan 674.5, SS 739.1, n 806) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791602014.414258810] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=3.46->11.16/14, 3=0.58->7.18/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 80 %)
+[INFO] [1791602015.675493526] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 592.8 mm di titik 22 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791602016.865162763] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 197.8 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602017.873094924] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.250):
+[INFO] [1791602019.427724546] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 592.8 mm di titik 38/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791602019.428140586] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 844.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602019.428479498] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 197.8 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [2]   percobaan tugas: PLANNED
+    [2] task t0 arm_1 -> [1.5714, 0.0353, 1.0] @(1.250, -30): PLANNED (5.1 s)
+[INFO] [1791602019.521789866] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.09->6.69/10, 2=4.91->12.61/14, 3=2.34->8.94/10, 4=0.39->2.37/7, 5=0.07->2.05/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791602021.015166158] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 467.8 mm di titik 98 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791602022.214672089] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 197.8 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602023.223036719] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.250):
+[INFO] [1791602023.994404611] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 465.8 mm di titik 13/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791602023.994785204] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 844.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602023.995074837] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 197.8 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [3]   percobaan tugas: PLANNED
+    [3] task t2 arm_1 -> [1.5714, 0.1059, 1.32] @(1.250, -30): PLANNED (4.6 s)
+    [4] retract g1 ['arm_1'] lurus (rel 1.250):
+    [4]   penyaring se-gantry: CLEAR, minimum 465.8 mm di titik 13/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [4]   penyaring antar-gantry: CLEAR, minimum 844.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [4]   penyaring lingkungan: CLEAR, minimum 197.8 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [4] retract g1 @rot -30: CLEAR (lurus)
+    [5] retract g2 @rot +0: CLEAR
+    [6] traverse g2 (0.000, +0) -> (0.700, -20): CLEAR min 429.4 mm (lengan 514.8, SS 429.4, n 1491) ('t1_platform_link_0', 't2_platform_link_0')
+    [6] traverse g2 vs lingkungan: CLEAR min 58.0 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791602033.234047552] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=2.33->10.03/14, 3=2.33->8.93/10, 4=0.40->2.38/7, 5=0.11->2.09/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 89 %)
+[INFO] [1791602035.099534890] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 577.1 mm di titik 66 (t2_a1_left_finger_prox_link_0 <-> t2_a2_upper_wrist_link_0) -> CLEAR
+[INFO] [1791602036.427853427] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 77.1 mm di titik 33 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791602037.432964351] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.700):
+[INFO] [1791602039.167286404] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 577.1 mm di titik 28/60 (t2_a1_left_finger_prox_link_0 <-> t2_a2_upper_wrist_link_0)
+[INFO] [1791602039.167701313] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 650.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a1_base_link_0)
+[INFO] [1791602039.168040944] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 77.3 mm di titik 39/60 (t2_a1_left_finger_prox_link_0)
+    [7]   percobaan tugas: PLANNED
+    [7] task t5 arm_3 -> [1.0, -0.5294, 1.16] @(0.700, -20): PLANNED (6.2 s)
+[INFO] [1791602039.240276622] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=3.62->11.32/14, 3=0.44->7.04/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 81 %)
+[INFO] [1791602040.493402169] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 573.7 mm di titik 21 (t2_a1_lower_wrist_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791602041.629715714] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 108.7 mm di titik 0 (t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602042.633130790] [reach_dwell_probe]: retract g2 ['arm_4'] lurus (rel 0.700):
+[INFO] [1791602044.219707315] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 573.7 mm di titik 33/60 (t2_a1_lower_wrist_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602044.220076472] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 650.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a1_base_link_0)
+[INFO] [1791602044.220338184] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 108.7 mm di titik 0/60 (t2_a1_left_finger_dist_link_0)
+    [8]   percobaan tugas: PLANNED
+    [8] task t1 arm_4 -> [0.4286, -0.1059, 1.0] @(0.700, -20): PLANNED (5.1 s)
+    [9] retract g2 ['arm_3', 'arm_4'] lurus (rel 0.700):
+    [9]   penyaring se-gantry: CLEAR, minimum 495.3 mm di titik 29/60 (t2_a1_left_finger_dist_link_0 <-> t2_a2_right_finger_prox_link_0)
+    [9]   penyaring antar-gantry: CLEAR, minimum 650.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a1_base_link_0)
+    [9]   penyaring lingkungan: CLEAR, minimum 77.3 mm di titik 39/60 (t2_a1_left_finger_prox_link_0)
+    [9] retract g2 @rot -20: CLEAR (lurus)
+    [10] traverse g2 (0.700, -20) -> (1.000, -20): CLEAR min 380.0 mm (lengan 512.7, SS 380.0, n 32) ('t1_platform_link_0', 't2_platform_link_0')
+    [10] traverse g2 vs lingkungan: CLEAR min 81.3 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791602047.176054239] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=4.07->11.77/14, 3=1.46->8.06/10, 4=0.26->2.24/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 84 %)
+[INFO] [1791602048.449855529] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 439.1 mm di titik 126 (t1_a1_forearm_link_0 <-> t2_a1_forearm_link_0) -> CLEAR
+[INFO] [1791602049.779439685] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 78.6 mm di titik 52 (t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602050.783026874] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.000):
+[INFO] [1791602052.107511696] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602052.107960062] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 439.1 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_forearm_link_0)
+[INFO] [1791602052.108247105] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 78.6 mm di titik 32/60 (t2_a1_left_finger_dist_link_0)
+    [11]   percobaan tugas: PLANNED
+    [11] task t4 arm_3 -> [1.4286, -0.4588, 1.08] @(1.000, -20): PLANNED (5.0 s)
+    [12] retract g2 ['arm_3'] lurus (rel 1.000):
+    [12]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [12]   penyaring antar-gantry: CLEAR, minimum 439.1 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_forearm_link_0)
+    [12]   penyaring lingkungan: CLEAR, minimum 78.6 mm di titik 32/60 (t2_a1_left_finger_dist_link_0)
+    [12] retract g2 @rot -20: CLEAR (lurus)
+    [13] traverse g2 (1.000, -20) -> (1.450, +0): CLEAR min 295.4 mm (lengan 317.6, SS 295.4, n 966) ('t1_mount_plate_right_0', 't2_platform_link_0')
+    [13] traverse g2 vs lingkungan: CLEAR min 69.4 mm (t2_a2_right_finger_prox_link_0)
+[INFO] [1791602058.952481485] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=1.91->9.61/14, 3=2.44->9.04/10, 4=0.37->2.35/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791602059.659816361] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 378.9 mm di titik 74 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791602060.966972147] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 92.2 mm di titik 57 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791602061.972978513] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.450):
+[INFO] [1791602062.732452477] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 524.7 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602062.732873678] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 379.0 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791602062.733217767] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 92.2 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [14]   percobaan tugas: PLANNED
+    [14] task t3 arm_3 -> [1.9286, -0.3176, 1.16] @(1.450, +0): PLANNED (3.9 s)
+    [15] retract g2 ['arm_3'] lurus (rel 1.450):
+    [15]   penyaring se-gantry: CLEAR, minimum 524.7 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [15]   penyaring antar-gantry: CLEAR, minimum 379.0 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [15]   penyaring lingkungan: CLEAR, minimum 92.2 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [15] retract g2 @rot +0: CLEAR (lurus)
+  seed 10 G41 sampel 3/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (1.250, -30): CLEAR min 674.5 mm (lengan 674.5, SS 739.1, n 806) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791602068.084157621] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=3.50->11.20/14, 3=0.58->7.18/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 80 %)
+[INFO] [1791602069.327612722] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 592.6 mm di titik 22 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791602070.508949213] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 197.8 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602071.512849507] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.250):
+[INFO] [1791602073.005667414] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 592.6 mm di titik 38/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791602073.006186063] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 844.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602073.006492831] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 197.8 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [2]   percobaan tugas: PLANNED
+    [2] task t0 arm_1 -> [1.5714, 0.0353, 1.0] @(1.250, -30): PLANNED (5.0 s)
+[INFO] [1791602073.201675565] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.09->6.69/10, 2=4.91->12.61/14, 3=2.34->8.94/10, 4=0.39->2.37/7, 5=0.07->2.05/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791602074.594843713] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 467.1 mm di titik 98 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791602075.799258691] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 197.8 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602076.802848522] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.250):
+[INFO] [1791602077.563200583] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 465.3 mm di titik 13/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791602077.563627434] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 844.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602077.563992150] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 197.8 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [3]   percobaan tugas: PLANNED
+    [3] task t2 arm_1 -> [1.5714, 0.1059, 1.32] @(1.250, -30): PLANNED (4.6 s)
+    [4] retract g1 ['arm_1'] lurus (rel 1.250):
+    [4]   penyaring se-gantry: CLEAR, minimum 465.3 mm di titik 13/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [4]   penyaring antar-gantry: CLEAR, minimum 844.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [4]   penyaring lingkungan: CLEAR, minimum 197.8 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [4] retract g1 @rot -30: CLEAR (lurus)
+    [5] retract g2 @rot +0: CLEAR
+    [6] traverse g2 (0.000, +0) -> (0.700, -20): CLEAR min 429.4 mm (lengan 514.8, SS 429.4, n 1491) ('t1_platform_link_0', 't2_platform_link_0')
+    [6] traverse g2 vs lingkungan: CLEAR min 58.0 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791602086.798229528] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=2.35->10.05/14, 3=2.33->8.93/10, 4=0.40->2.38/7, 5=0.11->2.09/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 89 %)
+[INFO] [1791602088.635463596] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 577.7 mm di titik 66 (t2_a1_left_finger_prox_link_0 <-> t2_a2_upper_wrist_link_0) -> CLEAR
+[INFO] [1791602089.971703531] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 77.2 mm di titik 33 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791602090.973040123] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.700):
+[INFO] [1791602092.702494292] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 577.7 mm di titik 28/60 (t2_a1_left_finger_prox_link_0 <-> t2_a2_upper_wrist_link_0)
+[INFO] [1791602092.702986759] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 650.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a1_base_link_0)
+[INFO] [1791602092.703270299] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 77.4 mm di titik 39/60 (t2_a1_left_finger_prox_link_0)
+    [7]   percobaan tugas: PLANNED
+    [7] task t5 arm_3 -> [1.0, -0.5294, 1.16] @(0.700, -20): PLANNED (6.2 s)
+[INFO] [1791602092.891701738] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=3.55->11.25/14, 3=0.44->7.04/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 80 %)
+[INFO] [1791602094.176857457] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 574.4 mm di titik 21 (t2_a1_lower_wrist_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791602095.304264285] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 109.4 mm di titik 0 (t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602096.313066987] [reach_dwell_probe]: retract g2 ['arm_4'] lurus (rel 0.700):
+[INFO] [1791602097.882120495] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 574.4 mm di titik 33/60 (t2_a1_lower_wrist_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602097.882594059] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 650.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a1_base_link_0)
+[INFO] [1791602097.882983443] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 109.4 mm di titik 0/60 (t2_a1_left_finger_dist_link_0)
+    [8]   percobaan tugas: PLANNED
+    [8] task t1 arm_4 -> [0.4286, -0.1059, 1.0] @(0.700, -20): PLANNED (5.2 s)
+    [9] retract g2 ['arm_3', 'arm_4'] lurus (rel 0.700):
+    [9]   penyaring se-gantry: CLEAR, minimum 495.6 mm di titik 29/60 (t2_a1_left_finger_dist_link_0 <-> t2_a2_right_finger_prox_link_0)
+    [9]   penyaring antar-gantry: CLEAR, minimum 650.7 mm di titik 0/60 (t1_platform_link_0 <-> t2_a1_base_link_0)
+    [9]   penyaring lingkungan: CLEAR, minimum 77.4 mm di titik 39/60 (t2_a1_left_finger_prox_link_0)
+    [9] retract g2 @rot -20: CLEAR (lurus)
+    [10] traverse g2 (0.700, -20) -> (1.000, -20): CLEAR min 380.0 mm (lengan 512.7, SS 380.0, n 32) ('t1_platform_link_0', 't2_platform_link_0')
+    [10] traverse g2 vs lingkungan: CLEAR min 81.3 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791602100.877529697] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=4.11->11.81/14, 3=1.45->8.05/10, 4=0.25->2.23/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 84 %)
+[INFO] [1791602102.114505611] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 438.3 mm di titik 126 (t1_a1_forearm_link_0 <-> t2_a1_forearm_link_0) -> CLEAR
+[INFO] [1791602103.444067208] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.8 mm di titik 51 (t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602104.452916393] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.000):
+[INFO] [1791602105.778476600] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602105.778981876] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 438.4 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_forearm_link_0)
+[INFO] [1791602105.779214146] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.8 mm di titik 33/60 (t2_a1_left_finger_dist_link_0)
+    [11]   percobaan tugas: PLANNED
+    [11] task t4 arm_3 -> [1.4286, -0.4588, 1.08] @(1.000, -20): PLANNED (5.0 s)
+    [12] retract g2 ['arm_3'] lurus (rel 1.000):
+    [12]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [12]   penyaring antar-gantry: CLEAR, minimum 438.4 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_forearm_link_0)
+    [12]   penyaring lingkungan: CLEAR, minimum 79.8 mm di titik 33/60 (t2_a1_left_finger_dist_link_0)
+    [12] retract g2 @rot -20: CLEAR (lurus)
+    [13] traverse g2 (1.000, -20) -> (1.450, +0): CLEAR min 295.4 mm (lengan 317.6, SS 295.4, n 966) ('t1_mount_plate_right_0', 't2_platform_link_0')
+    [13] traverse g2 vs lingkungan: CLEAR min 69.4 mm (t2_a2_right_finger_prox_link_0)
+[INFO] [1791602112.587039100] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=1.91->9.61/14, 3=2.44->9.04/10, 4=0.37->2.35/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791602113.307855099] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 379.0 mm di titik 74 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791602114.622400341] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 90.5 mm di titik 57 (t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791602115.623027572] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.450):
+[INFO] [1791602116.389775090] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 524.7 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602116.390167392] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 379.1 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791602116.390415843] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 90.5 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [14]   percobaan tugas: PLANNED
+    [14] task t3 arm_3 -> [1.9286, -0.3176, 1.16] @(1.450, +0): PLANNED (3.9 s)
+    [15] retract g2 ['arm_3'] lurus (rel 1.450):
+    [15]   penyaring se-gantry: CLEAR, minimum 524.7 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [15]   penyaring antar-gantry: CLEAR, minimum 379.1 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+    [15]   penyaring lingkungan: CLEAR, minimum 90.5 mm di titik 18/60 (t2_a1_left_finger_prox_link_0)
+    [15] retract g2 @rot +0: CLEAR (lurus)
+seed 10 G41: PLANNED/PLANNED/PLANNED -> LOLOS
+  seed 18 G41 sampel 1/3
+[INFO] [1791602117.211063782] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=0.27->7.97/14, 3=1.62->8.22/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 82 %)
+[INFO] [1791602117.614881212] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 590.9 mm di titik 36 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791602118.725638674] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 113.7 mm di titik 6 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602119.733081572] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.500):
+[INFO] [1791602120.308959740] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 590.9 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791602120.309404698] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602120.309694646] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 113.7 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [0]   percobaan tugas: PLANNED
+    [0] task t4 arm_1 -> [1.9286, 0.4588, 1.0] @(1.500, +0): PLANNED (3.2 s)
+    [1] retract g1 ['arm_1'] lurus (rel 1.500):
+    [1]   penyaring se-gantry: CLEAR, minimum 590.9 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [1]   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [1]   penyaring lingkungan: CLEAR, minimum 113.7 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [1] retract g1 @rot +0: CLEAR (lurus)
+    [2] traverse g1 (1.500, +0) -> (1.400, -30): CLEAR min 783.3 mm (lengan 783.3, SS 827.2, n 372) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [2] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791602123.066892495] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.14->6.74/10, 2=4.35->12.05/14, 3=2.20->8.80/10, 4=0.39->2.37/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 88 %)
+[INFO] [1791602124.314628481] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791602125.529932809] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 104.7 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602126.533037082] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.400):
+[INFO] [1791602127.878205180] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791602127.878784326] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 933.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602127.879101253] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 104.7 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [3]   percobaan tugas: PLANNED
+    [3] task t0 arm_1 -> [1.7857, 0.1059, 1.24] @(1.400, -30): PLANNED (4.9 s)
+    [4] retract g1 ['arm_1'] lurus (rel 1.400):
+    [4]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [4]   penyaring antar-gantry: CLEAR, minimum 933.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [4]   penyaring lingkungan: CLEAR, minimum 104.7 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [4] retract g1 @rot -30: CLEAR (lurus)
+    [5] traverse g1 (1.400, -30) -> (1.200, +35): CLEAR min 571.0 mm (lengan 586.3, SS 571.0, n 1386) ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+    [5] traverse g1 vs lingkungan: CLEAR min 79.8 mm (t1_a1_left_finger_dist_link_0)
+[INFO] [1791602137.839863928] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=0.10->7.80/14, 3=2.25->8.85/10, 4=0.34->2.32/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 88 %)
+[INFO] [1791602138.520020382] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 447.0 mm di titik 52 (t1_a2_right_finger_prox_link_0 <-> t2_a1_gripper_base_link_0) -> CLEAR
+[INFO] [1791602139.670851408] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602140.672971298] [reach_dwell_probe]: retract g1 ['arm_2'] lurus (rel 1.200):
+[INFO] [1791602141.356131065] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 585.9 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_forearm_link_0)
+[INFO] [1791602141.356500208] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 447.0 mm di titik 4/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_gripper_base_link_0)
+[INFO] [1791602141.356795123] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [6]   percobaan tugas: PLANNED
+    [6] task t1 arm_2 -> [0.7857, 0.0353, 1.08] @(1.200, +35): PLANNED (3.6 s)
+    [7] retract g1 ['arm_2'] lurus (rel 1.200):
+    [7]   penyaring se-gantry: CLEAR, minimum 585.9 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_forearm_link_0)
+    [7]   penyaring antar-gantry: CLEAR, minimum 447.0 mm di titik 4/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_gripper_base_link_0)
+    [7]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [7] retract g1 @rot +35: CLEAR (lurus)
+    [8] retract g2 @rot +0: CLEAR
+    [9] traverse g2 (0.000, +0) -> (0.100, +30): CLEAR min 405.6 mm (lengan 420.9, SS 405.6, n 341) ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+    [9] traverse g2 vs lingkungan: CLEAR min 79.9 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791602144.819724073] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=3.02->10.72/14, 3=2.41->9.01/10, 4=0.41->2.39/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791602145.953791828] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 312.6 mm di titik 65 (t1_a2_lower_wrist_link_0 <-> t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602147.237031754] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602148.242944419] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.100):
+[INFO] [1791602149.440585501] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 584.5 mm di titik 38/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602149.441067813] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 312.6 mm di titik 28/60 (t1_a2_lower_wrist_link_0 <-> t2_a1_left_finger_dist_link_0)
+[INFO] [1791602149.441394622] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [10]   percobaan tugas: PLANNED
+    [10] task t2 arm_3 -> [0.4286, -0.1059, 1.24] @(0.100, +30): PLANNED (4.7 s)
+    [11] retract g2 ['arm_3'] lurus (rel 0.100):
+    [11]   penyaring se-gantry: CLEAR, minimum 584.5 mm di titik 38/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 312.6 mm di titik 28/60 (t1_a2_lower_wrist_link_0 <-> t2_a1_left_finger_dist_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [11] retract g2 @rot +30: CLEAR (lurus)
+    [12] traverse g2 (0.100, +30) -> (0.700, -20): CLEAR min 106.5 mm (lengan 106.5, SS 180.6, n 3111) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [12] traverse g2 vs lingkungan: CLEAR min 58.0 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791602168.940704297] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=1.70->9.40/14, 3=2.07->8.67/10, 4=0.31->2.29/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 87 %)
+[INFO] [1791602169.503427043] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 425.8 mm di titik 57 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791602170.699467027] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602171.702972781] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.700):
+[INFO] [1791602172.346670050] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 530.7 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602172.347111873] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 425.9 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791602172.347461486] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [13]   percobaan tugas: PLANNED
+    [13] task t5 arm_3 -> [1.1429, -0.4588, 1.08] @(0.700, -20): PLANNED (3.5 s)
+    [14] retract g2 ['arm_3'] lurus (rel 0.700):
+    [14]   penyaring se-gantry: CLEAR, minimum 530.7 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [14]   penyaring antar-gantry: CLEAR, minimum 425.9 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0)
+    [14]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [14] retract g2 @rot -20: CLEAR (lurus)
+    [15] traverse g2 (0.700, -20) -> (1.350, -5): CLEAR min 243.8 mm (lengan 257.4, SS 243.8, n 1072) ('t1_mount_plate_left_0', 't2_mount_plate_left_0')
+    [15] traverse g2 vs lingkungan: CLEAR min 79.9 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791602180.356521023] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=0.17->7.87/14, 3=2.24->8.84/10, 4=0.34->2.32/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 88 %)
+[INFO] [1791602180.931515109] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 574.2 mm di titik 54 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791602182.111640319] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602183.112965431] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.350):
+[INFO] [1791602183.731784742] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 574.2 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602183.732493313] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 360.0 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a2_shoulder_link_0)
+[INFO] [1791602183.732788722] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [16]   percobaan tugas: PLANNED
+    [16] task t3 arm_3 -> [1.8571, -0.3176, 1.08] @(1.350, -5): PLANNED (3.5 s)
+    [17] retract g2 ['arm_3'] lurus (rel 1.350):
+    [17]   penyaring se-gantry: CLEAR, minimum 574.2 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [17]   penyaring antar-gantry: CLEAR, minimum 360.0 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a2_shoulder_link_0)
+    [17]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [17] retract g2 @rot -5: CLEAR (lurus)
+  seed 18 G41 sampel 2/3
+[INFO] [1791602184.526826721] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=0.30->8.00/14, 3=1.62->8.22/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 82 %)
+[INFO] [1791602184.915483508] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 591.7 mm di titik 35 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791602186.026748890] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 113.7 mm di titik 6 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602187.033025697] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.500):
+[INFO] [1791602187.639621833] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 591.7 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791602187.640039587] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602187.640318137] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 113.7 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [0]   percobaan tugas: PLANNED
+    [0] task t4 arm_1 -> [1.9286, 0.4588, 1.0] @(1.500, +0): PLANNED (3.3 s)
+    [1] retract g1 ['arm_1'] lurus (rel 1.500):
+    [1]   penyaring se-gantry: CLEAR, minimum 591.7 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [1]   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [1]   penyaring lingkungan: CLEAR, minimum 113.7 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [1] retract g1 @rot +0: CLEAR (lurus)
+    [2] traverse g1 (1.500, +0) -> (1.400, -30): CLEAR min 783.3 mm (lengan 783.3, SS 827.2, n 372) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [2] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791602190.502357557] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.14->6.74/10, 2=4.32->12.02/14, 3=2.19->8.79/10, 4=0.38->2.36/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 88 %)
+[INFO] [1791602191.737711119] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791602192.948308504] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 104.7 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602193.953490849] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.400):
+[INFO] [1791602195.336929066] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791602195.337397706] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 933.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602195.337686469] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 104.7 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [3]   percobaan tugas: PLANNED
+    [3] task t0 arm_1 -> [1.7857, 0.1059, 1.24] @(1.400, -30): PLANNED (5.0 s)
+    [4] retract g1 ['arm_1'] lurus (rel 1.400):
+    [4]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [4]   penyaring antar-gantry: CLEAR, minimum 933.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [4]   penyaring lingkungan: CLEAR, minimum 104.7 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [4] retract g1 @rot -30: CLEAR (lurus)
+    [5] traverse g1 (1.400, -30) -> (1.200, +35): CLEAR min 571.0 mm (lengan 586.3, SS 571.0, n 1386) ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+    [5] traverse g1 vs lingkungan: CLEAR min 79.8 mm (t1_a1_left_finger_dist_link_0)
+[INFO] [1791602205.522500793] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=0.10->7.80/14, 3=2.25->8.85/10, 4=0.34->2.32/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 88 %)
+[INFO] [1791602206.220767480] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 447.6 mm di titik 52 (t1_a2_right_finger_prox_link_0 <-> t2_a1_gripper_base_link_0) -> CLEAR
+[INFO] [1791602207.371212859] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602208.373114797] [reach_dwell_probe]: retract g1 ['arm_2'] lurus (rel 1.200):
+[INFO] [1791602209.070961146] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 586.1 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_forearm_link_0)
+[INFO] [1791602209.071362713] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 447.5 mm di titik 4/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_gripper_base_link_0)
+[INFO] [1791602209.071600020] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [6]   percobaan tugas: PLANNED
+    [6] task t1 arm_2 -> [0.7857, 0.0353, 1.08] @(1.200, +35): PLANNED (3.6 s)
+    [7] retract g1 ['arm_2'] lurus (rel 1.200):
+    [7]   penyaring se-gantry: CLEAR, minimum 586.1 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_forearm_link_0)
+    [7]   penyaring antar-gantry: CLEAR, minimum 447.5 mm di titik 4/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_gripper_base_link_0)
+    [7]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [7] retract g1 @rot +35: CLEAR (lurus)
+    [8] retract g2 @rot +0: CLEAR
+    [9] traverse g2 (0.000, +0) -> (0.100, +30): CLEAR min 405.6 mm (lengan 420.9, SS 405.6, n 341) ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+    [9] traverse g2 vs lingkungan: CLEAR min 79.9 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791602212.317792932] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=3.04->10.74/14, 3=2.40->9.00/10, 4=0.41->2.39/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791602213.462429551] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 313.1 mm di titik 65 (t1_a2_lower_wrist_link_0 <-> t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602214.757291288] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602215.762792658] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.100):
+[INFO] [1791602216.993004528] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 584.4 mm di titik 38/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602216.993466308] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 313.1 mm di titik 28/60 (t1_a2_lower_wrist_link_0 <-> t2_a1_left_finger_dist_link_0)
+[INFO] [1791602216.993708755] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [10]   percobaan tugas: PLANNED
+    [10] task t2 arm_3 -> [0.4286, -0.1059, 1.24] @(0.100, +30): PLANNED (4.9 s)
+    [11] retract g2 ['arm_3'] lurus (rel 0.100):
+    [11]   penyaring se-gantry: CLEAR, minimum 584.4 mm di titik 38/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 313.1 mm di titik 28/60 (t1_a2_lower_wrist_link_0 <-> t2_a1_left_finger_dist_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [11] retract g2 @rot +30: CLEAR (lurus)
+    [12] traverse g2 (0.100, +30) -> (0.700, -20): CLEAR min 106.5 mm (lengan 106.5, SS 180.6, n 3111) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [12] traverse g2 vs lingkungan: CLEAR min 58.0 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791602237.277345490] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=1.70->9.40/14, 3=2.07->8.67/10, 4=0.31->2.29/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 87 %)
+[INFO] [1791602237.851054210] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 426.2 mm di titik 57 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791602239.054161861] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602240.062887088] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.700):
+[INFO] [1791602240.725523847] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 530.7 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602240.725961556] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 426.3 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791602240.726296135] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [13]   percobaan tugas: PLANNED
+    [13] task t5 arm_3 -> [1.1429, -0.4588, 1.08] @(0.700, -20): PLANNED (3.6 s)
+    [14] retract g2 ['arm_3'] lurus (rel 0.700):
+    [14]   penyaring se-gantry: CLEAR, minimum 530.7 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [14]   penyaring antar-gantry: CLEAR, minimum 426.3 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0)
+    [14]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [14] retract g2 @rot -20: CLEAR (lurus)
+    [15] traverse g2 (0.700, -20) -> (1.350, -5): CLEAR min 243.8 mm (lengan 257.4, SS 243.8, n 1072) ('t1_mount_plate_left_0', 't2_mount_plate_left_0')
+    [15] traverse g2 vs lingkungan: CLEAR min 79.9 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791602249.064769905] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=0.15->7.85/14, 3=2.24->8.84/10, 4=0.34->2.32/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 88 %)
+[INFO] [1791602249.645170842] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 573.7 mm di titik 54 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791602250.832391675] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602251.832968447] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.350):
+[INFO] [1791602252.455986193] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 573.8 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602252.456427400] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 360.0 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a2_shoulder_link_0)
+[INFO] [1791602252.456702197] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [16]   percobaan tugas: PLANNED
+    [16] task t3 arm_3 -> [1.8571, -0.3176, 1.08] @(1.350, -5): PLANNED (3.5 s)
+    [17] retract g2 ['arm_3'] lurus (rel 1.350):
+    [17]   penyaring se-gantry: CLEAR, minimum 573.8 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [17]   penyaring antar-gantry: CLEAR, minimum 360.0 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a2_shoulder_link_0)
+    [17]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [17] retract g2 @rot -5: CLEAR (lurus)
+  seed 18 G41 sampel 3/3
+[INFO] [1791602253.158543546] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=0.31->8.01/14, 3=1.62->8.22/10, 4=0.23->2.21/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 82 %)
+[INFO] [1791602253.557654016] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 592.1 mm di titik 36 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791602254.685836302] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 113.7 mm di titik 6 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602255.692926446] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.500):
+[INFO] [1791602256.313297215] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 592.1 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791602256.313618168] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602256.313941564] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 113.7 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [0]   percobaan tugas: PLANNED
+    [0] task t4 arm_1 -> [1.9286, 0.4588, 1.0] @(1.500, +0): PLANNED (3.2 s)
+    [1] retract g1 ['arm_1'] lurus (rel 1.500):
+    [1]   penyaring se-gantry: CLEAR, minimum 592.1 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [1]   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [1]   penyaring lingkungan: CLEAR, minimum 113.7 mm di titik 44/60 (t1_a1_right_finger_dist_link_0)
+    [1] retract g1 @rot +0: CLEAR (lurus)
+    [2] traverse g1 (1.500, +0) -> (1.400, -30): CLEAR min 783.3 mm (lengan 783.3, SS 827.2, n 372) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [2] traverse g1 vs lingkungan: CLEAR min 60.1 mm (t1_a2_left_finger_dist_link_0)
+[INFO] [1791602259.185670850] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.14->6.74/10, 2=4.32->12.02/14, 3=2.19->8.79/10, 4=0.38->2.36/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 88 %)
+[INFO] [1791602260.457400257] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791602261.673267405] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 104.7 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602262.682911918] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.400):
+[INFO] [1791602264.062945452] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791602264.063359868] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 933.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602264.063597533] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 104.7 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [3]   percobaan tugas: PLANNED
+    [3] task t0 arm_1 -> [1.7857, 0.1059, 1.24] @(1.400, -30): PLANNED (5.0 s)
+    [4] retract g1 ['arm_1'] lurus (rel 1.400):
+    [4]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [4]   penyaring antar-gantry: CLEAR, minimum 933.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [4]   penyaring lingkungan: CLEAR, minimum 104.7 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+    [4] retract g1 @rot -30: CLEAR (lurus)
+    [5] traverse g1 (1.400, -30) -> (1.200, +35): CLEAR min 571.0 mm (lengan 586.3, SS 571.0, n 1386) ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+    [5] traverse g1 vs lingkungan: CLEAR min 79.8 mm (t1_a1_left_finger_dist_link_0)
+[INFO] [1791602274.963069635] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=0.10->7.80/14, 3=2.25->8.85/10, 4=0.34->2.32/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 88 %)
+[INFO] [1791602275.639673432] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 448.8 mm di titik 52 (t1_a2_right_finger_prox_link_0 <-> t2_a1_gripper_base_link_0) -> CLEAR
+[INFO] [1791602276.790737051] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602277.792866896] [reach_dwell_probe]: retract g1 ['arm_2'] lurus (rel 1.200):
+[INFO] [1791602278.485368100] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 586.0 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_forearm_link_0)
+[INFO] [1791602278.485803819] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 448.8 mm di titik 4/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_gripper_base_link_0)
+[INFO] [1791602278.486121353] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [6]   percobaan tugas: PLANNED
+    [6] task t1 arm_2 -> [0.7857, 0.0353, 1.08] @(1.200, +35): PLANNED (3.7 s)
+    [7] retract g1 ['arm_2'] lurus (rel 1.200):
+    [7]   penyaring se-gantry: CLEAR, minimum 586.0 mm di titik 0/60 (t1_a1_arm_link_0 <-> t1_a2_forearm_link_0)
+    [7]   penyaring antar-gantry: CLEAR, minimum 448.8 mm di titik 4/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_gripper_base_link_0)
+    [7]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [7] retract g1 @rot +35: CLEAR (lurus)
+    [8] retract g2 @rot +0: CLEAR
+    [9] traverse g2 (0.000, +0) -> (0.100, +30): CLEAR min 405.6 mm (lengan 420.9, SS 405.6, n 341) ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+    [9] traverse g2 vs lingkungan: CLEAR min 79.9 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791602281.626304107] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=3.03->10.73/14, 3=2.40->9.00/10, 4=0.41->2.39/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 90 %)
+[INFO] [1791602282.765402756] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 313.1 mm di titik 65 (t1_a2_lower_wrist_link_0 <-> t2_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602284.065786211] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602285.072825098] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.100):
+[INFO] [1791602286.346638827] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 584.4 mm di titik 38/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602286.347034713] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 313.1 mm di titik 28/60 (t1_a2_lower_wrist_link_0 <-> t2_a1_left_finger_dist_link_0)
+[INFO] [1791602286.347315807] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [10]   percobaan tugas: PLANNED
+    [10] task t2 arm_3 -> [0.4286, -0.1059, 1.24] @(0.100, +30): PLANNED (4.8 s)
+    [11] retract g2 ['arm_3'] lurus (rel 0.100):
+    [11]   penyaring se-gantry: CLEAR, minimum 584.4 mm di titik 38/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 313.1 mm di titik 28/60 (t1_a2_lower_wrist_link_0 <-> t2_a1_left_finger_dist_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [11] retract g2 @rot +30: CLEAR (lurus)
+    [12] traverse g2 (0.100, +30) -> (0.700, -20): CLEAR min 106.5 mm (lengan 106.5, SS 180.6, n 3111) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [12] traverse g2 vs lingkungan: CLEAR min 58.0 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791602306.987541855] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=1.71->9.41/14, 3=2.07->8.67/10, 4=0.30->2.28/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 87 %)
+[INFO] [1791602307.556651932] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 425.9 mm di titik 57 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791602308.751549388] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602309.753142389] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.700):
+[INFO] [1791602310.413102105] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 530.6 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602310.413577163] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 426.0 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791602310.413938949] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [13]   percobaan tugas: PLANNED
+    [13] task t5 arm_3 -> [1.1429, -0.4588, 1.08] @(0.700, -20): PLANNED (3.7 s)
+    [14] retract g2 ['arm_3'] lurus (rel 0.700):
+    [14]   penyaring se-gantry: CLEAR, minimum 530.6 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [14]   penyaring antar-gantry: CLEAR, minimum 426.0 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0)
+    [14]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [14] retract g2 @rot -20: CLEAR (lurus)
+    [15] traverse g2 (0.700, -20) -> (1.350, -5): CLEAR min 243.8 mm (lengan 257.4, SS 243.8, n 1072) ('t1_mount_plate_left_0', 't2_mount_plate_left_0')
+    [15] traverse g2 vs lingkungan: CLEAR min 79.9 mm (t1_a1_right_finger_dist_link_0)
+[INFO] [1791602318.687515010] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=0.15->7.85/14, 3=2.24->8.84/10, 4=0.34->2.32/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 88 %)
+[INFO] [1791602319.263092636] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 573.7 mm di titik 54 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791602320.449510659] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 79.9 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602321.452968747] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 1.350):
+[INFO] [1791602322.081844550] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 573.8 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602322.082424326] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 360.0 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a2_shoulder_link_0)
+[INFO] [1791602322.082698648] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [16]   percobaan tugas: PLANNED
+    [16] task t3 arm_3 -> [1.8571, -0.3176, 1.08] @(1.350, -5): PLANNED (3.5 s)
+    [17] retract g2 ['arm_3'] lurus (rel 1.350):
+    [17]   penyaring se-gantry: CLEAR, minimum 573.8 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [17]   penyaring antar-gantry: CLEAR, minimum 360.0 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a2_shoulder_link_0)
+    [17]   penyaring lingkungan: CLEAR, minimum 79.9 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [17] retract g2 @rot -5: CLEAR (lurus)
+seed 18 G41: PLANNED/PLANNED/PLANNED -> LOLOS
+  seed 19 G41 sampel 1/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (1.500, +5): CLEAR min 852.5 mm (lengan 852.5, SS 870.6, n 12) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 113.0 mm (t1_a1_left_finger_dist_link_0)
+[INFO] [1791602322.912607334] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=4.96->12.66/14, 3=0.66->7.26/10, 4=0.06->2.04/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 90 %)
+[INFO] [1791602323.507598010] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791602324.665378410] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 106.0 mm di titik 9 (t1_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602325.673035152] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.500):
+[INFO] [1791602326.531419335] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791602326.531754823] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 852.5 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602326.532001523] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 106.0 mm di titik 38/60 (t1_a1_left_finger_dist_link_0)
+    [2]   percobaan tugas: PLANNED
+    [2] task t5 arm_1 -> [1.9286, 0.6, 1.0] @(1.500, +5): PLANNED (3.7 s)
+    [3] retract g1 ['arm_1'] lurus (rel 1.500):
+    [3]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [3]   penyaring antar-gantry: CLEAR, minimum 852.5 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [3]   penyaring lingkungan: CLEAR, minimum 106.0 mm di titik 38/60 (t1_a1_left_finger_dist_link_0)
+    [3] retract g1 @rot +5: CLEAR (lurus)
+    [4] retract g2 @rot +0: CLEAR
+    [5] traverse g2 (0.000, +0) -> (0.450, +35): CLEAR min 449.1 mm (lengan 458.9, SS 449.1, n 1656) ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+    [5] traverse g2 vs lingkungan: CLEAR min 113.2 mm (t1_a1_left_finger_dist_link_0)
+[INFO] [1791602338.892616250] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=2.50->10.20/14, 3=2.55->9.15/10, 4=0.40->2.38/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 92 %)
+[INFO] [1791602339.820890903] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 360.0 mm di titik 52 (t1_a2_gripper_base_link_0 <-> t2_a1_right_finger_prox_link_0) -> CLEAR
+[INFO] [1791602341.101649691] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 113.2 mm di titik 0 (t1_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602342.103171969] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.450):
+[INFO] [1791602343.123205404] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 570.6 mm di titik 28/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602343.123612469] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 360.1 mm di titik 26/60 (t1_a2_gripper_base_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602343.123853405] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 113.2 mm di titik 0/60 (t1_a1_left_finger_dist_link_0)
+    [6]   percobaan tugas: PLANNED
+    [6] task t1 arm_3 -> [0.8571, -0.1059, 1.24] @(0.450, +35): PLANNED (4.3 s)
+[INFO] [1791602343.210083793] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=2.51->10.21/14, 3=2.56->9.16/10, 4=0.40->2.38/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 92 %)
+[INFO] [1791602344.153256777] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 386.1 mm di titik 59 (t1_a2_upper_wrist_link_0 <-> t2_a1_left_finger_prox_link_0) -> CLEAR
+[INFO] [1791602345.440105703] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 113.2 mm di titik 0 (t1_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602346.442957551] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.450):
+[INFO] [1791602347.218455298] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 566.6 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602347.218946356] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 421.0 mm di titik 26/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_left_finger_prox_link_0)
+[INFO] [1791602347.219183878] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 113.2 mm di titik 0/60 (t1_a1_left_finger_dist_link_0)
+    [7]   percobaan tugas: PLANNED
+    [7] task t2 arm_3 -> [0.7143, -0.0353, 1.08] @(0.450, +35): PLANNED (4.1 s)
+    [8] retract g2 ['arm_3'] lurus (rel 0.450):
+    [8]   penyaring se-gantry: CLEAR, minimum 566.6 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [8]   penyaring antar-gantry: CLEAR, minimum 421.0 mm di titik 26/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_left_finger_prox_link_0)
+    [8]   penyaring lingkungan: CLEAR, minimum 113.2 mm di titik 0/60 (t1_a1_left_finger_dist_link_0)
+    [8] retract g2 @rot +35: CLEAR (lurus)
+    [9] traverse g2 (0.450, +35) -> (0.750, +25): CLEAR min 275.3 mm (lengan 275.3, SS 346.3, n 341) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [9] traverse g2 vs lingkungan: CLEAR min 113.2 mm (t1_a1_left_finger_dist_link_0)
+[INFO] [1791602350.393061308] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=0.14->7.84/14, 3=2.24->8.84/10, 4=0.33->2.31/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 88 %)
+[INFO] [1791602351.098692003] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 259.9 mm di titik 27 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0) -> CLEAR
+[INFO] [1791602352.290829122] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 113.2 mm di titik 0 (t1_a1_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791602353.293004798] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.750):
+[INFO] [1791602354.051831693] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 585.9 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791602354.052424417] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 259.9 mm di titik 29/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791602354.052742971] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 113.2 mm di titik 0/60 (t1_a1_left_finger_dist_link_0)
+    [10]   percobaan tugas: PLANNED
+    [10] task t0 arm_3 -> [1.2143, -0.1059, 1.08] @(0.750, +25): PLANNED (3.7 s)
+    [11] retract g2 ['arm_3'] lurus (rel 0.750):
+    [11]   penyaring se-gantry: CLEAR, minimum 585.9 mm di titik 0/60 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 259.9 mm di titik 29/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 113.2 mm di titik 0/60 (t1_a1_left_finger_dist_link_0)
+    [11] retract g2 @rot +25: CLEAR (lurus)
+    [12] traverse g2 (0.750, +25) -> (0.900, -15): CLEAR min 306.9 mm (lengan 306.9, SS 331.4, n 697) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [12] traverse g2 vs lingkungan: CLEAR min 111.4 mm (t2_a1_left_finger_prox_link_0)
+[INFO] [1791602360.065533939] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=2.34->10.04/14, 3=1.88->8.48/10, 4=0.32->2.30/7, 5=0.10->2.08/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 85 %)
+[INFO] [1791602361.614873185] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 586.1 mm di titik 126 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0) -> CLEAR
+[INFO] [1791602362.939405826] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 70.3 mm di titik 120 (t2_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791602363.943027703] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.900):
+[INFO] [1791602365.472292968] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 616.7 mm di titik 26/60 (t2_a1_left_finger_prox_link_0 <-> t2_a2_upper_wrist_link_0)
+[INFO] [1791602365.472748473] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 586.2 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a1_arm_link_0)
+[INFO] [1791602365.473060878] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 70.3 mm di titik 6/60 (t2_a1_right_finger_dist_link_0)
+    [13]   percobaan tugas: PLANNED
+    [13] task t3 arm_3 -> [1.2857, -0.5294, 1.08] @(0.900, -15): PLANNED (5.6 s)
+    [14]   percobaan tugas: NO-PLAN
+    [14]   percobaan tugas: NO-PLAN
+    [14]   percobaan tugas: NO-PLAN
+    [14] task t4 arm_3 -> [1.1429, -0.4588, 1.0] @(0.900, -15): NO-PLAN (0.6 s)
+seed 19 G41: t4:arm_3:NO-PLAN -> ditolak
