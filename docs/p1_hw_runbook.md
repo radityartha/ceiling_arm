@@ -71,6 +71,15 @@ Sesudah TIAP kaki (dari JSON `pose_to_g`): |err_deg| ≤ **0.3°**, |err_mm| ≤
 `REJECTED`/`NOT armed`/fault, atau permintaan operator → lengan sudah REST; kembalikan rotasi ke 0 dengan kaki balik
 (DRY dulu). Catat `t_rot / T_cmd_rot` tiap amplitudo (model `rot_cmd` = 0.9235 hanya terukur di 10°).
 
+**Default rotasi = amplop terverifikasi** (`results/p1_g48/rot_envelope.json`, sekarang g1/g2 ±10 = G30). Sesudah SEMUA
+kaki satu amplitudo lulus (0 → +A → 0 → −A → 0), perlebar amplop gantry itu — hanya dengan bukti log:
+```bash
+python3 $R/p1_g48/rot_envelope.py widen --gantry 1 --lo -A --hi A --evidence <log kaki-kaki yang lulus>
+python3 $R/p1_g48/rot_envelope.py show
+```
+(hanya melebar, tak pernah menyempit; riwayat tercatat). `pose_to_g` dan `run_g32` TANPA `--rot-max` langsung memakai amplop
+baru; `--rot-max N` tetap penimpa eksplisit (simetris). Alat sweep sendiri memakai `--rot-max 125` (yang sedang diverifikasi).
+
 Selesai bila g1 lulus sampai −125 dan +70, g2 sampai ±35 (ROT_NEED). Seed yang butuh lebih sedikit (s3, s18: 35°; s7, s10:
 70°) bisa dijalankan begitu amplitudonya lulus.
 
@@ -79,12 +88,13 @@ Selesai bila g1 lulus sampai −125 dan +70, g2 sampai ±35 (ROT_NEED). Seed yan
 g1 harus di p0 jadwal: PARK 1.50 = p0 semua kandidat (g42f/g43: p0 g1 1.50, g2 0.00) → tidak perlu pindah.
 
 ```bash
-python3 -u $R/p1_g32/run_g32.py --seed <S> --plan <PLAN> --variant <V> --final-retract --rot-max 125 --goal-tol-deg 0.05 \
+python3 -u $R/p1_g32/run_g32.py --seed <S> --plan <PLAN> --variant <V> --final-retract --goal-tol-deg 0.05 \
   --dry --launch-log /tmp/p1hw_launch.log --mon /tmp/p1hw_mon_samples.csv --out-dir /tmp/p1hw_dry_s<S> \
   --archive $R/p1_g49/hw --prefix p1hw_dry_s<S>_
 ```
 Kandidat: `<PLAN> = $R/p1_g43/g43_candidates_6.json`, `<V> = R180` untuk s0 s3 s7 s10 s18; s8 = `$R/p1_g42/g42f_candidates.json`
-`G42`. K0 di dalam runner; rc 134 saat keluar = benign.
+`G42`. Tanpa `--rot-max`: runner menolak SEBELUM event 0 bila jadwal keluar dari amplop terverifikasi (jalankan hanya seed
+yang rotasinya sudah terverifikasi 6b). K0 di dalam runner; rc 134 saat keluar = benign.
 
 ## 6. Fase 6d — blok seed HW
 

@@ -148,8 +148,9 @@ def main():
     ap.add_argument('--final-retract', action='store_true', help='G41/G42: retract g sesudah tugas terakhirnya')
     ap.add_argument('--goal-tol-deg', type=float, default=None,
                     help='G47: toleransi tujuan sendi tugas diteruskan ke probe (tanpa = 0.2 bawaan probe)')
-    ap.add_argument('--rot-max', type=float, default=10.0,
-                    help='G46: diteruskan ke pose_to_g (S23"); jadwal dengan |rot| di atasnya ditolak sebelum event 0')
+    ap.add_argument('--rot-max', type=float, default=None,
+                    help='G47: |rot| simetris eksplisit, diteruskan ke pose_to_g (S23"). Tanpa = amplop terverifikasi per '
+                         'gantry p1_g48/rot_envelope.json (G48). Jadwal di luar batas ditolak sebelum event 0')
     a = ap.parse_args()
     OUT = a.out_dir
     os.makedirs(OUT, exist_ok=True)
@@ -219,10 +220,16 @@ def main():
                          '--seconds', '1.0', '--json', f'{OUT}/k0.json'], capture_output=True, text=True)
     for ln in k0.stdout.splitlines():
         say(f'K0 | {ln}')
-    rmax = max([abs(math.degrees(e['to'][1])) for e in evs if e['kind'] == 'traverse'] + [0.0])
-    say(f'rotasi jadwal maks {rmax:.1f} deg, --rot-max {a.rot_max:g}')
+    sys.path.insert(0, os.path.join(HERE, '../p1_g48'))
+    import rot_envelope as RE
+    env = {'1': (-a.rot_max, a.rot_max), '2': (-a.rot_max, a.rot_max)} if a.rot_max is not None else RE.load()
+    out_env = [(e['gantry'], round(math.degrees(e['to'][1]), 3)) for e in evs
+               if e['kind'] == 'traverse' and not RE.allowed(e['gantry'], math.degrees(e['to'][1]), env)]
+    say(f'amplop rotasi g1 {env["1"]} g2 {env["2"]} '
+        f'({"--rot-max " + format(a.rot_max, "g") if a.rot_max is not None else "terverifikasi rot_envelope.json"}); '
+        f'traverse di luar: {out_env}')
     why = s26('awal') or (None if k0.returncode == 0 else f'K0: {(k0.stdout.strip().splitlines() or ["?"])[-1]}') \
-        or (None if rmax <= a.rot_max + 1e-9 else f'G46: rotasi jadwal {rmax:.1f} > --rot-max {a.rot_max:g}')
+        or (None if not out_env else f'G48: rotasi jadwal di luar amplop {out_env}')
     if why:
         finish(why)
     if a.dry:
@@ -246,7 +253,8 @@ def main():
         elif e['kind'] == 'traverse':
             cmd = ['python3', '-u', os.path.join(HERE, 'pose_to_g.py'), '--gantry', str(g),
                    '--seed', str(a.seed), '--plan', a.plan, '--variant', a.variant,
-                   f'{e["to"][0]:.3f}', f'{math.degrees(e["to"][1]):.3f}', '--move', '--rot-max', f'{a.rot_max:g}']
+                   f'{e["to"][0]:.3f}', f'{math.degrees(e["to"][1]):.3f}', '--move'] + \
+                (['--rot-max', f'{a.rot_max:g}'] if a.rot_max is not None else [])
         else:
             if os.path.exists('/tmp/g20_step5.json'):
                 os.remove('/tmp/g20_step5.json')
