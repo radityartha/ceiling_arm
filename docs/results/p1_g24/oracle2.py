@@ -101,9 +101,23 @@ TILT_DEG = [(2, 0), (-2, 0), (0, 2), (0, -2), (2, 2), (2, -2), (-2, 2), (-2, -2)
 ENV_TOL = 0.01                                                                     # A'2
 
 
+class _EarlyStop(Exception):
+    pass
+
+
+def _over(env, stop_torq):
+    """NOT the torq2 limit test, written exactly as torq2 writes it."""
+    margin, lim, offset = stop_torq
+    return not np.all(env + offset + margin <= lim)
+
+
 def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, envelope=False,
-          rounds_n=ROUNDS, min_rounds=2, tilt_cont=False, rot=0.0):
+          rounds_n=ROUNDS, min_rounds=2, tilt_cont=False, rot=0.0, stop_torq=None):
     """tilt/envelope = ORACLE''' (A'1/A'2); defaults = ORACLE'' exactly.
+    G46 (docs/p1_g46_sched_speed.md E3): stop_torq = (margin, lim, offset) of the torq2 call (tilt only). TORQ'' needs
+    EVERY solution at every tilt within limits and the envelope only grows, so once env + offset + margin > lim (the
+    torq2 expression) torq2 is False whatever is found later: the search stops (early_stop, saturated False).
+    None = unchanged.
     G27 (A2 T1/T2, defaults unchanged): rounds_n / min_rounds widen discovery; tilt_cont reaches
     each tilt by continuation 1/4 -> 2/4 -> 3/4 -> 1 of the angle instead of one Newton jump.
     G29: rot = the gantry rotation the tuple is solved at (default 0 = unchanged)."""
@@ -148,6 +162,8 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
         sols[k].append(s)
         if tilt:
             env = np.maximum(env, gravity(arm, s, rail, rot))
+            if stop_torq is not None and _over(env, stop_torq):
+                raise _EarlyStop
             for M, Ms in zip(TR, TRS):
                 if tilt_cont:
                     st = s
@@ -161,6 +177,8 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
                     tilt_fail[0] += 1
                 else:
                     env = np.maximum(env, gravity(arm, st, rail, rot))
+                    if stop_torq is not None and _over(env, stop_torq):
+                        raise _EarlyStop
         return True
 
     def trace(s, k):
@@ -177,22 +195,29 @@ def solve(xyz, rail, arm, grid_deg=GRID_DEG, keep_solutions=False, tilt=False, e
         return n
 
     rounds, saturated = 0, False
-    for r, seeds in enumerate(seed_rounds(lo, hi, rounds_n)):
-        rounds = r + 1
-        new = 0
-        env0, roll0 = env.copy(), sum(bool(ss) for ss in sols)
-        for s0 in seeds:
-            for k in anchors:
-                s = newton(s0, k, DISC_ITERS)
-                if s is not None and add(k, s):
-                    new += 1 + trace(s, k)
-        if envelope:
-            done = (sum(bool(ss) for ss in sols) == roll0 and np.all(env - env0 <= ENV_TOL))
-        else:
-            done = new == 0
-        if r >= min_rounds - 1 and done:
-            saturated = True
-            break
+    try:
+        for r, seeds in enumerate(seed_rounds(lo, hi, rounds_n)):
+            rounds = r + 1
+            new = 0
+            env0, roll0 = env.copy(), sum(bool(ss) for ss in sols)
+            for s0 in seeds:
+                for k in anchors:
+                    s = newton(s0, k, DISC_ITERS)
+                    if s is not None and add(k, s):
+                        new += 1 + trace(s, k)
+            if envelope:
+                done = (sum(bool(ss) for ss in sols) == roll0 and np.all(env - env0 <= ENV_TOL))
+            else:
+                done = new == 0
+            if r >= min_rounds - 1 and done:
+                saturated = True
+                break
+    except _EarlyStop:                      # G46 E3: torq2 is already decided False
+        out = dict(n_sol=sum(len(ss) for ss in sols), n_roll=sum(bool(ss) for ss in sols), rounds=rounds,
+                   saturated=False, taumax=env.copy(), early_stop=True)
+        if keep_solutions:
+            out['solutions'] = [(k, s) for k, ss in enumerate(sols) for s in ss]
+        return out
 
     taus = [gravity(arm, s, rail, rot) for ss in sols for s in ss]
     out = dict(n_sol=len(taus), n_roll=sum(bool(ss) for ss in sols), rounds=rounds,

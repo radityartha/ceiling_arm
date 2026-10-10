@@ -1,0 +1,12 @@
+(a) pose g1 (0.10, -95): d_env 41.9 mm t1_a2_base_link_0, kotak -0.00829 -> TOLAK (harap TOLAK; tabel TOLAK)
+(a) pose g2 (1.00, +95): d_env -10.3 mm t2_a2_left_finger_dist_link_0, kotak -0.07285 -> TOLAK (harap TOLAK; tabel TOLAK)
+(a) pose g1 (0.85, +100): d_env 96.7 mm t1_mount_plate_right_0, kotak None -> ok (harap ok; tabel ok)
+(a) pose g2 (0.15, -115): d_env 262.1 mm t2_a1_left_finger_dist_link_0, kotak None -> ok (harap ok; tabel ok)
+(b) tepi g1 lin 0.75: rot 0 -> +90 (antara ditolak: [15, 30, 35]): MARGIN 38.7 mm t1_a1_right_finger_dist_link_0
+(iii) g1 (0.8, +90) vs g2 (0.8, +90): jarak 0.0 mm -> BLOCK
+(iii) g1 (0.8, +90) vs g2 (0.8, -90): jarak 0.0 mm -> BLOCK
+(iii) g1 (0.8, +90) vs g2 (1.6, +90): jarak 694.0 mm -> bebas
+(iii) g1 (0.8, +90) vs g2 (1.6, -90): jarak 694.0 mm -> bebas
+(iv') g1 (0.8, 90), g2 (0.8, 0) -> (0.8, 90): COLLIDE -59.6 mm ('t1_a2_upper_wrist_link_0', 't2_a1_upper_wrist_link_0')
+(iv') g1 (1.5, 0), g2 (0.0, 0) -> (0.0, 90): CLEAR 804.7 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0')
+kontrol positif TOLAK 6/6; negatif terima 5/5

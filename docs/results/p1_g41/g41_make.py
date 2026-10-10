@@ -35,6 +35,7 @@ TUPLE_CACHE = G41_CACHE = os.path.join(HERE, 'g41_tuple_cache.jsonl')
 EDGE_CACHE = os.path.join(HERE, 'g41_edge_cache.jsonl')
 REST = np.array(O2.O.REST)
 LIM, OFFSET = O2.O.LIM, O2.O.OFFSET
+STOP_TORQ = False          # G46 E3: O2.solve stops at the first torque violation (torq2 already False); default off
 BOX_MIN = 0.0                     # G41: box-free = d > 0; G41b (B4): d >= 10 mm everywhere a box is checked
 
 _W = {}
@@ -97,7 +98,8 @@ def _tuple_job(key):
     t0 = time.process_time()
     n, g, li, ri, s = key
     arm, lin, rot = SLOT_ARM[(g, s)], float(REF.lin[li]), float(REF.rot[ri])
-    r = O2.solve(X[n], lin, arm, tilt=True, envelope=True, keep_solutions=True, rot=rot)
+    r = O2.solve(X[n], lin, arm, tilt=True, envelope=True, keep_solutions=True, rot=rot,
+                 **({'stop_torq': (MARGIN, LIM, OFFSET)} if STOP_TORQ else {}))
     ok3 = bool(O2.torq2(r, MARGIN))
     goal, n_e1, n_chk, whys = None, 0, 0, {}
     if ok3:
@@ -129,7 +131,8 @@ def _tuple_job(key):
             break
     return dict(key=[int(v) for v in key], n_sol=r['n_sol'], saturated=bool(r['saturated']),
                 taumax=r['taumax'].tolist(), ok3=ok3, n_checked=n_chk, n_e1=n_e1, whys=whys,
-                ok41=goal is not None, goal=goal, cpu_s=round(time.process_time() - t0, 2))
+                ok41=goal is not None, goal=goal, cpu_s=round(time.process_time() - t0, 2),
+                **({'early_stop': True} if r.get('early_stop') else {}))
 
 
 class Feas41(G4.Feas2):
