@@ -263,3 +263,21 @@ perintah diberi `ROS_DOMAIN_ID=0` eksplisit.
   broadcaster ros2_control ter-discover oleh proses baru → 1 s habis tanpa pesan lengan. Perbaikan: jendela dibuka sesudah
   SETIAP sendi yang diperiksa terlihat sekali (maks 5 s; hilang → tetap TOLAK). Uji HW: normal LULUS; `--rail2 0.003` TOLAK
   (−2.17 mm); `--rot1 1` TOLAK (−1.000°).
+
+### B11. 6d — s7 R35 (pembanding sama-sesi) di HW — log `results/p1_g51/hw/run/s7_G42_*`
+
+- Run 3 (16:03:58, sesudah perbaikan B10): K0 runner LULUS (102 sampel). **SELESAI 6/6 tugas SUCCESS, 18/18 event rc 0, 0 HALTED,
+  makespan terukur 523.25 s**; torsi puncak tugas 7.86–9.94 N·m (maks t1_a1_joint_2 9.94). Traverse g1 (1.5, 0) → (1.1, −30);
+  g2 (0, 0) → (1.5, −5) → (1.5, +5) → (1.5, −20) → (1.55, −35).
+- Pulang `g47_home.sh` (16:16–16:19, ditanya): g1 1 kaki → PARK 1.49948 / −0.03°; g2 4 kaki retrace → 0.00012 m / 0.0°; **K0 LULUS**.
+  (DRY: 3 REFUSE G33 = artefak DRY yang sama; semua kaki CLEAR saat `--move`.)
+
+| s7 di HW, sesi sama | model (paralel) | terukur (runner SERIAL) | tugas | torsi puncak |
+|---|---|---|---|---|
+| R180 | 275.9 s | **535.05 s** | 6/6 | 9.60 |
+| R35 (G42) | 435.0 s | **523.25 s** | 6/6 | 9.94 |
+
+**Catatan jujur:** `run_g32` mengeksekusi event SERIAL (satu gantry/lengan sekaligus) — keuntungan R180 di model berasal dari
+paralelisme dua gantry dan TIDAK bisa terlihat di runner ini (memori G32-OFF: bandingkan dengan P1′-serial). Di runner serial
+R180 justru +11.8 s (+2.3 %): 1 traverse g2 panjang 99.5 s (0 → 1.5 m) di keduanya; R180 punya 3 tugas g1 dengan 3 retract
+(~44 s/retract), R35 2 tugas g1 berurutan tanpa retract di antaranya. Perbandingan vs prediksi P1′-serial = analisis offline berikut.

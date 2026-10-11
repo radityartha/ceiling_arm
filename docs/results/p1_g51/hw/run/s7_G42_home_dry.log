@@ -1,0 +1,12 @@
+sudah di rest (< 0.5 deg) -- tidak ada yang perlu dikerjakan.
+sudah di rest (< 0.5 deg) -- tidak ada yang perlu dikerjakan.
+g1 pulang lewat: 1.5:0.0
+DRY RUN: tidak ada yang dikirim.
+{"dry": true, "gantry": 1, "start": [1.100479, -29.96], "goal": [1.5, 0.0], "sweep": "CLEAR", "sweep_min_mm": 257.6, "sweep_arm_mm": 273.1, "T_cmd": 22.196, "T_cmd_lin": 22.196, "T_cmd_rot": 5.229}
+g2 pulang lewat: 1.5:-20.0 1.5:5.0 1.5:-5.0 0.0:0.0
+DRY RUN: tidak ada yang dikirim.
+{"dry": true, "gantry": 2, "start": [1.549999, -34.99], "goal": [1.5, -20.0], "sweep": "CLEAR", "sweep_min_mm": 257.6, "sweep_arm_mm": 273.1, "T_cmd": 3.0, "T_cmd_lin": 3.0, "T_cmd_rot": 3.0}
+REFUSE: G33 -- sapuan (lin, rot) terlalu dekat lingkungan (margin 50 mm)
+REFUSE: G33 -- sapuan (lin, rot) terlalu dekat lingkungan (margin 50 mm)
+REFUSE: G33 -- sapuan (lin, rot) terlalu dekat lingkungan (margin 50 mm)
+K0 TOLAK: t1_linear_joint: galat -399.52 mm > +2.00 mm; t1_rotation_joint: galat -29.960 deg > +0.500 deg; t2_linear_joint: galat +1550.00 mm > +2.00 mm; t2_rotation_joint: galat -34.990 deg > +0.500 deg

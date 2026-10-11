@@ -40,6 +40,7 @@
 
 ## Langkah berikut
 
-**Fase 6 (G51). 6a–6c SELESAI; 6d: s7 R180 HW 6/6 SUCCESS, makespan 535.05 s, pulang + K0 LULUS (16:00).** Berikut: pembanding
-sama-sesi **s7 R35** (`p1_g42/g42f_candidates.json` varian G42, plan-only 3/3 sudah) → tanya → run_g32 (path ABSOLUT,
-ROS_DOMAIN_ID=0) → g47_home → K0. Stack = bring-up 3 (PID 3266531).
+**Fase 6 (G51). 6a–6c SELESAI; 6d: s7 R180 6/6 (535.05 s) + s7 R35 6/6 (523.25 s) sama-sesi, keduanya pulang + K0 LULUS (16:19).**
+Runner serial → keuntungan paralel R180 tak terlihat; perlu banding vs P1′-serial (offline). Perbaikan sesi: k0_check jendela
+(B10), g47_home toleransi rot 1.0°. Stack = bring-up 3 (PID 3266531). Berikut: tanya operator lanjut seed berikut (s10 → s0 → …)
+atau matikan stack bersih + arsip `/tmp/p1hw_*` → `results/p1_g51/hw/`.
