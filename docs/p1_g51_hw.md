@@ -254,3 +254,12 @@ perintah diberi `ROS_DOMAIN_ID=0` eksplisit.
   ujung kaki sebelumnya) — saat `--move` setiap kaki CLEAR dari pose terukur. `g47_home.sh`: toleransi pengenal pose rot 0.5 →
   1.0° (= penjaga run_g32; kekurangan HW ≤ 0.81°).
 - Log bridge selama run + pulang: 0 REJECTED / NOT armed, |motor1 − motor2| ≤ 40 pulse. **D434 ✓** (seed pertama 6/6, 0 HALTED).
+
+### B10. s7 R35 — K0 runner TOLAK 2× (0 sampel lengan) → perbaikan `k0_check.py` — arsip `run/s7_G42_abort{1,2}/`
+
+- 16:01:38 dan 16:02:26: runner menolak SEBELUM event 0 (nol gerak): K0 `0 sampel` untuk semua sendi lengan, gantry terbaca.
+  K0 mandiri dari shell (argumen sama persis) LULUS 4/4 (101–102 sampel).
+- Sebab: jendela K0 dibuka pada pesan PERTAMA /joint_states (G45 B1) — pesan publisher kedua (bridge gantry) bisa tiba sebelum
+  broadcaster ros2_control ter-discover oleh proses baru → 1 s habis tanpa pesan lengan. Perbaikan: jendela dibuka sesudah
+  SETIAP sendi yang diperiksa terlihat sekali (maks 5 s; hilang → tetap TOLAK). Uji HW: normal LULUS; `--rail2 0.003` TOLAK
+  (−2.17 mm); `--rot1 1` TOLAK (−1.000°).

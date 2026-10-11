@@ -81,15 +81,17 @@ def main():
         for k, x in zip(m.name, m.position):
             samples.setdefault(k, []).append(float(x))
     n.create_subscription(JointState, '/joint_states', cb, 200)
+    exp = expected(a)
     t0 = time.time()                         # G45 B1: the window opens at the FIRST message, not at
-    while not samples and time.time() - t0 < 5.0:   # subscribe -- DDS discovery alone can eat a 1 s window
+    # subscribe -- DDS discovery alone can eat a 1 s window. G51 B10: and only once EVERY checked joint was seen:
+    # the gantry bridge (2nd /joint_states publisher) can be discovered first, leaving 0 arm samples in the window.
+    while not all(j in samples for j in exp) and time.time() - t0 < 5.0:
         rclpy.spin_once(n, timeout_sec=0.05)
     t0 = time.time()
     while time.time() - t0 < a.seconds:
         rclpy.spin_once(n, timeout_sec=0.05)
     n.destroy_node()
     rclpy.shutdown()
-    exp = expected(a)
     ok, why, rows = judge(samples, exp)
     for arm, p in PREFIX.items():
         r = [(abs(rows[f'{p}joint_{i}'].get('err', math.inf)), i) for i in range(1, 7)]
