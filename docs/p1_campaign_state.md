@@ -29,6 +29,8 @@
 
 ## ROT_NEED
 
+**Sesudah G50 (17 jadwal siap-HW): g1 −125…+90°, g2 −35…+95°** (sweep v2 `results/p1_g50/g50_sweep.sh`). Lama:
+
 **|rot| 125°, Δrot 95°** (s0 g1 (0.80, −125°)); tanpa s0 70° / 65°. Kandidat HW: s0 s3 s7 s10 s18 (R180, `results/p1_g43/g43_candidates_6.json`) + s8 jadwal G42f (`results/p1_g42/g42f_candidates.json`).
 
 ## Risiko terbuka
@@ -38,8 +40,7 @@
 
 ## Langkah berikut
 
-G49 selesai (commit 0d82b45): R180 **17/20** seed lolos (i)–(iv″); sisa s1 t3, s15 t5, s19 t3 = dinding rendah terikat kotak peta
-+5 cm + IK + torsi (butuh keputusan operator: kalibrasi kamera / pose simpan / tool miring). Kandidat Fase 6 tetap 6 jadwal
-G47; jadwal G43/G49 baru (s2 s4 s5 s6 s9 s11 s12 s13 s14 s16 s17) perlu DRY-CLI k=3 + smoke sebelum HW.
-**2026-10-11, operator di lokasi:** ikuti `docs/p1_hw_runbook.md` §0–§3 (remount_check → TANYA bring-up nyata → K0 → kamera +
-capture g2 origin, tanpa gerak → keputusan Δx, baseline rgbd −0.0936 m). Setiap gerak nyata DITANYA. Dokumen: `docs/p1_g50_hw.md`.
+G50 LULUS (11 jadwal baru DRY-CLI 11/11 3/3, smoke 66/66, sweep v2 mock 50/50) → **17 jadwal siap HW** (runbook §5).
+**HW (operator di lokasi):** `docs/p1_hw_runbook.md` §0–§3 (remount_check → TANYA bring-up nyata → K0 → kamera + capture g2
+origin, tanpa gerak → keputusan Δx, baseline rgbd −0.0936 m); lalu 6b sweep v2 (`g50_sweep.sh`, tiap kaki ditanya, `rot_envelope.py
+widen` sesudah tiap amplitudo lulus). Dokumen HW = `docs/p1_g51_hw.md` (§A dikunci sebelum menyentuh HW). Mock MATI.

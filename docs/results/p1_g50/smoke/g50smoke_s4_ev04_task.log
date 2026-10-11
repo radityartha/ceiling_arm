@@ -1,0 +1,22 @@
+# 1791676138.0108 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.7857,0.0353,1.0800 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/claude-1001/-home-user1-Documents-ceiling-arm/bf76def2-a023-4612-acce-d968fb8e9f2a/scratchpad/g50_mon_samples.csv --goal-joints={"t1_a1_joint_1": 0.8777960794140443, "t1_a1_joint_2": 0.26493099210056803, "t1_a1_joint_3": 1.3049519228790711, "t1_a1_joint_4": -1.570790220474842, "t1_a1_joint_5": 1.0400229635510974, "t1_a1_joint_6": 0.693005328352914} --goal-tol-deg=0.05
+1791676138.4682 probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 12.0 N.m
+1791676138.4682 sumber target: arm_1 (1.7857, 0.0353, 1.08), [] []
+1791676138.4682 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791676138.4682 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791676138.4682 
+1791676140.8923 [INFO] [1791676140.892196021] [reach_dwell_probe]: ujung rencana vs target: 0.49 mm, sumbu 0.04 deg
+1791676140.8933 [INFO] [1791676140.893266200] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=5.01->12.71/14, 3=2.32->8.92/10, 4=0.35->2.33/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 91 %)
+1791676140.8989 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791676140.8989   self.geom = pin.buildGeomFromUrdf(
+1791676143.9678 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791676143.9679   self.geom = pin.buildGeomFromUrdf(
+1791676150.4584 [INFO] [1791676150.458328037] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 639.3 mm di titik 28 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+1791676151.7281 [INFO] [1791676151.728094066] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 126.1 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+1791676152.7634 [INFO] [1791676152.763369641] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.350):
+1791676153.6321 [INFO] [1791676153.632035809] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+1791676153.6323 [INFO] [1791676153.632307003] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 901.5 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+1791676153.6326 [INFO] [1791676153.632615651] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 126.1 mm di titik 0/60 (t1_a2_left_finger_dist_link_0)
+1791676156.4736        arm_1: moveit MOVED  (percobaan rencana: ['PLANNED'])
+1791676158.2984   [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_1']) torsi puncak  0.00 N.m
+1791676158.2985   TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+1791676158.2987   -> /tmp/g20_step5.json

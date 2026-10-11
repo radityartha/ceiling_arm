@@ -1,0 +1,68 @@
+pids monitor [3078516] recorder [3078496] ros2_control_node [3077087]
+  event 0: {'kind': 'retract', 'gantry': 1, 'stop': 0}
+  event 1: {'kind': 'traverse', 'gantry': 1, 'stop': 0, 'frm': (1.5, 0.0), 'to': (1.5, -0.17453292519943295)}
+  event 2: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_2', 'task': 5, 'xyz': [1.2143, 0.6, 1.0], 'goal': {'t1_a2_joint_1': -1.4617544074518753, 't1_a2_joint_2': 0.6120560046960314, 't1_a2_joint_3': 0.6142835283270829, 't1_a2_joint_4': -2.200808514228636, 't1_a2_joint_5': 0.0017074433521280796, 't1_a2_joint_6': 1.9173618101483765}}
+  event 3: {'kind': 'retract', 'gantry': 1, 'stop': 1}
+  event 4: {'kind': 'traverse', 'gantry': 1, 'stop': 1, 'frm': (1.5, -0.17453292519943295), 'to': (1.5, 0.08726646259971647)}
+  event 5: {'kind': 'task', 'gantry': 1, 'stop': 1, 'arm': 'arm_2', 'task': 0, 'xyz': [0.8571, 0.1059, 1.24], 'goal': {'t1_a2_joint_1': -0.4384830903722462, 't1_a2_joint_2': -0.2854388798921792, 't1_a2_joint_3': 1.4263167817374642, 't1_a2_joint_4': -1.5707857870612436, 't1_a2_joint_5': 1.7117545347527585, 't1_a2_joint_6': -0.08510891226730374}}
+  event 6: {'kind': 'task', 'gantry': 1, 'stop': 1, 'arm': 'arm_2', 'task': 1, 'xyz': [1.0714, 0.0353, 1.16], 'goal': {'t1_a2_joint_1': -1.1480710107980938, 't1_a2_joint_2': -0.1486087515209833, 't1_a2_joint_3': 1.269200781859824, 't1_a2_joint_4': -1.570788920097442, 't1_a2_joint_5': 1.417807109632904, 't1_a2_joint_6': 0.3626778042964134}}
+  event 7: {'kind': 'retract', 'gantry': 1, 'stop': 2}
+  event 8: {'kind': 'retract', 'gantry': 2, 'stop': 0}
+  event 9: {'kind': 'traverse', 'gantry': 2, 'stop': 0, 'frm': (0.0, 0.0), 'to': (1.4, -0.17453292519943295)}
+  event 10: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 4, 'xyz': [2.0, -0.3176, 1.24], 'goal': {'t2_a1_joint_1': 2.180104116135301, 't2_a1_joint_2': -0.0575295321048027, 't2_a1_joint_3': -1.8142549560853494, 't2_a1_joint_4': -1.5708131727488412, 't2_a1_joint_5': -1.7567253363096582, 't2_a1_joint_6': 0.7868995756571536}}
+  event 11: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_4', 'task': 2, 'xyz': [1.0714, -0.1059, 1.0], 'goal': {'t2_a2_joint_1': -1.7221311461395854, 't2_a2_joint_2': 0.6115774159349769, 't2_a2_joint_3': 0.6115816052447511, 't2_a2_joint_4': -2.0318049994601326, 't2_a2_joint_5': 3.7761035306810298e-06, 't2_a2_joint_6': 0.5250811613822629}}
+  event 12: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_4', 'task': 3, 'xyz': [1.2143, -0.3882, 1.0], 'goal': {'t2_a2_joint_1': -0.031412428127725024, 't2_a2_joint_2': 0.3487138218024465, 't2_a2_joint_3': -0.1835843548389801, 't2_a2_joint_4': -1.5708022093556258, 't2_a2_joint_5': -0.5322982494643057, 't2_a2_joint_6': 1.4276795929058506}}
+  event 13: {'kind': 'retract', 'gantry': 2, 'stop': 1}
+K0 | arm_1: maks |q - REST| 0.000 deg (joint_3); jari 0.0
+K0 | arm_2: maks |q - REST| 0.000 deg (joint_3); jari 0.0
+K0 | arm_3: maks |q - REST| 0.000 deg (joint_1); jari 0.0
+K0 | arm_4: maks |q - REST| 0.000 deg (joint_3); jari 0.0
+K0 | g1: rel 1.5 m (harap 1.5000), rotasi 0.0 deg (harap +0.00)
+K0 | g2: rel 0.0 m (harap 0.0000), rotasi 0.0 deg (harap +0.00)
+K0 | sampel per sendi: min 102, 1.0 s
+K0 | K0 LULUS
+amplop rotasi g1 (-125.0, 125.0) g2 (-125.0, 125.0) (--rot-max 125); traverse di luar: []
+===== t0 1791677146.8250
+  [0] retract g1  
+  [0] rc=0 2.50 s
+  [1] traverse g1  (1.5, -0.17453292519943295)
+  [1] rc=0 10.91 s
+  [2] task g1 arm_2 [1.2143, 0.6, 1.0]
+  [2] rc=0 24.14 s success@37.32
+  [3] retract g1  
+  [3] rc=0 43.85 s
+  [4] traverse g1  (1.5, 0.08726646259971647)
+  [4] rc=0 11.17 s
+  [5] task g1 arm_2 [0.8571, 0.1059, 1.24]
+  [5] rc=0 27.56 s success@119.92
+  [6] task g1 arm_2 [1.0714, 0.0353, 1.16]
+  [6] rc=0 21.49 s success@141.42
+  [7] retract g1  
+  [7] rc=0 43.09 s
+  [8] retract g2  
+  [8] rc=0 2.51 s
+  [9] traverse g2  (1.4, -0.17453292519943295)
+  [9] rc=0 96.70 s
+  [10] task g2 arm_3 [2.0, -0.3176, 1.24]
+  [10] rc=0 31.54 s success@315.27
+  [11] task g2 arm_4 [1.0714, -0.1059, 1.0]
+  [11] rc=0 24.60 s success@339.87
+  [12] task g2 arm_4 [1.2143, -0.3882, 1.0]
+  [12] rc=0 26.00 s success@365.87
+  [13] retract g2  
+  [13] rc=0 43.88 s
+SELESAI: 6/6 tugas sukses; makespan terukur 365.87 s
+terminate called without an active exception
+== RC run_g32 134
+sudah di rest (< 0.5 deg) -- tidak ada yang perlu dikerjakan.
+sudah di rest (< 0.5 deg) -- tidak ada yang perlu dikerjakan.
+g1 pulang lewat: 1.5:-10.0 1.5:0.0
+akhir: g1 = (1.500000 m, -10.0000 deg), galat +0.00 mm / +0.0000 deg; t_traverse 2.93 s (lin None, rot 2.93; T_cmd 3.00); lengan (keempat) bergeser maks 0.0000 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 0.0 t2_a2_joint_6
+{"gantry": 1, "goal": [1.5, -10.0], "start": [1.5, 5.0], "end": [1.5, -10.0], "err_mm": 0.0, "err_deg": 0.0, "T_cmd": 3.0, "T_cmd_lin": 0.0, "T_cmd_rot": 3.0, "t_send": 1791677569.831475, "t_jtc_done": 1791677572.8831654, "t_first_move": 1791677569.9130282, "t_stop": 1791677572.8429747, "t_traverse": 2.93, "t_lin": null, "t_rot": 2.93, "arm_drift_deg": 0.0, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 0.0, "arm_tau_joint": "t2_a2_joint_6", "sweep_min_mm": 380.0, "sweep_arm_mm": 494.7, "sweep_pair": ["t1_platform_link_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 607}
+akhir: g1 = (1.500000 m, +0.0000 deg), galat +0.00 mm / +0.0000 deg; t_traverse 2.91 s (lin None, rot 2.91; T_cmd 3.00); lengan (keempat) bergeser maks 0.0000 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 0.0 t2_a2_joint_6
+{"gantry": 1, "goal": [1.5, 0.0], "start": [1.5, -10.0], "end": [1.5, 0.0], "err_mm": 0.0, "err_deg": 0.0, "T_cmd": 3.0, "T_cmd_lin": 0.0, "T_cmd_rot": 3.0, "t_send": 1791677580.8944263, "t_jtc_done": 1791677583.9459622, "t_first_move": 1791677581.0030513, "t_stop": 1791677583.9130695, "t_traverse": 2.91, "t_lin": null, "t_rot": 2.91, "arm_drift_deg": 0.0, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 0.0, "arm_tau_joint": "t2_a2_joint_6", "sweep_min_mm": 380.0, "sweep_arm_mm": 528.7, "sweep_pair": ["t1_platform_link_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 606}
+g2 pulang lewat: 0.0:0.0
+akhir: g2 = (0.000000 m, +0.0000 deg), galat +0.00 mm / +0.0000 deg; t_traverse 76.87 s (lin 76.87, rot 73.7; T_cmd 77.78); lengan (keempat) bergeser maks 0.0000 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 0.0 t2_a2_joint_6
+{"gantry": 2, "goal": [0.0, 0.0], "start": [1.4, -10.0], "end": [0.0, 0.0], "err_mm": 0.0, "err_deg": 0.0, "T_cmd": 77.778, "T_cmd_lin": 77.778, "T_cmd_rot": 3.0, "t_send": 1791677600.2194011, "t_jtc_done": 1791677678.0212636, "t_first_move": 1791677601.1129293, "t_stop": 1791677677.982996, "t_traverse": 76.87, "t_lin": 76.87, "t_rot": 73.7, "arm_drift_deg": 0.0, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 0.0, "arm_tau_joint": "t2_a2_joint_6", "sweep_min_mm": 380.0, "sweep_arm_mm": 498.9, "sweep_pair": ["t1_platform_link_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 8081}
+K0 LULUS
+== SELESAI 09:14:40

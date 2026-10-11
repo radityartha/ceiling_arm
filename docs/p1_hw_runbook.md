@@ -61,7 +61,10 @@ Tujuan: membedakan (A) encoder g2 slip sesudah G34 (perlu re-zero) dari (B) stop
 
 ## 4. Fase 6b — sweep rotasi bertahap (SETIAP kaki ditanya)
 
-Alat: `bash $R/p1_g48/g48_sweep.sh <g> <kaki> <kaki>` (satu kaki per panggilan; tanpa `--dry` = bergerak). Kaki
+**Pakai sweep v2 (G50):** `bash $R/p1_g50/g50_sweep.sh <g> <kaki> <kaki>` dengan `g50_sweep_legs.json` — g1 30 kaki
+(… ±70, lalu 0 → +90 → 0, lalu −90/−110/−125, PARK), g2 20 kaki (±10/±20/±35, lalu +50/+70/+95, (0, 0)); kebutuhan 17 jadwal
+= g1 −125…+90, g2 −35…+95. (v1 di bawah = G48, hanya sampai g1 +70 / g2 ±35.)
+Alat v1: `bash $R/p1_g48/g48_sweep.sh <g> <kaki> <kaki>` (satu kaki per panggilan; tanpa `--dry` = bergerak). Kaki
 `g48_sweep_legs.json`: g1 = ke stasiun (0.65, 0), lalu 0 → +A → 0 → −A → 0 untuk A = 10, 20, 35, 50, 70, lalu 0 → −90 → 0,
 0 → −110 → 0, 0 → −125 → 0, lalu PARK (1.50, 0) — 28 kaki; g2 = (0.15, 0), A = 10, 20, 35, lalu (0, 0) — 14 kaki. Gantry
 lain DIAM di PARK/home. Setiap kaki: DRY dulu (`… --dry`), lalu `--move` sesudah persetujuan.
@@ -80,7 +83,7 @@ python3 $R/p1_g48/rot_envelope.py show
 (hanya melebar, tak pernah menyempit; riwayat tercatat). `pose_to_g` dan `run_g32` TANPA `--rot-max` langsung memakai amplop
 baru; `--rot-max N` tetap penimpa eksplisit (simetris). Alat sweep sendiri memakai `--rot-max 125` (yang sedang diverifikasi).
 
-Selesai bila g1 lulus sampai −125 dan +70, g2 sampai ±35 (ROT_NEED). Seed yang butuh lebih sedikit (s3, s18: 35°; s7, s10:
+Selesai bila g1 lulus sampai −125 dan +90, g2 sampai −35 dan +95 (ROT_NEED 17 jadwal). Seed yang butuh lebih sedikit (s3, s18: 35°; s7, s10:
 70°) bisa dijalankan begitu amplitudonya lulus.
 
 ## 5. Fase 6c — `run_g32 --dry` di stack nyata (tanpa gerak)
@@ -92,8 +95,11 @@ python3 -u $R/p1_g32/run_g32.py --seed <S> --plan <PLAN> --variant <V> --final-r
   --dry --launch-log /tmp/p1hw_launch.log --mon /tmp/p1hw_mon_samples.csv --out-dir /tmp/p1hw_dry_s<S> \
   --archive $R/p1_g49/hw --prefix p1hw_dry_s<S>_
 ```
-Kandidat: `<PLAN> = $R/p1_g43/g43_candidates_6.json`, `<V> = R180` untuk s0 s3 s7 s10 s18; s8 = `$R/p1_g42/g42f_candidates.json`
-`G42`. Tanpa `--rot-max`: runner menolak SEBELUM event 0 bila jadwal keluar dari amplop terverifikasi (jalankan hanya seed
+Kandidat (17 jadwal, semua DRY-CLI 3/3 + smoke mock 6/6 pada 0.05°):
+- `$R/p1_g43/g43_candidates_6.json` `R180`: s0 s3 s7 s10 s18 (G47);
+- `$R/p1_g43/g43_candidates.json` `R180`: s2 s11 s14 s16 s17 (G50);
+- `$R/p1_g49/g49_candidates.json` `R180`: s4 s5 s6 s9 s12 s13 (G50);
+- `$R/p1_g42/g42f_candidates.json` `G42`: s8 (G47). Tanpa `--rot-max`: runner menolak SEBELUM event 0 bila jadwal keluar dari amplop terverifikasi (jalankan hanya seed
 yang rotasinya sudah terverifikasi 6b). K0 di dalam runner; rc 134 saat keluar = benign.
 
 ## 6. Fase 6d — blok seed HW
