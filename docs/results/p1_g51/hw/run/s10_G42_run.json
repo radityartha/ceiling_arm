@@ -1,0 +1,74 @@
+{
+ "seed": 10,
+ "events": [
+  {
+   "kind": "retract",
+   "gantry": 1,
+   "stop": 0,
+   "rc": 0,
+   "t_start": 1791705124.6798027,
+   "t_end": 1791705127.2543306,
+   "tau_peak": null,
+   "skipped": true
+  },
+  {
+   "kind": "traverse",
+   "gantry": 1,
+   "stop": 0,
+   "frm": [
+    1.5,
+    0.0
+   ],
+   "to": [
+    1.25,
+    -0.5235987755982988
+   ],
+   "rc": 3,
+   "t_start": 1791705127.3042824,
+   "t_end": 1791705215.5813763,
+   "rail": {
+    "gantry": 1,
+    "goal": [
+     1.25,
+     -30.0
+    ],
+    "start": [
+     1.499671,
+     -0.03
+    ],
+    "end": [
+     1.289498,
+     -25.25
+    ],
+    "err_mm": 39.498,
+    "err_deg": 4.75,
+    "T_cmd": 13.871,
+    "T_cmd_lin": 13.871,
+    "T_cmd_rot": 5.231,
+    "t_send": 1791705140.1956515,
+    "t_jtc_done": 1791705158.3703222,
+    "t_first_move": 1791705141.1398666,
+    "t_stop": 1791705153.1517117,
+    "t_traverse": 12.012,
+    "t_lin": 12.012,
+    "t_rot": 10.783,
+    "arm_drift_deg": 0.106,
+    "other_rail_drift_mm": 0.0,
+    "other_rot_drift_deg": 0.0,
+    "arm_tau_peak": 1.603,
+    "arm_tau_joint": "t1_a1_joint_2",
+    "sweep_min_mm": 674.8,
+    "sweep_arm_mm": 674.8,
+    "sweep_pair": [
+     "t1_a2_right_finger_prox_link_0",
+     "t2_a1_right_finger_prox_link_0"
+    ],
+    "jtc_error_code": "0",
+    "n_log": 1398
+   }
+  }
+ ],
+ "stop": "pose_to_g rc=3",
+ "t0": 1791705124.6297925,
+ "status_all": []
+}

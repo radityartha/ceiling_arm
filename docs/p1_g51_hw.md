@@ -281,3 +281,25 @@ perintah diberi `ROS_DOMAIN_ID=0` eksplisit.
 paralelisme dua gantry dan TIDAK bisa terlihat di runner ini (memori G32-OFF: bandingkan dengan P1′-serial). Di runner serial
 R180 justru +11.8 s (+2.3 %): 1 traverse g2 panjang 99.5 s (0 → 1.5 m) di keduanya; R180 punya 3 tugas g1 dengan 3 retract
 (~44 s/retract), R35 2 tugas g1 berurutan tanpa retract di antaranya. Perbandingan vs prediksi P1′-serial = analisis offline berikut.
+
+### B12. 6d — s10 R180 vs R35 sama-sesi — log `results/p1_g51/hw/{planonly,run}/s10_*`
+
+- Plan-only NYATA k = 3 (16:19–16:33): s10 R180 3/3, s10 R35 3/3 (39/39 PLANNED masing-masing). DRY s10 R35 OK (amplop, K0).
+- **s10 R180** (16:34:06, ditanya): K0 runner LULUS; **6/6 SUCCESS, 18/18 rc 0, makespan terukur 582.23 s**; torsi tugas 5.43–9.21
+  (maks t1_a1_joint_2). Traverse g1 (1.20, −30) → (0.50, −70); g2 (0.55, −15) → (1.00, −20) → (1.45, 0). Pulang (16:47–16:51,
+  ditanya): g1 2 kaki → 1.49967 / −0.03°, g2 3 kaki → 0.00034 / 0.0°, **K0 LULUS**.
+
+### B13. 🔴 s10 R35 AUTO-STOP di event 1 → sesi putus → PC robot di-restart operator (17:0x)
+
+- **s10 R35** (16:52:00, ditanya): K0 runner LULUS; ev00 retract g1 rc 0; **ev01 traverse g1 (1.50, 0) → (1.25, −30°): JTC selesai
+  (error 0, t 12.0 / T_cmd 13.87 s) tetapi pose_to_g mengukur akhir (1.2895 m, −25.25°) = kurang 39.5 mm / 4.75° → rc 3 →
+  runner AUTO-STOP** (benar; tidak ada event lain). Sapuan sudah CLEAR (S28 674.8 mm, G33 60.1 mm).
+- Lalu sesi chat putus dan operator me-restart PC robot (uptime 17:04). **`/tmp` terhapus saat boot → HILANG**: log launch
+  bring-up 3 (termasuk baris bridge `go_to_absolute` untuk kejadian ini), rekaman `/tmp/p1hw_joint_states.csv` bring-up 3
+  (g2 kaki 9–19, s7, s10), sampel monitor. Yang selamat: log per kaki sweep + `.bridge.log`, arsip runner `hw/run/`, stdout s7/s10
+  R180 (sudah disalin). Pelajaran: arsipkan `/tmp/p1hw_*` sesudah tiap run, bukan hanya di akhir.
+- Dugaan sebab (dari kode, belum terbukti — log hilang): `dual_table_controller._on_hw_command` membuang setpoint yang tiba saat
+  thread gerak masih jalan ("pick this target up once it finishes") — setpoint itu baru dikirim bila ada pesan perintah
+  BERIKUTNYA. Bila setpoint akhir JTC jatuh di jendela itu dan topic_based tidak menerbitkan lagi, gantry berhenti di target
+  antara. Alternatif: pose_to_g menilai "berhenti" pada jeda stop-start antar dispatch, gantry lanjut sesudahnya. Bring-up
+  berikut membaca posisi encoder yang sebenarnya → membedakan keduanya.
