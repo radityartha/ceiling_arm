@@ -303,3 +303,8 @@ R180 justru +11.8 s (+2.3 %): 1 traverse g2 panjang 99.5 s (0 → 1.5 m) di kedu
   BERIKUTNYA. Bila setpoint akhir JTC jatuh di jendela itu dan topic_based tidak menerbitkan lagi, gantry berhenti di target
   antara. Alternatif: pose_to_g menilai "berhenti" pada jeda stop-start antar dispatch, gantry lanjut sesudahnya. Bring-up
   berikut membaca posisi encoder yang sebenarnya → membedakan keduanya.
+- **Bring-up 4 (17:06, ditanya; hanya PC yang di-restart):** PID 11656, SigIgn `0x1001001`, 4× Actuator, 7/7, **table1 ARMED di
+  1250.0 mm / −30.0°**, table2 ARMED 0.3 mm. K0 terhadap stop 0 s10 R35 (1.25, −30) LULUS: g1 1.24999 / −29.99°, lengan ≤ 0.071°.
+  → **gantry SUDAH sampai tujuan**; dugaan 2 terbukti: pose_to_g menunggu "diam 1.0 s" sesudah JTC selesai dan jeda > 1 s di
+  rantai dispatch bridge terbaca sebagai berhenti. **Perbaikan `pose_to_g.py`:** diam 1.0 s hanya diterima bila dekat tujuan
+  (≤ 2 mm, ≤ 0.81°); di tempat lain tunggu diam 5 s (berhenti pendek sungguhan tetap rc 3).

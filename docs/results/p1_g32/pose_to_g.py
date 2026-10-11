@@ -199,11 +199,15 @@ print('JTC error_code:', ec)
 STILL_L, STILL_R = 0.00005, math.radians(0.01)
 MOV_L, MOV_R = 0.0005, math.radians(0.05)
 end, last, t_still = time.time() + 30.0, (pos[LJ], pos[RJ]), time.time()
+# G51 B13: a >1 s pause BETWEEN two bridge dispatches read as "stopped" 39.5 mm / 4.75 deg short (the gantry then went on to the
+# goal). Still 1 s counts only near the goal (2 mm / 0.81 deg = rail tol / driver shortfall bound); elsewhere wait 5 s still.
+near_goal = lambda: abs(pos[LJ] - GL) <= 0.002 and abs(math.degrees(pos[RJ]) - GR_DEG) <= 0.81  # noqa: E731
 while time.time() < end:
     rclpy.spin_once(n, timeout_sec=0.05)
     if abs(pos[LJ] - last[0]) > STILL_L or abs(pos[RJ] - last[1]) > STILL_R:
         last, t_still = (pos[LJ], pos[RJ]), time.time()
-    elif time.time() - t_still >= 1.0 and (abs(pos[LJ] - sl) > MOV_L or abs(pos[RJ] - sr) > MOV_R):
+    elif (time.time() - t_still >= (1.0 if near_goal() else 5.0)
+          and (abs(pos[LJ] - sl) > MOV_L or abs(pos[RJ] - sr) > MOV_R)):
         break
 L = [r for r in log if r[1] is not None and r[2] is not None]
 
