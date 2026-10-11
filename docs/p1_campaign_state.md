@@ -4,7 +4,7 @@
 
 ## Fase aktif
 
-**Fase 7** (OFFLINE, `docs/p1_campaign_prompt.md` FASE 7) mulai sesi berikut: 7a banding P1′-serial → 7b runner paralel (mock).
+**Fase 7** (OFFLINE, `docs/p1_campaign_prompt.md` FASE 7) mulai sesi berikut: 7a jadwal ulang R90 (±90°) → 7b banding P1′-serial → 7c runner paralel (mock).
 Fase 1–5 LULUS; Fase 6 dihentikan operator 2026-10-11 17:48 (6a–6c selesai, 6d 5/5 run 6/6).
 
 ## Gerbang

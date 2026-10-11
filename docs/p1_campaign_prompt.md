@@ -82,13 +82,17 @@ FASE 7 — OFFLINE sesudah HW G51 (NOL gerak HW; mock ROS_DOMAIN_ID 77 boleh)
 - Fakta G51 (docs/p1_g51_hw.md B1–B15, memori g51-hw-phase6): amplop HW g1 −125…+90, g2 −35…+95; 5 run HW 6/6 (s7 R180/R35,
   s10 R180/R35, s0 R180). run_g32 SERIAL → R180 lebih lambat dari R35 (s7 535 vs 523 s, s10 582 vs 468 s); keuntungan model
   datang dari paralelisme dua gantry. Kekurangan rotasi HW ≤ 0.81° (debounce 0.3 + deadband 0.5).
-- 7a: makespan terukur 5 run vs prediksi P1′-serial (model G25, pola g25_predict_g24b) per seed × varian; dekomposisi
-  tugas / traverse / retract / overhead; bias model. Gerbang 7a: tabel + penjelasan selisih > 15 %.
-- 7b: runner PARALEL (dua gantry bersamaan sesuai jadwal, sinkron pada titik konflik/mutex jadwal; penjaga runner tetap: K0,
+- 7a (DULUAN, offline): batas rotasi R90 (±90° kedua gantry; operator 2026-10-11). Jadwal ulang dengan RSET R90 (salinan
+  solver G42/G49, predikat sama ketat, MARGIN = TOLAK) untuk 5 jadwal yang keluar ±90: s0 (g1 −125), s2 (−105), s11 (g2 +95),
+  s12 (−110), s17 (−100); 12 jadwal lain tetap. Laporkan per seed: lolos/gagal, makespan R90 vs R180, sebab bila gagal. Catat
+  bahwa g2 −90 BELUM terverifikasi HW (amplop g2 −35…+95) → jadwal R90 yang memakai g2 < −35 butuh kaki sweep tambahan.
+  Gerbang 7a: tabel 17 jadwal di R90 + daftar jadwal siap-HW di R90; bila lolos, DRY-CLI mock k = 3 untuk jadwal baru.
+- 7b: makespan terukur 5 run HW vs prediksi P1′-serial (model G25, pola g25_predict_g24b) per seed × varian; dekomposisi
+  tugas / traverse / retract / overhead; bias model. Gerbang 7b: tabel + penjelasan selisih > 15 %.
+- 7c: runner PARALEL (dua gantry bersamaan sesuai jadwal, sinkron pada titik konflik/mutex jadwal; penjaga runner tetap: K0,
   torsi > 14, rel > 2 mm, rot > 1°, fault, AUTO-STOP menghentikan KEDUA gantry). Uji mock: DRY + smoke --move 3 seed (s7, s10,
-  s0) R180 + R35, event = jadwal, 0 HALTED, makespan mock vs model. Gerbang 7b: semua lulus + rehearsal kontrol negatif
-  (AUTO-STOP satu gantry menghentikan yang lain).
-- 7c (opsional, tanya operator): jadwal ulang s0 s2 s11 s12 s17 dengan batas R90.
+  s0 atau penggantinya di R90) R180/R90 + R35, event = jadwal, 0 HALTED, makespan mock vs model. Gerbang 7c: semua lulus +
+  kontrol negatif (AUTO-STOP satu gantry menghentikan yang lain).
 - Gerbang 7 = SIAP HW paralel: runbook HW paralel ditulis, risiko → tanya operator. HW berikut (sesi lain, tanya): runner
   paralel R180 vs R35 sama-sesi, plus s11/s12.
 
