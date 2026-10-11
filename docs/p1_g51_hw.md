@@ -151,3 +151,22 @@ tersimpan `g1_legNN.check`.
 | 12 | 0 | −0.18 | −0.18° | 5.76 / 6.11 (0.944) | — | 0 | ✓ |
 
 → **amplop g1 ±35** (bukti `g1_evidence_pm35.log`).
+| 13 | +50 | +49.93 | −0.07° | 8.18 / 8.76 (0.934) | — | 0 | ✓ (S28 245.5) |
+| 14 | 0 | +0.01 | +0.01° | 8.69 / 8.71 (0.997) | — | 0 | ✓ |
+| 15 | −50 | −49.79 | +0.21° | 8.18 / 8.73 (0.937) | — | 0 | ✓ |
+| 16 | 0 | −0.21 | −0.21° | 7.98 / 8.69 (0.918) | — | 0 | ✓ → amplop ±50 |
+| 17 | +70 | +69.69 | −0.31° dl | 11.42 / 12.25 (0.932) | — | 0 | ✓ (S28 239.9 @ +57°) |
+| 18 | 0 | +0.45 | +0.45° dl | 11.66 / 12.16 (0.959) | — | 0 | ✓ |
+| 19 | −70 | −69.74 | +0.26° | 11.34 / 12.30 (0.922) | — | 0 | ✓ |
+| 20 | 0 | −0.37 | −0.37° dl | 10.99 / 12.17 (0.903) | — | 0 | ✓ → amplop ±70 |
+| 21 | +90 | +89.38 | **−0.62°** dl+db | 14.40 / 15.77 (0.913) | — | 0 | ✗ 0.51 → ✓ 0.81 |
+| 22 | 0 | +0.64 | +0.64° dl+db | 14.29 / 15.60 (0.916) | — | 0 | ✓ |
+| 23 | −90 | −89.64 | +0.36° dl+db | 14.46 / 15.82 (0.914) | — | 0 | ✓ |
+| 24 | 0 | −0.65 | −0.65° dl+db | 14.36 / 15.65 (0.918) | — | 0 | ✓ → amplop ±90 |
+
+(dl = dispatch terakhir `Already at absolute target`; db = setpoint akhir ditelan debounce bridge `rot_tol_deg` 0.3.)
+
+**Penyimpangan §A1 putaran 2 (operator 14:4x):** batas 0.51 salah — lupa debounce bridge. Kaki 21: perintah akhir 90.0 hanya
+0.2° dari dispatch 89.8 → tidak dikirim; lalu 38 pulse ≤ 50 → `Already`. Batas mekanisme = 0.3 + 0.5 + 0.01 = **0.81°** (sudah
+tercatat di memori G30). Operator: **≤ 0.81° bila KURANG dan (deadband atau debounce) terbukti di log.** Konsekuensi: kaki
+"ke 0" bisa berakhir ±0.65° → K0 (rot ±0.5°) bisa TOLAK di akhir → kaki penyesuaian (ditanya) bila perlu.

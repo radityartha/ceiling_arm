@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # G51 6b: ONE sweep leg on HW (operator approved), full log kept, then the runbook checks:
-#   |err_deg| <= 0.3 -- or <= 0.51 if SHORT of the goal and the last dispatch says "Already at absolute target"
-#   (go_to_absolute 50-pulse deadband = 0.5 deg + int truncation; operator 2026-10-11, G51 B4), |err_mm| <= 2, t_traverse <= 1.2 T_cmd, arm drift <= 0.5 deg, other rail/rot still,
+#   |err_deg| <= 0.3 -- or <= 0.81 if SHORT of the goal and the shortfall is the driver's: last dispatch "Already at
+#   absolute target" and/or the final setpoint swallowed by the bridge rot_tol 0.3 debounce (0.3 + 0.5 deadband + 0.01
+#   truncation; operator 2026-10-11, G51 B4 -- the earlier 0.51 forgot the debounce), |err_mm| <= 2, t_traverse <= 1.2 T_cmd, arm drift <= 0.5 deg, other rail/rot still,
 #   arm torque <= 14, launch log: no REJECTED / NOT armed / alarm, |motor1 - motor2| <= 100 pulse (G51 B3).
 #   bash g51_leg.sh <gantry> <leg> --dry|--move   (--move ONLY after the operator approved THIS leg -- G51 B4 violation)
 H=$(cd $(dirname $0) && pwd); G=$1; K=$2
@@ -26,8 +27,11 @@ mv = [l for l in B.splitlines() if 'Absolute move' in l or 'All motors at absolu
 d_rot = j['goal'][1] - j['start'][1]
 short = j['err_deg'] == 0 or (d_rot != 0 and (j['err_deg'] > 0) != (d_rot > 0))
 dead = bool(mv) and 'Already at absolute' in mv[-1]
-ok_deg = abs(j['err_deg']) <= 0.3 or (abs(j['err_deg']) <= 0.51 and short and dead)
-chk = [('|err_deg| <= 0.3 (<= 0.51 kurang + deadband)', ok_deg, (j['err_deg'], 'kurang' if short else 'LEBIH', 'deadband' if dead else '-')),
+cmd = re.findall(r'angle_deg=(-?[\d.]+)', B)
+deb = bool(cmd) and abs(float(cmd[-1]) - j['goal'][1]) > 0.05
+ok_deg = abs(j['err_deg']) <= 0.3 or (abs(j['err_deg']) <= 0.81 and short and (dead or deb))
+chk = [('|err_deg| <= 0.3 (<= 0.81 kurang + deadband/debounce)', ok_deg,
+        (j['err_deg'], 'kurang' if short else 'LEBIH', 'deadband' if dead else '-', f'debounce (akhir {cmd[-1]})' if deb else '-')),
        ('|err_mm| <= 2', abs(j['err_mm']) <= 2, j['err_mm']),
        ('t_traverse <= 1.2 T_cmd', j['t_traverse'] is None or j['t_traverse'] <= 1.2 * T + 0.5, (j['t_traverse'], T)),
        ('arm drift <= 0.5', j['arm_drift_deg'] <= 0.5, j['arm_drift_deg']),
