@@ -230,3 +230,10 @@ D433): 0.934, 0.997, 0.937, 0.918, 0.932, 0.959, 0.922, 0.903, 0.913, 0.916, 0.9
   |motor1 − motor2| ≤ 27 pulse (g1) / ≤ 27 (g2) — tidak ada lagi beda 19 mm.
 - **D432 ✓** (dengan ambang mekanisme, bukan 0.3° §A). **D433 ✓**: t_rot / T_cmd_rot pada Δ ≥ 50° = 0.903–0.997 (g1) dan
   0.910–0.958 (g2) → model `rot_cmd` 0.9235 berlaku di Δ besar.
+
+### B8. 6c — `run_g32 --dry` di stack nyata (bring-up 3, NOL gerak) — log `results/p1_g51/hw/dry/run_dry_s*.log`
+
+15:30–15:3x. **17/17 jadwal**: daftar event lengkap (18–26 event), **`traverse di luar: []`** untuk semua (amplop HW g1 −125…+90,
+g2 −35…+95), K0 runner LULUS di tiap panggilan, `DRY: tidak ada yang dikirim`. rc 134 saat keluar (`terminate called without
+an active exception`) = benign, dikenal (G24b). ⚠ `g47_home.sh` (dan `g50_sweep.sh`) default `ROS_DOMAIN_ID=77` → di HW semua
+perintah diberi `ROS_DOMAIN_ID=0` eksplisit.

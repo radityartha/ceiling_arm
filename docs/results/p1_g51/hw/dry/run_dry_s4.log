@@ -1,0 +1,33 @@
+pids monitor [3267390] recorder [3267373] ros2_control_node [3266568]
+  event 0: {'kind': 'retract', 'gantry': 1, 'stop': 0}
+  event 1: {'kind': 'traverse', 'gantry': 1, 'stop': 0, 'frm': (1.5, 0.0), 'to': (1.35, -0.5235987755982988)}
+  event 2: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 0, 'xyz': [1.5, -0.1059, 1.08], 'goal': {'t1_a1_joint_1': -1.6622598000297528, 't1_a1_joint_2': 0.4644414484094654, 't1_a1_joint_3': -0.47852292236800187, 't1_a1_joint_4': -1.5707986548526458, 't1_a1_joint_5': -0.9429670077512757, 't1_a1_joint_6': 1.225926112400573}}
+  event 3: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 1, 'xyz': [1.9286, -0.0353, 1.08], 'goal': {'t1_a1_joint_1': 0.39844492270432297, 't1_a1_joint_2': -0.3161803866951799, 't1_a1_joint_3': 0.7042724670647283, 't1_a1_joint_4': -1.5707896292211125, 't1_a1_joint_5': 1.0204538779597394, 't1_a1_joint_6': 0.9105524037311106}}
+  event 4: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 2, 'xyz': [1.7857, 0.0353, 1.08], 'goal': {'t1_a1_joint_1': 0.8777960794140443, 't1_a1_joint_2': 0.26493099210056803, 't1_a1_joint_3': 1.3049519228790711, 't1_a1_joint_4': -1.570790220474842, 't1_a1_joint_5': 1.0400229635510974, 't1_a1_joint_6': 0.693005328352914}}
+  event 5: {'kind': 'retract', 'gantry': 1, 'stop': 1}
+  event 6: {'kind': 'retract', 'gantry': 2, 'stop': 0}
+  event 7: {'kind': 'traverse', 'gantry': 2, 'stop': 0, 'frm': (0.0, 0.0), 'to': (1.25, -0.17453292519943295)}
+  event 8: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 3, 'xyz': [1.4286, -0.4588, 1.0], 'goal': {'t2_a1_joint_1': -0.62341614010527, 't2_a1_joint_2': 0.5707801220288597, 't2_a1_joint_3': 0.34235796964881793, 't2_a1_joint_4': -1.5707992646991842, 't2_a1_joint_5': -0.22842381667476874, 't2_a1_joint_6': 1.67061877128685}}
+  event 9: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 4, 'xyz': [2.0, -0.3882, 1.24], 'goal': {'t2_a1_joint_1': 2.6637756194853424, 't2_a1_joint_2': 0.39719042273356914, 't2_a1_joint_3': -1.271527770958562, 't2_a1_joint_4': -1.5708014380103723, 't2_a1_joint_5': -1.6687169712991377, 't2_a1_joint_6': -1.2675172742612149}}
+  event 10: {'kind': 'retract', 'gantry': 2, 'stop': 1}
+  event 11: {'kind': 'traverse', 'gantry': 2, 'stop': 1, 'frm': (1.25, -0.17453292519943295), 'to': (1.3, 0.0)}
+  event 12: {'kind': 'task', 'gantry': 2, 'stop': 1, 'arm': 'arm_3', 'task': 5, 'xyz': [2.0, -0.1765, 1.16], 'goal': {'t2_a1_joint_1': 2.400880079114532, 't2_a1_joint_2': 0.3904686621691694, 't2_a1_joint_3': -0.9525466250673076, 't2_a1_joint_4': -1.5707995055626969, 't2_a1_joint_5': -1.3430134930867754, 't2_a1_joint_6': -0.6555545570063436}}
+  event 13: {'kind': 'retract', 'gantry': 2, 'stop': 2}
+K0 | arm_1: maks |q - REST| 0.255 deg (joint_4); jari 7.345144981518389e-05
+K0 | arm_2: maks |q - REST| 0.233 deg (joint_3); jari 0.00015066964142024518
+K0 | arm_3: maks |q - REST| 0.461 deg (joint_4); jari -8.192661507055163e-05
+K0 | arm_4: maks |q - REST| 0.055 deg (joint_3); jari -0.00028815567903220656
+K0 | g1: rel 1.4995450054115789 m (harap 1.5000), rotasi 0.0 deg (harap +0.00)
+K0 | g2: rel 0.0 m (harap 0.0000), rotasi 0.0 deg (harap +0.00)
+K0 | sampel per sendi: min 15, 1.0 s
+K0 | K0 LULUS
+amplop rotasi g1 (-125.0, 90.0) g2 (-35.0, 95.0) (terverifikasi rot_envelope.json); traverse di luar: []
+  perintah event 2: timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.5000,-0.1059,1.0800 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/p1hw_mon_samples.csv --goal-joints={"t1_a1_joint_1": -1.6622598000297528, "t1_a1_joint_2": 0.4644414484094654, "t1_a1_joint_3": -0.47852292236800187, "t1_a1_joint_4": -1.5707986548526458, "t1_a1_joint_5": -0.9429670077512757, "t1_a1_joint_6": 1.225926112400573} --goal-tol-deg=0.05
+  perintah event 3: timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.9286,-0.0353,1.0800 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/p1hw_mon_samples.csv --goal-joints={"t1_a1_joint_1": 0.39844492270432297, "t1_a1_joint_2": -0.3161803866951799, "t1_a1_joint_3": 0.7042724670647283, "t1_a1_joint_4": -1.5707896292211125, "t1_a1_joint_5": 1.0204538779597394, "t1_a1_joint_6": 0.9105524037311106} --goal-tol-deg=0.05
+  perintah event 4: timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.7857,0.0353,1.0800 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/p1hw_mon_samples.csv --goal-joints={"t1_a1_joint_1": 0.8777960794140443, "t1_a1_joint_2": 0.26493099210056803, "t1_a1_joint_3": 1.3049519228790711, "t1_a1_joint_4": -1.570790220474842, "t1_a1_joint_5": 1.0400229635510974, "t1_a1_joint_6": 0.693005328352914} --goal-tol-deg=0.05
+  perintah event 8: timeout 600 python3 -u reach_dwell_probe.py --arms arm_3 --target=1.4286,-0.4588,1.0000 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/p1hw_mon_samples.csv --goal-joints={"t2_a1_joint_1": -0.62341614010527, "t2_a1_joint_2": 0.5707801220288597, "t2_a1_joint_3": 0.34235796964881793, "t2_a1_joint_4": -1.5707992646991842, "t2_a1_joint_5": -0.22842381667476874, "t2_a1_joint_6": 1.67061877128685} --goal-tol-deg=0.05
+  perintah event 9: timeout 600 python3 -u reach_dwell_probe.py --arms arm_3 --target=2.0000,-0.3882,1.2400 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/p1hw_mon_samples.csv --goal-joints={"t2_a1_joint_1": 2.6637756194853424, "t2_a1_joint_2": 0.39719042273356914, "t2_a1_joint_3": -1.271527770958562, "t2_a1_joint_4": -1.5708014380103723, "t2_a1_joint_5": -1.6687169712991377, "t2_a1_joint_6": -1.2675172742612149} --goal-tol-deg=0.05
+  perintah event 12: timeout 600 python3 -u reach_dwell_probe.py --arms arm_3 --target=2.0000,-0.1765,1.1600 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/p1hw_mon_samples.csv --goal-joints={"t2_a1_joint_1": 2.400880079114532, "t2_a1_joint_2": 0.3904686621691694, "t2_a1_joint_3": -0.9525466250673076, "t2_a1_joint_4": -1.5707995055626969, "t2_a1_joint_5": -1.3430134930867754, "t2_a1_joint_6": -0.6555545570063436} --goal-tol-deg=0.05
+DRY: tidak ada yang dikirim.
+terminate called without an active exception
+timeout: the monitored command dumped core
