@@ -50,3 +50,65 @@
 - **Untuk sesi berikut:** g2 −18.6 mm di encoder = data baru untuk 6a (G36b: −34.9 mm lalu didorong ke 0 → kini −18.6 tanpa
   gerak perangkat lunak yang diketahui) → kamera DULU sebelum pemulihan; pemulihan K0 (`return_rest` arm_4, `pose_to_g` g2 →
   0) hanya sesudah keputusan origin dan persetujuan operator. table2 hanya ARMED bila perintah = terukur.
+
+### B1. Bring-up 2 (13:26, sesi chat baru) — NOL gerak — [K0](results/p1_g51/hw/k0_bringup2.json)
+
+- remount_check 13:25 LULUS; operator cek LED/area → bring-up. PID launch asli 3218146, SigIgn `0x1001001` (SIGINT tidak
+  diabaikan). 4× `Actuator count … '6'`; spawner gripper_1/2/3/4 + gantry_2_with_arm mati "already loaded" (balapan spawner,
+  dikenal) tetapi **7/7 controller active**. table1 ARMED 1499.9 mm / 0.0°; **table2 NOT armed** (perintah 0.0 mm vs
+  terukur −18.6 mm / −0.2°, sama B0). `/table_hw_commands` diam (topic_based hanya publikasi saat berubah, 0 pesan / 16 s).
+  `env_static_map` ada di scene. Monitor + perekam hidup.
+- **K0 TOLAK, identik B0**: g2 rel −18.58 mm, rot −0.16°; arm_4 joint_5 0.573° (> 0.5); arm_1 0.257, arm_2 0.203, arm_3 0.455°;
+  g1 1.49986 m / 0.0° → keadaan stabil antar bring-up (bukan drift baca).
+- Kamera: launch kamera saya (13:28) + launch kedua dari terminal VS Code operator (~40 s kemudian) → rebutan device
+  (`VIDIOC_S_FMT … Device or resource busy`), 0 frame. Saya SIGINT launch saya; operator Ctrl+C launch-nya; satu launch
+  bersih ulang 13:33 (0 "busy"). **Celah runbook §3:** `/<ns>/depth_cloud` (dipakai `capture_cloud`) BUKAN bagian
+  `realsense_dual.launch.py` → `ros2 run reachability_gng depth_cloud` harus dijalankan juga (G34 A: "+ depth_cloud").
+- Capture 13:35 `results/p1_g51/cal_g2_origin.npz`: rgbd 48 frame, rgbd2 47, joints rentang maks 0.00008 (diam).
+
+### B2. Origin g2 dengan kamera (6a, NOL gerak) — [rail_calib](results/p1_g51/g2_origin.json), [fit lengan-sama](results/p1_g51/g51_origin_fit.json) ([skrip](results/p1_g51/g51_origin_fit.py))
+
+- `rail_calib --groups g2 --diff` (runbook §3.4, acuan latar cal_06): tangkapan baru **rgbd hanya melihat SATU lengan g2**
+  (`per_arm [0, 400]`, t2_a1 = 0 titik; g1 PARKIR 1.50 di depan kamera rgbd x 1.81 — dugaan oklusi) → fit 4-DOF satu lengan
+  tidak tertentu (yaw −34.4°, tx +0.1435) → **tidak sebanding baseline G48** (800 titik, yaw ≈ 0). Penyimpangan dari §A1
+  (ambang dirumuskan untuk fit dua lengan) — DITULIS; diganti perbandingan apel-ke-apel di bawah.
+- `g51_origin_fit.py`: kamera sama, lengan sama, acuan latar sama (cal_06), model diletakkan di sendi TERUKUR tiap tangkapan
+  (tangkapan baru: s2 = **−18.58 mm**), fit translasi saja (yaw 0) + 4-DOF:
+
+| kamera / lengan | cal_00 tx (g2 0.9 mm) | cal_07 tx (0.8 mm) | baru tx (−18.6 mm) | Δx vs rerata cal_00/07 | median |d| sesudah |
+|---|---|---|---|---|---|
+| rgbd / t2_a2 | −0.0775 | −0.0839 | −0.0799 | **+0.8 mm** | 12.6 / 9.9 / 11.5 mm |
+| rgbd2 / t2_a1 | −0.0601 | −0.0604 | −0.0596 | **+0.6 mm** | 6.9 / 6.7 / 7.7 mm |
+
+  (rgbd2 4-DOF satu lengan juga stabil: tx −0.1622 / −0.1747 / **−0.1744**, yaw 15.1 / 17.3 / 17.4°; rgbd 4-DOF satu lengan tidak
+  stabil bahkan di baseline: yaw −13.9 / −18.4°.)
+- **Putusan: |Δx| ≤ 10 mm → encoder g2 TIDAK slip** terhadap G34 (keterulangan rgbd2 0.3 mm, rgbd 6.4 mm; slip 18.6 mm akan
+  terlihat ≥ 18 mm). Kereta g2 memang **fisik** di −18.6 mm (di belakang URDF 0, ke arah stopper). Penyebab perpindahan sejak
+  G36b (yang berakhir di 0.000) tidak diketahui — tidak ada gerak dari PC ini; sama seperti G36b B7.0 (−34.9 mm).
+  → **TIDAK re-zero.** Pemulihan = gerak perangkat lunak ke encoder 0 (pola G36b B7.0). D431 ✓.
+
+### B3. Pemulihan K0 (operator: tidak re-zero; tiap langkah ditanya) — log `results/p1_g51/hw/g51_restore_*.log`
+
+| langkah | saring (DRY) | hasil HW |
+|---|---|---|
+| restart `gantry_2_with_arm_controller` (13:42:55) | — | 7/7 active; `/table_hw_commands` diam; K0 tak berubah ([JSON](results/p1_g51/hw/k0_after_ctrl_restart.json)) |
+| `return_rest --move arm_4` (13:44) | lurus; se-gantry 623.9, lintas 875.3, peta 115.2 mm | rc 0, galat 0.030°, torsi 3.57 N·m, rel tidak tersentuh |
+| `pose_to_g --move` g2 → (0, 0) (13:46) | S28 859.7, peta 115.2 mm, T_cmd 3 s | table2 ARMED di −18.6 → 1× REJECTED (−18.6 < `min_mm` 0, dikenal G36b) → satu `go_to_absolute(0,0)`; **0.000 mm / 0.000°**, t 0.62 s, lengan geser 0.14°, torsi 1.21 N·m |
+
+**K0 LULUS** 13:5x ([JSON](results/p1_g51/hw/k0_after_restore.json)): arm maks 0.456° (arm_3 j4), arm_4 0.018°, g1 1.49986 / 0.0°, g2 0.000 / 0.0°.
+
+**🔴 Temuan: dua motor linear g2 tidak sepakat sebelum pemulihan.** `go_to_absolute` mencatat `start=[-1774, 64, -16]`
+(motor1 −18.6 mm, **motor2 +0.7 mm**, rot −0.16°) → target [0, 0, 0] → akhir `[-47, 0, 0]` (motor1 lanjut ke 0, /joint_states
+membaca **hanya motor1**). G36b sama: `start=[-3335, -73, 291]`. Di semua log arsip lain kedua motor linear sepakat (≤ ~30
+pulse saat bergerak). → **antar sesi hanya motor1 yang bergeser**; motor2 tidak terlihat ROS kecuali di log ini.
+- Operator (13:5x) melihat kereta g2 sesudah pemulihan: **"sejajar, normal"**.
+- Kamera sesudah pemulihan (`cal_g2_after0.npz`, fit lengan-sama, model s2 = 0): rgbd/t2_a2 Δx **+15.2 mm**, rgbd2/t2_a1 Δx
+  +2.0 mm (sebelum: +0.8 / +0.6 di s2 −18.6). Bila benar, a1 bergeser ≈ +17 mm tetapi a2 hanya ≈ +4 mm (= miring/racking);
+  tetapi rgbd satu lengan terhalang g1, keterulangan antar sesi 6.4 mm. Cek model-bebas (`g51_cloud_shift.py`) TIDAK andal:
+  ICP awan-ke-awan terkunci kisi 1 cm (kontrol g1 1.2 mm, g2 1.8/4.2 mm), centroid jendela-sama berderau (kontrol g1 z
+  −150 mm → adegan berubah, mis. orang). → **kamera tidak bisa memutuskan racking ±15 mm; penentu = pita ukur kedua sisi.**
+- **Operator (pita, 13:5x):** jarak ujung kotak base g2 ke ujung jalur **sama** di kedua sisi → tidak miring. Encoder kiri/kanan
+  sudah sama sesudah pemulihan (motor1 0, motor2 0 — `go_to_absolute` akhir 13:46:31; tanpa gerak sesudahnya). → +15.2 mm rgbd
+  dianggap derau (oklusi g1). **6a SELESAI**: origin OK (tidak re-zero), K0 LULUS.
+- **Aturan tambahan 6b+ (dari temuan ini):** tiap kaki periksa log `go_to_absolute` table yang bergerak: |motor1 − motor2| ≤
+  100 pulse (≈ 1 mm) di `start=` dan `Positions:`; lebih → BERHENTI. Bila sel dimatikan/dinyalakan lagi: cek `start=` pertama.

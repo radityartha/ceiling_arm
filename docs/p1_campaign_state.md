@@ -40,8 +40,8 @@
 
 ## Langkah berikut
 
-**Fase 6 dimulai 2026-10-11 13:16 (G51 `docs/p1_g51_hw.md`, §A dikunci).** remount_check LULUS; bring-up 1 (nol gerak): 4× Actuator,
-7/7 controller, table1 ARMED, **table2 NOT armed (terukur −18.6 mm / −0.2°)**, **K0 TOLAK** (g2 −18.58 mm, arm_4 j5 0.573°).
-Stack dimatikan bersih; operator lanjut di SESI CHAT BARU (prompt `docs/p1_g51_hw_prompt.md`). Berikut: bring-up lagi (tanya)
-→ K0 → kamera + capture g2 origin (TANPA gerak, `realsense_dual.launch.py`, panel kamera di RViz) → keputusan Δx → baru
-pemulihan K0 (tanya) → 6b sweep v2.
+**Fase 6 (G51 `docs/p1_g51_hw.md`). 6a SELESAI 13:5x**: origin g2 OK (kamera Δx +0.6/+0.8 mm di enc −18.6 → tidak slip,
+TIDAK re-zero), pemulihan (restart ctrl g2, return_rest arm_4, pose_to_g g2 → 0) → **K0 LULUS**. Temuan: motor1 vs motor2
+linear g2 beda 19 mm sebelum pemulihan (G36b juga) → sejak itu sama (0/0), operator pita: sama. Stack HIDUP (launch PID
+3218146, kamera + depth_cloud, monitor + perekam). Berikut: **6b sweep v2 kaki g1 #1 DRY** (`bash results/p1_g50/g50_sweep.sh 1 …`)
+→ tanya → `--move`; tiap kaki cek |motor1 − motor2| ≤ 100 pulse.
