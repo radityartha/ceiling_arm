@@ -66,6 +66,58 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /env_static_map/cloud
       Value: true
+    - Class: rviz_default_plugins/PointCloud2
+      Enabled: true
+      Name: Kamera rgbd (awan warna, live)
+      Color Transformer: RGB8
+      Style: Points
+      Size (Pixels): 2
+      Alpha: 1
+      Decay Time: 0
+      Topic:
+        Depth: 1
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /rgbd/color_cloud
+      Value: true
+    - Class: rviz_default_plugins/PointCloud2
+      Enabled: true
+      Name: Kamera rgbd2 (awan warna, live)
+      Color Transformer: RGB8
+      Style: Points
+      Size (Pixels): 2
+      Alpha: 1
+      Decay Time: 0
+      Topic:
+        Depth: 1
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /rgbd2/color_cloud
+      Value: true
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Name: Kamera rgbd (warna, live)
+      Normalize Range: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /rgbd/rgb
+      Value: true
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Name: Kamera rgbd2 (warna, live)
+      Normalize Range: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /rgbd2/rgb
+      Value: true
   Global Options:
     Fixed Frame: world
   Tools:

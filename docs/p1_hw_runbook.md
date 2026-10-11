@@ -42,7 +42,10 @@ dicatat apa adanya (K0 lisan TIDAK dipakai — G36b).
 
 Tujuan: membedakan (A) encoder g2 slip sesudah G34 (perlu re-zero) dari (B) stopper home ~35 mm di luar URDF 0 (JANGAN re-zero).
 1. Lengan REST, g2 di encoder 0.000 (K0), g1 di PARK 1.50.
-2. Kamera: `ros2 launch reachability_gng realsense_dual.launch.py with_color_cloud:=false` (ekstrinsik TIDAK diubah).
+2. Kamera: `ros2 launch reachability_gng realsense_dual.launch.py` (ekstrinsik TIDAK diubah; `with_color_cloud` default true
+   = awan warna live untuk RViz, viz saja). RViz (`moveit.rviz`) menampilkan: peta 3D beku "Env map (D455 voxels, g34n)" +
+   kotak scene MoveIt, panel gambar "Kamera rgbd/rgbd2 (warna, live)" (`/<ns>/rgb`), dan awan warna live
+   (`/<ns>/color_cloud`) — operator membandingkan awan live dengan voxel peta dan model robot.
 3. `python3 $R/p1_g33/capture_cloud.py --joints --seconds 20` → `$R/p1_g48/cal_g2_origin.npz`.
 4. `cd $R/p1_g34 && python3 rail_calib.py --capture cal_00.npz cal_06.npz cal_07.npz ../p1_g48/cal_g2_origin.npz
    --config capture capture capture capture --groups g2 --diff --out ../p1_g48/g2_origin.json` — registrasi per tangkapan
