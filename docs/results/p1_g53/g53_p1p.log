@@ -1,0 +1,29 @@
+s7 R180: terukur 535.05  P1'-serial 549.18 (model per event 549.18, K True)  rasio 0.974  P1'-par 275.94
+    tugas 6: 169.1 vs 261.9 | traverse 5: layar 60.7 + gerak 124.7 = 185.4 vs 134.7 | retract 3: 136.5 vs 152.6 | retract-akhir 43.8 vs 0 | jeda 0.3
+s7 G42 : terukur 523.25  P1'-serial 548.14 (model per event 548.14, K True)  rasio 0.955  P1'-par 435.00
+    tugas 6: 166.9 vs 261.9 | traverse 5: layar 51.2 + gerak 124.2 = 175.4 vs 133.6 | retract 3: 136.5 vs 152.6 | retract-akhir 43.9 vs 0 | jeda 0.5
+s10 R180: terukur 582.23  P1'-serial 567.52 (model per event 567.52, K True)  rasio 1.026  P1'-par 323.45
+    tugas 6: 181.1 vs 261.9 | traverse 5: layar 77.1 + gerak 142.5 = 219.6 vs 153.0 | retract 3: 136.3 vs 152.6 | retract-akhir 44.4 vs 0 | jeda 0.8
+s10 G42 : terukur 468.37  P1'-serial 472.32 (model per event 472.32, K True)  rasio 0.992  P1'-par 367.09
+    tugas 6: 182.0 vs 261.9 | traverse 4: layar 49.3 + gerak 99.6 = 148.9 vs 108.7 | retract 2: 94.2 vs 101.7 | retract-akhir 43.2 vs 0 | jeda 0.1
+s0 R180: terukur 447.34  P1'-serial 458.60 (model per event 458.60, K True)  rasio 0.975  P1'-par 246.19
+    tugas 6: 172.2 vs 261.9 | traverse 4: layar 51.8 + gerak 85.8 = 137.6 vs 95.0 | retract 2: 92.8 vs 101.7 | retract-akhir 44.4 vs 0 | jeda 0.3
+
+A1.1 P1''-serial LOO
+  s7 R180: P1'' 545.11 vs terukur 535.05 -> +1.88 %  (a_t 29.26, layar 12.75, gerak x0.922, a_r 45.41)
+  s7 G42 : P1'' 547.17 vs terukur 523.25 -> +4.57 %  (a_t 29.35, layar 13.27, gerak x0.921, a_r 45.40)
+  s10 R180: P1'' 554.03 vs terukur 582.23 -> -4.84 %  (a_t 28.76, layar 11.83, gerak x0.920, a_r 45.38)
+  s10 G42 : P1'' 459.22 vs terukur 468.37 -> -1.95 %  (a_t 28.72, layar 12.68, gerak x0.924, a_r 45.24)
+  s0 R180: P1'' 448.68 vs terukur 447.34 -> +0.30 %  (a_t 29.13, layar 12.54, gerak x0.926, a_r 45.25)
+  kalibrasi 5 run: {"a_t": 29.043, "l_bar": 12.614, "g": 0.923, "a_r": 45.336}
+
+A1.2 delta(R180 - R35) serial
+  s7: terukur +11.80, P1'-serial +1.04, P1''-serial +0.96, P1'-par -159.06
+  s10: terukur +113.86, P1'-serial +95.20, P1''-serial +98.86, P1'-par -43.65
+
+A1.3 traverse dominan-rotasi
+  s7 R180 g2 (1.50,-5)->(1.50,+5): gerak 5.03 / model 7.51 = 0.670; t_rot 3.031 T_cmd_rot 3.0
+  s7 G42 g2 (1.50,-5)->(1.50,+5): gerak 5.00 / model 7.51 = 0.666; t_rot 2.96 T_cmd_rot 3.0
+  s7 G42 g2 (1.50,+5)->(1.50,-20): gerak 6.27 / model 8.77 = 0.715; t_rot 4.367 T_cmd_rot 4.36
+  s0 R180 g1 (0.75,-30)->(0.80,-125): gerak 17.80 / model 20.05 = 0.888; t_rot 15.318 T_cmd_rot 16.582
+  n 4, median 0.692
