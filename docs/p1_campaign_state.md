@@ -4,8 +4,11 @@
 
 ## Fase aktif
 
-**KAMPANYE SELESAI** — Gerbang 7 LULUS 2026-10-11 (operator menerima risiko P1–P6, `docs/p1_hw_runbook_parallel.md` §5). Rencana awal 7a = G52: 7a jadwal ulang R90 (±90°) → 7b banding P1′-serial → 7c runner paralel (mock).
-Fase 1–5 LULUS; Fase 6 dihentikan operator 2026-10-11 17:48 (6a–6c selesai, 6d 5/5 run 6/6).
+**G58–G60 OFFLINE** (prompt `docs/p1_g58_offline_prompt.md`, sesi 2026-10-12). G58 LULUS 08:04 (mock 11/11). G59 aktif:
+§A dikunci (`docs/p1_g59_demo.md`, sha256 `07582eeb…`), harness `docs/results/p1_g59/harness/g59_run.sh` di mock 77 yang sama
+(REST, g1 PARK). G60: §A dikunci (`docs/p1_g60_excl_sched.md`, sha256 `7af94f7b…`), job `p1_g60/g60_job.sh` (Pool 15) SESUDAH
+mock G59 selesai.
+Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 
 ## Gerbang
 
@@ -23,6 +26,7 @@ Fase 1–5 LULUS; Fase 6 dihentikan operator 2026-10-11 17:48 (6a–6c selesai, 
 | 7 | runbook HW paralel + risiko → operator | **LULUS** (operator 2026-10-11: terima P1–P6) | `docs/p1_hw_runbook_parallel.md` |
 | G55 | jadwal P1″ + seleksi sim; DRY-CLI + smoke paralel | **LULUS** (5/6) | `docs/p1_g55_par_sched.md` B5 |
 | G56 | persiapan hari HW: injeksi gerak, fault, sweep v3, analisis P2 | 2/3 (D482 salah rumus) | `docs/p1_g56_hw_day.md` B3 |
+| G58 | blok seed lama vs baru: smoke paralel mock 11/11 + tabel siap-HW | **LULUS** (5/5) | `docs/p1_g58_seed_block.md` B1–B3 |
 
 ## Keputusan operator
 
@@ -70,6 +74,5 @@ memakai model P1″ + traverse eksklusif (s10 R180 kalah di runner paralel).
 
 ## Langkah berikut
 
-**Semua offline SELESAI (2026-10-12 00:35). Hari HW: ikuti `docs/p1_hw_day_2026-10-12.md` dari §0** — bring-up, K0, plan-only nyata
-k = 3 (s7/s10/s0/s11 `R90sel` + s7 `R180` + s10 `G42`), DRY run_g54, uji stop-semua HW (`--inject-stop-on-motion 2`), lalu pasangan
-lama vs terpilih (s7, s10, s0, opsional s11). TIAP gerak ditanya. Mock mati bersih (node 0, crash dump sesi dihapus).
+Operator 2026-10-12: offline dulu, baru HW → sesi baru dengan prompt `docs/p1_g58_offline_prompt.md` (G58 blok seed, G59 DEMO, G60
+penjadwal sadar traverse eksklusif); sesudahnya sesi HW dengan `docs/p1_g57_hw_prompt.md` (diperbarui di akhir G60).
