@@ -78,5 +78,19 @@ FASE 6 — HW (hanya bila operator menjawab "lanjut"; SETIAP gerak ditanya dulu)
 - 6a cek origin g2 kamera → 6b sweep rotasi bertahap sampai ROT_NEED → 6c run_g32 DRY di stack nyata → 6d blok seed HW.
   Fault/torsi/benturan → berhenti, amankan (REST), tulis, tanya.
 
-SELESAI bila Gerbang 5 LULUS (atau Fase 6 selesai bila operator memilih lanjut). Laporan akhir: ringkasan per fase, tally
+FASE 7 — OFFLINE sesudah HW G51 (NOL gerak HW; mock ROS_DOMAIN_ID 77 boleh)
+- Fakta G51 (docs/p1_g51_hw.md B1–B15, memori g51-hw-phase6): amplop HW g1 −125…+90, g2 −35…+95; 5 run HW 6/6 (s7 R180/R35,
+  s10 R180/R35, s0 R180). run_g32 SERIAL → R180 lebih lambat dari R35 (s7 535 vs 523 s, s10 582 vs 468 s); keuntungan model
+  datang dari paralelisme dua gantry. Kekurangan rotasi HW ≤ 0.81° (debounce 0.3 + deadband 0.5).
+- 7a: makespan terukur 5 run vs prediksi P1′-serial (model G25, pola g25_predict_g24b) per seed × varian; dekomposisi
+  tugas / traverse / retract / overhead; bias model. Gerbang 7a: tabel + penjelasan selisih > 15 %.
+- 7b: runner PARALEL (dua gantry bersamaan sesuai jadwal, sinkron pada titik konflik/mutex jadwal; penjaga runner tetap: K0,
+  torsi > 14, rel > 2 mm, rot > 1°, fault, AUTO-STOP menghentikan KEDUA gantry). Uji mock: DRY + smoke --move 3 seed (s7, s10,
+  s0) R180 + R35, event = jadwal, 0 HALTED, makespan mock vs model. Gerbang 7b: semua lulus + rehearsal kontrol negatif
+  (AUTO-STOP satu gantry menghentikan yang lain).
+- 7c (opsional, tanya operator): jadwal ulang s0 s2 s11 s12 s17 dengan batas R90.
+- Gerbang 7 = SIAP HW paralel: runbook HW paralel ditulis, risiko → tanya operator. HW berikut (sesi lain, tanya): runner
+  paralel R180 vs R35 sama-sesi, plus s11/s12.
+
+SELESAI bila Gerbang 7 LULUS. Laporan akhir: ringkasan per fase, tally
 dugaan, keadaan HW, risiko sisa — di berkas keadaan dan di jawaban.
