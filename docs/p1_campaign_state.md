@@ -40,7 +40,8 @@
 
 ## Langkah berikut
 
-G50 LULUS (11 jadwal baru DRY-CLI 11/11 3/3, smoke 66/66, sweep v2 mock 50/50) → **17 jadwal siap HW** (runbook §5).
-**HW (operator di lokasi):** `docs/p1_hw_runbook.md` §0–§3 (remount_check → TANYA bring-up nyata → K0 → kamera + capture g2
-origin, tanpa gerak → keputusan Δx, baseline rgbd −0.0936 m); lalu 6b sweep v2 (`g50_sweep.sh`, tiap kaki ditanya, `rot_envelope.py
-widen` sesudah tiap amplitudo lulus). Dokumen HW = `docs/p1_g51_hw.md` (§A dikunci sebelum menyentuh HW). Mock MATI.
+**Fase 6 dimulai 2026-10-11 13:16 (G51 `docs/p1_g51_hw.md`, §A dikunci).** remount_check LULUS; bring-up 1 (nol gerak): 4× Actuator,
+7/7 controller, table1 ARMED, **table2 NOT armed (terukur −18.6 mm / −0.2°)**, **K0 TOLAK** (g2 −18.58 mm, arm_4 j5 0.573°).
+Stack dimatikan bersih; operator lanjut di SESI CHAT BARU (prompt `docs/p1_g51_hw_prompt.md`). Berikut: bring-up lagi (tanya)
+→ K0 → kamera + capture g2 origin (TANPA gerak, `realsense_dual.launch.py`, panel kamera di RViz) → keputusan Δx → baru
+pemulihan K0 (tanya) → 6b sweep v2.
