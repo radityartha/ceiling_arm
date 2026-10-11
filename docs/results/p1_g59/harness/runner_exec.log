@@ -1,0 +1,47 @@
+[INFO] [1791760619.433527157] [demo_runner]: demo_runner up (EXECUTE), standoff 0.25 m, out /home/user1/Documents/ceiling_arm/docs/results/p1_g59/mock
+[INFO] [1791760628.690483883] [demo_runner]: target -> #201
+[INFO] [1791760631.694045017] [demo_runner]: run 1: #201 bottle p_cmd (1.75, 0.55, 1.22) urutan ['arm_1', 'arm_2']
+[INFO] [1791760661.537537429] [demo_runner]:   arm_1: MOVED (rc 0, 29.84 s)
+[INFO] [1791760704.555822825] [demo_runner]: STATUS success arm_1 (arm_1:MOVED) 72.86 s
+[INFO] [1791760735.139198674] [demo_runner]: target -> #202
+[INFO] [1791760738.142262567] [demo_runner]: run 2: #202 bottle p_cmd (1.75, 0.55, 1.22) urutan ['arm_1', 'arm_2']
+[ERROR] [1791760754.893475593] [demo_runner]: execute DITOLAK: run sebelumnya masih jalan (r1)
+[INFO] [1791760766.859789341] [demo_runner]:   arm_1: MOVED (rc 0, 28.72 s)
+[INFO] [1791760810.070120524] [demo_runner]: STATUS success arm_1 (arm_1:MOVED) 71.93 s
+[INFO] [1791760818.584508509] [demo_runner]: target -> #203
+[INFO] [1791760821.587552734] [demo_runner]: run 3: #203 bottle p_cmd (1.75, 0.55, 1.22) urutan ['arm_1', 'arm_2']
+[INFO] [1791760848.396681234] [demo_runner]:   arm_1: MOVED (rc 0, 26.81 s)
+[INFO] [1791760891.915388492] [demo_runner]: STATUS success arm_1 (arm_1:MOVED) 70.33 s
+[INFO] [1791760902.034840918] [demo_runner]: target -> #205
+[INFO] [1791760905.038571599] [demo_runner]: run 4: #205 bottle p_cmd (2.15, -0.15, 1.1) urutan ['arm_1', 'arm_2']
+[INFO] [1791760951.478252557] [demo_runner]:   arm_1: NO-PLAN (rc 0, 46.44 s)
+[INFO] [1791760997.568598824] [demo_runner]:   arm_2: NO-PLAN (rc 0, 46.09 s)
+[INFO] [1791760997.569136036] [demo_runner]: STATUS failed: arm_1:NO-PLAN, arm_2:NO-PLAN
+[INFO] [1791761006.502281215] [demo_runner]: target -> #206
+[INFO] [1791761009.505566308] [demo_runner]: run 5: #206 bottle p_cmd (1.2, 0.85, 1.5) urutan ['arm_2', 'arm_1']
+[INFO] [1791761056.490563303] [demo_runner]:   arm_2: NO-PLAN (rc 0, 46.98 s)
+[INFO] [1791761102.684740455] [demo_runner]:   arm_1: NO-PLAN (rc 0, 46.19 s)
+[INFO] [1791761102.685382434] [demo_runner]: STATUS failed: arm_2:NO-PLAN, arm_1:NO-PLAN
+[INFO] [1791761113.970728237] [demo_runner]: target -> #207
+[INFO] [1791761116.976224353] [demo_runner]: run 6: #207 bottle p_cmd (1.25, 0.55, 1.22) urutan ['arm_2', 'arm_1']
+[INFO] [1791761149.579747767] [demo_runner]:   arm_2: MOVED (rc 0, 32.6 s)
+[INFO] [1791761192.922134008] [demo_runner]: STATUS success arm_2 (arm_2:MOVED) 75.95 s
+[INFO] [1791761208.818748505] [demo_runner]: target -> #208
+[INFO] [1791761211.820725384] [demo_runner]: STATUS failed: 2 pemakai /reach_fusion/execute (reach_fusion hidup?) -- r2
+[INFO] [1791761222.873079726] [demo_runner]: target -> #209
+Traceback (most recent call last):
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_demo/demo_runner.py", line 205, in <module>
+    main()
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_demo/demo_runner.py", line 196, in main
+    rclpy.spin(node)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+    executor.spin_once()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 681, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException

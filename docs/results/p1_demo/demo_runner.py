@@ -145,7 +145,8 @@ class DemoRunner(Node):
                    '--trials', '1', '--tau-max', '12.0', '--monitor-csv', self.a.mon,
                    '--plan-check' if self.a.plan_only else '--move']
             rc, out, dt, logf = self._tool(f'probe_{arm}', cmd)
-            m = re.findall(r'(?:moveit|rencana:) (\S+)', out)
+            # G59: not 'percobaan rencana: [...]' (G47 per-attempt list) nor 'sepanjang rencana: <mm>'
+            m = re.findall(r'(?:moveit|(?<![a-z] )rencana:) (\S+)', out)
             v = m[-1] if m else f'rc{rc}'
             refusals = re.findall(r'DITOLAK[^\n]*|TABRAKAN[^\n]*|JALUR PULANG[^\n]*', out)
             screens = re.findall(r'(torsi RNEA[^\n]*|jarak antar-lengan[^\n]*|'

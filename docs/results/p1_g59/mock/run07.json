@@ -1,0 +1,43 @@
+{
+ "run": 7,
+ "t0": 1791761373.4561698,
+ "track": {
+  "tid": 204,
+  "label": "bottle",
+  "x": 1.75,
+  "y": 0.55,
+  "z": 0.97,
+  "conf": 0.9
+ },
+ "p_cmd": [
+  1.75,
+  0.55,
+  1.22
+ ],
+ "plan_only": true,
+ "arm_dist": {
+  "arm_1": 0.242,
+  "arm_2": 0.677
+ },
+ "tries": [
+  {
+   "arm": "arm_1",
+   "rc": 0,
+   "verdict": "PLANNED",
+   "final": "DRY",
+   "dt": 18.92,
+   "log": "/home/user1/Documents/ceiling_arm/docs/results/p1_g59/mock/run07_01_probe_arm_1.log",
+   "screens": [
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.05->6.65/10, 2=1.95->9.65/14, 3=2.55->9.15/10, 4=0.46->2.44/7, 5=0.13->2.11/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 91 %)",
+    "jarak antar-lengan minimum sepanjang rencana: 513.1 mm di titik 47 (t1_a1_left_finger_prox_link_0 <-> t1_a2_upper_wrist_link_0) -> CLEAR",
+    "jarak ke peta lingkungan minimum: 115.1 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR",
+    "retract g1 ['arm_1'] lurus (rel 1.500):",
+    "penyaring se-gantry: CLEAR, minimum 513.1 mm di titik 34/60 (t1_a1_left_finger_prox_link_0 <-> t1_a2_upper_wrist_link_0)",
+    "penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+    "penyaring lingkungan: CLEAR, minimum 115.1 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)"
+   ],
+   "refusals": []
+  }
+ ],
+ "t_total": 18.92
+}

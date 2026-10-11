@@ -205,35 +205,40 @@ Penyaring di P1 (run01): RNEA+offset terketat **t1_a1_joint_3 92 %**; S18 antar-
 - **Terbuka:** persepsi nyata (F5), jalur tolak EnvChecker di rantai demo (F2), r2/r3 (S5), j3 terukur di P1 (F3).
 - Anggaran token Rule 6 (30k/sesi) **terlampaui** — sesi multi-langkah dengan mock + kamera; dilaporkan.
 
-## D. Prompt DEMO-HW (salin ke chat BARU)
+## D. Prompt DEMO-HW (salin ke chat BARU) — DIGANTI oleh G59 2026-10-12 ([p1_g59_demo.md](p1_g59_demo.md))
 
-**Rekomendasi: Opus, effort TINGGI** — gerbang plan-only + mock 3/3 ada (ground truth untuk gerak), tetapi tiga hal
-pertama kali di HW dan galatnya diam: lokalisasi botol nyata belum pernah jalan (F5; persepsi meleset > 5 cm keluar
-dari grid yang lolos), j3 berjalan di 90–92 % rating terprediksi (F3), dan YOLOE bisa diam-diam mati (F4, hanya WARN).
+**Rekomendasi: Opus, effort TINGGI** — gerak nyata pertama rantai demo; galat yang diam: lokalisasi botol nyata belum pernah
+jalan (F5), j3 di 90–92 % rating terprediksi (F3), YOLOE bisa diam-diam mati (F4, hanya WARN). G59 memperbaiki dua cacat yang
+akan muncul di HW: runner salah membaca verdict (keluaran G47) dan `g` ganda → gerak kedua tak diminta (kini dibuang CLI).
 
 ```
 Sesi DEMO-HW -- demo P1 suara -> YOLOE -> approach di HW, 1-3 jalan. Repo ceiling_arm, branch feat/rgbd-deploy.
-BACA PENUH: CLAUDE.md; docs/p1_demo_off.md (A2 desain, A5, B1-B4, C); docs/results/p1_demo/demo_runner.py +
-harness/*.sh. SCOPE: approach-only (stand-off 0.25 m di atas centroid), tanpa grasp, tanpa angka akurasi. G36b HW
-tetap prioritas di atas sesi ini.
-FAKTA DEMO-OFF: rantai jalan di mock (P1 (1.75,0.55,0.97) arm_1 MOVED->SUCCESS->REST 3/3, 68-70 s; grid +-5 cm 17/18);
-jangkauan tool-bawah ~0.7-0.8 m (F1) -> HANYA meja di depan arm_1 dengan g1 PARKIR 1.5; P1 bisa butuh 3 sampel
-(cabang j2 ditolak torsi, F3) -> 'g' lagi bila failed TORQUE-UNSAFE; perception nyata BELUM teruji (lab gelap, F5);
-mobileclip_blt.ts di src/reachability_gng TERPOTONG -> luncurkan persepsi dari ros2_ws/ (F4).
-GERBANG (tanya operator SEBELUM apa pun): K0 sel = akhir sesi terakhir (lengan REST, g1 PARKIR 1.499, g2 0, rot 0/0,
-rak tidak dipindah)? K1 operator di e-stop FISIK selama gerak (voice_web_ui TIDAK punya stop)? K2 lampu lab NYALA;
-satu botol <= 0.30 m berdiri di meja di sekitar (1.75, 0.55) world = ~15 cm ke arah x kecil dari basis arm_1,
-~19 cm ke +y dari garis gantry 1; tak ada botol lain dalam pandangan? K3 tidak ada voice_command_manager /
+BACA PENUH: CLAUDE.md; docs/p1_demo_off.md (A2 desain, A5, B1-B4, C); docs/p1_g59_demo.md (B: perbaikan r1 + regex,
+J1-J7, YOLOE luring); docs/results/p1_demo/demo_runner.py + docs/results/p1_g59/harness/*.sh. SCOPE: approach-only (stand-off
+0.25 m di atas centroid), tanpa grasp, tanpa angka akurasi. Runner paralel G57 tetap prioritas di atas sesi ini.
+FAKTA (G59, mock, kode sekarang): P1 (1.75,0.55,0.97) arm_1 MOVED->SUCCESS->REST 3/3, 70-73 s (sering 1 sampel TORQUE-UNSAFE
+dulu = normal, probe minta lintasan lain); P3 rak / P6 dinding ditolak (NO-PLAN); jangkauan tool-bawah ~0.7-0.8 m -> hanya
+meja di depan arm_1 dengan g1 PARKIR 1.5; 'g' yang diketik SELAMA misi DIBUANG target_cli (ketik g lagi sesudah status);
+YOLOE+mobileclip jalan dari ros2_ws/ (src/reachability_gng/mobileclip_blt.ts TERPOTONG -> jangan luncurkan dari sana).
+GERBANG (tanya operator SEBELUM apa pun): K0 sel = akhir sesi terakhir (lengan REST, g1 PARKIR 1.50, g2 0, rot 0/0, rak tidak
+dipindah)? K1 operator di e-stop FISIK selama gerak (voice_web_ui TIDAK punya stop)? K2 lampu lab NYALA; satu botol <= 0.30 m
+berdiri di meja di sekitar (1.75, 0.55) world; tak ada botol lain dalam pandangan? K3 tidak ada voice_command_manager /
 real_robot_task_server / reach_fusion hidup (r2)?
 0. KUNCI §A di docs/p1_demo_hw.md (kriteria, dugaan) SEBELUM bring-up.
-1. Self-test env_collision + interarm; bring-up nyata (enable_gantry_bridge:=true, SIG_DFL + setsid nohup, 7/7,
-   ARMED); env_static_map_pub --once True; t1_linear ~1.499; js_record + reach_dwell_monitor.
-2. Persepsi (harness/cam_up.sh + loc_up.sh, domain sama dengan HW): cek TIDAK ada 'inference failed' di log;
-   /detected_objects/tracks memuat 'bottle' -- catat xyz vs (1.75,0.55,~0.97). |dxy| > 5 cm dari grid yang lolos atau
-   z tak masuk akal -> BERHENTI, perbaiki penempatan dulu (jangan perlebar).
+1. CEK KAMERA TANPA GERAK (bila belum dilakukan di hari HW; stack lengan BOLEH mati): harness cam_up.sh + loc_up.sh (domain 79,
+   with_depth_cloud:=false, cwd ros2_ws/). Lulus: log seg_router tanpa 'inference failed'; /rgbd/seg/instance_segmentation_labels
+   memuat 'bottle'; /detected_objects/tracks memuat 'bottle' dengan |dxy| <= 5 cm dari (1.75,0.55) dan z 0.85-1.05; simpan
+   rgb (harness grab.py) + rosbag 20 s. Gagal -> perbaiki penempatan/lampu dulu (jangan perlebar).
+2. Self-test env_collision + interarm; bring-up nyata (enable_gantry_bridge:=true, SIG_DFL + setsid nohup, 7/7, ARMED);
+   env_static_map_pub --once True; t1_linear ~1.499; js_record + reach_dwell_monitor. Kamera tetap domain 79 (TIDAK ada
+   runner paralel / job berat bersamaan -- G51 B5 beban CPU).
 3. voice_web_ui (https, Chrome mic); target_cli voice_topic:=/voice/transcript status_timeout:=900.
-4. demo_runner --plan-only: ucapkan perintah -> g -> harus 'success arm_1 (arm_1:PLANNED)'; catat semua penyaring.
-5. Restart demo_runner TANPA --plan-only: ucapkan -> g -> MOVED -> dwell -> return_rest. Rekam video + waktu
+4. demo_runner --plan-only: ucapkan perintah -> g -> harus 'success arm_1 (arm_1:PLANNED)'; catat penyaring.
+5. Restart demo_runner TANPA --plan-only (tanya operator): ucapkan -> g -> MOVED -> dwell -> return_rest. Rekam video + waktu
    perintah->selesai + torsi j3 terukur vs prediksi. 1-3 jalan; failed TORQUE-UNSAFE = 'g' lagi, bukan ubah penyaring.
 6. Akhir: lengan REST, g1 tetap PARKIR 1.5 (tak pernah diperintah); matikan bersih; laporan + gambar arsitektur.
 ```
+
+### D-lama (DEMO-OFF 2026-10-08, diganti)
+
+Prompt lama memakai `harness/` DEMO-OFF dan tidak tahu cacat G59 B1 (regex verdict, `g` ganda). Lihat riwayat git.

@@ -1,0 +1,24 @@
+# 1791759982.2138 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.7500,0.5500,1.2200 --approach 0 --trials 1 --tau-max 12.0 --monitor-csv /tmp/claude-1001/-home-user1-Documents-ceiling-arm/c032767e-b00c-429e-bddd-e55e3eb2950d/scratchpad/g58_mon_samples.csv --move
+1791759982.6794 probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 12.0 N.m
+1791759982.6794 sumber target: arm_1 (1.75, 0.55, 1.22), [] []
+1791759982.6794 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791759982.6794 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791759982.6794 
+1791759984.2432 [INFO] [1791759984.243065675] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.14->6.74/10, 2=7.09->14.79/14, 3=0.53->7.13/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 106 %)
+1791759984.2437 [ERROR] [1791759984.243636178] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.79 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+1791759984.2441 [INFO] [1791759984.244087849] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791759985.3255 [INFO] [1791759985.325422663] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=2.58->10.28/14, 3=2.55->9.15/10, 4=0.40->2.38/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 92 %)
+1791759985.3307 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791759985.3308   self.geom = pin.buildGeomFromUrdf(
+1791759988.3851 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791759988.3851   self.geom = pin.buildGeomFromUrdf(
+1791759995.9999 [INFO] [1791759995.999872312] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 569.3 mm di titik 80 (t1_a1_right_finger_prox_link_0 <-> t1_a2_lower_wrist_link_0) -> CLEAR
+1791759997.3437 [INFO] [1791759997.343680335] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 112.2 mm di titik 6 (t1_a1_right_finger_dist_link_0) -> CLEAR
+1791759998.3772 [INFO] [1791759998.374512728] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.500):
+1791759999.7575 [INFO] [1791759999.757434600] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 569.5 mm di titik 0/60 (t1_a1_right_finger_prox_link_0 <-> t1_a2_lower_wrist_link_0)
+1791759999.7579 [INFO] [1791759999.757818936] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+1791759999.7582 [INFO] [1791759999.758138592] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 112.3 mm di titik 50/60 (t1_a1_right_finger_dist_link_0)
+1791760007.7949        arm_1: moveit MOVED  (percobaan rencana: ['TORQUE-UNSAFE', 'PLANNED'])
+1791760009.6243   [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_1']) torsi puncak  0.00 N.m
+1791760009.6244   TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+1791760009.6245   -> /tmp/g20_step5.json

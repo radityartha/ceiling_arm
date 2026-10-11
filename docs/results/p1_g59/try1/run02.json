@@ -1,0 +1,54 @@
+{
+ "run": 2,
+ "t0": 1791759982.2125952,
+ "track": {
+  "tid": 201,
+  "label": "bottle",
+  "x": 1.75,
+  "y": 0.55,
+  "z": 0.97,
+  "conf": 0.9
+ },
+ "p_cmd": [
+  1.75,
+  0.55,
+  1.22
+ ],
+ "plan_only": false,
+ "arm_dist": {
+  "arm_1": 0.242,
+  "arm_2": 0.677
+ },
+ "tries": [
+  {
+   "arm": "arm_1",
+   "rc": 0,
+   "verdict": "['TORQUE-UNSAFE',",
+   "final": "SUCCESS",
+   "dt": 27.62,
+   "log": "/home/user1/Documents/ceiling_arm/docs/results/p1_g59/mock/run02_01_probe_arm_1.log",
+   "screens": [
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.14->6.74/10, 2=7.09->14.79/14, 3=0.53->7.13/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 106 %)",
+    "percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)",
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=2.58->10.28/14, 3=2.55->9.15/10, 4=0.40->2.38/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 92 %)",
+    "jarak antar-lengan minimum sepanjang rencana: 569.3 mm di titik 80 (t1_a1_right_finger_prox_link_0 <-> t1_a2_lower_wrist_link_0) -> CLEAR",
+    "jarak ke peta lingkungan minimum: 112.2 mm di titik 6 (t1_a1_right_finger_dist_link_0) -> CLEAR",
+    "retract g1 ['arm_1'] lurus (rel 1.500):",
+    "penyaring se-gantry: CLEAR, minimum 569.5 mm di titik 0/60 (t1_a1_right_finger_prox_link_0 <-> t1_a2_lower_wrist_link_0)",
+    "penyaring antar-gantry: CLEAR, minimum 862.6 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+    "penyaring lingkungan: CLEAR, minimum 112.3 mm di titik 50/60 (t1_a1_right_finger_dist_link_0)",
+    "percobaan rencana: ['TORQUE-UNSAFE', 'PLANNED'])"
+   ],
+   "refusals": [
+    "DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.79 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)"
+   ]
+  }
+ ],
+ "return_rest": {
+  "rc": 0,
+  "dt": 43.2,
+  "log": "/home/user1/Documents/ceiling_arm/docs/results/p1_g59/mock/run02_02_return_rest.log",
+  "tau_peak": "0.000"
+ },
+ "t_total": 70.83
+}

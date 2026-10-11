@@ -11,6 +11,9 @@ from __future__ import annotations
 
 import json
 import re
+import select
+import sys
+import termios
 import threading
 import time
 
@@ -185,6 +188,26 @@ def _fetch(node: TargetCli, sentence):
     print('  (type g to take the default, or another #id first)')
 
 
+def _discard_typeahead():
+    """G59 (docs/p1_g59_demo.md B): drop every line typed WHILE a mission ran. input() would otherwise read a 'g'
+    pressed during the motion as soon as the status arrives and fire a SECOND approach with no fresh confirmation
+    (demo_runner's busy guard r1 never sees it -- the CLI was not reading). tty: tcflush; pipe/fifo: drain what is
+    readable now. Returns the lines dropped (tty: unknown -> -1 when anything may have been flushed)."""
+    try:
+        if sys.stdin.isatty():
+            typed = bool(select.select([sys.stdin], [], [], 0)[0])
+            termios.tcflush(sys.stdin, termios.TCIFLUSH)
+            return -1 if typed else 0
+        n = 0
+        while select.select([sys.stdin], [], [], 0)[0]:
+            if not sys.stdin.readline():
+                break
+            n += 1
+        return n
+    except (OSError, ValueError, termios.error):
+        return 0
+
+
 def _loop(node: TargetCli):
     print('\n=== target_cli ===  (Enter=refresh, g/go=execute approach, q=quit)')
     print('type the list number / #<id> (STABLE track, preferred) / obj_N -> set target,')
@@ -277,6 +300,10 @@ def _loop(node: TargetCli):
             else:
                 print(f'  !! no result after {node.status_timeout:g}s -- '
                       'check reach_fusion log (may still be running)')
+            dropped = _discard_typeahead()
+            if dropped:
+                print('  (input typed during the mission was DISCARDED -- type g again to run again)'
+                      + (f' [{dropped} line(s)]' if dropped > 0 else ''))
             show_list = True   # mission ended (success/failed/timeout) -- show it again
         elif not raw:
             show_list = True   # explicit Enter=refresh

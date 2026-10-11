@@ -4,10 +4,9 @@
 
 ## Fase aktif
 
-**G58–G60 OFFLINE** (prompt `docs/p1_g58_offline_prompt.md`, sesi 2026-10-12). G58 LULUS 08:04 (mock 11/11). G59 aktif:
-§A dikunci (`docs/p1_g59_demo.md`, sha256 `07582eeb…`), harness `docs/results/p1_g59/harness/g59_run.sh` di mock 77 yang sama
-(REST, g1 PARK). G60: §A dikunci (`docs/p1_g60_excl_sched.md`, sha256 `7af94f7b…`), job `p1_g60/g60_job.sh` (Pool 15) SESUDAH
-mock G59 selesai.
+**G58–G60 OFFLINE** (prompt `docs/p1_g58_offline_prompt.md`, sesi 2026-10-12). G58 LULUS 08:04, G59 LULUS 08:31 (mock mati bersih).
+G60 aktif: §A dikunci (`docs/p1_g60_excl_sched.md`, sha256 `7af94f7b…`), job `docs/results/p1_g60/g60_job.sh` (Pool 15) mulai 08:31
+→ `p1_g60/g60_job.log` (dapat-dilanjut: tempel ulang job bila putus).
 Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 
 ## Gerbang
@@ -27,6 +26,7 @@ Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 | G55 | jadwal P1″ + seleksi sim; DRY-CLI + smoke paralel | **LULUS** (5/6) | `docs/p1_g55_par_sched.md` B5 |
 | G56 | persiapan hari HW: injeksi gerak, fault, sweep v3, analisis P2 | 2/3 (D482 salah rumus) | `docs/p1_g56_hw_day.md` B3 |
 | G58 | blok seed lama vs baru: smoke paralel mock 11/11 + tabel siap-HW | **LULUS** (5/5) | `docs/p1_g58_seed_block.md` B1–B3 |
+| G59 | DEMO-OFF ulang (kode sekarang) + prompt DEMO-HW + cek kamera | **LULUS** (4/6; 2 cacat diperbaiki: regex runner, `g` ganda) | `docs/p1_g59_demo.md` B1–B4 |
 
 ## Keputusan operator
 
