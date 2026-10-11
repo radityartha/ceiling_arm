@@ -136,6 +136,7 @@ GOAL_AXIS_TOL_DEG = 2.0
 # sample anywhere in the +-0.2 deg box can land > 3 mm from the target
 # (GOAL-MISMATCH 6-8 %, G42/G47); retract goals to REST keep 0.2.
 TASK_GOAL_TOL_DEG = 0.2
+RESERVE_DIR = None          # G54: parallel runner reservations (docs/p1_g54_parallel.md A1); None = old behaviour
 
 
 # G44 (docs/p1_g44_start_jump.md B1/B2): 3 x p99.9 of 853 archived mock plans
@@ -849,6 +850,101 @@ def move_to(arm, p_cmd, node, pos_tol=0.002, ori_tol_deg=2.0,
     if plan_only:
         return 'PLANNED'
 
+    if RESERVE_DIR is not None:              # G54: screen vs the other gantry's reservation, then reserve, THEN move
+        rv = _reserve(traj, arm, node)
+        if rv != 'CLEAR':
+            return rv
+        return _execute_direct(node, traj, arm)
+    return _execute(node, traj)
+
+
+def _reserve(traj, arm, node):
+    """G54 (docs/p1_g54_parallel.md A1). Under the runner's flock: the plan (this arm's waypoints, everything else at
+    its measured value) against EVERY state the other gantry has reserved; CLEAR -> res_own = measured + plan, then the
+    caller executes. res_own shrinks when the RUNNER sees the event end. 'CLEAR' | 'RESERVE-BLOCKED' |
+    'RESERVE-UNSCREENED' (no motion on either refusal)."""
+    sys.path.insert(0, '/home/user1/Documents/ceiling_arm/docs/results/p1_g54')
+    import reserve as RSV
+    g = int(GANTRY_OF[arm][-1])
+    go = 2 if g == 1 else 1
+    jt = traj.joint_trajectory
+    names = list(jt.joint_names)
+    pts = [list(map(float, p.positions)) for p in jt.points]
+    try:
+        node._interarm = getattr(node, '_interarm', {})
+        if 'cross' not in node._interarm:
+            from interarm_collision import CrossGantryChecker
+            node._interarm['cross'] = CrossGantryChecker(margin=INTERARM_MARGIN_M)
+        with RSV.Lock(RESERVE_DIR) as L:
+            want = RSV.GANTRY_JOINTS[1] + RSV.GANTRY_JOINTS[2]
+            base = node.wait_joints(want)
+            other = L.read(go)
+            if base is None or len(base) < len(want) or other is None:
+                node.get_logger().error('G54 reservasi: keadaan/reservasi tidak lengkap -- MENOLAK.')
+                return 'RESERVE-UNSCREENED'
+            v, d, pair, _ = RSV.screen(node._interarm['cross'], names, pts, base, other, go)
+            node.get_logger().info(f'G54 reservasi g{go}: {len(other)} keadaan, minimum {d * 1000:.1f} mm '
+                                   f'({pair}) -> {v}')
+            if v != 'CLEAR':
+                return 'RESERVE-BLOCKED'
+            states = [dict(base)]
+            for q in pts:
+                st = dict(base)
+                st.update(zip(names, q))
+                states.append(st)
+            L.write(g, states, f'probe {arm} {os.getpid()}')
+    except Exception as e:                                   # noqa: BLE001
+        node.get_logger().error(f'G54 reservasi gagal: {e} -- MENOLAK.')
+        return 'RESERVE-UNSCREENED'
+    return 'CLEAR'
+
+
+def _execute_direct(node, traj, arm):
+    """G54 B1: move_group SERIALISES ExecuteTrajectory goals (measured, g54_concurrent_exec), so with --reserve-dir the
+    SAME time-parameterised plan goes straight to this gantry's FollowJointTrajectory controller -- the controller MoveIt
+    would pick, the path return_rest / pose_to_g already use. MoveIt's TEM checks kept: start within 0.01 rad
+    (allowed_start_tolerance) and result within duration x 3 + 5 s (my_workcell.launch.py)."""
+    from control_msgs.action import FollowJointTrajectory
+    jt = traj.joint_trajectory
+    ctl = f'/{GANTRY_OF[arm]}_with_arm_controller/follow_joint_trajectory'
+    if not hasattr(node, '_fjt'):
+        node._fjt = {}
+    if ctl not in node._fjt:
+        node._fjt[ctl] = ActionClient(node, FollowJointTrajectory, ctl)
+    ac = node._fjt[ctl]
+    if not ac.wait_for_server(timeout_sec=10.0):
+        return 'EXEC-FAIL'
+    now = node.wait_joints(list(jt.joint_names), seconds=0.2)
+    dev = max((abs(now[n] - float(q)) for n, q in zip(jt.joint_names, jt.points[0].positions) if n in now),
+              default=float('inf'))
+    if len(now) < len(jt.joint_names) or dev > 0.01:
+        node.get_logger().error(f'G54 eksekusi langsung: awal rencana {dev:.4f} rad dari keadaan terukur > 0.01 -- MENOLAK.')
+        return 'EXEC-FAIL'
+    goal = FollowJointTrajectory.Goal()
+    goal.trajectory = jt
+    dur = jt.points[-1].time_from_start.sec + jt.points[-1].time_from_start.nanosec * 1e-9
+    f = ac.send_goal_async(goal)
+    rclpy.spin_until_future_complete(node, f, timeout_sec=20.0)
+    gh = f.result()
+    if gh is None or not gh.accepted:
+        return 'EXEC-FAIL'
+    rf = gh.get_result_async()
+    rclpy.spin_until_future_complete(node, rf, timeout_sec=dur * 3.0 + 5.0)
+    if not rf.done():
+        node.get_logger().error(f'G54 eksekusi langsung: {ctl} melewati {dur * 3.0 + 5.0:.1f} s -- goal DIBATALKAN.')
+        cf = gh.cancel_goal_async()
+        rclpy.spin_until_future_complete(node, cf, timeout_sec=5.0)
+        return 'EXEC-FAIL'
+    r = rf.result()
+    if r is None or r.result.error_code != 0:
+        node.get_logger().error(f'G54 eksekusi langsung: {ctl} error_code '
+                                f'{None if r is None else r.result.error_code}')
+        return 'EXEC-FAIL'
+    return 'MOVED'
+
+
+def _execute(node, traj):
+    """The old tail of move_to, unchanged (execution through move_group)."""
     if not node._exec_ac.wait_for_server(timeout_sec=10.0):
         return 'EXEC-FAIL'
     eg = ExecuteTrajectory.Goal()
@@ -1285,8 +1381,15 @@ def main():
     ap.add_argument('--goal-tol-deg', type=float, default=0.2,
                     help='G47: toleransi tujuan SENDI tugas (--goal-joints), '
                          'deg; retract REST tetap 0.2')
+    ap.add_argument('--out-json', default=None,
+                    help='G54: berkas hasil percobaan (bawaan /tmp/g20_step5.json dst.); runner paralel memberi satu '
+                         'per probe supaya dua probe bersamaan tidak saling menimpa')
+    ap.add_argument('--reserve-dir', default=None,
+                    help='G54: direktori reservasi runner paralel; rencana disaring vs reservasi gantry lain '
+                         'sebelum gerak (RESERVE-BLOCKED = tidak bergerak). Tanpa = perilaku lama')
     a = ap.parse_args()
-    global TASK_GOAL_TOL_DEG
+    global TASK_GOAL_TOL_DEG, RESERVE_DIR
+    RESERVE_DIR = a.reserve_dir
     if not 0.01 <= a.goal_tol_deg <= 0.2:
         ap.error('--goal-tol-deg harus di [0.01, 0.2]')
     TASK_GOAL_TOL_DEG = a.goal_tol_deg
@@ -1473,7 +1576,7 @@ def main():
             print(f'  TIDAK VALID (mesin, A5, diulang, di LUAR penyebut): '
                   f'{mesin or "tidak ada"}')
         if rows:
-            out = '/tmp/g20_step5.json' if a.screen_all else \
+            out = a.out_json if a.out_json else '/tmp/g20_step5.json' if a.screen_all else \
                 '/tmp/g17_step3.json' if a.dual else '/tmp/g16_step2.json'
             # Appended, not overwritten: step 3 runs ONE pair per invocation, so
             # a fresh write would leave only the last trial of ten.

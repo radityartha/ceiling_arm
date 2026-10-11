@@ -4,7 +4,8 @@
 
 ## Fase aktif
 
-**Fase 7** (OFFLINE, `docs/p1_campaign_prompt.md` FASE 7) mulai sesi berikut: 7a jadwal ulang R90 (±90°) → 7b banding P1′-serial → 7c runner paralel (mock).
+**Fase 7** (OFFLINE, `docs/p1_campaign_prompt.md` FASE 7): 7a G52 LULUS, 7b G53 LULUS, 7c G54 LULUS; **Gerbang 7 menunggu
+jawaban operator atas risiko P1–P6** (`docs/p1_hw_runbook_parallel.md` §5). Rencana awal 7a = G52: 7a jadwal ulang R90 (±90°) → 7b banding P1′-serial → 7c runner paralel (mock).
 Fase 1–5 LULUS; Fase 6 dihentikan operator 2026-10-11 17:48 (6a–6c selesai, 6d 5/5 run 6/6).
 
 ## Gerbang
@@ -17,6 +18,10 @@ Fase 1–5 LULUS; Fase 6 dihentikan operator 2026-10-11 17:48 (6a–6c selesai, 
 | 4 | rehearsal mock: DRY-CLI 3/3 semua kandidat + smoke `--move` | **LULUS** | `docs/p1_g47_rehearsal.md` B6, commit bfc752e |
 | 5 | SIAP HW | **LULUS** (operator 2026-10-10 20:12 menerima R1–R9) | `docs/p1_g48_hw_ready.md`, `docs/p1_hw_runbook.md`, commit d81c929 |
 | 6 | HW (hanya bila operator "lanjut") | 6a–6c **LULUS**, 6d sebagian (5 run 6/6) | `docs/p1_g51_hw.md` B1–B15 |
+| 7a | tabel 17 jadwal R90 + DRY-CLI 3/3 jadwal baru | **LULUS** (6/6) | `docs/p1_g52_r90.md` B3–B5, commit 8abd81c |
+| 7b | tabel + penjelasan selisih > 15 % | **LULUS** (2/3) | `docs/p1_g53_p1p_serial.md` B1–B4, commit f69a1e9 |
+| 7c | runner paralel: A2.1, DRY 5/5, smoke 5/5, kontrol negatif | **LULUS** (4/6) | `docs/p1_g54_parallel.md` B1–B5 |
+| 7 | runbook HW paralel + risiko → operator | runbook DITULIS; risiko P1–P6 **ditanyakan** | `docs/p1_hw_runbook_parallel.md` |
 
 ## Keputusan operator
 
@@ -40,8 +45,6 @@ Fase 1–5 LULUS; Fase 6 dihentikan operator 2026-10-11 17:48 (6a–6c selesai, 
 
 ## Langkah berikut
 
-**Fase 6 (G51) dihentikan operator 17:48 sesudah s0.** 6a–6c SELESAI (amplop HW g1 −125…+90, g2 −35…+95). 6d: s7 R180/R35,
-s10 R180/R35, s0 R180 = 5/5 run 6/6, pulang + K0 LULUS; stack MATI (node 0), sel g1 PARK / g2 0 / REST. R180 lebih lambat di
-runner SERIAL (s7 +2.3 %, s10 +24 %). Berikut (offline, tanpa HW): banding makespan terukur vs prediksi P1′-serial untuk 5 run,
-dan putuskan perlu runner paralel (dua gantry bersamaan) agar keuntungan R180 bisa diukur; opsional: jadwal ulang 5 jadwal di R90
-(pertanyaan operator ±90°). Sisa blok HW: s3, s18, s8 (+ R35) dan 11 jadwal R180.
+**Tanya operator: risiko P1–P6 runner paralel diterima? (runbook paralel §5).** Bila diterima → Gerbang 7 LULUS = kampanye SELESAI;
+HW berikut (sesi lain, tiap gerak ditanya): uji stop-semua HW (runbook paralel §3), lalu s7 R180 vs R35 paralel sama-sesi, s10, s12 R90,
+s11 R90 sesudah kaki sweep g2 → −85. Mock MATI bersih (node 0, crash dump sesi dihapus).
