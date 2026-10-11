@@ -16,7 +16,7 @@
 | 3 | K0 terukur: semua kasus uji benar | **LULUS** | `docs/p1_g45_k0.md` B3, commit 4ad8394 |
 | 4 | rehearsal mock: DRY-CLI 3/3 semua kandidat + smoke `--move` | **LULUS** | `docs/p1_g47_rehearsal.md` B6, commit bfc752e |
 | 5 | SIAP HW | **LULUS** (operator 2026-10-10 20:12 menerima R1–R9) | `docs/p1_g48_hw_ready.md`, `docs/p1_hw_runbook.md`, commit d81c929 |
-| 6 | HW (hanya bila operator "lanjut") | — | |
+| 6 | HW (hanya bila operator "lanjut") | 6a–6c **LULUS**, 6d sebagian (5 run 6/6) | `docs/p1_g51_hw.md` B1–B15 |
 
 ## Keputusan operator
 
@@ -40,7 +40,8 @@
 
 ## Langkah berikut
 
-**Fase 6 (G51). 6a–6c SELESAI; 6d: s7 R180 6/6 (535.05 s) + s7 R35 6/6 (523.25 s) sama-sesi, keduanya pulang + K0 LULUS (16:19).**
-Runner serial → keuntungan paralel R180 tak terlihat; perlu banding vs P1′-serial (offline). Perbaikan sesi: k0_check jendela
-(B10), g47_home toleransi rot 1.0°. Stack = bring-up 3 (PID 3266531). Berikut: tanya operator lanjut seed berikut (s10 → s0 → …)
-atau matikan stack bersih + arsip `/tmp/p1hw_*` → `results/p1_g51/hw/`.
+**Fase 6 (G51) dihentikan operator 17:48 sesudah s0.** 6a–6c SELESAI (amplop HW g1 −125…+90, g2 −35…+95). 6d: s7 R180/R35,
+s10 R180/R35, s0 R180 = 5/5 run 6/6, pulang + K0 LULUS; stack MATI (node 0), sel g1 PARK / g2 0 / REST. R180 lebih lambat di
+runner SERIAL (s7 +2.3 %, s10 +24 %). Berikut (offline, tanpa HW): banding makespan terukur vs prediksi P1′-serial untuk 5 run,
+dan putuskan perlu runner paralel (dua gantry bersamaan) agar keuntungan R180 bisa diukur; opsional: jadwal ulang 5 jadwal di R90
+(pertanyaan operator ±90°). Sisa blok HW: s3, s18, s8 (+ R35) dan 11 jadwal R180.

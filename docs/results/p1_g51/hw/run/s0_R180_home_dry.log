@@ -1,0 +1,12 @@
+sudah di rest (< 0.5 deg) -- tidak ada yang perlu dikerjakan.
+sudah di rest (< 0.5 deg) -- tidak ada yang perlu dikerjakan.
+g1 pulang lewat: 0.75:-30.0 1.5:0.0
+DRY RUN: tidak ada yang dikirim.
+{"dry": true, "gantry": 1, "start": [0.799881, -124.79], "goal": [0.75, -30.0], "sweep": "CLEAR", "sweep_min_mm": 123.3, "sweep_arm_mm": 153.1, "T_cmd": 16.544, "T_cmd_lin": 3.0, "T_cmd_rot": 16.544}
+REFUSE: G33 -- sapuan (lin, rot) terlalu dekat lingkungan (margin 50 mm)
+g2 pulang lewat: 0.15:-30.0 0.0:0.0
+DRY RUN: tidak ada yang dikirim.
+{"dry": true, "gantry": 2, "start": [0.399422, -25.01], "goal": [0.15, -30.0], "sweep": "CLEAR", "sweep_min_mm": 167.2, "sweep_arm_mm": 193.8, "T_cmd": 13.857, "T_cmd_lin": 13.857, "T_cmd_rot": 3.0}
+DRY RUN: tidak ada yang dikirim.
+{"dry": true, "gantry": 2, "start": [0.399422, -25.01], "goal": [0.0, 0.0], "sweep": "CLEAR", "sweep_min_mm": 167.2, "sweep_arm_mm": 193.8, "T_cmd": 22.19, "T_cmd_lin": 22.19, "T_cmd_rot": 4.365}
+K0 TOLAK: t1_linear_joint: galat -700.12 mm > +2.00 mm; t1_rotation_joint: galat -124.790 deg > +0.500 deg; t2_linear_joint: galat +399.42 mm > +2.00 mm; t2_rotation_joint: galat -25.010 deg > +0.500 deg

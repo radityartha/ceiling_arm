@@ -317,3 +317,40 @@ R180 justru +11.8 s (+2.3 %): 1 traverse g2 panjang 99.5 s (0 → 1.5 m) di kedu
 |---|---|---|---|
 | R180 (bring-up 3) | 323.4 s | **582.23 s** | 6/6 |
 | R35 (bring-up 4, sesudah restart PC) | 367.1 s | **468.37 s** | 6/6 |
+
+### B14. 6d — s0 R180 (rotasi terbesar, g1 −125°) → selesai hari ini, stack dimatikan
+
+- Operator (17:2x): sisa uji = s0 saja lalu berhenti (runner serial tidak bisa menunjukkan keuntungan paralel R180; pasangan
+  tambahan hanya menambah bukti keterlaksanaan). Plan-only NYATA s0 R180 3/3 (39/39 PLANNED, 17:27–17:34).
+- **s0 R180 (17:34:46, ditanya): 6/6 SUCCESS, 16/16 event rc 0, makespan terukur 447.34 s** (model 246.2 s). Traverse g1 (0.75, −30)
+  → (0.80, **−125°**); g2 (0.15, −30) → (0.40, −25). Pulang (17:45–17:48, ditanya): g1 (0.80, −124.79) → (0.75, −30.5) → PARK
+  1.49907 / −0.03°; g2 → (0.15, −30) → 0.000; **K0 LULUS**.
+- Matikan: monitor/perekam SIGINT per PID, launch 11656 SIGINT (SigIgn `0x1001001`, keluar 7 s), node 0. Arsip `hw/bringup4/`
+  (launch + joint_states gz, monitor, stdout run). Crash dump sesi di /var/crash dihapus (ros2_control_node/ros2 saat shutdown,
+  rviz2 15:17, python3 15:29; ikut terhapus juga dump light-locker / nvidia-settings dari boot ulang 17:04).
+
+**Ringkasan 6d (HW, 2026-10-11): 5/5 run lengkap SUCCESS 6/6 (30/30 tugas), 0 HALTED, semua pulang + K0 LULUS.**
+
+| seed | varian | model (paralel) | terukur (serial) |
+|---|---|---|---|
+| s7 | R180 / R35 | 275.9 / 435.0 | 535.05 / 523.25 |
+| s10 | R180 / R35 | 323.4 / 367.1 | 582.23 / 468.37 |
+| s0 | R180 | 246.2 | 447.34 |
+
+Batal (nol gerak tugas, semua aman): s7 R180 run 1 (path relatif, saya), s7 R35 ×2 (K0 jendela, B10), s10 R35 ×1 (rc 3 palsu
+pose_to_g, B13).
+
+### B15. Papan skor D430–D434
+
+| # | Dugaan | Hasil |
+|---|---|---|
+| D430 | K0 bring-up LULUS tanpa pemulihan | ✗ (g2 −18.6 mm, arm_4 0.573°) |
+| D431 | origin g2 \|Δx\| ≤ 10 mm (bukan slip) | ✓ (+0.6 / +0.8 mm) |
+| D432 | semua kaki sweep sampai ROT_NEED lulus (err ≤ 0.3°) | ✗ menurut §A (kaki 3: 0.32°, kaki 21: 0.62°); ✓ 50/50 dengan ambang mekanisme 0.81° (operator) |
+| D433 | t_rot / T_cmd_rot di Δ ≥ 50° = 0.85–1.0 | ✓ (0.903–0.997) |
+| D434 | seed pertama 6d 6/6, 0 HALTED | ✓ (s7 R180) |
+
+**Tally G51: 3/5.** Fase 6 sub-fase 6a–6c SELESAI; 6d: 5 run HW sukses, sisa blok (s3, s18, s8 + 11 jadwal R180) belum.
+Temuan untuk analisis: runner serial → banding vs P1′-serial; dua motor linear g2 sempat beda 19 mm; perbaikan sesi:
+`k0_check` (jendela), `pose_to_g` (deteksi berhenti), `g47_home` (toleransi rot 1.0°), `g51_leg.sh` (`--move` eksplisit).
+Batas ±90° (pertanyaan operator 17:4x): 12/17 jadwal tetap; s0, s2, s11, s12, s17 perlu dijadwal ulang; g2 −90 belum diuji di HW.
