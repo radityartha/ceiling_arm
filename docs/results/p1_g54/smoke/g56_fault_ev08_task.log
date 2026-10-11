@@ -1,0 +1,20 @@
+# 1791732161.2521 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_4 --target=0.4286,-0.1059,1.0000 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/claude-1001/-home-user1-Documents-ceiling-arm/05bd37bd-31fc-4191-8a8f-e012117e87ee/scratchpad/g56_mon_samples.csv --goal-joints={"t2_a2_joint_1": 1.4128091486445675, "t2_a2_joint_2": -0.5821202558788429, "t2_a2_joint_3": -0.7769080598285492, "t2_a2_joint_4": -1.5707916612349955, "t2_a2_joint_5": -0.19478517251401276, "t2_a2_joint_6": 2.514171542774633} --goal-tol-deg=0.05 --reserve-dir /tmp/claude-1001/g54_g56_fault/res --out-json /tmp/claude-1001/g54_g56_fault/ev08_probe_try0.json
+1791732161.4146 Traceback (most recent call last):
+1791732161.4203   File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+1791732161.4204   File "<frozen importlib._bootstrap_external>", line 879, in exec_module
+1791732161.4204   File "<frozen importlib._bootstrap_external>", line 1017, in get_code
+1791732161.4204   File "<frozen importlib._bootstrap_external>", line 947, in source_to_code
+1791732161.4204   File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+1791732161.4204 KeyboardInterrupt
+1791732161.4204 
+1791732161.4204 During handling of the above exception, another exception occurred:
+1791732161.4204 
+1791732161.4204 Traceback (most recent call last):
+1791732161.4204   File "/home/user1/Documents/ceiling_arm/scripts/reach_dwell_probe.py", line 57, in <module>
+1791732161.4204     from geometry_msgs.msg import PoseStamped
+1791732161.4204   File "/opt/ros/humble/local/lib/python3.10/dist-packages/geometry_msgs/msg/__init__.py", line 13, in <module>
+1791732161.4204     from geometry_msgs.msg._polygon_stamped import PolygonStamped  # noqa: F401
+1791732161.4204   File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+1791732161.4204   File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+1791732161.4204   File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+1791732161.4204 KeyboardInterrupt

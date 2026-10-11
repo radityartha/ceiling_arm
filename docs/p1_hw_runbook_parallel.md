@@ -34,10 +34,13 @@ Harus: K0 LULUS, "traverse di luar: []", rc 0.
 
 ## 3. Uji stop-semua di HW (SEBELUM run paralel pertama; tanya operator)
 
-Kontrol negatif G54 A2.4 di HW dengan risiko rendah: jadwal s7 R180, `--inject-stop 2:4` (AUTO-STOP saat g2 akan retract
-sementara g1 sedang retract — lengan bergerak ke REST, arah aman). Lulus: rc 3, `post_stop_motion` kedua gantry ≈ 0
-(≤ 0.002 rad / 1 mm), lengan g1 berhenti SEBELUM REST (bukti cancel Kortex/JTC bekerja). Lalu pulang: `g47_home.sh` (DRY dulu).
-**Belum diuji di HW:** reaksi driver Kortex dan bridge gantry terhadap CancelGoal di tengah gerak (lihat risiko P2).
+Kontrol negatif dengan injeksi BERBASIS KONDISI (G56; injeksi berbasis urutan G54 bergantung linimasa mock): jadwal s7
+`$R/p1_g55/g55_selected.json` `R90sel`, `--inject-stop-on-motion 2` → AUTO-STOP pertama kali retract g2 sedang bergerak (> 2° dari
+awal event, > 10° dari REST; arah gerak = menuju REST, aman). Lulus: rc 3, `inject` tercatat, lengan g2 berhenti SEBELUM REST dan
+diam (perekam), `post_stop_motion` ≈ 0, tidak ada alat diluncurkan sesudah stop. Lalu pulang: `g47_home.sh` (DRY dulu).
+Mock G56 B2: lulus percobaan pertama, 0.000°/0.5 s sejak t_stop + 0.5 s.
+**Jangan menguji stop saat TRAVERSE di HW** (G56 A0): bridge menyelesaikan kaki `go_to_absolute` yang sudah terkirim lalu mengejar
+posisi tahan JTC — rel tidak berhenti seketika (tetap di dalam persegi traverse yang sudah disaring, gantry lain diam).
 
 ## 4. Blok seed HW paralel (tiap run ditanya)
 
@@ -50,7 +53,7 @@ setsid nohup python3 -u $R/p1_g54/run_g54.py --seed <S> --plan <PLAN> --variant 
 ```
 Sesudah tiap run: `bash $R/p1_g47/g47_home.sh <S> <PLAN> <V> --dry`, lalu tanpa `--dry` sesudah persetujuan → K0.
 
-Urutan usul (prediksi P1″ paralel g54_sim / mock G54 B):
+**Diganti oleh G55:** pasangan hari ini = jadwal lama vs terpilih P1″, lihat `docs/p1_hw_day_2026-10-12.md` §2. Usul lama (G54):
 1. s7: `$R/p1_g43/g43_candidates.json R180` vs `$R/p1_g42/g42f_candidates.json G42` (sim −73 s; mock G54 −84.0 s).
 2. s10: R180 vs G42 (sim **+53 s**, mock G54 +59.5 s: R180 LEBIH LAMBAT di runner paralel eksklusif-traverse — hasil yang harus diuji, bukan dihindari).
 3. s12 R90 (`$R/p1_g52/g52_candidates.json R90`, di dalam amplop) dan s11 R90 (hanya sesudah kaki sweep g2 → −85).
@@ -60,8 +63,9 @@ Urutan usul (prediksi P1″ paralel g54_sim / mock G54 B):
 | # | Risiko | Mitigasi sekarang |
 |---|---|---|
 | P1 | Eksekusi FJT langsung melewati pemantauan TEM MoveIt | cek awal 0.01 rad + batas waktu durasi × 3 + 5 s direplikasi; jalur sama dengan return_rest (dipakai di HW sejak G16) |
-| P2 | CancelGoal-semua di HW belum diuji: Kortex (FJT cancel) dan bridge gantry (traverse dibatalkan di tengah) | uji §3 dulu; traverse eksklusif → paling banyak satu gantry bergerak di rel saat stop |
+| P2 | CancelGoal-semua di HW belum diuji. Bridge (kode, G56 A0): cancel di tengah traverse TIDAK menghentikan motor AZ — kaki terkirim selesai, lalu bridge mengejar posisi tahan (bisa mundur ≤ 1 kaki) | uji §3 memukul saat retract LENGAN; traverse eksklusif → gerak rel pasca-stop tetap di dalam persegi yang disaring, gantry lain diam |
 | P3 | Dua lengan bergerak bersamaan di dua gantry — beban listrik / getaran struktur langit-langit belum pernah | operator mengamati run pertama; torsi per lengan tetap dijaga (≤ 14 kontinu, rencana ≤ rating) |
 | P4 | Reservasi = sampel rencana (waypoint OMPL) + garis lurus retract; galat pelacakan Kortex tidak dimodelkan | margin 50 mm (MARGIN = TOLAK); galat pelacakan HW G51 < beberapa mm |
 | P5 | Jadwal R180 dioptimalkan untuk P1′-par TANPA traverse eksklusif dan dengan biaya G25 lama → s10 R180 lebih lambat dari R35 di runner ini | dilaporkan apa adanya; penjadwal dengan model P1″ + traverse eksklusif = pekerjaan berikut |
-| P6 | Penjaga "/joint_states basi" (1 s) bisa terpicu palsu bila runner sibuk CPU | penyaring dipindah ke proses pekerja (G54 B2); di HW dua publisher /joint_states digabung per nama |
+| P6 | Penjaga "/joint_states basi" (1 s) bisa terpicu palsu bila runner sibuk CPU | penyaring dipindah ke proses pekerja (G54 B2); fault log dibaca inkremental (G56); di HW dua publisher /joint_states digabung per nama |
+| P7 | `FAULT_RE` run_g32 tidak menangkap error ros2_control_node generik (G56 B1) | run_g54 diperbaiki; run_g32 (serial) belum — jangan andalkan run_g32 untuk menangkap error itu |

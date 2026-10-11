@@ -21,6 +21,8 @@ Fase 1–5 LULUS; Fase 6 dihentikan operator 2026-10-11 17:48 (6a–6c selesai, 
 | 7b | tabel + penjelasan selisih > 15 % | **LULUS** (2/3) | `docs/p1_g53_p1p_serial.md` B1–B4, commit f69a1e9 |
 | 7c | runner paralel: A2.1, DRY 5/5, smoke 5/5, kontrol negatif | **LULUS** (4/6) | `docs/p1_g54_parallel.md` B1–B5 |
 | 7 | runbook HW paralel + risiko → operator | **LULUS** (operator 2026-10-11: terima P1–P6) | `docs/p1_hw_runbook_parallel.md` |
+| G55 | jadwal P1″ + seleksi sim; DRY-CLI + smoke paralel | **LULUS** (5/6) | `docs/p1_g55_par_sched.md` B5 |
+| G56 | persiapan hari HW: injeksi gerak, fault, sweep v3, analisis P2 | 2/3 (D482 salah rumus) | `docs/p1_g56_hw_day.md` B3 |
 
 ## Keputusan operator
 
@@ -68,5 +70,6 @@ memakai model P1″ + traverse eksklusif (s10 R180 kalah di runner paralel).
 
 ## Langkah berikut
 
-HW (sesi lain, TANYA tiap gerak): bring-up runbook §1–2 → uji stop-semua HW (runbook paralel §3) → s7 R180 vs R35 PARALEL sama-sesi
-→ s10 → s12 R90 → s11 R90 sesudah kaki sweep g2 → −85. Offline opsional: penjadwal dengan biaya P1″ + traverse eksklusif.
+**Semua offline SELESAI (2026-10-12 00:35). Hari HW: ikuti `docs/p1_hw_day_2026-10-12.md` dari §0** — bring-up, K0, plan-only nyata
+k = 3 (s7/s10/s0/s11 `R90sel` + s7 `R180` + s10 `G42`), DRY run_g54, uji stop-semua HW (`--inject-stop-on-motion 2`), lalu pasangan
+lama vs terpilih (s7, s10, s0, opsional s11). TIAP gerak ditanya. Mock mati bersih (node 0, crash dump sesi dihapus).

@@ -22,6 +22,7 @@ import argparse
 import json
 import math
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -41,6 +42,10 @@ G31S, P = R32.G31S, R32.P
 ACTIONS = ['/execute_trajectory', '/gantry_1_with_arm_controller/follow_joint_trajectory',
            '/gantry_2_with_arm_controller/follow_joint_trajectory']
 REST_TOL = math.radians(0.5)
+# G56: run_g32's '\[ERROR\] \[ros2_control_node' never matches the real launch format
+# '[ros2_control_node-4] [ERROR] [<stamp>] [controller_manager]: ...' -- generic ros2_control_node errors were invisible.
+# G51 HW: the only such lines (7 per bring-up) are controller-spawner messages AT bring-up, inside base_faults.
+FAULT_RE = re.compile(R32.FAULT_RE.pattern + r'|\[ros2_control_node-[0-9]+\] \[ERROR\]')
 
 
 def main():
@@ -58,6 +63,9 @@ def main():
     ap.add_argument('--archive', default=HERE)
     ap.add_argument('--prefix', default='g54_')
     ap.add_argument('--max-blocked', type=int, default=30, help='RESERVE-BLOCKED retries per event')
+    ap.add_argument('--inject-stop-on-motion', type=int, default=None, metavar='G',
+                    help='NEGATIVE CONTROL (HW-safe, G56): AUTO-STOP the first time gantry G is in a RETRACT whose arms have '
+                         'moved > 2 deg from the event start and are still > 10 deg from REST (mid-motion, timing-free)')
     ap.add_argument('--inject-stop', default=None, metavar='G:K',
                     help='NEGATIVE CONTROL: AUTO-STOP when gantry G is about to start its K-th own event (0-based, = g54_sim trace)')
     a = ap.parse_args()
@@ -85,7 +93,10 @@ def main():
     if not (pm and pr_ and pc):
         say('REFUSE: monitor/recorder/ros2_control_node tidak hidup')
         return 2
-    base_faults = len(R32.FAULT_RE.findall(open(a.launch_log, errors='ignore').read()))
+    with open(a.launch_log, 'rb') as f_:
+        base_faults = len(FAULT_RE.findall(f_.read().decode('utf-8', errors='ignore')))
+        log_off = [f_.tell()]                       # G56: the watchdog reads only what was appended since (10 Hz)
+    new_faults = [0]
     W = R32.Watch()
     time.sleep(2.0)
     for g in (1, 2):
@@ -130,9 +141,14 @@ def main():
     def s26(g_trav):
         if not all(os.path.isdir(f'/proc/{p}') for p in (pm[0], pr_[0], pc[0])):
             return 'monitor/recorder/ros2_control_node mati'
-        nf = len(R32.FAULT_RE.findall(open(a.launch_log, errors='ignore').read()))
-        if nf > base_faults:
-            return f'launch log: {nf - base_faults} baris fault/exception baru'
+        with open(a.launch_log, 'rb') as f_:
+            f_.seek(log_off[0])
+            chunk = f_.read()
+        cut = chunk.rfind(b'\n') + 1                    # a partial last line waits for the next read
+        new_faults[0] += len(FAULT_RE.findall(chunk[:cut].decode('utf-8', errors='ignore')))
+        log_off[0] += cut
+        if new_faults[0]:
+            return f'launch log: {new_faults[0]} baris fault/exception baru'
         pos, tpos, peak, _ = W.snap()
         hi = {k: v[0] for k, v in peak.items() if v[0] > 14.0}
         if hi:
@@ -207,6 +223,7 @@ def main():
 
     # ---------------------------------------------------------------- workers
     want = {1: None, 2: None}              # time a traverse of g started waiting (fairness, A1)
+    q_ev0 = {1: {}, 2: {}}                 # joint state when g's current event started (G56 inject-on-motion)
 
     def gate(g, kind):
         """Under cv. A traverse needs the other gantry idle; a traverse already WAITING goes before any new event of
@@ -307,6 +324,7 @@ def main():
                     if st['stop']:
                         return
                     running[g] = e['kind']
+                    q_ev0[g] = dict(W.snap()[0])
                     ep_o = epoch[o]
                     cv.notify_all()
                 logf = f'{OUT}/ev{i:02d}_{e["kind"]}.log'
@@ -416,6 +434,19 @@ def main():
             if w:
                 stop_all(f'penjaga: {w}')
                 return
+            gi = a.inject_stop_on_motion
+            if gi is not None and running[gi] == 'retract' and q_ev0[gi]:
+                q = W.snap()[0]
+                arms = [f't{gi}_a{k}_joint_{i}' for k in (1, 2) for i in range(1, 7)]
+                moved = max(abs(q[n] - q_ev0[gi][n]) for n in arms)
+                left = max(abs(q[n] - P.REST[(i - 1) % 6]) for i, n in enumerate(arms, 1))
+                if moved > math.radians(2.0) and left > math.radians(10.0):
+                    o = 2 if gi == 1 else 1
+                    rec['inject'] = dict(g=gi, mode='on-motion', moved_deg=math.degrees(moved), left_deg=math.degrees(left),
+                                         other_running=running[o], t=time.time())
+                    stop_all(f'INJEKSI kontrol negatif: g{gi} retract di tengah gerak ({math.degrees(moved):.1f} deg '
+                             f'bergerak, {math.degrees(left):.1f} deg dari REST)')
+                    return
             time.sleep(0.1)
 
     rec['t0'] = t0 = time.time()

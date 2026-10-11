@@ -1,0 +1,34 @@
+# 1791732132.8320 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.5714,0.0353,1.0000 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/claude-1001/-home-user1-Documents-ceiling-arm/05bd37bd-31fc-4191-8a8f-e012117e87ee/scratchpad/g56_mon_samples.csv --goal-joints={"t1_a1_joint_1": -1.4598852409150196, "t1_a1_joint_2": 0.576634662844588, "t1_a1_joint_3": 0.36485007052944257, "t1_a1_joint_4": -1.5707904432332398, "t1_a1_joint_5": -0.2117872075245322, "t1_a1_joint_6": 2.2452800259890786} --goal-tol-deg=0.05 --reserve-dir /tmp/claude-1001/g54_g56_fault/res --out-json /tmp/claude-1001/g54_g56_fault/ev02_probe_try0.json
+1791732133.2951 probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 12.0 N.m
+1791732133.2951 sumber target: arm_1 (1.5714, 0.0353, 1.0), [] []
+1791732133.2951 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791732133.2951 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791732133.2951 
+1791732136.7648 [INFO] [1791732136.764718202] [reach_dwell_probe]: ujung rencana vs target: 0.54 mm, sumbu 0.07 deg
+1791732136.7667 [INFO] [1791732136.766629936] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.10->6.70/10, 2=3.98->11.68/14, 3=0.38->6.98/10, 4=0.08->2.06/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 83 %)
+1791732136.7727 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791732136.7727   self.geom = pin.buildGeomFromUrdf(
+1791732139.9112 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791732139.9112   self.geom = pin.buildGeomFromUrdf(
+1791732147.1064 [INFO] [1791732147.106304395] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 492.8 mm di titik 44 (t1_a1_left_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0) -> CLEAR
+1791732148.4275 [INFO] [1791732148.427463819] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 89.1 mm di titik 0 (t2_a1_left_finger_prox_link_0) -> CLEAR
+1791732149.4645 [INFO] [1791732149.464418213] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.400):
+1791732151.1204 [INFO] [1791732151.120355203] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 576.8 mm di titik 25/60 (t1_a1_upper_wrist_link_0 <-> t1_a2_upper_wrist_link_0)
+1791732151.1207 [INFO] [1791732151.120658352] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 493.0 mm di titik 0/60 (t1_a1_left_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+1791732151.1209 [INFO] [1791732151.120890164] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 89.1 mm di titik 0/60 (t2_a1_left_finger_prox_link_0)
+1791732157.6602 [INFO] [1791732157.660097666] [reach_dwell_probe]: G54 reservasi g2: 73 keadaan, minimum 492.8 mm (('t1_a1_left_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')) -> CLEAR
+1791732161.4140 
+1791732161.4146 dihentikan pengguna
+1791732161.4146   TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+1791732161.4554 Traceback (most recent call last):
+1791732161.4554   File "/home/user1/Documents/ceiling_arm/scripts/reach_dwell_probe.py", line 1601, in <module>
+1791732161.4556     sys.exit(main())
+1791732161.4556   File "/home/user1/Documents/ceiling_arm/scripts/reach_dwell_probe.py", line 1596, in main
+1791732161.4558     rclpy.shutdown()
+1791732161.4558   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 130, in shutdown
+1791732161.4558     _shutdown(context=context)
+1791732161.4558   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/utilities.py", line 58, in shutdown
+1791732161.4558     return context.shutdown()
+1791732161.4558   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/context.py", line 102, in shutdown
+1791732161.4559     self.__context.shutdown()
+1791732161.4559 rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:241
