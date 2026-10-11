@@ -1,6 +1,39 @@
 {
- "1": [-10.0, 10.0],
- "2": [-10.0, 10.0],
+ "1": [
+  -35.0,
+  35.0
+ ],
+ "2": [
+  -10.0,
+  10.0
+ ],
  "source": "G30 2026-09-28: +-10 deg verified on HW, arms REST, one gantry at a time (docs/p1_g30_rot_hw.md)",
- "history": []
+ "history": [
+  {
+   "t": "2026-10-11 14:09",
+   "gantry": "1",
+   "old": [
+    -10.0,
+    10.0
+   ],
+   "new": [
+    -20.0,
+    20.0
+   ],
+   "evidence": "hw/sweep/g1_evidence_pm20.log"
+  },
+  {
+   "t": "2026-10-11 14:14",
+   "gantry": "1",
+   "old": [
+    -20.0,
+    20.0
+   ],
+   "new": [
+    -35.0,
+    35.0
+   ],
+   "evidence": "hw/sweep/g1_evidence_pm35.log"
+  }
+ ]
 }

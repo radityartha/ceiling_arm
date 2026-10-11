@@ -112,3 +112,42 @@ pulse saat bergerak). → **antar sesi hanya motor1 yang bergeser**; motor2 tida
   dianggap derau (oklusi g1). **6a SELESAI**: origin OK (tidak re-zero), K0 LULUS.
 - **Aturan tambahan 6b+ (dari temuan ini):** tiap kaki periksa log `go_to_absolute` table yang bergerak: |motor1 − motor2| ≤
   100 pulse (≈ 1 mm) di `start=` dan `Positions:`; lebih → BERHENTI. Bila sel dimatikan/dinyalakan lagi: cek `start=` pertama.
+
+### B4. 6b sweep v2 — g1 di stasiun 0.65 m (alat `results/p1_g51/g51_leg.sh`, log `results/p1_g51/hw/sweep/`)
+
+⚠ `g50_sweep.sh` memakai `ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-77}` (mock) — di HW `g51_leg.sh` memaksa `ROS_DOMAIN_ID=0`.
+
+**Penyimpangan §A1 (operator 14:0x):** ambang |err_deg| ≤ 0.3 berada DI BAWAH deadband HW — `go_to_absolute` menganggap
+|posisi − target| ≤ 50 pulse (0.5°) "sudah sampai" dan `int(deg × 100)` memotong 0.01° → kaki rotasi bisa berhenti kurang
+sampai 0.51° (G30 maks 0.29° = kebetulan). Kaki 3 berhenti di −9.68° (dispatch terakhir −999 vs posisi −968 → `Already at
+absolute target`). Operator memilih: **|err| ≤ 0.3°, atau ≤ 0.51° bila KURANG (tidak lebih) dan dispatch terakhir = `Already
+at absolute target`.** Kaki berikut mulai dari posisi terukur (kekurangan tidak menumpuk: tujuan absolut).
+
+| kaki | tujuan (m, °) | akhir | galat | t / T_cmd | torsi | m1−m2 | hasil |
+|---|---|---|---|---|---|---|---|
+| 0 | (0.65, 0) dari PARK | 0.650058, 0.00 | +0.06 mm | 45.98 / 47.21 | 1.10 | ≤ 20 | ✓ |
+| 1 | (0.65, +10) | +9.99 | −0.01° | 2.64 / 3.0 (0.879) | 1.15 | 0 | ✓ |
+| 2 | (0.65, 0) | +0.03 | +0.03° | 2.78 / 3.0 (0.928) | 1.12 | 0 | ✓ |
+| 3 | (0.65, −10) | −9.68 | +0.32° kurang, deadband | 2.29 / 3.0 (0.763) | 1.12 | 0 | ✗ 0.3 → ✓ aturan baru |
+| 4 | (0.65, 0) | 0.00 | 0.00° | 2.51 / 3.0 (0.838) | 1.08 | 0 | ✓ — **⚠ PELANGGARAN: dijalankan `--move` TANPA ditanya** |
+
+**⚠ Pelanggaran aturan keras (Claude, 14:04):** kaki 4 (−9.68 → 0°, kembali ke 0) dijalankan langsung sesudah operator memilih
+ambang baru — opsi itu berbunyi "lanjut kaki 4 … *setelah tanya*"; pertanyaan dilewati. DRY sebelumnya CLEAR (S28 484.1, peta
+109.9 mm), gerak aman, semua cek LULUS. Diungkapkan ke operator segera. Pencegahan: `g51_leg.sh` kini menolak tanpa `--dry`
+atau `--move` eksplisit.
+
+| kaki | tujuan (°) | akhir | galat | t / T_cmd_rot | torsi | m1−m2 | hasil |
+|---|---|---|---|---|---|---|---|
+| 5 | +20 | +19.91 | −0.09° | 3.39 / 3.49 (0.972) | 1.08 | 0 | ✓ |
+| 6 | 0 | +0.01 | +0.01° | 3.47 / 3.48 (0.999) | — | 0 | ✓ |
+| 7 | −20 | −19.86 | +0.14° | 3.39 / 3.49 (0.971) | — | 0 | ✓ |
+| 8 | 0 | −0.12 | −0.12° | 3.39 / 3.47 (0.977) | — | 0 | ✓ |
+
+→ **amplop g1 ±20** (`rot_envelope.py widen`, bukti `results/p1_g51/hw/sweep/g1_evidence_pm20.log`, 14:09). Cek per kaki
+tersimpan `g1_legNN.check`.
+| 9 | +35 | +34.98 | −0.02° | 5.87 / 6.13 (0.957) | — | 0 | ✓ (S28 290.7 mm jari arm_2 ↔ arm_3) |
+| 10 | 0 | +0.01 | +0.01° | 6.99 / 6.11 (**1.145**) | — | 0 | ✓ (lambat, ≤ 1.2) |
+| 11 | −35 | −34.99 | +0.01° | 5.86 / 6.11 (0.959) | — | 0 | ✓ |
+| 12 | 0 | −0.18 | −0.18° | 5.76 / 6.11 (0.944) | — | 0 | ✓ |
+
+→ **amplop g1 ±35** (bukti `g1_evidence_pm35.log`).

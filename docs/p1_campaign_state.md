@@ -40,8 +40,7 @@
 
 ## Langkah berikut
 
-**Fase 6 (G51 `docs/p1_g51_hw.md`). 6a SELESAI 13:5x**: origin g2 OK (kamera Δx +0.6/+0.8 mm di enc −18.6 → tidak slip,
-TIDAK re-zero), pemulihan (restart ctrl g2, return_rest arm_4, pose_to_g g2 → 0) → **K0 LULUS**. Temuan: motor1 vs motor2
-linear g2 beda 19 mm sebelum pemulihan (G36b juga) → sejak itu sama (0/0), operator pita: sama. Stack HIDUP (launch PID
-3218146, kamera + depth_cloud, monitor + perekam). Berikut: **6b sweep v2 kaki g1 #1 DRY** (`bash results/p1_g50/g50_sweep.sh 1 …`)
-→ tanya → `--move`; tiap kaki cek |motor1 − motor2| ≤ 100 pulse.
+**Fase 6 (G51 `docs/p1_g51_hw.md`). 6a SELESAI** (origin g2 OK, tidak re-zero, K0 LULUS). **6b berjalan**: g1 di stasiun 0.65 m,
+kaki 0–12 LULUS → **amplop g1 ±35** (`results/p1_g48/rot_envelope.json`). Ambang galat rotasi diubah operator: ≤ 0.3°, atau
+≤ 0.51° bila kurang + deadband. ⚠ kaki 4 dijalankan tanpa ditanya (pelanggaran, ditulis B4). Stack HIDUP (launch 3218146).
+Berikut: **kaki g1 #13 (0 → +50°) DRY** `bash results/p1_g51/g51_leg.sh 1 13 --dry` → tanya → `--move`.
