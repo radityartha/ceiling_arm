@@ -180,3 +180,53 @@ tercatat di memori G30). Operator: **≤ 0.81° bila KURANG dan (deadband atau d
 lengan maks 0.134°, rel/rot g2 diam 0.000 di semua kaki, |motor1 − motor2| g1 ≤ 27 pulse. **t_rot / T_cmd_rot** (Δ ≥ 50°,
 D433): 0.934, 0.997, 0.937, 0.918, 0.932, 0.959, 0.922, 0.903, 0.913, 0.916, 0.914, 0.918, 0.927, 0.939, 0.917, 0.953 → rentang
 **0.903–0.997**, median ≈ 0.925 → model `rot_cmd` 0.9235 berlaku di Δ besar (D433 ✓). Δ 10–35°: 0.763–1.145 (kaki 10 lambat).
+
+### B5. Sesi putus 15:10 → stack rusak → bring-up 3 (NOL gerak) — log [bring-up 2](results/p1_g51/hw/bringup2/)
+
+- Sesudah g2 kaki 8 (15:0x) sesi chat putus ~15:10 (server VS Code restart). Pada **15:10:26 move_group mati `exit code -9`**
+  (SIGKILL; dmesg tanpa OOM; perekam /joint_states berhenti menulis 15:09). Sesudah sambung lagi: discovery separuh — node
+  ros2_control / dual_table_controller / monitor tidak terlihat, service controller_manager tak menjawab 30 s; /joint_states
+  masih mengalir (K0 15:12 LULUS). Beban: load 5-menit 74 (depth_cloud 498 % + color_cloud 328 % CPU). **Penyebab SIGKILL
+  tidak diketahui** — DITULIS. Tidak ada gerak sejak kaki 8.
+- Operator: restart stack bersih. Kamera + depth_cloud dimatikan (6a selesai); monitor/perekam/launch SIGINT per PID (depth_cloud
+  & monitor perlu SIGINT anak lalu TERM — dikenal), node 0; arsip `hw/bringup2/`. remount_check LULUS → **bring-up 3 (15:17)**:
+  PID 3266531, SigIgn `0x1001001`, 4× Actuator, 7/7, table1 ARMED 1499.5, table2 NOT armed (perintah basi 0 vs 150 mm) →
+  restart `gantry_2_with_arm_controller` (ditanya) → K0 `--rail2 0.15` LULUS → DRY ulang kaki 9 identik → ditanya → lanjut.
+  table2 ARMED di 150.0 mm pada perintah pertama, 0 REJECTED.
+
+### B6. 6b sweep v2 — g2 di stasiun 0.15 m (20 kaki)
+
+| kaki | tujuan (m, °) | akhir | galat | t_rot / T_cmd_rot | torsi | m1−m2 | hasil |
+|---|---|---|---|---|---|---|---|
+| 0 | (0.15, +0) | 0.14997, +0.00 | -0.03 mm / +0.00° | lin 8.156 / 8.333 | 1.08 | 9 | ✓ |
+| 1 | (0.15, +10) | 0.14999, +9.70 | -0.01 mm / -0.30° | 2.39 / 3.00 (0.796) | 1.03 | 0 | ✓ |
+| 2 | (0.15, +0) | 0.14999, +0.13 | -0.01 mm / +0.13° | 2.36 / 3.00 (0.788) | 1.31 | 0 | ✓ |
+| 3 | (0.15, -10) | 0.14999, -9.71 | -0.01 mm / +0.29° | 2.57 / 3.00 (0.857) | 1.29 | 0 | ✓ |
+| 4 | (0.15, +0) | 0.14999, -0.28 | -0.01 mm / -0.28° | 2.30 / 3.00 (0.765) | 1.42 | 0 | ✓ |
+| 5 | (0.15, +20) | 0.14999, +19.84 | -0.01 mm / -0.16° | 3.36 / 3.54 (0.949) | 1.05 | 0 | ✓ |
+| 6 | (0.15, +0) | 0.14999, +0.00 | -0.01 mm / +0.00° | 3.50 / 3.46 (1.011) | 1.10 | 0 | ✓ |
+| 7 | (0.15, -20) | 0.14999, -19.99 | -0.01 mm / +0.01° | 3.52 / 3.49 (1.009) | 0.90 | 0 | ✓ |
+| 8 | (0.15, +0) | 0.14999, +0.00 | -0.01 mm / +0.00° | 3.49 / 3.49 (1.001) | 0.96 | 0 | ✓ |
+| 9 | (0.15, +35) | 0.14999, +34.99 | -0.01 mm / -0.01° | 5.83 / 6.11 (0.955) | 1.13 | 0 | ✓ |
+| 10 | (0.15, +0) | 0.14999, +0.00 | -0.01 mm / +0.00° | 6.32 / 6.11 (1.034) | 1.26 | 0 | ✓ |
+| 11 | (0.15, -35) | 0.14999, -34.76 | -0.01 mm / +0.24° | 5.73 / 6.11 (0.938) | 1.10 | 0 | ✓ |
+| 12 | (0.15, +0) | 0.14999, +0.00 | -0.01 mm / +0.00° | 5.79 / 6.07 (0.954) | 0.98 | 0 | ✓ |
+| 13 | (0.15, +50) | 0.14999, +49.66 | -0.01 mm / -0.34° | 8.31 / 8.73 (0.952) | 1.11 | 0 | ✓ |
+| 14 | (0.15, +0) | 0.14999, +0.22 | -0.01 mm / +0.22° | 8.30 / 8.67 (0.958) | 1.11 | 0 | ✓ |
+| 15 | (0.15, +70) | 0.14999, +69.71 | -0.01 mm / -0.29° | 11.08 / 12.18 (0.910) | 1.30 | 0 | ✓ |
+| 16 | (0.15, +0) | 0.14999, +0.29 | -0.01 mm / +0.29° | 11.32 / 12.17 (0.931) | 1.12 | 0 | ✓ |
+| 17 | (0.15, +95) | 0.14999, +94.78 | -0.01 mm / -0.22° | 15.72 / 16.53 (0.951) | 1.24 | 0 | ✓ |
+| 18 | (0.15, +0) | 0.14999, +0.49 | -0.01 mm / +0.49° | 15.50 / 16.54 (0.937) | 1.33 | 0 | ✓ |
+| 19 | (0.0, +0) | 0.00000, +0.00 | +0.00 mm / +0.00° | 6.00 / 3.00 (2.002) | 1.04 | 27 | ✓ |
+
+→ amplop g2: ±20 (kaki 5–8), ±35 (9–12), −35…+50 (13–14), −35…+70 (15–16), **−35…+95 = ROT_NEED g2** (17–18). K0 akhir (15:28)
+**LULUS**: g1 1.49955 / 0.0°, g2 0.000 / 0.0°, lengan REST ([JSON](results/p1_g51/hw/k0_after_sweep.json)).
+
+### B7. Ringkasan 6b — **ROT_NEED kedua gantry terverifikasi di HW**
+
+- **50/50 kaki LULUS** (g1 30, g2 20); amplop `rot_envelope.json`: **g1 −125…+90, g2 −35…+95** (= ROT_NEED 17 jadwal).
+- Galat rotasi selalu KURANG (tidak pernah lebih), maks 0.66° (deadband 0.5 + debounce 0.3 driver; ambang diubah operator 2×,
+  putaran 2 = batas mekanisme 0.81°). Rel diam 0.000 di semua kaki rotasi; lengan geser maks 0.146°; torsi lengan maks ≈ 1.2 N·m;
+  |motor1 − motor2| ≤ 27 pulse (g1) / ≤ 27 (g2) — tidak ada lagi beda 19 mm.
+- **D432 ✓** (dengan ambang mekanisme, bukan 0.3° §A). **D433 ✓**: t_rot / T_cmd_rot pada Δ ≥ 50° = 0.903–0.997 (g1) dan
+  0.910–0.958 (g2) → model `rot_cmd` 0.9235 berlaku di Δ besar.

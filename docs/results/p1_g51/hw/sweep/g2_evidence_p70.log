@@ -1,0 +1,50 @@
+#### kaki 15
+== kaki 15 g2 -> 0.15 m, 70 deg  15:24:38
+S23": t2_rotation_joint +0.220 deg, t1_rotation_joint +0.000 deg; target +70.000; amplop g1 (-125.0, 125.0) g2 (-125.0, 125.0) (+-0.5, --rot-max 125)
+S28: sapuan g2 (0.1500 m, +0.220 deg) -> (0.1500, +70.000), sisanya TERUKUR: CLEAR, min 681.7 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0') di (0.150, +37.10); lengan 696.9, SS 681.7, n 142
+G33: sapuan g2 vs peta lingkungan: CLEAR, min 115.3 mm (t1_a1_right_finger_dist_link_0) di titik 0
+akhir: g2 = (0.149990 m, +69.7100 deg), galat -0.01 mm / -0.2900 deg; t_traverse 11.078 s (lin None, rot 11.078; T_cmd 12.18); lengan (keempat) bergeser maks 0.1327 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 1.299 t2_a2_joint_3
+{"gantry": 2, "goal": [0.15, 70.0], "start": [0.14999, 0.22], "end": [0.14999, 69.71], "err_mm": -0.01, "err_deg": -0.29, "T_cmd": 12.179, "T_cmd_lin": 3.0, "T_cmd_rot": 12.179, "t_send": 1791699886.6187336, "t_jtc_done": 1791699898.8204825, "t_first_move": 1791699887.643547, "t_stop": 1791699898.7219372, "t_traverse": 11.078, "t_lin": null, "t_rot": 11.078, "arm_drift_deg": 0.1327, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 1.299, "arm_tau_joint": "t2_a2_joint_3", "sweep_min_mm": 681.7, "sweep_arm_mm": 696.9, "sweep_pair": ["t1_mount_plate_left_0", "t2_mount_plate_right_0"], "jtc_error_code": "0", "n_log": 1653}
+CEK OK  |err_deg| <= 0.3 (<= 0.81 kurang + deadband/debounce): (-0.29, 'kurang', '-', 'debounce (akhir 69.7)')
+CEK OK  |err_mm| <= 2: -0.01
+CEK OK  t_traverse <= 1.2 T_cmd: (11.078, 12.179)
+CEK OK  arm drift <= 0.5: 0.1327
+CEK OK  rel lain diam <= 1 mm: 0.0
+CEK OK  rot lain diam <= 0.3: 0.0
+CEK OK  torsi <= 14: (1.299, 't2_a2_joint_3')
+CEK OK  JTC 0: 0
+CEK OK  log tanpa "REJECTED": 0
+CEK OK  log tanpa "NOT armed": 0
+CEK OK  log tanpa "larm": 0
+CEK OK  log tanpa "Timeout": 0
+CEK OK  log tanpa "Failed": 0
+CEK OK  log tanpa "Cannot read": 0
+CEK OK  log tanpa "Read error": 0
+CEK OK  |motor1 - motor2| <= 100: (0, 36)
+t_rot/T_cmd_rot = 11.078/12.179 = 0.91; t_lin/T_cmd_lin = None/3.0
+CEK KAKI: LULUS
+#### kaki 16
+== kaki 16 g2 -> 0.15 m, 0 deg  15:25:20
+S23": t2_rotation_joint +69.710 deg, t1_rotation_joint +0.000 deg; target +0.000; amplop g1 (-125.0, 125.0) g2 (-125.0, 125.0) (+-0.5, --rot-max 125)
+S28: sapuan g2 (0.1500 m, +69.710 deg) -> (0.1500, +0.000), sisanya TERUKUR: CLEAR, min 681.7 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0') di (0.150, +36.85); lengan 696.9, SS 681.7, n 142
+G33: sapuan g2 vs peta lingkungan: CLEAR, min 115.3 mm (t1_a1_right_finger_dist_link_0) di titik 0
+akhir: g2 = (0.149990 m, +0.2900 deg), galat -0.01 mm / +0.2900 deg; t_traverse 11.322 s (lin None, rot 11.322; T_cmd 12.17); lengan (keempat) bergeser maks 0.0764 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 1.12 t2_a2_joint_3
+{"gantry": 2, "goal": [0.15, 0.0], "start": [0.14999, 69.71], "end": [0.14999, 0.29], "err_mm": -0.01, "err_deg": 0.29, "T_cmd": 12.167, "T_cmd_lin": 3.0, "T_cmd_rot": 12.167, "t_send": 1791699928.811958, "t_jtc_done": 1791699941.0135708, "t_first_move": 1791699929.799999, "t_stop": 1791699941.12212, "t_traverse": 11.322, "t_lin": null, "t_rot": 11.322, "arm_drift_deg": 0.0764, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 1.12, "arm_tau_joint": "t2_a2_joint_3", "sweep_min_mm": 681.7, "sweep_arm_mm": 696.9, "sweep_pair": ["t1_mount_plate_left_0", "t2_mount_plate_right_0"], "jtc_error_code": "0", "n_log": 1666}
+CEK OK  |err_deg| <= 0.3 (<= 0.81 kurang + deadband/debounce): (0.29, 'kurang', '-', 'debounce (akhir 0.3)')
+CEK OK  |err_mm| <= 2: -0.01
+CEK OK  t_traverse <= 1.2 T_cmd: (11.322, 12.167)
+CEK OK  arm drift <= 0.5: 0.0764
+CEK OK  rel lain diam <= 1 mm: 0.0
+CEK OK  rot lain diam <= 0.3: 0.0
+CEK OK  torsi <= 14: (1.12, 't2_a2_joint_3')
+CEK OK  JTC 0: 0
+CEK OK  log tanpa "REJECTED": 0
+CEK OK  log tanpa "NOT armed": 0
+CEK OK  log tanpa "larm": 0
+CEK OK  log tanpa "Timeout": 0
+CEK OK  log tanpa "Failed": 0
+CEK OK  log tanpa "Cannot read": 0
+CEK OK  log tanpa "Read error": 0
+CEK OK  |motor1 - motor2| <= 100: (0, 37)
+t_rot/T_cmd_rot = 11.322/12.167 = 0.931; t_lin/T_cmd_lin = None/3.0
+CEK KAKI: LULUS

@@ -4,8 +4,8 @@
   90.0
  ],
  "2": [
-  -10.0,
-  10.0
+  -35.0,
+  95.0
  ],
  "source": "G30 2026-09-28: +-10 deg verified on HW, arms REST, one gantry at a time (docs/p1_g30_rot_hw.md)",
  "history": [
@@ -99,6 +99,71 @@
     90.0
    ],
    "evidence": "hw/sweep/g1_evidence_m125.log"
+  },
+  {
+   "t": "2026-10-11 14:58",
+   "gantry": "2",
+   "old": [
+    -10.0,
+    10.0
+   ],
+   "new": [
+    -20.0,
+    20.0
+   ],
+   "evidence": "hw/sweep/g2_evidence_pm20.log"
+  },
+  {
+   "t": "2026-10-11 15:22",
+   "gantry": "2",
+   "old": [
+    -20.0,
+    20.0
+   ],
+   "new": [
+    -35.0,
+    35.0
+   ],
+   "evidence": "hw/sweep/g2_evidence_pm35.log"
+  },
+  {
+   "t": "2026-10-11 15:24",
+   "gantry": "2",
+   "old": [
+    -35.0,
+    35.0
+   ],
+   "new": [
+    -35.0,
+    50.0
+   ],
+   "evidence": "hw/sweep/g2_evidence_p50.log"
+  },
+  {
+   "t": "2026-10-11 15:25",
+   "gantry": "2",
+   "old": [
+    -35.0,
+    50.0
+   ],
+   "new": [
+    -35.0,
+    70.0
+   ],
+   "evidence": "hw/sweep/g2_evidence_p70.log"
+  },
+  {
+   "t": "2026-10-11 15:27",
+   "gantry": "2",
+   "old": [
+    -35.0,
+    70.0
+   ],
+   "new": [
+    -35.0,
+    95.0
+   ],
+   "evidence": "hw/sweep/g2_evidence_p95.log"
   }
  ]
 }

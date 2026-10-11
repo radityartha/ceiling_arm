@@ -1,0 +1,151 @@
+[INFO] [launch]: All log files can be found below /home/user1/.ros/log/2026-10-11-13-33-28-008693-kubota-NUC9VXQNX-3229000
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [realsense2_camera_node-1]: process started with pid [3229001]
+[INFO] [convert_metric_node-2]: process started with pid [3229003]
+[INFO] [relay-3]: process started with pid [3229005]
+[INFO] [relay-4]: process started with pid [3229007]
+[INFO] [static_transform_publisher-5]: process started with pid [3229009]
+[INFO] [realsense2_camera_node-6]: process started with pid [3229011]
+[INFO] [convert_metric_node-7]: process started with pid [3229013]
+[INFO] [relay-8]: process started with pid [3229015]
+[INFO] [relay-9]: process started with pid [3229017]
+[INFO] [static_transform_publisher-10]: process started with pid [3229019]
+[INFO] [color_cloud-11]: process started with pid [3229021]
+[static_transform_publisher-5] [INFO] [1791693208.121794570] [rgbd_world_tf]: Spinning until stopped - publishing transform
+[static_transform_publisher-5] translation: ('1.808100', '0.812400', '2.074600')
+[static_transform_publisher-5] rotation: ('-0.400038', '-0.827759', '0.311627', '0.240153')
+[static_transform_publisher-5] from 'world' to 'rgbd_camera_optical'
+[static_transform_publisher-10] [INFO] [1791693208.148962381] [rgbd2_world_tf]: Spinning until stopped - publishing transform
+[static_transform_publisher-10] translation: ('-0.049600', '-1.130200', '2.076700')
+[static_transform_publisher-10] rotation: ('-0.821111', '0.363583', '-0.241021', '0.368093')
+[static_transform_publisher-10] from 'world' to 'rgbd2_camera_optical'
+[realsense2_camera_node-6] [INFO] [1791693208.261139445] [rgbd2.rgbd2]: RealSense ROS v4.58.2
+[realsense2_camera_node-6] [INFO] [1791693208.261244044] [rgbd2.rgbd2]: Built with LibRealSense v2.58.2
+[realsense2_camera_node-6] [INFO] [1791693208.261258885] [rgbd2.rgbd2]: Running with LibRealSense v2.58.2
+[realsense2_camera_node-6]  11/10 13:33:28,261 WARNING [129893723498048] (context.cpp:41) No valid configuration file found at : /home/user1/.realsense-config.json loading defaults
+[realsense2_camera_node-1] [INFO] [1791693208.325601536] [rgbd.rgbd]: RealSense ROS v4.58.2
+[realsense2_camera_node-1] [INFO] [1791693208.325728451] [rgbd.rgbd]: Built with LibRealSense v2.58.2
+[realsense2_camera_node-1] [INFO] [1791693208.325755409] [rgbd.rgbd]: Running with LibRealSense v2.58.2
+[realsense2_camera_node-1]  11/10 13:33:28,326 WARNING [135678048298560] (context.cpp:41) No valid configuration file found at : /home/user1/.realsense-config.json loading defaults
+[realsense2_camera_node-1] [INFO] [1791693208.698219699] [rgbd.rgbd]: Device with serial number 234222303079 was found.
+[realsense2_camera_node-1] 
+[realsense2_camera_node-1] [INFO] [1791693208.698265600] [rgbd.rgbd]: Device with physical ID /sys/devices/pci0000:00/0000:00:14.0/usb2/2-1/2-1:1.0/video4linux/video4 was found.
+[realsense2_camera_node-1] [INFO] [1791693208.698278463] [rgbd.rgbd]: Device with name Intel RealSense D455 was found.
+[realsense2_camera_node-1] [INFO] [1791693208.698532285] [rgbd.rgbd]: Device with port number 2-1 was found.
+[realsense2_camera_node-1] [INFO] [1791693208.703258637] [rgbd.rgbd]: Device with serial number 241122302297 was found.
+[realsense2_camera_node-1] 
+[realsense2_camera_node-1] [INFO] [1791693208.703291974] [rgbd.rgbd]: Device with physical ID /sys/devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/video4linux/video18 was found.
+[realsense2_camera_node-1] [INFO] [1791693208.703299164] [rgbd.rgbd]: Device with name Intel RealSense D455 was found.
+[realsense2_camera_node-1] [INFO] [1791693208.703498046] [rgbd.rgbd]: Device with port number 2-2.1.1 was found.
+[realsense2_camera_node-1] [INFO] [1791693208.703515380] [rgbd.rgbd]: Device USB type: 3.2
+[realsense2_camera_node-1] [INFO] [1791693208.703574692] [rgbd.rgbd]: getParameters...
+[realsense2_camera_node-1] [INFO] [1791693208.706847223] [rgbd.rgbd]: JSON file is not provided
+[realsense2_camera_node-1] [INFO] [1791693208.706883671] [rgbd.rgbd]: Device Name: Intel RealSense D455
+[realsense2_camera_node-1] [INFO] [1791693208.706890816] [rgbd.rgbd]: Device Serial No: 241122302297
+[realsense2_camera_node-1] [INFO] [1791693208.706895996] [rgbd.rgbd]: Device physical port: /sys/devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/video4linux/video18
+[realsense2_camera_node-1] [INFO] [1791693208.706901113] [rgbd.rgbd]: Device FW version: 5.16.0.1
+[realsense2_camera_node-1] [INFO] [1791693208.706905557] [rgbd.rgbd]: Device Product ID: 0x0B5C
+[realsense2_camera_node-1] [INFO] [1791693208.706909662] [rgbd.rgbd]: Sync Mode: Off
+[color_cloud-11] [INFO] [1791693208.718701467] [color_cloud]: color_cloud up; cameras=['rgbd', 'rgbd2'], stride=3
+[realsense2_camera_node-6] [INFO] [1791693208.723061779] [rgbd2.rgbd2]: Device with serial number 234222303079 was found.
+[realsense2_camera_node-6] 
+[realsense2_camera_node-6] [INFO] [1791693208.723098956] [rgbd2.rgbd2]: Device with physical ID /sys/devices/pci0000:00/0000:00:14.0/usb2/2-1/2-1:1.0/video4linux/video4 was found.
+[realsense2_camera_node-6] [INFO] [1791693208.723107761] [rgbd2.rgbd2]: Device with name Intel RealSense D455 was found.
+[realsense2_camera_node-6] [INFO] [1791693208.723267535] [rgbd2.rgbd2]: Device with port number 2-1 was found.
+[realsense2_camera_node-6] [INFO] [1791693208.723281376] [rgbd2.rgbd2]: Device USB type: 3.2
+[realsense2_camera_node-6] [INFO] [1791693208.723335344] [rgbd2.rgbd2]: getParameters...
+[realsense2_camera_node-6] [INFO] [1791693208.725405274] [rgbd2.rgbd2]: JSON file is not provided
+[realsense2_camera_node-6] [INFO] [1791693208.725434041] [rgbd2.rgbd2]: Device Name: Intel RealSense D455
+[realsense2_camera_node-6] [INFO] [1791693208.725446229] [rgbd2.rgbd2]: Device Serial No: 234222303079
+[realsense2_camera_node-6] [INFO] [1791693208.725455834] [rgbd2.rgbd2]: Device physical port: /sys/devices/pci0000:00/0000:00:14.0/usb2/2-1/2-1:1.0/video4linux/video4
+[realsense2_camera_node-6] [INFO] [1791693208.725499863] [rgbd2.rgbd2]: Device FW version: 5.17.0.10
+[realsense2_camera_node-6] [INFO] [1791693208.725510500] [rgbd2.rgbd2]: Device Product ID: 0x0B5C
+[realsense2_camera_node-6] [INFO] [1791693208.725518636] [rgbd2.rgbd2]: Sync Mode: Off
+[realsense2_camera_node-1] [INFO] [1791693208.816987033] [rgbd.rgbd]: Stopping Sensor: Depth Module
+[realsense2_camera_node-1] [INFO] [1791693208.817047847] [rgbd.rgbd]: Stopping Sensor: RGB Camera
+[realsense2_camera_node-1] [INFO] [1791693208.821405849] [rgbd.rgbd]: Starting Sensor: Depth Module
+[realsense2_camera_node-1] [INFO] [1791693208.823061780] [rgbd.rgbd]: Open profile: stream_type: Depth(0), Format: Z16, Width: 848, Height: 480, FPS: 30
+[realsense2_camera_node-6] [INFO] [1791693208.899308545] [rgbd2.rgbd2]: Stopping Sensor: Depth Module
+[realsense2_camera_node-6] [INFO] [1791693208.899415323] [rgbd2.rgbd2]: Stopping Sensor: RGB Camera
+[realsense2_camera_node-6] [INFO] [1791693208.916392907] [rgbd2.rgbd2]: Starting Sensor: Depth Module
+[realsense2_camera_node-6] [INFO] [1791693208.918320875] [rgbd2.rgbd2]: Open profile: stream_type: Depth(0), Format: Z16, Width: 848, Height: 480, FPS: 30
+[realsense2_camera_node-1] [INFO] [1791693208.936723204] [rgbd.rgbd]: Starting Sensor: RGB Camera
+[realsense2_camera_node-1] [INFO] [1791693208.939782496] [rgbd.rgbd]: Open profile: stream_type: Color(0), Format: RGB8, Width: 1280, Height: 720, FPS: 30
+[realsense2_camera_node-1] [INFO] [1791693208.959575734] [rgbd.rgbd]: RealSense Node Is Up!
+[realsense2_camera_node-6] [INFO] [1791693209.073834660] [rgbd2.rgbd2]: Starting Sensor: RGB Camera
+[realsense2_camera_node-6] [INFO] [1791693209.076095969] [rgbd2.rgbd2]: Open profile: stream_type: Color(0), Format: RGB8, Width: 1280, Height: 720, FPS: 30
+[realsense2_camera_node-6] [INFO] [1791693209.088995471] [rgbd2.rgbd2]: RealSense Node Is Up!
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [color_cloud-11]: sending signal 'SIGINT' to process[color_cloud-11]
+[INFO] [static_transform_publisher-10]: sending signal 'SIGINT' to process[static_transform_publisher-10]
+[INFO] [relay-9]: sending signal 'SIGINT' to process[relay-9]
+[INFO] [relay-8]: sending signal 'SIGINT' to process[relay-8]
+[INFO] [convert_metric_node-7]: sending signal 'SIGINT' to process[convert_metric_node-7]
+[INFO] [realsense2_camera_node-6]: sending signal 'SIGINT' to process[realsense2_camera_node-6]
+[INFO] [static_transform_publisher-5]: sending signal 'SIGINT' to process[static_transform_publisher-5]
+[INFO] [relay-4]: sending signal 'SIGINT' to process[relay-4]
+[INFO] [relay-3]: sending signal 'SIGINT' to process[relay-3]
+[INFO] [convert_metric_node-2]: sending signal 'SIGINT' to process[convert_metric_node-2]
+[INFO] [realsense2_camera_node-1]: sending signal 'SIGINT' to process[realsense2_camera_node-1]
+[static_transform_publisher-10] [INFO] [1791699213.574224344] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[relay-9] [INFO] [1791699213.574248789] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[relay-8] [INFO] [1791699213.575301484] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[convert_metric_node-7] [INFO] [1791699213.576747137] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-6] [INFO] [1791699213.578097962] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-6] [INFO] [1791699213.578976756] [rgbd2.rgbd2]: Stop Sensor: Depth Module
+[realsense2_camera_node-6] [INFO] [1791699213.578993584] [rgbd2.rgbd2]: Close Sensor. 
+[static_transform_publisher-5] [INFO] [1791699213.579678421] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[relay-4] [INFO] [1791699213.582498113] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[relay-3] [INFO] [1791699213.582869893] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[convert_metric_node-2] [INFO] [1791699213.584654053] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-1] [INFO] [1791699213.586662698] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-1] [INFO] [1791699213.587138186] [rgbd.rgbd]: Stop Sensor: Depth Module
+[realsense2_camera_node-1] [INFO] [1791699213.587151393] [rgbd.rgbd]: Close Sensor. 
+[INFO] [relay-9]: process has finished cleanly [pid 3229017]
+[INFO] [static_transform_publisher-10]: process has finished cleanly [pid 3229019]
+[INFO] [static_transform_publisher-5]: process has finished cleanly [pid 3229009]
+[INFO] [relay-8]: process has finished cleanly [pid 3229015]
+[INFO] [relay-3]: process has finished cleanly [pid 3229005]
+[INFO] [convert_metric_node-7]: process has finished cleanly [pid 3229013]
+[INFO] [convert_metric_node-2]: process has finished cleanly [pid 3229003]
+[realsense2_camera_node-6] [INFO] [1791699214.595463863] [rgbd2.rgbd2]: Close Sensor - Done. 
+[realsense2_camera_node-6] [INFO] [1791699214.595486989] [rgbd2.rgbd2]: Stop Sensor: RGB Camera
+[realsense2_camera_node-6] [INFO] [1791699214.595492961] [rgbd2.rgbd2]: Close Sensor. 
+[realsense2_camera_node-1] [INFO] [1791699214.596999421] [rgbd.rgbd]: Close Sensor - Done. 
+[realsense2_camera_node-1] [INFO] [1791699214.597016344] [rgbd.rgbd]: Stop Sensor: RGB Camera
+[realsense2_camera_node-1] [INFO] [1791699214.597022343] [rgbd.rgbd]: Close Sensor. 
+[realsense2_camera_node-1] [INFO] [1791699215.000570641] [rgbd.rgbd]: Close Sensor - Done. 
+[INFO] [realsense2_camera_node-1]: process has finished cleanly [pid 3229001]
+[realsense2_camera_node-6] [INFO] [1791699216.353939074] [rgbd2.rgbd2]: Close Sensor - Done. 
+[INFO] [relay-4]: process has finished cleanly [pid 3229007]
+[INFO] [realsense2_camera_node-6]: process has finished cleanly [pid 3229011]
+[color_cloud-11] Traceback (most recent call last):
+[color_cloud-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/build/reachability_gng/reachability_gng/color_cloud.py", line 146, in main
+[color_cloud-11]     rclpy.spin(node)
+[color_cloud-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[color_cloud-11]     executor.spin_once()
+[color_cloud-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+[color_cloud-11]     self._spin_once_impl(timeout_sec)
+[color_cloud-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+[color_cloud-11]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[color_cloud-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+[color_cloud-11]     return next(self._cb_iter)
+[color_cloud-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 677, in _wait_for_ready_callbacks
+[color_cloud-11]     wait_set.wait(timeout_nsec)
+[color_cloud-11] KeyboardInterrupt
+[color_cloud-11] 
+[color_cloud-11] During handling of the above exception, another exception occurred:
+[color_cloud-11] 
+[color_cloud-11] Traceback (most recent call last):
+[color_cloud-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/color_cloud", line 33, in <module>
+[color_cloud-11]     sys.exit(load_entry_point('reachability-gng', 'console_scripts', 'color_cloud')())
+[color_cloud-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/build/reachability_gng/reachability_gng/color_cloud.py", line 149, in main
+[color_cloud-11]     rclpy.shutdown()
+[color_cloud-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 130, in shutdown
+[color_cloud-11]     _shutdown(context=context)
+[color_cloud-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/utilities.py", line 58, in shutdown
+[color_cloud-11]     return context.shutdown()
+[color_cloud-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/context.py", line 102, in shutdown
+[color_cloud-11]     self.__context.shutdown()
+[color_cloud-11] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:241
+[ERROR] [color_cloud-11]: process has died [pid 3229021, exit code 1, cmd '/home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/color_cloud --ros-args -r __node:=color_cloud'].

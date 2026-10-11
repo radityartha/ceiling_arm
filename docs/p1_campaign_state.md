@@ -40,7 +40,6 @@
 
 ## Langkah berikut
 
-**Fase 6 (G51 `docs/p1_g51_hw.md`). 6a SELESAI** (origin g2 OK, tidak re-zero, K0 LULUS). **6b berjalan**: g1 di stasiun 0.65 m,
-kaki 0–12 LULUS → **amplop g1 ±35** (`results/p1_g48/rot_envelope.json`). Ambang galat rotasi diubah operator: ≤ 0.3°, atau
-≤ 0.51° bila kurang + deadband. ⚠ kaki 4 dijalankan tanpa ditanya (pelanggaran, ditulis B4). Stack HIDUP (launch 3218146).
-Berikut: **kaki g1 #13 (0 → +50°) DRY** `bash results/p1_g51/g51_leg.sh 1 13 --dry` → tanya → `--move`.
+**Fase 6 (G51 `docs/p1_g51_hw.md`). 6a SELESAI, 6b SELESAI 15:28**: 50/50 kaki, amplop **g1 −125…+90, g2 −35…+95 = ROT_NEED**
+(B7). Stack = bring-up 3 (launch PID 3266531, sesudah move_group SIGKILL 15:10, B5), monitor + perekam hidup, K0 LULUS (g1 PARK,
+g2 0, REST). Berikut: **6c `run_g32 --dry` di stack nyata** (runbook §5, mulai s7 lalu s10, s0, s3, s18, s8 …; tanpa gerak).
