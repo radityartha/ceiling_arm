@@ -308,3 +308,12 @@ R180 justru +11.8 s (+2.3 %): 1 traverse g2 panjang 99.5 s (0 → 1.5 m) di kedu
   → **gantry SUDAH sampai tujuan**; dugaan 2 terbukti: pose_to_g menunggu "diam 1.0 s" sesudah JTC selesai dan jeda > 1 s di
   rantai dispatch bridge terbaca sebagai berhenti. **Perbaikan `pose_to_g.py`:** diam 1.0 s hanya diterima bila dekat tujuan
   (≤ 2 mm, ≤ 0.81°); di tempat lain tunggu diam 5 s (berhenti pendek sungguhan tetap rc 3).
+- Pulang g1 (17:10, ditanya; cache `/tmp/reach_dwell_live.urdf` dibuat ulang dari `robot_description` live, sha `f02e7c532cdb`
+  = arsip G23): (1.25, −30) → PARK 1.49993 / 0.0°, K0 LULUS. Arsip run batal: `run/s10_G42_abort1/`.
+- **s10 R35 ulang (17:11:22, ditanya): 6/6 SUCCESS, 16/16 event rc 0, makespan terukur 468.37 s.** Pulang (17:21–17:24, ditanya):
+  g1 1 kaki → 1.49963 / −0.04°, g2 3 kaki → 0.00016 m, **K0 LULUS**. `/tmp` diarsipkan ke `hw/bringup4/` segera.
+
+| s10 di HW | model (paralel) | terukur (runner SERIAL) | tugas |
+|---|---|---|---|
+| R180 (bring-up 3) | 323.4 s | **582.23 s** | 6/6 |
+| R35 (bring-up 4, sesudah restart PC) | 367.1 s | **468.37 s** | 6/6 |
