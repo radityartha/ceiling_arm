@@ -170,3 +170,13 @@ tersimpan `g1_legNN.check`.
 0.2° dari dispatch 89.8 → tidak dikirim; lalu 38 pulse ≤ 50 → `Already`. Batas mekanisme = 0.3 + 0.5 + 0.01 = **0.81°** (sudah
 tercatat di memori G30). Operator: **≤ 0.81° bila KURANG dan (deadband atau debounce) terbukti di log.** Konsekuensi: kaki
 "ke 0" bisa berakhir ±0.65° → K0 (rot ±0.5°) bisa TOLAK di akhir → kaki penyesuaian (ditanya) bila perlu.
+| 25 | −110 | −109.67 | +0.33° dl | 17.70 / 19.09 (0.927) | — | 0 | ✓ (S28 251.9) |
+| 26 | 0 | −0.14 | −0.14° | 17.98 / 19.14 (0.939) | — | 0 | ✓ → amplop −110…+90 |
+| 27 | −125 | −124.34 | +0.66° dl+db | 19.99 / 21.79 (0.917) | — | 0 | ✓ (S28 239.3 @ −123°) |
+| 28 | 0 | −0.04 | −0.04° | 20.69 / 21.70 (0.953) | — | 0 | ✓ → **amplop g1 −125…+90 = ROT_NEED g1** |
+| 29 | PARK (1.50, 0) | 1.499545, 0.00 | −0.46 mm | 45.46 / 47.22 | — | ≤ 27 | ✓ |
+
+**g1 selesai (14:56):** 30/30 kaki LULUS (kaki 3 dan 21 sesudah ambang diubah operator); torsi lengan maks ≈ 1.15 N·m, geser
+lengan maks 0.134°, rel/rot g2 diam 0.000 di semua kaki, |motor1 − motor2| g1 ≤ 27 pulse. **t_rot / T_cmd_rot** (Δ ≥ 50°,
+D433): 0.934, 0.997, 0.937, 0.918, 0.932, 0.959, 0.922, 0.903, 0.913, 0.916, 0.914, 0.918, 0.927, 0.939, 0.917, 0.953 → rentang
+**0.903–0.997**, median ≈ 0.925 → model `rot_cmd` 0.9235 berlaku di Δ besar (D433 ✓). Δ 10–35°: 0.763–1.145 (kaki 10 lambat).
