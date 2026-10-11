@@ -1,0 +1,5 @@
+# 1791701106.7273 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g32/pose_to_g.py --gantry 1 --seed 7 --plan docs/results/p1_g43/g43_candidates_6.json --variant R180 1.300 -15.000 --move
+1791701107.0927 Traceback (most recent call last):
+1791701107.0927   File "/home/user1/Documents/ceiling_arm/docs/results/p1_g32/pose_to_g.py", line 64, in <module>
+1791701107.0927     row = {r['seed']: r for r in json.load(open(a.plan))}[a.seed]
+1791701107.0927 FileNotFoundError: [Errno 2] No such file or directory: 'docs/results/p1_g43/g43_candidates_6.json'

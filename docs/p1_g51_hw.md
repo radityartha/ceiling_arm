@@ -237,3 +237,20 @@ D433): 0.934, 0.997, 0.937, 0.918, 0.932, 0.959, 0.922, 0.903, 0.913, 0.916, 0.9
 g2 −35…+95), K0 runner LULUS di tiap panggilan, `DRY: tidak ada yang dikirim`. rc 134 saat keluar (`terminate called without
 an active exception`) = benign, dikenal (G24b). ⚠ `g47_home.sh` (dan `g50_sweep.sh`) default `ROS_DOMAIN_ID=77` → di HW semua
 perintah diberi `ROS_DOMAIN_ID=0` eksplisit.
+
+### B9. 6d — s7 R180 di HW (pertama R180 di HW) — log `results/p1_g51/hw/run/s7_R180_*`
+
+- Pembanding sama-sesi: jadwal **R0 tidak ada** untuk seed kandidat (rot 0 infeasibel, memori no-shared-zone) → pembanding =
+  **R35** (G42f varian `G42`, model 435.0 s vs R180 275.9 s). Penyimpangan dari "R_max vs R0" prompt — DITULIS.
+- **Plan-only NYATA k = 3** (15:31–15:44, `hw/planonly/`): s7 R180 PLANNED/PLANNED/PLANNED, s7 R35 PLANNED×3 → 39/39 percobaan
+  PLANNED di masing-masing, 0 GOAL-MISMATCH / START-JUMP.
+- **Run 1 (15:45:00) AUTO-STOP event 1** — kesalahan saya: `--plan` relatif, `pose_to_g` (cwd lain) FileNotFoundError; hanya ev00
+  (retract g1 dari REST) jalan; K0 LULUS sesudahnya; arsip `run/s7_R180_abort1/`. Ditanya → run 2 dengan path absolut.
+- **Run 2 (15:45:51): SELESAI 6/6 tugas SUCCESS penilai, 18/18 event rc 0, 0 HALTED → makespan terukur 535.05 s** (runner serial;
+  model 275.9 s = paralel). Traverse rotasi g1 (1.5, 0) → (1.3, −15) → (1.55, +40) → (1.45, +70); g2 (0, 0) → (1.5, −5) → (1.5, +5).
+  Torsi puncak tugas 5.18–9.60 N·m (maks t2_a1_joint_2 9.60). Retract tiap lengan ~43.7 s (dominan non-tugas).
+- **Pulang `g47_home.sh`** (15:57–16:00, ditanya, ROS_DOMAIN_ID=0): g1 3 kaki retrace + PARK 1.49989, g2 2 kaki + 0.00083 m, galat
+  ≤ 0.83 mm / ≤ 0.1°; **K0 LULUS**. DRY pulang memberi 2 `REFUSE` G33 = artefak DRY (kaki dinilai dari pose sekarang, bukan dari
+  ujung kaki sebelumnya) — saat `--move` setiap kaki CLEAR dari pose terukur. `g47_home.sh`: toleransi pengenal pose rot 0.5 →
+  1.0° (= penjaga run_g32; kekurangan HW ≤ 0.81°).
+- Log bridge selama run + pulang: 0 REJECTED / NOT armed, |motor1 − motor2| ≤ 40 pulse. **D434 ✓** (seed pertama 6/6, 0 HALTED).

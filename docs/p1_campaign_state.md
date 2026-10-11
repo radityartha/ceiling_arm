@@ -40,6 +40,6 @@
 
 ## Langkah berikut
 
-**Fase 6 (G51 `docs/p1_g51_hw.md`). 6a SELESAI, 6b SELESAI 15:28**: 50/50 kaki, amplop **g1 −125…+90, g2 −35…+95 = ROT_NEED**
-(B7). Stack = bring-up 3 (launch PID 3266531, sesudah move_group SIGKILL 15:10, B5), monitor + perekam hidup, K0 LULUS (g1 PARK,
-g2 0, REST). Berikut: **6c `run_g32 --dry` di stack nyata** (runbook §5, mulai s7 lalu s10, s0, s3, s18, s8 …; tanpa gerak).
+**Fase 6 (G51). 6a–6c SELESAI; 6d: s7 R180 HW 6/6 SUCCESS, makespan 535.05 s, pulang + K0 LULUS (16:00).** Berikut: pembanding
+sama-sesi **s7 R35** (`p1_g42/g42f_candidates.json` varian G42, plan-only 3/3 sudah) → tanya → run_g32 (path ABSOLUT,
+ROS_DOMAIN_ID=0) → g47_home → K0. Stack = bring-up 3 (PID 3266531).

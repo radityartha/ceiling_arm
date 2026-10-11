@@ -25,7 +25,8 @@ t0 = time.time()
 while time.time() - t0 < 5.0 and not all(k in pos for k in (f't{g}_linear_joint', f't{g}_rotation_joint')):
     rclpy.spin_once(n, timeout_sec=0.05)
 cur = (pos[f't{g}_linear_joint'], math.degrees(pos[f't{g}_rotation_joint']))
-near = lambda a: abs(cur[0] - a[0]) <= 0.002 and abs(cur[1] - a[1]) <= 0.5      # noqa: E731
+# rot 1.0 deg = run_g32's own guard: HW legs end up to 0.81 deg SHORT (bridge debounce 0.3 + driver deadband 0.5, G51 B4)
+near = lambda a: abs(cur[0] - a[0]) <= 0.002 and abs(cur[1] - a[1]) <= 1.0      # noqa: E731
 if near(home):
     print('')                                    # already home: no leg
 elif any(near(x) for x in st):
