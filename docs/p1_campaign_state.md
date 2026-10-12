@@ -4,6 +4,8 @@
 
 ## Fase aktif
 
+**DEMO-HW SELESAI tanpa gerak** (2026-10-12 17:45–18:23, `docs/p1_demo_hw.md`, 2/5 diuji): H2 lokalisasi GAGAL (rgbd2 +0.15 m di zona arm_1 — hanya rgbd2 melihat zona itu, dari ~3 m); rantai teks → YOLOE nyata → localizer → CLI → runner → probe terbukti plan-only di domain 0 (`success arm_1 (arm_1:PLANNED)`, j2 99.6 %). Sel home, K0 LULUS, stack MATI.
+
 **G57 HW SELESAI** (2026-10-12 11:13–17:30, `docs/p1_g57_hw.md`, tally 5/9): 6/6 pasangan lama vs baru di HW, sel di home, stack MATI. Sebelumnya: **G58–G60 OFFLINE SELESAI** (2026-10-12 10:30, prompt `docs/p1_g58_offline_prompt.md`). Berikut = sesi HW dengan
 `docs/p1_g57_hw_prompt.md` + rencana `docs/p1_hw_day_2026-10-12.md` (diperbarui). Mock 77 MATI bersih.
 Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
@@ -28,6 +30,7 @@ Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 | G59 | DEMO-OFF ulang (kode sekarang) + prompt DEMO-HW + cek kamera | **LULUS** (4/6; 2 cacat diperbaiki: regex runner, `g` ganda) | `docs/p1_g59_demo.md` B1–B4 |
 | G60 | penjadwal sadar traverse eksklusif (LB terbukti + g54_sim penuh) | **LULUS** (4/6) | `docs/p1_g60_excl_sched.md` B1–B4 |
 | G57 | HW paralel run_g54: uji stop + pasangan s7 s10 s8 s18 s3 s12 (+ s0) | **SELESAI** (5/9) | `docs/p1_g57_hw.md` B2–B8 |
+| DEMO-HW | YOLOE nyata → arm_1 di atas botol (approach-only) | **GAGAL H2** (2/5 diuji; plan-only ✓, nol gerak) | `docs/p1_demo_hw.md` B1–B6 |
 
 ## Keputusan operator
 
@@ -36,6 +39,7 @@ Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
   (2) operator **di lokasi besok 2026-10-11** → cek origin g2 dengan kamera (Fase 6a) besok; (3) arah sweep rotasi **aman
   semua** (+ dan −). Sweep HW tetap bertahap dan TIAP gerak tetap ditanya (aturan Fase 6).
 - 2026-10-12 12:33 (operator): batas abort torsi probe 12 terlalu ketat — lewat 12 N·m bukan gagal; HW `run_g54 --tau-max 14` (batas keras tetap > 14).
+- 2026-10-12 17:50 (operator, DEMO-HW): ekstrinsik kamera demo = launch + koreksi G34 (arg launch, default tidak diubah); 18:14: H2 gagal → uji rantai plan-only saja, nol gerak.
 - 2026-10-12 (operator): urutan hari HW = runner HW (G57 → G58/G60) dulu, DEMO paling akhir; cek kamera TEPAT sebelum demo (bukan di §0).
 - 2026-10-11 (operator, Gerbang 7): risiko runner paralel P1–P6 DITERIMA. HW paralel = sesi lain, tiap gerak ditanya, mulai uji
   stop-semua (runbook paralel §3).
@@ -101,4 +105,4 @@ tidak dikoreksi rotasi gantry terukur (GOAL-MISMATCH s12); torsi transit > predi
 
 ## Langkah berikut
 
-Sesi DEMO-HW (YOLOE → lengan di atas objek): tempel `docs/p1_demo_hw_prompt.md`; sesudahnya sesi OFFLINE G61 untuk celah G57 B8.
+Sesi kalibrasi rgbd2 jarak jauh TANPA gerak (acuan FK lengan REST di g1 1.50 + meja 0.77 m, tabel `p1_demo_hw.md` B1 diulang ≤ 5 cm) lalu DEMO-HW ulang dengan `seg_imgsz:=1280` dan batas z dari meja + botol terukur; sesi OFFLINE G61 (celah G57 B8) boleh di antaranya.

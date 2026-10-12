@@ -1,0 +1,19 @@
+# 1791796812.0729 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.9413,0.6977,1.0724 --approach 0 --trials 1 --tau-max 14.0 --monitor-csv /tmp/p1demo_mon_samples.csv --plan-check
+1791796812.5578 [33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+1791796812.5579 
+1791796812.6491 probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 14.0 N.m
+1791796812.6491 sumber target: arm_1 (1.9413, 0.6977, 1.0724), [] []
+1791796812.6491 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791796812.6491 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791796812.6492 
+1791796814.8773 [INFO] [1791796814.877264677] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=6.33->14.03/14, 3=1.99->8.59/10, 4=0.29->2.27/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 100 %)
+1791796814.8779 [ERROR] [1791796814.877859146] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.03 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+1791796814.8786 [INFO] [1791796814.878583758] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791796816.0315 [INFO] [1791796816.031459595] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=6.34->14.04/14, 3=1.82->8.42/10, 4=0.29->2.27/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 100 %)
+1791796816.0322 [ERROR] [1791796816.032095081] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.04 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+1791796816.0326 [INFO] [1791796816.032581641] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791796817.1839 [INFO] [1791796817.183792170] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=6.32->14.02/14, 3=1.83->8.43/10, 4=0.30->2.28/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 100 %)
+1791796817.1843 [ERROR] [1791796817.184275314] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.02 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+1791796817.1845   [ 1] DRY arm_1: p_cmd = (+1.941, +0.698, +1.072)   rencana: TORQUE-UNSAFE
+1791796817.1845   TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+1791796817.1848   -> /tmp/g20_step5.json

@@ -1,0 +1,58 @@
+{
+ "run": 1,
+ "t0": 1791796812.0715487,
+ "track": {
+  "tid": 0,
+  "label": "white bottle",
+  "x": 1.941256941054677,
+  "y": 0.6977387460236626,
+  "z": 0.82243169060322,
+  "conf": 0.737
+ },
+ "p_cmd": [
+  1.941256941054677,
+  0.6977387460236626,
+  1.0724316906032199
+ ],
+ "plan_only": true,
+ "arm_dist": {
+  "arm_1": 0.342,
+  "arm_2": 0.906
+ },
+ "tries": [
+  {
+   "arm": "arm_1",
+   "rc": 0,
+   "verdict": "TORQUE-UNSAFE",
+   "final": "DRY",
+   "dt": 5.29,
+   "log": "/home/user1/Documents/ceiling_arm/docs/results/p1_demo_hw/hw/run01_01_probe_arm_1.log",
+   "screens": [
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=6.33->14.03/14, 3=1.99->8.59/10, 4=0.29->2.27/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 100 %)",
+    "percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)",
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=6.34->14.04/14, 3=1.82->8.42/10, 4=0.29->2.27/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 100 %)",
+    "percobaan rencana 3/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)",
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.07->6.67/10, 2=6.32->14.02/14, 3=1.83->8.43/10, 4=0.30->2.28/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 100 %)"
+   ],
+   "refusals": [
+    "DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.03 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)",
+    "DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.04 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)",
+    "DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.02 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)"
+   ]
+  },
+  {
+   "arm": "arm_2",
+   "rc": 0,
+   "verdict": "NO-PLAN",
+   "final": "DRY",
+   "dt": 46.26,
+   "log": "/home/user1/Documents/ceiling_arm/docs/results/p1_demo_hw/hw/run01_02_probe_arm_2.log",
+   "screens": [
+    "percobaan rencana 2/3: yang sebelumnya NO-PLAN -- meminta lintasan LAIN (penyaring tidak dilonggarkan)",
+    "percobaan rencana 3/3: yang sebelumnya NO-PLAN -- meminta lintasan LAIN (penyaring tidak dilonggarkan)"
+   ],
+   "refusals": []
+  }
+ ],
+ "t_total": 51.56
+}

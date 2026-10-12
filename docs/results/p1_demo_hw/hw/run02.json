@@ -1,0 +1,47 @@
+{
+ "run": 2,
+ "t0": 1791796880.6053967,
+ "track": {
+  "tid": 0,
+  "label": "white bottle",
+  "x": 1.9445338107027144,
+  "y": 0.6989619369192388,
+  "z": 0.8219590856467884,
+  "conf": 0.666
+ },
+ "p_cmd": [
+  1.9445338107027144,
+  0.6989619369192388,
+  1.0719590856467884
+ ],
+ "plan_only": true,
+ "arm_dist": {
+  "arm_1": 0.344,
+  "arm_2": 0.909
+ },
+ "tries": [
+  {
+   "arm": "arm_1",
+   "rc": 0,
+   "verdict": "PLANNED",
+   "final": "DRY",
+   "dt": 20.27,
+   "log": "/home/user1/Documents/ceiling_arm/docs/results/p1_demo_hw/hw/run02_01_probe_arm_1.log",
+   "screens": [
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.16->6.76/10, 2=6.34->14.04/14, 3=1.33->7.93/10, 4=0.24->2.22/7, 5=0.08->2.06/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 100 %)",
+    "percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)",
+    "torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=6.24->13.94/14, 3=2.01->8.61/10, 4=0.30->2.28/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 100 %)",
+    "jarak antar-lengan minimum sepanjang rencana: 622.8 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR",
+    "jarak ke peta lingkungan minimum: 107.2 mm di titik 9 (t1_a1_left_finger_dist_link_0) -> CLEAR",
+    "retract g1 ['arm_1'] lurus (rel 1.500):",
+    "penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)",
+    "penyaring antar-gantry: CLEAR, minimum 863.1 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)",
+    "penyaring lingkungan: CLEAR, minimum 107.2 mm di titik 44/60 (t1_a1_left_finger_dist_link_0)"
+   ],
+   "refusals": [
+    "DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.04 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)"
+   ]
+  }
+ ],
+ "t_total": 20.27
+}

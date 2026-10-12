@@ -1,0 +1,13 @@
+# 1791796817.3658 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_2 --target=1.9413,0.6977,1.0724 --approach 0 --trials 1 --tau-max 14.0 --monitor-csv /tmp/p1demo_mon_samples.csv --plan-check
+1791796817.8518 [33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+1791796817.8519 
+1791796817.9268 probe LANGKAH 5: arm_2, 1 percobaan, abort torsi 14.0 N.m
+1791796817.9269 sumber target: arm_2 (1.9413, 0.6977, 1.0724), [] []
+1791796817.9269 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791796817.9269 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791796817.9269 
+1791796833.3333 [INFO] [1791796833.333302544] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya NO-PLAN -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791796848.3945 [INFO] [1791796848.394513799] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya NO-PLAN -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791796863.4566   [ 1] DRY arm_2: p_cmd = (+1.941, +0.698, +1.072)   rencana: NO-PLAN
+1791796863.4566   TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+1791796863.4568   -> /tmp/g20_step5.json
