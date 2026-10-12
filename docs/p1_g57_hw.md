@@ -121,6 +121,7 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 | 3 | s10 baru G55 R90sel | 12:19:28 | 5/6 resmi; **317.06** turunan (aturan operator) | 278.5 | 308.9 | 5/6 + ev 12 sampai (verdict TORQUE-ABORT) | 0 | 0 | 12.44 `t2_a1_j2` | lengan REST (retract ev 13 rc 0) |
 | 4 | s10 lama G42f G42 | 13:32:36 | **TIDAK SAH 0/6** — move_group mati 13:11:45 | 360.3 | 383.2 | 0/6 HALTED (EXEC-FAIL, nol gerak lengan) | 0 | 0 | 1.24 | rel 3 kaki CLEAR, K0 LULUS |
 | 5 | s10 lama G42f G42 (ulang, stack 4, `--tau-max 14`) | 13:49:04 | **391.91** | 360.3 | 383.2 | ✓ | 0 | 0 | 9.39 `t2_a2_j2` | 4 kaki CLEAR, K0 LULUS |
+| 6 | s0 baru G55 R90sel | 14:06:13 | **190.70** | 148.2 | 163.4 (G55) | ✓ | 0 | 0 | 11.73 `t2_a1_j2` | 2 kaki CLEAR, K0 LULUS |
 
 - s10 plan-only nyata k = 3 (12:06–12:19): **G55 R90sel 3/3 LOLOS**, **G42f G42 3/3 LOLOS**; DRY run_g54 keduanya rc 0, K0 LULUS,
   traverse di luar []. Traverse: baru g1 → (1.40, −30°), g2 → (0.85, −20°) → (1.20, −10°); lama g1 → (1.25, −30°), g2 → (0.70, −20°)
@@ -172,4 +173,10 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 - **Minimum paper (s7 + s10) TERCAPAI** ([laporan](results/p1_g57/g57_report.py) → `g57_report.json`): s7 Δ HW **+108.87 s
   (−27.8 %)**, mock +107.24 (HW/mock 1.02), sim +113.29 (0.96); s10 Δ HW **+74.85 s (−19.1 %, s10 baru turunan)**, mock +74.30
   (1.01), sim +81.81 (0.91).
+- s0 baru: plan-only 3/3 (14:00–14:05), DRY rc 0, run 6/6 **190.70 s** — HW/sim **1.287**, HW/mock 1.167 (di luar D534/D535).
+  Penyebab terlihat: ketiga tugas arm_3 (g2 di (0.15, −30°)) time_to_dwell 31.7 / 47.5 / 54.0 s vs arm_2 24.7–34.2 s; jeda
+  rencana → `MOVED` 27 / 43 / 50 s (satu percobaan `PLANNED` masing-masing, τ ≤ 11.73) → durasi eksekusi lintasan panjang
+  (sendi besar), bukan penyaringan ulang. Analisis offline (lintasan tersimpan di log probe).
+- RSS move_group 889 MB pada 24:50 (≈ +10 MB/mnt, bukan 560 MB/mnt) — perbaikan bekerja.
+- **§3 G57 SELESAI 14:13.**
 

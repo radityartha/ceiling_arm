@@ -92,4 +92,4 @@ persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `s
 
 ## Langkah berikut
 
-G57 §3: s7 + s10 selesai (minimum paper); berikut s0 baru (plan-only berjalan → DRY → run, izin), lalu §4 s8.
+G57 §3 selesai (s7, s10, s0); berikut §4 G58/G60 pasangan s8 (plan-only s8 baru/lama → DRY → run, izin) atau HENTI B.
