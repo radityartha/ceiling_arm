@@ -1,0 +1,10 @@
+# 1791793333.4338 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 1 --seed 12 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g60/g60_selected.json --variant G60 1.500 -20.000 --move
+1791793334.7929 S12: maks |q - REST| arm_1 0.034, arm_2 0.018, arm_3 0.033, arm_4 0.025 deg (batas 0.5 untuk gantry 1)
+1791793334.7929 S23": t1_rotation_joint +0.000 deg, t2_rotation_joint -19.990 deg; target -20.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
+1791793340.0848 S28: sapuan g1 (1.5000 m, +0.000 deg) -> (1.5000, -20.000), sisanya TERUKUR: CLEAR, min 408.6 mm ('t1_platform_link_0', 't2_platform_link_0') di (1.500, +0.00); lengan 514.8, SS 408.6, n 42
+1791793340.4349 G33: sapuan g1 vs peta lingkungan: CLEAR, min 97.4 mm (t1_a2_left_finger_dist_link_0) di titik 41
+1791793340.4349 g1: lin 1.499985 -> 1.500000 m (+0.0 mm), rot +0.000 -> -20.000 deg (-20.000); T_cmd 3.49 s (lin 3.00, rot 3.49)
+1791793340.4352 setpoint pertama 0.00 mm / 0.489 deg (arm_tol 5 mm / 1.0 deg)
+1791793344.0417 JTC error_code: 0
+1791793345.7803 akhir: g1 = (1.499995 m, -19.9900 deg), galat -0.01 mm / +0.0100 deg; t_traverse 3.508 s (lin None, rot 3.508; T_cmd 3.49); lengan (keempat) bergeser maks 0.0396 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 1.008 t2_a2_joint_2
+1791793345.7803 {"gantry": 1, "goal": [1.5, -20.0], "start": [1.499985, 0.0], "end": [1.499995, -19.99], "err_mm": -0.005, "err_deg": 0.01, "T_cmd": 3.491, "T_cmd_lin": 3.0, "T_cmd_rot": 3.491, "t_send": 1791793340.4895725, "t_jtc_done": 1791793344.0416229, "t_first_move": 1791793341.2666023, "t_stop": 1791793344.7742777, "t_traverse": 3.508, "t_lin": null, "t_rot": 3.508, "arm_drift_deg": 0.0396, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 1.008, "arm_tau_joint": "t2_a2_joint_2", "sweep_min_mm": 408.6, "sweep_arm_mm": 514.8, "sweep_pair": ["t1_platform_link_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 782}

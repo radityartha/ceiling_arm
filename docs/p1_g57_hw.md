@@ -192,6 +192,7 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 | 12 | s3 lama G43 R180 | 16:27:47 | **466.42** | 426.1 | 446.1 | ✓ | 0 | 0 | 9.48 `t1_a1_j2` | 5 kaki CLEAR (1 ganda dilewati), K0 LULUS |
 | 13 | s12 lama G52 R90 (coba 1, arsip `…_coba1_*`) | 16:57:04 | **— (5/6)** | 313.5 | 332.3 | ✗ ev 5 GOAL-MISMATCH (nol gerak) | 0 | 0 | 12.12 `t2_a1_j2` | (lihat bawah) |
 | 14 | s12 lama G52 R90 (coba 2) | 17:09:08 | **337.39** | 313.5 | 332.3 | ✓ (ev 5 percobaan rencana 3: 2.69 mm) | 0 | 0 | 12.14 `t2_a1_j2` | 3 kaki CLEAR, K0 LULUS |
+| 15 | s12 G60 | 17:20:43 | **298.92** | 270.7 | 289.6 | ✓ | 0 | 0 | 12.51 `t1_a1_j2` | 4 kaki CLEAR, K0 LULUS |
 
 - Prep s8 (14:12–14:26): baru 3/3 + DRY rc 0; lama G42f 3/3 + DRY rc 0.
 - s8 baru τ puncak 12.57 > 12 (< 14) — dicatat, bukan gagal (keputusan operator 12:33).
@@ -215,4 +216,54 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 - Operator 17:05: pulang (K0 LULUS), ulang s12 lama 1×. **Coba 2: 6/6, 337.39 s**; rotasi g1 lagi pendek (+39.58°, −0.42°), ev 5
   GOAL-MISMATCH 3.80 / 3.35 mm lalu `PLANNED` **2.69 mm** pada percobaan rencana ke-3 → lolos TIPIS secara stokastik, penyebab tetap.
   Kedua percobaan dicatat; makespan pasangan memakai coba 2 (catat: coba 1 gagal).
+
+### B6. Analisis pasangan — [g57_report.py](results/p1_g57/g57_report.py) → [JSON](results/p1_g57/g57_report.json) (data HW nyata)
+
+| seed | lama (HW) | baru (HW) | Δ HW (lama − baru) | Δ mock | Δ_HW/Δ_mock | Δ sim | Δtraverse | Δbersamaan |
+|---|---|---|---|---|---|---|---|---|
+| s7 | 392.21 (G43 R180) | 283.34 (G55) | **+108.87 (−27.8 %)** | +107.24 | 1.02 | +113.29 | +40.3 | +18.6 |
+| s10 | 391.91 (G42f) | 317.06* (G55) | **+74.85 (−19.1 %)** | +74.30 | 1.01 | +81.81 | +34.5 | −0.8 |
+| s8 | 469.93 (G42f) | 274.47 (G55) | **+195.46 (−41.6 %)** | +171.86 | 1.14 | +144.98 | +117.1 | +78.6 |
+| s18 | 444.24 (G43 R180) | 261.17 (G60) | **+183.07 (−41.2 %)** | +173.56 | 1.05 | +139.95 | +75.7 | −4.4 |
+| s3 | 466.42 (G43 R180) | 323.95 (G60) | **+142.47 (−30.5 %)** | +140.59 | 1.01 | +130.28 | +106.8 | +43.8 |
+| s12 | 337.39** (G52 R90) | 298.92 (G60) | **+38.47 (−11.4 %)** | +42.77 | 0.90 | +42.79 | +40.4 | −39.4 |
+
+\* turunan monitor (TORQUE-ABORT 12.44 transit, aturan operator 12:33). \*\* coba 2 (coba 1 GOAL-MISMATCH 5/6). s0 baru tanpa pasangan:
+190.70 s (sim 148.16, 1.287).
+
+- **Jadwal baru lebih cepat di 6/6 pasangan HW**, besarnya Δ mengikuti mock (Δ_HW/Δ_mock 0.90–1.14). Sumber utama = traverse
+  (Δtraverse ≈ Δ makespan; jumlah tugas sama, Δtugas −6…+43 s). HW/mock per run 1.009–1.060 (kecuali s0 1.167); HW/sim
+  0.988–1.194 (kecuali s0 1.287) — sim meremehkan jadwal lama yang banyak traverse (s8/s18 lama 1.15/1.19).
+- RESERVE-BLOCKED **0** di 15 run; AUTO-STOP tak terduga 0; fault ros2_control 0; torsi puncak maks **13.22** (s3 G60 arm_4 j2,
+  94 %); 7 run > 12 N·m (semua < 14).
+- Run tidak bersih (3/15): s10 baru (TORQUE-ABORT di batas 12 lama → aturan operator), s10 lama coba 1 (move_group OOM, tidak sah),
+  s12 lama coba 1 (GOAL-MISMATCH, rotasi g1 pendek 0.48°).
+
+### B7. Papan skor
+
+| # | Dugaan | Hasil |
+|---|---|---|
+| D530 | bring-up 7/7, kedua ARMED, K0 tanpa pemulihan | ✗ harfiah (bring-up 1 SIGABRT arm_3; table1 NOT armed awal di bring-up 2 lalu ARMED pada perintah pertama; K0 LULUS) |
+| D531 | plan-only 3/3 semua jadwal | ✓ 13/13 |
+| D532 | uji stop-semua lulus percobaan pertama | ✓ |
+| D533 | setiap run 6/6, 0 AUTO-STOP, 0 fault, pulang + K0 | ✗ 12/15 (s10 baru, s10 lama coba 1, s12 lama coba 1) |
+| D534 | HW/mock ∈ [0.90, 1.15] tiap run | ✗ 12/13 (s0 1.167) |
+| D535 | HW/sim ∈ [0.90, 1.25] tiap run | ✗ 12/13 (s0 1.287) |
+| D536 | Δ > 0 tiap pasangan, Δ_HW/Δ_mock ∈ [0.5, 1.5] | ✓ 6/6, 0.90–1.14 |
+| D537 | torsi puncak ≤ 14 | ✓ maks 13.22 |
+| D538 | RESERVE-BLOCKED ≤ 2 per run | ✓ 0 |
+
+**Tally G57: 5/9.** Inti paper: 6/6 pasangan lama vs baru di HW, penjadwal baru −11 … −42 %.
+
+### B8. §7 matikan (17:30)
+
+Pulang akhir K0 LULUS ([json](results/p1_g57/hw/k0_final.json): g1 1.499995 m / −0.25°, g2 0.0008 m / −0.01°, lengan REST). Launch
+SIGINT (PID 348058, SigIgn `0x1001001`) → mati; monitor + perekam dihentikan per PID; `ros2 node list --no-daemon` 0; crash dump
+shutdown move_group dihapus. Arsip `results/p1_g57/hw/` (launch 1–4, K0, run, pulang, `tmp_logs/`, monitor gz). `joint_states`
+part1 (s/d 13:08:49) + part2 (13:46–17:30) = 102 + 226 MB gz, TIDAK di-commit (pola arsip HW sebelumnya). §5 ulangan + §6 DEMO
+tidak dijalankan (operator: selesai sesudah §4).
+
+**Celah terbuka:** (1) run_g54 tidak cek move_group hidup + HALTED tidak AUTO-STOP; (2) `--goal-joints` tidak dikoreksi terhadap
+rotasi gantry terukur (pendek ≤ 0.81°) → GOAL-MISMATCH; (3) penyaring torsi jadwal = statis di ujung, puncak HW di transit;
+(4) s0 HW/sim 1.29 (eksekusi arm_3 panjang).
 

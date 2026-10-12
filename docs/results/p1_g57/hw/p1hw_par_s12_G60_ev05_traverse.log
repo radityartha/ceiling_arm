@@ -1,0 +1,10 @@
+# 1791793491.7458 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 1 --seed 12 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g60/g60_selected.json --variant G60 1.550 5.000 --move
+1791793493.1327 S12: maks |q - REST| arm_1 0.037, arm_2 0.020, arm_3 0.032, arm_4 0.024 deg (batas 0.5 untuk gantry 1)
+1791793493.1327 S23": t1_rotation_joint -19.990 deg, t2_rotation_joint -5.000 deg; target +5.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
+1791793499.0824 S28: sapuan g1 (1.5000 m, -19.990 deg) -> (1.5500, +5.000), sisanya TERUKUR: CLEAR, min 380.0 mm ('t1_platform_link_0', 't2_platform_link_0') di (1.500, -19.99); lengan 480.3, SS 380.0, n 182
+1791793499.7415 G33: sapuan g1 vs peta lingkungan: CLEAR, min 90.1 mm (t1_a2_left_finger_dist_link_0) di titik 156
+1791793499.7416 g1: lin 1.499995 -> 1.550000 m (+50.0 mm), rot -19.990 -> +5.000 deg (+24.990); T_cmd 4.36 s (lin 3.00, rot 4.36)
+1791793499.7418 setpoint pertama 1.22 mm / 0.612 deg (arm_tol 5 mm / 1.0 deg)
+1791793504.1984 JTC error_code: 0
+1791793505.9862 akhir: g1 = (1.549905 m, +4.9500 deg), galat -0.10 mm / -0.0500 deg; t_traverse 4.678 s (lin 4.278, rot 4.678; T_cmd 4.36); lengan (keempat) bergeser maks 0.1138 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 2.588 t1_a2_joint_2
+1791793505.9863 {"gantry": 1, "goal": [1.55, 5.0], "start": [1.499995, -19.99], "end": [1.549905, 4.95], "err_mm": -0.095, "err_deg": -0.05, "T_cmd": 4.362, "T_cmd_lin": 3.0, "T_cmd_rot": 4.362, "t_send": 1791793499.7965446, "t_jtc_done": 1791793504.1983829, "t_first_move": 1791793500.2973936, "t_stop": 1791793504.9749444, "t_traverse": 4.678, "t_lin": 4.278, "t_rot": 4.678, "arm_drift_deg": 0.1138, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 2.588, "arm_tau_joint": "t1_a2_joint_2", "sweep_min_mm": 380.0, "sweep_arm_mm": 480.3, "sweep_pair": ["t1_platform_link_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 880}

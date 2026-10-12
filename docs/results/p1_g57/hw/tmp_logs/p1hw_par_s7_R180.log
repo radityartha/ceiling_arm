@@ -1,0 +1,71 @@
+pids monitor [303127] recorder [303110] ros2_control_node [302050]
+  g1 event 0: {'kind': 'retract', 'gantry': 1, 'stop': 0, 'idx': 0}
+  g1 event 1: {'kind': 'traverse', 'gantry': 1, 'stop': 0, 'frm': (1.5, 0.0), 'to': (1.3, -0.2617993877991494), 'idx': 1}
+  g1 event 2: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 3, 'xyz': [1.5, 0.3882, 1.0], 'goal': {'t1_a1_joint_1': 0.05567970052770492, 't1_a1_joint_2': 0.33174893738904854, 't1_a1_joint_3': -0.213163188395115, 't1_a1_joint_4': -1.570802259559706, 't1_a1_joint_5': -0.5449119677387962, 't1_a1_joint_6': 2.038718972888618}, 'idx': 2}
+  g1 event 3: {'kind': 'retract', 'gantry': 1, 'stop': 1, 'idx': 3}
+  g1 event 4: {'kind': 'traverse', 'gantry': 1, 'stop': 1, 'frm': (1.3, -0.2617993877991494), 'to': (1.55, 0.6981317007977318), 'idx': 4}
+  g1 event 5: {'kind': 'task', 'gantry': 1, 'stop': 1, 'arm': 'arm_2', 'task': 1, 'xyz': [1.3571, 0.1059, 1.08], 'goal': {'t1_a2_joint_1': 0.04095554969148508, 't1_a2_joint_2': 0.8656161358537626, 't1_a2_joint_3': 1.3844113958650317, 't1_a2_joint_4': -1.570794385141639, 't1_a2_joint_5': 0.5187953717360695, 't1_a2_joint_6': 0.6571836145351878}, 'idx': 5}
+  g1 event 6: {'kind': 'retract', 'gantry': 1, 'stop': 2, 'idx': 6}
+  g1 event 7: {'kind': 'traverse', 'gantry': 1, 'stop': 2, 'frm': (1.55, 0.6981317007977318), 'to': (1.45, 1.2217304763960306), 'idx': 7}
+  g1 event 8: {'kind': 'task', 'gantry': 1, 'stop': 2, 'arm': 'arm_2', 'task': 0, 'xyz': [1.2857, -0.1059, 1.16], 'goal': {'t1_a2_joint_1': 0.7395649538808579, 't1_a2_joint_2': 0.6217414173147229, 't1_a2_joint_3': 1.8310508662185552, 't1_a2_joint_4': -1.570790257780697, 't1_a2_joint_5': 1.2093112226601792, 't1_a2_joint_6': 0.30764151421734937}, 'idx': 8}
+  g1 event 9: {'kind': 'retract', 'gantry': 1, 'stop': 3, 'idx': 9}
+  g2 event 10: {'kind': 'retract', 'gantry': 2, 'stop': 0, 'idx': 10}
+  g2 event 11: {'kind': 'traverse', 'gantry': 2, 'stop': 0, 'frm': (0.0, 0.0), 'to': (1.5, -0.08726646259971647), 'idx': 11}
+  g2 event 12: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 4, 'xyz': [1.9286, -0.4588, 1.08], 'goal': {'t2_a1_joint_1': -1.3704500562635957, 't2_a1_joint_2': -0.5222949792925329, 't2_a1_joint_3': -1.4260074347617178, 't2_a1_joint_4': 1.5707974824611408, 't2_a1_joint_5': 0.9037150360494142, 't2_a1_joint_6': -1.1602818262947352}, 'idx': 12}
+  g2 event 13: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 5, 'xyz': [1.9286, -0.3176, 1.24], 'goal': {'t2_a1_joint_1': 0.9136251926044542, 't2_a1_joint_2': 1.1763848683588227, 't2_a1_joint_3': 2.2038839493006623, 't2_a1_joint_4': -1.5708011123104013, 't2_a1_joint_5': 1.0274789273910476, 't2_a1_joint_6': 0.6571863284717598}, 'idx': 13}
+  g2 event 14: {'kind': 'retract', 'gantry': 2, 'stop': 1, 'idx': 14}
+  g2 event 15: {'kind': 'traverse', 'gantry': 2, 'stop': 1, 'frm': (1.5, -0.08726646259971647), 'to': (1.5, 0.08726646259971647), 'idx': 15}
+  g2 event 16: {'kind': 'task', 'gantry': 2, 'stop': 1, 'arm': 'arm_3', 'task': 2, 'xyz': [1.8571, -0.1059, 1.0], 'goal': {'t2_a1_joint_1': -1.3648667165934543, 't2_a1_joint_2': -0.29028252430985146, 't2_a1_joint_3': 0.281995776855111, 't2_a1_joint_4': -1.57079330344343, 't2_a1_joint_5': 0.5722756935340596, 't2_a1_joint_6': 2.5865964398062644}, 'idx': 16}
+  g2 event 17: {'kind': 'retract', 'gantry': 2, 'stop': 2, 'idx': 17}
+K0 | arm_1: maks |q - REST| 0.218 deg (joint_6); jari 0.00010076031647622586
+K0 | arm_2: maks |q - REST| 0.018 deg (joint_4); jari -0.0005000348556786777
+K0 | arm_3: maks |q - REST| 0.037 deg (joint_5); jari -0.0014671455726027488
+K0 | arm_4: maks |q - REST| 0.365 deg (joint_3); jari -0.0006262206830084324
+K0 | g1: rel 1.4999953003585933 m (harap 1.5000), rotasi 0.0 deg (harap +0.00)
+K0 | g2: rel 0.0006178465552060333 m (harap 0.0000), rotasi 0.0 deg (harap +0.00)
+K0 | sampel per sendi: min 102, 1.0 s
+K0 | K0 LULUS
+amplop rotasi g1 (-125.0, 90.0) g2 (-35.0, 95.0); traverse di luar: []
+===== t0 1791772884.9712 (PARALEL)
+  [g1 0] retract   (tunggu 0.1 s, terhalang 0)
+  [g2 10] retract   (tunggu 0.1 s, terhalang 0)
+  [g2 10] rc=0 2.53 s
+  [g1 0] rc=0 2.59 s
+  [g2 11] traverse  (1.5, -0.08726646259971647) (tunggu 0.1 s, terhalang 0)
+  [g2 11] rc=0 98.38 s
+  [g1 1] traverse  (1.3, -0.2617993877991494) (tunggu 98.4 s, terhalang 0)
+  [g1 1] rc=0 21.95 s
+  [g2 12] task arm_3 [1.9286, -0.4588, 1.08] (tunggu 22.0 s, terhalang 0)
+  [g1 2] task arm_1 [1.5, 0.3882, 1.0] (tunggu 0.0 s, terhalang 0)
+  [g1 2] rc=0 22.71 s success@145.46
+  [g1 3] retract vs reservasi g2: 413.0 mm ('t1_a1_base_link_0', 't2_platform_link_0') -> CLEAR
+  [g1 3] retract   (tunggu 11.9 s, terhalang 0)
+  [g2 12] rc=0 39.90 s success@162.66
+  [g2 13] task arm_3 [1.9286, -0.3176, 1.24] (tunggu 0.0 s, terhalang 0)
+  [g1 3] rc=0 43.93 s
+  [g1 4] traverse  (1.55, 0.6981317007977318) (tunggu 11.2 s, terhalang 0)
+  [g2 13] rc=0 52.15 s success@214.81
+  [g1 4] rc=0 33.63 s
+  [g1 5] task arm_2 [1.3571, 0.1059, 1.08] (tunggu 0.0 s, terhalang 0)
+  [g2 14] retract vs reservasi g1: 274.1 mm ('t1_a2_base_link_0', 't2_platform_link_0') -> CLEAR
+  [g2 14] retract   (tunggu 33.8 s, terhalang 0)
+  [g1 5] rc=0 30.98 s success@279.41
+  [g1 6] retract vs reservasi g2: 274.1 mm ('t1_a2_base_link_0', 't2_platform_link_0') -> CLEAR
+  [g1 6] retract   (tunggu 5.7 s, terhalang 0)
+  [g2 14] rc=0 43.75 s
+  [g1 6] rc=0 43.29 s
+  [g2 15] traverse  (1.5, 0.08726646259971647) (tunggu 36.1 s, terhalang 0)
+  [g1 7] traverse  (1.45, 1.2217304763960306) (tunggu 12.0 s, terhalang 0)
+  [g2 15] rc=0 12.03 s
+  [g1 7] rc=0 16.98 s
+  [g2 16] task arm_3 [1.8571, -0.1059, 1.0] (tunggu 17.0 s, terhalang 0)
+  [g1 8] task arm_2 [1.2857, -0.1059, 1.16] (tunggu 0.0 s, terhalang 0)
+  [g2 16] rc=0 25.61 s success@383.06
+  [g2 17] retract vs reservasi g1: 150.6 mm ('t1_a2_base_link_0', 't2_platform_link_0') -> CLEAR
+  [g2 17] retract   (tunggu 7.1 s, terhalang 0)
+  [g1 8] rc=0 34.76 s success@392.21
+  [g1 9] retract vs reservasi g2: 150.6 mm ('t1_a2_base_link_0', 't2_platform_link_0') -> CLEAR
+  [g1 9] retract   (tunggu 6.0 s, terhalang 0)
+  [g2 17] rc=0 43.96 s
+  [g1 9] rc=0 43.26 s
+SELESAI: 6/6 tugas sukses; makespan terukur 392.21 s

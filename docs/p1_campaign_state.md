@@ -4,7 +4,7 @@
 
 ## Fase aktif
 
-**G57 HW AKTIF** (2026-10-12 11:20, `docs/p1_g57_hw.md`, §A dikunci). Sebelumnya: **G58–G60 OFFLINE SELESAI** (2026-10-12 10:30, prompt `docs/p1_g58_offline_prompt.md`). Berikut = sesi HW dengan
+**G57 HW SELESAI** (2026-10-12 11:13–17:30, `docs/p1_g57_hw.md`, tally 5/9): 6/6 pasangan lama vs baru di HW, sel di home, stack MATI. Sebelumnya: **G58–G60 OFFLINE SELESAI** (2026-10-12 10:30, prompt `docs/p1_g58_offline_prompt.md`). Berikut = sesi HW dengan
 `docs/p1_g57_hw_prompt.md` + rencana `docs/p1_hw_day_2026-10-12.md` (diperbarui). Mock 77 MATI bersih.
 Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 
@@ -27,6 +27,7 @@ Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 | G58 | blok seed lama vs baru: smoke paralel mock 11/11 + tabel siap-HW | **LULUS** (5/5) | `docs/p1_g58_seed_block.md` B1–B3 |
 | G59 | DEMO-OFF ulang (kode sekarang) + prompt DEMO-HW + cek kamera | **LULUS** (4/6; 2 cacat diperbaiki: regex runner, `g` ganda) | `docs/p1_g59_demo.md` B1–B4 |
 | G60 | penjadwal sadar traverse eksklusif (LB terbukti + g54_sim penuh) | **LULUS** (4/6) | `docs/p1_g60_excl_sched.md` B1–B4 |
+| G57 | HW paralel run_g54: uji stop + pasangan s7 s10 s8 s18 s3 s12 (+ s0) | **SELESAI** (5/9) | `docs/p1_g57_hw.md` B2–B8 |
 
 ## Keputusan operator
 
@@ -90,6 +91,14 @@ celah G60 s3 6.65 % / s8 5.07 % (jadwal mungkin belum optimum); LB G60 tidak mem
 persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `src/reachability_gng/` masih terpotong; j3 demo P1
 90–92 % rating terprediksi.
 
+## Laporan G57 (2026-10-12, HW NYATA)
+
+Uji stop-semua HW lulus percobaan pertama (arm_3 diam ≤ 0.1 s). 15 run paralel `run_g54`: 12 bersih 6/6, 0 RESERVE-BLOCKED,
+torsi maks 13.22. Pasangan (lama − baru, s): s7 +108.9, s10 +74.9, s8 +195.5, s18 +183.1, s3 +142.5, s12 +38.5 (−11 … −42 %;
+Δ_HW/Δ_mock 0.90–1.14). Perubahan: arg launch `octomap_updaters:=false` (HW wajib; move_group OOM 115 mnt tanpa itu),
+`run_g54 --tau-max` (HW 14, keputusan operator), `p1hw_*.sh`. Celah: runner tidak cek move_group / HALTED tidak stop; goal-joints
+tidak dikoreksi rotasi gantry terukur (GOAL-MISMATCH s12); torsi transit > prediksi ujung; s0 HW/sim 1.29.
+
 ## Langkah berikut
 
-G57 §4: s12 lama coba 2 337.39 s; berikut run s12 G60 (prep sudah), izin operator, lalu §7 matikan.
+Sesi OFFLINE G61: tutup celah G57 B8 (runner cek move_group + AUTO-STOP pada HALTED; koreksi goal-joints terhadap rotasi gantry terukur; analisis s0 HW/sim 1.29 dan torsi transit), lalu hari HW berikut §5 ulangan s7/s10 + §6 DEMO dengan `octomap_updaters:=false` dan `--tau-max 14`.

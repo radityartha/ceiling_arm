@@ -1,0 +1,72 @@
+=== 14:00:31 plan-only s0 R90sel
+  seed 0 R90sel sampel 1/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (1.150, +5): CLEAR min 590.9 mm (lengan 590.9, SS 660.1, n 222) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 111.5 mm (t1_a1_right_finger_dist_link_0)
+    [2] task t0 arm_2 -> [1.0, 0.1059, 1.08] @(1.150, +5): PLANNED (15.8 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.72 mm, sumbu 0.08 deg']})
+    [3] task t1 arm_2 -> [0.5, 0.1059, 1.08] @(1.150, +5): PLANNED (16.2 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.45 mm, sumbu 0.05 deg']})
+    [4] task t2 arm_2 -> [0.5714, 0.1059, 1.24] @(1.150, +5): PLANNED (15.9 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.34 mm, sumbu 0.03 deg']})
+    [5] retract g1 ['arm_2'] lurus (rel 1.150):
+    [5]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [5]   penyaring antar-gantry: CLEAR, minimum 393.5 mm di titik 14/60 (t1_a2_left_finger_prox_link_0 <-> t2_a1_upper_wrist_link_0)
+    [5]   penyaring lingkungan: CLEAR, minimum 111.5 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [5] retract g1 @rot +5: CLEAR (lurus)
+    [6] retract g2 @rot +0: CLEAR
+    [7] traverse g2 (0.000, +0) -> (0.150, -30): CLEAR min 512.1 mm (lengan 512.1, SS 604.2, n 496) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [7] traverse g2 vs lingkungan: CLEAR min 111.5 mm (t1_a1_right_finger_dist_link_0)
+    [8] task t3 arm_3 -> [0.7857, -0.6, 1.16] @(0.150, -30): PLANNED (14.5 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.27 mm, sumbu 0.03 deg']})
+    [9] task t4 arm_3 -> [0.8571, -0.5294, 1.16] @(0.150, -30): PLANNED (16.0 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.64 mm, sumbu 0.08 deg']})
+    [10] task t5 arm_3 -> [0.7143, -0.5294, 1.0] @(0.150, -30): PLANNED (15.0 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.42 mm, sumbu 0.01 deg']})
+    [11] retract g2 ['arm_3'] lurus (rel 0.150):
+    [11]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 688.1 mm di titik 27/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 111.5 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [11] retract g2 @rot -30: CLEAR (lurus)
+  seed 0 R90sel sampel 2/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (1.150, +5): CLEAR min 590.9 mm (lengan 590.9, SS 660.1, n 222) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 111.5 mm (t1_a1_right_finger_dist_link_0)
+    [2] task t0 arm_2 -> [1.0, 0.1059, 1.08] @(1.150, +5): PLANNED (13.8 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.38 mm, sumbu 0.01 deg']})
+    [3] task t1 arm_2 -> [0.5, 0.1059, 1.08] @(1.150, +5): PLANNED (14.5 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.38 mm, sumbu 0.04 deg']})
+    [4] task t2 arm_2 -> [0.5714, 0.1059, 1.24] @(1.150, +5): PLANNED (15.0 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.24 mm, sumbu 0.06 deg']})
+    [5] retract g1 ['arm_2'] lurus (rel 1.150):
+    [5]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [5]   penyaring antar-gantry: CLEAR, minimum 393.3 mm di titik 14/60 (t1_a2_left_finger_prox_link_0 <-> t2_a1_upper_wrist_link_0)
+    [5]   penyaring lingkungan: CLEAR, minimum 111.5 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [5] retract g1 @rot +5: CLEAR (lurus)
+    [6] retract g2 @rot +0: CLEAR
+    [7] traverse g2 (0.000, +0) -> (0.150, -30): CLEAR min 512.1 mm (lengan 512.1, SS 604.2, n 496) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [7] traverse g2 vs lingkungan: CLEAR min 111.5 mm (t1_a1_right_finger_dist_link_0)
+    [8] task t3 arm_3 -> [0.7857, -0.6, 1.16] @(0.150, -30): PLANNED (14.4 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.40 mm, sumbu 0.04 deg']})
+    [9] task t4 arm_3 -> [0.8571, -0.5294, 1.16] @(0.150, -30): PLANNED (17.0 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.40 mm, sumbu 0.04 deg']})
+    [10] task t5 arm_3 -> [0.7143, -0.5294, 1.0] @(0.150, -30): PLANNED (14.9 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.73 mm, sumbu 0.07 deg']})
+    [11] retract g2 ['arm_3'] lurus (rel 0.150):
+    [11]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 688.1 mm di titik 27/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 111.5 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [11] retract g2 @rot -30: CLEAR (lurus)
+  seed 0 R90sel sampel 3/3
+    [0] retract g1 @rot +0: CLEAR
+    [1] traverse g1 (1.500, +0) -> (1.150, +5): CLEAR min 590.9 mm (lengan 590.9, SS 660.1, n 222) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [1] traverse g1 vs lingkungan: CLEAR min 111.5 mm (t1_a1_right_finger_dist_link_0)
+    [2] task t0 arm_2 -> [1.0, 0.1059, 1.08] @(1.150, +5): PLANNED (14.0 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.16 mm, sumbu 0.03 deg']})
+    [3] task t1 arm_2 -> [0.5, 0.1059, 1.08] @(1.150, +5): PLANNED (14.5 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.47 mm, sumbu 0.04 deg']})
+    [4] task t2 arm_2 -> [0.5714, 0.1059, 1.24] @(1.150, +5): PLANNED (14.9 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.70 mm, sumbu 0.11 deg']})
+    [5] retract g1 ['arm_2'] lurus (rel 1.150):
+    [5]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+    [5]   penyaring antar-gantry: CLEAR, minimum 393.9 mm di titik 14/60 (t1_a2_left_finger_prox_link_0 <-> t2_a1_upper_wrist_link_0)
+    [5]   penyaring lingkungan: CLEAR, minimum 111.5 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [5] retract g1 @rot +5: CLEAR (lurus)
+    [6] retract g2 @rot +0: CLEAR
+    [7] traverse g2 (0.000, +0) -> (0.150, -30): CLEAR min 512.1 mm (lengan 512.1, SS 604.2, n 496) ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')
+    [7] traverse g2 vs lingkungan: CLEAR min 111.5 mm (t1_a1_right_finger_dist_link_0)
+    [8] task t3 arm_3 -> [0.7857, -0.6, 1.16] @(0.150, -30): PLANNED (14.6 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.13 mm, sumbu 0.03 deg']})
+    [9] task t4 arm_3 -> [0.8571, -0.5294, 1.16] @(0.150, -30): PLANNED (17.0 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.45 mm, sumbu 0.01 deg']})
+    [10] task t5 arm_3 -> [0.7143, -0.5294, 1.0] @(0.150, -30): PLANNED (15.3 s, CLI {'rc': 0, 'tries': 1, 'verdicts': ['PLANNED'], 'goal_err': ['0.10 mm, sumbu 0.02 deg']})
+    [11] retract g2 ['arm_3'] lurus (rel 0.150):
+    [11]   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+    [11]   penyaring antar-gantry: CLEAR, minimum 688.1 mm di titik 27/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+    [11]   penyaring lingkungan: CLEAR, minimum 111.5 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+    [11] retract g2 @rot -30: CLEAR (lurus)
+seed 0 R90sel: PLANNED/PLANNED/PLANNED -> LOLOS
+=== 14:05:42 rc 0
