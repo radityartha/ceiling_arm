@@ -4,7 +4,7 @@
 
 ## Fase aktif
 
-**G58–G60 OFFLINE SELESAI** (2026-10-12 10:30, prompt `docs/p1_g58_offline_prompt.md`). Berikut = sesi HW dengan
+**G57 HW AKTIF** (2026-10-12 11:20, `docs/p1_g57_hw.md`, §A dikunci). Sebelumnya: **G58–G60 OFFLINE SELESAI** (2026-10-12 10:30, prompt `docs/p1_g58_offline_prompt.md`). Berikut = sesi HW dengan
 `docs/p1_g57_hw_prompt.md` + rencana `docs/p1_hw_day_2026-10-12.md` (diperbarui). Mock 77 MATI bersih.
 Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 
@@ -91,4 +91,4 @@ persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `s
 
 ## Langkah berikut
 
-Sesi HW: tempel `docs/p1_g57_hw_prompt.md` (urutan + waktu + titik henti = `docs/p1_hw_day_2026-10-12.md`, mulai §0).
+G57 §0: bring-up nyata (izin operator) → K0, lalu §1 plan-only s7 lama/baru (`docs/p1_g57_hw.md`).
