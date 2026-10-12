@@ -101,4 +101,4 @@ tidak dikoreksi rotasi gantry terukur (GOAL-MISMATCH s12); torsi transit > predi
 
 ## Langkah berikut
 
-Sesi OFFLINE G61: tutup celah G57 B8 (runner cek move_group + AUTO-STOP pada HALTED; koreksi goal-joints terhadap rotasi gantry terukur; analisis s0 HW/sim 1.29 dan torsi transit), lalu hari HW berikut §5 ulangan s7/s10 + §6 DEMO dengan `octomap_updaters:=false` dan `--tau-max 14`.
+Sesi DEMO-HW (YOLOE → lengan di atas objek): tempel `docs/p1_demo_hw_prompt.md`; sesudahnya sesi OFFLINE G61 untuk celah G57 B8.
