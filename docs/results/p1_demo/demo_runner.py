@@ -9,7 +9,7 @@ Stands in for reach_fusion on its three topics, so target_cli is unchanged:
 Writes NO motion code and NO screen. Each step is an existing HW-proven tool run
 as a subprocess, exactly as run_g32.py runs it:
     task -> scripts/reach_dwell_probe.py --arms <arm> --target=<p_cmd> --approach 0
-            --trials 1 --tau-max 12.0 [--move | --plan-check] --monitor-csv <mon>
+            --trials 1 --tau-max <--tau-max, 12> [--move | --plan-check] --monitor-csv <mon>
             (tuck, RNEA+offset, S18 vs all 3 other arms, env map, retract_check;
             it moves only when EVERY screen says CLEAR)
     home -> scripts/return_rest.py --arms arm_1 arm_2 --move   (only after a MOVED)
@@ -142,7 +142,7 @@ class DemoRunner(Node):
                 os.remove('/tmp/g20_step5.json')
             cmd = ['timeout', '600', 'python3', '-u', 'reach_dwell_probe.py', '--arms', arm,
                    f'--target={p[0]:.4f},{p[1]:.4f},{p[2]:.4f}', '--approach', '0',
-                   '--trials', '1', '--tau-max', '12.0', '--monitor-csv', self.a.mon,
+                   '--trials', '1', '--tau-max', str(self.a.tau_max), '--monitor-csv', self.a.mon,
                    '--plan-check' if self.a.plan_only else '--move']
             rc, out, dt, logf = self._tool(f'probe_{arm}', cmd)
             # G59: not 'percobaan rencana: [...]' (G47 per-attempt list) nor 'sepanjang rencana: <mm>'
@@ -186,12 +186,14 @@ def main():
     ap.add_argument('--standoff', type=float, default=0.25,
                     help='m above the track centroid (A2: bottle not in env map, T11)')
     ap.add_argument('--plan-only', action='store_true', help='probe --plan-check, no motion')
+    ap.add_argument('--tau-max', type=float, default=12.0,
+                    help='probe --tau-max N*m (DEMO-HW: 14, operator 2026-10-12)')
     ap.add_argument('--out', default='/tmp/demo_runner')
     a = ap.parse_args()
     rclpy.init()
     node = DemoRunner(a)
     node.get_logger().info(f'demo_runner up ({"PLAN-ONLY" if a.plan_only else "EXECUTE"}), '
-                           f'standoff {a.standoff} m, out {a.out}')
+                           f'standoff {a.standoff} m, tau-max {a.tau_max}, out {a.out}')
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
