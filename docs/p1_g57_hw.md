@@ -119,6 +119,7 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 | 1 | s7 lama G43 R180 | 11:41:15 | **392.21** | 396.9 | 383.6 | ✓ | 0 | 0 | 9.67 `t2_a1_j2` | 5 kaki CLEAR, K0 LULUS |
 | 2 | s7 baru G55 R90sel | 11:57:01 | **283.34** | 283.6 | 276.4 | ✓ | 0 | 0 | 11.66 `t2_a1_j2` | 4 kaki CLEAR, K0 LULUS |
 | 3 | s10 baru G55 R90sel | 12:19:28 | 5/6 resmi; **317.06** turunan (aturan operator) | 278.5 | 308.9 | 5/6 + ev 12 sampai (verdict TORQUE-ABORT) | 0 | 0 | 12.44 `t2_a1_j2` | lengan REST (retract ev 13 rc 0) |
+| 4 | s10 lama G42f G42 | 13:32:36 | **TIDAK SAH 0/6** — move_group mati 13:11:45 | 360.3 | 383.2 | 0/6 HALTED (EXEC-FAIL, nol gerak lengan) | 0 | 0 | 1.24 | rel 3 kaki CLEAR, K0 LULUS |
 
 - s10 plan-only nyata k = 3 (12:06–12:19): **G55 R90sel 3/3 LOLOS**, **G42f G42 3/3 LOLOS**; DRY run_g54 keduanya rc 0, K0 LULUS,
   traverse di luar []. Traverse: baru g1 → (1.40, −30°), g2 → (0.85, −20°) → (1.20, −10°); lama g1 → (1.25, −30°), g2 → (0.70, −20°)
@@ -143,4 +144,25 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
   dari 1791775495.43 dan terus bertahan; jendela 2.0 s penuh 1791775497.43 → t_success ev 12 = **317.06 s** dari t0 = makespan
   turunan (tugas lain terakhir 281.37). Turunan dari monitor yang sama dengan kriteria probe; ditandai "turunan" di tabel.
 - Pulang s10 baru (izin 12:33) rc 0: g1 (1.40, −30) → (1.50, 0); g2 (1.20, −10) → (0.85, −20) → (0, 0), +0.15 mm; **K0 LULUS**.
+
+### B4. move_group OOM → s10 lama tidak sah; perbaikan kebocoran + bring-up 4 (13:32–13:50) — [launch 2](results/p1_g57/hw/g57_bringup2_launch.log.gz), [launch 3](results/p1_g57/hw/g57_bringup3_launch.log.gz)
+
+- Operator memberi izin s10 lama 13:32 (jeda ~1 jam sesudah s10 baru). **move_group sudah mati 13:11:45: `exit code -9`** (OOM),
+  ~115 mnt sesudah bring-up 2 — kebocoran MoveIt 2.5.10 `forgetShape` dengan 2 octomap updater × `env_static_map` 22 246 kotak
+  (memori move-group-hw-memory-leak; perbaikan diusulkan 2026-10-11, BELUM terpasang). Run s10 lama: keenam tugas `EXEC-FAIL`
+  (rencana None, ~16 s, nol gerak lengan) → HALTED; traverse rel (JTC langsung) dan retract tetap jalan → 0/6, **tidak sah**.
+- **🔴 Celah runner:** `run_g54` tidak memeriksa move_group hidup (K0/DRY lolos tanpa move_group) dan HALTED tidak memicu AUTO-STOP
+  → runner terus menggerakkan rel tanpa tugas. Tidak berbahaya di sini (lengan REST, traverse disaring), tetapi run sia-sia.
+  Usul (belum dikerjakan): pra-cek proses move_group + AUTO-STOP pada HALTED/EXEC-FAIL.
+- **Perekam macet 13:08:49** (proses hidup, futex, nol baris; kemungkinan DDS saat tekanan memori OOM). Run s7/s10 baru + pulang
+  (≤ 12:35) terekam; s10 lama tidak. Berkas lama → `/tmp/p1hw_joint_states_part1.csv` (850 MB), perekam baru 13:46.
+- Pulang s10 lama (izin 13:42): g1 (1.25, −30) → (1.50, 0); g2 (1.45, 0) → (1.00, −20) → (0.70, −20) → (0, 0); K0 LULUS.
+- **Perbaikan (operator 13:42: "pasang arg launch")**: arg `octomap_updaters` (default true = perilaku lama). Bring-up 3 menunjukkan
+  move_group TETAP memuat 2 updater: move_group dibuat oleh `move_group.launch.py` paket (di-include `generate_demo_launch`, membangun
+  MoveItConfigsBuilder sendiri) → filter dipasang DI SANA (baca `octomap_updaters:=false` dari argv, sama proses `ros2 launch`;
+  diuji: param `sensors` hilang hanya dengan flag). HW tidak punya publisher `collision_cloud` → perencanaan tidak berubah; peta
+  `env_static_map` tetap di scene.
+- **Bring-up 4 (13:47, `octomap_updaters:=false`)**: PID 348058, SigIgn `0x1001001`, 4× '6', 7/7, **table1 + table2 ARMED**,
+  0 baris `pointcloud_octomap_updater`, `env_static_map` di scene (False → publish ulang → True, pola sama bring-up 2), K0 LULUS
+  ([json](results/p1_g57/hw/k0_bringup4.json)). RSS move_group 639 MB pada 50 s (dipantau).
 

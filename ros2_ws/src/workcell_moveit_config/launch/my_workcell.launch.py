@@ -71,6 +71,12 @@ def generate_launch_description():
                               description="Let MoveIt trajectories drive the real "
                                           "Modbus table via dual_table_controller's "
                                           "topic_based_ros2_control bridge"),
+        DeclareLaunchArgument("octomap_updaters", default_value="true",
+                              description="false = move_group without octomap "
+                                          "updaters (HW: nothing publishes "
+                                          "collision_cloud; 2 updaters leak and "
+                                          "OOM move_group). Read from the command "
+                                          "line in move_group.launch.py"),
     ]
 
     # 1. MoveIt Config

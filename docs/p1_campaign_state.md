@@ -92,4 +92,4 @@ persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `s
 
 ## Langkah berikut
 
-G57 §3: run 4/5 s10 lama (G42f G42) dengan `--tau-max 14` (keputusan operator), izin operator; plan-only + DRY sudah.
+G57 §3: stack 4 (octomap_updaters:=false) hidup; ulang s10 lama (DRY lalu run, izin), lalu s0 baru.
