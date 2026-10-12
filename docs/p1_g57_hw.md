@@ -180,3 +180,15 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 - RSS move_group 889 MB pada 24:50 (≈ +10 MB/mnt, bukan 560 MB/mnt) — perbaikan bekerja.
 - **§3 G57 SELESAI 14:13.**
 
+### B5. §4 G58/G60 — pasangan (stack 4, `--tau-max 14`; [prep](results/p1_g57/p1hw_prep.sh) = plan-only k = 3 + DRY)
+
+| # | run | mulai | makespan HW | sim | mock | 6/6 | AUTO-STOP | blok | τ puncak | pulang |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 7 | s8 baru G55 R90sel | 14:26:28 | **274.47** | 264.4 | 272.0 | ✓ | 0 | 0 | 12.57 `t2_a2_j2` | g1 + g2 home, K0 LULUS |
+
+- Prep s8 (14:12–14:26): baru 3/3 + DRY rc 0; lama G42f 3/3 + DRY rc 0.
+- s8 baru τ puncak 12.57 > 12 (< 14) — dicatat, bukan gagal (keputusan operator 12:33).
+- Pulang s8 baru: rute g2 `0.0:0.0 0.0:0.0` (stop pertama jadwal = p0 → kaki ganda); kaki ke-2 = gerak nol → `pose_to_g` rc 3,
+  skrip berhenti sebelum K0 (g2 sudah 0.87 mm). K0 manual LULUS. `p1hw_home.sh` kini melewati kaki yang sama dengan kaki
+  sebelumnya.
+

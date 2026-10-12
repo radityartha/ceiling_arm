@@ -16,10 +16,13 @@ F="UserWarning\|buildGeomFromUrdf\|self.geom = \|V = np.array"
   for G in 1 2; do
     LEGS=$(grep "^g$G pulang lewat:" /tmp/p1hw_home_${T}_dry.log | sed 's/.*lewat: //; s/(sudah di home)//')
     echo "g$G pulang lewat: ${LEGS:-(sudah di home)}"
+    PREV=
     for X in $LEGS; do
+      [ "$X" = "$PREV" ] && { echo "g$G kaki $X = kaki sebelumnya, dilewati"; continue; }   # p0 == first stop -> duplicate leg
+      PREV=$X
       python3 -u p1_g32/pose_to_g.py --gantry $G --seed $S --plan $P --variant $V ${X%%:*} ${X##*:} --move --rot-max 125 > /tmp/p1hw_leg.log 2>&1; rc=$?
       grep "akhir:\|REFUSE\|T_cmd" /tmp/p1hw_leg.log | tail -2
-      if [ $rc -ne 0 ] || grep -q REFUSE /tmp/p1hw_leg.log; then echo "BERHENTI: g$G kaki $X rc $rc"; exit 1; fi
+      if [ $rc -ne 0 ] || grep -q REFUSE /tmp/p1hw_leg.log; then echo "BERHENTI: g$G kaki $X rc $rc"; break 2; fi
     done
   done
   python3 ../../scripts/k0_check.py --rail1 1.5 --rail2 0 | tail -1

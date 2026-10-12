@@ -92,4 +92,4 @@ persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `s
 
 ## Langkah berikut
 
-G57 §3 selesai (s7, s10, s0); berikut §4 G58/G60 pasangan s8 (plan-only s8 baru/lama → DRY → run, izin) atau HENTI B.
+G57 §4: s8 baru selesai 274.47 s; berikut run s8 lama (G42f G42, prep sudah), izin operator.
