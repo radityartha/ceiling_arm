@@ -100,3 +100,55 @@ penerimaan; incumbent tetap. Kriteria tidak diubah.
   memberi t besar. θ 13° sendiri sudah gagal. Yaw rgbd2 13° akan menggeser lengan dekat ~0.25 m → model planar menambal galat lain
   (tilt / jarak) secara lokal — persis peringatan A0.1.
 - Info luring (BUKAN penerimaan): sesudah koreksi, fit 0.8–3.4 cm (RMS 2.4 cm), uji-tahan **C6 2.3 cm, C3 0.5 cm**.
+
+### B4. Validasi hidup — INFORMASI saja (operator memilih sesudah R1 gagal; BUKAN penerimaan) — NOL gerak
+
+- Operator bertanya apakah botol perlu dipindah-pindah lagi untuk memastikan. Jawaban: pengulangan sudah terukur (M1 lintas sesi
+  1.3 cm, sebaran per tanda ≤ 7 mm) dan penolakan θ 13° bukan soal noise; selisih prediksi-luring vs hidup di C6/C3 di bawah ini =
+  keterulangan penempatan + konvensi.
+- Baseline incumbent sesi ini (REST, tersaring): rgbd2 arm_1 +0.119, arm_2 0.068, arm_3 0.020 (= ARM1-ZONE).
+- Kamera diluncurkan ulang dengan arg fit (`tf2_x:=0.1311 tf2_y:=-1.5450 … tf2_yaw:=-0.6903`; hanya arg baris perintah, TIDAK ada
+  harness baru). TF hidup = prediksi: 0.00 mm, 0.0018° (R3-info ✓; pembulatan arg 4 desimal).
+- Botol di uji-tahan: **C6 track (1.8861, 0.6125, 0.815) → 1.9 cm** (prediksi luring 2.3); **C3 (1.8556, 0.6730, 0.810) → 0.9 cm**
+  (prediksi 0.5); z keduanya ∈ [0.79, 0.84]. Prediksi luring vs hidup ≤ 1.2 cm.
+- Di luar zona: botol wastafel bergeser 19 cm di world (y −0.34 → −0.15); `arm_fk_check` REST: rgbd2 arm_1 (z 1.15–1.45, 2.7 m)
+  masih **8.1 cm**; arm_2 dan arm_3 **hilang dari tabel** (< 100 titik dalam jendela 0.25 m → tergeser > 25 cm). Koreksi planar
+  hanya benar di permukaan meja zona ini.
+
+### B5. Akhir
+
+- Lengan REST, K0 akhir LULUS (g1 1.49926 / 0°, g2 0.00090 / 0°); gantry tidak diperintah. Kamera, localizer, monitor, perekam
+  SIGINT per PID (0 sisa ≤ 5 s); launch 464636 SIGINT → 12 s; `ros2 node list --no-daemon` **0 di domain 0 dan 79**; 0
+  `static_transform_publisher`. Crash dump `move_group` shutdown dihapus. Arsip [hw/](results/p1_rgbd2_zone/hw/)
+  (`p1rz_joint_states.csv.gz` tidak di-commit). Torsi puncak terukur sesi 13.03 N·m (t1_a1_joint_2, transit ke C5); 0 fault /
+  REJECTED / gerak tak diminta. Launch default dan harness demo TIDAK diubah.
+
+### B6. Papan skor
+
+| # | Kriteria | Hasil |
+|---|---|---|
+| R1 | fit sah (\|θ\| ≤ 10°, \|t\| ≤ 0.30) | **✗** θ 13.10°, \|t\| 0.519 |
+| R2 | uji-tahan hidup ≤ 5 cm | — tidak dinilai (R1); info: C6 1.9, C3 0.9 cm |
+| R3 | TF = prediksi | — info ✓ (0.00 mm / 0.0018°) |
+| R4 | penunjuk | ✓ 6/6 MOVED+SUCCESS, TCP ≤ 2.1 mm, torsi ≤ 13.03 |
+
+| # | Dugaan | Hasil |
+|---|---|---|
+| D580 | torsi ≤ 12 | ✗ 13.03 (transit ke C5; prediksi plan-check j2 95 %) |
+| D581 | incumbent 0.12–0.18 m, arah (0.7, 0.7) | ✗ 0.143–0.229, arah lebih ke x (C5 0.229) |
+| D582 | \|θ\| ≤ 5°, RMS ≤ 2 cm | ✗ 13.1°, 2.4 cm |
+| D583 | R2 lulus ≤ 3 cm | — tidak diuji formal (info ≤ 1.9 cm) |
+| D584 | R3 | ✓ (info) |
+| D585 | koreksi merusak lengan dekat > 5 cm | ✓ (> 25 cm) |
+
+**Tally 2/5 diuji. Keputusan per §A: fit TIDAK dipakai, incumbent tetap.** Temuan: galat rgbd2 di meja zona demo 0.14–0.23 m,
+bukan galat yaw/geser kaku kamera (yaw yang menutupnya = 13° dan merusak lengan dekat > 25 cm); secara LOKAL di permukaan meja,
+koreksi planar menutupnya ke 1–2 cm (uji-tahan hidup).
+
+### B7. Langkah berikut (keputusan operator)
+
+- **(A) Koreksi zona-saja untuk demo**: fase baru terkunci, kriteria ditulis untuk zona (θ bebas, penerimaan = uji-tahan BARU
+  hidup ≤ 5 cm di permukaan meja, botol hanya di zona meja, track di luar kotak meja ditolak); tanda M1/C3/C5/C6/N1/N2 masih di meja
+  → tanpa gerak lengan untuk fit; arg dipakai HANYA di harness demo. Lalu DEMO-HW.
+- **(B) Kalibrasi 6-DOF rgbd2 yang benar**: titik 3D tersebar (botol di kotak bertinggi terukur di tanda, lengan dekat tersaring), nilai
+  di meja demo DAN lengan dekat.

@@ -4,6 +4,8 @@
 
 ## Fase aktif
 
+**RGBD2-ZONE SELESAI** (2026-10-12 malam, `docs/p1_rgbd2_zone.md`, tally 2/5): 7 gerak penunjuk arm_1 (6 tanda unting di meja, C2/C4 di luar meja → N1/N2), botol di 6 tanda: incumbent 0.14–0.23 m; fit planar θ **13.1°** → R1 GAGAL, tidak dipakai. Info: dengan fit, uji-tahan hidup C6 1.9 / C3 0.9 cm tetapi lengan dekat rusak > 25 cm (zona-saja). Sel home, K0 LULUS, stack MATI.
+
 **ARM1-ZONE SELESAI** (2026-10-12 19:15–19:45, `docs/p1_arm1_zone.md`, tally 5/8): bug titik ORIGIN diperbaiki + `arm_fk_check --arm-filter`; penunjuk arm_1 di (1.75, 0.55, 1.22) TCP 1.5 mm; botol di tanda ter-track **0.151 m** sepanjang sinar rgbd2 → Z4 GAGAL, BERHENTI (tanpa demo); pita basis arm_1–arm_2 0.80 ± 0.005 = URDF → galat = **kamera rgbd2 jarak jauh**. 2 gerak nyata, torsi ≤ 8.91. Sel home, K0 LULUS, stack MATI.
 
 **CALIB-CHARUCO SELESAI** (2026-10-12 18:30–19:00, `docs/p1_calib_charuco.md`): penunjuk arm_2 + ChArUco, 7 gerak nyata OK; kandidat GAGAL C2/C4 → incumbent tetap; rgbd2 arm_1 +0.15 m pada kedua ekstrinsik (dugaan: bukan kamera); bug konvensi titik ORIGIN 3.5 cm. Sel home, K0 LULUS, stack MATI.
@@ -36,6 +38,7 @@ Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 | G57 | HW paralel run_g54: uji stop + pasangan s7 s10 s8 s18 s3 s12 (+ s0) | **SELESAI** (5/9) | `docs/p1_g57_hw.md` B2–B8 |
 | DEMO-HW | YOLOE nyata → arm_1 di atas botol (approach-only) | **GAGAL H2** (2/5 diuji; plan-only ✓, nol gerak) | `docs/p1_demo_hw.md` B1–B6 |
 | ARM1-ZONE | galat zona arm_1 lengan vs kamera; botol di tanda ≤ 5 cm → demo | **GAGAL Z4** (0.151 m; atribusi kamera; 5/8) | `docs/p1_arm1_zone.md` B1–B6 |
+| RGBD2-ZONE | koreksi planar rgbd2 dari botol di 6 tanda; uji-tahan ≤ 5 cm | **GAGAL R1** (θ 13.1°; info uji-tahan 1.9/0.9 cm; 2/5) | `docs/p1_rgbd2_zone.md` B1–B7 |
 
 ## Keputusan operator
 
@@ -110,4 +113,4 @@ tidak dikoreksi rotasi gantry terukur (GOAL-MISMATCH s12); torsi transit > predi
 
 ## Langkah berikut
 
-Sesi kalibrasi rgbd2 zona demo (keputusan operator dulu): penunjuk arm_1 + tanda unting di ≥ 4 titik meja depan arm_1 (z 0.8 dan 1.2) → fit 6-DOF/skala rgbd2, nilai pada titik terpisah ≤ 5 cm, lalu DEMO-HW ulang; OFFLINE G61 boleh di antaranya.
+Operator memilih (A) fase koreksi zona-saja terkunci ulang (tanda masih di meja, uji-tahan baru, arg hanya di harness demo) lalu DEMO-HW, atau (B) kalibrasi 6-DOF rgbd2 dengan titik 3D — lihat `docs/p1_rgbd2_zone.md` B7.
