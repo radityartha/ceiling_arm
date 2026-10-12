@@ -1,0 +1,18 @@
+# 1791792104.4772 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.0000,0.5294,1.0000 --approach 0 --trials 1 --tau-max 14.0 --move --monitor-csv /tmp/p1hw_mon_samples.csv --goal-joints={"t1_a1_joint_1": -2.0872706072718668, "t1_a1_joint_2": -0.2406834272615979, "t1_a1_joint_3": -0.8398585826987083, "t1_a1_joint_4": -1.5707951622478233, "t1_a1_joint_5": -0.5991774448235612, "t1_a1_joint_6": 1.4763984258921092} --goal-tol-deg=0.05 --reserve-dir /tmp/p1hw_par_s12_R90/res --out-json /tmp/p1hw_par_s12_R90/ev05_probe_try0.json
+1791792105.0352 probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 14.0 N.m
+1791792105.0352 sumber target: arm_1 (1.0, 0.5294, 1.0), [] []
+1791792105.0352 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791792105.0352 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791792105.0352 
+1791792107.4955 [INFO] [1791792107.495398996] [reach_dwell_probe]: ujung rencana vs target: 3.25 mm, sumbu 0.04 deg
+1791792107.4957 [ERROR] [1791792107.495694290] [reach_dwell_probe]: GOAL-MISMATCH: ujung rencana 3.25 mm / 0.04 deg dari target (batas 3.0 mm / 2.0 deg).
+1791792107.4961 [INFO] [1791792107.496044380] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya GOAL-MISMATCH -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791792109.6234 [INFO] [1791792109.623359065] [reach_dwell_probe]: ujung rencana vs target: 3.18 mm, sumbu 0.03 deg
+1791792109.6237 [ERROR] [1791792109.623649385] [reach_dwell_probe]: GOAL-MISMATCH: ujung rencana 3.18 mm / 0.03 deg dari target (batas 3.0 mm / 2.0 deg).
+1791792109.6240 [INFO] [1791792109.623972373] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya GOAL-MISMATCH -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791792111.7732 [INFO] [1791792111.773125038] [reach_dwell_probe]: ujung rencana vs target: 3.86 mm, sumbu 0.06 deg
+1791792111.7734 [ERROR] [1791792111.773399512] [reach_dwell_probe]: GOAL-MISMATCH: ujung rencana 3.86 mm / 0.06 deg dari target (batas 3.0 mm / 2.0 deg).
+1791792111.7735        arm_1: moveit GOAL-MISMATCH  (percobaan rencana: ['GOAL-MISMATCH', 'GOAL-MISMATCH', 'GOAL-MISMATCH'])
+1791792111.7735   [ 1] HALTED       (arm_1:GOAL-MISMATCH) torsi puncak  6.34 N.m
+1791792111.7735   TIDAK VALID (mesin, A5, di LUAR penyebut): {'HALTED': 1}
+1791792111.7737   -> /tmp/p1hw_par_s12_R90/ev05_probe_try0.json

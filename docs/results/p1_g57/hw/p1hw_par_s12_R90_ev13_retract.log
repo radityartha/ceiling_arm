@@ -1,15 +1,15 @@
-# 1791792104.5847 CMD python3 -u return_rest.py --arms arm_3 arm_4 --move --no-plan
-1791792107.0432 lengan: ['arm_3', 'arm_4']   galat terbesar dari rest: 162.47 deg
-1791792107.0432 rel t2_linear_joint = 1.399873 m
-1791792107.0853 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
-1791792107.0853   self.geom = pin.buildGeomFromUrdf(
-1791792110.3343 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
-1791792110.3343   self.geom = pin.buildGeomFromUrdf(
-1791792115.4448 retract g2 ['arm_3', 'arm_4'] lurus (rel 1.400):
-1791792117.9779   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
-1791792117.9779   penyaring antar-gantry: CLEAR, minimum 509.3 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
-1791792117.9780   penyaring lingkungan: CLEAR, minimum 61.8 mm di titik 30/60 (t2_a2_right_finger_prox_link_0)
-1791792117.9780 rencana pulang: lurus:t2_a1_+t2_a2_
-1791792118.0464 
-1791792118.0464 mengirim segmen lurus (t2_a1_+t2_a2_): 60 titik. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
-1791792149.1029 selesai: galat akhir 0.042 deg, torsi puncak 7.971 N.m pada t2_a1_joint_2, segmen ['lurus']
+# 1791792828.8261 CMD python3 -u return_rest.py --arms arm_3 arm_4 --move --no-plan
+1791792831.2428 lengan: ['arm_3', 'arm_4']   galat terbesar dari rest: 162.50 deg
+1791792831.2428 rel t2_linear_joint = 1.399810 m
+1791792831.2866 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791792831.2866   self.geom = pin.buildGeomFromUrdf(
+1791792834.5521 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791792834.5521   self.geom = pin.buildGeomFromUrdf(
+1791792839.6345 retract g2 ['arm_3', 'arm_4'] lurus (rel 1.400):
+1791792842.1396   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+1791792842.1397   penyaring antar-gantry: CLEAR, minimum 509.3 mm di titik 0/60 (t1_platform_link_0 <-> t2_a2_base_link_0)
+1791792842.1397   penyaring lingkungan: CLEAR, minimum 61.9 mm di titik 30/60 (t2_a2_right_finger_prox_link_0)
+1791792842.1397 rencana pulang: lurus:t2_a1_+t2_a2_
+1791792842.2053 
+1791792842.2053 mengirim segmen lurus (t2_a1_+t2_a2_): 60 titik. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+1791792873.2630 selesai: galat akhir 0.043 deg, torsi puncak 7.948 N.m pada t2_a1_joint_2, segmen ['lurus']

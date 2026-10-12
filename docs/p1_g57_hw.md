@@ -190,7 +190,8 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 | 10 | s18 G60 | 15:20:09 | **261.17** | 232.2 | 257.5 | ✓ | 0 | 0 | 12.41 `t2_a2_j2` | 2 kaki CLEAR, K0 LULUS |
 | 11 | s3 G60 | 15:41:25 | **323.95** | 295.8 | 305.5 | ✓ | 0 | 0 | **13.22** `t2_a2_j2` (94 %) | 4 kaki CLEAR, K0 LULUS |
 | 12 | s3 lama G43 R180 | 16:27:47 | **466.42** | 426.1 | 446.1 | ✓ | 0 | 0 | 9.48 `t1_a1_j2` | 5 kaki CLEAR (1 ganda dilewati), K0 LULUS |
-| 13 | s12 lama G52 R90 | 16:57:04 | **— (5/6)** | 313.5 | 332.3 | ✗ ev 5 GOAL-MISMATCH (nol gerak) | 0 | 0 | 12.12 `t2_a1_j2` | (lihat bawah) |
+| 13 | s12 lama G52 R90 (coba 1, arsip `…_coba1_*`) | 16:57:04 | **— (5/6)** | 313.5 | 332.3 | ✗ ev 5 GOAL-MISMATCH (nol gerak) | 0 | 0 | 12.12 `t2_a1_j2` | (lihat bawah) |
+| 14 | s12 lama G52 R90 (coba 2) | 17:09:08 | **337.39** | 313.5 | 332.3 | ✓ (ev 5 percobaan rencana 3: 2.69 mm) | 0 | 0 | 12.14 `t2_a1_j2` | 3 kaki CLEAR, K0 LULUS |
 
 - Prep s8 (14:12–14:26): baru 3/3 + DRY rc 0; lama G42f 3/3 + DRY rc 0.
 - s8 baru τ puncak 12.57 > 12 (< 14) — dicatat, bukan gagal (keputusan operator 12:33).
@@ -211,4 +212,7 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
   (G51 B4: deadband bridge 0.3° + driver 0.5°, sampai 0.81°); `--goal-joints` dihitung untuk 40.00° → TCP bergeser ≈ 0.48° × ~0.4 m
   ≈ 3.4 mm. Plan-only (pose terpasang nominal) tidak bisa melihatnya. Batas TIDAK dilonggarkan (MARGIN = TOLAK). Runner lanjut
   (ev 6 sukses), 0 AUTO-STOP. → **D533 ✗** (run ini); celah: target sendi tidak dikoreksi terhadap rotasi terukur.
+- Operator 17:05: pulang (K0 LULUS), ulang s12 lama 1×. **Coba 2: 6/6, 337.39 s**; rotasi g1 lagi pendek (+39.58°, −0.42°), ev 5
+  GOAL-MISMATCH 3.80 / 3.35 mm lalu `PLANNED` **2.69 mm** pada percobaan rencana ke-3 → lolos TIPIS secara stokastik, penyebab tetap.
+  Kedua percobaan dicatat; makespan pasangan memakai coba 2 (catat: coba 1 gagal).
 

@@ -1,58 +1,57 @@
-1791791824.2204 pids monitor [303127] recorder [346569] ros2_control_node [348076]
-1791791826.5091   g1 event 0: {'kind': 'retract', 'gantry': 1, 'stop': 0, 'idx': 0}
-1791791826.5092   g1 event 1: {'kind': 'traverse', 'gantry': 1, 'stop': 0, 'frm': (1.5, 0.0), 'to': (0.7, -0.17453292519943295), 'idx': 1}
-1791791826.5092   g1 event 2: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 0, 'xyz': [1.2143, 0.1059, 1.0], 'goal': {'t1_a1_joint_1': 1.1274619022655346, 't1_a1_joint_2': -0.2714184678903541, 't1_a1_joint_3': 0.3117935577211387, 't1_a1_joint_4': -1.5707929602691044, 't1_a1_joint_5': 0.583214412652204, 't1_a1_joint_6': 2.0141301047386557}, 'idx': 2}
-1791791826.5092   g1 event 3: {'kind': 'retract', 'gantry': 1, 'stop': 1, 'idx': 3}
-1791791826.5092   g1 event 4: {'kind': 'traverse', 'gantry': 1, 'stop': 1, 'frm': (0.7, -0.17453292519943295), 'to': (0.65, 0.6981317007977318), 'idx': 4}
-1791791826.5093   g1 event 5: {'kind': 'task', 'gantry': 1, 'stop': 1, 'arm': 'arm_1', 'task': 5, 'xyz': [1.0, 0.5294, 1.0], 'goal': {'t1_a1_joint_1': -2.0872706072718668, 't1_a1_joint_2': -0.2406834272615979, 't1_a1_joint_3': -0.8398585826987083, 't1_a1_joint_4': -1.5707951622478233, 't1_a1_joint_5': -0.5991774448235612, 't1_a1_joint_6': 1.4763984258921092}, 'idx': 5}
-1791791826.5093   g1 event 6: {'kind': 'task', 'gantry': 1, 'stop': 1, 'arm': 'arm_2', 'task': 1, 'xyz': [0.5, -0.0353, 1.0], 'goal': {'t1_a2_joint_1': -1.393083536999934, 't1_a2_joint_2': -0.5883218300793475, 't1_a2_joint_3': -0.4149037385914525, 't1_a2_joint_4': -1.5707966436797365, 't1_a2_joint_5': 0.173415453444195, 't1_a2_joint_6': 1.131281564677212}, 'idx': 6}
-1791791826.5093   g1 event 7: {'kind': 'retract', 'gantry': 1, 'stop': 2, 'idx': 7}
-1791791826.5093   g2 event 8: {'kind': 'retract', 'gantry': 2, 'stop': 0, 'idx': 8}
-1791791826.5093   g2 event 9: {'kind': 'traverse', 'gantry': 2, 'stop': 0, 'frm': (0.0, 0.0), 'to': (1.4, -0.08726646259971647), 'idx': 9}
-1791791826.5094   g2 event 10: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 2, 'xyz': [2.0, -0.1059, 1.32], 'goal': {'t2_a1_joint_1': 1.9011355517121433, 't2_a1_joint_2': 0.4483239516505354, 't2_a1_joint_3': -1.5343433471839008, 't2_a1_joint_4': -1.5708057987452815, 't2_a1_joint_5': -1.9826647878790042, 't2_a1_joint_6': -0.5921460395355427}, 'idx': 10}
-1791791826.5094   g2 event 11: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_4', 'task': 4, 'xyz': [0.7857, -0.4588, 1.08], 'goal': {'t2_a2_joint_1': -0.3747878009871062, 't2_a2_joint_2': -0.10349149295830307, 't2_a2_joint_3': 0.9752462379484211, 't2_a2_joint_4': -1.5707890294106284, 't2_a2_joint_5': 1.0787367534326184, 't2_a2_joint_6': 0.025724131649816934}, 'idx': 11}
-1791791826.5094   g2 event 12: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 3, 'xyz': [2.0, -0.3176, 1.24], 'goal': {'t2_a1_joint_1': 2.372730651190301, 't2_a1_joint_2': -0.1288379841472424, 't2_a1_joint_3': -1.8778388131954091, 't2_a1_joint_4': -1.5708030294073068, 't2_a1_joint_5': -1.7489989802973052, 't2_a1_joint_6': -0.8019437737254291}, 'idx': 12}
-1791791826.5094   g2 event 13: {'kind': 'retract', 'gantry': 2, 'stop': 1, 'idx': 13}
-1791791827.9757 K0 | arm_1: maks |q - REST| 0.037 deg (joint_5); jari 3.201729767024517e-05
-1791791827.9757 K0 | arm_2: maks |q - REST| 0.018 deg (joint_4); jari 0.0003879742987453938
-1791791827.9758 K0 | arm_3: maks |q - REST| 0.037 deg (joint_5); jari -0.0013908691003918648
-1791791827.9758 K0 | arm_4: maks |q - REST| 0.030 deg (joint_4); jari -0.0008597585834562778
-1791791827.9758 K0 | g1: rel 1.4993983977544112 m (harap 1.5000), rotasi -0.05000000000000329 deg (harap +0.00)
-1791791827.9758 K0 | g2: rel 0.0001570796326795 m (harap 0.0000), rotasi 0.05000000000000329 deg (harap +0.00)
-1791791827.9758 K0 | sampel per sendi: min 102, 1.0 s
-1791791827.9759 K0 | K0 LULUS
-1791791827.9763 amplop rotasi g1 (-125.0, 90.0) g2 (-35.0, 95.0); traverse di luar: []
-1791791832.7613 ===== t0 1791791832.7613 (PARALEL)
-1791791832.8294   [g1 0] retract   (tunggu 0.1 s, terhalang 0)
-1791791832.8298   [g2 8] retract   (tunggu 0.1 s, terhalang 0)
-1791791835.4092   [g1 0] rc=0 2.58 s
-1791791835.4267   [g1 1] traverse  (0.7, -0.17453292519943295) (tunggu 0.0 s, terhalang 0)
-1791791835.4273   [g2 8] rc=0 2.60 s
-1791791893.6916   [g1 1] rc=0 58.26 s
-1791791893.6916   [g2 9] traverse  (1.4, -0.08726646259971647) (tunggu 58.3 s, terhalang 0)
-1791791986.2186   [g2 9] rc=0 92.53 s
-1791791986.2187   [g1 2] task arm_1 [1.2143, 0.1059, 1.0] (tunggu 92.5 s, terhalang 0)
-1791791986.2192   [g2 10] task arm_3 [2.0, -0.1059, 1.32] (tunggu 0.0 s, terhalang 0)
-1791792017.4883   [g1 2] rc=0 28.55 s success@181.77
-1791792027.0267   [g1 3] retract vs reservasi g2: 375.0 mm ('t1_a1_lower_wrist_link_0', 't2_a2_lower_wrist_link_0') -> CLEAR
-1791792027.0268   [g1 3] retract   (tunggu 9.5 s, terhalang 0)
-1791792030.0300   [g2 10] rc=0 43.81 s success@197.02
-1791792030.0301   [g2 11] task arm_4 [0.7857, -0.4588, 1.08] (tunggu 0.0 s, terhalang 0)
-1791792061.1790   [g2 11] rc=0 31.15 s success@228.17
-1791792061.1791   [g2 12] task arm_3 [2.0, -0.3176, 1.24] (tunggu 0.0 s, terhalang 0)
-1791792071.0813   [g1 3] rc=0 44.05 s
-1791792084.6084   [g1 4] traverse  (0.65, 0.6981317007977318) (tunggu 13.5 s, terhalang 0)
-1791792084.6091   [g2 12] rc=0 23.43 s success@251.62
-1791792104.4771   [g1 4] rc=0 19.87 s
-1791792104.4771   [g1 5] task arm_1 [1.0, 0.5294, 1.0] (tunggu 0.0 s, terhalang 0)
-1791792104.5847   [g2 13] retract vs reservasi g1: 509.3 mm ('t1_platform_link_0', 't2_a2_base_link_0') -> CLEAR
-1791792104.5847   [g2 13] retract   (tunggu 20.0 s, terhalang 0)
-1791792111.9294   [g1 5] HALTED -- dicatat, lanjut (A3); hasil TIDAK LENGKAP
-1791792111.9306   [g1 5] rc=0 7.45 s
-1791792111.9307   [g1 6] task arm_2 [0.5, -0.0353, 1.0] (tunggu 0.0 s, terhalang 0)
-1791792140.5599   [g1 6] rc=0 28.63 s success@307.57
-1791792146.3787   [g1 7] retract vs reservasi g2: 407.2 mm ('t1_a2_upper_wrist_link_0', 't2_a2_lower_wrist_link_0') -> CLEAR
-1791792146.3787   [g1 7] retract   (tunggu 5.8 s, terhalang 0)
-1791792149.3417   [g2 13] rc=0 44.76 s
-1791792190.0538   [g1 7] rc=0 43.67 s
-1791792190.1109 SELESAI: TIDAK LENGKAP 5/6
+1791792548.5360 pids monitor [303127] recorder [346569] ros2_control_node [348076]
+1791792550.8421   g1 event 0: {'kind': 'retract', 'gantry': 1, 'stop': 0, 'idx': 0}
+1791792550.8422   g1 event 1: {'kind': 'traverse', 'gantry': 1, 'stop': 0, 'frm': (1.5, 0.0), 'to': (0.7, -0.17453292519943295), 'idx': 1}
+1791792550.8423   g1 event 2: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 0, 'xyz': [1.2143, 0.1059, 1.0], 'goal': {'t1_a1_joint_1': 1.1274619022655346, 't1_a1_joint_2': -0.2714184678903541, 't1_a1_joint_3': 0.3117935577211387, 't1_a1_joint_4': -1.5707929602691044, 't1_a1_joint_5': 0.583214412652204, 't1_a1_joint_6': 2.0141301047386557}, 'idx': 2}
+1791792550.8424   g1 event 3: {'kind': 'retract', 'gantry': 1, 'stop': 1, 'idx': 3}
+1791792550.8433   g1 event 4: {'kind': 'traverse', 'gantry': 1, 'stop': 1, 'frm': (0.7, -0.17453292519943295), 'to': (0.65, 0.6981317007977318), 'idx': 4}
+1791792550.8433   g1 event 5: {'kind': 'task', 'gantry': 1, 'stop': 1, 'arm': 'arm_1', 'task': 5, 'xyz': [1.0, 0.5294, 1.0], 'goal': {'t1_a1_joint_1': -2.0872706072718668, 't1_a1_joint_2': -0.2406834272615979, 't1_a1_joint_3': -0.8398585826987083, 't1_a1_joint_4': -1.5707951622478233, 't1_a1_joint_5': -0.5991774448235612, 't1_a1_joint_6': 1.4763984258921092}, 'idx': 5}
+1791792550.8434   g1 event 6: {'kind': 'task', 'gantry': 1, 'stop': 1, 'arm': 'arm_2', 'task': 1, 'xyz': [0.5, -0.0353, 1.0], 'goal': {'t1_a2_joint_1': -1.393083536999934, 't1_a2_joint_2': -0.5883218300793475, 't1_a2_joint_3': -0.4149037385914525, 't1_a2_joint_4': -1.5707966436797365, 't1_a2_joint_5': 0.173415453444195, 't1_a2_joint_6': 1.131281564677212}, 'idx': 6}
+1791792550.8434   g1 event 7: {'kind': 'retract', 'gantry': 1, 'stop': 2, 'idx': 7}
+1791792550.8435   g2 event 8: {'kind': 'retract', 'gantry': 2, 'stop': 0, 'idx': 8}
+1791792550.8435   g2 event 9: {'kind': 'traverse', 'gantry': 2, 'stop': 0, 'frm': (0.0, 0.0), 'to': (1.4, -0.08726646259971647), 'idx': 9}
+1791792550.8435   g2 event 10: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 2, 'xyz': [2.0, -0.1059, 1.32], 'goal': {'t2_a1_joint_1': 1.9011355517121433, 't2_a1_joint_2': 0.4483239516505354, 't2_a1_joint_3': -1.5343433471839008, 't2_a1_joint_4': -1.5708057987452815, 't2_a1_joint_5': -1.9826647878790042, 't2_a1_joint_6': -0.5921460395355427}, 'idx': 10}
+1791792550.8436   g2 event 11: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_4', 'task': 4, 'xyz': [0.7857, -0.4588, 1.08], 'goal': {'t2_a2_joint_1': -0.3747878009871062, 't2_a2_joint_2': -0.10349149295830307, 't2_a2_joint_3': 0.9752462379484211, 't2_a2_joint_4': -1.5707890294106284, 't2_a2_joint_5': 1.0787367534326184, 't2_a2_joint_6': 0.025724131649816934}, 'idx': 11}
+1791792550.8436   g2 event 12: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 3, 'xyz': [2.0, -0.3176, 1.24], 'goal': {'t2_a1_joint_1': 2.372730651190301, 't2_a1_joint_2': -0.1288379841472424, 't2_a1_joint_3': -1.8778388131954091, 't2_a1_joint_4': -1.5708030294073068, 't2_a1_joint_5': -1.7489989802973052, 't2_a1_joint_6': -0.8019437737254291}, 'idx': 12}
+1791792550.8437   g2 event 13: {'kind': 'retract', 'gantry': 2, 'stop': 1, 'idx': 13}
+1791792552.3069 K0 | arm_1: maks |q - REST| 0.037 deg (joint_5); jari 3.201729767024517e-05
+1791792552.3070 K0 | arm_2: maks |q - REST| 0.018 deg (joint_4); jari 0.00032111464329063897
+1791792552.3070 K0 | arm_3: maks |q - REST| 0.033 deg (joint_5); jari -0.0014097027942538262
+1791792552.3070 K0 | arm_4: maks |q - REST| 0.023 deg (joint_4); jari -0.000988769470900297
+1791792552.3071 K0 | g1: rel 1.499555477387091 m (harap 1.5000), rotasi 0.0 deg (harap +0.00)
+1791792552.3071 K0 | g2: rel 0.0003036872898470333 m (harap 0.0000), rotasi 0.0 deg (harap +0.00)
+1791792552.3071 K0 | sampel per sendi: min 102, 1.0 s
+1791792552.3072 K0 | K0 LULUS
+1791792552.3076 amplop rotasi g1 (-125.0, 90.0) g2 (-35.0, 95.0); traverse di luar: []
+1791792557.0946 ===== t0 1791792557.0946 (PARALEL)
+1791792557.1522   [g1 0] retract   (tunggu 0.1 s, terhalang 0)
+1791792557.1536   [g2 8] retract   (tunggu 0.1 s, terhalang 0)
+1791792559.6854   [g2 8] rc=0 2.53 s
+1791792559.6868   [g1 0] rc=0 2.53 s
+1791792559.6869   [g2 9] traverse  (1.4, -0.08726646259971647) (tunggu 0.0 s, terhalang 0)
+1791792651.9342   [g1 1] traverse  (0.7, -0.17453292519943295) (tunggu 92.2 s, terhalang 0)
+1791792651.9347   [g2 9] rc=0 92.25 s
+1791792710.6363   [g1 1] rc=0 58.70 s
+1791792710.6364   [g2 10] task arm_3 [2.0, -0.1059, 1.32] (tunggu 58.7 s, terhalang 0)
+1791792710.6369   [g1 2] task arm_1 [1.2143, 0.1059, 1.0] (tunggu 0.0 s, terhalang 0)
+1791792741.5762   [g1 2] rc=0 28.43 s success@181.74
+1791792751.1254   [g1 3] retract vs reservasi g2: 374.2 mm ('t1_a1_lower_wrist_link_0', 't2_a2_lower_wrist_link_0') -> CLEAR
+1791792751.1255   [g1 3] retract   (tunggu 9.5 s, terhalang 0)
+1791792754.1141   [g2 10] rc=0 43.48 s success@196.79
+1791792754.1142   [g2 11] task arm_4 [0.7857, -0.4588, 1.08] (tunggu 0.0 s, terhalang 0)
+1791792785.2117   [g2 11] rc=0 31.10 s success@227.89
+1791792785.2117   [g2 12] task arm_3 [2.0, -0.3176, 1.24] (tunggu 0.0 s, terhalang 0)
+1791792794.9852   [g1 3] rc=0 43.86 s
+1791792809.3232   [g1 4] traverse  (0.65, 0.6981317007977318) (tunggu 14.3 s, terhalang 0)
+1791792809.3238   [g2 12] rc=0 24.11 s success@251.99
+1791792828.7111   [g1 4] rc=0 19.39 s
+1791792828.7112   [g1 5] task arm_1 [1.0, 0.5294, 1.0] (tunggu 0.0 s, terhalang 0)
+1791792828.8260   [g2 13] retract vs reservasi g1: 509.3 mm ('t1_platform_link_0', 't2_a2_base_link_0') -> CLEAR
+1791792828.8261   [g2 13] retract   (tunggu 19.5 s, terhalang 0)
+1791792869.2152   [g1 5] rc=0 40.50 s success@311.89
+1791792869.2153   [g1 6] task arm_2 [0.5, -0.0353, 1.0] (tunggu 0.0 s, terhalang 0)
+1791792873.4798   [g2 13] rc=0 44.65 s
+1791792894.7096   [g1 6] rc=0 25.49 s success@337.39
+1791792894.8109   [g1 7] retract vs reservasi g2: 509.3 mm ('t1_platform_link_0', 't2_a2_base_link_0') -> CLEAR
+1791792894.8109   [g1 7] retract   (tunggu 0.1 s, terhalang 0)
+1791792940.0115   [g1 7] rc=0 45.20 s
+1791792940.0911 SELESAI: 6/6 tugas sukses; makespan terukur 337.39 s
