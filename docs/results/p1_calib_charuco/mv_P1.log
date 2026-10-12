@@ -1,0 +1,26 @@
+probe LANGKAH 5: arm_2, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_2 (0.85, 0.18, 1.3), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1791797847.168640791] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=8.17->15.87/14, 3=0.62->7.22/10, 4=0.02->2.00/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 113 %)
+[ERROR] [1791797847.169207121] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a2_joint_2 diperkirakan 15.87 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1791797847.169600218] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1791797848.278029489] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.25->6.85/10, 2=7.89->15.59/14, 3=0.49->7.09/10, 4=0.07->2.05/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 111 %)
+[ERROR] [1791797848.278442366] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a2_joint_2 diperkirakan 15.59 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1791797848.278756580] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1791797849.377712406] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=4.46->12.16/14, 3=2.47->9.07/10, 4=0.38->2.36/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 91 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1791797859.847119972] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 620.6 mm di titik 37 (t1_a2_right_finger_dist_link_0 <-> t2_a1_right_finger_prox_link_0) -> CLEAR
+[INFO] [1791797861.297372391] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 115.5 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791797862.345636190] [reach_dwell_probe]: retract g1 ['arm_2'] lurus (rel 1.500):
+[INFO] [1791797863.274598910] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1791797863.275092183] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 620.5 mm di titik 37/60 (t1_a2_right_finger_dist_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791797863.275393768] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 115.5 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+       arm_2: moveit MOVED  (percobaan rencana: ['TORQUE-UNSAFE', 'TORQUE-UNSAFE', 'PLANNED'])
+  [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_2']) torsi puncak 10.35 N.m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /tmp/g20_step5.json

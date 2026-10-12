@@ -4,6 +4,8 @@
 
 ## Fase aktif
 
+**CALIB-CHARUCO SELESAI** (2026-10-12 18:30–19:00, `docs/p1_calib_charuco.md`): penunjuk arm_2 + ChArUco, 7 gerak nyata OK; kandidat GAGAL C2/C4 → incumbent tetap; rgbd2 arm_1 +0.15 m pada kedua ekstrinsik (dugaan: bukan kamera); bug konvensi titik ORIGIN 3.5 cm. Sel home, K0 LULUS, stack MATI.
+
 **DEMO-HW SELESAI tanpa gerak** (2026-10-12 17:45–18:23, `docs/p1_demo_hw.md`, 2/5 diuji): H2 lokalisasi GAGAL (rgbd2 +0.15 m di zona arm_1 — hanya rgbd2 melihat zona itu, dari ~3 m); rantai teks → YOLOE nyata → localizer → CLI → runner → probe terbukti plan-only di domain 0 (`success arm_1 (arm_1:PLANNED)`, j2 99.6 %). Sel home, K0 LULUS, stack MATI.
 
 **G57 HW SELESAI** (2026-10-12 11:13–17:30, `docs/p1_g57_hw.md`, tally 5/9): 6/6 pasangan lama vs baru di HW, sel di home, stack MATI. Sebelumnya: **G58–G60 OFFLINE SELESAI** (2026-10-12 10:30, prompt `docs/p1_g58_offline_prompt.md`). Berikut = sesi HW dengan
@@ -105,4 +107,4 @@ tidak dikoreksi rotasi gantry terukur (GOAL-MISMATCH s12); torsi transit > predi
 
 ## Langkah berikut
 
-Sesi kalibrasi rgbd2 jarak jauh TANPA gerak (acuan FK lengan REST di g1 1.50 + meja 0.77 m, tabel `p1_demo_hw.md` B1 diulang ≤ 5 cm) lalu DEMO-HW ulang dengan `seg_imgsz:=1280` dan batas z dari meja + botol terukur; sesi OFFLINE G61 (celah G57 B8) boleh di antaranya.
+Sesi cek galat zona arm_1 (lengan arm_1 sebagai penunjuk di meja depan arm_1 + unting/kamera, bedakan galat lengan/gantry vs kamera, perbaiki bug titik ORIGIN `calibrate_extrinsics`) sebelum DEMO-HW ulang; OFFLINE G61 boleh di antaranya.

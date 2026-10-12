@@ -1,0 +1,19 @@
+
+board world pose: xyz=(0.8505, 0.1804, 0.626) rpy=(0.0, 0.0, 0.0064)
+[rgbd] solved via plain-chessboard
+
+[rgbd] reprojection RMS = 0.307 px
+[rgbd] debug image: /tmp/calib_debug_rgbd.png
+[rgbd] world->rgbd_camera_optical:
+  x=1.7684 y=0.8093 z=2.1119 roll=-2.3533 pitch=-0.1467 yaw=2.1805
+  tf1_x:=1.7684 tf1_y:=0.8093 tf1_z:=2.1119 tf1_roll:=-2.3533 tf1_pitch:=-0.1467 tf1_yaw:=2.1805
+[rgbd2] solved via plain-chessboard
+
+[rgbd2] reprojection RMS = 0.447 px
+[rgbd2] debug image: /tmp/calib_debug_rgbd2.png
+[rgbd2] world->rgbd2_camera_optical:
+  x=-0.0520 y=-1.1548 z=2.1251 roll=-2.2502 pitch=-0.1264 yaw=-0.8877
+  tf2_x:=-0.0520 tf2_y:=-1.1548 tf2_z:=2.1251 tf2_roll:=-2.2502 tf2_pitch:=-0.1264 tf2_yaw:=-0.8877
+
+ready-to-paste launch command:
+  ros2 launch reachability_gng realsense_dual.launch.py tf1_x:=1.7684 tf1_y:=0.8093 tf1_z:=2.1119 tf1_roll:=-2.3533 tf1_pitch:=-0.1467 tf1_yaw:=2.1805 tf2_x:=-0.0520 tf2_y:=-1.1548 tf2_z:=2.1251 tf2_roll:=-2.2502 tf2_pitch:=-0.1264 tf2_yaw:=-0.8877
