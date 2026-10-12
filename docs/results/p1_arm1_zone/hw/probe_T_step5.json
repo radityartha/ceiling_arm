@@ -1,0 +1,91 @@
+[
+ {
+  "trial": 1,
+  "verdict": "SUCCESS",
+  "move_status": {
+   "arm_2": "MOVED"
+  },
+  "plan_verdicts": {
+   "arm_2": [
+    "PLANNED"
+   ]
+  },
+  "per_arm_success": [
+   "arm_2"
+  ],
+  "tau_peak": 5.039,
+  "targets": {
+   "arm_2": [
+    1.025,
+    0.18,
+    1.3
+   ]
+  }
+ },
+ {
+  "trial": 2,
+  "verdict": "DRY"
+ },
+ {
+  "trial": 3,
+  "verdict": "DRY",
+  "plans": {
+   "arm_1": {
+    "verdict": "TORQUE-UNSAFE",
+    "tries": 3,
+    "verdicts": [
+     "TORQUE-UNSAFE",
+     "TORQUE-UNSAFE",
+     "TORQUE-UNSAFE"
+    ],
+    "end": null
+   }
+  }
+ },
+ {
+  "trial": 4,
+  "verdict": "DRY",
+  "plans": {
+   "arm_1": {
+    "verdict": "PLANNED",
+    "tries": 1,
+    "verdicts": [
+     "PLANNED"
+    ],
+    "end": {
+     "t1_a1_joint_1": 0.636059997027396,
+     "t1_a1_joint_2": -0.008074754518900957,
+     "t1_a1_joint_3": -1.682595817630117,
+     "t1_a1_joint_4": -1.558983417380385,
+     "t1_a1_joint_5": -1.7055597166189935,
+     "t1_a1_joint_6": -0.4954968936664429
+    }
+   }
+  }
+ },
+ {
+  "trial": 5,
+  "verdict": "SUCCESS",
+  "move_status": {
+   "arm_1": "MOVED"
+  },
+  "plan_verdicts": {
+   "arm_1": [
+    "TORQUE-UNSAFE",
+    "TORQUE-UNSAFE",
+    "PLANNED"
+   ]
+  },
+  "per_arm_success": [
+   "arm_1"
+  ],
+  "tau_peak": 6.367,
+  "targets": {
+   "arm_1": [
+    1.75,
+    0.55,
+    1.22
+   ]
+  }
+ }
+]

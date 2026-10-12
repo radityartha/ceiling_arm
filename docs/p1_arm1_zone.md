@@ -98,3 +98,77 @@ diminta. MARGIN = TOLAK; penyaring TIDAK dilonggarkan; kriteria tidak diubah ses
 - **D570 ✓** (0.138). **D571 ✗** (Z1). **D572** — tak sah formal (nilai +0.114 ≥ 0.10 akan menolak (b)).
 - Pola: rgbd2 t naik dengan jarak (arm_3 1.15 m ≈ 0 → arm_2 2.06 m +0.06 → arm_1 2.66 m +0.11), tetapi **rgbd juga melihat arm_2 di
   +0.05 x** — dua kamera sepakat arm_2 (gantry 1) ~+5 cm x pada g1 1.50. Belum diatribusi (pita, langkah 4).
+
+### B2. Penunjuk arm_1 di T (19:25–19:38) — GERAK NYATA #1–#2
+
+- Plan-check 1 (`--plan-check`, 3 sampel): TORQUE-UNSAFE 3/3 (j2 15.0–15.3 / 14). Plan-check 2 (`--plan-attempts 8`): PLANNED sampel 1
+  (terketat j3 90 %, j2 9.80/14), antar-lengan 480 mm, env 115 mm (jari), retract lurus se-/antar-gantry/env CLEAR. Penyaring tidak diubah.
+- **#1 (19:29:57, operator setuju):** `reach_dwell_probe --arms arm_1 --target 1.75,0.55,1.22 --approach 0 --trials 1 --tau-max 14
+  --plan-attempts 8 --move` → ['TORQUE-UNSAFE', 'TORQUE-UNSAFE', 'PLANNED'] → **MOVED → dwell SUCCESS** (monitor: `pos_err_max_settled`
+  1.53 mm, ori 0.47°), torsi puncak 6.37 N·m. **TCP (TF, sendi terukur) (1.7498, 0.5492, 1.2188)**, galat 1.5 mm, std 0 → **Z3 ✓**.
+- Kamera saat melayang (`fk_atT_tol03`): rgbd2:arm_1 tersaring **t (+0.115, +0.036, −0.011)**, tersimpan 66 %, residu 9.8 mm (REST:
+  (+0.114, +0.001) → beda 3.5 cm). Lengan lain tak bergerak: rgbd:arm_4 t berubah 2.0 → 5.5 cm antar-pengukuran → kestabilan penyaring
+  lengan jauh ~±3 cm.
+- Operator menandai unting di meja (TCP diulang sesudahnya: (1.7497, 0.5493, 1.2188), lengan tak tersentuh). TF basis: arm_1
+  (1.8993, 0.36, 1.9525), arm_2 (1.0993, 0.36, 1.9525) → URDF basis–basis **0.800 m**.
+- **#2 (operator setuju):** `return_rest --arms arm_1 arm_2 --move` rc 0, segmen lurus, galat akhir 0.046°, torsi puncak 8.91 N·m
+  (j2). K0 LULUS.
+
+### B3. Botol di tanda + pita (19:38–19:42) — NOL gerak
+
+- Botol putih 7 cm berdiri, pusat alas di tanda. `/detected_objects/tracks` 15 s, 29 pesan ([jsonl](results/p1_arm1_zone/tracks_bottle_at_mark.jsonl)):
+  `white bottle` tid 59 **median (1.8583, 0.6544, 0.8364)**, sebaran p5–p95 3 mm, conf 0.81; `cyan bottle` (3.09, −0.34, 1.02) = botol
+  wastafel, masih ter-track walau operator menyingkirkannya (seperti DEMO-HW F5). 0 `inference failed`.
+- **track − tanda (TCP) = (+0.109, +0.105, —), |dxy| = 0.151 m → Z4 ✗**; z 0.836 ∈ [0.79, 0.84] ✓.
+- Arah galat (0.72, 0.70) ≈ arah sinar pandang rgbd2 (kamera (−0.15, −1.02, 2.09) → botol): galat sepanjang garis pandang → khas galat
+  jarak/tilt kamera, bukan geser kaku. Konsistensi Z6: (track − TCP) vs t tersaring di T (+0.115, +0.036) beda **6.9 cm (y)** > 3 cm —
+  galat di z 0.8 (botol) ≠ di z 1.2–1.45 (lengan) → bergantung tinggi/jarak, lagi-lagi khas geometri kamera.
+- **Pita operator: basis arm_1 ↔ arm_2 = 0.80 m ± 5 mm** (URDF 0.800) → **Z6: kamera** (rgbd2 jarak jauh). Batas: pita menguji arm_1
+  RELATIF arm_2, bukan posisi absolut gantry 1 (rgbd dan rgbd2 sama-sama melihat arm_2 di ~+0.05 x, B1 — terbuka).
+
+### B4. Akhir (19:42–19:45)
+
+- Keputusan per §A2 Z5: **Z4 gagal → BERHENTI; DEMO-HW TIDAK diulang; tidak ada koreksi lokal.**
+- Lengan REST (K0 akhir LULUS: g1 1.49926 m / 0°, g2 0.00090 m / 0°, lengan ≤ 0.10°); g1 tidak pernah diperintah sesi ini.
+- Localizer (PID anak), kamera, monitor, perekam SIGINT per PID → hilang ≤ 1 s; launch SIGINT (SigIgn tanpa 0x2) → mati 12 s;
+  `ros2 node list --no-daemon` **0 di domain 0 dan 79**, 0 `static_transform_publisher`. Crash dump `move_group` 19:43 (shutdown)
+  dihapus. Arsip `/tmp/p1az_*` → [hw/](results/p1_arm1_zone/hw/) (`p1az_joint_states.csv.gz` 21 MB tidak di-commit).
+- 2 gerak nyata, keduanya ditanya; torsi puncak terukur sesi 8.91 N·m (t1_a1_joint_2); 0 fault / REJECTED / gerak tak diminta.
+
+### B5. Papan skor
+
+| # | Kriteria | Hasil |
+|---|---|---|
+| Z1 | kontrol positif penyaring | **✗** — rgbd:arm_2 0.8 cm ✓, rgbd2:arm_3 5.2 cm ✗ (metode lama bias, B1) |
+| Z2 | (b) titik bukan-lengan | **tak sah** (Z1); nilai +0.114 / 89 % / 10 mm akan MENOLAK (b) |
+| Z3 | penunjuk | ✓ 1.5 mm, torsi 6.37 |
+| Z4 | track − tanda | **✗ 0.151 m** (z ✓ 0.836) |
+| Z5 | keputusan | **BERHENTI** (tanpa demo) |
+| Z6 | atribusi | **kamera** (pita 0.800 ± 0.005 = URDF); konsistensi lengan-vs-botol ✗ 6.9 cm (galat bergantung tinggi) |
+
+| # | Dugaan | Hasil |
+|---|---|---|
+| D570 | lama rgbd2:arm_1 ∈ [0.12, 0.18] | ✓ 0.138 |
+| D571 | Z1 lulus | ✗ |
+| D572 | (b) ditolak | — tak sah (nilai mendukung) |
+| D573 | PLANNED ≤ 2 sampel | ✗ (sampel ke-4; di gerak: ke-3) |
+| D574 | Z3 + torsi ≤ 12 | ✓ (8.91) |
+| D575 | t di T ≈ t di REST ≤ 3 cm | ✗ (3.5 cm) |
+| D576 | Z4 gagal, Δx ≥ +0.08 | ✓ (+0.109) |
+| D577 | z ∈ [0.79, 0.84] | ✓ 0.836 |
+| D578 | pita ≤ 2 cm → kamera | ✓ |
+
+**Tally 5/8 diuji (D572 tak sah).** Jawaban pertanyaan sesi: galat +0.15 m di zona arm_1 = **kamera rgbd2** pada jarak ~2.7–2.9 m
+(sepanjang sinar pandang, bergantung tinggi), bukan titik bukan-lengan dan bukan geometri arm_1 relatif arm_2. Demo bergerak tetap
+tertahan.
+
+### B6. Temuan + langkah berikut
+
+- **F1** Galat rgbd2 di zona demo 15 cm sepanjang sinar pandang; 1 kalibrasi papan tunggal + koreksi G34 (yaw) tidak mengikatnya.
+  Usul (keputusan operator): kalibrasi rgbd2 beracuan **penunjuk arm_1 + botol/penanda di beberapa tanda unting** di meja zona demo
+  (≥ 4 titik, z 0.8 dan 1.2) → fit 6-DOF (+ skala depth bila perlu) rgbd2, nilai pada titik TERPISAH; atau arahkan ulang rgbd ke meja depan arm_1.
+- **F2** `arm_fk_check` metode lama bias ~+4–5 cm (heuristik radius) — gunakan `--arm-filter` (residu ~3–10 mm), dengan kestabilan ~±3 cm
+  di lengan jauh.
+- **F3** rgbd DAN rgbd2 melihat arm_2 di ~+0.05 x pada g1 1.50 → posisi absolut gantry 1 di ujung jauh belum diverifikasi kamera-bebas.
+- **F4** Fallback chessboard polos rentan solusi planar ambigu pada ~9 px/kotak (A0.2) — periksa rotasi hasil, bukan RMS.
+- **F5** Botol wastafel tetap ter-track sesudah disingkirkan (posisi (3.09, −0.34) luar sel) — saringan kotak meja di runner masih usulan.
