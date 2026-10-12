@@ -15,13 +15,14 @@ s12 (baru = p1_g60/g60_selected.json G60, penjadwal sadar traverse eksklusif). M
 TUGAS — dokumen fase docs/p1_g57_hw.md: §A + dugaan D530+ DIKUNCI sebelum gerak HW pertama (salinan results/p1_g57/g57_A_locked.md +
 sha256), §B ditulis, commit per bagian, berkas keadaan diperbarui sesudah tiap langkah berarti. Arsip HW di results/p1_g57/hw/.
 Urutan + waktu = docs/p1_hw_day_2026-10-12.md:
-- §0 TANPA gerak (30 mnt): remount_check → (opsional, lampu nyala: cek kamera tanpa gerak §6.1 SEBELUM bring-up) → bring-up nyata
+- §0 TANPA gerak (30 mnt): remount_check → bring-up nyata
   (SIG_DFL + setsid, PID launch asli, SigIgn tanpa 0x2, 7/7, table1+table2 ARMED, /table_hw_commands diam) → monitor + perekam → K0.
 - §1–§2 (35 mnt): plan-only nyata k=3 + DRY s7 lama/baru → uji stop-semua HW (s7 R90sel --inject-stop-on-motion 2). GAGAL → henti
   total, tanya.
 - §3 G57 (1 jam 45 mnt): s7 lama → s7 baru → s10 baru → s10 lama → s0 baru. HENTI A bila waktu habis (minimum paper = s7 + s10).
 - §4 G58/G60 (55 mnt per pasangan): s8, s18, s3, s12 (plan-only per pasangan dulu). HENTI B sesudah pasangan mana pun.
-- §5 (opsional, 1 jam 20 mnt): ulangan s7/s10 untuk variansi. §6 (opsional, 1 jam): cek kamera (bila belum) + DEMO-HW prompt
+- §5 (opsional, 1 jam 20 mnt): ulangan s7/s10 untuk variansi. §6 (opsional, 1 jam 15 mnt; operator: kamera TEPAT sebelum demo,
+  sesudah semua run_g54): cek kamera tanpa gerak §6.1 + DEMO-HW prompt
   p1_demo_off.md §D (bisa sesi lain). §7 matikan bersih + arsip (/tmp hilang saat reboot).
 - Analisis per pasangan: makespan HW vs sim (g54_sim) dan vs mock G58/G60; Δ lama − baru; dekomposisi (tugas / traverse / tunggu
   gerbang / tumpang-tindih dua gantry); RESERVE-BLOCKED; torsi puncak. Pola results/p1_g58/g58_report.py + p1_g54/g54_report.py.

@@ -34,6 +34,7 @@ Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 - 2026-10-10 16:10 (operator): (1) batas mekanis rotasi tiap gantry **±180° bisa** (kabel/stopper/driver tidak membatasi);
   (2) operator **di lokasi besok 2026-10-11** → cek origin g2 dengan kamera (Fase 6a) besok; (3) arah sweep rotasi **aman
   semua** (+ dan −). Sweep HW tetap bertahap dan TIAP gerak tetap ditanya (aturan Fase 6).
+- 2026-10-12 (operator): urutan hari HW = runner HW (G57 → G58/G60) dulu, DEMO paling akhir; cek kamera TEPAT sebelum demo (bukan di §0).
 - 2026-10-11 (operator, Gerbang 7): risiko runner paralel P1–P6 DITERIMA. HW paralel = sesi lain, tiap gerak ditanya, mulai uji
   stop-semua (runbook paralel §3).
 - 2026-10-10 20:12 (operator, Gerbang 5): risiko R1–R9 DITERIMA; **lanjut Fase 6 besok mulai 6a** (cek origin g2 kamera),
