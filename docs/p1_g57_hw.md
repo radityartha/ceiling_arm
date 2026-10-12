@@ -118,3 +118,7 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 | s7 lama G43 R180 | 11:41:15 | **392.21** | 396.9 | 383.6 | ✓ | 0 | 0 | 9.67 `t2_a1_j2` | 5 kaki CLEAR, K0 LULUS |
 | 2 | s7 baru G55 R90sel | 11:57:01 | **283.34** | 283.6 | 276.4 | ✓ | 0 | 0 | 11.66 `t2_a1_j2` | 4 kaki CLEAR, K0 LULUS |
+
+- s10 plan-only nyata k = 3 (12:06–12:19): **G55 R90sel 3/3 LOLOS**, **G42f G42 3/3 LOLOS**; DRY run_g54 keduanya rc 0, K0 LULUS,
+  traverse di luar []. Traverse: baru g1 → (1.40, −30°), g2 → (0.85, −20°) → (1.20, −10°); lama g1 → (1.25, −30°), g2 → (0.70, −20°)
+  → (1.00, −20°) → (1.45, 0°).

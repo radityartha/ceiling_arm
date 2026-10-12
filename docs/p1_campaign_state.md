@@ -91,4 +91,4 @@ persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `s
 
 ## Langkah berikut
 
-G57 §3: s7 pasangan selesai (Δ 108.9 s); berikut plan-only s10 baru/lama → DRY → run 3/5 s10 baru (izin).
+G57 §3: run 3/5 s10 baru (G55 R90sel), izin operator; plan-only 3/3 + DRY rc 0 sudah.
