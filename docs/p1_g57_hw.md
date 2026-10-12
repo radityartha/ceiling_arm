@@ -120,6 +120,7 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 | 2 | s7 baru G55 R90sel | 11:57:01 | **283.34** | 283.6 | 276.4 | ✓ | 0 | 0 | 11.66 `t2_a1_j2` | 4 kaki CLEAR, K0 LULUS |
 | 3 | s10 baru G55 R90sel | 12:19:28 | 5/6 resmi; **317.06** turunan (aturan operator) | 278.5 | 308.9 | 5/6 + ev 12 sampai (verdict TORQUE-ABORT) | 0 | 0 | 12.44 `t2_a1_j2` | lengan REST (retract ev 13 rc 0) |
 | 4 | s10 lama G42f G42 | 13:32:36 | **TIDAK SAH 0/6** — move_group mati 13:11:45 | 360.3 | 383.2 | 0/6 HALTED (EXEC-FAIL, nol gerak lengan) | 0 | 0 | 1.24 | rel 3 kaki CLEAR, K0 LULUS |
+| 5 | s10 lama G42f G42 (ulang, stack 4, `--tau-max 14`) | 13:49:04 | **391.91** | 360.3 | 383.2 | ✓ | 0 | 0 | 9.39 `t2_a2_j2` | 4 kaki CLEAR, K0 LULUS |
 
 - s10 plan-only nyata k = 3 (12:06–12:19): **G55 R90sel 3/3 LOLOS**, **G42f G42 3/3 LOLOS**; DRY run_g54 keduanya rc 0, K0 LULUS,
   traverse di luar []. Traverse: baru g1 → (1.40, −30°), g2 → (0.85, −20°) → (1.20, −10°); lama g1 → (1.25, −30°), g2 → (0.70, −20°)
@@ -165,4 +166,10 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 - **Bring-up 4 (13:47, `octomap_updaters:=false`)**: PID 348058, SigIgn `0x1001001`, 4× '6', 7/7, **table1 + table2 ARMED**,
   0 baris `pointcloud_octomap_updater`, `env_static_map` di scene (False → publish ulang → True, pola sama bring-up 2), K0 LULUS
   ([json](results/p1_g57/hw/k0_bringup4.json)). RSS move_group 639 MB pada 50 s (dipantau).
+- s10 lama ulang (izin 13:49) 6/6 **391.91 s**. Tugas arm_3 → (1.4286, −0.4588, 1.08) yang abort di s10 baru di sini j2 puncak
+  hanya 6.23 N·m (stop g2 (1.00, −20°) vs (1.20, −10°) — konfigurasi/lintasan lain). DRY ulang di stack 4 rc 0; arsip run tidak sah
+  diganti nama `p1hw_par_s10_G42_tidaksah_*`. RSS move_group 639 MB stabil.
+- **Minimum paper (s7 + s10) TERCAPAI** ([laporan](results/p1_g57/g57_report.py) → `g57_report.json`): s7 Δ HW **+108.87 s
+  (−27.8 %)**, mock +107.24 (HW/mock 1.02), sim +113.29 (0.96); s10 Δ HW **+74.85 s (−19.1 %, s10 baru turunan)**, mock +74.30
+  (1.01), sim +81.81 (0.91).
 

@@ -1,5 +1,15 @@
-# 1791779682.8278 CMD python3 -u return_rest.py --arms arm_1 arm_2 --move --no-plan
-1791779683.1375 [37;1m2026-10-12 13:34:43.137 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7419: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
-1791779685.2194 lengan: ['arm_1', 'arm_2']   galat terbesar dari rest: 0.03 deg
-1791779685.2195 rel t1_linear_joint = 1.250731 m
-1791779685.2195 sudah di rest (< 0.5 deg) -- tidak ada yang perlu dikerjakan.
+# 1791780708.2666 CMD python3 -u return_rest.py --arms arm_1 arm_2 --move --no-plan
+1791780710.6535 lengan: ['arm_1', 'arm_2']   galat terbesar dari rest: 169.48 deg
+1791780710.6535 rel t1_linear_joint = 1.250511 m
+1791780710.6993 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791780710.6994   self.geom = pin.buildGeomFromUrdf(
+1791780713.9480 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791780713.9480   self.geom = pin.buildGeomFromUrdf(
+1791780719.0286 retract g1 ['arm_1'] lurus (rel 1.251):
+1791780720.2869   penyaring se-gantry: CLEAR, minimum 465.1 mm di titik 13/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+1791780720.2869   penyaring antar-gantry: CLEAR, minimum 523.4 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+1791780720.2869   penyaring lingkungan: CLEAR, minimum 108.9 mm di titik 0/60 (t2_a1_left_finger_dist_link_0)
+1791780720.2869 rencana pulang: lurus:t1_a1_
+1791780720.3569 
+1791780720.3569 mengirim segmen lurus (t1_a1_): 60 titik. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+1791780751.4128 selesai: galat akhir 0.061 deg, torsi puncak 4.810 N.m pada t1_a1_joint_2, segmen ['lurus']

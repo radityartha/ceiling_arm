@@ -1,11 +1,10 @@
-# 1791779568.4518 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 1 --seed 10 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g42/g42f_candidates.json --variant G42 1.250 -30.000 --move
-1791779568.7505 [37;1m2026-10-12 13:32:48.750 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7419: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
-1791779569.8292 S12: maks |q - REST| arm_1 0.034, arm_2 0.019, arm_3 0.036, arm_4 0.023 deg (batas 0.5 untuk gantry 1)
-1791779569.8292 S23": t1_rotation_joint +0.000 deg, t2_rotation_joint +0.000 deg; target -30.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
-1791779578.4145 S28: sapuan g1 (1.5000 m, +0.000 deg) -> (1.2500, -30.000), sisanya TERUKUR: CLEAR, min 674.6 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0') di (1.250, +0.00); lengan 674.6, SS 739.0, n 806
-1791779579.7304 G33: sapuan g1 vs peta lingkungan: CLEAR, min 60.0 mm (t1_a2_left_finger_dist_link_0) di titik 30
-1791779579.7304 g1: lin 1.499995 -> 1.250000 m (-250.0 mm), rot +0.000 -> -30.000 deg (-30.000); T_cmd 13.89 s (lin 13.89, rot 5.24)
-1791779579.7310 setpoint pertama 0.85 mm / 0.101 deg (arm_tol 5 mm / 1.0 deg)
-1791779593.7170 JTC error_code: 0
-1791779594.7309 akhir: g1 = (1.250731 m, -29.9100 deg), galat +0.73 mm / +0.0900 deg; t_traverse 12.858 s (lin 12.858, rot 12.796; T_cmd 13.89); lengan (keempat) bergeser maks 0.0780 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 1.191 t2_a2_joint_2
-1791779594.7309 {"gantry": 1, "goal": [1.25, -30.0], "start": [1.499995, 0.0], "end": [1.250731, -29.91], "err_mm": 0.731, "err_deg": 0.09, "T_cmd": 13.889, "T_cmd_lin": 13.889, "T_cmd_rot": 5.236, "t_send": 1791779579.8027008, "t_jtc_done": 1791779593.7169638, "t_first_move": 1791779580.7978323, "t_stop": 1791779593.6558294, "t_traverse": 12.858, "t_lin": 12.858, "t_rot": 12.796, "arm_drift_deg": 0.078, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 1.191, "arm_tau_joint": "t2_a2_joint_2", "sweep_min_mm": 674.6, "sweep_arm_mm": 674.6, "sweep_pair": ["t1_a2_right_finger_prox_link_0", "t2_a1_right_finger_prox_link_0"], "jtc_error_code": "0", "n_log": 1840}
+# 1791780613.1183 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 1 --seed 10 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g42/g42f_candidates.json --variant G42 1.250 -30.000 --move
+1791780614.5128 S12: maks |q - REST| arm_1 0.060, arm_2 0.057, arm_3 0.100, arm_4 0.066 deg (batas 0.5 untuk gantry 1)
+1791780614.5130 S23": t1_rotation_joint -0.030 deg, t2_rotation_joint -19.980 deg; target -30.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
+1791780623.7475 S28: sapuan g1 (1.4997 m, -0.030 deg) -> (1.2500, -30.000), sisanya TERUKUR: CLEAR, min 429.6 mm ('t1_platform_link_0', 't2_platform_link_0') di (1.250, -0.03); lengan 515.0, SS 429.6, n 806
+1791780625.0905 G33: sapuan g1 vs peta lingkungan: CLEAR, min 59.9 mm (t1_a2_left_finger_dist_link_0) di titik 30
+1791780625.0905 g1: lin 1.499734 -> 1.250000 m (-249.7 mm), rot -0.030 -> -30.000 deg (-29.970); T_cmd 13.87 s (lin 13.87, rot 5.23)
+1791780625.0910 setpoint pertama 0.84 mm / 0.101 deg (arm_tol 5 mm / 1.0 deg)
+1791780639.0483 JTC error_code: 0
+1791780640.1448 akhir: g1 = (1.250511 m, -29.9300 deg), galat +0.51 mm / +0.0700 deg; t_traverse 13.043 s (lin 13.043, rot 12.997; T_cmd 13.87); lengan (keempat) bergeser maks 0.0972 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 1.058 t1_a2_joint_3
+1791780640.1448 {"gantry": 1, "goal": [1.25, -30.0], "start": [1.499734, -0.03], "end": [1.250511, -29.93], "err_mm": 0.511, "err_deg": 0.07, "T_cmd": 13.874, "T_cmd_lin": 13.874, "T_cmd_rot": 5.231, "t_send": 1791780625.1467435, "t_jtc_done": 1791780639.0482228, "t_first_move": 1791780626.085075, "t_stop": 1791780639.1276658, "t_traverse": 13.043, "t_lin": 13.043, "t_rot": 12.997, "arm_drift_deg": 0.0972, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 1.058, "arm_tau_joint": "t1_a2_joint_3", "sweep_min_mm": 429.6, "sweep_arm_mm": 515.0, "sweep_pair": ["t1_platform_link_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 1849}

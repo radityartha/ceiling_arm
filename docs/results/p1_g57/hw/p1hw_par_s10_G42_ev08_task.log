@@ -1,10 +1,23 @@
-# 1791779666.8947 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_4 --target=0.4286,-0.1059,1.0000 --approach 0 --trials 1 --tau-max 14.0 --move --monitor-csv /tmp/p1hw_mon_samples.csv --goal-joints={"t2_a2_joint_1": -1.613559949712892, "t2_a2_joint_2": 0.6118574108327379, "t2_a2_joint_3": 0.6093760338205143, "t2_a2_joint_4": -1.2478244899118744, "t2_a2_joint_5": -0.002422823544476649, "t2_a2_joint_6": 0.9414800736898076} --goal-tol-deg=0.05 --reserve-dir /tmp/p1hw_par_s10_G42/res --out-json /tmp/p1hw_par_s10_G42/ev08_probe_try0.json
-1791779667.4073 probe LANGKAH 5: arm_4, 1 percobaan, abort torsi 14.0 N.m
-1791779667.4073 sumber target: arm_4 (0.4286, -0.1059, 1.0), [] []
-1791779667.4073 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
-1791779667.4073 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
-1791779667.4073 
-1791779682.6475        arm_4: moveit EXEC-FAIL  (percobaan rencana: None)
-1791779682.6475   [ 1] HALTED       (arm_4:EXEC-FAIL) torsi puncak  0.00 N.m
-1791779682.6475   TIDAK VALID (mesin, A5, di LUAR penyebut): {'HALTED': 1}
-1791779682.6477   -> /tmp/p1hw_par_s10_G42/ev08_probe_try0.json
+# 1791780692.4638 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_4 --target=0.4286,-0.1059,1.0000 --approach 0 --trials 1 --tau-max 14.0 --move --monitor-csv /tmp/p1hw_mon_samples.csv --goal-joints={"t2_a2_joint_1": -1.613559949712892, "t2_a2_joint_2": 0.6118574108327379, "t2_a2_joint_3": 0.6093760338205143, "t2_a2_joint_4": -1.2478244899118744, "t2_a2_joint_5": -0.002422823544476649, "t2_a2_joint_6": 0.9414800736898076} --goal-tol-deg=0.05 --reserve-dir /tmp/p1hw_par_s10_G42/res --out-json /tmp/p1hw_par_s10_G42/ev08_probe_try0.json
+1791780693.2631 probe LANGKAH 5: arm_4, 1 percobaan, abort torsi 14.0 N.m
+1791780693.2631 sumber target: arm_4 (0.4286, -0.1059, 1.0), [] []
+1791780693.2631 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791780693.2631 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791780693.2631 
+1791780696.1738 [INFO] [1791780696.173725192] [reach_dwell_probe]: ujung rencana vs target: 1.00 mm, sumbu 0.04 deg
+1791780696.1754 [INFO] [1791780696.175060914] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.08->6.68/10, 2=3.56->11.26/14, 3=0.44->7.04/10, 4=0.01->1.99/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 80 %)
+1791780696.1809 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791780696.1809   self.geom = pin.buildGeomFromUrdf(
+1791780699.4100 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791780699.4100   self.geom = pin.buildGeomFromUrdf(
+1791780707.1365 [INFO] [1791780707.136459863] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 574.9 mm di titik 21 (t2_a1_lower_wrist_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+1791780708.5090 [INFO] [1791780708.506653301] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 109.0 mm di titik 0 (t2_a1_left_finger_dist_link_0) -> CLEAR
+1791780709.5532 [INFO] [1791780709.553194908] [reach_dwell_probe]: retract g2 ['arm_4'] lurus (rel 0.700):
+1791780711.3732 [INFO] [1791780711.372320746] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 574.9 mm di titik 33/60 (t2_a1_lower_wrist_link_0 <-> t2_a2_arm_link_0)
+1791780711.3732 [INFO] [1791780711.372822595] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 523.4 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t2_a1_arm_link_0)
+1791780711.3733 [INFO] [1791780711.373332074] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 108.9 mm di titik 0/60 (t2_a1_left_finger_dist_link_0)
+1791780717.3430 [INFO] [1791780717.340540033] [reach_dwell_probe]: G54 reservasi g1: 61 keadaan, minimum 523.4 mm (('t1_a1_forearm_link_0', 't2_a1_arm_link_0')) -> CLEAR
+1791780722.6342        arm_4: moveit MOVED  (percobaan rencana: ['PLANNED'])
+1791780724.5348   [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_4']) torsi puncak  9.39 N.m
+1791780724.5349   TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+1791780724.5351   -> /tmp/p1hw_par_s10_G42/ev08_probe_try0.json

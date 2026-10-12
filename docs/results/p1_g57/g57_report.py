@@ -20,6 +20,9 @@ RUNS = {'s7L': (7, 'R180', 'lama', 396.91, 383.64), 's7B': (7, 'R90sel', 'baru',
         's18L': (18, 'R180', 'lama', 372.16, 431.06), 's18G': (18, 'G60', 'baru', 232.21, 257.50),
         's3G': (3, 'G60', 'baru', 295.80, 305.54), 's3L': (3, 'R180', 'lama', 426.08, 446.13),
         's12L': (12, 'R90', 'lama', 313.49, 332.32), 's12G': (12, 'G60', 'baru', 270.70, 289.55)}
+# s10B ev 12: TORQUE-ABORT (12.44 > old watch 12) after the arm REACHED the target; operator 12:33: >12 is not a failure.
+# Makespan derived from /tmp/p1hw_mon_samples.csv (same 2.0 s in-tolerance window as the probe), B3.
+DERIVED = {'s10B': 317.06}
 PAIRS = [(7, 's7L', 's7B'), (10, 's10L', 's10B'), (8, 's8L', 's8B'), (18, 's18L', 's18G'), (3, 's3L', 's3G'),
          (12, 's12L', 's12G')]
 
@@ -34,7 +37,7 @@ for tag, (s, v, kind, sim, mock) in RUNS.items():
            for k in ('task', 'traverse', 'retract')}
     wait = sum(e['t_start'] - e['t_ready'] for e in ev if 't_ready' in e)
     pt = sorted(d.get('peak_tau', {}).items(), key=lambda x: -abs(x[1]))
-    mk = d.get('makespan')
+    mk = d.get('makespan') or DERIVED.get(tag)
     r = dict(tag=tag, seed=s, variant=v, kind=kind, complete=d.get('complete'), stop=d.get('stop'), makespan=mk, sim=sim,
              mock=mock, hw_sim=mk / sim if mk else None, hw_mock=mk / mock if mk else None,
              blocked=sum(e.get('n_blocked') or 0 for e in d['events']),

@@ -1,0 +1,11 @@
+# 1791779768.2434 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_3 --target=1.9286,-0.3176,1.1600 --approach 0 --trials 1 --tau-max 14.0 --move --monitor-csv /tmp/p1hw_mon_samples.csv --goal-joints={"t2_a1_joint_1": 0.3546578247458799, "t2_a1_joint_2": 0.6462469447741493, "t2_a1_joint_3": 1.837760042248127, "t2_a1_joint_4": -1.570789851115625, "t2_a1_joint_5": 1.1915140022915807, "t2_a1_joint_6": 0.8670814150123674} --goal-tol-deg=0.05 --reserve-dir /tmp/p1hw_par_s10_G42/res --out-json /tmp/p1hw_par_s10_G42/ev14_probe_try0.json
+1791779768.6524 [37;1m2026-10-12 13:36:08.652 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7419: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+1791779768.7041 probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 14.0 N.m
+1791779768.7041 sumber target: arm_3 (1.9286, -0.3176, 1.16), [] []
+1791779768.7041 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791779768.7041 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791779768.7041 
+1791779783.8375        arm_3: moveit EXEC-FAIL  (percobaan rencana: None)
+1791779783.8375   [ 1] HALTED       (arm_3:EXEC-FAIL) torsi puncak  0.00 N.m
+1791779783.8375   TIDAK VALID (mesin, A5, di LUAR penyebut): {'HALTED': 1}
+1791779783.8377   -> /tmp/p1hw_par_s10_G42/ev14_probe_try0.json

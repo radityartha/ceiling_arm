@@ -1,0 +1,10 @@
+# 1791779666.8947 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_4 --target=0.4286,-0.1059,1.0000 --approach 0 --trials 1 --tau-max 14.0 --move --monitor-csv /tmp/p1hw_mon_samples.csv --goal-joints={"t2_a2_joint_1": -1.613559949712892, "t2_a2_joint_2": 0.6118574108327379, "t2_a2_joint_3": 0.6093760338205143, "t2_a2_joint_4": -1.2478244899118744, "t2_a2_joint_5": -0.002422823544476649, "t2_a2_joint_6": 0.9414800736898076} --goal-tol-deg=0.05 --reserve-dir /tmp/p1hw_par_s10_G42/res --out-json /tmp/p1hw_par_s10_G42/ev08_probe_try0.json
+1791779667.4073 probe LANGKAH 5: arm_4, 1 percobaan, abort torsi 14.0 N.m
+1791779667.4073 sumber target: arm_4 (0.4286, -0.1059, 1.0), [] []
+1791779667.4073 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791779667.4073 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791779667.4073 
+1791779682.6475        arm_4: moveit EXEC-FAIL  (percobaan rencana: None)
+1791779682.6475   [ 1] HALTED       (arm_4:EXEC-FAIL) torsi puncak  0.00 N.m
+1791779682.6475   TIDAK VALID (mesin, A5, di LUAR penyebut): {'HALTED': 1}
+1791779682.6477   -> /tmp/p1hw_par_s10_G42/ev08_probe_try0.json
