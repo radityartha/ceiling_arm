@@ -109,6 +109,15 @@ def _flip_to_drawing_frame(obj_pts):
     return obj_pts
 
 
+def _to_origin_dot_frame(obj_pts, board):
+    """Flip (above), then shift so the printed ORIGIN dot -- ChArUco corner id0,
+    raw (square, square) -- is (0,0,0). Raw OpenCV points start at the grid's
+    OUTER corner, so without this every --board-xyz measured at the dot (as both
+    docstrings say) moved the solve by one square per axis (CALIB-CHARUCO B2)."""
+    obj_pts = _flip_to_drawing_frame(obj_pts)
+    return obj_pts - _flip_to_drawing_frame(board.getChessboardCorners()[:1])
+
+
 def _solve_pnp_charuco(gray, K, dist, board):
     detector = aruco.CharucoDetector(board)
     charuco_corners, charuco_ids, marker_corners, marker_ids = detector.detectBoard(gray)
@@ -118,7 +127,7 @@ def _solve_pnp_charuco(gray, K, dist, board):
         return None, (n_corners, n_markers, marker_corners, marker_ids)
 
     obj_pts, img_pts = board.matchImagePoints(charuco_corners, charuco_ids)
-    obj_pts = _flip_to_drawing_frame(obj_pts)
+    obj_pts = _to_origin_dot_frame(obj_pts, board)
     ok, rvec, tvec = cv2.solvePnP(obj_pts, img_pts, K, dist)
     if not ok:
         return None, None
@@ -160,7 +169,7 @@ def _solve_pnp_plain_chessboard(gray, K, dist, board, board_xyz, board_rpy, came
     corners = cv2.cornerSubPix(gray, corners, (5, 5), (-1, -1), criteria)
     img_pts = corners.reshape(-1, 2)
 
-    obj_raw = _flip_to_drawing_frame(board.getChessboardCorners())
+    obj_raw = _to_origin_dot_frame(board.getChessboardCorners(), board)
     candidates = []
     for obj_try in (obj_raw, obj_raw[::-1]):  # the 2nd is the 180 deg relabeling
         ok, rvec, tvec = cv2.solvePnP(obj_try, img_pts, K, dist)
@@ -243,7 +252,8 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--board-xyz', nargs=3, type=float, required=True,
                     metavar=('X', 'Y', 'Z'),
-                    help='measured world-frame position of the board origin corner (m)')
+                    help='measured world-frame position of the printed ORIGIN dot '
+                         '(ChArUco corner id0, one square in from the grid edge) (m)')
     ap.add_argument('--board-rpy', nargs=3, type=float, default=(0.0, 0.0, 0.0),
                     metavar=('ROLL', 'PITCH', 'YAW'),
                     help='measured world-frame orientation of the board (rad, '
