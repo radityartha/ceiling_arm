@@ -1,0 +1,10 @@
+# 1791783558.6945 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 2 --seed 8 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g42/g42f_candidates.json --variant G42 0.750 -20.000 --move
+1791783560.0931 S12: maks |q - REST| arm_1 0.037, arm_2 0.019, arm_3 0.042, arm_4 0.024 deg (batas 0.5 untuk gantry 2)
+1791783560.0932 S23": t2_rotation_joint +34.760 deg, t1_rotation_joint -24.900 deg; target -20.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
+1791783584.1269 S28: sapuan g2 (0.0993 m, +34.760 deg) -> (0.7500, -20.000), sisanya TERUKUR: CLEAR, min 267.4 mm ('t1_platform_link_0', 't2_mount_plate_right_0') di (0.681, +34.76); lengan 290.2, SS 267.4, n 3752
+1791783589.9713 G33: sapuan g2 vs peta lingkungan: CLEAR, min 58.0 mm (t2_a1_left_finger_prox_link_0) di titik 2519
+1791783589.9714 g2: lin 0.099327 -> 0.750000 m (+650.7 mm), rot +34.760 -> -20.000 deg (-54.760); T_cmd 36.15 s (lin 36.15, rot 9.56)
+1791783589.9730 setpoint pertama 0.31 mm / 0.026 deg (arm_tol 5 mm / 1.0 deg)
+1791783626.2285 JTC error_code: 0
+1791783627.3527 akhir: g2 = (0.749930 m, -19.9900 deg), galat -0.07 mm / +0.0100 deg; t_traverse 35.25 s (lin 35.25, rot 35.193; T_cmd 36.15); lengan (keempat) bergeser maks 0.0697 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 1.947 t2_a2_joint_2
+1791783627.3528 {"gantry": 2, "goal": [0.75, -20.0], "start": [0.099327, 34.76], "end": [0.74993, -19.99], "err_mm": -0.07, "err_deg": 0.01, "T_cmd": 36.149, "T_cmd_lin": 36.149, "T_cmd_rot": 9.557, "t_send": 1791783590.027575, "t_jtc_done": 1791783626.2284594, "t_first_move": 1791783591.1246424, "t_stop": 1791783626.3750927, "t_traverse": 35.25, "t_lin": 35.25, "t_rot": 35.193, "arm_drift_deg": 0.0697, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 1.947, "arm_tau_joint": "t2_a2_joint_2", "sweep_min_mm": 267.4, "sweep_arm_mm": 290.2, "sweep_pair": ["t1_platform_link_0", "t2_mount_plate_right_0"], "jtc_error_code": "0", "n_log": 4303}

@@ -92,4 +92,4 @@ persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `s
 
 ## Langkah berikut
 
-G57 §4: s8 baru selesai 274.47 s; berikut run s8 lama (G42f G42, prep sudah), izin operator.
+G57 §4: pasangan s8 selesai (Δ 195.5 s); berikut pasangan s18 (prep s18 lama G43 R180 + s18 G60 → run, izin) atau HENTI B.

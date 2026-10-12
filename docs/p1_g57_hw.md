@@ -185,6 +185,7 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 | # | run | mulai | makespan HW | sim | mock | 6/6 | AUTO-STOP | blok | τ puncak | pulang |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 7 | s8 baru G55 R90sel | 14:26:28 | **274.47** | 264.4 | 272.0 | ✓ | 0 | 0 | 12.57 `t2_a2_j2` | g1 + g2 home, K0 LULUS |
+| 8 | s8 lama G42f G42 | 14:36:28 | **469.93** | 409.4 | 443.9 | ✓ | 0 | 0 | 11.15 `t2_a1_j2` | 6 kaki CLEAR, K0 LULUS |
 
 - Prep s8 (14:12–14:26): baru 3/3 + DRY rc 0; lama G42f 3/3 + DRY rc 0.
 - s8 baru τ puncak 12.57 > 12 (< 14) — dicatat, bukan gagal (keputusan operator 12:33).
@@ -192,3 +193,5 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
   skrip berhenti sebelum K0 (g2 sudah 0.87 mm). K0 manual LULUS. `p1hw_home.sh` kini melewati kaki yang sama dengan kaki
   sebelumnya.
 
+- s8 pasangan: Δ HW **+195.46 s (−41.6 %)**, mock +171.86 (HW/mock 1.14), sim +144.98 (HW/sim 1.35); Δtraverse +117.1 s
+  (lama 6 traverse vs baru 2), Δbersamaan +78.6 s.
