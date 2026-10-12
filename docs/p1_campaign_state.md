@@ -113,4 +113,4 @@ tidak dikoreksi rotasi gantry terukur (GOAL-MISMATCH s12); torsi transit > predi
 
 ## Langkah berikut
 
-Operator memilih (A) fase koreksi zona-saja terkunci ulang (tanda masih di meja, uji-tahan baru, arg hanya di harness demo) lalu DEMO-HW, atau (B) kalibrasi 6-DOF rgbd2 dengan titik 3D — lihat `docs/p1_rgbd2_zone.md` B7.
+Sesi CAM-6DOF: tempel `docs/p1_cam6dof_prompt.md` (kalibrasi 6-DOF rgbd2 dengan botol di tanda × 3 tinggi + lengan tersaring, DAN cek rgbd di zona jauhnya — jawab "apakah hanya rgbd2 yang salah?"; ~3–4 jam); alternatif (A) koreksi zona-saja di `docs/p1_rgbd2_zone.md` B7.
