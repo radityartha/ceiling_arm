@@ -1,0 +1,24 @@
+[INFO] [1791802907.042877364] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=8.04->15.74/14, 3=2.45->9.05/10, 4=0.42->2.40/7, 5=0.07->2.05/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 112 %)
+[ERROR] [1791802907.043372995] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 15.74 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1791802907.043797939] [reach_dwell_probe]: percobaan rencana 2/8: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1791802908.182627317] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.01->6.61/10, 2=4.42->12.12/14, 3=2.55->9.15/10, 4=0.46->2.44/7, 5=0.11->2.09/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 92 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1791802918.736447463] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 680.6 mm di titik 0 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791802920.344879700] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 76.8 mm di titik 57 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791802921.380165146] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.499):
+[INFO] [1791802923.777326253] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 533.5 mm di titik 37/60 (t1_a1_left_finger_prox_link_0 <-> t1_a2_lower_wrist_link_0)
+[INFO] [1791802923.777828359] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 862.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791802923.778178534] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 115.3 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_1 (1.94, 0.68, 1.22), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+  [ 1] DRY arm_1: p_cmd = (+1.940, +0.680, +1.220)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g20_step5.json

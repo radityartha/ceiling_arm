@@ -1,0 +1,29 @@
+[INFO] [1791803035.682831612] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.25->6.85/10, 2=8.19->15.89/14, 3=2.44->9.04/10, 4=0.41->2.39/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 114 %)
+[ERROR] [1791803035.683335129] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 15.89 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1791803035.683700360] [reach_dwell_probe]: percobaan rencana 2/8: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1791803036.812369255] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.26->6.86/10, 2=8.13->15.83/14, 3=2.44->9.04/10, 4=0.42->2.40/7, 5=0.08->2.06/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 113 %)
+[ERROR] [1791803036.812900472] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 15.83 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1791803036.813341476] [reach_dwell_probe]: percobaan rencana 3/8: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1791803037.922558613] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.26->6.86/10, 2=8.33->16.03/14, 3=2.44->9.04/10, 4=0.41->2.39/7, 5=0.07->2.05/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 115 %)
+[ERROR] [1791803037.923062447] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 16.03 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1791803037.923418655] [reach_dwell_probe]: percobaan rencana 4/8: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1791803038.990961898] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.02->6.62/10, 2=3.67->11.37/14, 3=2.45->9.05/10, 4=0.41->2.39/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 90 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1791803049.123577284] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 680.6 mm di titik 8 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791803050.390785704] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 190.0 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791803051.430361900] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.499):
+[INFO] [1791803052.942755778] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 528.3 mm di titik 30/60 (t1_a1_lower_wrist_link_0 <-> t1_a2_lower_wrist_link_0)
+[INFO] [1791803052.943217004] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 862.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791803052.943551916] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 115.3 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_1 (1.94, 0.68, 1.22), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+       arm_1: moveit MOVED  (percobaan rencana: ['TORQUE-UNSAFE', 'TORQUE-UNSAFE', 'TORQUE-UNSAFE', 'PLANNED'])
+  [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_1']) torsi puncak 10.97 N.m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /tmp/g20_step5.json

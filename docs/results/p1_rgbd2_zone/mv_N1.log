@@ -1,0 +1,20 @@
+[INFO] [1791802938.260464446] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=0.99->8.69/14, 3=2.45->9.05/10, 4=0.41->2.39/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 90 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1791802948.099540594] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 680.6 mm di titik 0 (t1_a1_forearm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+[INFO] [1791802949.393735398] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 190.0 mm di titik 0 (t1_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1791802950.430243914] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.499):
+[INFO] [1791802951.850548522] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 593.2 mm di titik 31/60 (t1_a1_lower_wrist_link_0 <-> t1_a2_upper_wrist_link_0)
+[INFO] [1791802951.851038971] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 862.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791802951.851358770] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 115.3 mm di titik 59/60 (t1_a1_right_finger_dist_link_0)
+probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_1 (1.94, 0.5, 1.22), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+       arm_1: moveit MOVED  (percobaan rencana: ['PLANNED'])
+  [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_1']) torsi puncak  5.34 N.m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /tmp/g20_step5.json
