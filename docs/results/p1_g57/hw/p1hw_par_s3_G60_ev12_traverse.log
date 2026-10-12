@@ -1,0 +1,10 @@
+# 1791787500.3768 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 2 --seed 3 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g60/g60_selected.json --variant G60 1.200 -15.000 --move
+1791787501.7529 S12: maks |q - REST| arm_1 0.039, arm_2 0.017, arm_3 0.037, arm_4 0.031 deg (batas 0.5 untuk gantry 2)
+1791787501.7530 S23": t2_rotation_joint -19.970 deg, t1_rotation_joint -29.990 deg; target -15.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
+1791787508.6138 S28: sapuan g2 (0.6491 m, -19.970 deg) -> (1.2000, -15.000), sisanya TERUKUR: CLEAR, min 380.0 mm ('t1_platform_link_0', 't2_platform_link_0') di (1.131, -19.97); lengan 512.7, SS 380.0, n 342
+1791787509.5671 G33: sapuan g2 vs peta lingkungan: CLEAR, min 79.5 mm (t1_a2_left_finger_dist_link_0) di titik 0
+1791787509.5671 g2: lin 0.649064 -> 1.200000 m (+550.9 mm), rot -19.970 -> -15.000 deg (+4.970); T_cmd 30.61 s (lin 30.61, rot 3.00)
+1791787509.5682 setpoint pertama 0.37 mm / 0.003 deg (arm_tol 5 mm / 1.0 deg)
+1791787540.2734 JTC error_code: 0
+1791787541.4278 akhir: g2 = (1.199910 m, -15.0000 deg), galat -0.09 mm / -0.0000 deg; t_traverse 29.69 s (lin 29.69, rot 27.996; T_cmd 30.61); lengan (keempat) bergeser maks 0.0462 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 2.382 t2_a2_joint_2
+1791787541.4279 {"gantry": 2, "goal": [1.2, -15.0], "start": [0.649064, -19.97], "end": [1.19991, -15.0], "err_mm": -0.09, "err_deg": -0.0, "T_cmd": 30.608, "T_cmd_lin": 30.608, "T_cmd_rot": 3.0, "t_send": 1791787509.622764, "t_jtc_done": 1791787540.2733076, "t_first_move": 1791787510.685617, "t_stop": 1791787540.3751845, "t_traverse": 29.69, "t_lin": 29.69, "t_rot": 27.996, "arm_drift_deg": 0.0462, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 2.382, "arm_tau_joint": "t2_a2_joint_2", "sweep_min_mm": 380.0, "sweep_arm_mm": 512.7, "sweep_pair": ["t1_platform_link_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 3693}
