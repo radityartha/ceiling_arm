@@ -1,0 +1,10 @@
+# 1791790208.4642 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 1 --seed 3 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g43/g43_candidates.json --variant R180 1.150 -30.000 --move
+1791790209.8530 S12: maks |q - REST| arm_1 0.042, arm_2 0.020, arm_3 0.043, arm_4 0.024 deg (batas 0.5 untuk gantry 1)
+1791790209.8532 S23": t1_rotation_joint -0.060 deg, t2_rotation_joint +34.960 deg; target -30.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
+1791790220.8804 S28: sapuan g1 (1.4998 m, -0.060 deg) -> (1.1500, -30.000), sisanya TERUKUR: CLEAR, min 474.4 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_gripper_base_link_0') di (1.150, -0.06); lengan 474.4, SS 477.5, n 1116
+1791790222.5904 G33: sapuan g1 vs peta lingkungan: CLEAR, min 60.1 mm (t1_a2_left_finger_dist_link_0) di titik 30
+1791790222.5904 g1: lin 1.499775 -> 1.150000 m (-349.8 mm), rot -0.060 -> -30.000 deg (-29.940); T_cmd 19.43 s (lin 19.43, rot 5.23)
+1791790222.5911 setpoint pertama 0.60 mm / 0.051 deg (arm_tol 5 mm / 1.0 deg)
+1791790242.0983 JTC error_code: 0
+1791790243.1185 akhir: g1 = (1.150922 m, -29.9200 deg), galat +0.92 mm / +0.0800 deg; t_traverse 18.258 s (lin 18.258, rot 18.17; T_cmd 19.43); lengan (keempat) bergeser maks 0.0531 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 1.901 t2_a2_joint_2
+1791790243.1185 {"gantry": 1, "goal": [1.15, -30.0], "start": [1.499775, -0.06], "end": [1.150922, -29.92], "err_mm": 0.922, "err_deg": 0.08, "T_cmd": 19.432, "T_cmd_lin": 19.432, "T_cmd_rot": 5.226, "t_send": 1791790222.6465814, "t_jtc_done": 1791790242.0982406, "t_first_move": 1791790223.6175938, "t_stop": 1791790241.8753939, "t_traverse": 18.258, "t_lin": 18.258, "t_rot": 18.17, "arm_drift_deg": 0.0531, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 1.901, "arm_tau_joint": "t2_a2_joint_2", "sweep_min_mm": 474.4, "sweep_arm_mm": 474.4, "sweep_pair": ["t1_a2_right_finger_prox_link_0", "t2_a1_gripper_base_link_0"], "jtc_error_code": "0", "n_log": 2451}

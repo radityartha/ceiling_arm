@@ -189,6 +189,7 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 | 9 | s18 lama G43 R180 | 15:06:05 | **444.24** | 372.2 | 431.1 | ✓ | 0 | 0 | 7.33 `t1_a1_j2` | 5 kaki CLEAR (1 ganda dilewati), K0 LULUS |
 | 10 | s18 G60 | 15:20:09 | **261.17** | 232.2 | 257.5 | ✓ | 0 | 0 | 12.41 `t2_a2_j2` | 2 kaki CLEAR, K0 LULUS |
 | 11 | s3 G60 | 15:41:25 | **323.95** | 295.8 | 305.5 | ✓ | 0 | 0 | **13.22** `t2_a2_j2` (94 %) | 4 kaki CLEAR, K0 LULUS |
+| 12 | s3 lama G43 R180 | 16:27:47 | **466.42** | 426.1 | 446.1 | ✓ | 0 | 0 | 9.48 `t1_a1_j2` | 5 kaki CLEAR (1 ganda dilewati), K0 LULUS |
 
 - Prep s8 (14:12–14:26): baru 3/3 + DRY rc 0; lama G42f 3/3 + DRY rc 0.
 - s8 baru τ puncak 12.57 > 12 (< 14) — dicatat, bukan gagal (keputusan operator 12:33).
@@ -202,4 +203,5 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
   (HW/mock 1.05), sim +139.95 (HW/sim 1.31); Δtraverse +75.7 s. Stack 4 sesudah 101 mnt: RSS move_group 1.05 GB, perekam hidup.
 - Prep s3 (15:28–15:41): G60 3/3 + DRY rc 0; lama G43 R180 3/3 + DRY rc 0. s3 G60 τ puncak **13.22 N·m** (ev 10 arm_4 j2, 94 %
   rating, tertinggi hari ini; prediksi probe RNEA+offset 12.91/14 → galat +0.31) — < 14, dilaporkan ke operator.
+- s3 pasangan: Δ HW **+142.47 s (−30.5 %)**, mock +140.59 (HW/mock 1.01), sim +130.28 (HW/sim 1.09); Δtraverse +106.8 s.
 

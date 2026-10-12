@@ -1,0 +1,10 @@
+# 1791790099.1671 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 2 --seed 3 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g43/g43_candidates.json --variant R180 0.100 35.000 --move
+1791790100.5632 S12: maks |q - REST| arm_1 44.857, arm_2 0.020, arm_3 0.031, arm_4 0.022 deg (batas 0.5 untuk gantry 2)
+1791790100.5632 S23": t2_rotation_joint -0.010 deg, t1_rotation_joint -0.060 deg; target +35.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
+1791790107.9169 S28: sapuan g2 (0.0006 m, -0.010 deg) -> (0.1000, +35.000), sisanya TERUKUR: CLEAR, min 722.4 mm ('t1_mount_plate_left_0', 't2_mount_plate_right_0') di (0.100, +35.00); lengan 737.6, SS 722.4, n 407
+1791790109.4253 G33: sapuan g2 vs peta lingkungan: CLEAR, min 150.7 mm (t1_a1_left_finger_dist_link_0) di titik 0
+1791790109.4253 g2: lin 0.000639 -> 0.100000 m (+99.4 mm), rot -0.010 -> +35.000 deg (+35.010); T_cmd 6.11 s (lin 5.52, rot 6.11)
+1791790109.4256 setpoint pertama 1.69 mm / 0.596 deg (arm_tol 5 mm / 1.0 deg)
+1791790115.6329 JTC error_code: 0
+1791790117.3816 akhir: g2 = (0.099882 m, +34.9600 deg), galat -0.12 mm / -0.0400 deg; t_traverse 6.3 s (lin 5.899, rot 6.3; T_cmd 6.11); lengan (keempat) bergeser maks 0.1483 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 2.488 t1_a1_joint_3
+1791790117.3816 {"gantry": 2, "goal": [0.1, 35.0], "start": [0.000639, -0.01], "end": [0.099882, 34.96], "err_mm": -0.118, "err_deg": -0.04, "T_cmd": 6.11, "T_cmd_lin": 5.52, "T_cmd_rot": 6.11, "t_send": 1791790109.481393, "t_jtc_done": 1791790115.632766, "t_first_move": 1791790110.075243, "t_stop": 1791790116.3749495, "t_traverse": 6.3, "t_lin": 5.899, "t_rot": 6.3, "arm_drift_deg": 0.1483, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 2.488, "arm_tau_joint": "t1_a1_joint_3", "sweep_min_mm": 722.4, "sweep_arm_mm": 737.6, "sweep_pair": ["t1_mount_plate_left_0", "t2_mount_plate_right_0"], "jtc_error_code": "0", "n_log": 1069}
