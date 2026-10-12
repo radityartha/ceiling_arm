@@ -186,6 +186,7 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 |---|---|---|---|---|---|---|---|---|---|---|
 | 7 | s8 baru G55 R90sel | 14:26:28 | **274.47** | 264.4 | 272.0 | ✓ | 0 | 0 | 12.57 `t2_a2_j2` | g1 + g2 home, K0 LULUS |
 | 8 | s8 lama G42f G42 | 14:36:28 | **469.93** | 409.4 | 443.9 | ✓ | 0 | 0 | 11.15 `t2_a1_j2` | 6 kaki CLEAR, K0 LULUS |
+| 9 | s18 lama G43 R180 | 15:06:05 | **444.24** | 372.2 | 431.1 | ✓ | 0 | 0 | 7.33 `t1_a1_j2` | 5 kaki CLEAR (1 ganda dilewati), K0 LULUS |
 
 - Prep s8 (14:12–14:26): baru 3/3 + DRY rc 0; lama G42f 3/3 + DRY rc 0.
 - s8 baru τ puncak 12.57 > 12 (< 14) — dicatat, bukan gagal (keputusan operator 12:33).
