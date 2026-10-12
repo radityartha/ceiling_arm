@@ -63,6 +63,9 @@ def main():
     ap.add_argument('--archive', default=HERE)
     ap.add_argument('--prefix', default='g54_')
     ap.add_argument('--max-blocked', type=int, default=30, help='RESERVE-BLOCKED retries per event')
+    ap.add_argument('--tau-max', type=float, default=12.0,
+                    help="probe --tau-max = post-hoc torque WATCH (verdict TORQUE-ABORT), not the plan screen (j2 already "
+                         "screened vs rating 14). G57 operator 2026-10-12: 14.0 on HW (transit > 12 is not a failure)")
     ap.add_argument('--inject-stop-on-motion', type=int, default=None, metavar='G',
                     help='NEGATIVE CONTROL (HW-safe, G56): AUTO-STOP the first time gantry G is in a RETRACT whose arms have '
                          'moved > 2 deg from the event start and are still > 10 deg from REST (mid-motion, timing-free)')
@@ -208,7 +211,7 @@ def main():
             for e in E[g]:
                 if e['kind'] == 'task':
                     say(f'  perintah g{g} event {e["idx"]}: '
-                        f'{" ".join(R32.task_cmd(e, a.mon, goal_tol=a.goal_tol_deg))} --reserve-dir {RES}')
+                        f'{" ".join(R32.task_cmd(e, a.mon, goal_tol=a.goal_tol_deg, tau_max=a.tau_max))} --reserve-dir {RES}')
         say('DRY: tidak ada yang dikirim.')
         W.n.destroy_node()
         return 0
@@ -360,7 +363,7 @@ def main():
                         (['--rot-max', f'{a.rot_max:g}'] if a.rot_max is not None else [])
                 else:
                     pj = f'{OUT}/ev{i:02d}_probe_try{n_blk}.json'
-                    cmd = R32.task_cmd(e, a.mon, goal_tol=a.goal_tol_deg) + ['--reserve-dir', RES, '--out-json', pj]
+                    cmd = R32.task_cmd(e, a.mon, goal_tol=a.goal_tol_deg, tau_max=a.tau_max) + ['--reserve-dir', RES, '--out-json', pj]
                 say(f'  [g{g} {i}] {e["kind"]} {e.get("arm", "")} {e.get("to", e.get("xyz", ""))} '
                     f'(tunggu {time.time() - t_ready:.1f} s, terhalang {n_blk})')
                 rc, lines, ts, te = run_tool(g, e['kind'], cmd, logf)

@@ -118,7 +118,7 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 | s7 lama G43 R180 | 11:41:15 | **392.21** | 396.9 | 383.6 | ✓ | 0 | 0 | 9.67 `t2_a1_j2` | 5 kaki CLEAR, K0 LULUS |
 | 2 | s7 baru G55 R90sel | 11:57:01 | **283.34** | 283.6 | 276.4 | ✓ | 0 | 0 | 11.66 `t2_a1_j2` | 4 kaki CLEAR, K0 LULUS |
-| 3 | s10 baru G55 R90sel | 12:19:28 | **— (5/6)** | 278.5 | 308.9 | ✗ ev 12 TORQUE-ABORT | 0 | 0 | 12.44 `t2_a1_j2` | lengan REST (retract ev 13 rc 0) |
+| 3 | s10 baru G55 R90sel | 12:19:28 | 5/6 resmi; **317.06** turunan (aturan operator) | 278.5 | 308.9 | 5/6 + ev 12 sampai (verdict TORQUE-ABORT) | 0 | 0 | 12.44 `t2_a1_j2` | lengan REST (retract ev 13 rc 0) |
 
 - s10 plan-only nyata k = 3 (12:06–12:19): **G55 R90sel 3/3 LOLOS**, **G42f G42 3/3 LOLOS**; DRY run_g54 keduanya rc 0, K0 LULUS,
   traverse di luar []. Traverse: baru g1 → (1.40, −30°), g2 → (0.85, −20°) → (1.20, −10°); lama g1 → (1.25, −30°), g2 → (0.70, −20°)
@@ -134,4 +134,13 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
   13.20/14 = 94 % rating — penyaring menerima karena < rating, padahal batas abort probe 12 → **celah: jadwal G55 tidak memakai
   batas abort 12 untuk torsi TRANSIT** (G27: puncak torsi di tengah jalan, bukan di ujung). Mock tidak mengukur torsi nyata.
   Tidak melanggar aturan keras (> 14). → D533 ✗ (run ini).
+- **Keputusan operator 12:33:** "batas 12 N·m kita terlalu ketat; arm masih bekerja → jangan anggap gagal bila hanya lewat 12".
+  Kode: `--tau-max` probe hanya MENGAWASI (`collect()`: verdict sesudah gerak, tidak memotong gerak); penyaring rencana sudah
+  memakai rating (j2 14, j1/j3 10, pergelangan 7) dan TIDAK berubah. → `run_g54 --tau-max` baru (default 12.0 = argv lama bit demi
+  bit; `run_g32.task_cmd(tau_max=12.0)`), HW mulai run berikut **`--tau-max 14`**. Batas keras tetap: penjaga runner AUTO-STOP
+  bila torsi terukur > 14 (retract > 13.5), aturan prompt > 14 → BERHENTI.
+- **s10 baru di bawah aturan operator:** monitor (`/tmp/p1hw_mon_samples.csv`, pos < 5 mm, ori < 5°) — arm_3 di dalam toleransi
+  dari 1791775495.43 dan terus bertahan; jendela 2.0 s penuh 1791775497.43 → t_success ev 12 = **317.06 s** dari t0 = makespan
+  turunan (tugas lain terakhir 281.37). Turunan dari monitor yang sama dengan kriteria probe; ditandai "turunan" di tabel.
+- Pulang s10 baru (izin 12:33) rc 0: g1 (1.40, −30) → (1.50, 0); g2 (1.20, −10) → (0.85, −20) → (0, 0), +0.15 mm; **K0 LULUS**.
 

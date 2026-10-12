@@ -99,14 +99,14 @@ class Watch:
             return dict(self.pos), dict(self.t_pos), dict(self.peak), list(self.status)
 
 
-def task_cmd(e, mon, move=True, start=None, goal_tol=None):
+def task_cmd(e, mon, move=True, start=None, goal_tol=None, tau_max=12.0):
     """The probe argv for task event e. G42 (docs/p1_g42_joint_runner.md A1): e['goal'] -> --goal-joints APPENDED
     (no goal: the argv is the old one bit for bit). move=False = the DRY rehearsal (g31_screen --task-cli): no --move,
     --plan-check from the PLACED state `start`."""
     x, y, z = e['xyz']
     cmd = ['timeout', '600', 'python3', '-u', 'reach_dwell_probe.py', '--arms', e['arm'],
            f'--target={x:.4f},{y:.4f},{z:.4f}', '--approach', '0', '--trials', '1',
-           '--tau-max', '12.0']
+           '--tau-max', f'{tau_max:.1f}']
     cmd += ['--move', '--monitor-csv', mon] if move else ['--plan-check', '--start-joints=' + json.dumps(start)]
     if e.get('goal'):
         cmd.append('--goal-joints=' + json.dumps(e['goal']))

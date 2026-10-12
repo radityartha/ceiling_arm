@@ -34,6 +34,7 @@ Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 - 2026-10-10 16:10 (operator): (1) batas mekanis rotasi tiap gantry **±180° bisa** (kabel/stopper/driver tidak membatasi);
   (2) operator **di lokasi besok 2026-10-11** → cek origin g2 dengan kamera (Fase 6a) besok; (3) arah sweep rotasi **aman
   semua** (+ dan −). Sweep HW tetap bertahap dan TIAP gerak tetap ditanya (aturan Fase 6).
+- 2026-10-12 12:33 (operator): batas abort torsi probe 12 terlalu ketat — lewat 12 N·m bukan gagal; HW `run_g54 --tau-max 14` (batas keras tetap > 14).
 - 2026-10-12 (operator): urutan hari HW = runner HW (G57 → G58/G60) dulu, DEMO paling akhir; cek kamera TEPAT sebelum demo (bukan di §0).
 - 2026-10-11 (operator, Gerbang 7): risiko runner paralel P1–P6 DITERIMA. HW paralel = sesi lain, tiap gerak ditanya, mulai uji
   stop-semua (runbook paralel §3).
@@ -91,4 +92,4 @@ persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `s
 
 ## Langkah berikut
 
-G57 §3: s10 baru 5/6 (TORQUE-ABORT transit 12.44 > 12, lengan REST); tunggu keputusan operator → pulang s10 baru, lalu s10 lama / s0 baru.
+G57 §3: run 4/5 s10 lama (G42f G42) dengan `--tau-max 14` (keputusan operator), izin operator; plan-only + DRY sudah.
