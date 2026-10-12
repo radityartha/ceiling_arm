@@ -4,9 +4,8 @@
 
 ## Fase aktif
 
-**G58–G60 OFFLINE** (prompt `docs/p1_g58_offline_prompt.md`, sesi 2026-10-12). G58 LULUS 08:04, G59 LULUS 08:31 (mock mati bersih).
-G60 aktif: §A dikunci (`docs/p1_g60_excl_sched.md`, sha256 `7af94f7b…`), job `docs/results/p1_g60/g60_job.sh` (Pool 15) mulai 08:31
-→ `p1_g60/g60_job.log` (dapat-dilanjut: tempel ulang job bila putus).
+**G58–G60 OFFLINE SELESAI** (2026-10-12 10:30, prompt `docs/p1_g58_offline_prompt.md`). Berikut = sesi HW dengan
+`docs/p1_g57_hw_prompt.md` + rencana `docs/p1_hw_day_2026-10-12.md` (diperbarui). Mock 77 MATI bersih.
 Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 
 ## Gerbang
@@ -27,6 +26,7 @@ Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 | G56 | persiapan hari HW: injeksi gerak, fault, sweep v3, analisis P2 | 2/3 (D482 salah rumus) | `docs/p1_g56_hw_day.md` B3 |
 | G58 | blok seed lama vs baru: smoke paralel mock 11/11 + tabel siap-HW | **LULUS** (5/5) | `docs/p1_g58_seed_block.md` B1–B3 |
 | G59 | DEMO-OFF ulang (kode sekarang) + prompt DEMO-HW + cek kamera | **LULUS** (4/6; 2 cacat diperbaiki: regex runner, `g` ganda) | `docs/p1_g59_demo.md` B1–B4 |
+| G60 | penjadwal sadar traverse eksklusif (LB terbukti + g54_sim penuh) | **LULUS** (4/6) | `docs/p1_g60_excl_sched.md` B1–B4 |
 
 ## Keputusan operator
 
@@ -72,7 +72,22 @@ D463 (s0 mock/sim 1.201).
 **Risiko sisa (diterima):** P1–P6 runner paralel; s11 R90 butuh kaki sweep g2 → −85; HW paralel belum pernah; penjadwal belum
 memakai model P1″ + traverse eksklusif (s10 R180 kalah di runner paralel).
 
+## Laporan G58–G60 (2026-10-12, offline + mock, NOL gerak HW)
+
+| Fase | Dokumen | Tally | Inti |
+|---|---|---|---|
+| G58 | `p1_g58_seed_block.md` | 5/5 | 11 smoke paralel mock 6/6; lama − baru s3 −72, s8 −172, s18 −78, s7 −107, s10 −74 s; s8 lama = G42f (G43 R180 gagal (iv′)) |
+| G59 | `p1_g59_demo.md` | 4/6 | DEMO-OFF ulang: 2 cacat diperbaiki (regex verdict runner; `g` ganda → gerak kedua tak diminta, kini dibuang `target_cli`); r1–r3 lulus; YOLOE luring OK dari `ros2_ws/` |
+| G60 | `p1_g60_excl_sched.md` | 4/6 | LB = ΣTr + max(W) terbukti; R90 = R35 di 8/8 (rotasi > 35° terbukti tidak menang di 5/8); jadwal baru s3 −11.9, s12 −13.6, s18 −22.2 % (sim); s12 G60b terhalang reservasi → G60c nilai penuh |
+
+Dugaan G58–G60: 13/18. Gagal: D510 (regex runner rusak oleh keluaran G47), D512 (J7 stokastik MOVED), D521 (celah ≤ 3 % hanya 5/8),
+D524 (fastsim buta reservasi, s12).
+
+**Risiko sisa:** runner paralel belum pernah di HW (P1–P7 diterima); cancel bridge saat traverse tidak berhenti seketika (G56 A0);
+celah G60 s3 6.65 % / s8 5.07 % (jadwal mungkin belum optimum); LB G60 tidak memodelkan reservasi lengan → wajib g54_sim penuh;
+persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `src/reachability_gng/` masih terpotong; j3 demo P1
+90–92 % rating terprediksi.
+
 ## Langkah berikut
 
-Operator 2026-10-12: offline dulu, baru HW → sesi baru dengan prompt `docs/p1_g58_offline_prompt.md` (G58 blok seed, G59 DEMO, G60
-penjadwal sadar traverse eksklusif); sesudahnya sesi HW dengan `docs/p1_g57_hw_prompt.md` (diperbarui di akhir G60).
+Sesi HW: tempel `docs/p1_g57_hw_prompt.md` (urutan + waktu + titik henti = `docs/p1_hw_day_2026-10-12.md`, mulai §0).

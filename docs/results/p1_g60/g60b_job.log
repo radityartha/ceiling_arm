@@ -1,0 +1,48 @@
+== R90 mulai 08:53:34
+seed 7 R90  [08:53:40]
+    iterasi 1: terverifikasi 283.617 (LB*ver 273.936), LB*rel 273.936, kunci < target 2, tuple belum 1, stop belum 0  [08:53:40]
+    iterasi 2: terverifikasi 283.617 (LB*ver 273.936), LB*rel 273.936, kunci < target 2, tuple belum 0, stop belum 1  [08:54:01]
+    iterasi 3: terverifikasi 283.617 (LB*ver 273.936), LB*rel 273.936, kunci < target 2, tuple belum 1, stop belum 0  [08:54:08]
+    iterasi 4: terverifikasi 283.617 (LB*ver 273.936), LB*rel 273.936, kunci < target 2, tuple belum 0, stop belum 1  [08:54:34]
+    iterasi 5: terverifikasi 283.617 (LB*ver 273.936), LB*rel 273.936, kunci < target 2, tuple belum 0, stop belum 0  [08:54:41]
+  seed 7: makespan eksklusif 283.62 (json 283.62), LB* 273.94, celah 3.53 %, |rot| maks 30; LB_lebar(>35) 283.81, terbaik lebar 283.81; konflik None, iterasi 5, 61 s  [08:54:41]
+seed 10 R90  [08:54:41]
+    iterasi 1: terverifikasi 278.500 (LB*ver 278.500), LB*rel 275.036, kunci < target 0, tuple belum 0, stop belum 0  [08:54:41]
+  seed 10: makespan eksklusif 278.50 (json 278.50), LB* 275.04, celah 1.26 %, |rot| maks 30; LB_lebar(>35) 275.04, terbaik lebar 281.07; konflik None, iterasi 1, 0 s  [08:54:41]
+seed 0 R90  [08:54:41]
+    iterasi 1: terverifikasi 148.162 (LB*ver 148.162), LB*rel 148.162, kunci < target 0, tuple belum 0, stop belum 0  [08:54:42]
+  seed 0: makespan eksklusif 148.16 (json 148.16), LB* 148.16, celah 0.00 %, |rot| maks 30; LB_lebar(>35) 150.6, terbaik lebar 150.6; konflik None, iterasi 1, 1 s  [08:54:42]
+seed 3 R90  [08:54:42]
+    iterasi 1: terverifikasi 295.804 (LB*ver 277.347), LB*rel 277.347, kunci < target 3, tuple belum 4, stop belum 0  [08:54:52]
+    iterasi 2: terverifikasi 295.804 (LB*ver 277.347), LB*rel 277.347, kunci < target 2, tuple belum 0, stop belum 0  [08:55:51]
+  seed 3: makespan eksklusif 295.80 (json 295.80), LB* 277.35, celah 6.65 %, |rot| maks 30; LB_lebar(>35) 283.3, terbaik lebar 300.29; konflik None, iterasi 2, 68 s  [08:55:51]
+seed 8 R90  [08:55:51]
+    iterasi 1: terverifikasi 264.440 (LB*ver 251.691), LB*rel 251.691, kunci < target 1, tuple belum 0, stop belum 0  [08:55:51]
+  seed 8: makespan eksklusif 264.44 (json 264.44), LB* 251.69, celah 5.07 %, |rot| maks 10; LB_lebar(>35) 273.81, terbaik lebar 313.06; konflik None, iterasi 1, 0 s  [08:55:51]
+seed 18 R90  [08:55:51]
+    iterasi 1: terverifikasi 232.205 (LB*ver 232.205), LB*rel 232.205, kunci < target 0, tuple belum 0, stop belum 0  [08:56:02]
+  seed 18: makespan eksklusif 232.21 (json 232.21), LB* 232.21, celah -0.00 %, |rot| maks 10; LB_lebar(>35) 233.28, terbaik lebar 262.33; konflik None, iterasi 1, 10 s  [08:56:02]
+seed 11 R90  [08:56:02]
+    iterasi 1: terverifikasi 257.522 (LB*ver 257.522), LB*rel 252.712, kunci < target 0, tuple belum 0, stop belum 0  [08:56:02]
+  seed 11: makespan eksklusif 257.52 (json 257.52), LB* 252.71, celah 1.90 %, |rot| maks 25; LB_lebar(>35) 257.45, terbaik lebar 264.22; konflik None, iterasi 1, 0 s  [08:56:02]
+seed 12 R90  [08:56:02]
+    iterasi 1: terverifikasi 270.359 (LB*ver 270.359), LB*rel 270.359, kunci < target 0, tuple belum 0, stop belum 0  [08:56:08]
+  seed 12: makespan eksklusif 270.36 (json 270.36), LB* 270.36, celah -0.00 %, |rot| maks 20; LB_lebar(>35) 273.75, terbaik lebar 275.91; konflik None, iterasi 1, 6 s  [08:56:08]
+== R35 mulai 08:56:08
+seed 7 R35  [08:56:14]
+    iterasi 1: terverifikasi 283.617 (LB*ver 273.936), LB*rel 273.936, kunci < target 2, tuple belum 0, stop belum 0  [08:56:14]
+Traceback (most recent call last):
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g60/g60b_make.py", line 340, in <module>
+    run(sys.argv[2], [int(x) for x in sys.argv[3:]])
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g60/g60b_make.py", line 275, in run
+    if wver['sol'] is not None:
+TypeError: 'NoneType' object is not subscriptable
+== SEMUA SELESAI 08:56:14
+  seed 7: makespan eksklusif 283.62 (json 283.62), LB* 273.94, celah 3.53 %, |rot| maks 30; LB_lebar(>35) None, terbaik lebar None; konflik None, iterasi 1, 0 s  [08:56:40]
+  seed 10: makespan eksklusif 278.50 (json 278.50), LB* 278.50, celah 0.00 %, |rot| maks 30; LB_lebar(>35) None, terbaik lebar None; konflik None, iterasi 1, 0 s  [08:56:40]
+  seed 0: makespan eksklusif 148.16 (json 148.16), LB* 148.16, celah 0.00 %, |rot| maks 30; LB_lebar(>35) None, terbaik lebar None; konflik None, iterasi 1, 0 s  [08:56:40]
+  seed 3: makespan eksklusif 295.80 (json 295.80), LB* 277.35, celah 6.65 %, |rot| maks 30; LB_lebar(>35) None, terbaik lebar None; konflik None, iterasi 1, 0 s  [08:56:40]
+  seed 8: makespan eksklusif 264.44 (json 264.44), LB* 251.69, celah 5.07 %, |rot| maks 10; LB_lebar(>35) None, terbaik lebar None; konflik None, iterasi 1, 0 s  [08:56:40]
+  seed 18: makespan eksklusif 232.21 (json 232.21), LB* 232.21, celah -0.00 %, |rot| maks 10; LB_lebar(>35) None, terbaik lebar None; konflik None, iterasi 1, 0 s  [08:56:41]
+  seed 11: makespan eksklusif 257.52 (json 257.52), LB* 252.71, celah 1.90 %, |rot| maks 25; LB_lebar(>35) None, terbaik lebar None; konflik None, iterasi 1, 0 s  [08:56:41]
+  seed 12: makespan eksklusif 270.36 (json 270.36), LB* 270.36, celah -0.00 %, |rot| maks 20; LB_lebar(>35) None, terbaik lebar None; konflik None, iterasi 1, 0 s  [08:56:41]
