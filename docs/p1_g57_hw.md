@@ -100,7 +100,7 @@
   rentang t_stop + 1…+4 s: t2_a1 **0.0074°**, t2_a2 0.0032, t1_a1 0.0026, t1_a2 0.152° (arm_2 di pose tugas, rambatan 0.156° juga
   1 s SEBELUM stop = bukan gerak perintah); rel diam (t1 1.400 / 30.0°, t2 1.3999 / −9.99°). `post_stop_motion` {1: 0.0024,
   2: 0.0001}. → kriteria §A1 §2 semua terpenuhi → **D532 ✓**. (Mock G56: 0.000°/0.5 s dari t_stop + 0.5 s — HW sama.)
-- Catatan: traverse g2 1.40 m 97.57 s ≈ 1.40 / 0.0314 × 2.2 — sesuai traverse bridge = durasi perintah (memori debounce), bukan
-  lambat baru; dibandingkan dengan sim/mock di analisis pasangan.
+- Catatan: traverse g2 97.57 s = layar G33/S28 18.5 s (event mulai → `t_send`) + T_cmd 77.78 s (t_traverse terukur 76.13 s,
+  galat −0.13 mm / +0.01°, lengan bergeser ≤ 0.059°) + penutupan ~1 s.
 - Pulang DRY (`g47_home.sh 7 … R90sel --dry`) rc 0: return_rest 1 segmen per pasangan lengan; rute rel g1 (1.40, +30) → (1.50, 0),
   g2 (1.40, −10) → (0, 0) (= traverse jadwal dibalik); "REFUSE S12" di DRY karena lengan belum REST (urutan nyata: lengan dulu).
