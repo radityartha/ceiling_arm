@@ -1,0 +1,145 @@
+{
+ "axis": {
+  "arm_1": [
+   1.8649,
+   0.3719
+  ],
+  "arm_2": [
+   1.1336,
+   0.3481
+  ],
+  "arm_3": [
+   0.3666,
+   -0.3481
+  ],
+  "arm_4": [
+   -0.3648,
+   -0.3719
+  ]
+ },
+ "rgbd:arm_2": {
+  "n": 5779,
+  "range_m": 1.05,
+  "d_xy": [
+   0.044,
+   -0.004
+  ],
+  "d_abs": 0.044,
+  "filter": {
+   "tol": 0.05,
+   "n_window": 5779,
+   "n_used": 4000,
+   "n_kept": 4000,
+   "n_dropped": 0,
+   "kept_frac": 1.0,
+   "kept_at_zero": 3614,
+   "t": [
+    0.05,
+    -0.005,
+    0.002
+   ],
+   "t_xy_abs": 0.051,
+   "kept_med_mm": 3.2
+  }
+ },
+ "rgbd:arm_4": {
+  "n": 1854,
+  "range_m": 2.53,
+  "d_xy": [
+   -0.002,
+   -0.036
+  ],
+  "d_abs": 0.036,
+  "filter": {
+   "tol": 0.05,
+   "n_window": 1854,
+   "n_used": 1854,
+   "n_kept": 1854,
+   "n_dropped": 0,
+   "kept_frac": 1.0,
+   "kept_at_zero": 1854,
+   "t": [
+    0.011,
+    -0.021,
+    0.006
+   ],
+   "t_xy_abs": 0.024,
+   "kept_med_mm": 7.5
+  }
+ },
+ "rgbd2:arm_1": {
+  "n": 1641,
+  "range_m": 2.66,
+  "d_xy": [
+   0.138,
+   0.022
+  ],
+  "d_abs": 0.14,
+  "filter": {
+   "tol": 0.05,
+   "n_window": 1666,
+   "n_used": 1666,
+   "n_kept": 1621,
+   "n_dropped": 45,
+   "kept_frac": 0.973,
+   "kept_at_zero": 129,
+   "t": [
+    0.117,
+    0.001,
+    -0.003
+   ],
+   "t_xy_abs": 0.117,
+   "kept_med_mm": 10.2
+  }
+ },
+ "rgbd2:arm_2": {
+  "n": 516,
+  "range_m": 2.05,
+  "d_xy": [
+   0.064,
+   0.011
+  ],
+  "d_abs": 0.065,
+  "filter": {
+   "tol": 0.05,
+   "n_window": 516,
+   "n_used": 516,
+   "n_kept": 516,
+   "n_dropped": 0,
+   "kept_frac": 1.0,
+   "kept_at_zero": 478,
+   "t": [
+    0.05,
+    0.034,
+    -0.006
+   ],
+   "t_xy_abs": 0.061,
+   "kept_med_mm": 5.6
+  }
+ },
+ "rgbd2:arm_3": {
+  "n": 5210,
+  "range_m": 1.15,
+  "d_xy": [
+   0.043,
+   -0.007
+  ],
+  "d_abs": 0.043,
+  "filter": {
+   "tol": 0.05,
+   "n_window": 5210,
+   "n_used": 4000,
+   "n_kept": 4000,
+   "n_dropped": 0,
+   "kept_frac": 1.0,
+   "kept_at_zero": 4000,
+   "t": [
+    -0.009,
+    -0.025,
+    0.009
+   ],
+   "t_xy_abs": 0.026,
+   "kept_med_mm": 8.9
+  }
+ }
+}

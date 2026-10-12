@@ -69,4 +69,32 @@ diminta. MARGIN = TOLAK; penyaring TIDAK dilonggarkan; kriteria tidak diubah ses
 
 ## B. Hasil terukur
 
-(diisi sesudah §A dikunci)
+§A sha256 `21b42d4a…` ([salinan](results/p1_arm1_zone/arm1_zone_A_locked.md)), commit daab2e0.
+
+### B1. Bring-up + `arm_fk_check` di REST, g1 1.50 (19:15–19:30) — NOL gerak
+
+- Self-test `env_collision` PASS, `interarm_collision` LULUS, `remount_check` GERBANG LULUS. Operator mengizinkan bring-up.
+- Bring-up 1 kali (`p1_demo_hw/harness/stack_up.sh`): PID launch 453291, SigIgn `0x1001001` (tanpa 0x2); 4× `Actuator count … '6'`;
+  7 spawner mati (`exit code 1`, balapan dikenal) tetapi `list_controllers` **7/7 active**; table2 ARMED, table1 NOT armed (normal,
+  belum ada perintah g1); `env_static_map` di scene False → publish ulang → **True** (pola G57). **K0 LULUS** (g1 1.49926 m / 0°,
+  g2 0.00090 m / 0°, lengan ≤ 0.10°). Monitor + perekam `/tmp/p1az_*` domain 0, berkas tumbuh (74 MB / ~10 mnt).
+- Kamera `cam_up.sh seg_imgsz:=1280` + localizer domain 0; `ps`: `static_transform_publisher` = incumbent (launch + G34) kedua kamera.
+- `--arm-filter` pertama crash: link jari (sendi mimic) tidak ada di TF → kini geometri tanpa TF DILEWATI dan DICETAK (12 jari;
+  `gripper_base_link` tetap). Bukan pelonggaran kriteria; jari ≈ 3–5 % permukaan lengan.
+
+| kamera:lengan (jarak) | lama d_xy | saring t (TOL 0.03) | tersimpan | median residu | tersimpan di t=0 | saring t (TOL 0.05) |
+|---|---|---|---|---|---|---|
+| rgbd:arm_2 (1.05 m) | (+0.043, −0.003) | (+0.051, −0.005, +0.002) | 100 % | 3.4 mm | 638/4000 | (+0.050, −0.005) |
+| rgbd:arm_4 (2.53 m) | (−0.006, −0.036) | (+0.020, −0.025, +0.001) | 99.9 % | 8.4 mm | 1603/1855 | (+0.011, −0.021) |
+| rgbd2:arm_3 (1.15 m) | (+0.043, −0.007) | (−0.008, −0.016, +0.003) | 99.7 % | 9.8 mm | 3975/4000 | (−0.009, −0.025) |
+| rgbd2:arm_2 (2.06 m) | (+0.073, +0.014) | (+0.058, +0.040, −0.002) | 98.9 % | 5.7 mm | 341/458 | (+0.050, +0.034) |
+| **rgbd2:arm_1 (2.66 m)** | **(+0.137, +0.019)** | **(+0.114, +0.001, −0.008)** | **89 %** (195 dibuang) | **10.6 mm** | **0/1770** | **(+0.117, +0.001)** |
+
+- **Z1 ✗** (terkunci): rgbd:arm_2 selisih 0.8 cm ✓, tetapi **rgbd2:arm_3 selisih 5.2 cm** > 3 cm → **Z2 tak sah** per §A2. Sebab yang
+  terlihat: rgbd2:arm_3 hampir semua titik sudah ≤ 3 cm dari permukaan URDF TANPA geser (3975/4000) → metode lama (median + koreksi
+  radius 4 cm, heuristik) yang bias ~+4–5 cm di sini, bukan penyaring. Kriteria tidak diubah; dicatat.
+- Informasi (tidak menjadi keputusan karena Z2 tak sah): di rgbd2:arm_1 89–97 % titik jendela berbentuk lengan dengan residu setara
+  lengan dekat (10 mm), pada geser **+0.114…+0.117 m x**, stabil terhadap TOL → hipotesis (b) "titik bukan-lengan" tidak didukung.
+- **D570 ✓** (0.138). **D571 ✗** (Z1). **D572** — tak sah formal (nilai +0.114 ≥ 0.10 akan menolak (b)).
+- Pola: rgbd2 t naik dengan jarak (arm_3 1.15 m ≈ 0 → arm_2 2.06 m +0.06 → arm_1 2.66 m +0.11), tetapi **rgbd juga melihat arm_2 di
+  +0.05 x** — dua kamera sepakat arm_2 (gantry 1) ~+5 cm x pada g1 1.50. Belum diatribusi (pita, langkah 4).

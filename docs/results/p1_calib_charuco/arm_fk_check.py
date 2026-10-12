@@ -42,7 +42,10 @@ if a.arm_filter:
         S = []
         for g in rg.geom.geometryObjects:
             if not g.name.startswith(p + '_'): continue
-            R, T = look('world', rg.model.frames[g.parentFrame].name); M = g.placement; c = g.geometry
+            fr = rg.model.frames[g.parentFrame].name
+            if not tf.can_transform('world', fr, Time()):   # finger links: mimic joints, not in TF
+                print(f'arm-filter: {g.name} SKIPPED (no TF for {fr})'); continue
+            R, T = look('world', fr); M = g.placement; c = g.geometry
             V = np.array([c.points(i) for i in range(c.num_points)]) @ M.rotation.T + M.translation
             for k in range(c.num_polygons):
                 tri = c.polygons(k); A, B, C = (V[tri[j]] for j in range(3))
