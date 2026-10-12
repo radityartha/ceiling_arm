@@ -1,0 +1,10 @@
+# 1791773100.0044 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 1 --seed 7 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g43/g43_candidates.json --variant R180 1.550 40.000 --move
+1791773101.4098 S12: maks |q - REST| arm_1 0.038, arm_2 0.019, arm_3 118.717, arm_4 0.379 deg (batas 0.5 untuk gantry 1)
+1791773101.4101 S23": t1_rotation_joint -14.930 deg, t2_rotation_joint -4.990 deg; target +40.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
+1791773114.0614 S28: sapuan g1 (1.3009 m, -14.930 deg) -> (1.5500, +40.000), sisanya TERUKUR: CLEAR, min 249.2 mm ('t1_mount_plate_left_0', 't2_platform_link_0') di (1.550, +40.00); lengan 272.5, SS 249.2, n 1456
+1791773118.4823 G33: sapuan g1 vs peta lingkungan: CLEAR, min 65.9 mm (t1_a1_left_finger_dist_link_0) di titik 998
+1791773118.4823 g1: lin 1.300860 -> 1.550000 m (+249.1 mm), rot -14.930 -> +40.000 deg (+54.930); T_cmd 13.84 s (lin 13.84, rot 9.59)
+1791773118.4827 setpoint pertama 0.84 mm / 0.186 deg (arm_tol 5 mm / 1.0 deg)
+1791773132.4369 JTC error_code: 0
+1791773133.4512 akhir: g1 = (1.549067 m, +39.7900 deg), galat -0.93 mm / -0.2100 deg; t_traverse 12.79 s (lin 12.79, rot 12.79; T_cmd 13.84); lengan (keempat) bergeser maks 0.0639 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 4.351 t2_a1_joint_3
+1791773133.4512 {"gantry": 1, "goal": [1.55, 40.0], "start": [1.30086, -14.93], "end": [1.549067, 39.79], "err_mm": -0.933, "err_deg": -0.21, "T_cmd": 13.841, "T_cmd_lin": 13.841, "T_cmd_rot": 9.587, "t_send": 1791773118.535644, "t_jtc_done": 1791773132.4368758, "t_first_move": 1791773119.4660354, "t_stop": 1791773132.2558372, "t_traverse": 12.79, "t_lin": 12.79, "t_rot": 12.79, "arm_drift_deg": 0.0639, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 4.351, "arm_tau_joint": "t2_a1_joint_3", "sweep_min_mm": 249.2, "sweep_arm_mm": 272.5, "sweep_pair": ["t1_mount_plate_left_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 1839}

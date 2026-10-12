@@ -107,3 +107,13 @@
 - **Pulang nyata** (izin 11:38, [log](results/p1_g57/hw/p1hw_home_inj.log)) rc 0: return_rest arm_3+4 galat 0.380°, torsi puncak 7.40
   `t2_a1_joint_2`; arm_1+2 0.217°, 5.75 `t1_a2_joint_2`; g1 → (1.499995, 0.0) −0.01 mm, 5.64 s; g2 → (0.000618, 0.0) +0.62 mm,
   75.39 s (T_cmd 77.77); lengan bergeser ≤ 0.062°; 0 `REJECTED` / `NOT armed` baru. **K0 LULUS.**
+
+### B3. §3 G57 — run HW paralel (log per run `results/p1_g57/hw/p1hw_par_s<S>_<V>_*`, pulang `p1hw_home_*`; [run](results/p1_g57/p1hw_run.sh), [pulang](results/p1_g57/p1hw_home.sh))
+
+Pulang = DRY `g47_home` (rute retrace jadwal) lalu kaki per kaki `pose_to_g --move`, BERHENTI pada REFUSE pertama (g47_home sendiri
+melanjutkan ke kaki berikut). Di DRY, kaki ke-2+ disaring dari pose SEKARANG (DRY tidak bergerak) → "REFUSE G33" di sana = artefak;
+hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
+
+| # | run | mulai | makespan HW | sim | mock G58 | 6/6 | AUTO-STOP | blok | τ puncak | pulang |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | s7 lama G43 R180 | 11:41:15 | **392.21** | 396.9 | 383.6 | ✓ | 0 | 0 | 9.67 `t2_a1_j2` | 5 kaki CLEAR, K0 LULUS |

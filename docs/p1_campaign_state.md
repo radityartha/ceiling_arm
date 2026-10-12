@@ -91,4 +91,4 @@ persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `s
 
 ## Langkah berikut
 
-G57 §2 LULUS (stop-semua HW); berikut: pulang sesudah uji stop (`g47_home.sh 7 g55_selected R90sel`, izin) + K0, lalu §3 s7 lama.
+G57 §3: run 2/5 s7 baru (G55 R90sel), izin operator; plan-only + DRY sudah (`docs/p1_g57_hw.md` B3).
