@@ -117,3 +117,4 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 | # | run | mulai | makespan HW | sim | mock G58 | 6/6 | AUTO-STOP | blok | τ puncak | pulang |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 | s7 lama G43 R180 | 11:41:15 | **392.21** | 396.9 | 383.6 | ✓ | 0 | 0 | 9.67 `t2_a1_j2` | 5 kaki CLEAR, K0 LULUS |
+| 2 | s7 baru G55 R90sel | 11:57:01 | **283.34** | 283.6 | 276.4 | ✓ | 0 | 0 | 11.66 `t2_a1_j2` | 4 kaki CLEAR, K0 LULUS |
