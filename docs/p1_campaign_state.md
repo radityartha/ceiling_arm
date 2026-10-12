@@ -91,4 +91,4 @@ persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `s
 
 ## Langkah berikut
 
-G57 §2: uji stop-semua HW s7 R90sel `--inject-stop-on-motion 2` (izin operator), lalu pulang + K0 (`docs/p1_g57_hw.md` B1 selesai).
+G57 §2 LULUS (stop-semua HW); berikut: pulang sesudah uji stop (`g47_home.sh 7 g55_selected R90sel`, izin) + K0, lalu §3 s7 lama.

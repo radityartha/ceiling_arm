@@ -1,0 +1,32 @@
+# 1791772475.5556 CMD python3 -u return_rest.py --arms arm_3 arm_4 --move --no-plan
+1791772477.9494 lengan: ['arm_3', 'arm_4']   galat terbesar dari rest: 108.10 deg
+1791772477.9496 rel t2_linear_joint = 1.399873 m
+1791772477.9934 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791772477.9935   self.geom = pin.buildGeomFromUrdf(
+1791772481.2882 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1791772481.2882   self.geom = pin.buildGeomFromUrdf(
+1791772486.3679 retract g2 ['arm_3'] lurus (rel 1.400):
+1791772487.6112   penyaring se-gantry: CLEAR, minimum 575.9 mm di titik 0/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+1791772487.6113   penyaring antar-gantry: CLEAR, minimum 243.3 mm di titik 0/60 (t1_a2_upper_wrist_link_0 <-> t2_a2_forearm_link_0)
+1791772487.6113   penyaring lingkungan: CLEAR, minimum 78.6 mm di titik 23/60 (t2_a1_left_finger_prox_link_0)
+1791772487.6113 rencana pulang: lurus:t2_a1_
+1791772487.6782 
+1791772487.6782 mengirim segmen lurus (t2_a1_): 60 titik. TIDAK akan dibatalkan penjaga torsi (g16 B4.4).
+1791772490.2063 Traceback (most recent call last):
+1791772490.2066   File "/home/user1/Documents/ceiling_arm/scripts/return_rest.py", line 369, in <module>
+1791772490.2076     sys.exit(main())
+1791772490.2076   File "/home/user1/Documents/ceiling_arm/scripts/return_rest.py", line 349, in main
+1791772490.2076     rclpy.spin_until_future_complete(node, rf, timeout_sec=t_end.sec + 60.0)
+1791772490.2076   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 256, in spin_until_future_complete
+1791772490.2076     executor.spin_until_future_complete(future, timeout_sec)
+1791772490.2076   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 349, in spin_until_future_complete
+1791772490.2076     self.spin_once_until_future_complete(future, timeout_left)
+1791772490.2076   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 815, in spin_once_until_future_complete
+1791772490.2076     self._spin_once_impl(timeout_sec)
+1791772490.2076   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+1791772490.2076     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+1791772490.2076   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+1791772490.2076     return next(self._cb_iter)
+1791772490.2076   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 677, in _wait_for_ready_callbacks
+1791772490.2076     wait_set.wait(timeout_nsec)
+1791772490.2076 KeyboardInterrupt

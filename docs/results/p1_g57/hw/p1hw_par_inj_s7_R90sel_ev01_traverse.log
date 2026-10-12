@@ -1,0 +1,10 @@
+# 1791772407.0013 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 1 --seed 7 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g55/g55_selected.json --variant R90sel 1.400 30.000 --move
+1791772408.3795 S12: maks |q - REST| arm_1 0.218, arm_2 0.195, arm_3 0.428, arm_4 0.385 deg (batas 0.5 untuk gantry 1)
+1791772408.3796 S23": t1_rotation_joint -0.030 deg, t2_rotation_joint -9.990 deg; target +30.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
+1791772415.3437 S28: sapuan g1 (1.4991 m, -0.030 deg) -> (1.4000, +30.000), sisanya TERUKUR: CLEAR, min 302.7 mm ('t1_mount_plate_left_0', 't2_platform_link_0') di (1.499, +30.00); lengan 324.8, SS 302.7, n 352
+1791772416.3195 G33: sapuan g1 vs peta lingkungan: CLEAR, min 65.8 mm (t1_a1_left_finger_dist_link_0) di titik 31
+1791772416.3196 g1: lin 1.499074 -> 1.400000 m (-99.1 mm), rot -0.030 -> +30.000 deg (+30.030); T_cmd 5.50 s (lin 5.50, rot 5.24)
+1791772416.3198 setpoint pertama 2.01 mm / 0.608 deg (arm_tol 5 mm / 1.0 deg)
+1791772421.9243 JTC error_code: 0
+1791772423.5651 akhir: g1 = (1.399998 m, +29.9900 deg), galat -0.00 mm / -0.0100 deg; t_traverse 5.585 s (lin 5.585, rot 5.585; T_cmd 5.50); lengan (keempat) bergeser maks 0.0463 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 1.512 t1_a2_joint_2
+1791772423.5651 {"gantry": 1, "goal": [1.4, 30.0], "start": [1.499074, -0.03], "end": [1.399998, 29.99], "err_mm": -0.002, "err_deg": -0.01, "T_cmd": 5.504, "T_cmd_lin": 5.504, "T_cmd_rot": 5.241, "t_send": 1791772416.372726, "t_jtc_done": 1791772421.9242322, "t_first_move": 1791772416.9712162, "t_stop": 1791772422.5559707, "t_traverse": 5.585, "t_lin": 5.585, "t_rot": 5.585, "arm_drift_deg": 0.0463, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 1.512, "arm_tau_joint": "t1_a2_joint_2", "sweep_min_mm": 302.7, "sweep_arm_mm": 324.8, "sweep_pair": ["t1_mount_plate_left_0", "t2_platform_link_0"], "jtc_error_code": "0", "n_log": 991}

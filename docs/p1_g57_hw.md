@@ -86,3 +86,21 @@
   [json](results/p1_g57/hw/planonly_s7_R180.json)); **s7 baru G55 R90sel 3/3 LOLOS** (11:25–11:30,
   [json](results/p1_g57/hw/planonly_s7_R90sel.json)).
 - DRY `run_g54 --dry` s7 R180 + s7 R90sel: K0 LULUS (sama B0), amplop g1 (−125, 90) g2 (−35, 95), "traverse di luar: []", rc 0 ×2.
+
+### B2. §2 uji stop-semua HW (11:31–11:35) — GERAK NYATA, runner paralel pertama di HW — [run](results/p1_g57/hw/p1hw_par_inj_s7_R90sel_run.json), [runner](results/p1_g57/hw/p1hw_par_inj_s7_R90sel_runner.log), [jendela perekam](results/p1_g57/g57_stopwin.py)
+
+- Operator 11:31: izin (di e-stop). s7 G55 `R90sel` `--inject-stop-on-motion 2`, t0 11:31:46. **table1 ARMED 1499.1 mm** pada
+  perintah pertama (retract ev 0), 0 `NOT armed` / `REJECTED` baru.
+- Linimasa (paralel): retract REST g1/g2 2.6–2.8 s; **g2 traverse 0 → (1.40, −10°) 97.57 s** (g1 menunggu 97.6 s — eksklusif);
+  g1 traverse → (1.40, +30°) 16.76 s; lalu tugas BERSAMAAN: g2 arm_3 ev 10 25.81 s ∥ g1 arm_2 ev 2 35.86 s; arm_3 ev 11 25.39 s ∥
+  arm_2 ev 3 27.56 s → 4/4 tugas SUCCESS (pos_err_max_settled ≤ 1.18 mm). Retract g2 ev 12 disaring vs reservasi g1: 243.3 mm CLEAR.
+- **AUTO-STOP KEDUA gantry** (11:34:50.2): "INJEKSI kontrol negatif: g2 retract di tengah gerak (2.0 deg bergerak, 106.2 deg dari
+  REST)". Retract g1 ev 4 yang sudah lolos gerbang: **"TIDAK diluncurkan: AUTO-STOP"**. Keluar lewat jalur `finish(3)` (rc 3).
+- Perekam: arm_3 (t2_a1) bergerak 1.27°/s sebelum stop (j3 113.8 → 112.6, j5 97.4 → 96.1), **diam ≤ 0.1 s sesudah t_stop**;
+  rentang t_stop + 1…+4 s: t2_a1 **0.0074°**, t2_a2 0.0032, t1_a1 0.0026, t1_a2 0.152° (arm_2 di pose tugas, rambatan 0.156° juga
+  1 s SEBELUM stop = bukan gerak perintah); rel diam (t1 1.400 / 30.0°, t2 1.3999 / −9.99°). `post_stop_motion` {1: 0.0024,
+  2: 0.0001}. → kriteria §A1 §2 semua terpenuhi → **D532 ✓**. (Mock G56: 0.000°/0.5 s dari t_stop + 0.5 s — HW sama.)
+- Catatan: traverse g2 1.40 m 97.57 s ≈ 1.40 / 0.0314 × 2.2 — sesuai traverse bridge = durasi perintah (memori debounce), bukan
+  lambat baru; dibandingkan dengan sim/mock di analisis pasangan.
+- Pulang DRY (`g47_home.sh 7 … R90sel --dry`) rc 0: return_rest 1 segmen per pasangan lengan; rute rel g1 (1.40, +30) → (1.50, 0),
+  g2 (1.40, −10) → (0, 0) (= traverse jadwal dibalik); "REFUSE S12" di DRY karena lengan belum REST (urutan nyata: lengan dulu).
