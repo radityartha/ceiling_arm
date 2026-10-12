@@ -104,3 +104,6 @@
   galat −0.13 mm / +0.01°, lengan bergeser ≤ 0.059°) + penutupan ~1 s.
 - Pulang DRY (`g47_home.sh 7 … R90sel --dry`) rc 0: return_rest 1 segmen per pasangan lengan; rute rel g1 (1.40, +30) → (1.50, 0),
   g2 (1.40, −10) → (0, 0) (= traverse jadwal dibalik); "REFUSE S12" di DRY karena lengan belum REST (urutan nyata: lengan dulu).
+- **Pulang nyata** (izin 11:38, [log](results/p1_g57/hw/p1hw_home_inj.log)) rc 0: return_rest arm_3+4 galat 0.380°, torsi puncak 7.40
+  `t2_a1_joint_2`; arm_1+2 0.217°, 5.75 `t1_a2_joint_2`; g1 → (1.499995, 0.0) −0.01 mm, 5.64 s; g2 → (0.000618, 0.0) +0.62 mm,
+  75.39 s (T_cmd 77.77); lengan bergeser ≤ 0.062°; 0 `REJECTED` / `NOT armed` baru. **K0 LULUS.**
