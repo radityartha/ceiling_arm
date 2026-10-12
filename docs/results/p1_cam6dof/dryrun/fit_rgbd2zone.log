@@ -1,0 +1,15 @@
+M6: |w| 13.707 deg (cam [5.2263, -8.874, -9.0449]) tau [0.1925, -0.5679, -0.1643] s 1.0  fit RMS 0.0237  LOO 0.0381  gate FAIL  iters 4 conv True
+   M1@0.77    fit     dxy old 0.164 -> new 0.049  dz -0.004  res3 0.030
+   C5@0.77    fit     dxy old 0.229 -> new 0.028  dz +0.003  res3 0.032
+   C3@0.77    holdout dxy old 0.188 -> new 0.026  dz -0.007  res3 0.008
+   C6@0.77    holdout dxy old 0.154 -> new 0.042  dz -0.001  res3 0.023
+   N1@0.77    fit     dxy old 0.143 -> new 0.026  dz +0.003  res3 0.010
+   N2@0.77    fit     dxy old 0.183 -> new 0.025  dz -0.001  res3 0.016
+M7: |w| 13.707 deg (cam [5.2263, -8.874, -9.0449]) tau [0.2039, -0.5539, -0.1715] s 0.99354  fit RMS 0.0237  LOO 0.048  gate FAIL  iters 4 conv True
+   M1@0.77    fit     dxy old 0.164 -> new 0.048  dz -0.004  res3 0.029
+   C5@0.77    fit     dxy old 0.229 -> new 0.028  dz +0.003  res3 0.033
+   C3@0.77    holdout dxy old 0.188 -> new 0.026  dz -0.007  res3 0.009
+   C6@0.77    holdout dxy old 0.154 -> new 0.043  dz -0.001  res3 0.023
+   N1@0.77    fit     dxy old 0.143 -> new 0.026  dz +0.003  res3 0.009
+   N2@0.77    fit     dxy old 0.183 -> new 0.025  dz -0.001  res3 0.016
+SELECT M6 (LOO M6 0.0381 M7 0.048); deployable args (M6, static TF): tf2_x:=0.03779 tf2_y:=-1.58760 tf2_z:=1.92619 tf2_roll:=-2.17755 tf2_pitch:=-0.16354 tf2_yaw:=-0.69825

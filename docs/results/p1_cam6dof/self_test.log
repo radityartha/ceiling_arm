@@ -1,0 +1,11 @@
+== T1a: tilt 2.5 deg about camera x + tau (0.02, -0.01, 0.01), s = 1, NO noise -> exact
+   M6 rot err 0.0027 deg pos err 0.13 mm holdout max 0.00 mm; select M6  PASS
+== T1b: same + noise bottle 5 mm / arm 3 mm (tolerance = noise floor: rot 0.25 deg, pos 15 mm, holdout 12 mm)
+   M6 rot err 0.1233 deg pos err 5.7 mm holdout max 8.7 mm; M7 s 0.99981; LOO M6 0.0095 M7 0.0095 -> select M6  PASS
+== T3 negative control yaw-only on T1b data: yaw 0.69 deg, holdout max xy 10 mm z 125 mm (M6 3-D 9 mm) -> yaw-only does NOT close the tilt  PASS
+== T2: tilt 2.5 deg + depth scale 1.04 (true p_world = R (1.04 p_meas) + t), noise as T1b
+   M7 s 1.03971 rot err 0.1219 deg pos err 5.5 mm holdout max 9.1 mm; LOO M6 0.0153 M7 0.0099 -> select M7  PASS
+== T4: Euler args (5 dp) -> R round trip vs fitted R
+   0.00020 deg  PASS
+== centroid model (r 0.03, H 0.07) from rgbd2 at table M1 / block 35: [-0.018  -0.0141  0.0481] [-0.0193 -0.0155  0.0446]
+SELF-TEST PASS
