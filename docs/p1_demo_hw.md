@@ -65,4 +65,39 @@ gerak tak diminta / track z < 0.85 sebelum `g`. MARGIN = TOLAK; penyaring TIDAK 
 
 ## B. Hasil terukur
 
-(diisi sesudah kunci)
+§A sha256 `9cae8ac5…` ([salinan](results/p1_demo_hw/demo_hw_A_locked.md)), commit f3dcb4c.
+
+### B1. Langkah 1 — kamera domain 79, stack MATI (17:52–18:15) — NOL gerak — [gambar + bag](results/p1_demo_hw/hw/step1/)
+
+- Kamera naik dengan ekstrinsik terkoreksi (terverifikasi `ps`: `static_transform_publisher --x 1.7166 … --yaw 2.1688` dan
+  `--x -0.1547 … --yaw -0.9189`). 0 `inference failed` (YOLOE dari `ros2_ws/`). rgbd2: peringatan IMU `Motion Module force pause`
+  (tidak dipakai).
+- **Percobaan 1:** botol abu/biru terdeteksi rgbd (`gray bottle` 0.55) di **(1.166, 0.542, 0.892)** — di depan **arm_2**, bukan arm_1
+  (operator meletakkan kira-kira; titik nol world tidak diketahui). Operator diberi gambar proyeksi target
+  ([rgbd2_annot.jpg](results/p1_demo_hw/hw/step1/rgbd2_annot.jpg)) dan memindah botol ~58 cm sepanjang meja ke arah arm_1.
+- **Percobaan 2:** track kosong. Target tidak masuk bingkai rgbd (proyeksi v = 870 > 720) → hanya rgbd2, dari ~2.9 m. Uji luring
+  YOLOE pada frame rgbd2: botol di target conf **0.704 @ imgsz 1280**, tidak terdeteksi @ 512 (≥ 0.25). Kamera diluncurkan ulang
+  `seg_imgsz:=1280` (pengaturan detektor, bukan penyaring/kriteria; `cam_up.sh` kini meneruskan `"$@"`). Catatan: SIGINT ke
+  wrapper `ros2 run` tidak mematikan anak `object_localizer` → kill PID anak.
+- **Percobaan 3/4:** botol kecil gelap lalu botol putih (tinggi 7 cm) di titik target: terdeteksi (`gray`/`white bottle` 0.61–0.79)
+  tetapi track **(1.94–1.95, 0.69–0.70, 0.81–0.82)**; tambahan track `cyan bottle` (3.08, −0.34, 1.01) conf 0.32–0.61 (botol di
+  luar sel, wastafel belakang; operator menyingkirkan, masih terdeteksi). Depth di mask 2.87–2.93 m vs meja di samping
+  2.98–3.03 → depth mengenai botol, bukan meja.
+- **Diagnosa (acuan bebas = FK URDF lengan REST, g1 1.4999, g2 0.0008):** titik kamera z 1.15–1.45 di sekitar sumbu tiap lengan,
+  median − URDF (+ koreksi radius link 4 cm ke arah pandang):
+
+  | kamera | lengan (jarak) | Δx, Δy (m) |
+  |---|---|---|
+  | rgbd | arm_4 (dekat) | −0.01, −0.03 |
+  | rgbd | arm_2 (~1.3 m) | +0.04, +0.01 |
+  | rgbd2 | arm_3 (~1 m) | +0.04, −0.02 |
+  | rgbd2 | arm_2 (~2.2 m) | +0.06, +0.02 |
+  | rgbd2 | **arm_1 (~3 m, di samping botol)** | **+0.15, +0.02** |
+
+  Galat rgbd2 tumbuh dengan jarak (tilt/skala, G34 hanya mengikat titik lengan dekat). Di zona demo arm_1 → ~12–15 cm.
+- **z:** operator mengukur meja **0.77 m**, botol **7 cm** → centroid sejati ≈ 0.80–0.81, puncak 0.84 → z track 0.82 **benar**.
+  Batas H2 z [0.85, 1.05] berasumsi meja 0.80–0.87 (voxel peta) + botol ≤ 0.30 m — salah untuk botol pendek. Tidak dilonggarkan.
+- **H1:** ✓ (dengan `seg_imgsz:=1280`; satu botol di sel; botol wastafel di luar sel tetap muncul → "tepat satu track" ✗ harfiah).
+  **H2: ✗** — xy ~0.20 m dari acuan kasar (1.75, 0.55); galat rgbd2 terukur di arm_1 sendiri +0.15 m; z di bawah 0.85.
+  Bag 20 s domain 79 ([bag79](results/p1_demo_hw/hw/step1/bag79)): 35 pesan track.
+- **Keputusan operator 18:14:** gerak nyata TIDAK jalan; lanjut **uji rantai plan-only saja** di domain 0 (nol gerak).
