@@ -190,6 +190,7 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 | 10 | s18 G60 | 15:20:09 | **261.17** | 232.2 | 257.5 | ✓ | 0 | 0 | 12.41 `t2_a2_j2` | 2 kaki CLEAR, K0 LULUS |
 | 11 | s3 G60 | 15:41:25 | **323.95** | 295.8 | 305.5 | ✓ | 0 | 0 | **13.22** `t2_a2_j2` (94 %) | 4 kaki CLEAR, K0 LULUS |
 | 12 | s3 lama G43 R180 | 16:27:47 | **466.42** | 426.1 | 446.1 | ✓ | 0 | 0 | 9.48 `t1_a1_j2` | 5 kaki CLEAR (1 ganda dilewati), K0 LULUS |
+| 13 | s12 lama G52 R90 | 16:57:04 | **— (5/6)** | 313.5 | 332.3 | ✗ ev 5 GOAL-MISMATCH (nol gerak) | 0 | 0 | 12.12 `t2_a1_j2` | (lihat bawah) |
 
 - Prep s8 (14:12–14:26): baru 3/3 + DRY rc 0; lama G42f 3/3 + DRY rc 0.
 - s8 baru τ puncak 12.57 > 12 (< 14) — dicatat, bukan gagal (keputusan operator 12:33).
@@ -204,4 +205,10 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 - Prep s3 (15:28–15:41): G60 3/3 + DRY rc 0; lama G43 R180 3/3 + DRY rc 0. s3 G60 τ puncak **13.22 N·m** (ev 10 arm_4 j2, 94 %
   rating, tertinggi hari ini; prediksi probe RNEA+offset 12.91/14 → galat +0.31) — < 14, dilaporkan ke operator.
 - s3 pasangan: Δ HW **+142.47 s (−30.5 %)**, mock +140.59 (HW/mock 1.01), sim +130.28 (HW/sim 1.09); Δtraverse +106.8 s.
+- Prep s12 (16:44–16:56): lama G52 R90 3/3 + DRY rc 0; G60 3/3 + DRY rc 0.
+- **s12 lama 5/6**: ev 5 arm_1 HALTED — `GOAL-MISMATCH` 3/3 percobaan (ujung rencana 3.25 / 3.18 / 3.86 mm dari target, batas 3.0 mm;
+  nol gerak lengan). Penyebab: traverse g1 ev 4 ke (0.65, +40°) berakhir **+39.52° (−0.48°)** — kekurangan rotasi yang dikenal
+  (G51 B4: deadband bridge 0.3° + driver 0.5°, sampai 0.81°); `--goal-joints` dihitung untuk 40.00° → TCP bergeser ≈ 0.48° × ~0.4 m
+  ≈ 3.4 mm. Plan-only (pose terpasang nominal) tidak bisa melihatnya. Batas TIDAK dilonggarkan (MARGIN = TOLAK). Runner lanjut
+  (ev 6 sukses), 0 AUTO-STOP. → **D533 ✗** (run ini); celah: target sendi tidak dikoreksi terhadap rotasi terukur.
 
