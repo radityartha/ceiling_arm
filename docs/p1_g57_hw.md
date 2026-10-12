@@ -63,3 +63,26 @@
 ## B. Hasil terukur
 
 §A sha256 `02a14717…` ([salinan](results/p1_g57/g57_A_locked.md)).
+
+### B0. §0 bring-up (11:15–11:19) — NOL gerak — [launch 1](results/p1_g57/hw/g57_bringup1_launch.log.gz), [K0](results/p1_g57/hw/k0_bringup.json)
+
+- Operator 11:14: di lokasi, e-stop, LED/board/lengan/rel dicek mata → izin bring-up.
+- **Bring-up 1 (11:15) GAGAL tanpa gerak:** `ros2_control_node` SIGABRT (−6) di `on_init` lengan ke-3 (arm_3, 192.168.2.11):
+  `terminate … std::runtime_error what(): timeout detected: BaseClient::SetServoingMode` sesudah "Session created" (arm_1, arm_2
+  '6'). Kelas "lengan belum siap saat sambung" (memori workcell-known-issues; varian baru: timeout SetServoingMode, bukan
+  `Actuator count '0'`). Launch SIGINT (SigIgn `0x1001001`), node 0, crash dump sesi dihapus, ICMP .11 sehat.
+- **Bring-up 2 (11:16):** PID launch asli 302022, SigIgn `0x1001001` (SIGINT tidak diabaikan); 4× `Actuator count … '6'`;
+  spawner gripper_3 mati "already loaded" (balapan dikenal) tetapi **7/7 active**. **table2 ARMED** 0.0 mm / 0.0°. **table1
+  NOT armed** (perintah 0.0 mm vs terukur 1499.1 mm, 2× dalam 5 s sebelum JTC aktif = penjaga slam-to-zero, sama G32 B-stack2 /
+  G51 bring-up 3); sesudahnya JTC `gantry_1_with_arm_controller` reference = feedback = 1.49907 m / −0.03°, `/table_hw_commands`
+  diam (0 pesan / 5 s) → table1 akan ARMED pada perintah pertama. `env_static_map` di scene. Monitor + perekam hidup 11:18.
+- **K0 LULUS** (11:18): lengan maks |q − REST| arm_1 0.218° / arm_2 0.194 / arm_3 0.427 / arm_4 0.394; g1 1.49907 m / −0.03°;
+  g2 0.000 m / 0.00°; jari ≈ 0. (g2 tidak bergeser sejak G51.)
+
+
+### B1. §1 plan-only nyata k = 3 + DRY s7 (11:18–11:33) — NOL gerak — [skrip](results/p1_g57/p1hw_planonly.sh)
+
+- Plan-only nyata (`g31_screen --task-cli --final-retract --repeats 3`, tol 0.05°): **s7 lama G43 R180 3/3 LOLOS** (11:18–11:25,
+  [json](results/p1_g57/hw/planonly_s7_R180.json)); **s7 baru G55 R90sel 3/3 LOLOS** (11:25–11:30,
+  [json](results/p1_g57/hw/planonly_s7_R90sel.json)).
+- DRY `run_g54 --dry` s7 R180 + s7 R90sel: K0 LULUS (sama B0), amplop g1 (−125, 90) g2 (−35, 95), "traverse di luar: []", rc 0 ×2.

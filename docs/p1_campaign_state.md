@@ -91,4 +91,4 @@ persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `s
 
 ## Langkah berikut
 
-G57 §0: bring-up nyata (izin operator) → K0, lalu §1 plan-only s7 lama/baru (`docs/p1_g57_hw.md`).
+G57 §2: uji stop-semua HW s7 R90sel `--inject-stop-on-motion 2` (izin operator), lalu pulang + K0 (`docs/p1_g57_hw.md` B1 selesai).
