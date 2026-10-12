@@ -4,6 +4,12 @@
 
 ## Fase aktif
 
+**CAM-6DOF LURING SELESAI, HW BELUM** (2026-10-12 21:00–22:10, `docs/p1_cam6dof.md` §A0, commit dcde98d): operator pulang sebelum gerbang
+("tes online lanjut besok"; "siapkan yang offline dulu"). Alat fit 6-DOF/M7 per kamera + self-test PASS (2 cacat diperbaiki: tanda geser ICP;
+lengan REST vertikal → lengan hanya mengikat xy, z dari botol 3 tinggi), TF round-trip 0.000 mm, `loc_cam.sh`, tangkap/proyeksi/cfg tools,
+plan-check MOCK 10 kandidat lantai arm_3 (9 lolos, (0.40, −0.50) j2 99 % dibuang). K4 luring: lantai di bawah arm_3 terlihat rgbd 2.6–3.1 m.
+§A = DRAF (kunci besok sesudah angka balok/diameter botol + K4 hidup + plan-check HW). Sel tak disentuh (akhir RGBD2-ZONE), 0 node 0/77/78/79.
+
 **RGBD2-ZONE SELESAI** (2026-10-12 malam, `docs/p1_rgbd2_zone.md`, tally 2/5): 7 gerak penunjuk arm_1 (6 tanda unting di meja, C2/C4 di luar meja → N1/N2), botol di 6 tanda: incumbent 0.14–0.23 m; fit planar θ **13.1°** → R1 GAGAL, tidak dipakai. Info: dengan fit, uji-tahan hidup C6 1.9 / C3 0.9 cm tetapi lengan dekat rusak > 25 cm (zona-saja). Sel home, K0 LULUS, stack MATI.
 
 **ARM1-ZONE SELESAI** (2026-10-12 19:15–19:45, `docs/p1_arm1_zone.md`, tally 5/8): bug titik ORIGIN diperbaiki + `arm_fk_check --arm-filter`; penunjuk arm_1 di (1.75, 0.55, 1.22) TCP 1.5 mm; botol di tanda ter-track **0.151 m** sepanjang sinar rgbd2 → Z4 GAGAL, BERHENTI (tanpa demo); pita basis arm_1–arm_2 0.80 ± 0.005 = URDF → galat = **kamera rgbd2 jarak jauh**. 2 gerak nyata, torsi ≤ 8.91. Sel home, K0 LULUS, stack MATI.
@@ -39,6 +45,7 @@ Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 | DEMO-HW | YOLOE nyata → arm_1 di atas botol (approach-only) | **GAGAL H2** (2/5 diuji; plan-only ✓, nol gerak) | `docs/p1_demo_hw.md` B1–B6 |
 | ARM1-ZONE | galat zona arm_1 lengan vs kamera; botol di tanda ≤ 5 cm → demo | **GAGAL Z4** (0.151 m; atribusi kamera; 5/8) | `docs/p1_arm1_zone.md` B1–B6 |
 | RGBD2-ZONE | koreksi planar rgbd2 dari botol di 6 tanda; uji-tahan ≤ 5 cm | **GAGAL R1** (θ 13.1°; info uji-tahan 1.9/0.9 cm; 2/5) | `docs/p1_rgbd2_zone.md` B1–B7 |
+| CAM-6DOF | 6-DOF per kamera (botol × 3 tinggi + lengan); uji-tahan hidup ≤ 5 cm; "hanya rgbd2 salah?" | **LURING SELESAI** (A0; HW besok) | `docs/p1_cam6dof.md` A0 |
 
 ## Keputusan operator
 
@@ -113,4 +120,4 @@ tidak dikoreksi rotasi gantry terukur (GOAL-MISMATCH s12); torsi transit > predi
 
 ## Langkah berikut
 
-Sesi CAM-6DOF: tempel `docs/p1_cam6dof_prompt.md` (kalibrasi 6-DOF rgbd2 dengan botol di tanda × 3 tinggi + lengan tersaring, DAN cek rgbd di zona jauhnya — jawab "apakah hanya rgbd2 yang salah?"; ~3–4 jam); alternatif (A) koreksi zona-saja di `docs/p1_rgbd2_zone.md` B7.
+Sesi CAM-6DOF HW: tempel ulang `docs/p1_cam6dof_prompt.md` SAMA; langkah 0 sudah selesai (§A0 `docs/p1_cam6dof.md`) → mulai gerbang K0–K3b + angka (balok A/B ±2 mm, diameter botol, lantai z 0), bring-up, `cam6dof_capture` + `arm_fk_check` ×3, `proj_marks` K4, plan-check HW tanda F, lalu KUNCI §A (draf A1–A4) sebelum data botol / gerak pertama.
