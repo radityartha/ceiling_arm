@@ -107,4 +107,4 @@ tidak dikoreksi rotasi gantry terukur (GOAL-MISMATCH s12); torsi transit > predi
 
 ## Langkah berikut
 
-Sesi cek galat zona arm_1 (lengan arm_1 sebagai penunjuk di meja depan arm_1 + unting/kamera, bedakan galat lengan/gantry vs kamera, perbaiki bug titik ORIGIN `calibrate_extrinsics`) sebelum DEMO-HW ulang; OFFLINE G61 boleh di antaranya.
+Sesi ARM1-ZONE: tempel `docs/p1_arm1_zone_prompt.md` (bedakan galat lengan/gantry vs kamera di zona arm_1 dengan penunjuk arm_1 + botol di tanda, perbaiki bug titik ORIGIN, lalu DEMO-HW ulang bila ≤ 5 cm); OFFLINE G61 boleh di antaranya.
