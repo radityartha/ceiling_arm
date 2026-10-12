@@ -91,4 +91,4 @@ persepsi nyata demo belum pernah (lab gelap DEMO-OFF), `mobileclip_blt.ts` di `s
 
 ## Langkah berikut
 
-G57 §3: run 3/5 s10 baru (G55 R90sel), izin operator; plan-only 3/3 + DRY rc 0 sudah.
+G57 §3: s10 baru 5/6 (TORQUE-ABORT transit 12.44 > 12, lengan REST); tunggu keputusan operator → pulang s10 baru, lalu s10 lama / s0 baru.

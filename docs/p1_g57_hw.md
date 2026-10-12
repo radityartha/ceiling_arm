@@ -118,7 +118,20 @@ hanya kaki pertama bermakna (ditulis sesudah s7 lama; operator menyetujui).
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 | s7 lama G43 R180 | 11:41:15 | **392.21** | 396.9 | 383.6 | ✓ | 0 | 0 | 9.67 `t2_a1_j2` | 5 kaki CLEAR, K0 LULUS |
 | 2 | s7 baru G55 R90sel | 11:57:01 | **283.34** | 283.6 | 276.4 | ✓ | 0 | 0 | 11.66 `t2_a1_j2` | 4 kaki CLEAR, K0 LULUS |
+| 3 | s10 baru G55 R90sel | 12:19:28 | **— (5/6)** | 278.5 | 308.9 | ✗ ev 12 TORQUE-ABORT | 0 | 0 | 12.44 `t2_a1_j2` | lengan REST (retract ev 13 rc 0) |
 
 - s10 plan-only nyata k = 3 (12:06–12:19): **G55 R90sel 3/3 LOLOS**, **G42f G42 3/3 LOLOS**; DRY run_g54 keduanya rc 0, K0 LULUS,
   traverse di luar []. Traverse: baru g1 → (1.40, −30°), g2 → (0.85, −20°) → (1.20, −10°); lama g1 → (1.25, −30°), g2 → (0.70, −20°)
   → (1.00, −20°) → (1.45, 0°).
+
+- **🔴 s10 baru TIDAK LENGKAP 5/6** (12:19–12:25): ev 12 arm_3 → (1.4286, −0.4588, 1.08) @ g2 (1.20, −10°): probe `PLANNED` →
+  `moveit MOVED` → **TORQUE-ABORT 12.44 N·m `t2_a1_joint_2` > `--tau-max` 12.0**; tugas tidak dihitung, runner tidak AUTO-STOP
+  (rc 0, rancangan: tugas gagal ≠ stop), retract ev 13 rc 0 → semua lengan REST (K0 di stop: lengan ≤ 0.045°, g1 (1.40, −30),
+  g2 (1.20, −10)), 7/7 controller, nol Kortex exception / fault di log.
+- Perekam ([ev12](results/p1_g57/hw/p1hw_par_s10_R90sel_ev12_task.log)): puncak terjadi saat **TRANSIT**, bukan di target — j2
+  22.7° → 54.9° dalam ~14 s, torsi ~10 ± 1.5 N·m dengan 7 sampel > 12 dalam 7 s (puncak −12.44 di q2 32.6°); di target ditahan
+  ~4 N·m. Verdict probe dibuat sesudah gerak (lengan SAMPAI target). Prediksi probe (statis di ujung, RNEA+offset) j2 5.50 →
+  13.20/14 = 94 % rating — penyaring menerima karena < rating, padahal batas abort probe 12 → **celah: jadwal G55 tidak memakai
+  batas abort 12 untuk torsi TRANSIT** (G27: puncak torsi di tengah jalan, bukan di ujung). Mock tidak mengukur torsi nyata.
+  Tidak melanggar aturan keras (> 14). → D533 ✗ (run ini).
+
