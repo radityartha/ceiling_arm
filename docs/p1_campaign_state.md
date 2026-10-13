@@ -4,6 +4,8 @@
 
 ## Fase aktif
 
+**G61 OFFLINE BERJALAN** (2026-10-13, `docs/p1_g61_offline.md`, prompt `docs/p1_g61_offline_prompt.md`): §A dikunci (sha `47489ae2…`, commit c2491ff). C2 ukur: 4/94 tugas G57 ≥ 2.5 mm, semua s12 lama g1 (0.65, +40°). Berikut: kode C1/C2 → mock 77 → C3/C4. NOL gerak HW.
+
 **CAM-6DOF LURING SELESAI, HW BELUM** (2026-10-12 21:00–22:10, `docs/p1_cam6dof.md` §A0, commit dcde98d): operator pulang sebelum gerbang
 ("tes online lanjut besok"; "siapkan yang offline dulu"). Alat fit 6-DOF/M7 per kamera + self-test PASS (2 cacat diperbaiki: tanda geser ICP;
 lengan REST vertikal → lengan hanya mengikat xy, z dari botol 3 tinggi), TF round-trip 0.000 mm, `loc_cam.sh`, tangkap/proyeksi/cfg tools,
