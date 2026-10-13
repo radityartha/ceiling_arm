@@ -15,6 +15,11 @@ Guards (run_g32 S26, now CONTINUOUS in a watchdog thread, 10 Hz): monitor/record
 lines, torque <= 14, rail within 2 mm / rotation within 1 deg of expected for every gantry not traversing, /joint_states
 fresh. K0 + rotation envelope before t0. ANY stop -> AUTO-STOP of BOTH gantries: SIGINT to every running tool, cancel-all
 on /execute_trajectory and both gantry_g_with_arm_controller actions; rc 3.
+G61 (docs/p1_g61_offline.md A1/A2): before t0 (also --dry) move_group alive + /get_planning_scene answers <= 5 s with
+env_static_map + the recorder file grows; move_group joins the continuous alive check; HALTED with EXEC-FAIL (or no
+probe record) = system broken -> AUTO-STOP, HALTED by a screen refusal = the arm cannot -> logged, go on; recorder file
+not growing > 5 s = WARNING only. --goal-correct: a task goal is re-solved (IK, every probe screen still runs) for the
+MEASURED gantry pose when the nominal-pose goal would move the tool >= 1 mm.
 
     python3 run_g54.py --seed 7 --plan ../p1_g43/g43_candidates.json --variant R180 --launch-log L --mon M [--dry]
 """
@@ -46,6 +51,73 @@ REST_TOL = math.radians(0.5)
 # '[ros2_control_node-4] [ERROR] [<stamp>] [controller_manager]: ...' -- generic ros2_control_node errors were invisible.
 # G51 HW: the only such lines (7 per bring-up) are controller-spawner messages AT bring-up, inside base_faults.
 FAULT_RE = re.compile(R32.FAULT_RE.pattern + r'|\[ros2_control_node-[0-9]+\] \[ERROR\]')
+# G61 C1(c): HALTED by one of these = a healthy screen refused the arm (it did not move) -> logged, the run goes on.
+# Anything else (EXEC-FAIL: no move_group server, FJT refused / timed out / start off) = the system is broken -> AUTO-STOP.
+ARM_CANNOT = ('NO-PLAN', 'GOAL-MISMATCH', 'TORQUE-UNSAFE', 'INTERARM-COLLIDE', 'ENV-COLLIDE', 'RETRACT-BLOCKED',
+              'START-JUMP', 'TUCK-REFUSED')
+REC_STALL_S = 5.0                      # G61 C1(d): recorder file not growing this long -> WARNING (not a stop)
+URDF = '/tmp/reach_dwell_live.urdf'    # the probe's cache of robot_description (reach_dwell_probe._urdf_path)
+CORR_TRIG_M = 0.001                    # G61 C2: tool displacement that triggers the goal correction
+CORR_POS_M, CORR_ROT, CORR_DQ = 5e-5, math.radians(0.01), math.radians(2.0)
+
+
+def alive(p):
+    """/proc/<p> exists and is not a zombie (a SIGKILLed child keeps its /proc entry until reaped)."""
+    try:
+        return open(f'/proc/{p}/stat').read().rsplit(')', 1)[1].split()[0] != 'Z'
+    except (OSError, IndexError):
+        return False
+
+
+class GoalFix:
+    """G61 C2 (docs/p1_g61_offline.md A2): a task goal computed for the NOMINAL gantry pose, re-solved for the MEASURED one
+    so the tool lands on the same SE3 pose the schedule screened. The probe still screens the new goal's real plan."""
+
+    def __init__(self, urdf):
+        import pinocchio as pin
+        self.pin = pin
+        self.m = pin.buildModelFromUrdf(urdf)
+        self.d = self.m.createData()
+
+    def _q(self, goal, g, lin, rot):
+        q = self.pin.neutral(self.m)
+        for n, v in list(goal.items()) + [(f't{g}_linear_joint', lin), (f't{g}_rotation_joint', rot)]:
+            q[self.m.joints[self.m.getJointId(n)].idx_q] = v
+        return q
+
+    def fix(self, goal, g, nom, meas):
+        """(goal', info). goal' is `goal` itself when the displacement is below CORR_TRIG_M or the IK is refused."""
+        import numpy as np
+        pin, m, d = self.pin, self.m, self.d
+        names = sorted(goal)
+        fid = m.getFrameId(names[0].rsplit('joint_', 1)[0] + 'tool_frame')
+        pin.framesForwardKinematics(m, d, self._q(goal, g, *nom))
+        T_t = d.oMf[fid].copy()
+        q = self._q(goal, g, *meas)
+        pin.framesForwardKinematics(m, d, q)
+        disp = float(np.linalg.norm(d.oMf[fid].translation - T_t.translation))
+        info = dict(nom=list(nom), meas=list(meas), disp_mm=disp * 1000, applied=False)
+        if disp < CORR_TRIG_M:
+            return goal, info
+        iq = [m.joints[m.getJointId(n)].idx_q for n in names]
+        iv = [m.joints[m.getJointId(n)].idx_v for n in names]
+        for _ in range(200):
+            pin.framesForwardKinematics(m, d, q)
+            err = pin.log6(d.oMf[fid].inverse() * T_t).vector
+            if np.linalg.norm(err[:3]) < 1e-7 and np.linalg.norm(err[3:]) < 1e-7:
+                break
+            J = pin.computeFrameJacobian(m, d, q, fid, pin.LOCAL)[:, iv]
+            q[iq] += J.T @ np.linalg.solve(J @ J.T + 1e-8 * np.eye(6), err)
+        pin.framesForwardKinematics(m, d, q)
+        err = pin.log6(d.oMf[fid].inverse() * T_t).vector
+        dq = float(max(abs(q[i] - goal[n]) for i, n in zip(iq, names)))
+        lim = all(m.lowerPositionLimit[i] <= q[i] <= m.upperPositionLimit[i] for i in iq)
+        info.update(ik_pos_mm=float(np.linalg.norm(err[:3])) * 1000, ik_rot_deg=math.degrees(np.linalg.norm(err[3:])),
+                    dq_max_deg=math.degrees(dq), in_limits=bool(lim))
+        if np.linalg.norm(err[:3]) <= CORR_POS_M and np.linalg.norm(err[3:]) <= CORR_ROT and lim and dq <= CORR_DQ:
+            info['applied'] = True
+            return {n: float(q[i]) for i, n in zip(iq, names)}, info
+        return goal, info
 
 
 def main():
@@ -71,6 +143,12 @@ def main():
                          'moved > 2 deg from the event start and are still > 10 deg from REST (mid-motion, timing-free)')
     ap.add_argument('--inject-stop', default=None, metavar='G:K',
                     help='NEGATIVE CONTROL: AUTO-STOP when gantry G is about to start its K-th own event (0-based, = g54_sim trace)')
+    ap.add_argument('--goal-correct', action='store_true',
+                    help='G61 C2: re-solve a task goal for the MEASURED gantry pose when the nominal-pose goal would move the '
+                         'tool >= 1 mm (every probe screen + GOAL-MISMATCH 3 mm still run). Absent = old argv bit for bit')
+    ap.add_argument('--inject-rot-error', default=None, metavar='G:K:DEG',
+                    help='G61 TEST (mock): the traverse of gantry G to its stop K is commanded to rot + DEG (pose_to_g gets a '
+                         'plan copy for S13"); nominal, goals and guard expectations stay the schedule')
     a = ap.parse_args()
     OUT = a.out_dir
     shutil.rmtree(OUT, ignore_errors=True)
@@ -81,6 +159,15 @@ def main():
     evs = G31S.events(row[a.variant]['schedule'], p0, a.final_retract)
     E = {g: [dict(e, idx=i) for i, e in enumerate(evs) if e['gantry'] == g] for g in (1, 2)}
     rails, rots = dict(p0), {1: 0.0, 2: 0.0}
+    inj_rot, inj_plan = None, a.plan
+    if a.inject_rot_error:                     # G61 TEST: a short rotation the mock cannot produce by itself
+        gi, ki, di = a.inject_rot_error.split(':')
+        inj_rot = (int(gi), int(ki), float(di))
+        allp = json.load(open(a.plan))
+        st_ = {r['seed']: r for r in allp}[a.seed][a.variant]['schedule'][gi][inj_rot[1]]
+        st_['rot_deg'] = round(st_['rot_deg'] + inj_rot[2], 3)
+        inj_plan = os.path.join(OUT, 'inject_rot_plan.json')
+        json.dump(allp, open(inj_plan, 'w'))
     rec = dict(seed=a.seed, variant=a.variant, plan=a.plan, mode='parallel', events=[], stop=None)
     io = threading.Lock()
 
@@ -92,10 +179,18 @@ def main():
 
     pm, pr_, pc = (R32.pids('lib/reachability_gng/reach_dwell_monitor'), R32.pids('p1_g22/js_record.py'),
                    R32.pids('controller_manager/ros2_control_node'))
-    say(f'pids monitor {pm} recorder {pr_} ros2_control_node {pc}')
+    pmg = R32.pids('moveit_ros_move_group/move_group')                 # G61 C1(a)/(b)
+    say(f'pids monitor {pm} recorder {pr_} ros2_control_node {pc} move_group {pmg}')
     if not (pm and pr_ and pc):
         say('REFUSE: monitor/recorder/ros2_control_node tidak hidup')
         return 2
+    rec_path = None                                                    # G61 C1(d): the recorder's output file = its argv[1]
+    try:
+        av = open(f'/proc/{pr_[0]}/cmdline', 'rb').read().decode().split('\0')
+        rec_path = os.path.join(os.readlink(f'/proc/{pr_[0]}/cwd'),
+                                av[[k for k, x in enumerate(av) if x.endswith('js_record.py')][0] + 1])
+    except (OSError, IndexError):
+        pass
     with open(a.launch_log, 'rb') as f_:
         base_faults = len(FAULT_RE.findall(f_.read().decode('utf-8', errors='ignore')))
         log_off = [f_.tell()]                       # G56: the watchdog reads only what was appended since (10 Hz)
@@ -142,8 +237,10 @@ def main():
         cancel_all()
 
     def s26(g_trav):
-        if not all(os.path.isdir(f'/proc/{p}') for p in (pm[0], pr_[0], pc[0])):
+        if not all(alive(p) for p in (pm[0], pr_[0], pc[0])):
             return 'monitor/recorder/ros2_control_node mati'
+        if not pmg or not all(alive(p) for p in pmg):
+            return f'move_group mati (pid {pmg})'
         with open(a.launch_log, 'rb') as f_:
             f_.seek(log_off[0])
             chunk = f_.read()
@@ -190,8 +287,44 @@ def main():
     out_env = [(e['gantry'], round(math.degrees(e['to'][1]), 3)) for e in evs
                if e['kind'] == 'traverse' and not RE.allowed(e['gantry'], math.degrees(e['to'][1]), env)]
     say(f'amplop rotasi g1 {env["1"]} g2 {env["2"]}; traverse di luar: {out_env}')
+    def health():
+        """G61 C1(a)/(d) + C2 prerequisites, before t0. None = healthy, else the reason (-> AUTO-STOP, rc 3)."""
+        from moveit_msgs.msg import PlanningSceneComponents
+        from moveit_msgs.srv import GetPlanningScene
+        t_ = time.time()
+        cli = W.n.create_client(GetPlanningScene, '/get_planning_scene')
+        if not cli.wait_for_service(timeout_sec=5.0):
+            return 'pra-cek: /get_planning_scene tidak ada dalam 5 s'
+        req = GetPlanningScene.Request()
+        req.components.components = PlanningSceneComponents.WORLD_OBJECT_NAMES
+        fut = cli.call_async(req)                      # the Watch thread spins W.n
+        while not fut.done() and time.time() - t_ < 5.0:
+            time.sleep(0.05)
+        if not fut.done() or fut.result() is None:
+            return 'pra-cek: /get_planning_scene tidak menjawab dalam 5 s'
+        ids = [o.id for o in fut.result().scene.world.collision_objects]
+        say(f'pra-cek: /get_planning_scene {time.time() - t_:.2f} s, objek dunia {ids}')
+        if 'env_static_map' not in ids:
+            return f'pra-cek: env_static_map tidak di scene ({ids})'
+        if rec_path is None or not os.path.exists(rec_path):
+            return f'pra-cek: berkas perekam tidak diketahui/tidak ada ({rec_path})'
+        s0 = os.path.getsize(rec_path)
+        time.sleep(3.0)
+        s1 = os.path.getsize(rec_path)
+        say(f'pra-cek: perekam {rec_path} +{s1 - s0} B / 3 s')
+        if s1 <= s0:
+            return f'pra-cek: berkas perekam {rec_path} tidak tumbuh dalam 3 s'
+        if a.goal_correct and not os.path.exists(URDF):
+            subprocess.run([sys.executable, '-c', 'import sys, rclpy; sys.path.insert(0, sys.argv[1]); import reach_dwell_probe as p; '
+                            'rclpy.init(); print(p._urdf_path(rclpy.create_node("g61_urdf")))', SCRIPTS],
+                           capture_output=True, text=True, timeout=60)
+            if not os.path.exists(URDF):
+                return f'pra-cek: --goal-correct tanpa URDF ({URDF} tidak bisa dibuat dari robot_state_publisher)'
+        return None
+
     why = s26(()) or (None if k0.returncode == 0 else f'K0: {(k0.stdout.strip().splitlines() or ["?"])[-1]}') \
-        or (None if not out_env else f'G48: rotasi jadwal di luar amplop {out_env}')
+        or (None if not out_env else f'G48: rotasi jadwal di luar amplop {out_env}') or health()
+    gfix = GoalFix(URDF) if a.goal_correct and not why else None
 
     def finish(rc):
         rec['stop'] = st['stop']
@@ -357,19 +490,39 @@ def main():
                             continue
                     cmd = ['python3', '-u', 'return_rest.py', '--arms', *P.ARMS[g], '--move', '--no-plan']
                 elif e['kind'] == 'traverse':
+                    inj = inj_rot is not None and (g, e['stop']) == inj_rot[:2]
+                    if inj:
+                        rec['inject_rot'] = dict(g=g, stop=e['stop'], idx=i, deg=inj_rot[2], t=time.time())
+                        say(f'  [g{g} {i}] INJEKSI UJI: rotasi diperintahkan {math.degrees(e["to"][1]) + inj_rot[2]:+.3f} '
+                            f'(jadwal {math.degrees(e["to"][1]):+.3f}); nominal/goal/penjaga = jadwal')
                     cmd = ['python3', '-u', os.path.join(R, 'p1_g32/pose_to_g.py'), '--gantry', str(g),
-                           '--seed', str(a.seed), '--plan', a.plan, '--variant', a.variant,
-                           f'{e["to"][0]:.3f}', f'{math.degrees(e["to"][1]):.3f}', '--move'] + \
+                           '--seed', str(a.seed), '--plan', inj_plan if inj else a.plan, '--variant', a.variant,
+                           f'{e["to"][0]:.3f}', f'{math.degrees(e["to"][1]) + (inj_rot[2] if inj else 0.0):.3f}', '--move'] + \
                         (['--rot-max', f'{a.rot_max:g}'] if a.rot_max is not None else [])
                 else:
                     pj = f'{OUT}/ev{i:02d}_probe_try{n_blk}.json'
-                    cmd = R32.task_cmd(e, a.mon, goal_tol=a.goal_tol_deg, tau_max=a.tau_max) + ['--reserve-dir', RES, '--out-json', pj]
+                    et, gc = e, None
+                    if gfix is not None and e.get('goal'):            # G61 C2: goal for the MEASURED gantry pose
+                        pos = W.snap()[0]
+                        meas = (float(pos.get(f't{g}_linear_joint', rails[g])), float(pos.get(f't{g}_rotation_joint', rots[g])))
+                        gl, gc = gfix.fix(e['goal'], g, (rails[g], rots[g]), meas)
+                        if gc['applied']:
+                            et = dict(e, goal=gl)
+                        say(f'  [g{g} {i}] koreksi goal: gantry terukur ({meas[0]:.4f} m, {math.degrees(meas[1]):+.3f} deg) vs '
+                            f'nominal ({rails[g]:.4f}, {math.degrees(rots[g]):+.3f}); alat bergeser {gc["disp_mm"]:.2f} mm -> ' +
+                            ('tidak perlu' if 'ik_pos_mm' not in gc else
+                             f'IK {gc["ik_pos_mm"]:.4f} mm / {gc["ik_rot_deg"]:.4f} deg, |dq| maks {gc["dq_max_deg"]:.3f} deg, '
+                             f'batas {gc["in_limits"]} -> ' + ('DITERAPKAN' if gc['applied'] else
+                                                               'KOREKSI GAGAL, goal lama (probe tetap menyaring)')))
+                    cmd = R32.task_cmd(et, a.mon, goal_tol=a.goal_tol_deg, tau_max=a.tau_max) + ['--reserve-dir', RES, '--out-json', pj]
                 say(f'  [g{g} {i}] {e["kind"]} {e.get("arm", "")} {e.get("to", e.get("xyz", ""))} '
                     f'(tunggu {time.time() - t_ready:.1f} s, terhalang {n_blk})')
                 rc, lines, ts, te = run_tool(g, e['kind'], cmd, logf)
                 if st['stop']:
                     return
                 er = dict(e, rc=rc, t_start=ts, t_end=te, t_ready=t_ready, n_blocked=n_blk)
+                if e['kind'] == 'task' and gc is not None:
+                    er['goal_correct'] = dict(gc, goal=et['goal'])
                 txt = '\n'.join(ln for _, ln in lines)
                 if e['kind'] == 'task':
                     probe = None
@@ -402,8 +555,14 @@ def main():
                         end_event(g, er)
                         stop_all(f'g{g} ev {i} probe: UNSCREENED / TIDAK VALID (mesin)')
                         return
+                    if probe is None or (er['verdict_probe'] == 'HALTED'
+                                         and (not ms or any(v not in ARM_CANNOT for v in ms.values()))):
+                        end_event(g, er)                           # G61 C1(c): the system, not the arm
+                        stop_all(f'g{g} ev {i} sistem rusak: ' + ('probe tanpa catatan JSON' if probe is None else
+                                                                 f'HALTED {ms}'))
+                        return
                     if er['verdict_probe'] == 'HALTED':
-                        say(f'  [g{g} {i}] HALTED -- dicatat, lanjut (A3); hasil TIDAK LENGKAP')
+                        say(f'  [g{g} {i}] HALTED (lengan tidak bisa: {ms}) -- dicatat, lanjut (A3); hasil TIDAK LENGKAP')
                     end_event(g, er)
                 elif e['kind'] == 'traverse':
                     try:
@@ -429,6 +588,27 @@ def main():
                     (f' success@{er["t_success"] - t0:.2f}' if er.get('t_success') else ''))
                 break
 
+    rec['recorder_stall'] = []
+    rs = dict(size=os.path.getsize(rec_path), t=time.time(), stalled=False)
+
+    def recorder_check():
+        """G61 C1(d): the recorder file must keep growing; a stall is a WARNING (evidence, not safety -- A1(d))."""
+        try:
+            sz = os.path.getsize(rec_path)
+        except OSError:
+            sz = -1
+        now = time.time()
+        if sz > rs['size']:
+            if rs['stalled']:
+                rec['recorder_stall'][-1][1] = now
+                say(f'PERINGATAN perekam: tumbuh lagi sesudah {now - rec["recorder_stall"][-1][0]:.1f} s')
+            rs.update(size=sz, t=now, stalled=False)
+        elif not rs['stalled'] and now - rs['t'] > REC_STALL_S:
+            rs['stalled'] = True
+            rec['recorder_stall'].append([rs['t'], None])
+            say(f'PERINGATAN perekam: {rec_path} tidak tumbuh {now - rs["t"]:.1f} s (> {REC_STALL_S:.0f} s) -- '
+                'run lanjut, data perekam TIDAK LENGKAP')
+
     def watchdog():
         while not st['stop'] and any(th.is_alive() for th in ths):
             with cv:
@@ -437,6 +617,7 @@ def main():
             if w:
                 stop_all(f'penjaga: {w}')
                 return
+            recorder_check()
             gi = a.inject_stop_on_motion
             if gi is not None and running[gi] == 'retract' and q_ev0[gi]:
                 q = W.snap()[0]
@@ -495,8 +676,9 @@ def main():
     rec['makespan'] = (max(x['t_success'] for x in ok) - t0) if rec['complete'] else None
     rec['peak_tau'] = {k: v[0] for k, v in W.snap()[2].items()}
     POOL.terminate()
-    say(f'SELESAI: {len(ok)}/{len(tasks)} tugas sukses; makespan terukur {rec["makespan"]:.2f} s'
-        if rec['complete'] else f'SELESAI: TIDAK LENGKAP {len(ok)}/{len(tasks)}')
+    say((f'SELESAI: {len(ok)}/{len(tasks)} tugas sukses; makespan terukur {rec["makespan"]:.2f} s'
+         if rec['complete'] else f'SELESAI: TIDAK LENGKAP {len(ok)}/{len(tasks)}') +
+        (f'; data perekam TIDAK LENGKAP ({len(rec["recorder_stall"])} macet)' if rec['recorder_stall'] else ''))
     return finish(0)
 
 
