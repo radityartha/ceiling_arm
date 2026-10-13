@@ -4,7 +4,7 @@
 
 ## Fase aktif
 
-**G61 OFFLINE BERJALAN** (2026-10-13, `docs/p1_g61_offline.md`, prompt `docs/p1_g61_offline_prompt.md`): §A dikunci (sha `47489ae2…`, commit c2491ff). C2 ukur: 4/94 tugas G57 ≥ 2.5 mm, semua s12 lama g1 (0.65, +40°). Berikut: kode C1/C2 → mock 77 → C3/C4. NOL gerak HW.
+**G61 OFFLINE BERJALAN** (2026-10-13, `docs/p1_g61_offline.md`): §A dikunci (sha `47489ae2…`). Kode run_g54 (pra-cek move_group/scene/perekam, penjaga move_group, HALTED sistem-rusak → AUTO-STOP, `--goal-correct`) commit 831db96. Mock 77: A5.1 6/6 ×2 argv identik, injeksi rot −0.48 tanpa koreksi → GOAL-MISMATCH (lanjut), peringatan perekam OK. C3: 85/87 j2 ≤ prediksi probe (RNEA lintasan, bukan ujung). C4: s0 = penyaring reservasi 0.136 s/keadaan. Sisa: injeksi + koreksi, kill move_group, pra-cek tanpa move_group. NOL gerak HW.
 
 **CAM-6DOF LURING SELESAI, HW BELUM** (2026-10-12 21:00–22:10, `docs/p1_cam6dof.md` §A0, commit dcde98d): operator pulang sebelum gerbang
 ("tes online lanjut besok"; "siapkan yang offline dulu"). Alat fit 6-DOF/M7 per kamera + self-test PASS (2 cacat diperbaiki: tanda geser ICP;
