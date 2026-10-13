@@ -9,7 +9,9 @@ REST → s); docs/p1_g53_p1p_serial.md (biaya P1″); docs/results/p1_g54/run_g5
 `GOAL_POS_TOL_M` 0.003, `--goal-joints`, `collect()` tau watch); docs/results/p1_g32/run_g32.py (`task_cmd`).
 
 NOL gerak HW. Stack HW MATI (sel home sejak G57 17:30). Mock `ROS_DOMAIN_ID=77` (fake HW, BUKAN data HW) dengan
-`octomap_updaters:=false` (2 updater bocor juga di mock saat lengan bergerak). Job panjang: setsid nohup + log line-buffered +
+`octomap_updaters:=false` (2 updater bocor juga di mock saat lengan bergerak). Sesi lain (CAM-6DOF) bisa aktif di repo ini: SEBELUM
+mock cek `ROS_DOMAIN_ID=77 ros2 node list --no-daemon` kosong + tidak ada job berat; berkas keadaan = milik bersama (tambah baris
+G61, jangan timpa "Langkah berikut" sesi lain tanpa membaca isinya). Job panjang: setsid nohup + log line-buffered +
 cache bisa dilanjut (memori bg-jobs-die-with-session). JANGAN pgrep/pkill -f dengan nama yang ada di baris perintah sendiri.
 
 DATA HW G57 (sudah ada): `docs/results/p1_g57/hw/` — per run `p1hw_par_s<S>_<V>_{run.json,runner.log,evNN_task.log,evNN_probe_try0.json,
