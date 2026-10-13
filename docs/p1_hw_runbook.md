@@ -15,8 +15,11 @@
 
 ```bash
 cd $ROOT && source /opt/ros/humble/setup.bash && source ros2_ws/install/setup.bash
-setsid nohup python3 -c "import os,signal; signal.signal(signal.SIGINT, signal.SIG_DFL); os.execvp('ros2',['ros2','launch','workcell_moveit_config','my_workcell.launch.py','use_fake_hardware:=false','enable_gantry_bridge:=true','use_sim_time:=false'])" > /tmp/p1hw_launch.log 2>&1 < /dev/null &
+setsid nohup python3 -c "import os,signal; signal.signal(signal.SIGINT, signal.SIG_DFL); os.execvp('ros2',['ros2','launch','workcell_moveit_config','my_workcell.launch.py','use_fake_hardware:=false','enable_gantry_bridge:=true','use_sim_time:=false','octomap_updaters:=false'])" > /tmp/p1hw_launch.log 2>&1 < /dev/null &
 ```
+
+**`octomap_updaters:=false` WAJIB di HW** (G57 B4: tanpa itu move_group OOM ~115 mnt, kebocoran 2 updater × `env_static_map`;
+HW tidak punya publisher `collision_cloud`). Cek: 0 baris `pointcloud_octomap_updater` di log.
 
 Gerbang (tunggu, lalu periksa — semuanya harus benar):
 - PID launch ASLI di-resolve ulang SESUDAH controller naik (`ps -eo pid,args | awk '$3=="/opt/ros/humble/bin/ros2" && $4=="launch"'`),

@@ -4,7 +4,7 @@
 
 ## Fase aktif
 
-**G61 OFFLINE BERJALAN** (2026-10-13, `docs/p1_g61_offline.md`): §A dikunci (sha `47489ae2…`). Kode run_g54 (pra-cek move_group/scene/perekam, penjaga move_group, HALTED sistem-rusak → AUTO-STOP, `--goal-correct`) commit 831db96. Mock 77: A5.1 6/6 ×2 argv identik, injeksi rot −0.48 tanpa koreksi → GOAL-MISMATCH (lanjut), peringatan perekam OK. C3: 85/87 j2 ≤ prediksi probe (RNEA lintasan, bukan ujung). C4: s0 = penyaring reservasi 0.136 s/keadaan. Sisa: injeksi + koreksi, kill move_group, pra-cek tanpa move_group. NOL gerak HW.
+**G61 OFFLINE DIJEDA** (2026-10-13 10:41, `docs/p1_g61_offline.md` B0–B5, handoff `docs/HANDOFF_2026-10-13.md`): kode run_g54 (pra-cek move_group/scene/perekam, penjaga move_group, HALTED sistem-rusak → AUTO-STOP, `--goal-correct`) commit 831db96. Mock 77: A5.1 6/6 ×2 argv identik; injeksi rot −0.48 tanpa koreksi 4/6 (GOAL-MISMATCH, lanjut), dengan koreksi 6/6; peringatan perekam OK. C3 85/87 j2 ≤ prediksi probe; C4 s0 = penyaring reservasi. **SISA: A5.4 kill move_group + A5.3 pra-cek (`results/p1_g61/g61_neg.sh`)**, lalu B6 + papan skor. Mock 77 ditinggal HIDUP (REST + PARK). NOL gerak HW.
 
 **CAM-6DOF LURING SELESAI, HW BELUM** (2026-10-12 21:00–22:10, `docs/p1_cam6dof.md` §A0, commit dcde98d): operator pulang sebelum gerbang
 ("tes online lanjut besok"; "siapkan yang offline dulu"). Alat fit 6-DOF/M7 per kamera + self-test PASS (2 cacat diperbaiki: tanda geser ICP;
@@ -121,5 +121,7 @@ torsi maks 13.22. Pasangan (lama − baru, s): s7 +108.9, s10 +74.9, s8 +195.5, 
 tidak dikoreksi rotasi gantry terukur (GOAL-MISMATCH s12); torsi transit > prediksi ujung; s0 HW/sim 1.29.
 
 ## Langkah berikut
+
+G61 (terpisah dari CAM-6DOF): selesaikan A5.4 + A5.3 di mock 77 menurut `docs/HANDOFF_2026-10-13.md` §3.1, lalu tutup G61; sesudah itu HW runner = `docs/p1_g62_hw_prompt.md`.
 
 Sesi CAM-6DOF HW: tempel ulang `docs/p1_cam6dof_prompt.md` SAMA; langkah 0 sudah selesai (§A0 `docs/p1_cam6dof.md`) → mulai gerbang K0–K3b + angka (balok A/B ±2 mm, diameter botol, lantai z 0), bring-up, `cam6dof_capture` + `arm_fk_check` ×3, `proj_marks` K4, plan-check HW tanda F, lalu KUNCI §A (draf A1–A4) sebelum data botol / gerak pertama.

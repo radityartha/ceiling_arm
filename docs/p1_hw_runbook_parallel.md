@@ -23,10 +23,27 @@
    menolak jadwal di luar amplop sebelum t0. s11 R90 butuh kaki sweep g2 −35 → −85 dulu (runbook §4, tiap kaki ditanya).
 3. CPU: jangan ada job offline berat bersamaan (penyaring reservasi jalan di probe dan di proses pekerja runner).
 
+## 1b. G61 (2026-10-13) — yang berubah di run_g54 (`docs/p1_g61_offline.md` B4–B5; mock: A5.1/A5.2 lulus, kontrol negatif move_group A5.3/A5.4 BELUM)
+
+- **Bring-up HW wajib `octomap_updaters:=false`** (runbook §1; G57 B4 OOM). **`--tau-max 14`** (operator 2026-10-12: > 12 bukan
+  gagal; batas keras > 14 tetap = penjaga runner AUTO-STOP, retract > 13.5). **`--goal-correct`** (G61 C2: goal tugas di-IK ulang
+  untuk pose gantry TERUKUR bila goal nominal menggeser alat ≥ 1 mm; semua penyaring probe + GOAL-MISMATCH 3 mm tetap jalan; G57
+  s12 lama ev 5 GOAL-MISMATCH 3.48 mm → 0.01 mm). Batas: koreksi ditolak bila |Δq| > 2° (≈ galat rot > 0.55°) → goal lama → probe
+  GOAL-MISMATCH (aman).
+- **Pra-cek baru sebelum t0 (juga `--dry`)**: move_group hidup, `/get_planning_scene` ≤ 5 s dengan `env_static_map`, berkas perekam
+  tumbuh dalam 3 s (+ URDF untuk `--goal-correct`). Gagal → `AUTO-STOP: pra-cek …` rc 3, tidak ada gerak. Harus dilihat di DRY:
+  `pra-cek: /get_planning_scene … objek dunia ['env_static_map']` dan `pra-cek: perekam … +N B / 3 s`.
+- **Penjaga kontinu:** move_group mati → AUTO-STOP KEDUA gantry (≤ 0.1 s, penjaga 10 Hz; zombie dihitung mati).
+- **HALTED:** penolakan penyaring (NO-PLAN, GOAL-MISMATCH, TORQUE-UNSAFE, INTERARM/ENV-COLLIDE, RETRACT-BLOCKED, START-JUMP,
+  TUCK-REFUSED) = "lengan tidak bisa" → dicatat, run lanjut (hasil TIDAK LENGKAP). `EXEC-FAIL` / tanpa catatan probe = "sistem rusak"
+  → AUTO-STOP KEDUA gantry (G57 B4: move_group mati → 6/6 EXEC-FAIL sambil rel terus bergerak).
+- **Perekam macet > 5 s** → `PERINGATAN perekam` di runner.log + "data perekam TIDAK LENGKAP" di baris SELESAI; run TIDAK dihentikan
+  (bukti, bukan keselamatan). Operator: lihat peringatan → putuskan ulang run sesudahnya.
+
 ## 2. DRY di stack nyata (tanpa gerak)
 
 ```bash
-python3 -u $R/p1_g54/run_g54.py --seed <S> --plan <PLAN> --variant <V> --final-retract --goal-tol-deg 0.05 --dry \
+python3 -u $R/p1_g54/run_g54.py --seed <S> --plan <PLAN> --variant <V> --final-retract --goal-tol-deg 0.05 --tau-max 14 --goal-correct --dry \
   --launch-log /tmp/p1hw_launch.log --mon /tmp/p1hw_mon_samples.csv --out-dir /tmp/p1hw_par_dry_s<S> \
   --archive $R/p1_g54/hw --prefix p1hw_par_dry_s<S>_<V>_
 ```
@@ -47,7 +64,7 @@ posisi tahan JTC — rel tidak berhenti seketika (tetap di dalam persegi travers
 Pembanding sama-sesi: R180 (atau R90) dan R35 seed yang sama, keduanya PARALEL, sesi yang sama.
 
 ```bash
-setsid nohup python3 -u $R/p1_g54/run_g54.py --seed <S> --plan <PLAN> --variant <V> --final-retract --goal-tol-deg 0.05 \
+setsid nohup python3 -u $R/p1_g54/run_g54.py --seed <S> --plan <PLAN> --variant <V> --final-retract --goal-tol-deg 0.05 --tau-max 14 --goal-correct \
   --launch-log /tmp/p1hw_launch.log --mon /tmp/p1hw_mon_samples.csv --out-dir /tmp/p1hw_par_s<S>_<V> \
   --archive $R/p1_g54/hw --prefix p1hw_par_s<S>_<V>_ > /tmp/p1hw_par_s<S>_<V>.log 2>&1 < /dev/null &
 ```
@@ -68,4 +85,6 @@ Sesudah tiap run: `bash $R/p1_g47/g47_home.sh <S> <PLAN> <V> --dry`, lalu tanpa 
 | P4 | Reservasi = sampel rencana (waypoint OMPL) + garis lurus retract; galat pelacakan Kortex tidak dimodelkan | margin 50 mm (MARGIN = TOLAK); galat pelacakan HW G51 < beberapa mm |
 | P5 | Jadwal R180 dioptimalkan untuk P1′-par TANPA traverse eksklusif dan dengan biaya G25 lama → s10 R180 lebih lambat dari R35 di runner ini | dilaporkan apa adanya; penjadwal dengan model P1″ + traverse eksklusif = pekerjaan berikut |
 | P6 | Penjaga "/joint_states basi" (1 s) bisa terpicu palsu bila runner sibuk CPU | penyaring dipindah ke proses pekerja (G54 B2); fault log dibaca inkremental (G56); di HW dua publisher /joint_states digabung per nama |
+| P8 | Koreksi goal (G61 C2) mengubah goal sendi ≤ 2° dari jadwal | goal baru tetap disaring penuh oleh probe (torsi/antar-lengan/lingkungan/pulang/reservasi/GOAL-MISMATCH); koreksi hanya bila alat bergeser ≥ 1 mm |
+| P9 | Penyaring reservasi 0.136 s per keadaan: tugas yang bertemu rencana penuh gantry lain menunggu 10–23 s (G61 B3, s0 HW/sim 1.29) | waktu, bukan keselamatan; usul susutkan reservasi di `MOVED` (belum dikerjakan) |
 | P7 | `FAULT_RE` run_g32 tidak menangkap error ros2_control_node generik (G56 B1) | run_g54 diperbaiki; run_g32 (serial) belum — jangan andalkan run_g32 untuk menangkap error itu |

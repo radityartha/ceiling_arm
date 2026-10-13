@@ -1,0 +1,18 @@
+# 1791854905.0617 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_2 --target=0.5000,-0.0353,1.0000 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/claude-1001/-home-user1-Documents-ceiling-arm/c34ad7c6-7935-4de0-bef7-c7671026c5e9/scratchpad/g61_mon_samples.csv --goal-joints={"t1_a2_joint_1": -1.393083536999934, "t1_a2_joint_2": -0.5883218300793475, "t1_a2_joint_3": -0.4149037385914525, "t1_a2_joint_4": -1.5707966436797365, "t1_a2_joint_5": 0.173415453444195, "t1_a2_joint_6": 1.131281564677212} --goal-tol-deg=0.05 --reserve-dir /tmp/claude-1001/g61_inj_s12_nocorr/res --out-json /tmp/claude-1001/g61_inj_s12_nocorr/ev06_probe_try0.json
+1791854905.5409 probe LANGKAH 5: arm_2, 1 percobaan, abort torsi 12.0 N.m
+1791854905.5411 sumber target: arm_2 (0.5, -0.0353, 1.0), [] []
+1791854905.5411 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791854905.5411 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791854905.5411 
+1791854907.9211 [INFO] [1791854907.921047424] [reach_dwell_probe]: ujung rencana vs target: 3.38 mm, sumbu 0.01 deg
+1791854907.9214 [ERROR] [1791854907.921341868] [reach_dwell_probe]: GOAL-MISMATCH: ujung rencana 3.38 mm / 0.01 deg dari target (batas 3.0 mm / 2.0 deg).
+1791854907.9217 [INFO] [1791854907.921644765] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya GOAL-MISMATCH -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791854910.0513 [INFO] [1791854910.051250264] [reach_dwell_probe]: ujung rencana vs target: 3.87 mm, sumbu 0.03 deg
+1791854910.0516 [ERROR] [1791854910.051518942] [reach_dwell_probe]: GOAL-MISMATCH: ujung rencana 3.87 mm / 0.03 deg dari target (batas 3.0 mm / 2.0 deg).
+1791854910.0518 [INFO] [1791854910.051800491] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya GOAL-MISMATCH -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1791854912.1817 [INFO] [1791854912.181587197] [reach_dwell_probe]: ujung rencana vs target: 3.63 mm, sumbu 0.03 deg
+1791854912.1822 [ERROR] [1791854912.182140744] [reach_dwell_probe]: GOAL-MISMATCH: ujung rencana 3.63 mm / 0.03 deg dari target (batas 3.0 mm / 2.0 deg).
+1791854912.1823        arm_2: moveit GOAL-MISMATCH  (percobaan rencana: ['GOAL-MISMATCH', 'GOAL-MISMATCH', 'GOAL-MISMATCH'])
+1791854912.1823   [ 1] HALTED       (arm_2:GOAL-MISMATCH) torsi puncak  0.00 N.m
+1791854912.1823   TIDAK VALID (mesin, A5, di LUAR penyebut): {'HALTED': 1}
+1791854912.1825   -> /tmp/claude-1001/g61_inj_s12_nocorr/ev06_probe_try0.json

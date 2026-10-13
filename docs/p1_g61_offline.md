@@ -257,3 +257,42 @@ arm_3 (34.7 + 48.1 + 55.4) ≈ 190. Sim memberi tiap tugas 29.04 → kelebihan a
 2. Runner/probe: menyusutkan reservasi tugas ke keadaan akhir rencana segera sesudah `MOVED` (lengan diam di target selama dwell),
    bukan di akhir event → s0 ev 9/10 −13…−21 s. Perubahan semantik reservasi (keadaan terukur tetap), butuh §A + uji sendiri.
 3. Penyaring reservasi 0.136 s/keadaan: B&B / cache geometri seperti G35/G36 (penyaring lain sudah).
+
+### B4. Mock 77 (fake HW, BUKAN data HW) — job [g61_mock_job.sh](results/p1_g61/g61_mock_job.sh) 10:06–10:41, [log](results/p1_g61/g61_mock_job.log), arsip `results/p1_g61/smoke/`
+
+Stack 10:01 (`g61_mock_up.sh`, `octomap_updaters:=false`, SigIgn `0x1001001`, 7/7 active, 0 baris pointcloud_octomap_updater; spawner
+"already loaded" = balapan dikenal), monitor + perekam (`g61_mon_up.sh`, `g61_rec_up.sh`), return_rest keempat lengan, g1 PARK 1.50,
+K0 LULUS sebelum + sesudah tiap run. DRY pra-cek positif: `/get_planning_scene 0.10 s, objek dunia ['env_static_map']`, perekam +398 kB / 3 s.
+
+| run | argumen | hasil | catatan |
+|---|---|---|---|
+| A5.1 s7 baru | `--goal-correct` | **6/6, 274.27 s** (G58 276.40) | 0 AUTO-STOP, 0 koreksi (geser 0.00 mm semua), 0 peringatan; argv tugas **6/6 identik** G58 ([g61_argv_cmp.py](results/p1_g61/g61_argv_cmp.py)) |
+| A5.1 s12 lama | `--goal-correct` | **6/6, 329.29 s** (G58 332.32) | idem; argv **6/6 identik** G58 |
+| A5.2(a) s12 lama | `--inject-rot-error 1:1:-0.48` | **4/6** | traverse g1 berakhir (0.650, +39.520); ev 5 GOAL-MISMATCH 3.88 / 3.18 / 3.50 mm (HW coba 1: 3.25 / 3.18 / 3.86) → HALTED "lengan tidak bisa", lanjut; **ev 6 juga GOAL-MISMATCH** 3.38 / 3.87 / 3.63 (HW coba 1 lolos 2.89 secara stokastik); 0 AUTO-STOP; perekam SIGSTOP 8 s (A5.5) |
+| A5.2(b) s12 lama | `--inject-rot-error 1:1:-0.48 --goal-correct` | **6/6, 328.24 s** | ev 5 geser 3.26 mm → IK 0.0001 mm, \|Δq\| **1.891°** DITERAPKAN → PLANNED percobaan 1, ujung **0.29 mm**, SUCCESS; ev 6 3.54 mm → \|Δq\| 1.488°, ujung 0.10 mm, SUCCESS; semua penyaring probe jalan (baris torsi/antar-lengan/lingkungan/pulang/reservasi) |
+| A5.5 perekam | SIGSTOP 8 s saat A5.2(a) | peringatan **5.0 s** sesudah berhenti, "tumbuh lagi sesudah 8.0 s", run tidak dihentikan, baris SELESAI "data perekam TIDAK LENGKAP (1 macet)" | ✓ |
+
+**BELUM DIJALANKAN (sesi dijeda 10:41 atas permintaan operator):** A5.4 kontrol negatif SIGKILL move_group (skrip siap
+[g61_neg.sh](results/p1_g61/g61_neg.sh) `<pid move_group>`) dan A5.3 pra-cek tanpa move_group (di skrip yang sama, sesudah kill). Mock
+77 dibiarkan HIDUP (launch 671127, move_group 671191, monitor 671970, perekam 671920) di REST + g1 PARK, K0 LULUS.
+
+### B5. Papan skor (sementara)
+
+| # | Dugaan | Hasil |
+|---|---|---|
+| D550 | SIGKILL move_group → AUTO-STOP ≤ 0.5 s | **belum** (A5.4) |
+| D551 | pra-cek menolak tanpa move_group | **belum** (A5.3) |
+| D552 | A5.1 6/6 ×2, 0 pemicu, argv identik | ✓ |
+| D553 | inj tanpa koreksi: ev 5 GOAL-MISMATCH 3/3 (3–4 mm), lanjut, ev 6 SUCCESS | ✗ (ev 5 ✓ 3.18–3.88, lanjut ✓; ev 6 juga GOAL-MISMATCH) |
+| D554 | inj + koreksi: ev 5 diterapkan, \|Δq\| ≤ 1°, PLANNED 1, ujung ≤ 1 mm, SUCCESS | ✗ (\|Δq\| 1.89°; sisanya ✓) |
+| D555 | luring: terpicu ≤ 10/94, IK semua, \|Δq\| ≤ 1° | ✗ (14/94, IK 14/14, 1.76°) |
+| D556 | j2 ≤ probe ≥ 90 %, kelebihan ≤ 0.5 | ✓ (85/87, 0.31) |
+| D557 | offset efektif maks ≤ 8.2 | ✓ (8.01) |
+| D558 | puncak > 11 di transit ≥ 80 % | ✓ (13/13) |
+| D559 | garis lurus ≥ ukur ≥ 80 % | ✓ (86/87) |
+| D560 | eksekusi ≥ 60 % kelebihan arm_3 s0 | ✗ (≤ 20 %; reservasi) |
+| D561 | eksekusi HW/mock median ∈ [0.8, 1.25] | ✓ (1.0001) |
+| D562 | traverse menjelaskan ≥ 50 % gap s8/s18 lama | ✗ (17 % / 17 %) |
+
+Sementara **6/11 dinilai** (D550/D551 belum). Gerbang G61: C1 BELUM (A5.3 + A5.4); C2 ✓ (A5.2 (a) ditolak + (b) lolos, regresi
+bit-identik); C3 ✓; C4 ✓; smoke 6/6 s7 baru + s12 lama ✓; runbook + prompt HW diperbarui (belum final sampai C1 lulus).
