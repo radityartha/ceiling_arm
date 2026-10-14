@@ -137,3 +137,7 @@ melanjutkan pemeriksaan, pemulihan dan penutupan; tidak disembunyikan.
 G61 selesai (terpisah dari CAM-6DOF): sesi runner berikut mengikuti `docs/p1_g62_hw_prompt.md`, model kuat effort high; setiap gerak HW menunggu izin operator per langkah.
 
 Sesi CAM-6DOF HW: tempel ulang `docs/p1_cam6dof_prompt.md` SAMA; langkah 0 sudah selesai (§A0 `docs/p1_cam6dof.md`) → mulai gerbang K0–K3b + angka (balok A/B ±2 mm, diameter botol, lantai z 0), bring-up, `cam6dof_capture` + `arm_fk_check` ×3, `proj_marks` K4, plan-check HW tanda F, lalu KUNCI §A (draf A1–A4) sebelum data botol / gerak pertama.
+
+### Checkpoint CAM-6DOF 2026-10-14 (pra-bring-up)
+
+Operator mengonfirmasi gerbang verbal K0–K3b, botol H70/diameter60 mm, lantai z0/meja0.770 m; box A310/B480 mm kokoh, rata, stabil. Ketelitian ±2 mm + ukuran/penempatan box masih menunggu jawaban. Pemeriksaan host read-only remount LULUS, domain0/77/79 kosong (bukti `results/p1_cam6dof/preflight_20261014/`). Nol bring-up/gerak/data botol; K0 terukur, K4 dan §A terkunci BELUM. G61/G62 tidak disentuh. Langkah berikut CAM-6DOF: konfirmasi box, bring-up tanpa gerak + K0 terukur, baseline REST/proyeksi/plan-check HW sebelum kunci §A; model kuat effort high.

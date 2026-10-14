@@ -87,4 +87,15 @@ diubah sesudah melihat data; uji-tahan tidak pernah dipakai untuk fit / memilih 
 
 ## B. Hasil terukur
 
-(belum — HW sesi berikut)
+### B0. Checkpoint pra-bring-up 2026-10-14 — NOL gerak HW
+
+- Melanjutkan HEAD `178874f` pada `feat/rgbd-deploy`; G61 tidak diulang. Berkas tak terlacak sesi lain tidak disentuh. Memori Claude tersedia dan dibaca; ringkasan lama G61 yang masih menyebut dijeda kalah oleh git + dokumen fase.
+- Operator: K0 sel aman/keadaan sesuai pertanyaan REST/PARK, K1 siap di e-stop fisik, K2 lampu + tanda meja + botol tersedia, K3 tidak ada sesi/task server/reach_fusion, K3b identitas fisik rgbd/rgbd2 benar; lantai world z=0 dan meja 0.770 m dikonfirmasi. K0 TERUKUR belum dijalankan; pernyataan operator bukan pengganti K0.
+- Botol putih: H=0.070 m, diameter=0.060 m (r=0.030 m), saat ini di C3. Tidak ada track botol yang direkam.
+- Dua box dilaporkan kokoh, rata, stabil: A=0.310 m dan B=0.480 m. Ketelitian ±2 mm, ukuran permukaan atas, penempatan lantai/tumpuk masih ditanyakan. Angka ini belum dikunci. Box dimaksudkan untuk zona lantai arm_3/arm_4; posisi tepat menunggu proyeksi K4 hidup dan pemeriksaan jarak bebas. Penyangga lebih tinggi dari usulan 0.15/0.35 m merupakan perubahan draf sebelum data, bukan perubahan kriteria.
+- Pemeriksaan sandbox awal hanya melihat namespace proses sandbox; TIDAK dipakai menyatakan host kosong. Pemeriksaan host melalui eskalasi read-only: remount_check LULUS (USB0/1 ada, IP 192.168.2.100/24, empat ICMP menjawab, tanpa proses basi); node domain 0/77/79 kosong. Bukti di `results/p1_cam6dof/preflight_20261014/`. lsusb melaporkan 10 perangkat Intel, bukan bukti 10 kamera; serial kamera belum diverifikasi hidup.
+- Konflik prompt awal: dugaan utama tilt murni dan kemungkinan rgbd lantai satu tinggi mengikuti hasil A0.7/A0.12 yang lebih baru: tilt belum terbukti, beberapa tinggi untuk rgbd wajib. M7 hanya hasil fit/LOO; TF statis tidak menerapkan skala (A0.10). Tidak ada pelonggaran penyaring.
+- Belum dijalankan: bring-up, monitor/perekam, K0 terukur, baseline REST ×3, capture lengan, proyeksi/K4 hidup, plan-check HW, penguncian §A, seluruh data botol/fit/uji-tahan/pemasangan kandidat. Nol gerak, nol proses stack milik sesi yang perlu dimatikan. REST/PARK fisik hanya konfirmasi operator, bukan hasil ukur.
+- D590–D598 seluruhnya **— belum diuji**; belum ada skor ✓/✗ atau keputusan C1–C6. Jawaban sementara: “hanya rgbd2 yang salah” BELUM terbukti; bukti lama rgbd2 meja 0.143–0.229 m, rgbd belum diuji jauh pada beberapa tinggi.
+- Rekomendasi model kalibrasi tetap M6 utama, M7 lewat aturan LOO FIT saja; model agen kuat, effort high karena galat diam. Langkah berikut: konfirmasi ketelitian/ukuran/penempatan box, lalu bring-up tanpa perintah gerak dan ukur K0 sebelum baseline.
+
