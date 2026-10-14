@@ -631,3 +631,12 @@ Operator “F3 langsung di penyangga70 mm, siap rekam”; kedua capture15 s sele
 Evaluasi incumbent lantai D595 kini **mulai dijalankan tetapi F3/BASE tidak dapat dinilai numerik**, bukan “belum pernah dicapture”; belum keseluruhanF3/F7 dan tidak diberi✓. Incumbent juga gagalbaselineC3arm_2=5.3 cm, sehingga “rgbd tidak salah/tidak diubah karena lulus” tidak terbukti. C2 kandidat belum dijalankan karena C1 kedua kamera gagal; merekam incumbent bukan mengklaim uji hidup ekstrinsikbaru. F3/F7 tidak masukfit/inisialisasi/LOO/modelchoice, termasuk jika missing.
 
 Meja18/18/lantai13/18. D590✗/D597✓; D591–D594/D596/D598 belum diuji, D595 incumbent sedang dievaluasi/missing. C1RGBDF1 gagal0/3, C1RGBD2F5 gagalBASEtunggal/Dmissing/CDrival; seluruhanomali/rival dipertahankan. Belumfit/LOO/kandidat/liveholdoutbaru; “hanya rgbd2 salah” belum terbukti. SemuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOLgerakbaru. Berikut lantai14/18 F3/D: boxD140 di atas penyangga tetap70 mm (surf_z0.210), tanpaC, botol sama; tunggu siap/menjauh sebelum15 s. Peta diverifikasi sebelumHWbaru karena laci dipindahkan.
+
+
+### B51. Botol lantai 14/18 F3/D — uji-tahan incumbent missing kedua kamera
+
+Operator “F3 di atas box D, siap rekam”; kedua capture15 s selesai rc0 (`hw_20261014/tracks_inc/F3_D_*`). Surf_z0.210 (penyangga tetap70+D140), actualxy=(0.2513,−0.5991), botol H0.165/r0.0325; ketiga hash cocok. RGBD UJI-TAHAN **29/29 pesan tracks[]**, RGBD2 NOT_USED **25/25 pesan tracks[]**. Log/jumlah pesan/raw diperiksa sendiri; tanpa gerak HW atau perubahan selector/detector/model. Tidak ada median atau galat sah, missing tidak diberi nol/diganti/direkam ulang. F3BASE/D missing; CD belumcapture.
+
+F3 tetap tidak masukfit/init/LOO/modelchoice. D595 incumbent sedang dievaluasi dan tidak dapat dinilai numerik padaBASE/D; tidak diberi✓ atau menyebut belum pernahdicapture. C1 dataset kedua kamera gagal (RGBDF1/RGBD2F5), belumfit/LOO/kandidat/uji-tahan ekstrinsikbaru; baselineRGBDarm_2=5.3 cm tetapgagalC3. D590✗/D597✓, D591–D594/D596/D598 belum diuji. “Hanya rgbd2 salah” belum terbukti.
+
+Meja18/18/lantai14/18, semuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOLgerakbaru. Berikut lantai15/18 F3/CD: C di bawah/D di atas pada penyangga tetap70 mm, tumpukan aktual245 (surf_z0.315), botol sama; tunggu siap/menjauh sebelum15 s. Peta diverifikasi sebelumHWbaru karena laci dipindahkan.
