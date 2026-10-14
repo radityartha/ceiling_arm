@@ -132,7 +132,7 @@ melanjutkan pemeriksaan, pemulihan dan penutupan; tidak disembunyikan.
 
 G61 selesai (terpisah dari CAM-6DOF): sesi runner berikut mengikuti `docs/p1_g62_hw_prompt.md`, model kuat effort high; setiap gerak HW menunggu izin operator per langkah.
 
-Sesi CAM-6DOF HW AKTIF: §A terkunci d081044,meja18/18 selesai; GERAK #1 arm_3REST→F1 MOVED/SUCCESS,torsi5.615,TCP(0.2512,−0.4998,1.2204),galat1.281 mm,operator tandaF1 selesai. Arm_3 sedang diF1 (BUKAN REST),lengan lainREST,g1PARK/g2home,rel/rot diam. Berikut plan-only F6 dariF1 lalu minta izin satu langkah; BELUM izin F6/pulang. Stack+localizer sesi HIDUP;model kuat effort high.
+Sesi CAM-6DOF HW AKTIF: §A terkunci d081044,meja18/18 selesai; GERAK #1 F1 dan #2 F6 MOVED/SUCCESS. Arm_3 sedang diF6 (BUKAN REST),TCP(0.3998,−0.6998,1.2197),galat0.412 mm,torsi12.208 N·m;lengan lainREST,g1PARK/g2home,rel/rot diam. Menunggu konfirmasi tanda unting F6; berikut plan-only F4 dariF6 lalu minta izin satu langkah. BELUM izin F4/pulang. Stack+localizer sesi HIDUP;model kuat effort high.
 
 ### Checkpoint CAM-6DOF 2026-10-14 (pra-bring-up)
 
