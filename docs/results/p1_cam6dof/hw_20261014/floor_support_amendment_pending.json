@@ -2,28 +2,40 @@
   "operator_request": "A dan B terlalu besar sullit untuk dipindah2. lebih mudah jika pakai C dan D atau tumpukan keduanya",
   "original_protocol_commit": "d081044",
   "original_protocol_sha256": "3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802",
-  "status": "requested; measurements and stability pending; NOT locked or applied",
+  "status": "measurements received; draft pending remaining mark surfaces/projection and locking",
   "bottle_floor_data_started": false,
   "current_hw_pose": "arm_3 F4; other arms REST; no permission F5 or return",
   "known_C_height_m": 0.1,
   "known_D_height_m": 0.14,
-  "stack_measured_height_m": null,
+  "stack_measured_height_m": 0.245,
   "stack_order": null,
-  "F6_support_base_z_m": null,
+  "F6_support_base_z_m": 0.07,
   "proposed_supports": [
-    "C",
-    "D",
-    "C+D if measured and stable"
+    "D140",
+    "C+D245"
   ],
   "acceptance_criteria": "C1-C6, model bounds, weighting and FIT/holdout roles unchanged; original and amended results must be distinguished",
   "floor_capture_blocked_until_amendment_locked": true,
   "F4_F6_same_fixed_support": true,
   "fixed_support_reported_height_m": 0.07,
-  "fixed_support_height_precision_confirmed": false,
-  "F4_support_base_z_m": null,
+  "fixed_support_height_precision_confirmed": true,
+  "F4_support_base_z_m": 0.07,
   "small_supports_on_fixed_base": true,
   "operator_fixed_base_capacity_confirmed": true,
   "F4_surface_mark_confirmed": true,
-  "F4_rope_secured_confirmed": null,
-  "operator_clarification": "F4 and F6 on same fixed 7 cm support; supports C/D weight; stack height/order/stability unanswered"
+  "F4_rope_secured_confirmed": true,
+  "operator_clarification": "F4 and F6 on same fixed 7 cm support; supports C/D weight; stack height/order/stability unanswered",
+  "stack_precision_confirmed": true,
+  "stack_stability_with_bottle_confirmed": true,
+  "stack_order_note": "Not answered; confirm same measured stable arrangement before first stack placement",
+  "selected_floor_levels": [
+    "base",
+    "D140",
+    "C+D245"
+  ],
+  "known_F4_F6_surface_heights_m": [
+    0.07,
+    0.21,
+    0.315
+  ]
 }
