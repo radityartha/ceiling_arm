@@ -606,3 +606,19 @@ RGBD satuID273 gray bottle **30/30 pesan**, median **(0.681824,−0.513617,0.107
 Hitungan F5 RGBD kini dua tinggi tunggal; RGBD2 baruBASE satu tinggi, perluCD untuk≥2. Tidak menyatakan C1 fit keseluruhan sah: F1RGBD gagal0/3, N1RGBD2 belum sah dan parameterbelumfit. F5 adalahFIT, bukanC2/C4; belumfit/LOO/kandidat/liveholdout. D590✗/D597✓, lainnya belum diuji sepertiB34; “hanya rgbd2 salah” belum terbukti.
 
 Meja18/18/lantai11/18. SemuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOL gerak baru. Berikut lantai12/18 F5/CD: C bawah/D atas, tumpukan aktual245 mm langsung lantai (surf_z0.245), botol sama; tunggu siap/menjauh sebelum15 s. Peta lingkungan diverifikasi sebelumHWbaru karena laci dipindahkan.
+
+
+### B49. Botol lantai 12/18 F5/CD — anomali dan rival bersamaan; C1 kedua kamera gagal
+
+Operator “F5 di atas C+D, siap rekam”; kedua capture15 s selesai rc0 (`hw_20261014/tracks_inc/F5_CD_*`). Surf_z0.245 langsung lantai (C bawah/D atas, tumpukan aktual245), actualxy=(0.6497,−0.4779), botol H0.165/r0.0325; ketiga hash cocok. F5 FIT kedua kamera. Log/jumlah pesan/raw dan urutan ID diperiksa sendiri; tanpa gerak HW atau perubahan selector/detector/model.
+
+| Kamera | Track terpilih/n | Median xyz (m) | xy mentah (cm) | z_expected (m) | dz (cm) | p5–p95xyz (mm) | Conf |
+|---|---|---|---:|---:|---:|---|---:|
+| rgbd | 273/30 | (0.689557,−0.487458,0.166740) | 4.0987 | 0.358438 | −19.1697 | 2.0/4.4/67.0 | 0.361 |
+| rgbd2 | 1568/16 | (0.643559,−0.478561,0.051984) | 0.6176 | 0.383188 | −33.1203 | 7.5/9.0/46.8 | 0.335 |
+
+RGBD satuID273 gray bottle30/30 tanpa rival, tetapi trackz **78.2597 mm di bawah penyangga0.245 m**. RGBD2 median hanyaIDterbanyak1568 sesuai aturanlama, **bukan observasi tunggal yang sah**: lokal1568n16,1583n9,1585n4; global1580n4 di luar radius. Audit `F5_CD_ambiguity.json` menyimpan seluruhurutan+SHAraw: **maksimal2ID lokal bersamaan, 4/30 pesan punya1583+1585, 5/30 kosong**. Jadi ini bukan sekadar ID berganti berurutan. Median1583z0.0429 dan1585z0.2827 sangatberbeda; tidak memilih1585 sebagai pengganti demi zlebihbaik, menggabung ID, menyingkirkan rival atau merekam ulang. OffsetmodelRGBD=(0.015258,0.020009,0.113438), RGBD2=(−0.017701,−0.010859,0.138188); xyz/rival/sebaran tetap diarsip.
+
+**C1 FIT RGBD2 padaF5 gagal:** BASE tunggal, Dmissing, CD punya rivalbersamaan; hanya satu tinggi tunggal yang terbukti, perlu≥2. **C1 kedua kamera kini gagal secara dataset** (RGBDF1 0/3; RGBD2F5 satu/3), tanpa bergantung pada penafsiranN1TD IDsekuensial. N1 ambigu tetapdiungkapkan. Angkafit kelak hanya informasional, tidak kandidatpenerimaan atau alasanmemasangTF yang gagalgerbang. Tidak melonggarkan kriteriamissing/rival, mengganti tanda/peran atau membuangbadpoint. C2–C5 kandidat/uji hidup belumdijalankan; C6 tujuhgerak tetaplulus.
+
+Meja18/18/lantai12/18, seluruhFITlantaiF1/F6/F4/F5 selesai; berikut dataUJI-TAHANincumbentF3/F7, tidak dipakai fit/init/LOO/modelchoice. D590✗/D597✓, D591–D596/D598 belum diuji sepertiB34. “Hanya rgbd2 salah” belum terbukti; anomali dapat mencakupsegmentasi/centroid/depth/ekstrinsik, bukan isolasi kausal. SemuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOLgerakbaru. Berikut lantai13/18 F3/BASE: botol langsung pada tanda di atas penyangga tetap70 mm, tanpa C/D; tunggu siap/menjauh sebelum15 s. F3 UJI-TAHAN RGBD saja, NOT_USED RGBD2. Peta diverifikasi sebelumHWbaru karena laci dipindahkan.
