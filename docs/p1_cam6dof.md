@@ -307,3 +307,13 @@ Keadaan arm_3 tetapF6, lengan lainREST, gantry tetap; belum izin F4/pulang. Klar
 Perintah DRY awal lupa arg `--plan-check`, menghasilkan DRY tanpa `plans` atau saringan (`from_F6_to_F4_plan.json/.log`). Tidak diklaim PLANNED/lulus dan tidak ada gerak. Dikoreksi menjadi command terpisah dengan `--plan-check` (bukti awal dipertahankan): `from_F6_to_F4_screened_plan.json/.log`, rc0 **DRY/PLANNED percobaan1**, wrapper j2 **92.543450%**≤97. Interarm666.9 mm/env115.3 mm, retract se623.1/antar710.3/env115.3 mm semua CLEAR. Ini plan-check dari pose aktualF6, bukan mengulang enam kandidat dariREST/A0. Tidak ada --move atau eksekusi; monitor targetF4 bukan bukti lengan pindah.
 
 Arm_3 tetap F6, unting aman, box pendek sejak awal; A/B langsung lantai pada F6 tetap tersedia, L0missing. Tinggi/peran/hash tetap. Belum izin F4/pulang; berikut meminta **GERAK #3 arm_3 F6→F4=(0.55,−0.60,1.22) m tool-bawah saja**, rencana aktual akan disaring ulang. Permukaan tandaF4 harus dikonfirmasi saat penandaan (lantai atau box tetap), tidak diasumsikan z0.
+
+**Izin gerak #3 diterima:** “Izinkan arm_3 F6→F4 saja”. Hanya arm_3 keF4, bukan titik berikut/pulang. Sebelum eksekusi arm_3F6; command --move akan merencanakan ulang dan menyaring semua lintasan dengan batas97% dan abort torsi14.
+
+### B20. GERAK HW #3 arm_3 F6→F4 — MOVED/SUCCESS
+
+Izin operator “Izinkan arm_3 F6→F4 saja”. Satu command, supervisor839261/probe839265 selesai rc0 (`move_F4_job/exit.json`, `move_F4.log/.json`). Rencana aktual PLANNED sampel1, j2 **92.543622%**≤97 melalui penjaga; interarm666.9 mm/env115.3 mm, retract se623.1/antar738.6/env115.3 mm CLEAR. MOVED, dwellSUCCESS2 s,41 sampel@20 Hz,pos maks4.02 mm/settled1.25 mm,ori maks1.72°. Torsi puncak **9.826 N·m**,≤14 dan≤13.
+
+TCP3 s,n87 **(0.5491,−0.6003,1.2206) m**, std cetak0 mm, galat **1.122 mm** (`tcp_F4.log`, `mark_F4.json`). Audit seluruh27.85 s job (`move_F4_recorder_audit.json`):77980 baris,cakupan≤6 ms,puncak9.8258 N·m j2; rentang rel/rotasi0,lengan lain maks0.004469°. Seluruh effort lengan finite; effort rel/rotasi NaN2785 per sendi dicatat sebagai kanal tidak tersedia, bukan torsi0. Log jendela tidak menunjukkan FAULT/REJECTED/TORQUE-ABORT/NOTarmed baru; controllerSUCCEEDED. C6 langkah3 lulus; D597 belum final.
+
+**Keadaan:** arm_3 menahanF4 (BUKAN REST),lengan lainREST,gantry tetap. TandaF4 belum dikonfirmasi; actualxy belum dimasukkan ke plan sampai operator membuat tanda. Permukaan tanda harus dinyatakan lantai z0 atau penyangga tetap; tidak mengulang asumsiF6. Belum izin F5/pulang. Berikut operator tandauntingF4, konfirmasi permukaan dan untingaman; lalu plan-checkF5 dariF4 sebelum izin satu langkah. Stack/kamera/monitor/perekam/localizer hidup,§A/hash tetap.

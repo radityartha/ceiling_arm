@@ -1,0 +1,22 @@
+probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_3 (0.55, -0.6, 1.22), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1791955549.024217873] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.04->6.64/10, 2=5.26->12.96/14, 3=2.53->9.13/10, 4=0.41->2.39/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_2 93 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1791955561.807407858] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 666.9 mm di titik 0 (t2_a1_forearm_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791955563.257634864] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 115.3 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791955564.305655262] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.001):
+[INFO] [1791955565.769401915] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 623.1 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791955565.771374721] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 738.6 mm di titik 34/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791955565.772946666] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 115.3 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+[INFO] [1791955565.774606519] [reach_dwell_probe]: CAM-6DOF margin: t2_a1_joint_2 92.543622% (batas 97%)
+       arm_3: moveit MOVED  (percobaan rencana: ['PLANNED'])
+  [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_3']) torsi puncak  9.83 N.m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> docs/results/p1_cam6dof/hw_20261014/move_F4.json
+job complete 0
