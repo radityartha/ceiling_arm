@@ -1,0 +1,35 @@
+==========================================================================
+REMOUNT CHECK -- READ-ONLY. Skrip ini TIDAK menggerakkan apa pun.
+==========================================================================
+
+TAHAP 0 -- READ-ONLY, tanpa ROS  (docs/p1_g16_hw.md A7)
+  [[32m OK [0m] port serial /dev/ttyUSB0                     ada
+  [[32m OK [0m] port serial /dev/ttyUSB1                     ada
+  [[32m OK [0m] IP di subnet 192.168.2.x                     192.168.2.100/24
+  [[32m OK [0m] ICMP arm_1 (192.168.2.13)                    menjawab
+  [[32m OK [0m] ICMP arm_2 (192.168.2.12)                    menjawab
+  [[32m OK [0m] ICMP arm_3 (192.168.2.11)                    menjawab
+  [[32m OK [0m] ICMP arm_4 (192.168.2.10)                    menjawab
+  [[32m OK [0m] web UI arm_1 tidak dipakai                   
+  [[32m OK [0m] web UI arm_2 tidak dipakai                   
+  [[32m OK [0m] web UI arm_3 tidak dipakai                   
+  [[32m OK [0m] web UI arm_4 tidak dipakai                   
+  [[32m OK [0m] tidak ada move_group basi                    
+  [[32m OK [0m] tidak ada ros2_control_node basi             
+  [[32m OK [0m] tidak ada static_transform_publisher basi    
+  [[32m OK [0m] tidak ada realsense2_camera_node basi        
+  [[32m OK [0m] tidak ada reach_dwell_monitor basi           
+  [[32m OK [0m] kamera RealSense terdeteksi                  10 perangkat Intel di lsusb (diharapkan 2x D455)
+
+  ⚠️  PERIKSA DENGAN MATA, tidak bisa diotomatiskan:
+      - LED tiap lengan TIDAK amber/init (mid-boot = SIGABRT -6,
+        dan keempat lengan mati bersama). Beri jeda setelah power-on.
+      - LED TIDAK merah (fault terkunci; fault_controller tidak
+        di-spawn, jadi reset harus FISIK).
+      - Board kalibrasi SUDAH DIKELUARKAN dari ruang kerja
+        (kecuali sengaja dipakai sebagai target persepsi).
+      - Lengan menggantung bebas; TIDAK ada yang menyentuh rel.
+
+==========================================================================
+[32mGERBANG LULUS.[0m Lanjut ke tahap berikutnya (A7).
+==========================================================================

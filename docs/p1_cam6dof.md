@@ -99,3 +99,72 @@ diubah sesudah melihat data; uji-tahan tidak pernah dipakai untuk fit / memilih 
 - D590–D598 seluruhnya **— belum diuji**; belum ada skor ✓/✗ atau keputusan C1–C6. Jawaban sementara: “hanya rgbd2 yang salah” BELUM terbukti; bukti lama rgbd2 meja 0.143–0.229 m, rgbd belum diuji jauh pada beberapa tinggi.
 - Rekomendasi model kalibrasi tetap M6 utama, M7 lewat aturan LOO FIT saja; model agen kuat, effort high karena galat diam. Langkah berikut: konfirmasi ketelitian/ukuran/penempatan box, lalu bring-up tanpa perintah gerak dan ukur K0 sebelum baseline.
 
+### B1. Bring-up + K0 + capture/proyeksi hidup 2026-10-14 — NOL gerak diperintah
+
+- Operator mengonfirmasi box A310/B480 mm telah diukur ±2 mm, permukaan A470×350/B423×268 mm, keduanya langsung di lantai. Angka mengganti usulan draf A1 (belum terkunci). Botol H70/diameter60 mm. Posisi box terhadap lintasan/tinggi meja masih harus dinilai sebelum pemindahan; box B di meja akan mencapai z1.25 m (botol hingga1.32 m), jangan menganggap aman terhadap lengan REST.
+- Pra-cek tepat sebelum bring-up: remount LULUS, domain0 kosong; bukti `preflight_20261014/*latest.log`. Launch asli PID786857, SIGINT tidak diabaikan (SigIgn0x1001005), HW nyata + bridge true + octomap_updaters false. Empat actuator count6, 7/7 controller active. Table1 NOT armed saat inisialisasi menolak tujuan awal nol di g1=1499.3 mm: kondisi pra-ARMED dikenal (A1 runbook/ARM1-ZONE B1), tidak ada NOT armed sesudah ARMED; table2 ARMED. Belum ada perintah gerak yang dikirim.
+- K0 awal LULUS (`hw_20261014/k0_initial.json`): g1=1.499262262 m, g2=0.000900590 m, rot0/0. Galat REST maksimum per lengan 0.092/0.198/0.455/0.147° (arm_3 dekat batas0.5°, tidak dilonggarkan). Jari tertutup.
+- Log spawner duplikat gagal tetapi 7/7 controller aktif; KDL grup gantry gabungan bukan rantai, plugin CHOMP/Pilz gagal dimuat (library2.5.10/2.5.9 tidak tersedia). OMPL siap (`Using planning interface OMPL`, `You can start planning now`). Peta awal False lalu publisher memulihkan; cek layanan read-only `scene_check.json` berisi env_static_map. Plugin gagal bukan ditutupi; plan-check belum dijalankan.
+- Monitor hidup observer-only; CSV dwell0 byte karena `_tick` langsung kembali tanpa target (header belum flush). Ini bukan bukti monitor telah merekam target. Perekam sendi tumbuh323056→3126167→14862362 byte. Tidak mengirim target buatan untuk membuat bukti dwell. PID monitor wrapper787845/anak787875, perekam787846; PID adalah riwayat dan harus diverifikasi ulang sebelum kill.
+- Kamera incumbent launch+G34: rgbd serial241122302297, rgbd2 serial234222303079. Capture `rest_inc.npz` selesai, rc0:10 frame per kamera720×1280, depth valid0.73/0.80; TF posisi(1.7166,0.8656,2.0782)/(−0.1547,−1.0197,2.0905).12 geometri jari tanpa TF dilewati dan dicetak sesuai A0.6. All-NaN piksel dicetak, bukan pengganti nilai depth. Belum ada localizer/track botol.
+- Baseline REST pertama (`rest_inc_1.json`): |t_xy| rgbd:arm_2=0.053 m, arm_4=0.032 m; rgbd2:arm_1=0.127 m, arm_2=0.062 m, arm_3=0.024 m. Kept0.918–1.000, median3.4–10.0 mm. Baseline2/3 masih berjalan; jangan menyimpulkan keputusan dari satu pembacaan. Nilai rgbd:arm_2 sudah sedikit di atas5 cm, belum teratribusi kamera vs world/gantry.
+- Proyeksi F hidup `k4_rgbd{,2}.jpg/.log`: keenam titik lantai IN di rgbd (2.70–2.94 m), tetapi sebagian proyeksi tampak di balik lengan/laci (IN bukan bukti bebas halangan). rgbd2: F1/F6/F4/F3 OUT; F5 IN(v687), F7 IN(v708, hanya12 px dari batas bawah). Konflik dengan peta lama A0.8: F4 lantai tidak terlihat pada incumbent hidup; draf peran FIT rgbd2 di F4 bersyarat tidak boleh diasumsikan terpenuhi. Proyeksi A/B menyusul. K4 operator ditanyakan setelah gambar ditampilkan, masih menunggu jawaban. Kandidat(0.40,−0.50) tetap dibuang.
+- §A DRAF, belum dikunci. Belum data botol, fit, uji-tahan, localizer per kamera, plan-check HW, gerak penunjuk/pulang. D590–D598 belum diuji. Stack/kamera/monitor/perekam milik CAM-6DOF masih HIDUP selama gerbang K4; ini checkpoint aktif, bukan penutupan/shutdown. Berkas CSV besar tidak akan di-commit.
+- Langkah berikut: selesaikan baseline REST×3, konfirmasi K4/ruang box, lalu plan-check HW titik yang benar-benar bebas sebelum kunci§A.
+
+### B2. Baseline REST final + K4 operator (checkpoint aktif)
+
+Baseline incumbent tiga pengukuran selesai, semua rc0; ringkasan `hw_20261014/rest_inc_summary.json`.
+
+| Kamera:lengan | tiga galat xy (cm) | median (cm) | minimum tersimpan | maksimum median residu |
+|---|---|---|---|---|
+| rgbd:arm_2 | 5.3 / 5.1 / 5.3 | **5.3** | 100% | 3.4 mm |
+| rgbd:arm_4 | 3.2 / 2.7 / 3.0 | 3.0 | 91.8% | 8.2 mm |
+| rgbd2:arm_1 | 12.7 / 13.0 / 14.1 | **13.0** | 97.2% | 10.0 mm |
+| rgbd2:arm_2 | 6.2 / 5.8 / 6.2 | **6.2** | 97.5% | 7.1 mm |
+| rgbd2:arm_3 | 2.4 / 2.3 / 2.2 | 2.3 | 99.8% | 9.5 mm |
+
+Semua lengan yang terlihat memenuhi gerbang kualitas FIT A2 (jendela≥300, tersimpan≥30% dan≥200, residu≤15 mm). rgbd incumbent **belum lulus C3** karena arm_2 median5.3 cm>5 cm; bukan bukti atribusi bahwa ekstrinsik rgbd pasti salah (kedua kamera melihat arm_2 bergeser). C2 botol beberapa tinggi belum diuji. Klaim hanya rgbd2 salah belum didukung; kandidat rgbd tetap harus dinilai dengan uji-tahan independen.
+
+Operator K4: area kosong boleh dipakai untuk kalibrasi, box dapat dipindahkan ke sana. Tidak ada instruksi pemindahan box ke jalur lengan. Proyeksi tinggi aktual: F4 lantai OUT rgbd2(v739), A310 IN(v691), B480 IN(v660); F7 semua tinggi IN(v708/659/627). F4 boleh menjadi FIT rgbd2 bila botol tunggal ter-track pada dua tinggi A/B, sesuai syarat A2/C1; lantai yang tidak ter-track dicatat, tidak dikarang. F7 lantai dekat batas, visibilitas botol penuh masih perlu diperiksa.
+
+Swa-uji penyaring env PASS dan interarm LULUS sebagai pemeriksaan wajib pra-plan, bukan pengulangan A0 solver/TF/G61. OMPL plan-check HW tanpa --move sedang berjalan: F7 PLANNED sampel2 (sampel1 TORQUE-UNSAFE, rencana terpilih j2 92%), F1 PLANNED sampel1(j3 92%), F6 PLANNED sampel4(tiga TORQUE-UNSAFE, terpilih j2 93%), F4 PLANNED; F5/F3 menyusul. Semua rencana terpilih harus≤97%; penolakan lintasan sebelumnya tidak disembunyikan dan tidak dieksekusi.
+
+Monitor CSV tumbuh setelah probe plan-only menerbitkan target pengamatan; ini galat terhadap target rencana yang tidak dieksekusi, BUKAN dwell SUCCESS/gerak nyata. Perekam sendi tetap tumbuh. Pemakaian box di enam tanda meja ditanyakan terpisah karena ukuran/tinggi aktual dapat bertabrakan dengan lengan REST atau melewati tepi meja; jawaban belum tiba. §A belum dikunci sampai kelayakan ini jelas; localizer/track botol belum dimulai. NOL gerak HW diperintah.
+
+### B3. Pra-penguncian: plan-check final dan penyangga meja
+
+Keenam kandidat F pada HW nyata PLANNED, tanpa --move. Bukti JSON/log per titik dan `plans_summary.json` di `hw_20261014/`.
+
+| Tanda | xy (m) | sampel diterima | rencana sebelumnya | torsi terketat terpilih |
+|---|---|---|---|---|
+| F1 | (0.25, −0.50) | 1 | — | j3 92% |
+| F6 | (0.40, −0.70) | 4 | 3× TORQUE-UNSAFE | j2 93% |
+| F4 | (0.55, −0.60) | 2 | 1× TORQUE-UNSAFE | j3 91% |
+| F5 | (0.65, −0.48) | 1 | — | j3 91% |
+| F3 | (0.25, −0.60) | 1 | — | j3 92% |
+| F7 | (0.65, −0.58) | 2 | 1× TORQUE-UNSAFE | j2 92% |
+
+Rencana terpilih semuanya≤97%; (0.40,−0.50) tidak dipakai kembali. Retract plan-check se-gantry/antar-gantry/lingkungan CLEAR pada semuanya. Ini rencana dari REST, bukan validasi lintasan transit tanda→tanda; gerak nanti wajib disaring ulang dan izin operator per langkah. K0 sesudah plan-check LULUS (`k0_after_plans.json`), keadaan sama dengan awal; tidak ada perintah gerak. Audit pasif perekam snapshot (`passive_audit.json`): 1724352 baris, effort maksimum0.229 N·m t1_a1_joint_2, bukan torsi eksekusi rencana.
+
+Operator menolak box31/48 cm di meja arm_1 karena terlalu besar/dekat lengan. Alternatif berbasis A0.12 (meja sebagai uji-tahan + FIT beberapa tinggi lantai) dipertimbangkan, belum diterapkan/dikunci; syarat tiap tanda FIT≥2 tinggi tidak diubah. Kemudian operator menawarkan box kecil10/14 cm. Tinggi terukur±2 mm, ukuran permukaan, kekokohan dan jarak bebas pada enam tanda meja masih ditanyakan. Penamaan usulan: T10/T14 khusus meja, A31/B48 khusus lantai. Botol putih tunggal H70/diameter60 mm dipakai bergantian; botol lain beda bentuk/warna tidak digunakan.
+
+Jika kedua box kecil muat, draf pengukuran meja dapat kembali ke tiga tinggi0.770/0.870/0.910 m; lantai0/0.310/0.480 m. Angka ini BELUM terkunci sampai operator memastikan. D590 tetap dugaan harfiah, B=tinggi atas di zona meja sesuai protokol final; bila meja hanya satu tinggi, D590 dilaporkan tidak diuji dan tidak diberi skor palsu. Belum track botol, localizer per kamera, fit, penerapan kandidat, uji-tahan atau gerak penunjuk.
+
+Stack milik sesi masih HIDUP (roots786857/787847, monitor787845→787875, perekam787846; `process_checkpoint.json`), tanpa proses probe/baseline tersisa. Log /tmp disalin sebagai snapshot; capture17 MB diarsip lokal dengan sha256 `capture_manifest.json`, tidak di-stage; CSV besar tidak di-commit. Pemeriksaan sesudah interupsi: proses inti/camera/monitor/perekam hidup, tidak ada REJECTED/TORQUE-ABORT baru. Segmentasi YOLOE log terakhir hanya “loading”; publisher endpoint ada, penerbitan gambar sedang diperiksa, belum dinyatakan siap.
+
+| Dugaan | Status pada checkpoint |
+|---|---|
+| D590 | — belum diuji |
+| D591 | — belum diuji |
+| D592 | — belum diuji |
+| D593 | — belum diuji |
+| D594 | — belum diuji |
+| D595 | — belum diuji |
+| D596 | — belum diuji |
+| D597 | — plan-check6/6 lulus; torsi gerak belum diuji, dugaan gabungan belum dapat diberi ✓/✗ |
+| D598 | — belum diuji |
+
+Belum penutupan sesi: REST/PARK terukur, stack tetap aktif menunggu penyangga meja/penguncian. Batas bukti: rgbd2 jauh jelas bergalat pada baseline, rgbd arm_2 juga melampaui5 cm; “hanya rgbd2 salah” belum terbukti dan atribusi kamera vs world belum selesai. Model kalibrasi M6 utama/M7 hanya lewat LOO FIT; model agen kuat effort high. Anggaran4.000 token per tugas CLAUDE.md terlampaui saat verifikasi HW/dokumentasi sesi ini; dicatat, pekerjaan tidak dilabel selesai.
+
+**Pembaruan kesiapan segmentasi:** subscription read-only selama8 s menerima27 gambar per kamera,1280×720, cap waktu bertambah1791948926→1791948934 (`seg_readiness.json`). YOLOE terbit; log tanpa “ready” tidak membuktikan hang. Tidak restart kamera, tidak merekam track botol. Semua plan-check/baseline selesai; menunggu jawaban box kecil sebelum kunci§A.

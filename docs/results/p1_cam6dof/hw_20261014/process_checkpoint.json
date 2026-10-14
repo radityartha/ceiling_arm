@@ -1,0 +1,352 @@
+{
+  "t": 1791948658.9151928,
+  "roots": [
+    786857,
+    787845,
+    787846,
+    787847
+  ],
+  "note": "Observed session roots; reverify PID identity before stopping; only selected descendants.",
+  "processes": {
+    "786857": {
+      "ppid": 1,
+      "cmd": [
+        "/usr/bin/python3",
+        "/opt/ros/humble/bin/ros2",
+        "launch",
+        "workcell_moveit_config",
+        "my_workcell.launch.py",
+        "use_fake_hardware:=false",
+        "enable_gantry_bridge:=true",
+        "use_sim_time:=false",
+        "octomap_updaters:=false"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000001001005"
+    },
+    "786978": {
+      "ppid": 786857,
+      "cmd": [
+        "/opt/ros/humble/lib/robot_state_publisher/robot_state_publisher",
+        "--ros-args",
+        "--params-file",
+        "/tmp/launch_params_23nmtavr",
+        "--params-file",
+        "/tmp/launch_params_r7q7yws9"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "786980": {
+      "ppid": 786857,
+      "cmd": [
+        "/opt/ros/humble/lib/moveit_ros_move_group/move_group",
+        "--ros-args",
+        "--params-file",
+        "/tmp/launch_params_eujpe0bm",
+        "--params-file",
+        "/tmp/launch_params_42em76mz"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000001"
+    },
+    "786982": {
+      "ppid": 786857,
+      "cmd": [
+        "/opt/ros/humble/lib/rviz2/rviz2",
+        "-d",
+        "/home/user1/Documents/ceiling_arm/ros2_ws/install/workcell_moveit_config/share/workcell_moveit_config/config/moveit.rviz",
+        "--ros-args",
+        "--params-file",
+        "/tmp/launch_params_3noh5udv",
+        "--params-file",
+        "/tmp/launch_params_35j_69gy",
+        "--params-file",
+        "/tmp/launch_params_c2_yot3b"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "786984": {
+      "ppid": 786857,
+      "cmd": [
+        "/opt/ros/humble/lib/controller_manager/ros2_control_node",
+        "--ros-args",
+        "--params-file",
+        "/tmp/launch_params_j5gf6z12",
+        "--params-file",
+        "/home/user1/Documents/ceiling_arm/ros2_ws/install/workcell_moveit_config/share/workcell_moveit_config/config/ros2_controllers.yaml"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000001"
+    },
+    "787032": {
+      "ppid": 786857,
+      "cmd": [
+        "/usr/bin/python3",
+        "/home/user1/Documents/ceiling_arm/ros2_ws/install/moving_table_pkg/lib/moving_table_pkg/dual_table_controller",
+        "--ros-args",
+        "-r",
+        "__node:=dual_table_controller",
+        "--params-file",
+        "/tmp/launch_params_grm1z5j2"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000081001005"
+    },
+    "787035": {
+      "ppid": 786857,
+      "cmd": [
+        "python3",
+        "-u",
+        "/home/user1/Documents/ceiling_arm/scripts/env_static_map_pub.py"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000001001005"
+    },
+    "787845": {
+      "ppid": 1,
+      "cmd": [
+        "/usr/bin/python3",
+        "/opt/ros/humble/bin/ros2",
+        "run",
+        "reachability_gng",
+        "reach_dwell_monitor",
+        "--ros-args",
+        "-p",
+        "csv_log:=/tmp/cam6dof_20261014_mon"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000001001005"
+    },
+    "787846": {
+      "ppid": 1,
+      "cmd": [
+        "python3",
+        "docs/results/p1_g22/js_record.py",
+        "/tmp/cam6dof_20261014_joint_states.csv"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000001001005"
+    },
+    "787847": {
+      "ppid": 1,
+      "cmd": [
+        "/usr/bin/python3",
+        "/opt/ros/humble/bin/ros2",
+        "launch",
+        "reachability_gng",
+        "rgbd_perception.launch.py",
+        "seg_prompts:=bottle",
+        "with_depth_cloud:=false",
+        "tf1_x:=1.7166",
+        "tf1_y:=0.8656",
+        "tf1_z:=2.0782",
+        "tf1_roll:=-2.3436",
+        "tf1_pitch:=-0.1488",
+        "tf1_yaw:=2.1688",
+        "tf2_x:=-0.1547",
+        "tf2_y:=-1.0197",
+        "tf2_z:=2.0905",
+        "tf2_roll:=-2.2369",
+        "tf2_pitch:=-0.1285",
+        "tf2_yaw:=-0.9189",
+        "seg_imgsz:=1280"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000001001007"
+    },
+    "787875": {
+      "ppid": 787845,
+      "cmd": [
+        "/usr/bin/python3",
+        "/home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/reach_dwell_monitor",
+        "--ros-args",
+        "-p",
+        "csv_log:=/tmp/cam6dof_20261014_mon"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000001001005"
+    },
+    "787922": {
+      "ppid": 787847,
+      "cmd": [
+        "/opt/ros/humble/lib/realsense2_camera/realsense2_camera_node",
+        "--ros-args",
+        "-r",
+        "__node:=rgbd",
+        "-r",
+        "__ns:=/rgbd",
+        "--params-file",
+        "/tmp/launch_params_l38173sh"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "787924": {
+      "ppid": 787847,
+      "cmd": [
+        "/opt/ros/humble/lib/depth_image_proc/convert_metric_node",
+        "--ros-args",
+        "-r",
+        "__node:=rgbd_convert_metric",
+        "-r",
+        "image_raw:=/rgbd/rgbd/aligned_depth_to_color/image_raw",
+        "-r",
+        "image:=/rgbd/depth"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "787926": {
+      "ppid": 787847,
+      "cmd": [
+        "/opt/ros/humble/lib/topic_tools/relay",
+        "/rgbd/rgbd/color/image_raw",
+        "/rgbd/rgb",
+        "--ros-args",
+        "-r",
+        "__node:=rgbd_relay_rgb"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "787928": {
+      "ppid": 787847,
+      "cmd": [
+        "/opt/ros/humble/lib/topic_tools/relay",
+        "/rgbd/rgbd/color/camera_info",
+        "/rgbd/camera_info",
+        "--ros-args",
+        "-r",
+        "__node:=rgbd_relay_info"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "787930": {
+      "ppid": 787847,
+      "cmd": [
+        "/opt/ros/humble/lib/tf2_ros/static_transform_publisher",
+        "--x",
+        "1.7166",
+        "--y",
+        "0.8656",
+        "--z",
+        "2.0782",
+        "--roll",
+        "-2.3436",
+        "--pitch",
+        "-0.1488",
+        "--yaw",
+        "2.1688",
+        "--frame-id",
+        "world",
+        "--child-frame-id",
+        "rgbd_camera_optical",
+        "--ros-args",
+        "-r",
+        "__node:=rgbd_world_tf"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "787932": {
+      "ppid": 787847,
+      "cmd": [
+        "/opt/ros/humble/lib/realsense2_camera/realsense2_camera_node",
+        "--ros-args",
+        "-r",
+        "__node:=rgbd2",
+        "-r",
+        "__ns:=/rgbd2",
+        "--params-file",
+        "/tmp/launch_params_ay4o6x8v"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "787934": {
+      "ppid": 787847,
+      "cmd": [
+        "/opt/ros/humble/lib/depth_image_proc/convert_metric_node",
+        "--ros-args",
+        "-r",
+        "__node:=rgbd2_convert_metric",
+        "-r",
+        "image_raw:=/rgbd2/rgbd2/aligned_depth_to_color/image_raw",
+        "-r",
+        "image:=/rgbd2/depth"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "787936": {
+      "ppid": 787847,
+      "cmd": [
+        "/opt/ros/humble/lib/topic_tools/relay",
+        "/rgbd2/rgbd2/color/image_raw",
+        "/rgbd2/rgb",
+        "--ros-args",
+        "-r",
+        "__node:=rgbd2_relay_rgb"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "787938": {
+      "ppid": 787847,
+      "cmd": [
+        "/opt/ros/humble/lib/topic_tools/relay",
+        "/rgbd2/rgbd2/color/camera_info",
+        "/rgbd2/camera_info",
+        "--ros-args",
+        "-r",
+        "__node:=rgbd2_relay_info"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "787940": {
+      "ppid": 787847,
+      "cmd": [
+        "/opt/ros/humble/lib/tf2_ros/static_transform_publisher",
+        "--x",
+        "-0.1547",
+        "--y",
+        "-1.0197",
+        "--z",
+        "2.0905",
+        "--roll",
+        "-2.2369",
+        "--pitch",
+        "-0.1285",
+        "--yaw",
+        "-0.9189",
+        "--frame-id",
+        "world",
+        "--child-frame-id",
+        "rgbd2_camera_optical",
+        "--ros-args",
+        "-r",
+        "__node:=rgbd2_world_tf"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000080000005"
+    },
+    "787942": {
+      "ppid": 787847,
+      "cmd": [
+        "/usr/bin/python3",
+        "/home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/seg_router",
+        "--ros-args",
+        "-r",
+        "__node:=seg_router",
+        "--params-file",
+        "/tmp/launch_params_ecznrcvr"
+      ],
+      "uid": "1001\t1001\t1001\t1001",
+      "sigign": "0000000081001005"
+    }
+  }
+}

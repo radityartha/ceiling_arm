@@ -1,0 +1,24 @@
+/home/user1/Documents/ceiling_arm/docs/results/p1_calib_charuco/arm_fk_check.py:49: DeprecationWarning: This class member has been marked as deprecated and will be removed in a future release.
+  V = np.array([c.points(i) for i in range(c.num_points)]) @ M.rotation.T + M.translation
+arm-filter: t1_a1_left_finger_prox_link_0 SKIPPED (no TF for t1_a1_left_finger_prox_link)
+arm-filter: t1_a1_left_finger_dist_link_0 SKIPPED (no TF for t1_a1_left_finger_dist_link)
+arm-filter: t1_a1_right_finger_dist_link_0 SKIPPED (no TF for t1_a1_right_finger_dist_link)
+arm-filter: t1_a2_left_finger_prox_link_0 SKIPPED (no TF for t1_a2_left_finger_prox_link)
+arm-filter: t1_a2_left_finger_dist_link_0 SKIPPED (no TF for t1_a2_left_finger_dist_link)
+arm-filter: t1_a2_right_finger_dist_link_0 SKIPPED (no TF for t1_a2_right_finger_dist_link)
+arm-filter: t2_a1_left_finger_prox_link_0 SKIPPED (no TF for t2_a1_left_finger_prox_link)
+arm-filter: t2_a1_left_finger_dist_link_0 SKIPPED (no TF for t2_a1_left_finger_dist_link)
+arm-filter: t2_a1_right_finger_dist_link_0 SKIPPED (no TF for t2_a1_right_finger_dist_link)
+arm-filter: t2_a2_left_finger_prox_link_0 SKIPPED (no TF for t2_a2_left_finger_prox_link)
+arm-filter: t2_a2_left_finger_dist_link_0 SKIPPED (no TF for t2_a2_left_finger_dist_link)
+arm-filter: t2_a2_right_finger_dist_link_0 SKIPPED (no TF for t2_a2_right_finger_dist_link)
+rgbd   arm_2 range 1.05 m  n   5644  dxy [ 0.043 -0.003]  |d| 0.043
+         arm-filter 0.03: window 5644 used 4000 kept 4000 dropped 0 (kept at t=0: 733)  t [ 0.051 -0.006  0.   ]  |t_xy| 0.051
+rgbd   arm_4 range 2.53 m  n   1827  dxy [-0.005 -0.038]  |d| 0.039
+         arm-filter 0.03: window 1827 used 1827 kept 1818 dropped 9 (kept at t=0: 1670)  t [ 0.013 -0.023  0.004]  |t_xy| 0.027
+rgbd2  arm_1 range 2.67 m  n   1844  dxy [0.157 0.02 ]  |d| 0.158
+         arm-filter 0.03: window 1867 used 1867 kept 1817 dropped 50 (kept at t=0: 1)  t [0.129 0.017 0.003]  |t_xy| 0.130
+rgbd2  arm_2 range 2.04 m  n    573  dxy [ 0.061 -0.003]  |d| 0.061
+         arm-filter 0.03: window 573 used 573 kept 565 dropped 8 (kept at t=0: 555)  t [ 0.057  0.009 -0.002]  |t_xy| 0.058
+rgbd2  arm_3 range 1.15 m  n   5118  dxy [ 0.04  -0.007]  |d| 0.040
+         arm-filter 0.03: window 5118 used 4000 kept 3997 dropped 3 (kept at t=0: 3999)  t [-0.012 -0.02   0.002]  |t_xy| 0.023

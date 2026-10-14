@@ -1,0 +1,9 @@
+  sweep on : pruned -0.0187 t1_a1_forearm_link_0 @20 vs check() -0.0187 t1_a1_forearm_link_0 @20
+  box on : COLLIDE d=-0.005 t1_a1_forearm_link_0  (want COLLIDE)
+  self_filter keeps 0/125
+  sweep far: pruned +0.4454 t1_a1_left_finger_dist_link_0 @16 vs check() +0.4454 t1_a1_left_finger_dist_link_0 @16
+  box far: CLEAR   d=+0.446 t1_a1_left_finger_dist_link_0  (want CLEAR)
+  self_filter keeps 125/125
+  missing joint: raised ("konfigurasi tanpa ['t2_rotation_joint'] -- TOLAK")
+  missing map: raised (peta lingkungan /nonexistent.npz tidak ada -- TOLAK (jangan )
+SELF-TEST PASS
