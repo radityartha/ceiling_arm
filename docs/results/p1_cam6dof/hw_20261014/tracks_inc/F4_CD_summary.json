@@ -1,0 +1,109 @@
+{
+  "mark": "F4",
+  "height": "CD",
+  "surf_z": 0.315,
+  "xy": [
+    0.5491,
+    -0.6003
+  ],
+  "operator_ready": true,
+  "start": 1791974106.4540057,
+  "end": 1791974122.0795488,
+  "exit_codes": {
+    "rgbd": 0,
+    "rgbd2": 0
+  },
+  "extrinsics": "incumbent launch + G34",
+  "duration_per_camera_s": 15,
+  "protocol_hashes": {
+    "original": "3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802",
+    "floor_amendment": "2022dbbc72f93e953daefa5d4d197a7c09aa0502214f1a280ed350c2e7ddff80",
+    "bottle_geometry_correction": "ccd69a959c06f5b92fa917aef04c00424c1f5deb725e3ae7a09437df0d58b6fc"
+  },
+  "bottle": {
+    "r": 0.0325,
+    "H": 0.165
+  },
+  "cameras": {
+    "rgbd": {
+      "messages": 27,
+      "role": "fit",
+      "all_track_ids": [
+        271
+      ],
+      "candidate_counts": {
+        "271": 27
+      },
+      "single_track": true,
+      "track_id": 271,
+      "n": 27,
+      "labels": [
+        "gray bottle"
+      ],
+      "median": [
+        0.5476517234040456,
+        -0.6411452191320242,
+        0.3954312730431642
+      ],
+      "xy_error": [
+        -0.0014482765959544786,
+        -0.04084521913202421
+      ],
+      "xy_error_abs_m": 0.04087088732877556,
+      "model_offset": [
+        0.015756312658005922,
+        0.020502575699378855,
+        0.10931249999999998
+      ],
+      "z_expected": 0.4243125,
+      "z_error_m": -0.02888122695683576,
+      "p5_p95": [
+        0.0016766953348118507,
+        0.0022221564449240727,
+        0.005404799353845413
+      ],
+      "conf_median": 0.734,
+      "rivals": {}
+    },
+    "rgbd2": {
+      "messages": 28,
+      "role": "fit",
+      "all_track_ids": [
+        1475
+      ],
+      "candidate_counts": {
+        "1475": 28
+      },
+      "single_track": true,
+      "track_id": 1475,
+      "n": 28,
+      "labels": [
+        "gray bottle"
+      ],
+      "median": [
+        0.5068540546285453,
+        -0.6221837930456791,
+        0.38080928700459277
+      ],
+      "xy_error": [
+        -0.04224594537145476,
+        -0.021883793045679112
+      ],
+      "xy_error_abs_m": 0.04757751883394145,
+      "model_offset": [
+        -0.017446284220166475,
+        -0.00926452839340175,
+        0.1423125
+      ],
+      "z_expected": 0.4573125,
+      "z_error_m": -0.07650321299540724,
+      "p5_p95": [
+        0.0012769277553756897,
+        0.000965163004760905,
+        0.004663763659314146
+      ],
+      "conf_median": 0.7064999999999999,
+      "rivals": {}
+    }
+  }
+}
