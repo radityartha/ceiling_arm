@@ -132,7 +132,7 @@ melanjutkan pemeriksaan, pemulihan dan penutupan; tidak disembunyikan.
 
 G61 selesai (terpisah dari CAM-6DOF): sesi runner berikut mengikuti `docs/p1_g62_hw_prompt.md`, model kuat effort high; setiap gerak HW menunggu izin operator per langkah.
 
-Sesi CAM-6DOF HW AKTIF: §A terkunci d081044, baseline/capture/K4/enam plan-check selesai; meja 4/18 penempatan tersimpan. Berikut: C6/TC (box C100 mm), operator sudah siap, rekam15 s kedua kamera. Stack+dua localizer milik sesi HIDUP, nol gerak; setiap gerak penunjuk/pulang nanti tetap izin satu langkah, model kuat effort high.
+Sesi CAM-6DOF HW AKTIF: §A terkunci d081044, baseline/capture/K4/enam plan-check selesai; meja 5/18 penempatan tersimpan. Berikut: C6/TD (box D140 mm mengganti C, tanpa tumpukan), menunggu operator siap. Stack+dua localizer milik sesi HIDUP, nol gerak; setiap gerak penunjuk/pulang nanti tetap izin satu langkah, model kuat effort high.
 
 ### Checkpoint CAM-6DOF 2026-10-14 (pra-bring-up)
 
@@ -162,3 +162,5 @@ CAM-6DOF botol3/18 C3/TD selesai: rgbd2 lokal satu white bottle tid70,n29,median
 Operator memastikan C3/TD benar botol7 cm di box D14 cm,tanpa tumpukan. Usul menumpuk C+D tidak diterapkan,tinggi§A tetap. Anomali disimpan,model/parameter tidak diubah. Berikut menunggu C6/T0 siap,nol gerak,stack/localizer hidup.
 
 CAM-6DOF checkpoint meja 4/18: C6_T0 disimpan; berikut C6/TC (box C100 mm), operator sudah siap, rekam15 s kedua kamera. C3/TD anomali dipertahankan. §A/model/selektor tetap, stack/localizer hidup, nol gerak HW.
+
+CAM-6DOF checkpoint meja 5/18: C6_TC disimpan; berikut C6/TD (box D140 mm mengganti C, tanpa tumpukan), menunggu operator siap. C3/TD anomali dipertahankan. §A/model/selektor tetap, stack/localizer hidup, nol gerak HW.
