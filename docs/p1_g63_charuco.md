@@ -113,9 +113,9 @@ diharapkan kecil, tetap diukur.
 | G1 | Data per kamera: ≥ 15 pose FIT sah, rentang jarak ≥ 0.8 m, kemiringan papan ≥ 40° pada ≥ 2 sumbu, kedua papan ada |
 | G2 | Solver konvergen; sanity vs incumbent: rotasi ≤ 5°, posisi kamera ≤ 0.15 m (= gerbang A0.1 CAM-6DOF); T_lb masuk akal (≤ 0.20 m dari link jari) |
 | G3 | UJI-TAHAN per kamera: median e ≤ **1.5 cm**, p95 ≤ **3.0 cm**; tiap zona yang tercakup median ≤ **2.0 cm** |
-| G4 | Pose UJI-TAHAN terlihat dua kamera: triangulasi RGB sudut (dua kamera, ekstrinsik baru) vs FK median ≤ **2.0 cm** (mengikat arah sepanjang sinar) |
+| G4′ | **(revisi draf 10-15, butuh persetujuan ulang — A8.2)** Per kamera, pose UJI-TAHAN: pusat papan dari PnP (ekstrinsik baru) vs FK, median ≤ **2.0 cm** (mengikat arah sepanjang sinar dengan satu kamera). G4 lama (triangulasi dua kamera) tetap dilaporkan bila ada pose dua-kamera, bukan gerbang. |
 | G5 | TF hidup = arg ≤ 1 mm / 0.01° |
-| G6 | Cek geser R0: perubahan pose papan (PnP pada ekstrinsik tetap, relatif FK) antar-ulangan ≤ **2 mm / 0.3°**; gagal → semua pose sesudah R0 baik terakhir DITOLAK |
+| G6′ | **(revisi draf 10-15, butuh persetujuan ulang — A8.3)** Cek geser R0: T_lb dibekukan dari R0 pertama; tiap R0 berikut dinilai dari **residu lateral RMS sudut** (piksel × jarak / f, dikoreksi FK terukur) ≤ **2 mm**; gagal → semua pose sesudah R0 baik terakhir DITOLAK. Batas: geser murni sepanjang sinar kamera R0 tak terlihat. |
 | G7 | Keselamatan: tiap gerak MOVED + dwell SUCCESS, torsi terukur ≤ 14, 0 fault/REJECTED; sendi jari berubah ≤ 0.5° sepanjang blok |
 | G8 | (Kesiapan DEMO, bukan penerimaan kalibrasi) `arm_fk_check` REST ×3 ekstrinsik baru: tiap lengan terlihat \|t_xy\| ≤ 5 cm DAN ≤ incumbent + 1 cm |
 
@@ -132,11 +132,11 @@ karena galat basis gantry, bukan kamera — operator memilih di §A6.
 | # | Alat | Status |
 |---|---|---|
 | T1 | `results/p1_g63/make_g63_boards.py` → PDF papan A/B | **SELESAI** 0f765db (verifikasi raster PDF lulus) |
-| T2 | Detektor `g63_detect.py`: ChArUco + fallback chessboard + pelabelan FK; keluaran sudut/ID/RMS per frame | belum |
-| T3 | Solver `g63_solve.py` (§A3) + **self-test sintetis**: tanpa noise ≤ 0.01° / 1 mm; noise 0.3 px + FK 2 mm ≤ 0.15° / 5 mm; kontrol negatif: tanpa keragaman orientasi → T_lb tak teramati harus TERDETEKSI (kondisi Jacobian), bukan diam | belum |
-| T4 | Pembangkit pose `g63_poses.py`: visibilitas (incumbent) + IK + **torsi RNEA dengan payload papan** (massa S0d, asumsi ≤ 100 g di pusat papan, offset j2 +7.7, batas 14, 97 %) + **papan sebagai benda tabrakan** terpasang di link jari (kotak 0.21×0.26×0.01 m + margin) + **amplop D435IF** di gripper arm_4 (kotak konservatif 0.15×0.10×0.10 m sampai diukur). Probe produksi belum mendukung payload/benda terpasang → wrapper sesi / skrip saringan tambahan (keputusan desain di T4, tanpa melonggarkan saringan yang ada). | belum |
-| T5 | Harness tangkap `g63_capture.py`: 30 frame RGB + camera_info + joint_states (per nama) + TF, cap waktu, `rec_health.py` paralel | belum |
-| T6 | Plan-check MOCK domain 77, `octomap_updaters:=false`, papan + amplop di scene: semua pose arm_2/arm_3 dari K0 (REST, g1 1.50, g2 0) | belum |
+| T2 | Detektor `g63_detect.py` (A8.4) | **SELESAI** 321cf1d, self-test LULUS ([log](results/p1_g63/detect_self_test.log)) |
+| T3 | Solver `g63_solve.py` (§A3) + **self-test sintetis**: tanpa noise ≤ 0.01° / 1 mm; noise 0.3 px + FK 2 mm ≤ 0.15° / 5 mm; kontrol negatif: tanpa keragaman orientasi → T_lb tak teramati harus TERDETEKSI (kondisi Jacobian), bukan diam | **SELESAI** 17f7745 + revisi G4′/G6′, self-test LULUS ([log](results/p1_g63/self_test.log)); 1 px: ≤ 0.10° / 3.6 mm ([log](results/p1_g63/solve_1px_check.log)) |
+| T4 | Pembangkit pose `g63_poses.py`: visibilitas (incumbent) + IK + **torsi RNEA dengan payload papan** (massa S0d, asumsi ≤ 100 g di pusat papan, offset j2 +7.7, batas 14, 97 %) + **papan sebagai benda tabrakan** terpasang di link jari (kotak 0.21×0.26×0.01 m + margin) + **amplop D435IF** di gripper arm_4 (kotak konservatif 0.15×0.10×0.10 m sampai diukur). Probe produksi belum mendukung payload/benda terpasang → wrapper sesi / skrip saringan tambahan (keputusan desain di T4, tanpa melonggarkan saringan yang ada). | **SELESAI (dudukan TEBAKAN)** 1531f0d: `g63_urdf.py`, `g63_screens.py`, `g63_poses.py`, `g63_attach.py`, `probe_g63.py` (A8.5). Amplop D435IF tidak dipakai (§A6.3: dilepas). |
+| T5 | Harness tangkap `g63_capture.py`: 30 frame RGB + camera_info + joint_states (per nama) + TF, cap waktu, `rec_health.py` paralel | **kode ada**, uji ujung-ke-ujung mock (kamera palsu `mock/g63_fakecam.py`) belum |
+| T6 | Plan-check MOCK domain 77, `octomap_updaters:=false`, papan di scene: semua pose arm_2/arm_3 dari K0 (REST, g1 1.50, g2 0) | **berjalan** (`g63_plancheck.py`, A8.6) |
 
 ### A6. Jawaban operator atas §A6 (2026-10-15, harfiah dalam kutip)
 
@@ -152,15 +152,46 @@ karena galat basis gantry, bukan kamera — operator memilih di §A6.
 
 | # | Dugaan |
 |---|---|
-| D630 | S0b: sudut papan 50 mm terdeteksi (≥ 8/12) sampai ≥ 2.5 m di kedua kamera; marker 4X4 terdekode hanya ≤ 2.0 m. |
+| D630 | S0b: sudut papan 50 mm terdeteksi (≥ 8/12) sampai ≥ 2.5 m di kedua kamera; marker 4X4 terdekode hanya ≤ **1.5 m** (revisi draf dari 2.0 sesudah sintetis A8.4, sebelum data). |
 | D631 | Self-test T3: tanpa noise ≤ 0.01° / 1 mm; dengan noise 0.3 px + FK 2 mm ≤ 0.15° / 5 mm; kontrol negatif terdeteksi. |
 | D632 | T_wc rgbd baru bergeser ≥ 3 cm (posisi kamera atau ekuivalen lateral di F5) dari incumbent (B64 ray-plane 5.2 cm). |
 | D633 | G3 lulus kedua kamera. |
-| D634 | rgbd2 zona arm_1: G3 (RGB) lulus TETAPI G8 rgbd2:arm_1 tetap > 5 cm → galat +0.15 m arm_1 bukan ekstrinsik, melainkan depth jarak-jauh (B64: r rgbd2 1.027–1.07 di ≥ 2.5 m). |
+| D634 | rgbd2 zona arm_1: G3 (RGB) lulus TETAPI G8 rgbd2:arm_1 tetap > 5 cm → galat +0.15 m arm_1 bukan ekstrinsik, melainkan depth jarak-jauh (B64: r rgbd2 1.027–1.07 di ≥ 2.5 m). **Catatan A8.7:** zona ini tidak terjangkau arm_2 di g1 1.50 untuk rgbd2 → butuh geser rel (§A6.4) agar teruji. |
 | D635 | D-test rgbd2: median r bin 2.5–3.0 m ≥ 1.02. |
 | D636 | G6: papan kardus + double tape tidak bergeser > 2 mm / 0.3° dalam satu blok lengan. |
 | D637 | Torsi j2 terukur puncak dengan papan ≤ 13 N·m pada semua pose terpilih. |
 | D638 | `rec_health`: 0 frame < 10 % valid pada rgbd sepanjang sesi kamera G63 (kedipan 10-14 tidak muncul). |
+
+### A8. Temuan persiapan luring 2026-10-15 (alat; NOL HW, NOL kamera; mock domain 77)
+
+1. **Dudukan papan belum diketahui** → semua alat memakai `results/p1_g63/mount_guess.json` (TEBAKAN, `guess: true`). Tebakan v1
+   (pusat lembar A4 di jari) **menembus pergelangan lengan sendiri di REST** → mustahil fisik; v2 = tepi atas lembar di pangkal jari,
+   papan menggantung searah tool. **Sebelum kunci: operator memberi foto + ukuran** (jari mana, posisi/arah papan relatif jari,
+   tonjolan, massa). Daftar pose, torsi dan tabrakan dibangkitkan ulang dari angka itu.
+2. **Pose dua-kamera praktis tidak ada.** 40 000 sampel arm_2: 1 287 pose lolos semua saringan, **0** terlihat rgbd DAN rgbd2
+   (kamera di sudut diagonal berlawanan; papan di sisi jari harus menghadap atas di tengah sel, sudut ≤ 55° ke keduanya). Maka G4
+   (triangulasi dua kamera) tidak layak → **usul G4′** (PnP satu kamera vs FK, median ≤ 2 cm; self-test 0.24–0.69 cm). Perlu
+   persetujuan operator karena G4 sudah "oke".
+3. **R0 satu kamera** → refit T_lb 6-DOF dari satu pandangan berderau sepanjang sinar (~7 mm di 0.3 px, 1.5 m) sehingga G6 lama
+   (2 mm / 0.3°) **di bawah lantai noise-nya sendiri** (bahkan dua kamera: 2.8 mm / 1.2° tanpa geser). **Usul G6′** (residu lateral,
+   batas tetap 2 mm): alarm palsu maks 0.51–0.55 mm (0.1 px) / 1.52–1.65 mm (0.3 px), geser 3 mm tertangkap 3.1–3.9 mm, satu dan dua
+   kamera. R0 dipilih ≤ 1.6 m dari kamera bila ada. Perlu persetujuan operator.
+4. **Detektor (sintetis, blur 1 px, noise 3):** marker 37.5 mm hanya terbaca ≤ ~1.0 m (≈ 2 px/sel di 2 m). Lebih jauh: kisi chessboard
+   (SB atau template dari prior) + **paritas kotak hitam** menentukan pelabelan tanpa prior (cermin ditolak, geser kisi diuji), sudut
+   tanpa struktur-X dibuang. Hasil 1.0–3.5 m: **0 pelabelan salah**, akurasi 0.3 px (dekat) / 0.7–1.5 px (jauh); papan 40 % tertutup →
+   tidak terdeteksi (bukan salah). **Saran fisik:** pinggir putih di sekeliling pola (kardus putih/kertas putih lebih lebar) membantu
+   SB di jarak menengah; dibuktikan di S0b, bukan sintetis.
+5. **Penyaring bersama + papan:** `g63_screens` mengarahkan torsi (RNEA), GOAL-MISMATCH, antar-lengan, lintas-gantry dan env ke URDF
+   payload; EnvChecker yang menuntut tepat 52 geometri (gagal keras) diperluas eksplisit + diverifikasi. `probe_g63.py` menambah
+   penjaga 97 % (dari CAM-6DOF), quaternion target (pose miring dinilai monitor/GOAL-MISMATCH pada sumbu +Z quaternion itu), dan
+   wajib papan terpasang di planning scene MoveIt (`g63_attach.py`). **Mock:** satu pose miring arm_2 PLANNED, ujung 0.73 mm / 0.10°,
+   papan muncul di ketiga penyaring, margin 90.3 %.
+6. **Plan-check mock (T6) menemukan dua hal sebelum HW:** (a) jarak ke voxel ≥ 5 cm ≠ kotak `env_static_map` MoveIt (L∞, +5 cm) →
+   MoveIt menolak start (START-JUMP env_static_map|g63_board_A) → pembangkit kini juga memeriksa kotak MoveIt; (b) runner berantai
+   harus memakai keadaan awal LENGKAP dan melewati pose yang ditolak (start = tujuan PLANNED terakhir). Hasil akhir T6 menyusul.
+7. **Cakupan zona (incumbent, g1 1.50 / g2 0):** arm_2 → zona arm_2 (rgbd, rgbd2) + sedikit zona arm_1 (rgbd); arm_3 → zona arm_3
+   (rgbd, rgbd2) + sedikit arm_4 (rgbd). **rgbd2 × zona meja arm_1 tidak tercakup** → D634 butuh geser rel (§A6.4: boleh).
+8. Kode bersama (probe, penyaring, launch) **tidak diubah**; seluruh tambahan di `results/p1_g63/`.
 
 ## B. Hasil terukur
 

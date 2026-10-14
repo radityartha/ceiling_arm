@@ -31,7 +31,7 @@ from g63_common import (CAMERAS, IMG_H, IMG_W, K_NOMINAL, T_from_vec, board_poin
 # does not pin that parameter down. Raised loudly; acceptance never proceeds on an unobservable solve.
 OBS_STD_ROT_DEG = 0.10
 OBS_STD_POS_M = 0.005
-G6_CORNER_RMS_M = 0.002   # §A4 G6 (revised draft): RMS corner displacement between R0 repeats
+G6_CORNER_RMS_M = 0.002   # §A4 G6 (revised draft): lateral RMS residual of a later R0 under the first R0's T_lb
 
 
 def _norm_obs(ds):
@@ -207,16 +207,30 @@ def evaluate_holdout(ds, Twc, Tlb):
             Xfk = (pb.Twl[i] @ Tlb[b] @ np.r_[pb.P[b][k], 1.0])[:3]
             tri.append(float(np.linalg.norm(X - Xfk)))
     g4 = dict(n=len(tri), median_m=float(np.median(tri)) if tri else None)
-    return dict(G3=g3, G3_zone_median_m=g3_zone, G4=g4, holdout_pose_errors=per)
+    # G4' (single camera): board centre from PnP with the NEW extrinsic vs FK centre (includes along-ray error)
+    g4p = {}
+    for i, cam, ids, xy, _f in pb.obs:
+        if len(ids) < 6:
+            continue
+        b = ds['poses'][i]['board']
+        Tcb = pnp(pb.P[b], ids, xy)
+        if Tcb is None:
+            continue
+        c_b = np.r_[np.mean([pb.P[b][k] for k in range(12)], 0), 1.0]
+        X = (Twc[cam] @ Tcb @ c_b)[:3]
+        Xfk = (pb.Twl[i] @ Tlb[b] @ c_b)[:3]
+        g4p.setdefault(cam, []).append(float(np.linalg.norm(X - Xfk)))
+    g4p = {c: dict(n=len(v), median_m=float(np.median(v)), max_m=float(np.max(v))) for c, v in g4p.items()}
+    return dict(G3=g3, G3_zone_median_m=g3_zone, G4=g4, G4p=g4p, holdout_pose_errors=per)
 
 
 def drift_R0(ds, Twc):
-    """G6: T_lb refit per R0 pose (T_wc fixed, every camera that sees it) -> change vs the FIRST R0 of that board.
-
-    Gate metric = RMS displacement of the 12 corners (what actually biases the calibration). d_pos/d_rot of T_lb are
-    reported only: a single-pose 6-DOF refit is too noisy in rotation (self-test: 1.2 deg at 0.3 px)."""
-    out, first = [], {}
-    for p in ds['poses']:
+    """G6: tape creep between R0 repeats. T_lb is fitted ONCE on the first R0 of each board (T_wc fixed); every later
+    R0 is scored by its LATERAL residual (normalised residual x depth, RMS over corners, metres) under that frozen T_lb
+    and its own measured FK. Works with ONE camera (a single-view 6-DOF refit is too noisy along the ray: ~7 mm at
+    0.3 px, 1.5 m). Blind to a pure along-ray shift for that camera (documented limit)."""
+    out, ref = [], {}
+    for i, p in enumerate(ds['poses']):
         if p['role'] != 'R0':
             continue
         pb = Problem(dict(ds, poses=[dict(p, role='FIT')]), roles=('FIT',))
@@ -225,14 +239,14 @@ def drift_R0(ds, Twc):
             continue
         b = p['board']
         xc = np.concatenate([vec_from_T(Twc[c]) for c in pb.cams])
-        s = least_squares(lambda v: pb.residuals(np.r_[xc, v]), vec_from_T(initial_guess(pb, Twc)[b]), method='lm')
-        T = T_from_vec(s.x)
-        Tf = first.setdefault(b, T)
-        Pb = np.array([pb.P[b][k] for k in sorted(pb.P[b])])
-        disp = (Pb @ T[:3, :3].T + T[:3, 3]) - (Pb @ Tf[:3, :3].T + Tf[:3, 3])
-        out.append(dict(pose=p['id'], board=b, n_cams=len({o[1] for o in pb.obs}),
-                        d_corner_rms_m=float(np.sqrt(np.mean(np.sum(disp ** 2, 1)))),
-                        d_pos_m=float(np.linalg.norm(T[:3, 3] - Tf[:3, 3])), d_rot_deg=rot_deg(Tf[:3, :3], T[:3, :3])))
+        if b not in ref:
+            s0 = least_squares(lambda v: pb.residuals(np.r_[xc, v]), vec_from_T(initial_guess(pb, Twc)[b]),
+                               method='lm')
+            ref[b] = T_from_vec(s0.x)
+        per = pose_errors(pb, Twc, {b: ref[b]}, pb.obs)
+        e = np.concatenate([v['e'] for v in per])
+        out.append(dict(pose=p['id'], board=b, cams=sorted({v['cam'] for v in per}),
+                        lateral_rms_m=float(np.sqrt(np.mean(e ** 2))), lateral_max_m=float(e.max())))
     return out
 
 
@@ -269,7 +283,7 @@ def _observe(truth_Twc, Twl, Tlb, P, K, px_noise, rng):
 
 
 def synth_dataset(rng, n_per_board=20, px_noise=0.0, fk_pos=0.0, fk_rot_deg=0.0, yaw_only=False,
-                  holdout_every=4, n_r0=0, drift_after=None):
+                  holdout_every=4, n_r0=0, drift_after=None, r0_single=False):
     """Truth: cameras = incumbent perturbed 3 deg / 0.10 m; boards taped at an arbitrary offset on the link.
     Board poses face a chosen camera with +/-25 deg tilt about two axes (yaw_only: tilt 0 -> rotations about world z
     only = the degenerate design the negative control must flag)."""
@@ -297,7 +311,9 @@ def synth_dataset(rng, n_per_board=20, px_noise=0.0, fk_pos=0.0, fk_rot_deg=0.0,
                                   obs=_observe(truth_Twc, np.asarray(p0['T_wl']), Tlb_now, P, K, px_noise, rng)[0]))
                 k += 1
                 continue
-            if is_r0 or c_face == 'both':
+            if is_r0 and r0_single:
+                n = truth_Twc['rgbd'][:3, 3] - pos
+            elif is_r0 or c_face == 'both':
                 n = (truth_Twc['rgbd'][:3, 3] + truth_Twc['rgbd2'][:3, 3]) / 2 - pos
             else:
                 n = truth_Twc[c_face][:3, 3] - pos
@@ -316,7 +332,7 @@ def synth_dataset(rng, n_per_board=20, px_noise=0.0, fk_pos=0.0, fk_rot_deg=0.0,
             Twb[:3, :3], Twb[:3, 3] = Rb, pos
             Twl = Twb @ inv(truth_Tlb[b])
             obs, vis = _observe(truth_Twc, Twl, truth_Tlb[b], P, K, px_noise, rng)
-            if (is_r0 and vis < 2) or vis == 0:
+            if (is_r0 and not r0_single and vis < 2) or vis == 0:
                 continue
             Tmeas = _perturb(Twl, fk_rot_deg * abs(rng.normal()), fk_pos * abs(rng.normal()), rng) \
                 if (fk_pos or fk_rot_deg) else Twl
@@ -357,7 +373,10 @@ def self_test():
     g3ok = all(v['median_m'] is not None for v in h['G3'].values()) and len(h['G3']) == 2
     ok &= g3ok
     g4ok = h['G4']['n'] > 0 and h['G4']['median_m'] <= 0.005
-    ok &= g4ok
+    g4pok = all(v['median_m'] <= 0.02 for v in h['G4p'].values()) and len(h['G4p']) == 2
+    ok &= g4ok and g4pok
+    print(f"   G4' PnP pusat vs FK: {json.dumps({c: (v['n'], round(v['median_m'] * 100, 2)) for c, v in h['G4p'].items()})}"
+          f' (n, median cm) -> {"OK" if g4pok else "GAGAL"}')
     print(f'   G3 {json.dumps({c: (v["median_m"] and round(v["median_m"] * 100, 2), v["p95_m"] and round(v["p95_m"] * 100, 2)) for c, v in h["G3"].items()})}'
           f' cm (median, p95); G4 n {h["G4"]["n"]} median {h["G4"]["median_m"] and round(h["G4"]["median_m"] * 100, 2)} cm')
     n_fit = {c: sum(1 for p in ds['poses'] if p['role'] == 'FIT' and c in p['obs']) for c in CAMERAS}
@@ -371,24 +390,25 @@ def self_test():
     print(f'   ditandai: {flagged} {[(u["param"], round(u["std_pos_m"] * 1000, 1)) for u in r["unobservable"]]}'
           f' -> {"OK" if flagged else "GAGAL (degenerasi diam)"}')
 
-    # R0 capture = per-corner median of 30 frames -> 0.1 px (conservative vs 0.3/sqrt(30) = 0.055).
-    # False-alarm control over 3 seeds, detection of an injected 3 mm creep.
-    for name, drift_after, want_pass in (('T3a R0 tanpa geser (3 seed, noise baru tiap ulangan)', None, True),
-                                         ('T3b geser papan 3 mm disuntik sesudah R0 ke-2 (HARUS gagal G6)', 2, False)):
-        worst_all = 0.0
-        good = True
-        for seed in range(3 if drift_after is None else 1):
-            ds, tw, tl = synth_dataset(np.random.default_rng(630 + seed), px_noise=0.1, n_r0=4,
-                                       drift_after=drift_after)
-            r, Twc, Tlb = solve(ds, verbose=False)
-            dr = drift_R0(ds, Twc)
-            worst = max((d.get('d_corner_rms_m', 0) for d in dr), default=0)
-            worst_all = max(worst_all, worst)
-            passes = worst <= G6_CORNER_RMS_M
-            good &= len(dr) == 8 and passes == want_pass and all('d_corner_rms_m' in d for d in dr)
-        ok &= good
-        print(f'{name}: perpindahan sudut RMS maks {worst_all * 1000:.2f} mm (gerbang {G6_CORNER_RMS_M * 1000:.0f} mm)'
-              f' -> {"OK" if good else "GAGAL"}')
+    # R0 capture = per-corner median of 30 frames -> 0.1 px (conservative vs 0.3/sqrt(30) = 0.055); 0.3 px also run.
+    # False-alarm control over 3 seeds, detection of an injected 3 mm creep; both-camera AND single-camera R0.
+    for single in (False, True):
+        for px in (0.1, 0.3):
+            for name, drift_after, want_pass in (('tanpa geser (3 seed)', None, True),
+                                                 ('geser 3 mm disuntik sesudah R0 ke-2 (HARUS gagal)', 2, False)):
+                worst_all, good = 0.0, True
+                for seed in range(3 if drift_after is None else 1):
+                    ds, tw, tl = synth_dataset(np.random.default_rng(630 + seed), px_noise=px, n_r0=4,
+                                               drift_after=drift_after, r0_single=single)
+                    r, Twc, Tlb = solve(ds, verbose=False)
+                    dr = drift_R0(ds, Twc)
+                    worst = max((d.get('lateral_rms_m', 0) for d in dr), default=0)
+                    worst_all = max(worst_all, worst)
+                    good &= len(dr) == 8 and (worst <= G6_CORNER_RMS_M) == want_pass and \
+                        all('lateral_rms_m' in d for d in dr)
+                ok &= good
+                print(f'T3 R0 {"1 kamera" if single else "2 kamera"} {px} px, {name}: lateral RMS maks '
+                      f'{worst_all * 1000:.2f} mm (gerbang {G6_CORNER_RMS_M * 1000:.0f}) -> {"OK" if good else "GAGAL"}')
     print('SELF-TEST', 'LULUS' if ok else 'GAGAL')
     return 0 if ok else 1
 

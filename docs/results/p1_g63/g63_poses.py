@@ -70,6 +70,13 @@ class Cell:
         self.cross = g63_screens.interarm_collision.CrossGantryChecker()
         self.env = g63_screens.env_collision.EnvChecker()
         g63_screens.verify()
+        # MoveIt's env_static_map object = the same voxels as 5 cm-grown column boxes (env_static_map_pub). Distance to
+        # voxels >= 5 cm is NOT the same test (boxes are an L-inf inflation), so check the boxes too (mock T6 found
+        # START-JUMP env_static_map|g63_board_A on a pose that passed the voxel distance).
+        from env_static_map_pub import column_boxes
+        from env_collision import load_env_map
+        c, s = column_boxes(load_env_map()['centers'].astype(float))
+        self.box_c, self.box_s = c, s
         self.K = K_NOMINAL
         self.Twc = {c: incumbent_T(c) for c in CAMERAS}
 
@@ -175,8 +182,24 @@ def collisions(cell, arm, joints):
                           coal.DistanceRequest(), r)
         if d < d_self:
             d_self, p_self = d, ln
-    ok = d_same >= CLEAR_ARM and d_cross >= CLEAR_ARM and d_env >= CLEAR_ENV and d_self >= CLEAR_SELF
+    # MoveIt env boxes (exact collision, every geometry of this arm incl. the board)
+    box_hit = None
+    lo_b, hi_b = cell.box_c - cell.box_s / 2, cell.box_c + cell.box_s / 2
+    for i, g in enumerate(cell.env.geom.geometryObjects):
+        if not g.name.startswith(pre) or box_hit:
+            continue
+        lo, hi = cell.env.world_aabb(i, oMg[i])
+        cand = np.nonzero(((lo_b <= hi) & (hi_b >= lo)).all(1))[0]
+        for k in cand:
+            r = coal.CollisionResult()
+            if coal.collide(coal.Box(*cell.box_s[k]), coal.Transform3s(np.eye(3), cell.box_c[k]), g.geometry,
+                            coal.Transform3s(oMg[i].rotation, oMg[i].translation), coal.CollisionRequest(), r):
+                box_hit = g.name
+                break
+    ok = d_same >= CLEAR_ARM and d_cross >= CLEAR_ARM and d_env >= CLEAR_ENV and d_self >= CLEAR_SELF \
+        and box_hit is None
     return ok, dict(same_m=float(d_same), cross_m=float(d_cross), env_m=float(d_env), self_m=float(d_self),
+                    moveit_env_box_hit=box_hit,
                     worst=dict(same=p_same, cross=p_cross, env=p_env, self=p_self))
 
 
@@ -281,6 +304,17 @@ def order_fps(cands, n, seed_idx):
     return chosen
 
 
+def rest_zones(cell):
+    """xy of each arm's tool at REST (rails as given) -> zone label = nearest arm."""
+    q = cell.q(cell.base)
+    cell.pin.framesForwardKinematics(cell.m, cell.d, q)
+    return {a: np.array(cell.d.oMf[cell.m.getFrameId(p + 'tool_frame')].translation)[:2] for a, p in ARM_PREFIX.items()}
+
+
+def zone_of(zones, xyz):
+    return min(zones, key=lambda a: np.linalg.norm(zones[a] - np.asarray(xyz)[:2]))
+
+
 def tool_pose(cell, arm, q6):
     from scipy.spatial.transform import Rotation
     q = cell.q(cell.joints(arm, q6))
@@ -310,6 +344,7 @@ def main():
         print(s, flush=True)
         logs.append(s)
     rng = np.random.default_rng(a.seed)
+    zones = rest_zones(cell)
     out = dict(created='g63_poses.py', urdf=os.path.abspath(a.urdf), mount=mount,
                mount_guess=any(v.get('guess') for k, v in mount.items() if not k.startswith('_')),
                rail1=a.rail1, rail2=a.rail2, seed=a.seed, samples=a.samples, stages=STAGES,
@@ -326,7 +361,9 @@ def main():
             continue
         qrest = np.array(REST)
         both = [i for i, c in enumerate(good) if len(c['vis']) == 2]
-        pool = both or list(range(len(good)))
+        near = [i for i, c in enumerate(good) if min(v['dist'] for v in c['vis'].values()) <= 1.6]
+        # R0: both cameras if possible, else a camera <= 1.6 m (G6 lateral noise ~ px x d / f), else anything
+        pool = both or near or list(range(len(good)))
         r0 = min(pool, key=lambda i: (np.linalg.norm(good[i]['q6'] - qrest), good[i]['tfrac']))
         rest_idx = [i for i in range(len(good)) if i != r0]
         sub = [good[i] for i in rest_idx]
@@ -336,6 +373,7 @@ def main():
         def rec(c, role, stage, idx):
             pos, quat = tool_pose(cell, arm, c['q6'])
             return dict(id=f'{board}-{idx:02d}' if role != 'R0' else f'{board}-R0', board=board, arm=arm, role=role,
+                        zone=zone_of(zones, c['ctr']),
                         stage=stage, goal_joints={f'{ARM_PREFIX[arm]}joint_{k + 1}': round(float(v), 6)
                                                   for k, v in enumerate(c['q6'])},
                         tool_xyz=[round(v, 5) for v in pos], tool_quat_xyzw=[round(v, 6) for v in quat],
@@ -352,7 +390,7 @@ def main():
         out['arms'][arm] = dict(board=board, counts=cnt, mount_check=mc, n_candidates=len(good), poses=poses)
         summ = {}
         for p in poses[1:]:
-            k = '+'.join(sorted(p['cams']))
+            k = '+'.join(sorted(p['cams'])) + '@' + p['zone']
             summ[(p['role'], k)] = summ.get((p['role'], k), 0) + 1
         log(f'{arm}: R0 kamera {sorted(poses[0]["cams"])}; urutan {len(poses) - 1}; {summ}')
     out['log'] = logs
