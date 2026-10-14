@@ -504,3 +504,12 @@ RGBD menerima **30 pesan, semuanya tracks[]**; tidak ada median/galat sah. RGBD2
 **C1 RGBD pada FIT F1 tidak dapat terpenuhi dalam tiga tinggi terkunci:** BASE dan D sama-sama missing, sehingga CD paling banyak memberi satu tinggi, sedangkan minimal dua diperlukan. Tidak membuang F1, mengganti tanda/tinggi, merekam ulang demi keberhasilan, atau melonggarkan gerbang. Penempatan CD tetap diteruskan untuk melengkapi bukti. Fit numerik kelak tidak boleh disebut kandidat sah jika C1 tetap gagal. Missing tidak membuktikan salah ekstrinsik; atribusi kamera/detektor/visibilitas belum selesai.
 
 Keadaan: semua REST/PARK, K0 terakhir sesudah pulang lulus; stack, kamera, localizer, monitor dan perekam tetap hidup. Tidak ada gerak baru. Meja18/18, lantai2/18 selesai; D590✗/D597✓, lainnya belum diuji seperti B34. Berikut penempatan3/18 F1/CD: C di bawah, D di atas, tinggi aktual245 mm langsung di lantai, botol sama165/65 tepat di atas tanda; menunggu operator siap/menjauh sebelum capture15 s. Scene map harus diverifikasi sebelum gerak HW baru karena laci sudah dipindahkan operator.
+
+
+### B40. Botol lantai 3/18 F1/CD — seluruh tiga tinggi F1 missing pada RGBD
+
+Operator “F1 di atas C+D, siap rekam”; kedua capture15 s selesai rc0, metadata/raw/log/summary `hw_20261014/tracks_inc/F1_CD_*` tersimpan. Surf_z=0.245 m langsung lantai, C di bawah/D di atas, actualxy=(0.2512,−0.4998), botol H0.165/r0.0325; ketiga hash cocok. RGBD26 pesan semuanya tracks[], tidak ada kandidat atau median sah. RGBD2 menerima30 pesan dengan track globalID1308 di luar radius terkunci, NOT_USED untuk F1. Log dan jumlah pesan raw diperiksa sendiri; tanpa gerak HW atau perubahan selector/detector/model.
+
+**F1 RGBD lengkap BASE/D/CD: ketiganya missing. C1 FIT RGBD gagal di F1 (0/3 tinggi, perlu≥2).** Tidak memberikan galatnol, mengganti titik, membuang missing atau merekam ulang demi lulus. Belum fit/LOO, pemasangan atau uji-tahan hidup; kegagalan deteksi ini tidak mengatribusikan galat ke ekstrinsik/depth. “Hanya rgbd2 salah” tetap belum terbukti. D590✗/D597✓ dan tujuh gerak C6 lulus tetap; D591–D596/D598 belum diuji seperti B34.
+
+Keadaan: semua REST/PARK, K0 terakhir sesudah pulang lulus; stack/kamera/localizer/monitor/perekam tetap hidup, NOL gerak baru. Meja18/18 dan lantai3/18 selesai. Berikut lantai4/18 F6/BASE: botol yang sama langsung pada tanda di atas penyangga tetap70 mm, tanpa C/D; tunggu operator menjauh dan siap sebelum15 s. Tidak menganggap mapbeku cocok untuk HW baru setelah laci dipindahkan.
