@@ -190,3 +190,9 @@ Plan konfigurasi `plan_rgbd_inc.json` dan `plan_rgbd2_inc.json` mengikuti peran/
 Operator mengonfirmasi botol putih langsung di C3 dan siap rekam. Hash§A cocok sebelum capture; rekaman setelah commit d081044,15 s per kamera secara bersamaan, kedua rc0 (`tracks_inc/C3_T0_*`). rgbd26 pesan tanpa track (zona di luar bingkai), rgbd2 28 pesan dengan satu track white bottle tid0, conf median0.86; tidak ada saingan≤0.35 m. Median rgbd2=(2.0269,0.7546,0.8072) m, tanda=(1.8486,0.6786), dxy=(+0.1783,+0.0760), |dxy|=0.1938 m. p5–p95 xy6/4 mm. z expected model=0.8164 m, dz=-0.0092 m.
 
 C3 adalah UJI-TAHAN: tidak masuk fit/inisialisasi/LOO/model-selection. Ini evaluasi incumbent, bukan uji hidup kandidat baru C2. Galat xy incumbent>5 cm diketahui; kalibrasi dilanjutkan sesuai tujuan, tanpa melonggarkan C2. D590 belum bisa dinilai sebelum TD/semua tanda. Nol gerak HW; stack+localizer milik sesi hidup. Penempatan2/18 C3/TC (box C100 mm) sudah diminta, menunggu operator siap.
+
+### B7. Botol incumbent meja — penempatan2/18 C3/TC
+
+Operator siap C3 di box C100 mm. Rekaman15 s per kamera, kedua rc0: rgbd28 pesan tanpa track; rgbd2 26 pesan, satu track tid0 berkelas bottle, label terakhir **blue bottle** (sebelumnya white), conf median0.68. Selektor terkunci `label contains bottle` + radius0.35 m tidak berubah; warna bukan dasar pergantian objek, botol fisik sesuai instruksi tetap botol putih yang sama. Tidak ada saingan. Median=(2.0206,0.7611,0.9101) m, |dxy|=0.1908 m; sebaran p5–p95 xy11/9 mm. Permukaan0.870, centroid model z=0.9164, dz=-0.0063 m. Bukti `tracks_inc/C3_TC_*`.
+
+C3 tetap UJI-TAHAN, tidak masuk fit/LOO. Warna label berubah diungkapkan, bukan alasan mengganti data/model. NOL gerak HW, default launch tetap; stack/localizer hidup. Berikut C3/TD: box D140 mm mengganti C (tidak ditumpuk), menunggu operator siap.

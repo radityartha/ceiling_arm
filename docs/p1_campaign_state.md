@@ -132,7 +132,7 @@ melanjutkan pemeriksaan, pemulihan dan penutupan; tidak disembunyikan.
 
 G61 selesai (terpisah dari CAM-6DOF): sesi runner berikut mengikuti `docs/p1_g62_hw_prompt.md`, model kuat effort high; setiap gerak HW menunggu izin operator per langkah.
 
-Sesi CAM-6DOF HW AKTIF: gerbang, bring-up, K0, baseline REST×3, capture, K4, keenam plan-check HW dan kunci§A sudah selesai; jangan ulang. Stack+dua localizer terisolasi masih hidup. Berikut: C3/T0 penempatan1/18 sudah direkam; menunggu operator siap C3/TC (box C100 mm), lalu rekam15 s kedua kamera dan lanjut penempatan meja sesuai§A terkunci; setiap gerak penunjuk/pulang nanti tetap izin satu langkah, model kuat effort high.
+Sesi CAM-6DOF HW AKTIF: gerbang, bring-up, K0, baseline REST×3, capture, K4, keenam plan-check HW dan kunci§A sudah selesai; jangan ulang. Stack+dua localizer terisolasi masih hidup. Berikut: penempatan1–2/18 C3/T0 dan C3/TC selesai; menunggu operator siap C3/TD (box D140 mm mengganti C), lalu rekam15 s kedua kamera dan lanjut meja sesuai§A terkunci; setiap gerak penunjuk/pulang nanti tetap izin satu langkah, model kuat effort high.
 
 ### Checkpoint CAM-6DOF 2026-10-14 (pra-bring-up)
 
@@ -152,3 +152,5 @@ CAM-6DOF §A DIKUNCI 2026-10-14 sebelum botol/gerak: sha256 3d13ea22a89d87bb3ac7
 CAM-6DOF localizer terisolasi aktif sesudah kunci commit d081044 (PID804824/804825), topik demo tanpa publisher. Penempatan pertama C3/T0 masih menunggu operator siap; belum data botol atau gerak.
 
 CAM-6DOF botol1/18 selesai C3/T0: rgbd2 satu white bottle, median(2.0269,0.7546,0.8072), galatxy19.4 cm, sebaran6/4 mm;rgbd tanpa track (zona di luar FOV). C3 UJI-TAHAN tidak dipakai fit/LOO. Stack+localizer hidup, nol gerak. Langkah berikut menunggu C3/TC siap (box C100 mm), lalu rekam15 s kedua kamera.
+
+CAM-6DOF botol2/18 selesai C3/TC: rgbd2 satu track bottle tid0,label blue,median(2.0206,0.7611,0.9101),galatxy18.8 cm,sebaran11/9 mm;rgbd tanpa track. Selektor bottle/radius tidak berubah;C3 UJI-TAHAN tidak dipakai fit/LOO. Stack/localizer hidup,nol gerak. Berikut C3/TD box D140 mm tanpa ditumpuk,menunggu siap.
