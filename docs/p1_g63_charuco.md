@@ -22,7 +22,7 @@ unting → lebih buruk dari incumbent 3–13 cm → G63 butuh **banyak pose 3D t
 | A0.3 | Cara pasang | **"pakai double tape untuk menempelkan charuco"**; alas **kardus**, ditempel di **jari gripper bagian yang datar** | Papan menempel ke link jari → rantai FK lewat sendi jari (`right_finger_bottom_joint`); gripper TIDAK diperintah selama G63; offset papan→link diestimasi solver (§A3). Risiko: kardus melengkung, jari Gen3 Lite lentur, tape merayap → §A2 cek kerataan + §A4 G6 cek geser. |
 | A0.4 | Pengaman tambahan | **"Cek geser saja"** (tanpa tali pengaman) | Pose acuan R0 diulang (§A2). Risiko jatuhnya papan dicatat; papan ringan (kardus ≲ 60 g) — operator menjauh dari bawah lengan saat gerak (aturan biasa). |
 | A0.5 | Lengan pembawa | **Dua lengan, 1 per gantry: arm_2 + arm_3** | arm_4 (membawa D435IF) dan arm_1 TETAP REST sepanjang G63. |
-| A0.6 | D435IF (327122073095) | Terpasang di gripper **arm_4**; massa/dudukan **belum diketahui**; **tidak dipakai** di G63 | arm_4 tidak digerakkan → model torsi D435IF tidak dibutuhkan G63; TETAPI volumenya tidak ada di URDF → amplop tabrakan konservatif di sekitar gripper arm_4 wajib dalam saringan rencana arm_3 (gantry sama, §A5 T4). Gerak arm_4 di fase mana pun sesudahnya menunggu timbangan + model. |
+| A0.6 | D435IF (327122073095) | Terpasang di gripper **arm_4**; massa/dudukan **belum diketahui**; **tidak dipakai** di G63; **§A6.3: operator melepasnya sebelum G63** | (semula:) arm_4 tidak digerakkan → model torsi D435IF tidak dibutuhkan G63; TETAPI volumenya tidak ada di URDF → amplop tabrakan konservatif di sekitar gripper arm_4 wajib dalam saringan rencana arm_3 (gantry sama, §A5 T4). Gerak arm_4 di fase mana pun sesudahnya menunggu timbangan + model. |
 | A0.7 | Peta env (laci dipindah) | **"env cek nanti"** | Gerbang S0c (kamera saja) sebelum gerak pertama: peta `env_static_map` dibandingkan awan hidup; bila laci di luar peta lama di area jalur → peta diperbarui (fase sendiri) atau pose di sekitar laci dibuang SEBELUM kunci. |
 
 Batas yang tetap (handoff §2): setiap gerak nyata (termasuk pulang/K0/pemulihan) = **satu izin operator per langkah**; kamera saja juga
@@ -48,6 +48,7 @@ penyaring tidak dilonggarkan; launch default / TF default TIDAK diubah tanpa ope
   kamera, beberapa kemiringan → catat sudut terdeteksi/marker terdekode per jarak (menguji D630 dan memilih batas jarak pose). Papan
   dipegang tangan = bukan data kalibrasi.
 - S0c **verifikasi peta env** (kamera saja): awan D455 vs `env_static_map` (laci dipindah).
+- S0e konfirmasi D435IF sudah dilepas dari arm_4 (§A6.3).
 - S0d ukur papan sesudah cetak/tempel: 4 kotak (mm), 5 kotak (mm), kerataan (penggaris lurus di diagonal; celah maks mm), massa
   papan+kardus+tape (g), foto dudukan di jari. Gerbang: celah ≤ 1 mm; massa ≤ 100 g (asumsi model torsi §A5).
 - `rec_health.py` dua kamera berjalan terus sejak kamera pertama hidup sampai mati (berkas per sesi).
@@ -75,7 +76,11 @@ pemeriksaan depth (§A3 D-test, informasional untuk keputusan Tare) + `arm_fk_ch
 ### A3. Pose, solver, uji-tahan, uji depth
 
 **Pose (dibangkitkan alat T4 dari incumbent sebelum kunci; daftar akhir = sesudah plan-check HW):**
-- Per lengan ≈ **24 pose** (18 FIT + 6 UJI-TAHAN) + R0 ×≥ 4. Ketinggian pusat papan z ∈ {0.85, 1.10, 1.35} m (cakupan 0.8–1.4), xy
+- **Tahapan (jawaban operator §A6.2):** P0 pilot per lengan = R0 + 3 pose + R0 (5 gerak + pulang) → periksa proses (deteksi kedua
+  kamera, tangkap lengkap, torsi, geser R0, sendi jari). Lulus → T1 +6 pose per lengan → T2 +6 → T3 +6 (+R0 tiap blok). Target akhir
+  ≈ 21 pose per lengan; berhenti lebih awal bila G1 sudah terpenuhi dan G3 tidak berubah > 0.3 cm antar-tahap (aturan terdaftar).
+  Daftar pose SELURUH tahap dikunci bersama §A (urutan tetap); tahap hanya memotong daftar, tidak memilih ulang pose.
+- Per lengan maks ≈ **21 pose** (16 FIT + 5 UJI-TAHAN) + R0 per blok. Ketinggian pusat papan z ∈ {0.85, 1.10, 1.35} m (cakupan 0.8–1.4), xy
   tersebar di jangkauan lengan dalam FOV kamera sasaran; jarak kamera–papan 0.8–2.8 m (batas atas dari S0b).
 - Visibilitas (ekstrinsik incumbent, margin 40 px dari tepi bingkai): ke-12 sudut terproyeksi di dalam bingkai kamera sasaran; sudut
   normal papan–sinar ≤ 55°; diusahakan ≥ 30 % pose terlihat KEDUA kamera (pengikat antar-kamera / G4).
@@ -91,7 +96,7 @@ berselisih < 2× RMS → pose itu ditolak untuk kamera itu (dicatat, tidak digan
 Marquardt, **tanpa loss robust** — titik buruk harus terlihat, sama dengan prinsip CAM-6DOF A0.1) atas semua sudut FIT kedua kamera /
 kedua papan. Residu per pose dilaporkan; pose > 3× median RMS ditandai, **tidak dibuang**.
 
-**UJI-TAHAN:** 6 pose per lengan dipilih SEBELUM data dengan aturan indeks (setiap pose ke-4 dalam urutan terkunci, bertingkat per
+**UJI-TAHAN:** pose ke-4, 8, 12, … per lengan (≈ 5) dipilih SEBELUM data dengan aturan indeks (setiap pose ke-4 dalam urutan terkunci, bertingkat per
 zona/tinggi). Tidak dipakai untuk fit, inisialisasi, atau memilih apa pun. Besaran utama = **galat lateral** e = |residu piksel| ×
 jarak / f (m), dari sudut prediksi FK dengan T_wc baru dan T_lb dari FIT.
 
@@ -133,13 +138,15 @@ karena galat basis gantry, bukan kamera — operator memilih di §A6.
 | T5 | Harness tangkap `g63_capture.py`: 30 frame RGB + camera_info + joint_states (per nama) + TF, cap waktu, `rec_health.py` paralel | belum |
 | T6 | Plan-check MOCK domain 77, `octomap_updaters:=false`, papan + amplop di scene: semua pose arm_2/arm_3 dari K0 (REST, g1 1.50, g2 0) | belum |
 
-### A6. Untuk disetujui operator sebelum kunci
+### A6. Jawaban operator atas §A6 (2026-10-15, harfiah dalam kutip)
 
-1. Gerbang G3/G4/G6 (1.5/3.0/2.0 cm; 2 mm/0.3°) — atau lebih ketat/longgar sebelum data.
-2. ≈ 2 × (24 + 4 R0 + pulang) ≈ **60 gerak nyata**, masing-masing satu izin. Setuju jumlah ini, atau kurangi pose?
-3. D435IF: amplop konservatif cukup untuk G63 (arm_4 diam)? Bila bisa, foto + ukur dudukan.
-4. Gantry tetap g1 1.50 / g2 0 / rot 0, atau izinkan geser rel untuk cakupan zona (tambahan gerak + galat rel ≤ 1 cm)?
-5. Papan B: cetak dan pasang di arm_3 bersamaan (dua papan terpasang) atau bergantian.
+| # | Pertanyaan | Jawaban | Konsekuensi |
+|---|---|---|---|
+| 1 | Gerbang G3/G4/G6 (1.5/3.0/2.0 cm; 2 mm/0.3°) | **"oke"** | Angka G3/G4/G6 tetap seperti §A4. |
+| 2 | ≈ 60 gerak nyata | **"kurangi jumlahnya untuk memastikan proses oke, jangan langsung banyak. kl sudah baik baru tambah jumlah pose perlahan"** | Pose bertahap (§A3 "Tahapan"): blok pilot kecil dulu, tambah hanya bila gerbang tahap lulus. |
+| 3 | Amplop D435IF | **"nanti saya lepas dulu saja"** | D435IF DILEPAS sebelum G63 → arm_4 = URDF; amplop T4 tidak dipakai. **Gerbang S0e:** operator konfirmasi D435IF sudah lepas (foto) sebelum gerak pertama; bila belum lepas → amplop konservatif dipakai lagi. |
+| 4 | Geser rel | **"boleh geser jika diperlukan"** | Pose dengan rel/rotasi ≠ PARK diizinkan bila zona tak terjangkau dari g1 1.50 / g2 0; tiap geser = gerak ber-izin sendiri (`pose_to_g`, lengan REST), rel diukur di FK; amplop G51 tetap. |
+| 5 | Papan A/B bersamaan atau bergantian | **"saya pasang bersamaan"** | Papan A (arm_2) dan B (arm_3) dipasang bersamaan sebelum blok pertama; ID marker berbeda → bisa terlihat bersamaan. Saringan tabrakan memuat KEDUA papan. |
 
 ### A7. Dugaan (DRAF, dikunci bersama §A)
 
