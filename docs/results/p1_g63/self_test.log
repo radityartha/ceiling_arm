@@ -1,0 +1,14 @@
+T1a tanpa noise (batas 0.01 deg / 1 mm):
+   rgbd: rot 0.00000 deg, pos 0.000 mm -> OK
+   rgbd2: rot 0.00000 deg, pos 0.000 mm -> OK
+   teramati semua: True  cond 135.2
+T1b noise 0.3 px + FK 2 mm / 0.1 deg (batas 0.15 deg / 5 mm), + G3/G4 uji-tahan:
+   rgbd: rot 0.0905 deg, pos 3.56 mm -> OK
+   rgbd2: rot 0.0122 deg, pos 1.09 mm -> OK
+   G3 {"rgbd": [0.32, 0.4], "rgbd2": [0.23, 0.36]} cm (median, p95); G4 n 12 median 0.35 cm
+   pose FIT per kamera {'rgbd': 18, 'rgbd2': 19}; std {"rgbd": [0.027, 0.64], "rgbd2": [0.027, 0.67], "board_A": [0.229, 0.57], "board_B": [0.201, 0.53]}
+T2 kontrol negatif: rotasi papan hanya sekitar z world -> HARUS ditandai tidak teramati:
+   ditandai: True [('rgbd', 1144020.8), ('rgbd2', 1144021.2)] -> OK
+T3a R0 tanpa geser (3 seed, noise baru tiap ulangan): perpindahan sudut RMS maks 0.34 mm (gerbang 2 mm) -> OK
+T3b geser papan 3 mm disuntik sesudah R0 ke-2 (HARUS gagal G6): perpindahan sudut RMS maks 3.13 mm (gerbang 2 mm) -> OK
+SELF-TEST LULUS
