@@ -19,7 +19,16 @@ assert hashlib.sha256(q.read_bytes()).hexdigest()==q.with_suffix('.sha256').read
 amend=Path('docs/results/p1_cam6dof/cam6dof_A_floor_amendment_locked.md')
 assert hashlib.sha256(amend.read_bytes()).hexdigest()==amend.with_suffix('.sha256').read_text().split()[0]
 protocol_hashes={'original':hashlib.sha256(q.read_bytes()).hexdigest(),'floor_amendment':hashlib.sha256(amend.read_bytes()).hexdigest()}
+correction_state=b/'bottle_height_correction_pending.json'
+if correction_state.exists():
+    correction=json.loads(correction_state.read_text())
+    assert correction.get('capture_permitted') is True, 'Bottle dimensions correction pending; capture blocked'
+    geometry=Path('docs/results/p1_cam6dof/cam6dof_A_bottle_geometry_locked.md')
+    geometry_hash=hashlib.sha256(geometry.read_bytes()).hexdigest()
+    assert geometry_hash==geometry.with_suffix('.sha256').read_text().split()[0]
+    protocol_hashes['bottle_geometry_correction']=geometry_hash
 plans={ns:json.loads((b/f'plan_{ns}_inc.json').read_text()) for ns in ('rgbd','rgbd2')}
+assert len({(p['bottle']['r'],p['bottle']['H']) for p in plans.values()})==1, 'Per-camera bottle dimensions differ'
 xy=next(p['marks'][mark] for p in plans.values() if mark in p['marks'])
 for p in plans.values():
     if mark in p['marks']:assert p['marks'][mark]==xy
@@ -38,7 +47,7 @@ for ns in plans:
     procs.append((ns,proc,log))
 status={}
 for ns,proc,log in procs:status[ns]=proc.wait();log.close()
-meta={'mark':mark,'height':level,'surf_z':z,'xy':xy,'operator_ready':True,'start':start,'end':time.time(),'exit_codes':status,'extrinsics':'incumbent launch + G34','duration_per_camera_s':15,'protocol_hashes':protocol_hashes}
+meta={'mark':mark,'height':level,'surf_z':z,'xy':xy,'operator_ready':True,'start':start,'end':time.time(),'exit_codes':status,'extrinsics':'incumbent launch + G34','duration_per_camera_s':15,'protocol_hashes':protocol_hashes,'bottle':next(iter(plans.values()))['bottle']}
 Path(str(prefix)+'_capture.json').write_text(json.dumps(meta,indent=2)+'\n')
 assert all(rc==0 for rc in status.values()),status
 rep={**meta,'cameras':{}}
@@ -53,7 +62,7 @@ for ns,p in plans.items():
     v={'messages':len(rows),'role':(p['roles'].get(mark) if any(item['mark']==mark and Path(item['file']).name.startswith(f'{mark}_{level}_') for item in p['placements']) else 'not_used'),'all_track_ids':sorted(all_ids),'candidate_counts':{str(t):len(L) for t,L in by.items()},'single_track':len(by)==1}
     if by:
         tid=max(by,key=lambda t:len(by[t])); L=by[tid]; X=np.array([[o['x'],o['y'],o['z']] for o in L]); med=np.median(X,axis=0)
-        off=centroid_offset(np.array(p['old'][:3]),np.r_[xy,z],.03,.07)
+        off=centroid_offset(np.array(p['old'][:3]),np.r_[xy,z],p['bottle']['r'],p['bottle']['H'])
         v.update(track_id=tid,n=len(L),labels=sorted({o['label'] for o in L}),median=med.tolist(),xy_error=(med[:2]-xy).tolist(),xy_error_abs_m=float(np.linalg.norm(med[:2]-xy)),model_offset=off.tolist(),z_expected=float(z+off[2]),z_error_m=float(med[2]-z-off[2]),p5_p95=(np.percentile(X,95,axis=0)-np.percentile(X,5,axis=0)).tolist(),conf_median=float(np.median([o['conf'] for o in L])),rivals={str(t):len(V) for t,V in by.items() if t!=tid})
     else:v['note']='No bottle track within locked selector radius; do not fabricate observation'
     rep['cameras'][ns]=v

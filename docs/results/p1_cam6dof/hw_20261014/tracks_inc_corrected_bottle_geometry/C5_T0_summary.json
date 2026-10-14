@@ -1,0 +1,58 @@
+{
+  "source_summary": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C5_T0_summary.json",
+  "source_capture": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C5_T0_capture.json",
+  "source_summary_sha256": "c29580cf2d32c709acaa7d86705c4ed79c1380ede4f399653d60da87304080fb",
+  "note": "Derived recomputation after operator dimension correction; same raw frames/selector/ranking, no new capture or model fit",
+  "mark": "C5",
+  "height": "T0",
+  "surf_z": 0.77,
+  "xy": [
+    1.6506,
+    0.6503
+  ],
+  "bottle": {
+    "H": 0.165,
+    "r": 0.0325
+  },
+  "precision_note": "Operator reported H165/diameter65; numerical precision\u00b12 not explicitly affirmed",
+  "cameras": {
+    "rgbd": {
+      "messages": 29,
+      "candidate_counts": {},
+      "single_track": false,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C5_T0_rgbd.jsonl",
+      "raw_sha256": "c6f1b2182661b34057c8ba6075670b478dc6c74e08a2bf8b4ba365fbb4c38979",
+      "role": "not_used",
+      "note": "Missing unchanged; no fabricated observation"
+    },
+    "rgbd2": {
+      "messages": 30,
+      "candidate_counts": {
+        "371": 30
+      },
+      "single_track": true,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C5_T0_rgbd2.jsonl",
+      "raw_sha256": "11e44bf36a4e51b15c9ef4f59fa795c5baf4c759df3dd0f38f3639a3008fa935",
+      "role": "fit",
+      "track_id": 371,
+      "n": 30,
+      "median": [
+        1.8478857959202235,
+        0.7471047454543271,
+        0.8342425368564872
+      ],
+      "xy_error_abs_m": 0.21975632872423295,
+      "model_offset": [
+        -0.021321918442191556,
+        -0.019558988252441623,
+        0.09693750000000001
+      ],
+      "z_expected": 0.8669375,
+      "z_error_m": -0.032694963143512834,
+      "legacy_H70_r30_z_error_m": 0.016117536856487202,
+      "delta_expected_z_m": 0.048812500000000036,
+      "rivals": {}
+    }
+  },
+  "bottle_geometry_correction_sha256": "ccd69a959c06f5b92fa917aef04c00424c1f5deb725e3ae7a09437df0d58b6fc"
+}

@@ -1,0 +1,58 @@
+{
+  "source_summary": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C6_TD_summary.json",
+  "source_capture": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C6_TD_capture.json",
+  "source_summary_sha256": "83eeb7d2de1040e6fc3680be036aa4bcae3ba2103c81274c5b0efac32f01ef1d",
+  "note": "Derived recomputation after operator dimension correction; same raw frames/selector/ranking, no new capture or model fit",
+  "mark": "C6",
+  "height": "TD",
+  "surf_z": 0.91,
+  "xy": [
+    1.9004,
+    0.6004
+  ],
+  "bottle": {
+    "H": 0.165,
+    "r": 0.0325
+  },
+  "precision_note": "Operator reported H165/diameter65; numerical precision\u00b12 not explicitly affirmed",
+  "cameras": {
+    "rgbd": {
+      "messages": 30,
+      "candidate_counts": {},
+      "single_track": false,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C6_TD_rgbd.jsonl",
+      "raw_sha256": "296d387c1dce221129f0d378c265fcfd663273d35c3b37be9a8d2e58fb0beb85",
+      "role": "not_used",
+      "note": "Missing unchanged; no fabricated observation"
+    },
+    "rgbd2": {
+      "messages": 25,
+      "candidate_counts": {
+        "354": 25
+      },
+      "single_track": true,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C6_TD_rgbd2.jsonl",
+      "raw_sha256": "b932163ee6d7e9a7ba8f3ec553db072d81247d9610b975c50103c51ce6834537",
+      "role": "holdout",
+      "track_id": 354,
+      "n": 25,
+      "median": [
+        2.019087917310376,
+        0.6583148523386749,
+        0.9768054637749376
+      ],
+      "xy_error_abs_m": 0.13206419589307744,
+      "model_offset": [
+        -0.0233785435110061,
+        -0.01817376936279924,
+        0.09281250000000008
+      ],
+      "z_expected": 1.0028125,
+      "z_error_m": -0.026007036225062508,
+      "legacy_H70_r30_z_error_m": 0.022180463774937542,
+      "delta_expected_z_m": 0.04818750000000005,
+      "rivals": {}
+    }
+  },
+  "bottle_geometry_correction_sha256": "ccd69a959c06f5b92fa917aef04c00424c1f5deb725e3ae7a09437df0d58b6fc"
+}

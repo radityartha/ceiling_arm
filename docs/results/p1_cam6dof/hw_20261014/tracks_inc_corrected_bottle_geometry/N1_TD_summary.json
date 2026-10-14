@@ -1,0 +1,63 @@
+{
+  "source_summary": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N1_TD_summary.json",
+  "source_capture": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N1_TD_capture.json",
+  "source_summary_sha256": "53f7e89835412b6ad59057edb52887fa0aaa65f3b8a1bc0034799a286b276077",
+  "note": "Derived recomputation after operator dimension correction; same raw frames/selector/ranking, no new capture or model fit",
+  "mark": "N1",
+  "height": "TD",
+  "surf_z": 0.91,
+  "xy": [
+    1.9389,
+    0.4984
+  ],
+  "bottle": {
+    "H": 0.165,
+    "r": 0.0325
+  },
+  "precision_note": "Operator reported H165/diameter65; numerical precision\u00b12 not explicitly affirmed",
+  "cameras": {
+    "rgbd": {
+      "messages": 26,
+      "candidate_counts": {},
+      "single_track": false,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N1_TD_rgbd.jsonl",
+      "raw_sha256": "1660ab794d16e500a0dc943f8e9cdb2bc75de8489357870c3d1289e350ffd2eb",
+      "role": "not_used",
+      "note": "Missing unchanged; no fabricated observation"
+    },
+    "rgbd2": {
+      "messages": 28,
+      "candidate_counts": {
+        "750": 2,
+        "752": 7,
+        "753": 8
+      },
+      "single_track": false,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N1_TD_rgbd2.jsonl",
+      "raw_sha256": "57d792038ab65dd1f8ef8a1b69599303fc058792b65f9174af819d4109e578af",
+      "role": "fit",
+      "track_id": 753,
+      "n": 8,
+      "median": [
+        2.045457186104044,
+        0.5381338402681832,
+        0.9977421729826763
+      ],
+      "xy_error_abs_m": 0.11372428048956547,
+      "model_offset": [
+        -0.023768995302622997,
+        -0.01694944404547949,
+        0.09281250000000008
+      ],
+      "z_expected": 1.0028125,
+      "z_error_m": -0.005070327017323795,
+      "legacy_H70_r30_z_error_m": 0.043117172982676255,
+      "delta_expected_z_m": 0.04818750000000005,
+      "rivals": {
+        "750": 2,
+        "752": 7
+      }
+    }
+  },
+  "bottle_geometry_correction_sha256": "ccd69a959c06f5b92fa917aef04c00424c1f5deb725e3ae7a09437df0d58b6fc"
+}

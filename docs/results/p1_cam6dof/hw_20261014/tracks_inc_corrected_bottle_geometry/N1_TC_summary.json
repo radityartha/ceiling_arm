@@ -1,0 +1,58 @@
+{
+  "source_summary": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N1_TC_summary.json",
+  "source_capture": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N1_TC_capture.json",
+  "source_summary_sha256": "4073a8f0c16015b170acf61125d775028d1cbc27df3821a9fa62f24db54a7154",
+  "note": "Derived recomputation after operator dimension correction; same raw frames/selector/ranking, no new capture or model fit",
+  "mark": "N1",
+  "height": "TC",
+  "surf_z": 0.87,
+  "xy": [
+    1.9389,
+    0.4984
+  ],
+  "bottle": {
+    "H": 0.165,
+    "r": 0.0325
+  },
+  "precision_note": "Operator reported H165/diameter65; numerical precision\u00b12 not explicitly affirmed",
+  "cameras": {
+    "rgbd": {
+      "messages": 30,
+      "candidate_counts": {},
+      "single_track": false,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N1_TC_rgbd.jsonl",
+      "raw_sha256": "194b283a5d6b7ca4ac609454d9a7a343637fc8cab550a26b4877058bfa58bab2",
+      "role": "not_used",
+      "note": "Missing unchanged; no fabricated observation"
+    },
+    "rgbd2": {
+      "messages": 31,
+      "candidate_counts": {
+        "740": 31
+      },
+      "single_track": true,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N1_TC_rgbd2.jsonl",
+      "raw_sha256": "b37f4d0a7eef81d741fdbc3dca951aba0de51a7a0a5fe2594f7801b6bf689cf3",
+      "role": "fit",
+      "track_id": 740,
+      "n": 31,
+      "median": [
+        2.057552659495876,
+        0.5527983687211062,
+        0.94843135477062
+      ],
+      "xy_error_abs_m": 0.1305282962616217,
+      "model_offset": [
+        -0.023768995302622997,
+        -0.016738737434576767,
+        0.09281249999999996
+      ],
+      "z_expected": 0.9628125,
+      "z_error_m": -0.014381145229379944,
+      "legacy_H70_r30_z_error_m": 0.03205635477062008,
+      "delta_expected_z_m": 0.04643750000000002,
+      "rivals": {}
+    }
+  },
+  "bottle_geometry_correction_sha256": "ccd69a959c06f5b92fa917aef04c00424c1f5deb725e3ae7a09437df0d58b6fc"
+}

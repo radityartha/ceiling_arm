@@ -1,0 +1,58 @@
+{
+  "source_summary": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N2_T0_summary.json",
+  "source_capture": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N2_T0_capture.json",
+  "source_summary_sha256": "8d4e9f985ccdfeaa0314bf6e1856534b0893022759957c15a6eb364e0aa45564",
+  "note": "Derived recomputation after operator dimension correction; same raw frames/selector/ranking, no new capture or model fit",
+  "mark": "N2",
+  "height": "T0",
+  "surf_z": 0.77,
+  "xy": [
+    1.9388,
+    0.6806
+  ],
+  "bottle": {
+    "H": 0.165,
+    "r": 0.0325
+  },
+  "precision_note": "Operator reported H165/diameter65; numerical precision\u00b12 not explicitly affirmed",
+  "cameras": {
+    "rgbd": {
+      "messages": 31,
+      "candidate_counts": {},
+      "single_track": false,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N2_T0_rgbd.jsonl",
+      "raw_sha256": "cfacc43ed08e2a0c0ce746354ce05b627af38c712b7adf7a8672f5d022735bed",
+      "role": "not_used",
+      "note": "Missing unchanged; no fabricated observation"
+    },
+    "rgbd2": {
+      "messages": 31,
+      "candidate_counts": {
+        "803": 31
+      },
+      "single_track": true,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N2_T0_rgbd2.jsonl",
+      "raw_sha256": "7510e00bb02f987a19827371dfe97ec516dc4e3f6aefcc42c72df635f2515c76",
+      "role": "fit",
+      "track_id": 803,
+      "n": 31,
+      "median": [
+        2.106866149310255,
+        0.750363152279246,
+        0.8098891413457056
+      ],
+      "xy_error_abs_m": 0.1819701293067468,
+      "model_offset": [
+        -0.022649728710546713,
+        -0.01817376936279924,
+        0.09693750000000001
+      ],
+      "z_expected": 0.8669375,
+      "z_error_m": -0.05704835865429447,
+      "legacy_H70_r30_z_error_m": -0.0064858586542945185,
+      "delta_expected_z_m": 0.050562499999999955,
+      "rivals": {}
+    }
+  },
+  "bottle_geometry_correction_sha256": "ccd69a959c06f5b92fa917aef04c00424c1f5deb725e3ae7a09437df0d58b6fc"
+}

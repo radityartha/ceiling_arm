@@ -1,0 +1,275 @@
+{
+  "ns": "rgbd",
+  "old": [
+    1.7166,
+    0.8656,
+    2.0782,
+    -2.3436,
+    -0.1488,
+    2.1688
+  ],
+  "bottle": {
+    "r": 0.03,
+    "H": 0.07
+  },
+  "capture": "docs/results/p1_cam6dof/hw_20261014/rest_inc.npz",
+  "label": "bottle",
+  "marks": {
+    "F1": [
+      0.2512,
+      -0.4998
+    ],
+    "F6": [
+      0.3998,
+      -0.6998
+    ],
+    "F4": [
+      0.5491,
+      -0.6003
+    ],
+    "F5": [
+      0.6497,
+      -0.4779
+    ],
+    "F3": [
+      0.2513,
+      -0.5991
+    ],
+    "F7": [
+      0.6483,
+      -0.5809
+    ]
+  },
+  "roles": {
+    "F1": "fit",
+    "F6": "fit",
+    "F4": "fit",
+    "F5": "fit",
+    "F3": "holdout",
+    "F7": "holdout"
+  },
+  "placements": [
+    {
+      "mark": "F1",
+      "surf_z": 0.0,
+      "level": "BASE",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_BASE_rgbd.jsonl"
+    },
+    {
+      "mark": "F1",
+      "surf_z": 0.14,
+      "level": "D",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_D_rgbd.jsonl"
+    },
+    {
+      "mark": "F1",
+      "surf_z": 0.245,
+      "level": "CD",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_CD_rgbd.jsonl"
+    },
+    {
+      "mark": "F6",
+      "surf_z": 0.07,
+      "level": "BASE",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_BASE_rgbd.jsonl"
+    },
+    {
+      "mark": "F6",
+      "surf_z": 0.21,
+      "level": "D",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_D_rgbd.jsonl"
+    },
+    {
+      "mark": "F6",
+      "surf_z": 0.315,
+      "level": "CD",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_CD_rgbd.jsonl"
+    },
+    {
+      "mark": "F4",
+      "surf_z": 0.07,
+      "level": "BASE",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_BASE_rgbd.jsonl"
+    },
+    {
+      "mark": "F4",
+      "surf_z": 0.21,
+      "level": "D",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_D_rgbd.jsonl"
+    },
+    {
+      "mark": "F4",
+      "surf_z": 0.315,
+      "level": "CD",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_CD_rgbd.jsonl"
+    },
+    {
+      "mark": "F5",
+      "surf_z": 0.0,
+      "level": "BASE",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_BASE_rgbd.jsonl"
+    },
+    {
+      "mark": "F5",
+      "surf_z": 0.14,
+      "level": "D",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_D_rgbd.jsonl"
+    },
+    {
+      "mark": "F5",
+      "surf_z": 0.245,
+      "level": "CD",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_CD_rgbd.jsonl"
+    },
+    {
+      "mark": "F3",
+      "surf_z": 0.07,
+      "level": "BASE",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_BASE_rgbd.jsonl"
+    },
+    {
+      "mark": "F3",
+      "surf_z": 0.21,
+      "level": "D",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_D_rgbd.jsonl"
+    },
+    {
+      "mark": "F3",
+      "surf_z": 0.315,
+      "level": "CD",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_CD_rgbd.jsonl"
+    },
+    {
+      "mark": "F7",
+      "surf_z": 0.07,
+      "level": "BASE",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_BASE_rgbd.jsonl"
+    },
+    {
+      "mark": "F7",
+      "surf_z": 0.21,
+      "level": "D",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_D_rgbd.jsonl"
+    },
+    {
+      "mark": "F7",
+      "surf_z": 0.315,
+      "level": "CD",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_CD_rgbd.jsonl"
+    }
+  ],
+  "note": "Original role/model gates unchanged; floor heights amended before first floor bottle, measured small supports. Legacy LA/LB not captured. Table heights unchanged.",
+  "actual_floor_marks": {
+    "F1": {
+      "tcp": [
+        0.2512,
+        -0.4998,
+        1.2204
+      ],
+      "source": "mark_F1.json",
+      "operator_confirmed": true
+    },
+    "F6": {
+      "tcp": [
+        0.3998,
+        -0.6998,
+        1.2197
+      ],
+      "source": "mark_F6.json",
+      "operator_confirmed": true,
+      "surface": "fixed box reported 0.07 m; not floor z0",
+      "locked_L0_available": false,
+      "locked_LA_LB_available": null,
+      "small_supports_on_fixed_box": true,
+      "previous_direct_floor_support_confirmation_superseded": true,
+      "surface_z_m": 0.07,
+      "surface_precision_confirmed": true
+    },
+    "F4": {
+      "tcp": [
+        0.5491,
+        -0.6003,
+        1.2206
+      ],
+      "source": "mark_F4.json",
+      "operator_confirmed": true,
+      "surface": "same fixed box as F6, reported 0.07 m; not floor z0",
+      "surface_precision_confirmed": true,
+      "locked_L0_available": false,
+      "small_supports_on_fixed_box": true,
+      "surface_z_m": 0.07
+    },
+    "F5": {
+      "tcp": [
+        0.6497,
+        -0.4779,
+        1.2185
+      ],
+      "source": "mark_F5.json",
+      "operator_confirmed": true,
+      "surface_z_m": 0.0
+    },
+    "F3": {
+      "tcp": [
+        0.2513,
+        -0.5991,
+        1.2185
+      ],
+      "source": "mark_F3.json",
+      "operator_confirmed": true,
+      "surface_z_m": 0.07,
+      "surface_precision_confirmed": true,
+      "same_fixed_support_as": [
+        "F4",
+        "F6"
+      ]
+    },
+    "F7": {
+      "tcp": [
+        0.6483,
+        -0.5809,
+        1.2186
+      ],
+      "source": "mark_F7.json",
+      "operator_confirmed": true,
+      "surface_z_m": 0.07,
+      "surface_precision_confirmed": true
+    }
+  },
+  "protocol_hashes": {
+    "original": "3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802",
+    "floor_amendment": "2022dbbc72f93e953daefa5d4d197a7c09aa0502214f1a280ed350c2e7ddff80"
+  },
+  "floor_level_heights": {
+    "F1": {
+      "BASE": 0.0,
+      "D": 0.14,
+      "CD": 0.245
+    },
+    "F6": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
+    },
+    "F4": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
+    },
+    "F5": {
+      "BASE": 0.0,
+      "D": 0.14,
+      "CD": 0.245
+    },
+    "F3": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
+    },
+    "F7": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
+    }
+  }
+}

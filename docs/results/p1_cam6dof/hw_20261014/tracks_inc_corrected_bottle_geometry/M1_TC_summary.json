@@ -1,0 +1,58 @@
+{
+  "source_summary": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/M1_TC_summary.json",
+  "source_capture": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/M1_TC_capture.json",
+  "source_summary_sha256": "87db08b2b0e1f579a75e232bd1a6635dba23342d507d19643ca83f79b3d29844",
+  "note": "Derived recomputation after operator dimension correction; same raw frames/selector/ranking, no new capture or model fit",
+  "mark": "M1",
+  "height": "TC",
+  "surf_z": 0.87,
+  "xy": [
+    1.7497,
+    0.5493
+  ],
+  "bottle": {
+    "H": 0.165,
+    "r": 0.0325
+  },
+  "precision_note": "Operator reported H165/diameter65; numerical precision\u00b12 not explicitly affirmed",
+  "cameras": {
+    "rgbd": {
+      "messages": 28,
+      "candidate_counts": {},
+      "single_track": false,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/M1_TC_rgbd.jsonl",
+      "raw_sha256": "9d333cc10f010458bea7491f3141e85cacd916394a08382bec6bbbe2bfafc64b",
+      "role": "not_used",
+      "note": "Missing unchanged; no fabricated observation"
+    },
+    "rgbd2": {
+      "messages": 28,
+      "candidate_counts": {
+        "361": 28
+      },
+      "single_track": true,
+      "raw_file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/M1_TC_rgbd2.jsonl",
+      "raw_sha256": "f789f5b4bf10d5eecc1bbdf8c566923f9466b57a77bc075bbafdfeaafd8278a0",
+      "role": "fit",
+      "track_id": 361,
+      "n": 28,
+      "median": [
+        1.8888963925430864,
+        0.6732654695676217,
+        0.9160020263392687
+      ],
+      "xy_error_abs_m": 0.18639493915374936,
+      "model_offset": [
+        -0.022576397039917317,
+        -0.01817376936279924,
+        0.09693750000000001
+      ],
+      "z_expected": 0.9669375,
+      "z_error_m": -0.050935473660731256,
+      "legacy_H70_r30_z_error_m": -0.00037297366073119065,
+      "delta_expected_z_m": 0.050562500000000066,
+      "rivals": {}
+    }
+  },
+  "bottle_geometry_correction_sha256": "ccd69a959c06f5b92fa917aef04c00424c1f5deb725e3ae7a09437df0d58b6fc"
+}
