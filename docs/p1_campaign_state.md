@@ -6,11 +6,7 @@
 
 **G61 OFFLINE SELESAI** (2026-10-14, `docs/p1_g61_offline.md` B0–B6, skor **8/13**): kode run_g54 tetap 831db96. A5.1 6/6 ×2 argv identik; injeksi rot −0.48 tanpa koreksi 4/6, dengan koreksi 6/6; peringatan perekam OK. A5.4 kill move_group mock → AUTO-STOP **0.027 s**, 0 CMD sesudah stop, rc 3; A5.3 DRY ditolak sebelum t0, rc 3. C3 85/87 j2 ≤ prediksi probe; C4 s0 = penyaring reservasi. Gerbang C1–C4 LULUS. Pemulihan mock REST + PARK, K0 LULUS, seluruh PID milik G61 keluar, domain 77 kosong (shutdown launch memakai eskalasi otomatis SIGTERM/SIGKILL untuk move_group/RViz; B6). Runbook + prompt G62 final. NOL gerak HW; CAM-6DOF tidak disentuh.
 
-**CAM-6DOF LURING SELESAI, HW BELUM** (2026-10-12 21:00–22:10, `docs/p1_cam6dof.md` §A0, commit dcde98d): operator pulang sebelum gerbang
-("tes online lanjut besok"; "siapkan yang offline dulu"). Alat fit 6-DOF/M7 per kamera + self-test PASS (2 cacat diperbaiki: tanda geser ICP;
-lengan REST vertikal → lengan hanya mengikat xy, z dari botol 3 tinggi), TF round-trip 0.000 mm, `loc_cam.sh`, tangkap/proyeksi/cfg tools,
-plan-check MOCK 10 kandidat lantai arm_3 (9 lolos, (0.40, −0.50) j2 99 % dibuang). K4 luring: lantai di bawah arm_3 terlihat rgbd 2.6–3.1 m.
-§A = DRAF (kunci besok sesudah angka balok/diameter botol + K4 hidup + plan-check HW). Sel tak disentuh (akhir RGBD2-ZONE), 0 node 0/77/78/79.
+**CAM-6DOF HW AKTIF, §A DIKUNCI** (2026-10-14): melanjutkan A0 selesai, tidak mengulang solver/self-test/TF/mock/G61. Pra-cek host lulus; HW nyata + octomap_updaters false; K0 LULUS (g1 1.499262, g2 0.000901, rot0/0, semua REST). Baseline REST×3 selesai: median rgbd arm_2/4=5.3/3.0 cm, rgbd2 arm_1/2/3=13.0/6.2/2.3 cm. Capture lengan dan K4 hidup selesai; enam F plan-check HW PLANNED pada91–93%, nol perintah gerak. Box meja C100/D140 mm dan lantai A310/B480 mm terukur±2 mm, botol H70/diameter60 mm. §A terkunci commit `d081044`, sha256 `3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802`; role FIT/uji-tahan dan C1–C6 tetap. Stack milik CAM-6DOF HIDUP (launch786857,camera787847,monitor787845→787875,perekam787846,localizer804824/804825); verifikasi ulang PID sebelum shutdown, jangan disentuh sesi lain. Localizer per kamera terisolasi siap. Belum track botol/gerak/fit/uji-tahan; penempatan pertama C3/T0 menunggu konfirmasi operator. Bukti `docs/results/p1_cam6dof/hw_20261014/`.
 
 **RGBD2-ZONE SELESAI** (2026-10-12 malam, `docs/p1_rgbd2_zone.md`, tally 2/5): 7 gerak penunjuk arm_1 (6 tanda unting di meja, C2/C4 di luar meja → N1/N2), botol di 6 tanda: incumbent 0.14–0.23 m; fit planar θ **13.1°** → R1 GAGAL, tidak dipakai. Info: dengan fit, uji-tahan hidup C6 1.9 / C3 0.9 cm tetapi lengan dekat rusak > 25 cm (zona-saja). Sel home, K0 LULUS, stack MATI.
 
@@ -136,7 +132,7 @@ melanjutkan pemeriksaan, pemulihan dan penutupan; tidak disembunyikan.
 
 G61 selesai (terpisah dari CAM-6DOF): sesi runner berikut mengikuti `docs/p1_g62_hw_prompt.md`, model kuat effort high; setiap gerak HW menunggu izin operator per langkah.
 
-Sesi CAM-6DOF HW: tempel ulang `docs/p1_cam6dof_prompt.md` SAMA; langkah 0 sudah selesai (§A0 `docs/p1_cam6dof.md`) → mulai gerbang K0–K3b + angka (balok A/B ±2 mm, diameter botol, lantai z 0), bring-up, `cam6dof_capture` + `arm_fk_check` ×3, `proj_marks` K4, plan-check HW tanda F, lalu KUNCI §A (draf A1–A4) sebelum data botol / gerak pertama.
+Sesi CAM-6DOF HW AKTIF: gerbang, bring-up, K0, baseline REST×3, capture, K4, keenam plan-check HW dan kunci§A sudah selesai; jangan ulang. Stack+dua localizer terisolasi masih hidup. Berikut: operator mengonfirmasi botol C3/T0 (tanpa box) dan menjauh→rekam15 s per kamera→lanjut18 penempatan meja sesuai§A terkunci; setiap gerak penunjuk/pulang nanti tetap izin satu langkah, model kuat effort high.
 
 ### Checkpoint CAM-6DOF 2026-10-14 (pra-bring-up)
 
@@ -152,3 +148,5 @@ CAM-6DOF checkpoint terbaru: baseline REST×3 dan plan-check HW keenam F SELESAI
 Segmentasi CAM-6DOF terverifikasi hidup:27 gambar/kamera pada subscription8 s,1280×720, cap waktu bertambah (`hw_20261014/seg_readiness.json`). Tidak ada restart atau gerak. Satu-satunya gerbang pra-kunci yang masih pending: detail/kelayakan box10/14 cm di meja.
 
 CAM-6DOF §A DIKUNCI 2026-10-14 sebelum botol/gerak: sha256 3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802, salinan `results/p1_cam6dof/cam6dof_A_locked.md`. Operator box C100 atas95×70/D140 atas92×50 mm muat/kokoh; meja z0.770/0.870/0.910, lantai z0/0.310/0.480. K0 pra-kunci LULUS. D590 box tertinggi meja=D, bukan B lantai; kriteria tetap. Stack CAM-6DOF hidup. Langkah berikut: commit kunci→localizer terisolasi per kamera→rekam botol yang sudah di C3/T0 selama15 s setelah operator menjauh; nol gerak sampai izin satu langkah.
+
+CAM-6DOF localizer terisolasi aktif sesudah kunci commit d081044 (PID804824/804825), topik demo tanpa publisher. Penempatan pertama C3/T0 masih menunggu operator siap; belum data botol atau gerak.

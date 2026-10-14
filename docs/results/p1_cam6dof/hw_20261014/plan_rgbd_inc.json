@@ -1,0 +1,144 @@
+{
+  "ns": "rgbd",
+  "old": [
+    1.7166,
+    0.8656,
+    2.0782,
+    -2.3436,
+    -0.1488,
+    2.1688
+  ],
+  "bottle": {
+    "r": 0.03,
+    "H": 0.07
+  },
+  "capture": "docs/results/p1_cam6dof/hw_20261014/rest_inc.npz",
+  "label": "bottle",
+  "marks": {
+    "F1": [
+      0.25,
+      -0.5
+    ],
+    "F6": [
+      0.4,
+      -0.7
+    ],
+    "F4": [
+      0.55,
+      -0.6
+    ],
+    "F5": [
+      0.65,
+      -0.48
+    ],
+    "F3": [
+      0.25,
+      -0.6
+    ],
+    "F7": [
+      0.65,
+      -0.58
+    ]
+  },
+  "roles": {
+    "F1": "fit",
+    "F6": "fit",
+    "F4": "fit",
+    "F5": "fit",
+    "F3": "holdout",
+    "F7": "holdout"
+  },
+  "placements": [
+    {
+      "mark": "F1",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F1",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F1",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_LB_rgbd.jsonl"
+    },
+    {
+      "mark": "F6",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F6",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F6",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_LB_rgbd.jsonl"
+    },
+    {
+      "mark": "F4",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F4",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F4",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_LB_rgbd.jsonl"
+    },
+    {
+      "mark": "F5",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F5",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F5",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_LB_rgbd.jsonl"
+    },
+    {
+      "mark": "F3",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F3",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F3",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_LB_rgbd.jsonl"
+    },
+    {
+      "mark": "F7",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F7",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F7",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_LB_rgbd.jsonl"
+    }
+  ],
+  "note": "Locked roles/heights; floor coordinates NOMINAL until actual TCP recorded before floor bottle. No FIT/HOLDOUT reassignment."
+}

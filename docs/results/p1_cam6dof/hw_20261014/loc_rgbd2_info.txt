@@ -1,0 +1,31 @@
+/loc_rgbd2
+  Subscribers:
+    /loc_rgbd2/grasp_target: std_msgs/msg/String
+    /rgbd2/camera_info: sensor_msgs/msg/CameraInfo
+    /rgbd2/depth: sensor_msgs/msg/Image
+    /rgbd2/seg/instance_segmentation: sensor_msgs/msg/Image
+    /rgbd2/seg/instance_segmentation_conf: std_msgs/msg/String
+    /rgbd2/seg/instance_segmentation_labels: std_msgs/msg/String
+    /tf: tf2_msgs/msg/TFMessage
+    /tf_static: tf2_msgs/msg/TFMessage
+  Publishers:
+    /loc_rgbd2/detected_objects: geometry_msgs/msg/PoseArray
+    /loc_rgbd2/markers: visualization_msgs/msg/MarkerArray
+    /loc_rgbd2/target_collision_boxes: std_msgs/msg/String
+    /loc_rgbd2/target_object: geometry_msgs/msg/PoseStamped
+    /loc_rgbd2/tracks: std_msgs/msg/String
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+    /rosout: rcl_interfaces/msg/Log
+  Service Servers:
+    /loc_rgbd2/describe_parameters: rcl_interfaces/srv/DescribeParameters
+    /loc_rgbd2/get_parameter_types: rcl_interfaces/srv/GetParameterTypes
+    /loc_rgbd2/get_parameters: rcl_interfaces/srv/GetParameters
+    /loc_rgbd2/list_parameters: rcl_interfaces/srv/ListParameters
+    /loc_rgbd2/set_parameters: rcl_interfaces/srv/SetParameters
+    /loc_rgbd2/set_parameters_atomically: rcl_interfaces/srv/SetParametersAtomically
+  Service Clients:
+
+  Action Servers:
+
+  Action Clients:
+
