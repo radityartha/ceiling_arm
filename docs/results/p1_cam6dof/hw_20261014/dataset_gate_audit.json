@@ -1,0 +1,847 @@
+{
+  "rgbd": {
+    "protocol_hashes": {
+      "original": "3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802",
+      "floor_amendment": "2022dbbc72f93e953daefa5d4d197a7c09aa0502214f1a280ed350c2e7ddff80",
+      "bottle_geometry_correction": "ccd69a959c06f5b92fa917aef04c00424c1f5deb725e3ae7a09437df0d58b6fc"
+    },
+    "bottle": {
+      "r": 0.0325,
+      "H": 0.165
+    },
+    "plan_sha256": "d5d155776f901a785832498b39109d729b0bf0aa3e5aef9ae05e9bccd517c7d7",
+    "cfg_sha256": "1d7b27f174f52868837abf4fb85e0721824d17bcc957965fd3a6bd19cbd1f428",
+    "marks": {
+      "F1": {
+        "heights_requested": 3,
+        "single_id_heights": 0,
+        "missing_heights": 3,
+        "ambiguous_heights": 0,
+        "minimum_two_single_id_heights": false
+      },
+      "F6": {
+        "heights_requested": 3,
+        "single_id_heights": 2,
+        "missing_heights": 1,
+        "ambiguous_heights": 0,
+        "minimum_two_single_id_heights": true
+      },
+      "F4": {
+        "heights_requested": 3,
+        "single_id_heights": 3,
+        "missing_heights": 0,
+        "ambiguous_heights": 0,
+        "minimum_two_single_id_heights": true
+      },
+      "F5": {
+        "heights_requested": 3,
+        "single_id_heights": 3,
+        "missing_heights": 0,
+        "ambiguous_heights": 0,
+        "minimum_two_single_id_heights": true
+      }
+    },
+    "all_fit_marks_two_single_id_heights": false,
+    "placements": [
+      {
+        "mark": "F1",
+        "level": "BASE",
+        "surf_z": 0.0,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_BASE_rgbd.jsonl",
+        "sha256": "562d7c0de51944ab92f9f1b4a70dcab17e143168bf03ffad8bd2709dd1df4401",
+        "messages": 30,
+        "candidate_counts": {},
+        "single_id": false,
+        "empty_local_messages": 30,
+        "max_simultaneous_local_tracks": 0,
+        "multiple_local_messages": 0,
+        "selected_id": null
+      },
+      {
+        "mark": "F1",
+        "level": "D",
+        "surf_z": 0.14,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_D_rgbd.jsonl",
+        "sha256": "d93d5ff978b1345e3e1ec4d5bbb50df4904653ffb0e089588aebb3aa7935ef8b",
+        "messages": 30,
+        "candidate_counts": {},
+        "single_id": false,
+        "empty_local_messages": 30,
+        "max_simultaneous_local_tracks": 0,
+        "multiple_local_messages": 0,
+        "selected_id": null
+      },
+      {
+        "mark": "F1",
+        "level": "CD",
+        "surf_z": 0.245,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_CD_rgbd.jsonl",
+        "sha256": "0d291380c69ca43498b1fbaa62d3411d556159a5ca20098141a354b9d022887b",
+        "messages": 26,
+        "candidate_counts": {},
+        "single_id": false,
+        "empty_local_messages": 26,
+        "max_simultaneous_local_tracks": 0,
+        "multiple_local_messages": 0,
+        "selected_id": null
+      },
+      {
+        "mark": "F6",
+        "level": "BASE",
+        "surf_z": 0.07,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_BASE_rgbd.jsonl",
+        "sha256": "93bcc48337ed88679e5f4d7edb665fd2b7d10dc0e3da35c61c241537d69e5455",
+        "messages": 30,
+        "candidate_counts": {
+          "242": 30
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 242
+      },
+      {
+        "mark": "F6",
+        "level": "D",
+        "surf_z": 0.21,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_D_rgbd.jsonl",
+        "sha256": "5db887f07d5df7c87a4fcbe5d8ab720bc69c522656c8c737e4c6bd4b81688ede",
+        "messages": 28,
+        "candidate_counts": {
+          "248": 1
+        },
+        "single_id": true,
+        "empty_local_messages": 27,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 248
+      },
+      {
+        "mark": "F6",
+        "level": "CD",
+        "surf_z": 0.315,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_CD_rgbd.jsonl",
+        "sha256": "26c725ccf8d98ce8f6762733c72a6f4e98c5ad791b629602858710feed32dd6e",
+        "messages": 28,
+        "candidate_counts": {},
+        "single_id": false,
+        "empty_local_messages": 28,
+        "max_simultaneous_local_tracks": 0,
+        "multiple_local_messages": 0,
+        "selected_id": null
+      },
+      {
+        "mark": "F4",
+        "level": "BASE",
+        "surf_z": 0.07,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_BASE_rgbd.jsonl",
+        "sha256": "331fac63e7ae212f91c60b3e79e17822aa6150375902e099f225d3752636c2f0",
+        "messages": 25,
+        "candidate_counts": {
+          "266": 25
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 266
+      },
+      {
+        "mark": "F4",
+        "level": "D",
+        "surf_z": 0.21,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_D_rgbd.jsonl",
+        "sha256": "18d8fd88602abf7a63ae7a6f8a6410a515cdeab74b40f74f418f033369f4ae2b",
+        "messages": 26,
+        "candidate_counts": {
+          "268": 26
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 268
+      },
+      {
+        "mark": "F4",
+        "level": "CD",
+        "surf_z": 0.315,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_CD_rgbd.jsonl",
+        "sha256": "19672714742ac899b67089935f57504479c9150ac20404cf71f50c61510f351d",
+        "messages": 27,
+        "candidate_counts": {
+          "271": 27
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 271
+      },
+      {
+        "mark": "F5",
+        "level": "BASE",
+        "surf_z": 0.0,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_BASE_rgbd.jsonl",
+        "sha256": "0f36fcbd87d1faa169a56b1ae4d7f734bc41d7afc24193e8f74de328993b3523",
+        "messages": 30,
+        "candidate_counts": {
+          "272": 30
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 272
+      },
+      {
+        "mark": "F5",
+        "level": "D",
+        "surf_z": 0.14,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_D_rgbd.jsonl",
+        "sha256": "a3b8e4cdf778d5cf98ce38de7dbd7474333903fd08cb45e705746fbef7e7fc9f",
+        "messages": 30,
+        "candidate_counts": {
+          "273": 30
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 273
+      },
+      {
+        "mark": "F5",
+        "level": "CD",
+        "surf_z": 0.245,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_CD_rgbd.jsonl",
+        "sha256": "5b765f29bb5235f817effcdbf574444e2d52887bc8e3abae527884973bc7c92f",
+        "messages": 30,
+        "candidate_counts": {
+          "273": 30
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 273
+      },
+      {
+        "mark": "F3",
+        "level": "BASE",
+        "surf_z": 0.07,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_BASE_rgbd.jsonl",
+        "sha256": "0b5478eb433439ec1374b90231cf06132cc9ff73e8e62b9150e3b4a925d7c187",
+        "messages": 30,
+        "candidate_counts": {},
+        "single_id": false,
+        "empty_local_messages": 30,
+        "max_simultaneous_local_tracks": 0,
+        "multiple_local_messages": 0,
+        "selected_id": null
+      },
+      {
+        "mark": "F3",
+        "level": "D",
+        "surf_z": 0.21,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_D_rgbd.jsonl",
+        "sha256": "02f05c3e69be0be735763f6e6548b40b18ea85bd9e20273c257133a5be135613",
+        "messages": 29,
+        "candidate_counts": {},
+        "single_id": false,
+        "empty_local_messages": 29,
+        "max_simultaneous_local_tracks": 0,
+        "multiple_local_messages": 0,
+        "selected_id": null
+      },
+      {
+        "mark": "F3",
+        "level": "CD",
+        "surf_z": 0.315,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_CD_rgbd.jsonl",
+        "sha256": "2120d829d94a9e2dc9af7b935b07fbd0fa415f0d6f6f79d93df38bda2f4c9e74",
+        "messages": 30,
+        "candidate_counts": {},
+        "single_id": false,
+        "empty_local_messages": 30,
+        "max_simultaneous_local_tracks": 0,
+        "multiple_local_messages": 0,
+        "selected_id": null
+      },
+      {
+        "mark": "F7",
+        "level": "BASE",
+        "surf_z": 0.07,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_BASE_rgbd.jsonl",
+        "sha256": "625490f882b750c134869109eb16333a25b745ecdbb2640b2aca91579ab50bea",
+        "messages": 30,
+        "candidate_counts": {
+          "348": 30
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 348
+      },
+      {
+        "mark": "F7",
+        "level": "D",
+        "surf_z": 0.21,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_D_rgbd.jsonl",
+        "sha256": "d2d646cc6050dbc76c151307efaea3028da2027144cea4257c116fb0a000445b",
+        "messages": 29,
+        "candidate_counts": {
+          "350": 29
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 350
+      },
+      {
+        "mark": "F7",
+        "level": "CD",
+        "surf_z": 0.315,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_CD_rgbd.jsonl",
+        "sha256": "57698da614efeb3dd73fe29d54a41fa596536964742b7394cc3f57b45f04f390",
+        "messages": 31,
+        "candidate_counts": {
+          "351": 31
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 351
+      }
+    ],
+    "numerical_fit_informational_only": true,
+    "note": "Immutable selector includes all local rival IDs; cfg retains largest-ID median and flags rivals. Missing rows absent from numerical cfg, retained here; no design mark removed. Holdout excluded from fit/init/LOO/model choice."
+  },
+  "rgbd2": {
+    "protocol_hashes": {
+      "original": "3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802",
+      "floor_amendment": "2022dbbc72f93e953daefa5d4d197a7c09aa0502214f1a280ed350c2e7ddff80",
+      "bottle_geometry_correction": "ccd69a959c06f5b92fa917aef04c00424c1f5deb725e3ae7a09437df0d58b6fc"
+    },
+    "bottle": {
+      "r": 0.0325,
+      "H": 0.165
+    },
+    "plan_sha256": "9502ef47d7af82ef6f0d12687a442f5de7f159ec0c85befee4e91ad56ebf244f",
+    "cfg_sha256": "97c1f53fda3806212d05b2f8f42f4d16f23d46a487ed9b5ec1af889feb31cec0",
+    "marks": {
+      "M1": {
+        "heights_requested": 3,
+        "single_id_heights": 3,
+        "missing_heights": 0,
+        "ambiguous_heights": 0,
+        "minimum_two_single_id_heights": true
+      },
+      "C5": {
+        "heights_requested": 3,
+        "single_id_heights": 3,
+        "missing_heights": 0,
+        "ambiguous_heights": 0,
+        "minimum_two_single_id_heights": true
+      },
+      "N1": {
+        "heights_requested": 3,
+        "single_id_heights": 1,
+        "missing_heights": 1,
+        "ambiguous_heights": 1,
+        "minimum_two_single_id_heights": false
+      },
+      "N2": {
+        "heights_requested": 3,
+        "single_id_heights": 3,
+        "missing_heights": 0,
+        "ambiguous_heights": 0,
+        "minimum_two_single_id_heights": true
+      },
+      "F4": {
+        "heights_requested": 2,
+        "single_id_heights": 2,
+        "missing_heights": 0,
+        "ambiguous_heights": 0,
+        "minimum_two_single_id_heights": true
+      },
+      "F5": {
+        "heights_requested": 3,
+        "single_id_heights": 1,
+        "missing_heights": 1,
+        "ambiguous_heights": 1,
+        "minimum_two_single_id_heights": false
+      }
+    },
+    "all_fit_marks_two_single_id_heights": false,
+    "placements": [
+      {
+        "mark": "M1",
+        "level": "table",
+        "surf_z": 0.77,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/M1_T0_rgbd2.jsonl",
+        "sha256": "19352ad9e6157ebc506c63c10682545678cf0d6d38ee4c5729dd2dac5b647eac",
+        "messages": 31,
+        "candidate_counts": {
+          "361": 31
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 361
+      },
+      {
+        "mark": "M1",
+        "level": "table",
+        "surf_z": 0.87,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/M1_TC_rgbd2.jsonl",
+        "sha256": "f789f5b4bf10d5eecc1bbdf8c566923f9466b57a77bc075bbafdfeaafd8278a0",
+        "messages": 28,
+        "candidate_counts": {
+          "361": 28
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 361
+      },
+      {
+        "mark": "M1",
+        "level": "table",
+        "surf_z": 0.91,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/M1_TD_rgbd2.jsonl",
+        "sha256": "abbc1f2afd89e10582fd9af587211bf7a7cae8bc1e66cd0854673f2b9cba1fc8",
+        "messages": 28,
+        "candidate_counts": {
+          "371": 28
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 371
+      },
+      {
+        "mark": "C5",
+        "level": "table",
+        "surf_z": 0.77,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C5_T0_rgbd2.jsonl",
+        "sha256": "11e44bf36a4e51b15c9ef4f59fa795c5baf4c759df3dd0f38f3639a3008fa935",
+        "messages": 30,
+        "candidate_counts": {
+          "371": 30
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 371
+      },
+      {
+        "mark": "C5",
+        "level": "table",
+        "surf_z": 0.87,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C5_TC_rgbd2.jsonl",
+        "sha256": "ef152e293f41cd7ea5adfe1c638bb640ce2a9b12566e6eee0133b997a34e582b",
+        "messages": 31,
+        "candidate_counts": {
+          "379": 31
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 379
+      },
+      {
+        "mark": "C5",
+        "level": "table",
+        "surf_z": 0.91,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C5_TD_rgbd2.jsonl",
+        "sha256": "de2c515536279dbd582f5775fa85dea9245e83b6981f4d87d4f91b1c82e9d712",
+        "messages": 25,
+        "candidate_counts": {
+          "476": 25
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 476
+      },
+      {
+        "mark": "N1",
+        "level": "table",
+        "surf_z": 0.77,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N1_T0_rgbd2.jsonl",
+        "sha256": "e26ab2001adcf07bb7e4f4b5712c478300ef7639a9b735ef3535c4afa05167dc",
+        "messages": 30,
+        "candidate_counts": {},
+        "single_id": false,
+        "empty_local_messages": 30,
+        "max_simultaneous_local_tracks": 0,
+        "multiple_local_messages": 0,
+        "selected_id": null
+      },
+      {
+        "mark": "N1",
+        "level": "table",
+        "surf_z": 0.87,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N1_TC_rgbd2.jsonl",
+        "sha256": "b37f4d0a7eef81d741fdbc3dca951aba0de51a7a0a5fe2594f7801b6bf689cf3",
+        "messages": 31,
+        "candidate_counts": {
+          "740": 31
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 740
+      },
+      {
+        "mark": "N1",
+        "level": "table",
+        "surf_z": 0.91,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N1_TD_rgbd2.jsonl",
+        "sha256": "57d792038ab65dd1f8ef8a1b69599303fc058792b65f9174af819d4109e578af",
+        "messages": 28,
+        "candidate_counts": {
+          "750": 2,
+          "752": 7,
+          "753": 8
+        },
+        "single_id": false,
+        "empty_local_messages": 11,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 753
+      },
+      {
+        "mark": "N2",
+        "level": "table",
+        "surf_z": 0.77,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N2_T0_rgbd2.jsonl",
+        "sha256": "7510e00bb02f987a19827371dfe97ec516dc4e3f6aefcc42c72df635f2515c76",
+        "messages": 31,
+        "candidate_counts": {
+          "803": 31
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 803
+      },
+      {
+        "mark": "N2",
+        "level": "table",
+        "surf_z": 0.87,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N2_TC_rgbd2.jsonl",
+        "sha256": "6bd469ed509ef9b68940fc458b0681efecdf7199fd01f932366b8710ea0e9f57",
+        "messages": 30,
+        "candidate_counts": {
+          "806": 30
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 806
+      },
+      {
+        "mark": "N2",
+        "level": "table",
+        "surf_z": 0.91,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/N2_TD_rgbd2.jsonl",
+        "sha256": "84152b43b28e99ade7fa10474b972257aafdb5ab84822fa9148317fb7bd762db",
+        "messages": 30,
+        "candidate_counts": {
+          "810": 30
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 810
+      },
+      {
+        "mark": "C6",
+        "level": "table",
+        "surf_z": 0.77,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C6_T0_rgbd2.jsonl",
+        "sha256": "472e2ca626f100cb3aa6a9a901f0a25248427ac736fb832b6925cba498d5d6f4",
+        "messages": 27,
+        "candidate_counts": {
+          "318": 27
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 318
+      },
+      {
+        "mark": "C6",
+        "level": "table",
+        "surf_z": 0.87,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C6_TC_rgbd2.jsonl",
+        "sha256": "6e9a90effc02a8a7027b9b1e152bc3dc76485ce84fd6ef184e2320e632816913",
+        "messages": 31,
+        "candidate_counts": {
+          "336": 31
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 336
+      },
+      {
+        "mark": "C6",
+        "level": "table",
+        "surf_z": 0.91,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C6_TD_rgbd2.jsonl",
+        "sha256": "b932163ee6d7e9a7ba8f3ec553db072d81247d9610b975c50103c51ce6834537",
+        "messages": 25,
+        "candidate_counts": {
+          "354": 25
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 354
+      },
+      {
+        "mark": "C3",
+        "level": "table",
+        "surf_z": 0.77,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C3_T0_rgbd2.jsonl",
+        "sha256": "b4ba9ec79b3e01ac47708e6c182fda34e1ba32396397acfa3e7cd5af90a720d6",
+        "messages": 28,
+        "candidate_counts": {
+          "0": 28
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 0
+      },
+      {
+        "mark": "C3",
+        "level": "table",
+        "surf_z": 0.87,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C3_TC_rgbd2.jsonl",
+        "sha256": "2d15a6ea05363253ef3d0dd574154744df9f898c78ddf5dbc713434373d894b2",
+        "messages": 26,
+        "candidate_counts": {
+          "0": 26
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 0
+      },
+      {
+        "mark": "C3",
+        "level": "table",
+        "surf_z": 0.91,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/C3_TD_rgbd2.jsonl",
+        "sha256": "55919cf1b033ab55857fc59fd46029b0fc8191286c9bba443cc003c557b311cb",
+        "messages": 29,
+        "candidate_counts": {
+          "70": 29
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 70
+      },
+      {
+        "mark": "F4",
+        "level": "D",
+        "surf_z": 0.21,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_D_rgbd2.jsonl",
+        "sha256": "b8ca5308e9b17911c1dbf529461638b4b0f63c6e1a9adf903c477e27a7f60f67",
+        "messages": 31,
+        "candidate_counts": {
+          "1475": 31
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 1475
+      },
+      {
+        "mark": "F4",
+        "level": "CD",
+        "surf_z": 0.315,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_CD_rgbd2.jsonl",
+        "sha256": "4c70e7bcee2a8e4fe40acb779b11fea49f344f11f0972dfbdf20e699fe258cd7",
+        "messages": 28,
+        "candidate_counts": {
+          "1475": 28
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 1475
+      },
+      {
+        "mark": "F5",
+        "level": "BASE",
+        "surf_z": 0.0,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_BASE_rgbd2.jsonl",
+        "sha256": "d8b186848668941c3798e0e7db850e3a7dc117557aa27875416f7b66c4ae158f",
+        "messages": 28,
+        "candidate_counts": {
+          "1520": 28
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 1520
+      },
+      {
+        "mark": "F5",
+        "level": "D",
+        "surf_z": 0.14,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_D_rgbd2.jsonl",
+        "sha256": "295d9bd71ccd222536f408110abc2c58baee7353b38a66d03642c7014df4f134",
+        "messages": 30,
+        "candidate_counts": {},
+        "single_id": false,
+        "empty_local_messages": 30,
+        "max_simultaneous_local_tracks": 0,
+        "multiple_local_messages": 0,
+        "selected_id": null
+      },
+      {
+        "mark": "F5",
+        "level": "CD",
+        "surf_z": 0.245,
+        "role": "fit",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_CD_rgbd2.jsonl",
+        "sha256": "3dffd56f15697fdc2c4a4bbf057beb796981d3a276818a631aafa1a6f1a632ed",
+        "messages": 30,
+        "candidate_counts": {
+          "1568": 16,
+          "1583": 9,
+          "1585": 4
+        },
+        "single_id": false,
+        "empty_local_messages": 5,
+        "max_simultaneous_local_tracks": 2,
+        "multiple_local_messages": 4,
+        "selected_id": 1568
+      },
+      {
+        "mark": "F7",
+        "level": "BASE",
+        "surf_z": 0.07,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_BASE_rgbd2.jsonl",
+        "sha256": "0308bf4599fad8ecb00d76387d232872f7be55a9685cb039afd553e571af9a7d",
+        "messages": 29,
+        "candidate_counts": {
+          "1641": 29
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 1641
+      },
+      {
+        "mark": "F7",
+        "level": "D",
+        "surf_z": 0.21,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_D_rgbd2.jsonl",
+        "sha256": "1baa2675ccb1ae3ac37800dabe5214d14b93141a7bba9266c675c8c3a57e9e44",
+        "messages": 30,
+        "candidate_counts": {
+          "1643": 30
+        },
+        "single_id": true,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 1,
+        "multiple_local_messages": 0,
+        "selected_id": 1643
+      },
+      {
+        "mark": "F7",
+        "level": "CD",
+        "surf_z": 0.315,
+        "role": "holdout",
+        "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_CD_rgbd2.jsonl",
+        "sha256": "28411651ee8d7d61fa40c329ec74bc8b1b746db9e1dc9a73d59471ebca71f187",
+        "messages": 31,
+        "candidate_counts": {
+          "1747": 31,
+          "1755": 1
+        },
+        "single_id": false,
+        "empty_local_messages": 0,
+        "max_simultaneous_local_tracks": 2,
+        "multiple_local_messages": 1,
+        "selected_id": 1747
+      }
+    ],
+    "numerical_fit_informational_only": true,
+    "note": "Immutable selector includes all local rival IDs; cfg retains largest-ID median and flags rivals. Missing rows absent from numerical cfg, retained here; no design mark removed. Holdout excluded from fit/init/LOO/model choice."
+  }
+}
