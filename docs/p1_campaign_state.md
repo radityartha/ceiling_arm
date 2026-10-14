@@ -132,7 +132,7 @@ melanjutkan pemeriksaan, pemulihan dan penutupan; tidak disembunyikan.
 
 G61 selesai (terpisah dari CAM-6DOF): sesi runner berikut mengikuti `docs/p1_g62_hw_prompt.md`, model kuat effort high; setiap gerak HW menunggu izin operator per langkah.
 
-Sesi CAM-6DOF HW AKTIF: gerbang, bring-up, K0, baseline REST×3, capture, K4, keenam plan-check HW dan kunci§A sudah selesai; jangan ulang. Stack+dua localizer terisolasi masih hidup. Berikut: penempatan1–3/18 C3/T0/TC/TD selesai; C3/TD anomali z−4.64 cm dan sebaranz96 mm, menunggu konfirmasi fisik botol7 cm/boxD14 cm tanpa tumpukan sebelum lanjut C6/T0; setiap gerak penunjuk/pulang nanti tetap izin satu langkah, model kuat effort high.
+Sesi CAM-6DOF HW AKTIF: gerbang, bring-up, K0, baseline REST×3, capture, K4, keenam plan-check HW dan kunci§A sudah selesai; jangan ulang. Stack+dua localizer terisolasi masih hidup. Berikut: penempatan1–3/18 C3/T0/TC/TD selesai; operator memastikan botol7 cm pada box D14 cm tanpa tumpukan. Anomali C3/TD disimpan. Menunggu botol langsung di C6/T0 siap (penempatan4/18), lalu rekam15 s kedua kamera; setiap gerak penunjuk/pulang nanti tetap izin satu langkah, model kuat effort high.
 
 ### Checkpoint CAM-6DOF 2026-10-14 (pra-bring-up)
 
@@ -158,3 +158,5 @@ CAM-6DOF botol2/18 selesai C3/TC: rgbd2 satu track bottle tid0,label blue,median
 Koreksi penyampaian angka C3/TC: hasil terhitung0.190807 m=19.1 cm, bukan18.8 cm; JSON dan data mentah sudah benar, tidak diubah.
 
 CAM-6DOF botol3/18 C3/TD selesai: rgbd2 lokal satu white bottle tid70,n29,median(2.0226,0.7514,0.9082),galatxy18.9 cm,dz−4.64 cm,sebaranz96 mm,conf0.312. Data/mask mentah tidak dibuang atau diubah;C3 UJI-TAHAN bukan FIT. FotoRGB/overlaydisimpan;operator diminta konfirmasi fisik botol7 cm di boxD14 cm,tanpa tumpukan. Stack/localizer hidup,nol gerak;menunggu diagnosis sebelum C6/T0.
+
+Operator memastikan C3/TD benar botol7 cm di box D14 cm,tanpa tumpukan. Usul menumpuk C+D tidak diterapkan,tinggi§A tetap. Anomali disimpan,model/parameter tidak diubah. Berikut menunggu C6/T0 siap,nol gerak,stack/localizer hidup.
