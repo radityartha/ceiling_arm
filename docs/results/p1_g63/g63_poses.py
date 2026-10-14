@@ -37,6 +37,7 @@ REST = [-0.46352, 0.10710, 0.12916, -1.38653, -0.17648, 1.73885]
 EFFORT = {1: 10.0, 2: 14.0, 3: 10.0, 4: 7.0, 5: 7.0, 6: 7.0}          # = reach_dwell_probe JOINT_EFFORT_LIMIT
 OFFSET = {1: 6.6, 2: 7.7, 3: 6.6, 4: 1.98, 5: 1.98, 6: 1.98}         # = JOINT_TORQUE_OFFSET_NM
 MARGIN_FRAC = 0.97
+STATIC_PREF = 0.92       # stricter than 97 % at the goal: the planned transit (RNEA peak) is higher than static
 DMAX = 2.8
 Z_RANGE = (0.80, 1.40)
 ANGLE_MAX = 55.0
@@ -132,7 +133,7 @@ def torque_ok(cell, arm, q):
     for k in range(1, 7):
         iv = cell.m.joints[cell.m.getJointId(f'{ARM_PREFIX[arm]}joint_{k}')].idx_v
         worst = max(worst, (abs(tau[iv]) + OFFSET[k]) / EFFORT[k])
-    return worst <= MARGIN_FRAC, worst
+    return worst <= STATIC_PREF, worst
 
 
 def mount_check(cell, arm):
@@ -258,12 +259,21 @@ def generate(cell, arm, board, n_samples, rng, log):
         cand.append(dict(q6=q6, vis=vis, ctr=ctr, nrm=nrm, Pw=Pw, tfrac=tfrac, T_wb=T_wb))
     log(f'{arm}: {cnt} ({time.time() - t0:.0f} s) -> tabrakan/oklusi pada kandidat')
     good = []
+    cnt['retract'] = 0
+    from return_rest import plan_retract
     for c in cand:
         jn = cell.joints(arm, c['q6'])
         ok, col = collisions(cell, arm, jn)
         if not ok:
             continue
         cnt['collision'] += 1
+        # the probe's retract check (G36): straight joint line goal -> REST must screen CLEAR (same-gantry, cross,
+        # env voxels) with the board. Here WITHOUT the MoveIt fallback -> stricter than the probe, never looser.
+        v, _ = plan_retract(gantry(arm)[-1], [arm], jn, cell.same[gantry(arm)], cell.cross, cell.env, None,
+                            log=lambda *_: None)
+        if v != 'CLEAR':
+            continue
+        cnt['retract'] += 1
         for cam in list(c['vis']):
             hit = occluded(cell, arm, jn, cam, c['Pw'])
             if hit:
