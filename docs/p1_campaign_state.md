@@ -184,3 +184,4 @@ CAM-6DOF checkpoint meja 13/18: N1_T0 disimpan; berikut N1/TC (box C100 mm), men
 CAM-6DOF checkpoint meja 14/18: N1_TC disimpan; berikut N1/TD (box D140 mm tanpa tumpukan), menunggu operator siap; N1 butuh TD terdeteksi agar minimal dua tinggi FIT terpenuhi. C3/TD anomali dipertahankan. §A/model/selektor tetap, stack/localizer hidup, nol gerak HW.
 
 CAM-6DOF checkpoint meja 15/18: N1_TD disimpan; berikut N2/T0 (botol langsung di meja, tanpa box), menunggu operator siap; C1 rgbd2 belum terpenuhi pada N1 (T0 kosong, TC tunggal, TD ambigu). C3/TD anomali dipertahankan. §A/model/selektor tetap, stack/localizer hidup, nol gerak HW.
+C1 CAM-6DOF rgbd2 belum terpenuhi: FIT N1/T0 kosong,TC tunggal,TD3 ID kandidat lokal/putus-putus. Saingan tidak digabung/dibuang dan titik tidak diganti; numerik tidak boleh disebut kandidat sah tanpa gerbang. RGBD lantai tetap belum dinilai. Menunggu N2/T0 siap;stack/localizer hidup,nol gerak.

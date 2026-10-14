@@ -236,3 +236,9 @@ Berikut: N2/T0 (botol langsung di meja, tanpa box), menunggu operator siap; C1 r
 ### B10. Catatan anomali pada data FIT
 
 C5/TC adalah FIT dan menunjukkan dz−4.42 cm, confidence0.346, sebaranz23.1 mm. Jadi anomali centroid/tinggi tidak terbatas pada C3 UJI-TAHAN; penyebab belum teratribusi. Data tetap, tidak ada perubahan selector, parameter detector, bobot/centroid/model atau pembuangan titik.
+
+### B11. Syarat FIT N1 belum terpenuhi pada set terkunci
+
+N1/T0 tidak ada track; N1/TC satu track n31 (dz+3.21 cm); N1/TD tiga ID kandidat lokal (750 n2,752 n7,753 n8), banyak pesan kosong, conf0.277 pada track terbanyak. Ringkasan memilih track terbanyak hanya untuk informasi mengikuti cfg_from_tracks, dan **mencetak saingan**, tidak menyatakan data tunggal/lulus C1. Detail urutan ada pada `N1_TD_ambiguity.json`; tidak menggabungkan ID, mengubah radius/threshold, mengganti FIT atau melakukan ulang sampai mendapat angka yang lebih baik. N1 hanya satu tinggi yang terkonfirmasi track tunggal pada selektor terkunci, sehingga syarat C1 per tanda FIT≥2 tinggi belum terpenuhi. Fit numerik kelak, bila dijalankan, harus dilabel informasi tidak sah untuk penerimaan rgbd2 selama masalah ini belum terselesaikan sesuai protokol. Kamera rgbd tetap dinilai dari set lantainya; belum menyimpulkan hanya rgbd2 salah.
+
+Lanjut ke N2/T0 (penempatan16/18) untuk melengkapi data sebagaimana protokol; tidak ada gerak HW, stack/localizer hidup.
