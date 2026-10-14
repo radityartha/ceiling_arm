@@ -211,7 +211,7 @@ Penyampaian awal “sekitar−4.8 cm” dipertegas hasil model−4.64 cm; angka 
 
 ### B9. Rekap botol incumbent meja (diperbarui per penempatan)
 
-10/18 penempatan selesai. Bukti mentah, metadata dan ringkasan: `hw_20261014/tracks_inc/<tanda>_<tinggi>_*`. Galat adalah incumbent, belum keputusan kandidat C2; C3/C6 tidak dipakai FIT/LOO. Selektor bottle dalam radius0.35 m tetap, saingan ditampilkan.
+11/18 penempatan selesai. Bukti mentah, metadata dan ringkasan: `hw_20261014/tracks_inc/<tanda>_<tinggi>_*`. Galat adalah incumbent, belum keputusan kandidat C2; C3/C6 tidak dipakai FIT/LOO. Selektor bottle dalam radius0.35 m tetap, saingan ditampilkan.
 
 | Penempatan | peran | n | median xyz (m) | galat xy (cm) | dz model (cm) | p5–p95 z (mm) | conf | track |
 |---|---|---|---|---|---|---|---|---|
@@ -225,5 +225,6 @@ Penyampaian awal “sekitar−4.8 cm” dipertegas hasil model−4.64 cm; angka 
 | M1/TC | FIT | 28 | (1.8889,0.6733,0.9160) | 18.64 | -0.04 | 4.9 | 0.881 | tunggal |
 | M1/TD | FIT | 28 | (1.8916,0.6794,0.9572) | 19.25 | +0.08 | 33.3 | 0.639 | tunggal |
 | C5/T0 | FIT | 30 | (1.8479,0.7471,0.8342) | 21.98 | +1.61 | 2.8 | 0.768 | tunggal |
+| C5/TC | FIT | 31 | (1.8398,0.7489,0.8722) | 21.34 | -4.42 | 23.1 | 0.346 | tunggal |
 
-Berikut: C5/TC (box C100 mm), menunggu operator siap. NOL gerak HW; stack/kamera/monitor/perekam/localizer per kamera masih hidup. Tidak mengganti data anomali atau tinggi/model terkunci.
+Berikut: C5/TD (box D140 mm mengganti C, tanpa tumpukan), menunggu operator siap. NOL gerak HW; stack/kamera/monitor/perekam/localizer per kamera masih hidup. Tidak mengganti data anomali atau tinggi/model terkunci.
