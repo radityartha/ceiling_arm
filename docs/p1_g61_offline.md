@@ -272,16 +272,16 @@ K0 LULUS sebelum + sesudah tiap run. DRY pra-cek positif: `/get_planning_scene 0
 | A5.2(b) s12 lama | `--inject-rot-error 1:1:-0.48 --goal-correct` | **6/6, 328.24 s** | ev 5 geser 3.26 mm → IK 0.0001 mm, \|Δq\| **1.891°** DITERAPKAN → PLANNED percobaan 1, ujung **0.29 mm**, SUCCESS; ev 6 3.54 mm → \|Δq\| 1.488°, ujung 0.10 mm, SUCCESS; semua penyaring probe jalan (baris torsi/antar-lengan/lingkungan/pulang/reservasi) |
 | A5.5 perekam | SIGSTOP 8 s saat A5.2(a) | peringatan **5.0 s** sesudah berhenti, "tumbuh lagi sesudah 8.0 s", run tidak dihentikan, baris SELESAI "data perekam TIDAK LENGKAP (1 macet)" | ✓ |
 
-**BELUM DIJALANKAN (sesi dijeda 10:41 atas permintaan operator):** A5.4 kontrol negatif SIGKILL move_group (skrip siap
+**Keadaan pada akhir sesi 2026-10-13 (dijeda 10:41 atas permintaan operator):** A5.4 kontrol negatif SIGKILL move_group belum dijalankan (skrip siap
 [g61_neg.sh](results/p1_g61/g61_neg.sh) `<pid move_group>`) dan A5.3 pra-cek tanpa move_group (di skrip yang sama, sesudah kill). Mock
 77 dibiarkan HIDUP (launch 671127, move_group 671191, monitor 671970, perekam 671920) di REST + g1 PARK, K0 LULUS.
 
-### B5. Papan skor (sementara)
+### B5. Papan skor (akhir, 2026-10-14)
 
 | # | Dugaan | Hasil |
 |---|---|---|
-| D550 | SIGKILL move_group → AUTO-STOP ≤ 0.5 s | **belum** (A5.4) |
-| D551 | pra-cek menolak tanpa move_group | **belum** (A5.3) |
+| D550 | SIGKILL move_group → AUTO-STOP ≤ 0.5 s | ✓ (0.027 s; 0 CMD sesudah stop; rc 3, B6) |
+| D551 | pra-cek menolak tanpa move_group | ✓ (`s26` menolak sebelum t0; rc 3, B6) |
 | D552 | A5.1 6/6 ×2, 0 pemicu, argv identik | ✓ |
 | D553 | inj tanpa koreksi: ev 5 GOAL-MISMATCH 3/3 (3–4 mm), lanjut, ev 6 SUCCESS | ✗ (ev 5 ✓ 3.18–3.88, lanjut ✓; ev 6 juga GOAL-MISMATCH) |
 | D554 | inj + koreksi: ev 5 diterapkan, \|Δq\| ≤ 1°, PLANNED 1, ujung ≤ 1 mm, SUCCESS | ✗ (\|Δq\| 1.89°; sisanya ✓) |
@@ -294,5 +294,57 @@ K0 LULUS sebelum + sesudah tiap run. DRY pra-cek positif: `/get_planning_scene 0
 | D561 | eksekusi HW/mock median ∈ [0.8, 1.25] | ✓ (1.0001) |
 | D562 | traverse menjelaskan ≥ 50 % gap s8/s18 lama | ✗ (17 % / 17 %) |
 
-Sementara **6/11 dinilai** (D550/D551 belum). Gerbang G61: C1 BELUM (A5.3 + A5.4); C2 ✓ (A5.2 (a) ditolak + (b) lolos, regresi
-bit-identik); C3 ✓; C4 ✓; smoke 6/6 s7 baru + s12 lama ✓; runbook + prompt HW diperbarui (belum final sampai C1 lulus).
+**8/13 dugaan benar, 5/13 salah** (D553, D554, D555, D560, D562). Gerbang pengujian G61: C1 ✓ (A5.3 + A5.4, B6; tanpa pemicu palsu A5.1, B4);
+C2 ✓ (A5.2 (a) ditolak + (b) lolos, regresi argv bit-identik); C3 ✓; C4 ✓; smoke 6/6 s7 baru + s12 lama ✓.
+
+### B6. C1 kontrol negatif + pra-cek (2026-10-14, mock domain 77, BUKAN data HW)
+
+Stack G61 dari sesi sebelumnya masih hidup: launch 671127, move_group 671191, monitor 671970, perekam 671920; lingkungan proses
+keempatnya `ROS_DOMAIN_ID=77`; launch `use_fake_hardware:=true enable_gantry_bridge:=false octomap_updaters:=false`.
+7/7 controller aktif, K0 LULUS: keempat lengan REST (galat maks 0.000°), g1/g2 1.50/0.00 m, rot 0/0. Sandbox tidak mengizinkan
+socket DDS; pemeriksaan/integrasi dijalankan di luar sandbox setelah pemeriksaan otomatis mengizinkan. Tidak ada gerak HW nyata.
+
+Uji memakai [g61_neg.sh](results/p1_g61/g61_neg.sh) tanpa perubahan runner (tetap 831db96). Arsip:
+[job](results/p1_g61/g61_neg_job_20261014.log), [kill](results/p1_g61/g61_neg_kill.log),
+[smoke](results/p1_g61/g61_smoke_neg_s7B.log), [DRY](results/p1_g61/g61_smoke_pre_nomg.log),
+[runner](results/p1_g61/smoke/neg_s7B_runner.log), [JSON](results/p1_g61/smoke/neg_s7B_run.json),
+[analisis cap waktu/CMD](results/p1_g61/g61_neg_analysis_20261014.json).
+
+| Ukuran A5.4 | Hasil |
+|---|---|
+| CMD tugas aktif sebelum kill | g1 ev 2 / g2 ev 10: 1791945200.6256 / 1791945200.6258 |
+| Cap waktu sebelum `kill -KILL 671191` | **1791945205.800444055** (2026-10-14 11:33:25.800 JST) |
+| `AUTO-STOP KEDUA gantry: penjaga: move_group mati (pid [671191])` | **1791945205.8274** (11:33:25.827 JST) |
+| Selisih cap waktu kill → baris stop | **0.02696 s** (27 ms; D550 ≤ 0.5 s, gerbang ≤ 2 s) |
+| Keadaan stop di JSON | `t_stop=1791945205.827374`, alasan penjaga move_group mati |
+| CMD baru setelah stop | **0** (6 CMD total, seluruhnya sebelum stop) |
+| Gerak setelah stop, g1/g2 | **0.0 / 0.0** rad atau m; jendela t_stop+1 sampai 2 s sesudah worker terakhir keluar |
+| rc runner | **3** (`== RC run_g54 3`); `NO_HOME=1`, tidak pulang melalui stack yang rusak |
+
+**Cakupan injeksi:** kill ~5.17 s sesudah CMD tugas g1. Kedua proses probe tugas sudah aktif, masih pada perencanaan/penyaringan;
+tidak ada `MOVED` atau eksekusi lengan tugas sebelum kill. Ini memenuhi A5.4 "alat berjalan (tugas)" dan instruksi skrip handoff;
+bukan bukti kill move_group saat lengan sedang bergerak. Cap waktu kill dicetak tepat sebelum syscall, bukan pengukuran waktu
+kematian kernel. Probe yang menerima SIGINT mencetak `dihentikan pengguna` lalu `rcl_shutdown already called`; runner tetap
+menyelesaikan stop, merekam gerak nol, mengarsipkan hasil dan keluar rc 3. Tidak diperbaiki di fase ini.
+
+**A5.3:** DRY berikutnya menghasilkan `AUTO-STOP: move_group mati (pid [])`, rc **3**, tanpa t0 atau alat diluncurkan.
+Yang memicu lebih dulu adalah `s26` di rantai pra-cek sebelum `health()`; K0 sesudah traverse memang belum PARK, tetapi alasan
+stop pertama adalah move_group mati. Tidak mengklaim `health()`/layanan scene diuji di kondisi ini. → **D550 ✓, D551 ✓**.
+
+**Pemulihan + penutupan:** SIGINT launch lama 671127 → node stack hilang (monitor/perekam dipertahankan). Percobaan launch
+pertama berhenti sebelum menghasilkan log; diulang dengan jeda 3 s sebelum shell pemanggil keluar. Launch baru **770207**,
+domain 77, fake HW, bridge mati, octomap updater mati; SigIgn `0x1001005` (bit SIGINT `0x2` tidak aktif), 7/7 controller aktif,
+7 baris `Configured and activated`, 0 `pointcloud_octomap_updater`. Balapan spawner "already loaded" masih muncul, tetapi
+controller akhirnya aktif. Return REST [arm_1/arm_2](results/p1_g61/g61_restore_rest12_20261014.log) dan
+[arm_3/arm_4](results/p1_g61/g61_restore_rest34_20261014.log) disaring CLEAR, galat akhir 0.000°.
+[PARK + K0](results/p1_g61/g61_restore_park_k0_20261014.log): g1 1.500000 m/0°, g2 0/0°, drift lengan nol, **K0 LULUS**.
+Sesudah itu SIGINT launch 770207, monitor 671970 dan perekam 671920. Shutdown launch memerlukan eskalasi otomatis ke SIGTERM
+lalu SIGKILL untuk move_group 770249 dan RViz 770251; ini dicatat, bukan shutdown seluruh anak secara anggun. Seluruh PID G61
+keluar, [daftar node domain 77 akhir kosong](results/p1_g61/g61_domain77_final_20261014.log). Tidak ditemukan crash dump di
+arsip G61/ROS sesi ini. Log launch [sebelum pemulihan](results/p1_g61/g61_mock_launch_before_restore_20261014.log) dan
+[pemulihan/shutdown](results/p1_g61/g61_mock_launch_restore_20261014.log) diarsipkan; CSV joint_states besar tidak di-commit.
+
+**Gerbang G61 LULUS**, papan skor akhir **8/13**. Runbook paralel §1b + prompt G62 diperbarui. A5.1/A5.2/A5.5 tidak diulang
+karena sudah selesai B4 dan kode runner tidak berubah; seluruh uji wajib A5.1–A5.4 kini tersedia. Validasi perubahan G61 di
+HW **BELUM DIJALANKAN**; berikut G62 dengan operator di lokasi dan izin per gerak. Rekomendasi B2/B3 tetap belum diterapkan.
+Sesi CAM-6DOF dan berkas milik sesi lain tidak disentuh. Model berikut: model kuat setara Opus, effort **high** (G62 HW).

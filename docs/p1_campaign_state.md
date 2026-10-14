@@ -4,7 +4,7 @@
 
 ## Fase aktif
 
-**G61 OFFLINE DIJEDA** (2026-10-13 10:41, `docs/p1_g61_offline.md` B0–B5, handoff `docs/HANDOFF_2026-10-13.md`): kode run_g54 (pra-cek move_group/scene/perekam, penjaga move_group, HALTED sistem-rusak → AUTO-STOP, `--goal-correct`) commit 831db96. Mock 77: A5.1 6/6 ×2 argv identik; injeksi rot −0.48 tanpa koreksi 4/6 (GOAL-MISMATCH, lanjut), dengan koreksi 6/6; peringatan perekam OK. C3 85/87 j2 ≤ prediksi probe; C4 s0 = penyaring reservasi. **SISA: A5.4 kill move_group + A5.3 pra-cek (`results/p1_g61/g61_neg.sh`)**, lalu B6 + papan skor. Mock 77 ditinggal HIDUP (REST + PARK). NOL gerak HW.
+**G61 OFFLINE SELESAI** (2026-10-14, `docs/p1_g61_offline.md` B0–B6, skor **8/13**): kode run_g54 tetap 831db96. A5.1 6/6 ×2 argv identik; injeksi rot −0.48 tanpa koreksi 4/6, dengan koreksi 6/6; peringatan perekam OK. A5.4 kill move_group mock → AUTO-STOP **0.027 s**, 0 CMD sesudah stop, rc 3; A5.3 DRY ditolak sebelum t0, rc 3. C3 85/87 j2 ≤ prediksi probe; C4 s0 = penyaring reservasi. Gerbang C1–C4 LULUS. Pemulihan mock REST + PARK, K0 LULUS, seluruh PID milik G61 keluar, domain 77 kosong (shutdown launch memakai eskalasi otomatis SIGTERM/SIGKILL untuk move_group/RViz; B6). Runbook + prompt G62 final. NOL gerak HW; CAM-6DOF tidak disentuh.
 
 **CAM-6DOF LURING SELESAI, HW BELUM** (2026-10-12 21:00–22:10, `docs/p1_cam6dof.md` §A0, commit dcde98d): operator pulang sebelum gerbang
 ("tes online lanjut besok"; "siapkan yang offline dulu"). Alat fit 6-DOF/M7 per kamera + self-test PASS (2 cacat diperbaiki: tanda geser ICP;
@@ -44,6 +44,7 @@ Sebelumnya: KAMPANYE G43–G54 SELESAI — Gerbang 7 LULUS 2026-10-11.
 | G59 | DEMO-OFF ulang (kode sekarang) + prompt DEMO-HW + cek kamera | **LULUS** (4/6; 2 cacat diperbaiki: regex runner, `g` ganda) | `docs/p1_g59_demo.md` B1–B4 |
 | G60 | penjadwal sadar traverse eksklusif (LB terbukti + g54_sim penuh) | **LULUS** (4/6) | `docs/p1_g60_excl_sched.md` B1–B4 |
 | G57 | HW paralel run_g54: uji stop + pasangan s7 s10 s8 s18 s3 s12 (+ s0) | **SELESAI** (5/9) | `docs/p1_g57_hw.md` B2–B8 |
+| G61 | runner sehat + koreksi goal; analisis torsi/waktu; A5.1–A5.4 mock | **LULUS** (8/13) | `docs/p1_g61_offline.md` B0–B6; A5.4 stop 0.027 s, 0 CMD sesudah stop, A5.3 rc 3 |
 | DEMO-HW | YOLOE nyata → arm_1 di atas botol (approach-only) | **GAGAL H2** (2/5 diuji; plan-only ✓, nol gerak) | `docs/p1_demo_hw.md` B1–B6 |
 | ARM1-ZONE | galat zona arm_1 lengan vs kamera; botol di tanda ≤ 5 cm → demo | **GAGAL Z4** (0.151 m; atribusi kamera; 5/8) | `docs/p1_arm1_zone.md` B1–B6 |
 | RGBD2-ZONE | koreksi planar rgbd2 dari botol di 6 tanda; uji-tahan ≤ 5 cm | **GAGAL R1** (θ 13.1°; info uji-tahan 1.9/0.9 cm; 2/5) | `docs/p1_rgbd2_zone.md` B1–B7 |
@@ -120,8 +121,19 @@ torsi maks 13.22. Pasangan (lama − baru, s): s7 +108.9, s10 +74.9, s8 +195.5, 
 `run_g54 --tau-max` (HW 14, keputusan operator), `p1hw_*.sh`. Celah: runner tidak cek move_group / HALTED tidak stop; goal-joints
 tidak dikoreksi rotasi gantry terukur (GOAL-MISMATCH s12); torsi transit > prediksi ujung; s0 HW/sim 1.29.
 
+## Laporan G61 (ditutup 2026-10-14, offline + mock, NOL gerak HW)
+
+C1–C4 LULUS; dugaan 8/13 (salah D553/D554/D555/D560/D562, tidak diubah sesudah hasil). Penutupan A5.4: cap waktu kill
+1791945205.800444055 → stop 1791945205.8274, 0 CMD sesudah stop, gerak pasca-stop g1/g2 nol, rc 3. Kedua probe tugas aktif dalam
+penyaringan saat kill; bukan uji kill saat lengan bergerak. A5.3 `s26` menolak DRY tanpa move_group sebelum t0, rc 3. Pemulihan
+mock 7/7 → REST → g1 PARK 1.50 → K0 LULUS → shutdown; domain 77 kosong. Log dan JSON di `results/p1_g61/`; kode runner tidak
+diubah. Validasi HW perubahan G61 BELUM (G62); rekomendasi offset j2 8.1, transit tugas→tugas, susut reservasi sesudah MOVED,
+model biaya reservasi belum diterapkan. Model sesi berikut: model kuat setara Opus, effort **high** untuk G62/CAM-6DOF HW;
+medium–high untuk penulisan/analisis offline. Catatan proses: anggaran 4.000 token per tugas CLAUDE.md Rule 6 terlampaui saat
+melanjutkan pemeriksaan, pemulihan dan penutupan; tidak disembunyikan.
+
 ## Langkah berikut
 
-G61 (terpisah dari CAM-6DOF): selesaikan A5.4 + A5.3 di mock 77 menurut `docs/HANDOFF_2026-10-13.md` §3.1, lalu tutup G61; sesudah itu HW runner = `docs/p1_g62_hw_prompt.md`.
+G61 selesai (terpisah dari CAM-6DOF): sesi runner berikut mengikuti `docs/p1_g62_hw_prompt.md`, model kuat effort high; setiap gerak HW menunggu izin operator per langkah.
 
 Sesi CAM-6DOF HW: tempel ulang `docs/p1_cam6dof_prompt.md` SAMA; langkah 0 sudah selesai (§A0 `docs/p1_cam6dof.md`) → mulai gerbang K0–K3b + angka (balok A/B ±2 mm, diameter botol, lantai z 0), bring-up, `cam6dof_capture` + `arm_fk_check` ×3, `proj_marks` K4, plan-check HW tanda F, lalu KUNCI §A (draf A1–A4) sebelum data botol / gerak pertama.

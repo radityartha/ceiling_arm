@@ -23,7 +23,7 @@
    menolak jadwal di luar amplop sebelum t0. s11 R90 butuh kaki sweep g2 −35 → −85 dulu (runbook §4, tiap kaki ditanya).
 3. CPU: jangan ada job offline berat bersamaan (penyaring reservasi jalan di probe dan di proses pekerja runner).
 
-## 1b. G61 (2026-10-13) — yang berubah di run_g54 (`docs/p1_g61_offline.md` B4–B5; mock: A5.1/A5.2 lulus, kontrol negatif move_group A5.3/A5.4 BELUM)
+## 1b. G61 (ditutup 2026-10-14) — yang berubah di run_g54 (`docs/p1_g61_offline.md` B4–B6; mock: A5.1/A5.2 dan A5.3/A5.4 lulus, skor 8/13)
 
 - **Bring-up HW wajib `octomap_updaters:=false`** (runbook §1; G57 B4 OOM). **`--tau-max 14`** (operator 2026-10-12: > 12 bukan
   gagal; batas keras > 14 tetap = penjaga runner AUTO-STOP, retract > 13.5). **`--goal-correct`** (G61 C2: goal tugas di-IK ulang
@@ -33,7 +33,9 @@
 - **Pra-cek baru sebelum t0 (juga `--dry`)**: move_group hidup, `/get_planning_scene` ≤ 5 s dengan `env_static_map`, berkas perekam
   tumbuh dalam 3 s (+ URDF untuk `--goal-correct`). Gagal → `AUTO-STOP: pra-cek …` rc 3, tidak ada gerak. Harus dilihat di DRY:
   `pra-cek: /get_planning_scene … objek dunia ['env_static_map']` dan `pra-cek: perekam … +N B / 3 s`.
-- **Penjaga kontinu:** move_group mati → AUTO-STOP KEDUA gantry (≤ 0.1 s, penjaga 10 Hz; zombie dihitung mati).
+- **Penjaga kontinu:** move_group mati → AUTO-STOP KEDUA gantry (penjaga 10 Hz; zombie dihitung mati). Mock A5.4: **0.027 s**
+  setelah cap waktu kill, 0 CMD sesudah stop, rc 3; kedua alat tugas aktif dalam penyaringan, belum eksekusi lengan. A5.3 DRY
+  tanpa move_group ditolak oleh `s26` sebelum t0, rc 3. Ini bukti mock, belum validasi perubahan G61 di HW (G62).
 - **HALTED:** penolakan penyaring (NO-PLAN, GOAL-MISMATCH, TORQUE-UNSAFE, INTERARM/ENV-COLLIDE, RETRACT-BLOCKED, START-JUMP,
   TUCK-REFUSED) = "lengan tidak bisa" → dicatat, run lanjut (hasil TIDAK LENGKAP). `EXEC-FAIL` / tanpa catatan probe = "sistem rusak"
   → AUTO-STOP KEDUA gantry (G57 B4: move_group mati → 6/6 EXEC-FAIL sambil rel terus bergerak).

@@ -1,0 +1,21 @@
+# 1791945200.6258 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_3 --target=1.9286,-0.4588,1.0800 --approach 0 --trials 1 --tau-max 12.0 --move --monitor-csv /tmp/claude-1001/-home-user1-Documents-ceiling-arm/c34ad7c6-7935-4de0-bef7-c7671026c5e9/scratchpad/g61_mon_samples.csv --goal-joints={"t2_a1_joint_1": 0.547892699958683, "t2_a1_joint_2": 0.32034844646280203, "t2_a1_joint_3": 1.3390521821232984, "t2_a1_joint_4": -1.5707897395381607, "t2_a1_joint_5": 1.0187051081211804, "t2_a1_joint_6": 0.7611092652740111} --goal-tol-deg=0.05 --reserve-dir /tmp/claude-1001/g61_neg_s7B/res --out-json /tmp/claude-1001/g61_neg_s7B/ev10_probe_try0.json
+1791945201.1497 probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 12.0 N.m
+1791945201.1497 sumber target: arm_3 (1.9286, -0.4588, 1.08), [] []
+1791945201.1497 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1791945201.1497 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1791945201.1497 
+1791945205.8322 
+1791945205.8325 dihentikan pengguna
+1791945205.8334   TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+1791945205.8829 Traceback (most recent call last):
+1791945205.8829   File "/home/user1/Documents/ceiling_arm/scripts/reach_dwell_probe.py", line 1601, in <module>
+1791945205.8831     sys.exit(main())
+1791945205.8831   File "/home/user1/Documents/ceiling_arm/scripts/reach_dwell_probe.py", line 1596, in main
+1791945205.8834     rclpy.shutdown()
+1791945205.8834   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 130, in shutdown
+1791945205.8835     _shutdown(context=context)
+1791945205.8835   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/utilities.py", line 58, in shutdown
+1791945205.8835     return context.shutdown()
+1791945205.8835   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/context.py", line 102, in shutdown
+1791945205.8835     self.__context.shutdown()
+1791945205.8836 rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:241

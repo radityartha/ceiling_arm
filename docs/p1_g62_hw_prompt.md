@@ -7,9 +7,11 @@ BACA DULU (penuh): CLAUDE.md; MEMORY.md; docs/p1_campaign_state.md; docs/p1_g61_
 docs/p1_g57_hw.md (§A, B0–B8); docs/p1_hw_runbook.md §0–2, §7 (bring-up kini `octomap_updaters:=false`); docs/p1_hw_runbook_parallel.md
 (§1b G61, risiko P1–P9); docs/p1_hw_day_2026-10-12.md §0, §1–§5 (pola perintah; arsip kini results/p1_g62/hw/).
 
-KEADAAN (sesudah G61, 2026-10-13): run_g54 + pra-cek (move_group, /get_planning_scene ≤ 5 s + env_static_map, perekam tumbuh),
+KEADAAN (sesudah G61, 2026-10-14): run_g54 + pra-cek (move_group, /get_planning_scene ≤ 5 s + env_static_map, perekam tumbuh),
 penjaga move_group kontinu, HALTED "sistem rusak" (EXEC-FAIL) → AUTO-STOP / "lengan tidak bisa" → lanjut, peringatan perekam macet,
-`--goal-correct` (IK goal di pose gantry TERUKUR bila alat bergeser ≥ 1 mm; semua penyaring probe tetap). Mock 77: A5.1/A5.2 lulus (G61 B4); A5.3/A5.4 (kill move_group) harus LULUS dulu sebelum sesi ini,
+`--goal-correct` (IK goal di pose gantry TERUKUR bila alat bergeser ≥ 1 mm; semua penyaring probe tetap). Mock 77: A5.1/A5.2 lulus (G61 B4);
+A5.3/A5.4 LULUS (G61 B6): kill move_group saat kedua probe tugas aktif dalam penyaringan → AUTO-STOP 0.027 s, 0 CMD sesudah stop,
+rc 3; DRY tanpa move_group ditolak sebelum t0, rc 3. G61 skor 8/13; pemulihan REST/PARK + K0 dan shutdown mock dicatat di B6.
 BELUM di HW. Sel terakhir (G57 B8): g1 PARK 1.50, g2 0.00, lengan REST, stack MATI. G57: 6/6 pasangan lama vs baru −11…−42 %.
 
 TUGAS — dokumen fase docs/p1_g62_hw.md: §A + dugaan D570+ DIKUNCI sebelum gerak HW pertama (salinan results/p1_g62/g62_A_locked.md +
