@@ -493,3 +493,14 @@ Salinan koreksiukuran `results/p1_cam6dof/cam6dof_A_bottle_geometry_locked.md`, 
 D590✗/D597✓ tetap, D591–D596/D598belumfit/live. C1N1ambiguity tidak diklaimselesai karena ukuranbenar; N1TD masih3IDsekuensial danringkasan memakaiIDterbanyak tanpa menggabung. HoldoutC3/C6tidakdipakai memilihmodel meskipunlaporandiubahmengikutikoreksifisik. Sebelumcapture selanjutnya commitkunci dan hashcheck; semuaREST/PARK,stack/localizer/monitor/perekamHIDUP,NOLgerakbaru. Berikut F1/D140,operator siap/menjauh,rekam15 s kedua kamera; F1BASEmissingtidakditimpa atau diretry demiangka yang lebihbaik.
 
 **Checkpoint koreksi selesai:** commit `a8a9167` berisi kunci ukuran+sha+config ketigahash dan seluruhlaporan ulang; ketigahash diperiksa cocok dan helpercapture siap165/65, tanpa menjalankancapture. Penempatanlantai2/18 F1/D140 langsunglantai,tanpaC diminta,menungguoperatorsiap/menjauh. F1BASEmissingtetap,belumfit/modelselection; semuaREST/PARK,K0terakhirLULUS,stack+dua localizer hidup.
+
+
+### B39. Botol lantai 2/18 F1/D — RGBD missing; C1 F1 tidak dapat terpenuhi
+
+Operator mengonfirmasi “F1 di atas box D, siap rekam”. Capture kedua kamera selama 15 s selesai rc0, tanpa gerak HW (`hw_20261014/tracks_inc/F1_D_*`). Permukaan world z=0.140 m, actualxy=(0.2512,−0.4998), botol H=0.165 m/r=0.0325 m; ketiga hash protokol diverifikasi dan tercatat metadata, termasuk koreksi ukuran commit a8a9167. Tidak menambah H pada surf_z.
+
+RGBD menerima **30 pesan, semuanya tracks[]**; tidak ada median/galat sah. RGBD2 menerima 26 pesan dengan ID1268/1269, tetapi keduanya jauh di luar radius terkunci 0.35 m terhadap F1: median mentah masing-masing (3.2634,−0.4935,0.4262) dan (3.2868,−0.4919,0.4187) m, bukan observasi F1 yang boleh dipakai. F1 memang NOT_USED untuk RGBD2; tidak mengubah peran dari track global tersebut. Selektor, detector, radius dan model tetap; tidak menggabung ID atau mengganti jendela evaluasi.
+
+**C1 RGBD pada FIT F1 tidak dapat terpenuhi dalam tiga tinggi terkunci:** BASE dan D sama-sama missing, sehingga CD paling banyak memberi satu tinggi, sedangkan minimal dua diperlukan. Tidak membuang F1, mengganti tanda/tinggi, merekam ulang demi keberhasilan, atau melonggarkan gerbang. Penempatan CD tetap diteruskan untuk melengkapi bukti. Fit numerik kelak tidak boleh disebut kandidat sah jika C1 tetap gagal. Missing tidak membuktikan salah ekstrinsik; atribusi kamera/detektor/visibilitas belum selesai.
+
+Keadaan: semua REST/PARK, K0 terakhir sesudah pulang lulus; stack, kamera, localizer, monitor dan perekam tetap hidup. Tidak ada gerak baru. Meja18/18, lantai2/18 selesai; D590✗/D597✓, lainnya belum diuji seperti B34. Berikut penempatan3/18 F1/CD: C di bawah, D di atas, tinggi aktual245 mm langsung di lantai, botol sama165/65 tepat di atas tanda; menunggu operator siap/menjauh sebelum capture15 s. Scene map harus diverifikasi sebelum gerak HW baru karena laci sudah dipindahkan operator.
