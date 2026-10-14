@@ -20,9 +20,19 @@ import cv2.aruco as aruco
 import numpy as np
 
 from g63_common import BOARDS, IMG_H, IMG_W, K_NOMINAL, board_points, build_board, incumbent_T, inv
+from make_g63_boards import SQUARE_MM
 
 MIN_CORNERS = 8
-PRIOR_MAX_PX = 60.0       # incumbent off by <= 0.15 m -> <= ~50 px at 2 m
+PRIOR_MAX_PX = 60.0       # floor; the real bound scales with distance (prior_bound_px)
+PRIOR_ERR_M = 0.18        # prior error budget at the board: incumbent <= 0.15 m + mount guess <= 0.03 m
+
+
+def prior_bound_px(pred_uv):
+    """Prior error budget in px at the board's distance: PRIOR_ERR_M * f / Z = PRIOR_ERR_M / L * (square px).
+    A fixed 60 px (= 0.15 m at 2 m) cut the ROI through a board at 1.27 m in the mock e2e (A-03)."""
+    pg = np.asarray(pred_uv).reshape(PATTERN[1], PATTERN[0], 2)
+    sq = float(np.median(np.linalg.norm(np.diff(pg, axis=1), axis=2)))
+    return max(PRIOR_MAX_PX, PRIOR_ERR_M / (SQUARE_MM / 1000.0) * sq)
 AMBIG_RATIO = 2.0
 ROI_PAD_PX = 40
 PATTERN = (3, 4)          # inner corners (cols, rows) = squares 4 x 5
@@ -84,7 +94,7 @@ def _parity_contrast(gray, name, ids_uv):
 PARITY_MIN = 40.0         # grey levels; registered rule: best hypothesis contrast must exceed this
 PARITY_AMBIG = 0.5        # and the second best (a DIFFERENT corner set) must be below 0.5 x best
 SHIFTS = range(-3, 4)
-SADDLE_FRAC = 0.25        # corner kept if its saddle response >= 0.25 x median of the stronger half
+SADDLE_FRAC = 0.35        # corner kept if its local std >= 0.35 x median of the stronger half
 
 
 def _dihedral():
@@ -98,8 +108,9 @@ def _fallback_once(gray, pred_uv, name, sig_frac):
     transposed (thin white margin -> edge corners look like inner corners), so the found grid only defines the
     LATTICE: every dihedral x shift hypothesis of where the true inner grid sits is refined (cornerSubPix) and scored
     by black-square parity; mirrored (physically impossible) hypotheses are discarded."""
-    lo = np.floor(pred_uv.min(0) - ROI_PAD_PX).astype(int).clip(0)
-    hi = np.ceil(pred_uv.max(0) + ROI_PAD_PX).astype(int)
+    pad = ROI_PAD_PX + prior_bound_px(pred_uv)
+    lo = np.floor(pred_uv.min(0) - pad).astype(int).clip(0)
+    hi = np.ceil(pred_uv.max(0) + pad).astype(int)
     hi = np.minimum(hi, [gray.shape[1], gray.shape[0]])
     if (hi - lo < 20).any():
         return None, 'roi kosong'
@@ -161,24 +172,39 @@ def _verify_lattice(gray, cc, pred_uv, name, orig=None):
                                (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 50, 0.01)).reshape(-1, 2)
         mv = np.linalg.norm(uv2 - uv, axis=1)
         uv = np.where((mv < 0.25 * sq_px)[:, None], uv2, uv)
-    # per-corner saddle test: an occluded / blank corner has no X structure -> dropped, never kept as a guess
-    sig = max(0.8, 0.15 * sq_px)
-    sm = cv2.GaussianBlur((orig if orig is not None else gray).astype(np.float32), (0, 0), sig)
-    Ixx = cv2.Sobel(sm, cv2.CV_32F, 2, 0, ksize=3)
-    Iyy = cv2.Sobel(sm, cv2.CV_32F, 0, 2, ksize=3)
-    Ixy = cv2.Sobel(sm, cv2.CV_32F, 1, 1, ksize=3)
+    # per-corner texture test: an occluded / blank corner is (near) uniform -> dropped, never kept as a guess.
+    # (A Hessian saddle test was tried first and REJECTED: on ChArUco the marker bits next to half the corners kill
+    # the X response after blur -- real corners read -49..+50 vs 270..381 in the mock e2e, A-03.)
+    img = (orig if orig is not None else gray).astype(np.float32)
+    hw = max(2, int(round(0.35 * sq_px)))
     ij = np.round(uv).astype(int)
-    resp = np.maximum(0, -(Ixx * Iyy - Ixy ** 2)[ij[:, 1], ij[:, 0]])
+    resp = np.array([float(np.std(img[max(0, y - hw):y + hw + 1, max(0, x - hw):x + hw + 1])) for x, y in ij])
     ref = float(np.median(np.sort(resp)[len(resp) // 2:]))
     keep = resp >= SADDLE_FRAC * ref
+    # leave-one-out homography consistency: a corner pulled by an occlusion edge does not lie on the plane's
+    # homography fitted to the others -> drop the worst, repeat (registered rule, before data)
+    P = board_points(name)
+    src_all = np.array([P[i][:2] for i in range(12)], np.float32)
+    thr = max(0.75, 0.08 * sq_px)
+    while keep.sum() > MIN_CORNERS - 1:
+        idx = np.nonzero(keep)[0]
+        res = np.zeros(len(idx))
+        for t, i in enumerate(idx):
+            o = [j for j in idx if j != i]
+            Hl, _ = cv2.findHomography(src_all[o], uv[o].astype(np.float32))
+            pi = cv2.perspectiveTransform(src_all[i:i + 1].reshape(-1, 1, 2), Hl).reshape(2)
+            res[t] = np.linalg.norm(pi - uv[i])
+        if res.max() <= thr:
+            break
+        keep[idx[int(np.argmax(res))]] = False
     if keep.sum() < MIN_CORNERS:
-        return None, f'uji sudut-X: hanya {int(keep.sum())} sudut sah'
+        return None, f'uji tekstur sudut: hanya {int(keep.sum())} sudut sah'
     prior_rms = float(np.sqrt(np.mean(np.sum((uv - pred_uv) ** 2, 1))))
-    if prior_rms > PRIOR_MAX_PX:
+    if prior_rms > prior_bound_px(pred_uv):
         return None, f'pelabelan jauh dari prediksi ({prior_rms:.1f} px)'
     ids = np.arange(12)[keep]
     return (ids, uv[keep].astype(float)), (f'fallback paritas {best[0]:.0f}/{second:.0f}, prior {prior_rms:.1f} px, '
-                                           f'sudut-X {int(keep.sum())}/12')
+                                           f'tekstur {int(keep.sum())}/12')
 
 
 def _template(gray, pred_uv, name):
@@ -202,7 +228,7 @@ def _template(gray, pred_uv, name):
     size = tuple(int(v) for v in (hi - lo))
     tmpl = cv2.warpPerspective(tex, Hs, size, flags=cv2.INTER_AREA, borderValue=0)
     msk = cv2.warpPerspective(np.full_like(tex, 255), Hs, size, flags=cv2.INTER_AREA)
-    R = PRIOR_MAX_PX
+    R = prior_bound_px(pred_uv)
     x0, y0 = lo - int(R)
     x1, y1 = hi + int(R)
     if x0 < 0 or y0 < 0 or x1 > gray.shape[1] or y1 > gray.shape[0]:

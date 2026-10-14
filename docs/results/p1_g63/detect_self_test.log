@@ -1,22 +1,22 @@
 latar 200 (200 = pinggir putih lebar, 90 = kardus gelap); wajib lulus sampai 2.5 m
 jarak  metode    sudut  marker  galat maks px  (blur 1.0 px, noise 3)
  1.0 m  charuco    12    10      0.329 (kotak 30.3 px)  OK  
- 1.5 m  fallback   11     5      0.775 (kotak 20.4 px)  OK  charuco 4 sudut, 5 marker; fallback paritas 83/0, prior 36.2 px, sudut-X 11/12, sigma 0.08L
- 2.0 m  fallback    9     0      1.171 (kotak 15.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 120/-0, prior 36.1 px, sudut-X 9/12, template
- 2.5 m  fallback   10     0      1.178 (kotak 12.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 94/1, prior 35.9 px, sudut-X 10/12, sigma 0.00L
- 3.0 m  fallback    8     0      0.850 (kotak 10.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 84/1, prior 36.2 px, sudut-X 8/12, template
- 3.5 m  fallback    9     0      0.743 (kotak  8.8 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 75/0, prior 36.1 px, sudut-X 9/12, template
+ 1.5 m  fallback   12     5      0.775 (kotak 20.4 px)  OK  charuco 4 sudut, 5 marker; fallback paritas 76/0, prior 36.2 px, tekstur 12/12, sigma 0.08L
+ 2.0 m  fallback   10     0      1.171 (kotak 15.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 120/-0, prior 36.1 px, tekstur 10/12, template
+ 2.5 m  fallback    9     0      0.932 (kotak 12.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 98/0, prior 35.9 px, tekstur 9/12, sigma 0.00L
+ 3.0 m  fallback    9     0      0.694 (kotak 10.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 84/1, prior 36.2 px, tekstur 9/12, template
+ 3.5 m  fallback   10     0      0.743 (kotak  8.8 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 75/0, prior 36.1 px, tekstur 10/12, template
 latar 90 (200 = pinggir putih lebar, 90 = kardus gelap); wajib lulus sampai None m
 jarak  metode    sudut  marker  galat maks px  (blur 1.0 px, noise 3)
  1.0 m  charuco    12    10      0.332 (kotak 30.3 px)  OK  
- 1.5 m  fallback   11     5      1.076 (kotak 20.4 px)  OK  charuco 3 sudut, 5 marker; fallback paritas 57/10, prior 36.1 px, sudut-X 11/12, sigma 0.00L
- 2.0 m  fallback   10     0      1.144 (kotak 15.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 121/28, prior 36.1 px, sudut-X 10/12, template
- 2.5 m  fallback   10     0      1.107 (kotak 12.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 96/24, prior 35.9 px, sudut-X 10/12, sigma 0.00L
- 3.0 m  fallback    9     0      0.803 (kotak 10.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 83/20, prior 36.1 px, sudut-X 9/12, sigma 0.00L
- 3.5 m  fallback   10     0      1.115 (kotak  8.8 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 57/11, prior 36.0 px, sudut-X 10/12, sigma 0.12L
+ 1.5 m  fallback   12     5      0.703 (kotak 20.4 px)  OK  charuco 3 sudut, 5 marker; fallback paritas 87/21, prior 36.1 px, tekstur 12/12, sigma 0.08L
+ 2.0 m  fallback   12     0      1.144 (kotak 15.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 121/28, prior 36.1 px, tekstur 12/12, template
+ 2.5 m  fallback   10     0      1.107 (kotak 12.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 94/17, prior 35.9 px, tekstur 10/12, sigma 0.00L
+ 3.0 m  fallback   11     0      0.760 (kotak 10.3 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 81/21, prior 36.1 px, tekstur 11/12, sigma 0.00L
+ 3.5 m  fallback   10     0      0.740 (kotak  8.8 px)  OK  charuco 0 sudut, 0 marker; fallback paritas 76/6, prior 36.1 px, tekstur 10/12, template
 dua papan 1.4 m: A fallback 12, B fallback 12, identitas benar -> OK
-   tertutup 40 % @ 1.5 m: none 0 sudut (charuco 1 sudut, 3 marker; 0.00L: chessboard tidak ditemukan; 0.08L: chessboard tidak ditemukan; 0.12L: chessboard tidak ditemukan; 0.18L: chessboard tidak ditemukan; template: uji sudut-X: hanya 6 sudut sah)
-   tertutup 40 % @ 2.0 m: none 0 sudut (charuco 0 sudut, 0 marker; 0.00L: chessboard tidak ditemukan; 0.08L: chessboard tidak ditemukan; 0.12L: chessboard tidak ditemukan; 0.18L: chessboard tidak ditemukan; template: uji sudut-X: hanya 6 sudut sah)
-   tertutup 40 % @ 2.5 m: none 0 sudut (charuco 0 sudut, 0 marker; 0.00L: chessboard tidak ditemukan; 0.08L: chessboard tidak ditemukan; 0.12L: chessboard tidak ditemukan; 0.18L: chessboard tidak ditemukan; template: uji sudut-X: hanya 6 sudut sah)
+   tertutup 40 % @ 1.5 m: none 0 sudut (charuco 1 sudut, 3 marker; 0.00L: chessboard tidak ditemukan; 0.08L: chessboard tidak ditemukan; 0.12L: chessboard tidak ditemukan; 0.18L: chessboard tidak ditemukan; template: uji tekstur sudut: hanya 7 sudut sah)
+   tertutup 40 % @ 2.0 m: none 0 sudut (charuco 0 sudut, 0 marker; 0.00L: chessboard tidak ditemukan; 0.08L: chessboard tidak ditemukan; 0.12L: chessboard tidak ditemukan; 0.18L: chessboard tidak ditemukan; template: uji tekstur sudut: hanya 7 sudut sah)
+   tertutup 40 % @ 2.5 m: none 0 sudut (charuco 0 sudut, 0 marker; 0.00L: chessboard tidak ditemukan; 0.08L: chessboard tidak ditemukan; 0.12L: chessboard tidak ditemukan; 0.18L: chessboard tidak ditemukan; template: uji tekstur sudut: hanya 7 sudut sah)
 kontrol negatif papan tertutup: 0 deteksi SALAH -> OK
 SELF-TEST LULUS
