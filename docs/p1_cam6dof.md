@@ -553,3 +553,17 @@ RGBD FIT: satuID266 **25/25 pesan**, gray bottle, median **(0.509851,−0.663401
 F1 C1RGBD tetap gagal0/3; F6D n1anomali/CDmissing dipertahankan; N1RGBD2 belum sah. Nilaiincumbent F4 menambah bukti galat lokalisasi RGBD, tetapi tidak mengisolasi penyebab ekstrinsik/depth/centroid atau membuktikan “hanya rgbd2 salah”. Belumfit/LOO/kandidat/liveholdout; D590✗/D597✓, lainnya belum diuji sepertiB34.
 
 SemuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOL gerak baru. Meja18/18/lantai7/18. Berikut lantai8/18 F4/D: boxD140 di atas penyangga tetap70 mm (surf_z0.210), tanpaC, botol sama; tunggu siap/menjauh sebelum15 s. Peta lingkungan diverifikasi sebelumHWbaru karena laci dipindahkan.
+
+
+### B45. Botol lantai 8/18 F4/D — tunggal kedua kamera; z incumbent melewati3 cm
+
+Operator “F4 di atas box D, siap rekam”; kedua capture15 s selesai rc0 (`hw_20261014/tracks_inc/F4_D_*`). Surf_z0.210, actualxy=(0.5491,−0.6003), botol H0.165/r0.0325, ketiga hash cocok. Kedua kamera FIT untuk F4/D sesuai kunci. Log, jumlah pesan dan median raw diperiksa sendiri; tanpa gerak HW atau perubahan selector/detector/model.
+
+| Kamera | Track/n | Median xyz (m) | xy mentah (cm) | z_expected (m) | dz (cm) | p5–p95xyz (mm) | Conf |
+|---|---|---|---:|---:|---:|---|---:|
+| rgbd | 268/26 | (0.546018,−0.647248,0.287505) | 4.7049 | 0.319313 | −3.1807 | 3.5/5.0/7.2 | 0.679 |
+| rgbd2 | 1475/31 | (0.522009,−0.616481,0.303768) | 3.1555 | 0.356438 | −5.2670 | 1.4/1.3/4.2 | 0.707 |
+
+Keduanya satuID lokal gray bottle pada setiap pesan, tanpa rival. Offsetcentroid RGBD=(0.015706,0.020453,0.109313), RGBD2=(−0.016896,−0.008958,0.146438). xy incumbent keduanya≤5 cm; |dz| **keduanya>3 cm**, RGBD31.807 mm tidak dibulatkan menjadi30 untuk lulus. F4 adalah FIT, bukan uji-tahanC2 atau kesepakatanF7C4. C1 hitungan F4 RGBD kini dua tinggi tunggal; RGBD2 baruD satu tinggi karena BASE NOT_USED, menungguCD. Tidak menyatakan C1 keseluruhan lulus: F1 RGBD masih0/3, N1RGBD2 belum sah, fitparameter belum dijalankan.
+
+Nilai ini adalah incumbent, belum fit/LOO/kandidat/uji-tahan hidup; tidak membuktikan hanya salah ekstrinsik atau “hanya rgbd2 salah”. D590✗/D597✓, lainnya belum diuji sepertiB34. Semua REST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOL gerak baru. Meja18/18/lantai8/18. Berikut F4/CD: C di bawah/D di atas pada penyangga tetap70 mm, tumpukan aktual245 (surf_z0.315), botol sama; tunggu siap/menjauh sebelum15 s. Peta lingkungan diverifikasi sebelumHWbaru karena laci dipindahkan.
