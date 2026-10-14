@@ -640,3 +640,12 @@ Operator “F3 di atas box D, siap rekam”; kedua capture15 s selesai rc0 (`hw_
 F3 tetap tidak masukfit/init/LOO/modelchoice. D595 incumbent sedang dievaluasi dan tidak dapat dinilai numerik padaBASE/D; tidak diberi✓ atau menyebut belum pernahdicapture. C1 dataset kedua kamera gagal (RGBDF1/RGBD2F5), belumfit/LOO/kandidat/uji-tahan ekstrinsikbaru; baselineRGBDarm_2=5.3 cm tetapgagalC3. D590✗/D597✓, D591–D594/D596/D598 belum diuji. “Hanya rgbd2 salah” belum terbukti.
 
 Meja18/18/lantai14/18, semuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOLgerakbaru. Berikut lantai15/18 F3/CD: C di bawah/D di atas pada penyangga tetap70 mm, tumpukan aktual245 (surf_z0.315), botol sama; tunggu siap/menjauh sebelum15 s. Peta diverifikasi sebelumHWbaru karena laci dipindahkan.
+
+
+### B52. Botol lantai 15/18 F3/CD — seluruh tiga tinggi uji-tahan F3 missing
+
+Operator “F3 di atas C+D, siap rekam”; kedua capture15 s selesai rc0 (`hw_20261014/tracks_inc/F3_CD_*`). Surf_z0.315 (penyangga tetap70+tumpukan aktual245, C bawah/D atas), actualxy=(0.2513,−0.5991), botol H0.165/r0.0325; ketiga hash cocok. RGBD UJI-TAHAN **30/30 pesan tracks[]**, RGBD2 NOT_USED **28/28 pesan tracks[]**. Log/jumlah pesan/raw diperiksa sendiri; tanpa gerak HW atau perubahan selector/detector/model. Tidak ada median/galat sah; missing tidak diberi nol, diganti atau direkam ulang.
+
+**F3 selesai BASE/D/CD, ketiganya missing padaRGBD**; xy/z incumbent uji-tahan tidak dapat dihitung. D595 belum dapat dibuktikanlulus diF3; F7 masihpending, baselineC3RGBDarm_2=5.3 cm juga gagal. Ini kekurangan observasi, bukan bukti kausal salah ekstrinsik dan bukan uji hidup kandidatbaru. F3/F7 tidak masukfit/init/LOO/modelchoice. C1 dataset kedua kamera gagal (RGBDF1/RGBD2F5); belumfit/LOO/kandidat/liveholdoutbaru. D590✗/D597✓, D591–D594/D596/D598 belum diuji; D595 incumbent sudahdicapture padaF3 tetapi missing. “Hanya rgbd2 salah” belum terbukti.
+
+Meja18/18/lantai15/18, semuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOLgerakbaru. Berikut lantai16/18 F7/BASE: botol langsung pada tanda di atas penyangga tetap70 mm, tanpaC/D; tunggu siap/menjauh sebelum15 s. F7 UJI-TAHAN kedua kamera semua tinggi dan kesepakatan, bukanFIT. Peta diverifikasi sebelumHWbaru karena laci dipindahkan.
