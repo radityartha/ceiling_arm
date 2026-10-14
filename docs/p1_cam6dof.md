@@ -4,6 +4,8 @@
 > [p1_arm1_zone.md](p1_arm1_zone.md) B6 F1/F3). Operator sudah pulang sebelum gerbang → **sesi ini LURING saja** ("siapkan yang offline
 > dulu"); HW dilanjutkan 2026-10-14. §A di bawah **DIKUNCI 2026-10-14**, sesudah angka operator, K4 hidup dan enam plan-check HW; salinan `results/p1_cam6dof/cam6dof_A_locked.md` + sha256 dibuat SEBELUM data botol pertama dan SEBELUM gerak pertama. Data: [results/p1_cam6dof/](results/p1_cam6dof/).
 
+> **Status operasional lantai:** amendemen atas permintaan operator dikunci pada commit `3b507b9`, [salinan](results/p1_cam6dof/cam6dof_A_floor_amendment_locked.md), sha256 `2022dbbc72f93e953daefa5d4d197a7c09aa0502214f1a280ed350c2e7ddff80`. BASE/D140/CD245 mengganti tinggi penyangga lantai A/B; §A awal/salinan/hash tetap sebagai arsip. Role, model dan batas penerimaan tetap. B33–B34 mencatat REST/K0 lulus dan kunci baru sebelum botolF pertama; jangan memakai tinggi LA/LB lama untuk capture berikut.
+
 ## A. Protokol
 
 ### A0. Luring (NOL gerak HW) — SELESAI 2026-10-12
@@ -449,3 +451,5 @@ Snapshot configsebelumrevisi `plan_rgbd{,2}_inc_pre_floor_amendment.json`; confi
 | D598 | **— belum diuji** | Belum residualz sesudahfit semua tinggi. |
 
 Skor **1✓/1✗,2/9 diuji**; ini checkpointaktif, bukan penutupanakhir. C6 tujuhgerak lulus; C1–C5 kandidat belumdisimpulkan, belumfit/pemasangan/liveholdout/DEMO-HW. “Apakah hanya rgbd2 yang salah?” **belum terbukti**; rgbd juga belumlulus gerbang baselineC3, tetapi belum dapat mengatribusikannya ke ekstrinsik/depth/gantry atau centroid. M6utama/M7 lewatLOOFIT saja; modelagenkuat efforthigh. Langkahberikut: setelahcommitamendemen minta penempatanF1/BASE dan rekam15 s kedua kamera saatoperatorsiap/menjauh.
+
+**Checkpoint siap capture:** commit kunci amendemen `3b507b9` telah dibuat dan hash dicek ulang cocok. Penempatan lantai1/18F1/BASE langsunglantai diminta ke operator, menunggu siap/menjauh; belum captureF, semuaREST/PARK,K0LULUS,stack+dua localizer hidup. Helper capture lama hanya diadaptasi untuk membaca tinggiworld per tanda dari config dan memverifikasi kedua hash; selektor/detector/centroid/radius/bobot tidakberubah. Tidak ada gerakbaru.
