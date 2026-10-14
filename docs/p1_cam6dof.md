@@ -277,3 +277,13 @@ Audit perekam di seluruh jendela job35 s (`move_F1_recorder_audit.json`):97580 b
 Dari arm_3 di F1, wrapper97% plan-only F6=(0.40,−0.70,1.22) tool-bawah menghasilkan DRY/PLANNED percobaan1, j3 **91.530809%**. Interarm minimum500.3 mm, lingkungan115.3 mm; retract se410.4/antar860.9/env115.3 mm CLEAR. Bukti `from_F1_to_F6_plan.json/.log`. Tidak ada --move atau eksekusi. Plan-only dapat menerbitkan target monitor F6; galat monitor ke target itu bukan bukti gerak.
 
 Arm_3 tetap F1, tanda F1 dikonfirmasi dan unting aman; lengan lain REST, gantry tetap. Belum izin F6/pulang. Berikut meminta izin **satu langkah F1→F6 saja**; bila disetujui, rencana aktual disaring ulang dengan batas97%, kemudian verifikasi MOVED/SUCCESS/torsi/TCP.
+
+**Izin operator gerak #2 diterima:** “Izinkan arm_3 F1→F6 saja”. Hanya F6, bukan titik berikut/pulang. Rencana aktual akan disaring ulang dan dieksekusi satu kali; keadaan sebelum eksekusi arm_3 F1.
+
+### B16. GERAK HW #2 arm_3 F1→F6 — MOVED/SUCCESS
+
+Izin operator “Izinkan arm_3 F1→F6 saja”. Satu command, supervisor832919/probe832920 kini selesai rc0 (`move_F6_job/exit.json`, `move_F6.log/.json`). Rencana aktual pertama j2 114% ditolak sebelum eksekusi; kedua PLANNED, **j2 92.529263%** melalui penjaga97%. Ini penolakan lintasan oleh saringan, bukan REJECTED controller. Interarm489.5 mm/env115.3 mm, retract se623.1/antar731.3/env115.3 mm CLEAR. MOVED, dwell SUCCESS:2 s,42 sampel@20 Hz, pos maks4.88 mm/settled0.59 mm, ori maks1.39°. Torsi puncak probe **12.208 N·m** (<14; juga≤13 dugaan D597).
+
+TCP3 s n87 **(0.3998,−0.6998,1.2197) m**, std cetak0 mm, galat **0.412 mm** (`tcp_F6.log`, `mark_F6.json`). Audit perekam seluruh36.2 s job:101360 baris, cakupan≤9 ms, puncak12.2078 N·m j2; rentang rel/rotasi kedua gantry0, lengan lain maksimum0.006303°. Semua effort lengan finite. Effort rel/rotasi NaN pada3620 sampel per sendi (kanal tidak melaporkan torsi); ini diungkapkan, tidak dianggap torsi nol. Posisi kanal tersebut finite dan diam. Audit awal terlalu ketat menolak NaN kanal rel/rotasi; diperbaiki untuk mencatatnya, tetap menolak posisi/nonfinite effort lengan, tanpa mengubah saringan/hasil gerak. Tidak ada REJECTED/FAULT/TORQUE-ABORT baru dalam log jendela yang diperiksa; controller SUCCEEDED.
+
+Arm_3 kini menahan F6 (BUKAN REST), lengan lainREST, gantry tetap. C6 langkah2 lulus; D597 belum final. Tanda F6 belum dikonfirmasi; xy belum dimasukkan ke plan sampai konfirmasi. Belum izin F4 atau pulang. Berikut operator membuat label unting F6 dan mengamankan tali, lalu plan-only F4 sebelum izin langkah3. Stack/kamera/monitor/perekam/localizer tetap hidup; §A/hash tetap.
