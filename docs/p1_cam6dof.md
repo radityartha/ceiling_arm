@@ -6,6 +6,8 @@
 
 > **Status operasional lantai:** amendemen atas permintaan operator dikunci pada commit `3b507b9`, [salinan](results/p1_cam6dof/cam6dof_A_floor_amendment_locked.md), sha256 `2022dbbc72f93e953daefa5d4d197a7c09aa0502214f1a280ed350c2e7ddff80`. BASE/D140/CD245 mengganti tinggi penyangga lantai A/B; §A awal/salinan/hash tetap sebagai arsip. Role, model dan batas penerimaan tetap. B33–B34 mencatat REST/K0 lulus dan kunci baru sebelum botolF pertama; jangan memakai tinggi LA/LB lama untuk capture berikut.
 
+> **Ukuran botol operasional:** koreksi operator pada commit `a8a9167`, [salinan terkunci](results/p1_cam6dof/cam6dof_A_bottle_geometry_locked.md): H165 mm, diameter65 mm, r32.5 mm; botol yang sama sepanjang rekaman meja. H70/r30 pada arsip§A/amendemenpenyangga bukan ukuran fisik benar. B37–B38 dan laporan corrected memuat rekalkulasi dari raw yang tetap, bukan pengulangan pengukuran.
+
 ## A. Protokol
 
 ### A0. Luring (NOL gerak HW) — SELESAI 2026-10-12
@@ -489,3 +491,5 @@ Salinan koreksiukuran `results/p1_cam6dof/cam6dof_A_bottle_geometry_locked.md`, 
 **Rekalkulasi19penempatan yang telahdirekam**, `hw_20261014/tracks_inc_corrected_bottle_geometry/`: seluruhrawsource+summarylama diberiSHA, id/n/median sama persis diuji sebelumlaporanterkoreksi. RGBD2meja17median,N1T0missing; F1BASEkedua kameramissingtetap. Tidak ada framebaru/trackdiganti/IDdigabung/objekburukdibuang atauFIT/UJI-TAHANdiubah. Expectedz/dz/modeloffsetxy dihitung ulang; xymentah/pointarm/torsi/TCP tidak berubah. C3T0dz **−0.92→−5.98 cm**, xy **19.38 cm** tetap; C3TC−5.27/C3TD−9.46; C5TC−9.48/C5TD−9.91; N1TC−1.44/N1TD−0.51 cm dengansainganIDtetapdicatat. Angkaini incumbent terkoreksimetadata, **bukan hasilfit/kandidat**. Interpretasi z lama “benar” tidakmenjadi dasar atribusi tilt/depth.
 
 D590✗/D597✓ tetap, D591–D596/D598belumfit/live. C1N1ambiguity tidak diklaimselesai karena ukuranbenar; N1TD masih3IDsekuensial danringkasan memakaiIDterbanyak tanpa menggabung. HoldoutC3/C6tidakdipakai memilihmodel meskipunlaporandiubahmengikutikoreksifisik. Sebelumcapture selanjutnya commitkunci dan hashcheck; semuaREST/PARK,stack/localizer/monitor/perekamHIDUP,NOLgerakbaru. Berikut F1/D140,operator siap/menjauh,rekam15 s kedua kamera; F1BASEmissingtidakditimpa atau diretry demiangka yang lebihbaik.
+
+**Checkpoint koreksi selesai:** commit `a8a9167` berisi kunci ukuran+sha+config ketigahash dan seluruhlaporan ulang; ketigahash diperiksa cocok dan helpercapture siap165/65, tanpa menjalankancapture. Penempatanlantai2/18 F1/D140 langsunglantai,tanpaC diminta,menungguoperatorsiap/menjauh. F1BASEmissingtetap,belumfit/modelselection; semuaREST/PARK,K0terakhirLULUS,stack+dua localizer hidup.
