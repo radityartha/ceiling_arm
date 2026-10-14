@@ -533,3 +533,12 @@ Median lokal **(0.405109,−0.749674,0.134815) m**, n1/conf0.631, xy **5.0156 cm
 RGBD2 NOT_USED:28 pesan,16 kosong, globalID1342/1344 masing-masing6 sampel di luar radius, tidak ada observasiF6 yang sah untuk kamera ini. Tidak mengubah role/selector/model. F6 adalah FIT, bukan uji-tahanC2; belumfit/LOO/pemasangan/liveholdout. D590✗/D597✓, lainnya belum diuji seperti B34. “Hanya rgbd2 salah” belum terbukti; atribusi anomali deteksi tidak otomatis menjadi galat ekstrinsik.
 
 Semua REST/PARK, K0 terakhir sesudah pulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOL gerak baru. Meja18/18/lantai5/18. Berikut F6/CD: C di bawah/D di atas, tumpukan aktual245 mm di atas penyangga tetap70 mm (surf_z0.315), botol sama; menunggu siap/menjauh sebelum15 s. Peta lingkungan diverifikasi sebelum HW baru karena laci telah dipindahkan.
+
+
+### B43. Botol lantai 6/18 F6/CD — missing lokal; F6 tiga tinggi lengkap
+
+Operator “F6 di atas C+D, siap rekam”; kedua capture15 s selesai rc0 (`hw_20261014/tracks_inc/F6_CD_*`). Surf_z0.315 m (penyangga tetap70+tumpukan aktual245, C bawah/D atas), actualxy=(0.3998,−0.6998), botol H0.165/r0.0325; ketiga hash cocok. Log/jumlah pesan raw diperiksa sendiri. RGBD28 pesan, globalID265 di luar radius0.35, **tidak ada kandidat lokal F6**. RGBD2 NOT_USED26 pesan, globalID1373 juga di luar radius; tidak mengubah role. Tidak ada median atau galat sah untuk F6/CD; missing tidak diberi nol, diganti, direkam ulang atau dibuang.
+
+F6 lengkap BASE/D/CD: BASE tunggalID242 n30, xy3.239/dz−4.483 cm; D tunggal lokalID248 **n1**, xy5.0156/dz−18.4498 cm dan z di bawah penyangga; CD missing. Secara hitungan selector ada dua tinggi dengan satuID lokal, tetapi dataD tidak membuktikan kestabilan dan anomali tetap masuk bukti/fit tanpa penghapusan. Tidak menambahkan syaratjumlah sampel baru atau menyatakan C1 keseluruhan lulus: **F1 FIT RGBD tetap0/3, gagal C1**, fitparameter belum dijalankan. Trackglobal di luar radius tidak menjadi observasi FIT.
+
+Semua REST/PARK, K0 terakhir sesudah pulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOL gerak baru. Meja18/18/lantai6/18; D590✗/D597✓, lainnya belum diuji seperti B34. Belum fit/LOO/kandidat/uji-tahan hidup, “hanya rgbd2 salah” belum terbukti. Berikut lantai7/18 F4/BASE: botol langsung di tanda pada penyangga tetap70 mm tanpa C/D, tunggu siap/menjauh sebelum15 s. F4 BASE adalah FIT RGBD, **NOT_USED RGBD2** sesuai kunci; F4 D/CD tetap FIT kedua kamera.
