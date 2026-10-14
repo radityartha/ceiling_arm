@@ -1,0 +1,12 @@
+1048694 1048692 /usr/bin/python3 /opt/ros/humble/bin/ros2 launch reachability_gng rgbd_perception.la
+1048717 1048694 /opt/ros/humble/lib/realsense2_camera/realsense2_camera_node --ros-args -r __node:=r
+1048719 1048694 /opt/ros/humble/lib/depth_image_proc/convert_metric_node --ros-args -r __node:=rgbd_
+1048721 1048694 /opt/ros/humble/lib/topic_tools/relay /rgbd/rgbd/color/image_raw /rgbd/rgb --ros-arg
+1048723 1048694 /opt/ros/humble/lib/topic_tools/relay /rgbd/rgbd/color/camera_info /rgbd/camera_info
+1048725 1048694 /opt/ros/humble/lib/tf2_ros/static_transform_publisher --x 1.7166 --y 0.8656 --z 2.0
+1048727 1048694 /opt/ros/humble/lib/realsense2_camera/realsense2_camera_node --ros-args -r __node:=r
+1048729 1048694 /opt/ros/humble/lib/depth_image_proc/convert_metric_node --ros-args -r __node:=rgbd2
+1048731 1048694 /opt/ros/humble/lib/topic_tools/relay /rgbd2/rgbd2/color/image_raw /rgbd2/rgb --ros-
+1048733 1048694 /opt/ros/humble/lib/topic_tools/relay /rgbd2/rgbd2/color/camera_info /rgbd2/camera_i
+1048735 1048694 /opt/ros/humble/lib/tf2_ros/static_transform_publisher --x -0.1547 --y -1.0197 --z 2
+1048737 1048694 /usr/bin/python3 /home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/

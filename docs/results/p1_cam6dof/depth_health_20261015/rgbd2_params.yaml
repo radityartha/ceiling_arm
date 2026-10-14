@@ -1,0 +1,16 @@
+# Same driver params as realsense_dual.launch.py _camera_nodes() for rgbd2, + infra1/metadata toggles per condition.
+/rgbd2/rgbd2:
+  ros__parameters:
+    serial_no: '234222303079'
+    camera_name: rgbd2
+    camera_namespace: rgbd2
+    align_depth.enable: true
+    pointcloud.enable: false
+    enable_color: true
+    enable_depth: true
+    enable_infra1: false
+    enable_infra2: false
+    enable_gyro: false
+    enable_accel: false
+    rgb_camera.color_profile: 1280x720x30
+    depth_module.depth_profile: 848x480x30
