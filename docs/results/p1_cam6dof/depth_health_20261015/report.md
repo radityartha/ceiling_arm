@@ -53,3 +53,15 @@ penuh yang sama. Konfigurasi emitter bukan penyebab (default benar, metadata kon
 `cam_up.sh`, `rgbd_params.yaml`, `rgbd2_params.yaml`, `rec_health.py`, `summarize.py`, `rgb_brightness.py`;
 `rec{A,A2,B,C}_*.jsonl` + `.summary.txt`; `cam*.log`; `paramsA_rgbd.txt`; `rgb_brightness_*`; `owned_C.txt`,
 `shutdown.txt`.
+
+## Update firmware rgbd 2026-10-15 06:43–06:47 (izin operator "oke update, samakan saja")
+- Firmware resmi `D4XX_FW_Image-5.17.0.10.bin` dari `librealsense.intel.com/Releases/RS4xx/FW/` (sha256 `a7e10cf7…60f1c`,
+  1 573 660 B; bertanda tangan, diverifikasi kamera). librealsense ROS 2.58.2.
+- Backup flash rgbd 5.16.0.1 sebelum flash: `/home/user1/realsense_fw_backup/rgbd_241122302297_fw_5.16.0.1_backup.bin`
+  (2 MiB, sha256 `bd740fbb…0296d`; di luar git). rgbd2 dan D435IF tidak disentuh.
+- `rs-fw-update -s 241122302297` rc 0: "successfully updated to FW: 5.17.0.10"; `-l` sesudahnya: kedua D455 5.17.0.10.
+- Verifikasi 15 s (kondisi D, rgbd saja aligned): valid **0.700**, 448 frame, 0 frame < 10 %; emitter 1/laser 150;
+  `Asic Temperature value is not valid!` **0×** (sebelumnya muncul di 5.16).
+- Intrinsik warna sesudah update: fx **643.544** (sebelumnya 643.194), fy **642.759** (642.409), cx/cy identik
+  (647.053/365.949) → +0.35 px (0.05 %, ≈ 1–2 mm di 3 m). Dicatat; kalibrasi baru G63 memakai camera_info hidup.
+- Shutdown: PID kamera keluar, domain 80 kosong, 0 proses kamera.
