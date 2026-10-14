@@ -2,8 +2,7 @@
 
 > Sesi 2026-10-12 malam (prompt [p1_cam6dof_prompt.md](p1_cam6dof_prompt.md); lanjutan [p1_rgbd2_zone.md](p1_rgbd2_zone.md) B7 (B) dan
 > [p1_arm1_zone.md](p1_arm1_zone.md) B6 F1/F3). Operator sudah pulang sebelum gerbang → **sesi ini LURING saja** ("siapkan yang offline
-> dulu"); HW = sesi berikut. §A di bawah = **DRAF**; dikunci (salinan `results/p1_cam6dof/cam6dof_A_locked.md` + sha256) sesudah angka
-> operator + K4 hidup + plan-check HW, SEBELUM data botol pertama dan SEBELUM gerak pertama. Data: [results/p1_cam6dof/](results/p1_cam6dof/).
+> dulu"); HW dilanjutkan 2026-10-14. §A di bawah **DIKUNCI 2026-10-14**, sesudah angka operator, K4 hidup dan enam plan-check HW; salinan `results/p1_cam6dof/cam6dof_A_locked.md` + sha256 dibuat SEBELUM data botol pertama dan SEBELUM gerak pertama. Data: [results/p1_cam6dof/](results/p1_cam6dof/).
 
 ## A. Protokol
 
@@ -24,37 +23,40 @@
 | A0.12 | **Tanpa balok? (operator tak punya balok, 2026-10-12)** Sintetis [noblock_synth.py](results/p1_cam6dof/noblock_synth.py) ([log](results/p1_cam6dof/noblock_synth.log)), tilt 2.5° ± skala 1.04, noise 5/3 mm, lengan silinder vertikal: **rgbd2** (meja 0.77 + lantai 0 = dua tinggi alami) tanpa penyangga tetap pulih (kaku rot 0.07°, uji-tahan 17 mm; skala → M7 dipilih, s 1.040). **rgbd** (lantai saja, satu tinggi): kaku pulih (0.04°), TETAPI dengan skala 1.04 **LOO memilih M6** — pose kamera salah **112 mm** padahal uji-tahan di zona hanya 12 mm (galat diam: lulus di zona, rusak di tempat lain). Dengan 3 tinggi rgbd memilih M7 benar. → penyangga (benda kokoh rata apa pun, tinggi diukur) WAJIB minimal untuk zona lantai rgbd. | log |
 | A0.10 | **Batas penerapan M7:** kamera nyata → `depth_image_proc/convert_metric` tanpa parameter skala; TF statis tidak bisa membawa skala. Bila LOO memilih M7: **M6 tetap yang diuji-tahan hidup** (satu-satunya yang bisa dipasang lewat arg), M7 dilaporkan + prediksi luring; penerapan skala = perubahan kode, keputusan operator. | `realsense_dual.launch.py` |
 
-### A1. DRAF urutan (setiap gerak nyata ditanya, satu langkah per persetujuan)
+### A1. DIKUNCI urutan (setiap gerak nyata ditanya, satu langkah per persetujuan)
 
-0. Gerbang (AskUserQuestion): K0, K1, K2 (+ **angka: tinggi balok A/B ±2 mm, diameter botol putih, lantai = acuan meja 0.77 → z lantai 0**), K3 (`ps`), K3b.
+0. Gerbang K0–K3b operator terpenuhi; K0 terukur LULUS sebelum kunci (B1–B3). Acuan lantai world z=0, meja z=0.770 m. Satu botol putih silinder: H=0.070 m, diameter=0.060 m, r=0.030 m; dipakai bergantian, tidak mengganti botol. Semua tinggi penyangga diukur operator ±2 mm, kokoh/rata/stabil. Box lantai A=0.310 m, atas0.470×0.350 m; B=0.480 m, atas0.423×0.268 m. Box meja C=0.100 m, atas0.095×0.070 m; D=0.140 m, atas0.092×0.050 m. Operator mengonfirmasi C/D dapat dipakai pada enam tanda tanpa menyentuh REST/jatuh. A/B tidak ditaruh di meja (operator menolak). Box D lebih sempit5 mm per sisi daripada diameter botol; botol harus tegak/stabil dengan pusat alas tepat di tanda, bukan mengikuti tepi box. Bila tidak stabil, STOP penempatan dan catat missing; tidak mengarang koordinat/tinggi.
+   **Tinggi permukaan terkunci:** meja T0=0.770, TC=0.870, TD=0.910 m; lantai L0=0, LA=0.310, LB=0.480 m. Tidak ditumpuk. **Konflik draf:** D590 semula “balok B di meja”; B kini nama box lantai operator, sehingga dugaan yang sama diterapkan pada box tertinggi di meja **D** (tinggi14 cm), sebelum data botol. Model/bobot/gerbang A0.1 dan C1–C6 tidak dilonggarkan. A0.7/A0.12/A0.10 menang atas dugaan tilt murni/satu tinggi/penerapan M7 lewat TF di prompt lama.
 1. Bring-up nyata (`p1_demo_hw/harness/stack_up.sh`, `octomap_updaters:=false`), K0 `--rail1 1.50 --rail2 0.00`, monitor + perekam
-   (cek tumbuh). Kamera incumbent (`p1_demo_hw/harness/cam_up.sh seg_imgsz:=1280`) + `loc_cam.sh rgbd` + `loc_cam.sh rgbd2`.
+   (cek tumbuh). Kamera incumbent (`p1_demo_hw/harness/cam_up.sh seg_imgsz:=1280`); localizer per kamera dimulai SESUDAH kunci §A agar tidak ada data botol sebelum kunci. Keluaran terisolasi mengikuti A0.5; topik demo harus0 publisher dari localizer sesi.
    `arm_fk_check --arm-filter 0.03` REST ×3 (baseline incumbent) + `cam6dof_capture.py rest_inc.npz` (data lengan untuk fit).
    `proj_marks.py rgbd` + `rgbd2` dengan kandidat F → gambar → **K4** ke operator. Plan-check HW F terpilih.
    → isi angka + set F → **KUNCI §A** (sha256 + commit).
-2. Zona rgbd2 (NOL gerak): botol di 6 tanda meja × 3 tinggi (meja 0.77, balok A, balok B), `track_median.py 15 … /loc_rgbd2/tracks`
-   (+ `/loc_rgbd/tracks` direkam juga). Balok dipusatkan di tanda (garis bantu), botol di tengah balok.
+2. Zona rgbd2 (NOL gerak): botol di 6 tanda meja × 3 tinggi (T0/TC/TD = meja, box C, box D), `track_median.py 15 … /loc_rgbd2/tracks`
+   (+ `/loc_rgbd/tracks` direkam juga). Pusat alas botol tepat di atas tanda, box rata dan kokoh, garis bantu untuk xy. Rekam15 s per kamera setelah penempatan selesai dan operator menjauh; satu penempatan per instruksi, tidak berpindah selama rekaman. Urutan meja: C3 (botol sudah ada), C6, M1, C5, N1, N2; di setiap tanda T0→TC→TD. Urutan tidak mengubah peran FIT/UJI-TAHAN.
 3. Zona rgbd (hanya bila K4 ya): arm_3 penunjuk ke F (tiap gerak ditanya; pola `mv_mark.sh` dengan arm_3) → unting + label → `return_rest
-   --arms arm_3 arm_4 --move` → botol di tiap F × 3 tinggi (lantai, A, B), rekam kedua localizer.
+   --arms arm_3 arm_4 --move` → botol di tiap F × 3 tinggi (L0/LA/LB = lantai, box A, box B), rekam kedua localizer. Urutan penunjuk arm_3 dari REST: F1→F6→F4→F5→F3→F7, lalu pulang REST; tiap langkah harus disaring ulang dan ditanya, tidak ada izin gabungan. Koordinat tanda aktual = TCP terukur saat dwell, bukan nominal perintah; peran dan tinggi tidak berubah. Tidak menaruh box pada jalur lengan sebelum penunjuk selesai REST.
 4. Fit per kamera (M6/M7, `cam6dof_fit.py`) → arg baru → kamera diluncurkan ulang (`cam_up_6dof.sh`) → TF hidup = prediksi →
    uji-tahan HIDUP (botol di tanda uji-tahan semua tinggi) + `arm_fk_check` REST ×3 + botol di titik dua-kamera.
 5. Akhir: lengan REST, g1 PARKIR, K0, matikan bersih (0 node domain 0 & 79, 0 `static_transform_publisher`), arsip, laporan.
 
-### A2. DRAF peran titik (dikunci SEBELUM data botol)
+### A2. DIKUNCI peran titik (dikunci SEBELUM data botol)
 
 | zona | tanda | peran rgbd2 | peran rgbd |
 |---|---|---|---|
-| meja arm_1 (z 0.77 / +A / +B) | M1, C5, N1, N2 | FIT | — (tak terlihat) |
+| meja arm_1 (T0/TC/TD: z0.770/0.870/0.910) | M1, C5, N1, N2 | FIT | — (tak terlihat) |
 | | **C6, C3** | **UJI-TAHAN** | — |
-| lantai arm_3 (z 0 / A / B) — usulan dari A0.8/A0.9, ganti dengan cadangan bila tak terlihat hidup / gagal plan-check HW | F1 (0.25, −0.50), F6 (0.40, −0.70) | — (tak terlihat) | FIT |
-| | F4 (0.55, −0.60), F5 (0.65, −0.48) | FIT (bila ter-track) | FIT |
+| lantai arm_3 (L0/LA/LB: z0/0.310/0.480), keenam F lulus plan-check HW B3 | F1 (0.25, −0.50), F6 (0.40, −0.70) | — (tak terlihat) | FIT |
+| | F4 (0.55, −0.60), F5 (0.65, −0.48) | FIT (F4: LA/LB; L0 di luar bingkai incumbent; F5: L0/LA/LB) | FIT |
 | | **F3 (0.25, −0.60)** | — | **UJI-TAHAN** |
 | | **F7 (0.65, −0.58)** = titik dua-kamera | **UJI-TAHAN** | **UJI-TAHAN** |
-| cadangan | (0.55, −0.50), (0.60, −0.66) j2 96, (0.40, −0.60) | — | — |
+| cadangan luring, **TIDAK masuk set terkunci** | (0.55, −0.50), (0.60, −0.66), (0.40, −0.60) | — | — |
 
-Lengan (REST, tangkapan `rest_inc.npz`) masuk FIT bila lolos gerbang incumbent (jendela ≥ 300, tersimpan ≥ 30 % dan ≥ 200, median ≤ 15 mm).
+**xy meja terukur (m), dari RGBD2-ZONE:** M1=(1.7497,0.5493), C5=(1.6506,0.6503), N1=(1.9389,0.4984), N2=(1.9388,0.6806), C6=(1.9004,0.6004), C3=(1.8486,0.6786). Angka tidak diubah setelah data. F nominal ada di tabel; actual xy diperbarui hanya dari TCP terukur penunjuk sebelum botol lantai, dicatat dengan nama sama. Jika tanda tidak bisa dibuat/terlihat/track tidak tunggal, missing/gerbang gagal dicatat; tidak mengganti tanda/peran berdasarkan galat botol. Uji-tahan tidak masuk fit, inisialisasi, LOO atau pemilihan M6/M7. Rekaman incumbent di tanda uji-tahan dipakai hanya menilai incumbent/delta penerimaan.
 
-### A3. DRAF kriteria (per kamera)
+Lengan (REST, tangkapan `hw_20261014/rest_inc.npz`) masuk FIT bila lolos gerbang incumbent (jendela ≥ 300, tersimpan ≥ 30 % dan ≥ 200, median ≤ 15 mm).
+
+### A3. DIKUNCI kriteria (per kamera)
 
 | # | Lulus bila |
 |---|---|
@@ -65,17 +67,19 @@ Lengan (REST, tangkapan `rest_inc.npz`) masuk FIT bila lolos gerbang incumbent (
 | C5 | TF hidup = prediksi ≤ 1 mm / 0.01° |
 | C6 | penunjuk: tiap gerak MOVED + dwell SUCCESS, TCP ≤ 5 mm, torsi terukur ≤ 14 |
 
+**Incumbent pembanding:** baseline REST median B2 tetap sebagai pembanding C3; botol incumbent juga direkam di tanda uji-tahan, semua tinggi zona yang bersangkutan, sebelum fit dan tidak dipakai memilih model. rgbd incumbent baseline sudah gagal C3 (arm_2=5.3 cm); fit rgbd tetap dicoba dengan gerbang sama, tidak menyatakan “rgbd tidak salah” dari botol saja. Bila M7 terpilih, lapor hasil dan prediksi luring; **M6 tetap kandidat uji hidup** (A0.10), tanpa mengubah depth atau launch default.
+
 **Keputusan:** rgbd2 baru DITERIMA bila C1–C5 (C6 untuk sesi). rgbd: bila **incumbent** lulus C2 + C3 → TIDAK diubah ("rgbd tidak salah");
 lainnya → fit rgbd, kriteria sama. Diterima = harness BARU `cam_up_6dof.sh`; default launch TIDAK diubah tanpa operator. Gagal → incumbent
 tetap; lapor model mana yang gagal (tilt / skala / bias botol) dan kenapa. Berhenti + amankan: fault / LED merah / REJECTED / NOT armed
 sesudah ARMED / torsi > 14 / benturan / kabel / gerak tak diminta. MARGIN = TOLAK (> 97 %); penyaring tidak dilonggarkan. Kriteria tidak
 diubah sesudah melihat data; uji-tahan tidak pernah dipakai untuk fit / memilih model.
 
-### A4. DRAF dugaan
+### A4. DIKUNCI dugaan
 
 | # | Dugaan |
 |---|---|
-| D590 | rgbd2 incumbent: \|dxy\| botol di balok B (lebih dekat kamera) < di meja pada ≥ 5/6 tanda. |
+| D590 | rgbd2 incumbent: \|dxy\| botol di box D (tertinggi di meja, lebih dekat kamera) < di meja pada ≥ 5/6 tanda. |
 | D591 | rgbd2: **LOO memilih M7**, s ∈ [1.02, 1.07] (A0.7: horizontal-saja dengan z benar). |
 | D592 | rgbd2 M6 \|w\| ∈ [1°, 4°], \|τ\| ≤ 0.10 m, gerbang lulus. |
 | D593 | rgbd2 M6 lulus C2 (semua tinggi) — walau M7 dipilih. |
@@ -168,3 +172,9 @@ Stack milik sesi masih HIDUP (roots786857/787847, monitor787845→787875, pereka
 Belum penutupan sesi: REST/PARK terukur, stack tetap aktif menunggu penyangga meja/penguncian. Batas bukti: rgbd2 jauh jelas bergalat pada baseline, rgbd arm_2 juga melampaui5 cm; “hanya rgbd2 salah” belum terbukti dan atribusi kamera vs world belum selesai. Model kalibrasi M6 utama/M7 hanya lewat LOO FIT; model agen kuat effort high. Anggaran4.000 token per tugas CLAUDE.md terlampaui saat verifikasi HW/dokumentasi sesi ini; dicatat, pekerjaan tidak dilabel selesai.
 
 **Pembaruan kesiapan segmentasi:** subscription read-only selama8 s menerima27 gambar per kamera,1280×720, cap waktu bertambah1791948926→1791948934 (`seg_readiness.json`). YOLOE terbit; log tanpa “ready” tidak membuktikan hang. Tidak restart kamera, tidak merekam track botol. Semua plan-check/baseline selesai; menunggu jawaban box kecil sebelum kunci§A.
+
+### B4. Penguncian §A 2026-10-14
+
+Operator mengonfirmasi box C100 mm (atas95×70 mm) dan D140 mm (atas92×50 mm), kokoh/rata serta muat di tanda meja; tinggi±2 mm dijawab “ya” pada pertanyaan gabungan. Box A310/B480 tetap lantai. Satu botol putih H70/diameter60 mm dipakai bergantian; botol lain tidak digunakan. K0 pra-kunci LULUS (`k0_before_lock.json`). Protokol final memakai18 penempatan meja dan18 lantai per set incumbent; peran FIT/uji-tahan tetap draf, F4 rgbd2 hanya LA/LB yang dalam bingkai. Tidak mengubah kriteria/bobot/model/ambang.
+
+Salinan §A `results/p1_cam6dof/cam6dof_A_locked.md`, sha256 **3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802** (`cam6dof_A_locked.sha256`). Konflik nama B draf terhadap box operator diselesaikan sebelum data: D590 menguji **box D tertinggi di meja** dengan predikat≥5/6 yang sama; bukan box B lantai. §A kini dikunci; data botol dan gerak penunjuk belum dimulai pada pembuatan hash. Localizer per kamera dimulai setelah commit kunci. Semua baseline REST dan enam plan-check HW selesai, tidak diulang.
