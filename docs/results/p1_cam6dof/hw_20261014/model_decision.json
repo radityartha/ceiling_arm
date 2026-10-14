@@ -1,0 +1,74 @@
+{
+  "rgbd": {
+    "fit_source_sha256": "cf614761d488be7cf0466e41bfec90b0aa464fe1c7d0230709a81ee30a6c559b",
+    "dataset_height_gate_pass": false,
+    "loo_numeric_selection": "M6",
+    "loo_M6_m": 0.0899,
+    "loo_M7_m": 0.0873,
+    "minimum_improvement_m": 0.013484999999999999,
+    "actual_improvement_m": 0.002599999999999991,
+    "models": {
+      "M6": {
+        "rotation_deg": 4.4845,
+        "camera_position_delta_m": 0.2523,
+        "depth_scale": 1.0,
+        "converged": true,
+        "parameter_gate_pass": false,
+        "max_abs_dz_predicted_m": 0.1042,
+        "max_holdout_xy_predicted_m": 0.0511,
+        "accepted": false
+      },
+      "M7": {
+        "rotation_deg": 4.215,
+        "camera_position_delta_m": 0.2071,
+        "depth_scale": 0.96494,
+        "converged": true,
+        "parameter_gate_pass": false,
+        "max_abs_dz_predicted_m": 0.101,
+        "max_holdout_xy_predicted_m": 0.0468,
+        "accepted": false
+      }
+    },
+    "live_candidate_test_run": false,
+    "accepted_model": null,
+    "deployment": "retain incumbent; generated args in solver output must not be applied",
+    "scale_decision": "M7 scale cannot be encoded in static TF; no depth scale applied; separate operator decision/change required even if scale were valid",
+    "note": "Incomplete/ambiguous FIT dataset; numeric LOO and holdout predictions are informational, holdout not used to select model."
+  },
+  "rgbd2": {
+    "fit_source_sha256": "2e9be77e721d27f497e42a60d0d3bb315bc573bbbbdd04a9f11eba1ebc4b0c90",
+    "dataset_height_gate_pass": false,
+    "loo_numeric_selection": "M7",
+    "loo_M6_m": 0.151,
+    "loo_M7_m": 0.0956,
+    "minimum_improvement_m": 0.02265,
+    "actual_improvement_m": 0.05539999999999999,
+    "models": {
+      "M6": {
+        "rotation_deg": 2.0782,
+        "camera_position_delta_m": 0.1697,
+        "depth_scale": 1.0,
+        "converged": true,
+        "parameter_gate_pass": false,
+        "max_abs_dz_predicted_m": 0.2351,
+        "max_holdout_xy_predicted_m": 0.1834,
+        "accepted": false
+      },
+      "M7": {
+        "rotation_deg": 2.1932,
+        "camera_position_delta_m": 0.1329,
+        "depth_scale": 0.89269,
+        "converged": true,
+        "parameter_gate_pass": false,
+        "max_abs_dz_predicted_m": 0.1746,
+        "max_holdout_xy_predicted_m": 0.0871,
+        "accepted": false
+      }
+    },
+    "live_candidate_test_run": false,
+    "accepted_model": null,
+    "deployment": "retain incumbent; generated args in solver output must not be applied",
+    "scale_decision": "M7 scale cannot be encoded in static TF; no depth scale applied; separate operator decision/change required even if scale were valid",
+    "note": "Incomplete/ambiguous FIT dataset; numeric LOO and holdout predictions are informational, holdout not used to select model."
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "t_start": 1791976120.429906,
+  "files": [
+    {
+      "file": "docs/results/p1_cam6dof/hw_20261014/archive/cam6dof_20261014_camera.log",
+      "decoded_bytes": 9182,
+      "decoded_sha256": "6362bf4de12cc1089b86af933d6e6860a78ff8ab575ebcf44ddb010913c92cc2",
+      "verified": true
+    },
+    {
+      "file": "docs/results/p1_cam6dof/hw_20261014/archive/cam6dof_20261014_joint_states.csv.gz",
+      "decoded_bytes": 3760706325,
+      "decoded_sha256": "083e587a5faf694dfb43d6b423499a720e62895b490a8c7792471d32ab9270de",
+      "verified": true
+    },
+    {
+      "file": "docs/results/p1_cam6dof/hw_20261014/archive/cam6dof_20261014_launch.log",
+      "decoded_bytes": 14796052,
+      "decoded_sha256": "7230a496cef56ac7d6379e99ed0577c3841a0d971e62f5960a18552725c23193",
+      "verified": true
+    },
+    {
+      "file": "docs/results/p1_cam6dof/hw_20261014/archive/cam6dof_20261014_loc_rgbd.log",
+      "decoded_bytes": 1013,
+      "decoded_sha256": "0f0110834d4db27ca695fd1f51712d4debc6ffa4fed350d4a2d64ece7b99e65b",
+      "verified": true
+    },
+    {
+      "file": "docs/results/p1_cam6dof/hw_20261014/archive/cam6dof_20261014_loc_rgbd2.log",
+      "decoded_bytes": 2074,
+      "decoded_sha256": "8e2108cf5afab610b0a1c2f7b83505f1f12a6381cedce39b7472ff479bfa3c27",
+      "verified": true
+    },
+    {
+      "file": "docs/results/p1_cam6dof/hw_20261014/archive/cam6dof_20261014_mon_samples.csv.gz",
+      "decoded_bytes": 26539806,
+      "decoded_sha256": "d9230e8e9064236640b5cc9ebd5e340318413bb289516086fb134bbd7696ecae",
+      "verified": true
+    },
+    {
+      "file": "docs/results/p1_cam6dof/hw_20261014/archive/cam6dof_20261014_mon_summary.csv.gz",
+      "decoded_bytes": 5182,
+      "decoded_sha256": "c0d42c5049c32555e0e142e3d677e9366856b724c320a426fb164ba41aaac75e",
+      "verified": true
+    },
+    {
+      "file": "docs/results/p1_cam6dof/hw_20261014/archive/cam6dof_20261014_monitor.log",
+      "decoded_bytes": 3638,
+      "decoded_sha256": "dc681a864d6b715c9ab83625ac87fb6ba969a466e3b1501126de263afa4045e8",
+      "verified": true
+    },
+    {
+      "file": "docs/results/p1_cam6dof/hw_20261014/archive/cam6dof_20261014_rec.log",
+      "decoded_bytes": 1036,
+      "decoded_sha256": "322e8bcd41ca4a6a5f562302638c491fab4cc7f82597ebef416a976988893bd7",
+      "verified": true
+    },
+    {
+      "file": "docs/results/p1_cam6dof/hw_20261014/archive/rest_inc.npz",
+      "decoded_bytes": 17568051,
+      "decoded_sha256": "b86fd644ed2be50c7b34e5bfc45fb05a7ca4a3886c9aa3de091433ed95bf8680",
+      "verified": true
+    }
+  ],
+  "launch_patterns": {
+    "FAULT": [],
+    "REJECTED": [],
+    "TORQUE-ABORT": [],
+    "NOT armed": [
+      {
+        "line": 340,
+        "text": "[dual_table_controller-19] [WARN] [1791947964.037035295] [dual_table_controller]: bridge: table1 NOT armed -- ignoring command 0.0mm/0.0deg while the gantry is at 1499.3mm/0.0deg. No active controller is holding this joint (check `ros2 control list_controllers`)."
+      }
+    ],
+    "SIGKILL": [
+      {
+        "line": 29382,
+        "text": "[ERROR] [ros2_control_node-4]: process[ros2_control_node-4] failed to terminate '10.0' seconds after receiving 'SIGTERM', escalating to 'SIGKILL'"
+      },
+      {
+        "line": 29383,
+        "text": "[ERROR] [rviz2-3]: process[rviz2-3] failed to terminate '10.0' seconds after receiving 'SIGTERM', escalating to 'SIGKILL'"
+      },
+      {
+        "line": 29384,
+        "text": "[ERROR] [move_group-2]: process[move_group-2] failed to terminate '10.0' seconds after receiving 'SIGTERM', escalating to 'SIGKILL'"
+      },
+      {
+        "line": 29385,
+        "text": "[INFO] [ros2_control_node-4]: sending signal 'SIGKILL' to process[ros2_control_node-4]"
+      },
+      {
+        "line": 29386,
+        "text": "[INFO] [rviz2-3]: sending signal 'SIGKILL' to process[rviz2-3]"
+      },
+      {
+        "line": 29387,
+        "text": "[INFO] [move_group-2]: sending signal 'SIGKILL' to process[move_group-2]"
+      }
+    ]
+  },
+  "t_end": 1791976136.5733042
+}

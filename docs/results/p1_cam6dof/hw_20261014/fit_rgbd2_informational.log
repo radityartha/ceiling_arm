@@ -1,0 +1,58 @@
+capture TF vs old: 0.00 mm 0.0000 deg
+  rgbd2:arm_1: window 479 kept 467 (97%) med 7.8 mm  t_inc [0.135 0.017 0.002]  -> USED
+  rgbd2:arm_3: window 1336 kept 1330 (100%) med 9.5 mm  t_inc [-0.012 -0.02   0.003]  -> USED
+M6: |w| 2.078 deg (cam [-0.8824, -1.7117, -0.7812]) tau [-0.0573, -0.1112, 0.1146] s 1.0  fit RMS 0.1207  LOO 0.151  gate FAIL  iters 25 conv True
+   M1@0.77    fit     dxy old 0.155 -> new 0.053  dz +0.027  res3 0.071
+   M1@0.87    fit     dxy old 0.186 -> new 0.066  dz +0.014  res3 0.090
+   M1@0.91    fit     dxy old 0.193 -> new 0.073  dz +0.019  res3 0.098
+   C5@0.77    fit     dxy old 0.220 -> new 0.071  dz +0.032  res3 0.105
+   C5@0.87    fit     dxy old 0.213 -> new 0.066  dz -0.029  res3 0.099
+   C5@0.91    fit     dxy old 0.205 -> new 0.058  dz -0.034  res3 0.094
+   N1@0.87    fit     dxy old 0.131 -> new 0.010  dz +0.048  res3 0.053
+   N1@0.91    fit     dxy old 0.114 -> new 0.024  dz +0.057  res3 0.057
+   N2@0.77    fit     dxy old 0.182 -> new 0.035  dz +0.003  res3 0.064
+   N2@0.87    fit     dxy old 0.171 -> new 0.033  dz +0.034  res3 0.065
+   N2@0.91    fit     dxy old 0.190 -> new 0.046  dz +0.018  res3 0.077
+   C6@0.77    holdout dxy old 0.136 -> new 0.010  dz +0.014  res3 0.027
+   C6@0.87    holdout dxy old 0.117 -> new 0.025  dz +0.044  res3 0.044
+   C6@0.91    holdout dxy old 0.132 -> new 0.013  dz +0.036  res3 0.044
+   C3@0.77    holdout dxy old 0.194 -> new 0.046  dz +0.002  res3 0.075
+   C3@0.87    holdout dxy old 0.191 -> new 0.046  dz +0.009  res3 0.076
+   C3@0.91    holdout dxy old 0.189 -> new 0.043  dz -0.033  res3 0.079
+   F4@0.21    fit     dxy old 0.032 -> new 0.177  dz +0.047  res3 0.166
+   F4@0.315   fit     dxy old 0.048 -> new 0.191  dz +0.023  res3 0.174
+   F5@0.0     fit     dxy old 0.016 -> new 0.137  dz -0.021  res3 0.120
+   F5@0.245   fit     dxy old 0.006 -> new 0.157  dz -0.235  res3 0.272
+   F7@0.07    holdout dxy old 0.041 -> new 0.174  dz -0.011  res3 0.157
+   F7@0.21    holdout dxy old 0.044 -> new 0.183  dz -0.087  res3 0.186
+   F7@0.315   holdout dxy old 0.048 -> new 0.179  dz +0.011  res3 0.162
+   arm arm_1 (used) t_inc 0.136 -> t 0.040 kept 93%
+   arm arm_3 (used) t_inc 0.024 -> t 0.180 kept 81%
+M7: |w| 2.193 deg (cam [-0.4874, -2.058, -0.5807]) tau [0.1211, 0.0204, -0.0509] s 0.89269  fit RMS 0.067  LOO 0.0956  gate FAIL  iters 25 conv True
+   M1@0.77    fit     dxy old 0.155 -> new 0.057  dz +0.019  res3 0.048
+   M1@0.87    fit     dxy old 0.186 -> new 0.040  dz -0.004  res3 0.045
+   M1@0.91    fit     dxy old 0.193 -> new 0.041  dz -0.003  res3 0.050
+   C5@0.77    fit     dxy old 0.220 -> new 0.031  dz +0.024  res3 0.056
+   C5@0.87    fit     dxy old 0.213 -> new 0.024  dz -0.042  res3 0.061
+   C5@0.91    fit     dxy old 0.205 -> new 0.019  dz -0.050  res3 0.063
+   N1@0.87    fit     dxy old 0.131 -> new 0.070  dz +0.026  res3 0.049
+   N1@0.91    fit     dxy old 0.114 -> new 0.084  dz +0.030  res3 0.063
+   N2@0.77    fit     dxy old 0.182 -> new 0.042  dz -0.002  res3 0.014
+   N2@0.87    fit     dxy old 0.171 -> new 0.062  dz +0.015  res3 0.040
+   N2@0.91    fit     dxy old 0.190 -> new 0.038  dz -0.003  res3 0.016
+   C6@0.77    holdout dxy old 0.136 -> new 0.071  dz +0.007  res3 0.043
+   C6@0.87    holdout dxy old 0.117 -> new 0.087  dz +0.023  res3 0.062
+   C6@0.91    holdout dxy old 0.132 -> new 0.072  dz +0.012  res3 0.045
+   C3@0.77    holdout dxy old 0.194 -> new 0.029  dz -0.003  res3 0.015
+   C3@0.87    holdout dxy old 0.191 -> new 0.026  dz -0.007  res3 0.011
+   C3@0.91    holdout dxy old 0.189 -> new 0.032  dz -0.049  res3 0.051
+   F4@0.21    fit     dxy old 0.032 -> new 0.025  dz +0.078  res3 0.079
+   F4@0.315   fit     dxy old 0.048 -> new 0.039  dz +0.047  res3 0.050
+   F5@0.0     fit     dxy old 0.016 -> new 0.004  dz +0.043  res3 0.045
+   F5@0.245   fit     dxy old 0.006 -> new 0.024  dz -0.175  res3 0.175
+   F7@0.07    holdout dxy old 0.041 -> new 0.034  dz +0.042  res3 0.051
+   F7@0.21    holdout dxy old 0.044 -> new 0.040  dz -0.040  res3 0.049
+   F7@0.315   holdout dxy old 0.048 -> new 0.042  dz +0.036  res3 0.050
+   arm arm_1 (used) t_inc 0.136 -> t 0.051 kept 100%
+   arm arm_3 (used) t_inc 0.024 -> t 0.073 kept 99%
+SELECT M7 (LOO M6 0.151 M7 0.0956); deployable args (M6, static TF): tf2_x:=-0.21202 tf2_y:=-1.13091 tf2_z:=2.20512 tf2_roll:=-2.25629 tf2_pitch:=-0.12045 tf2_yaw:=-0.88681
