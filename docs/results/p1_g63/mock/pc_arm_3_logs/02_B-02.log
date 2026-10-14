@@ -1,0 +1,48 @@
+G63: penyaring memakai /tmp/claude-1001/-home-user1-Documents-ceiling-arm/25411a7a-10de-41cf-ba26-f076992cf4b5/scratchpad/g63_payload_mock.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}, 'B': {'interarm': True, 'cross': True, 'env': True}}
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_3 (0.54231, 0.13863, 1.294), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+  [ 1] DRY arm_3: p_cmd = (+0.542, +0.139, +1.294)   rencana: INTERARM-COLLIDE
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> mock/pc_arm_3_logs/02_B-02.json
+[INFO] [1792021097.904563832] [reach_dwell_probe]: ujung rencana vs target: 0.98 mm, sumbu 0.05 deg
+[INFO] [1792021097.908127969] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.17->6.77/10, 2=4.71->12.41/14, 3=2.20->8.80/10, 4=0.29->2.27/7, 5=0.05->2.03/7, 6=0.02->2.00/7  (terketat t2_a1_joint_2 89 %)
+[INFO] [1792021106.961853739] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 2.2 mm di titik 79 (t2_a1_g63_board_0 <-> t2_a2_forearm_link_0) -> MARGIN
+[ERROR] [1792021106.962901526] [reach_dwell_probe]: TABRAKAN ANTAR-LENGAN: rencana DITOLAK SEBELUM GERAK -- 2.2 mm di titik 79 antara t2_a1_g63_board_0 dan t2_a2_forearm_link_0, di bawah margin 50 mm. MoveIt menilai rencana ini SAH karena pasangan itu dimatikan di SRDF.
+[INFO] [1792021106.963945498] [reach_dwell_probe]: percobaan rencana 2/8: yang sebelumnya INTERARM-COLLIDE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792021107.132888355] [reach_dwell_probe]: ujung rencana vs target: 2.28 mm, sumbu 0.20 deg
+[INFO] [1792021107.136378824] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.16->6.76/10, 2=4.67->12.37/14, 3=2.20->8.80/10, 4=0.29->2.27/7, 5=0.05->2.03/7, 6=0.02->2.00/7  (terketat t2_a1_joint_2 88 %)
+[INFO] [1792021108.363499068] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 3.0 mm di titik 79 (t2_a1_g63_board_0 <-> t2_a2_forearm_link_0) -> MARGIN
+[ERROR] [1792021108.364534302] [reach_dwell_probe]: TABRAKAN ANTAR-LENGAN: rencana DITOLAK SEBELUM GERAK -- 3.0 mm di titik 79 antara t2_a1_g63_board_0 dan t2_a2_forearm_link_0, di bawah margin 50 mm. MoveIt menilai rencana ini SAH karena pasangan itu dimatikan di SRDF.
+[INFO] [1792021108.365569663] [reach_dwell_probe]: percobaan rencana 3/8: yang sebelumnya INTERARM-COLLIDE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792021108.515151104] [reach_dwell_probe]: ujung rencana vs target: 3.23 mm, sumbu 0.37 deg
+[ERROR] [1792021108.516197331] [reach_dwell_probe]: GOAL-MISMATCH: ujung rencana 3.23 mm / 0.37 deg dari target (batas 3.0 mm / 2.0 deg).
+[INFO] [1792021108.517227087] [reach_dwell_probe]: percobaan rencana 4/8: yang sebelumnya GOAL-MISMATCH -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792021108.660018713] [reach_dwell_probe]: ujung rencana vs target: 1.55 mm, sumbu 0.16 deg
+[INFO] [1792021108.663491052] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.16->6.76/10, 2=4.68->12.38/14, 3=2.20->8.80/10, 4=0.29->2.27/7, 5=0.05->2.03/7, 6=0.02->2.00/7  (terketat t2_a1_joint_2 88 %)
+[INFO] [1792021109.882311621] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 2.8 mm di titik 79 (t2_a1_g63_board_0 <-> t2_a2_forearm_link_0) -> MARGIN
+[ERROR] [1792021109.883423624] [reach_dwell_probe]: TABRAKAN ANTAR-LENGAN: rencana DITOLAK SEBELUM GERAK -- 2.8 mm di titik 79 antara t2_a1_g63_board_0 dan t2_a2_forearm_link_0, di bawah margin 50 mm. MoveIt menilai rencana ini SAH karena pasangan itu dimatikan di SRDF.
+[INFO] [1792021109.884870038] [reach_dwell_probe]: percobaan rencana 5/8: yang sebelumnya INTERARM-COLLIDE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792021110.057827765] [reach_dwell_probe]: ujung rencana vs target: 0.93 mm, sumbu 0.16 deg
+[INFO] [1792021110.062983961] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.17->6.77/10, 2=4.69->12.39/14, 3=2.20->8.80/10, 4=0.30->2.28/7, 5=0.05->2.03/7, 6=0.02->2.00/7  (terketat t2_a1_joint_2 88 %)
+[INFO] [1792021111.313128570] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 2.5 mm di titik 79 (t2_a1_g63_board_0 <-> t2_a2_forearm_link_0) -> MARGIN
+[ERROR] [1792021111.314200329] [reach_dwell_probe]: TABRAKAN ANTAR-LENGAN: rencana DITOLAK SEBELUM GERAK -- 2.5 mm di titik 79 antara t2_a1_g63_board_0 dan t2_a2_forearm_link_0, di bawah margin 50 mm. MoveIt menilai rencana ini SAH karena pasangan itu dimatikan di SRDF.
+[INFO] [1792021111.315254919] [reach_dwell_probe]: percobaan rencana 6/8: yang sebelumnya INTERARM-COLLIDE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792021111.436597277] [reach_dwell_probe]: ujung rencana vs target: 0.96 mm, sumbu 0.03 deg
+[INFO] [1792021111.439966683] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.16->6.76/10, 2=4.68->12.38/14, 3=2.20->8.80/10, 4=0.29->2.27/7, 5=0.05->2.03/7, 6=0.02->2.00/7  (terketat t2_a1_joint_2 88 %)
+[INFO] [1792021112.684045525] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 3.0 mm di titik 79 (t2_a1_g63_board_0 <-> t2_a2_forearm_link_0) -> MARGIN
+[ERROR] [1792021112.685078257] [reach_dwell_probe]: TABRAKAN ANTAR-LENGAN: rencana DITOLAK SEBELUM GERAK -- 3.0 mm di titik 79 antara t2_a1_g63_board_0 dan t2_a2_forearm_link_0, di bawah margin 50 mm. MoveIt menilai rencana ini SAH karena pasangan itu dimatikan di SRDF.
+[INFO] [1792021112.686190809] [reach_dwell_probe]: percobaan rencana 7/8: yang sebelumnya INTERARM-COLLIDE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792021112.838387905] [reach_dwell_probe]: ujung rencana vs target: 2.64 mm, sumbu 0.35 deg
+[INFO] [1792021112.841973936] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.16->6.76/10, 2=4.67->12.37/14, 3=2.19->8.79/10, 4=0.29->2.27/7, 5=0.05->2.03/7, 6=0.02->2.00/7  (terketat t2_a1_joint_2 88 %)
+[INFO] [1792021114.060946668] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 3.0 mm di titik 79 (t2_a1_g63_board_0 <-> t2_a2_forearm_link_0) -> MARGIN
+[ERROR] [1792021114.062003051] [reach_dwell_probe]: TABRAKAN ANTAR-LENGAN: rencana DITOLAK SEBELUM GERAK -- 3.0 mm di titik 79 antara t2_a1_g63_board_0 dan t2_a2_forearm_link_0, di bawah margin 50 mm. MoveIt menilai rencana ini SAH karena pasangan itu dimatikan di SRDF.
+[INFO] [1792021114.063103717] [reach_dwell_probe]: percobaan rencana 8/8: yang sebelumnya INTERARM-COLLIDE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792021114.180641649] [reach_dwell_probe]: ujung rencana vs target: 1.40 mm, sumbu 0.21 deg
+[INFO] [1792021114.184055729] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.17->6.77/10, 2=4.71->12.41/14, 3=2.20->8.80/10, 4=0.29->2.27/7, 5=0.05->2.03/7, 6=0.02->2.00/7  (terketat t2_a1_joint_2 89 %)
+[INFO] [1792021115.421765767] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 2.4 mm di titik 79 (t2_a1_g63_board_0 <-> t2_a2_forearm_link_0) -> MARGIN
+[ERROR] [1792021115.422799113] [reach_dwell_probe]: TABRAKAN ANTAR-LENGAN: rencana DITOLAK SEBELUM GERAK -- 2.4 mm di titik 79 antara t2_a1_g63_board_0 dan t2_a2_forearm_link_0, di bawah margin 50 mm. MoveIt menilai rencana ini SAH karena pasangan itu dimatikan di SRDF.

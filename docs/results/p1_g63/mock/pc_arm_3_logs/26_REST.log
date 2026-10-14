@@ -1,0 +1,17 @@
+G63: penyaring memakai /tmp/claude-1001/-home-user1-Documents-ceiling-arm/25411a7a-10de-41cf-ba26-f076992cf4b5/scratchpad/g63_payload_mock.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}, 'B': {'interarm': True, 'cross': True, 'env': True}}
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_3 (0.40209190301473485, -0.2935824756837532, 0.9557453410236346), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+  [ 1] DRY arm_3: p_cmd = (+0.402, -0.294, +0.956)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> mock/pc_arm_3_logs/26_REST.json
+[INFO] [1792021820.727795772] [reach_dwell_probe]: ujung rencana vs target: 1.26 mm, sumbu 0.01 deg
+[INFO] [1792021820.730124842] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.05->6.65/10, 2=0.37->8.07/14, 3=2.09->8.69/10, 4=0.30->2.28/7, 5=0.08->2.06/7, 6=0.02->2.00/7  (terketat t2_a1_joint_3 87 %)
+[INFO] [1792021829.305040782] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 414.8 mm di titik 41 (t1_a2_g63_board_0 <-> t2_a1_g63_board_0) -> CLEAR
+[INFO] [1792021829.308042696] [reach_dwell_probe]: G63: papan terpasang di scene {'g63_board_A': 't1_a2_right_finger_prox_link', 'g63_board_B': 't2_a1_right_finger_prox_link'}
+[INFO] [1792021830.604157711] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 94.4 mm di titik 0 (t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792021831.643396999] [reach_dwell_probe]: CAM-6DOF margin: t2_a1_joint_3 86.909786% (batas 97%)
