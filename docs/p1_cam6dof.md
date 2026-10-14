@@ -371,3 +371,13 @@ Arm_3 menahan F5, lengan lain REST, gantry tetap; belum izin F3/F7/pulang. Berik
 Plan-only --plan-check tanpa --move selesai rc0 (`from_F5_to_F3_plan.json/.log`): **DRY/PLANNED percobaan1**, penjaga97% j3 **91.206818%**. Interarm508.3 mm/env115.3 mm; retract se508.8/antar759.0/env115.3 mm seluruhnya CLEAR. Semua saringan tetap. Tidak ada eksekusi, target monitorF3 bukan bukti gerak.
 
 Arm_3 tetapF5, tanda lantai z0/untingaman dikonfirmasi. Belum izinF3/F7/pulang; berikut meminta **GERAK #5 F5→F3=(0.25,−0.60,1.22) tool-bawah saja**. Rencana aktual akan disaring ulang≤97%; kemudian verifikasi MOVED/SUCCESS/TCP≤5 mm/torsi≤14 sebelum label dan tinggi dasarF3. F3 tetap UJI-TAHAN rgbd, tidak masukfit/modelchoice. Amendemen penyangga belumdikunci dan belum data botollantai.
+
+**Izin gerak #5 diterima:** “Izinkan arm_3 F5→F3 saja”. Izin hanya F3, tidak mencakup F7/pulang. Pemeriksaan log/TCP pasif sebelum gerak tersimpan `health_before_F3.json`/`tcp_before_F3.log`; rencana aktual disaring ulang97% dan batas torsiukur14.
+
+### B28. GERAK HW #5 arm_3 F5→F3 — MOVED/SUCCESS
+
+Izin operator “Izinkan arm_3 F5→F3 saja”; satu command, supervisor874017/probe874018 selesai rc0 (`move_F3_job/exit.json`, `move_F3.log/.json`). Tiga lintasan awal TORQUE-UNSAFE ditolak sebelum eksekusi; lintasan4 PLANNED, penjaga97% j3 **91.176809%**. Interarm517.8 mm/env115.3 mm; retract se518.3/antar757.2/env115.3 mm CLEAR. GerakMOVED,dwellSUCCESS2 s,41 sampel@20 Hz,posmaks4.23 mm/settled2.54 mm,orimaks0.52°. Torsi puncak **10.673 N·m**,≤14 dan≤13.
+
+TCP3 s,n91 **(0.2513,−0.5991,1.2185) m**,std0.12/0.18/0.22 mm,galat **2.179 mm** (`tcp_F3.log`, `mark_F3.json`). Audit seluruh30.45 s job:85260baris,cakupan≤7 ms,puncak10.6732 N·m j2; rentang rel/rot0,lengan lainmaks0.004870°. Effort lengan finite; rel/rot effortNaN3045 per sendi dicatat kanal tidak tersedia. Log eksekusi menunjukkan SUCCEEDED, tidak ada FAULT/REJECTED/TORQUE-ABORT/NOTarmed pada jendela gerak (`health_after_F3.json`); sebelum commandTCP masihF5galat2.449 mm dan tidak ada fault baru (`health_before_F3.json`). C6 langkah5lulus; D597belumfinal sampaiF7/pulang dan data lengkap.
+
+**Keadaan:** arm_3 menahanF3 (BUKAN REST),lengan lainREST,gantrytetap. Tanda/tinggi dasarF3 belum dikonfirmasi, actualxy belum dimasukkan ke plan sampai operator label; F3 tetap UJI-TAHAN rgbd, tidak dipakai fit/LOO. Belum izinF7/pulang. Berikut operator tandauntingF3,konfirmasi permukaan/tinggi(±2 mm bila penyangga),untingaman; lalu plan-checkF7 dariF3 sebelum izin satu langkah. Draf amendemenBASE/D140/CD245 belumdikunci,alasF3/F7 dan susunanstack belumlengkap; belum botollantai/fit. Stack/kamera/localizer/monitor/perekam hidup.
