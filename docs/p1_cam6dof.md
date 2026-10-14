@@ -196,3 +196,13 @@ C3 adalah UJI-TAHAN: tidak masuk fit/inisialisasi/LOO/model-selection. Ini evalu
 Operator siap C3 di box C100 mm. Rekaman15 s per kamera, kedua rc0: rgbd28 pesan tanpa track; rgbd2 26 pesan, satu track tid0 berkelas bottle, label terakhir **blue bottle** (sebelumnya white), conf median0.68. Selektor terkunci `label contains bottle` + radius0.35 m tidak berubah; warna bukan dasar pergantian objek, botol fisik sesuai instruksi tetap botol putih yang sama. Tidak ada saingan. Median=(2.0206,0.7611,0.9101) m, |dxy|=0.1908 m; sebaran p5–p95 xy11/9 mm. Permukaan0.870, centroid model z=0.9164, dz=-0.0063 m. Bukti `tracks_inc/C3_TC_*`.
 
 C3 tetap UJI-TAHAN, tidak masuk fit/LOO. Warna label berubah diungkapkan, bukan alasan mengganti data/model. NOL gerak HW, default launch tetap; stack/localizer hidup. Berikut C3/TD: box D140 mm mengganti C (tidak ditumpuk), menunggu operator siap.
+
+Koreksi komunikasi C3/TC: commentary awal menyebut18.8 cm; hasil numerik `C3_TC_summary.json` adalah0.190807 m (**19.1 cm**). Data mentah/JSON tidak berubah, angka terhitung yang dipakai.
+
+### B8. Botol incumbent meja — penempatan3/18 C3/TD, anomali z
+
+Operator mengonfirmasi C3 pada box D140 mm, tidak ditumpuk. Rekaman15 s/kamera, kedua rc0: rgbd28 pesan tanpa track; rgbd2 29 pesan, track lokal tunggal white bottle tid70 n29, median(2.0226,0.7514,0.9082) m. |dxy|=0.1886 m, z model=0.9546 m, **dz=-0.0464 m**. P5–p95 xy24/22 mm, **z96 mm**, conf median0.312 (TC0.6755); empat track lain jauh dari tanda, tidak ada saingan≤0.35 m. Selector/model/bobot tidak berubah. Semua track mentah disimpan termasuk deteksi jauh.
+
+Anomali: median z TC0.9101→TD0.9082 padahal permukaan naik40 mm. Deteksi tidak stabil, berbeda dari T0/TC. Citra RGB dan overlay terbit ditangkap sesudah rekaman (`C3_TD_rgb.png`, `C3_TD_debug.png`) untuk diagnosis penempatan/mask; gambar bukan frame persis setiap observasi. Belum dapat mengatribusi pada depth/extrinsik/model centroid vs mask penyangga/penempatan. Operator diminta mengonfirmasi botol tetap7 cm dan box D14 cm tanpa tumpukan, biarkan posisi dulu. Tidak mengubah parameter detektor/model dari titik UJI-TAHAN, tidak membuang data, tidak memilih ulang sampel yang lebih baik. C3 tetap tidak masuk FIT/LOO.
+
+Penyampaian awal “sekitar−4.8 cm” dipertegas hasil model−4.64 cm; angka terhitung dipakai. Ini botol incumbent; belum C2 kandidat hidup. D590 belum dinilai sampai semua tanda/tinggi lengkap. NOL gerak HW, stack/localizer hidup; penempatan berikut C6/T0 menunggu diagnosis fisik C3/TD.

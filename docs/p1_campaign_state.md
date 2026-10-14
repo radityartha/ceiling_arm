@@ -132,7 +132,7 @@ melanjutkan pemeriksaan, pemulihan dan penutupan; tidak disembunyikan.
 
 G61 selesai (terpisah dari CAM-6DOF): sesi runner berikut mengikuti `docs/p1_g62_hw_prompt.md`, model kuat effort high; setiap gerak HW menunggu izin operator per langkah.
 
-Sesi CAM-6DOF HW AKTIF: gerbang, bring-up, K0, baseline REST×3, capture, K4, keenam plan-check HW dan kunci§A sudah selesai; jangan ulang. Stack+dua localizer terisolasi masih hidup. Berikut: penempatan1–2/18 C3/T0 dan C3/TC selesai; menunggu operator siap C3/TD (box D140 mm mengganti C), lalu rekam15 s kedua kamera dan lanjut meja sesuai§A terkunci; setiap gerak penunjuk/pulang nanti tetap izin satu langkah, model kuat effort high.
+Sesi CAM-6DOF HW AKTIF: gerbang, bring-up, K0, baseline REST×3, capture, K4, keenam plan-check HW dan kunci§A sudah selesai; jangan ulang. Stack+dua localizer terisolasi masih hidup. Berikut: penempatan1–3/18 C3/T0/TC/TD selesai; C3/TD anomali z−4.64 cm dan sebaranz96 mm, menunggu konfirmasi fisik botol7 cm/boxD14 cm tanpa tumpukan sebelum lanjut C6/T0; setiap gerak penunjuk/pulang nanti tetap izin satu langkah, model kuat effort high.
 
 ### Checkpoint CAM-6DOF 2026-10-14 (pra-bring-up)
 
@@ -153,4 +153,8 @@ CAM-6DOF localizer terisolasi aktif sesudah kunci commit d081044 (PID804824/8048
 
 CAM-6DOF botol1/18 selesai C3/T0: rgbd2 satu white bottle, median(2.0269,0.7546,0.8072), galatxy19.4 cm, sebaran6/4 mm;rgbd tanpa track (zona di luar FOV). C3 UJI-TAHAN tidak dipakai fit/LOO. Stack+localizer hidup, nol gerak. Langkah berikut menunggu C3/TC siap (box C100 mm), lalu rekam15 s kedua kamera.
 
-CAM-6DOF botol2/18 selesai C3/TC: rgbd2 satu track bottle tid0,label blue,median(2.0206,0.7611,0.9101),galatxy18.8 cm,sebaran11/9 mm;rgbd tanpa track. Selektor bottle/radius tidak berubah;C3 UJI-TAHAN tidak dipakai fit/LOO. Stack/localizer hidup,nol gerak. Berikut C3/TD box D140 mm tanpa ditumpuk,menunggu siap.
+CAM-6DOF botol2/18 selesai C3/TC: rgbd2 satu track bottle tid0,label blue,median(2.0206,0.7611,0.9101),galatxy19.1 cm,sebaran11/9 mm;rgbd tanpa track. Selektor bottle/radius tidak berubah;C3 UJI-TAHAN tidak dipakai fit/LOO. Stack/localizer hidup,nol gerak. Berikut C3/TD box D140 mm tanpa ditumpuk,menunggu siap.
+
+Koreksi penyampaian angka C3/TC: hasil terhitung0.190807 m=19.1 cm, bukan18.8 cm; JSON dan data mentah sudah benar, tidak diubah.
+
+CAM-6DOF botol3/18 C3/TD selesai: rgbd2 lokal satu white bottle tid70,n29,median(2.0226,0.7514,0.9082),galatxy18.9 cm,dz−4.64 cm,sebaranz96 mm,conf0.312. Data/mask mentah tidak dibuang atau diubah;C3 UJI-TAHAN bukan FIT. FotoRGB/overlaydisimpan;operator diminta konfirmasi fisik botol7 cm di boxD14 cm,tanpa tumpukan. Stack/localizer hidup,nol gerak;menunggu diagnosis sebelum C6/T0.
