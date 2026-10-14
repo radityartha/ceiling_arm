@@ -801,3 +801,14 @@ Watch pertama berakhir sebelum camera-stop, sehingga tidak cukup untuk membuktik
 Track F5/D masih z≈0.051–0.057<surf0.140, jadi mask/depth/centroid belum selesai dan **kalibrasi/DEMO-HW tetap belum diterima**. Tidak fit ulang atau memakai holdout untuk tuning, tidak mengubah TF/scale/default launch. Papan harfiah B58 tetap D590✗/D591✗/D592✗/D593—/D594—/D595✗/D596—/D597✓/D598✗;1✓/5✗,3 tidak dijalankan. Hanya rgbd2 salah tidak didukung data pipeline; penyebab fisik belum terisolasi.
 
 Shutdown SIGINT hanya root952733/localizer952734/952736 terverifikasi; camera restart954757 sudah diberi SIGINT terkontrol. Semua15 PID tercatat absen, zombie/staticTF0, domain0/79 kosong/rc0; log menunjukkan double-rcl_shutdown pada finalisasi Python, tanpa SIGKILL pada sesi ini. Bukti `freshness_live/shutdown_verified.json`. REST/PARK dikonfirmasi operator; **K0 terukur baru tidak dijalankan** karena controller tetap mati, K0 terakhir penutupan CAM. Arsip kecil+SHA, raw NPZ lama tetap lokal/tidakgit, berkas sesi lain tidak disentuh. Anggaran4.000 token/tugas CLAUDE terlampaui pada rangkaian ini. Model kuat effort high; M6 tetap utama bila FIT sah. Langkah berikut: isolasi mask/depth dari bukti FIT sebelum mengunci kampanye pengukuran baru, bukan mengulang fix freshness atau G61/G62.
+
+### B64. Diagnosis luring F5/D 2026-10-15 — depth rgbd berkedip, botol bias +8 cm, ray-plane
+
+Luring saja dari 70 snapshot arsip B61; NOL kamera/stack/gerak. Protokol dikunci dulu (`results/p1_cam6dof/diagnosis_20261015_offline/A_locked.md`, sha `ae080482…`, commit b870cf9). Laporan: `results/p1_cam6dof/diagnosis_20261015_offline/report.md`.
+
+1. **Depth rgbd berkedip per frame** (≈70 % ↔ 0–1 %, frame antara hanya area bertekstur); rgbd2 konstan 78 % (21/21). Bukan pita USB, tidak pulih saat rgbd2 mati → dugaan emitter IR mati/lemah/bergantian; launch tidak menyetel opsi emitter. Penyebab pasti butuh cek kamera hidup pasif.
+2. **Permukaan botol +8.4 cm lebih jauh** (rgbd2 IQR 0.8 cm, piksel interior; rgbd +8.1…+8.9 cm) di kedua kamera, sedangkan lantai pada jarak sama ≤ ~2 cm → bias material botol; centroid depth botol tergeser sepanjang sinar. Bersama mask penyangga (B61), botol+depth tidak layak sebagai alat ukur kalibrasi.
+3. **Ray-plane RGB saja rgbd2 0.22 cm**; rgbd 5.17 cm (= M-base 4.99) → galat rgbd di F5 di ekstrinsik/geometri RGB.
+4. Lantai: tilt 1.9–2.7°, rasio rgbd2 naik 1.001 → 1.072 (1.5–5 m); pitch vs bias disparitas tidak terpisah dari satu bidang.
+
+Papan harfiah **D600✓ (tafsiran salah: kedipan, bukan statis) / D601✓ (tipis 1.0324) / D602✗ / D603✗ / D604✓ (tidak informatif) = 3✓/2✗**. Penyimpangan: OOM `svd full_matrices` rc 137 diperbaiki dan diulang; analisis tambahan di luar §A ditandai. Kalibrasi/DEMO-HW tetap belum diterima; raw/skor kampanye lama, TF, launch, kode produksi tidak berubah.
