@@ -187,3 +187,4 @@ CAM-6DOF checkpoint meja 15/18: N1_TD disimpan; berikut N2/T0 (botol langsung di
 C1 CAM-6DOF rgbd2 belum terpenuhi: FIT N1/T0 kosong,TC tunggal,TD3 ID kandidat lokal/putus-putus. Saingan tidak digabung/dibuang dan titik tidak diganti; numerik tidak boleh disebut kandidat sah tanpa gerbang. RGBD lantai tetap belum dinilai. Menunggu N2/T0 siap;stack/localizer hidup,nol gerak.
 
 CAM-6DOF checkpoint meja 16/18: N2_T0 disimpan; berikut N2/TC (box C100 mm), menunggu operator siap. C3/TD anomali dipertahankan. §A/model/selektor tetap, stack/localizer hidup, nol gerak HW.
+CAM-6DOF kesiapan penunjuk: wrapper sesi `harness/probe_cam6dof.py` menegakkan>97% pada rencana yang benar-benar akan dieksekusi (probe bersama hanya menolak>100%); semua saringan/model/offset/batas14 tetap.5 kontrol unit lulus dan--help lolos;plan-only wrapper hidup belum diperiksa. Ini bukan izin gerak. Menunggu N2/TC siap,meja16/18,nol gerak,stack/localizer hidup.

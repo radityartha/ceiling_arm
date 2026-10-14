@@ -1,0 +1,109 @@
+usage: probe_cam6dof.py [-h] [--arm {arm_1,arm_2,arm_3,arm_4}]
+                        [--trials TRIALS] [--approach APPROACH]
+                        [--tau-max TAU_MAX] [--settle SETTLE] [--topic TOPIC]
+                        [--target X,Y,Z] [--move] [--plan-check] [--dual]
+                        [--plan-attempts PLAN_ATTEMPTS] [--target2 X,Y,Z]
+                        [--arms {arm_1,arm_2,arm_3,arm_4} [{arm_1,arm_2,arm_3,arm_4} ...]]
+                        [--quad] [--target3 X,Y,Z] [--target4 X,Y,Z]
+                        [--monitor-csv MONITOR_CSV] [--goal-joints JSON]
+                        [--start-joints JSON] [--goal-tol-deg GOAL_TOL_DEG]
+                        [--out-json OUT_JSON] [--reserve-dir RESERVE_DIR]
+
+p1_state.md 8c STEP 2: one arm, reach-and-dwell to a PERCEIVED target.
+
+docs/p1_g16_hw.md A8. This is the COMMANDER. It is deliberately a separate
+process from reach_dwell_monitor, which is the SCORER, because whatever scores
+success must not also choose the candidates -- otherwise the criterion drifts
+toward the result. The monitor commands nothing; this commands and scores
+nothing.
+
+The contract between them, and the reason the ordering matters:
+
+    1. perceive          -> p_perceived        (from /target_object, or --target)
+    2. choose            -> p_cmd              (perceived + approach offset)
+    3. PUBLISH p_cmd to /reach_dwell/target/<arm>   <-- BEFORE any motion
+    4. command MoveIt to p_cmd
+    5. the monitor independently scores  ||p_tool - p_cmd|| and the 2.0 s dwell
+
+Step 3 must precede step 4 so the monitor scores the pose that was actually
+COMMANDED. Publishing the PERCEIVED pose instead would silently fold perception
+error (L3, 3-5 cm) into the execution criterion (L2, < 5 mm) and make the
+success number meaningless -- that is exactly the confusion p1_g4 A2 exists to
+prevent. L3 is reported by this script, separately, and is NOT part of success.
+
+SAFETY (docs/p1_g16_hw.md A6). Read-only unless --move is typed on purpose:
+  * default is a DRY RUN: it perceives, computes p_cmd, publishes the target,
+    and prints the plan -- but sends no trajectory.
+  * it REFUSES to command the tuck pose [0, 2.6, 2.6, 0, 0, 0]; that draws
+    12.78 of 14 N.m and is a fake-system artefact, not a real rest pose.
+  * it aborts on any joint effort above --tau-max.
+  * the rest pose is HANGING.
+
+NOTE ON THE PERCEPTION SOURCE. /detected_object_pose does NOT exist in this
+checkout: it comes from lidar_filter.py, which needs livox_ros_driver2, and that
+source tree is empty (there is no .gitmodules). What exists is the RGBD chain
+ending in /target_object. And because the locked criterion scores COMMANDED ->
+ACHIEVED, a hand-given --target measures exactly the same thing with the cameras
+and the segmentation model taken out of the failure surface -- which is what day
+one should do, so that a failure can actually be attributed.
+
+    # day one: no perception at all, measures the same L2
+    python3 scripts/reach_dwell_probe.py --arm arm_1 --target 0.9,0.3,1.2
+    # once the RGBD chain is up
+    python3 scripts/reach_dwell_probe.py --arm arm_1 --trials 10 --move
+
+options:
+  -h, --help            show this help message and exit
+  --arm {arm_1,arm_2,arm_3,arm_4}
+  --trials TRIALS       A2: dikunci 10; ubah hanya kalau A2 diubah dulu
+  --approach APPROACH   offset approach di atas objek terpersepsi (m)
+  --tau-max TAU_MAX     A6/S3 batas torsi abort (N.m); tuck = 12.78/14
+  --settle SETTLE       detik menunggu monitor per percobaan
+  --topic TOPIC         topik pose terpersepsi (default /target_object;
+                        /detected_object_pose BUTUH livox yang TIDAK ADA)
+  --target X,Y,Z        pose tetap di frame world, lewati persepsi sama
+                        sekali. Mengukur L2 yang SAMA; pakai ini hari pertama
+  --move                A6/S7: BENAR-BENAR menggerakkan lengan. Tanpa ini
+                        skrip DRY RUN.
+  --plan-check          saat DRY RUN, tetap MINTA rencana ke MoveIt (tanpa
+                        mengeksekusi) supaya NO-PLAN terpisah dari terjangkau-
+                        tapi-belum-dicoba
+  --dual                LANGKAH 3: arm_1 + arm_2 pada gantry_1, dinilai pada
+                        jendela dwell BERSAMA (A1 N-lengan), bukan pada sukses
+                        masing-masing
+  --plan-attempts PLAN_ATTEMPTS
+                        B1.9: vonis torsi bergantung lintasan yang kebetulan
+                        ditemukan OMPL (8/10 pada satu pose marginal). Minta
+                        sampai N lintasan; TIAP rencana tetap disaring penuh,
+                        dan hanya yang lolos SEMUA saringan dieksekusi.
+  --target2 X,Y,Z       target arm_2 untuk --dual; ambil dari
+                        scripts/dual_arm_targets.py, jangan dikarang
+  --arms {arm_1,arm_2,arm_3,arm_4} [{arm_1,arm_2,arm_3,arm_4} ...]
+                        LANGKAH 5 (docs/p1_g20_hw.md): lengan-lengan ini,
+                        berurutan, dinilai pada SATU jendela 2.0 s bersama;
+                        --target, --target2, ... sesuai urutan. TIAP rencana
+                        disaring terhadap KETIGA lengan lain (dua gantry)
+  --quad                = --arms arm_1 arm_2 arm_3 arm_4
+  --target3 X,Y,Z       target lengan ke-3
+  --target4 X,Y,Z       target lengan ke-4
+  --monitor-csv MONITOR_CSV
+                        <csv_log>_samples.csv milik reach_dwell_monitor.
+                        Dibutuhkan untuk membedakan REACHED-NOT-HELD dari
+                        EXEC-MISS: monitor TIDAK menerbitkan status per-sampel
+  --goal-joints JSON    G42: {sendi: rad} tujuan SENDI (tepat 6 sendi tiap
+                        lengan --arms); --target tetap dinilai monitor, GOAL-
+                        MISMATCH bila ujung > 3 mm / 2 deg darinya
+  --start-joints JSON   G42: keadaan awal TERTEMPAT {sendi: rad}; hanya DRY
+                        (--plan-check, tanpa --move)
+  --goal-tol-deg GOAL_TOL_DEG
+                        G47: toleransi tujuan SENDI tugas (--goal-joints),
+                        deg; retract REST tetap 0.2
+  --out-json OUT_JSON   G54: berkas hasil percobaan (bawaan
+                        /tmp/g20_step5.json dst.); runner paralel memberi satu
+                        per probe supaya dua probe bersamaan tidak saling
+                        menimpa
+  --reserve-dir RESERVE_DIR
+                        G54: direktori reservasi runner paralel; rencana
+                        disaring vs reservasi gantry lain sebelum gerak
+                        (RESERVE-BLOCKED = tidak bergerak). Tanpa = perilaku
+                        lama
