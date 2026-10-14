@@ -1,0 +1,22 @@
+probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_3 (0.25, -0.5, 1.22), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1791954056.847704974] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=1.35->9.05/14, 3=2.55->9.15/10, 4=0.46->2.44/7, 5=0.13->2.11/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 92 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1791954069.991034817] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 418.5 mm di titik 65 (t2_a1_left_finger_dist_link_0 <-> t2_a2_upper_wrist_link_0) -> CLEAR
+[INFO] [1791954071.614620592] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 115.3 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791954072.654725566] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.001):
+[INFO] [1791954074.586648367] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 416.5 mm di titik 28/60 (t2_a1_left_finger_dist_link_0 <-> t2_a2_upper_wrist_link_0)
+[INFO] [1791954074.587986370] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 860.9 mm di titik 59/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791954074.589056341] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 115.3 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+[INFO] [1791954074.591630981] [reach_dwell_probe]: CAM-6DOF margin: t2_a1_joint_3 91.515705% (batas 97%)
+       arm_3: moveit MOVED  (percobaan rencana: ['PLANNED'])
+  [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_3']) torsi puncak  5.62 N.m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> docs/results/p1_cam6dof/hw_20261014/move_F1.json
+F1 JOB COMPLETE rc 0

@@ -16,8 +16,8 @@
   "label": "bottle",
   "marks": {
     "F1": [
-      0.25,
-      -0.5
+      0.2512,
+      -0.4998
     ],
     "F6": [
       0.4,
@@ -140,5 +140,16 @@
       "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_LB_rgbd.jsonl"
     }
   ],
-  "note": "Locked roles/heights; floor coordinates NOMINAL until actual TCP recorded before floor bottle. No FIT/HOLDOUT reassignment."
+  "note": "Locked roles/heights; floor coordinates NOMINAL until actual TCP recorded before floor bottle. No FIT/HOLDOUT reassignment.",
+  "actual_floor_marks": {
+    "F1": {
+      "tcp": [
+        0.2512,
+        -0.4998,
+        1.2204
+      ],
+      "source": "mark_F1.json",
+      "operator_confirmed": true
+    }
+  }
 }
