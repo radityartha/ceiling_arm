@@ -12,7 +12,7 @@ Permintaan operator sesudah data incumbent meja18/18 dan gerak penunjuk1–3, te
 - C100 mm, atas95×70 mm; D140 mm, atas92×50 mm: terukur±2 mm. Data meja tetap T0/TC/TD=0.770/0.870/0.910 m, tanpa tumpukan.
 - Tumpukan C+D **245 mm terukur±2 mm**, stabil/rata dengan botol. Nilai245 dipakai, bukan penjumlahan nominal240. **Urutan bawah/atas belum dijawab**; harus dicatat dan mempertahankan susunan terukur yang sama sebelum capture pertama dengan tumpukan.
 - Lantai: tiga tingkat **BASE** (botol langsung permukaan dasar tanda), **D** (box D140), **CD** (tumpukan245). C individual tidak menambah tingkat keempat.
-- z world permukaan = z dasar tanda + tinggi penyangga. F4/F6 pada penyangga tetap yang sama **0.070 m±0.002**, kuat menahan C/D; BASE/D/CD=0.070/0.210/0.315 m. F1 sudah dikonfirmasi lantai, BASE/D/CD=0/0.140/0.245. F5/F3/F7 **belum diketahui**. Semua permukaan baru harus diverifikasi sebelum kunci; bila bukan lantai, tinggi dasar diukur±2 mm.
+- z world permukaan = z dasar tanda + tinggi penyangga. F4/F6 pada penyangga tetap yang sama **0.070 m±0.002**, kuat menahan C/D; BASE/D/CD=0.070/0.210/0.315 m. F1 sudah dikonfirmasi lantai, BASE/D/CD=0/0.140/0.245. F5 langsung lantai z0 dikonfirmasi; F3/F7 **belum diketahui**. Semua permukaan baru harus diverifikasi sebelum kunci; bila bukan lantai, tinggi dasar diukur±2 mm.
 - Posisi pusat alas botol tepat di atas xy tanda. Box/stack tidak digeser mengikuti deteksi kamera. D top lebih sempit5 mm per sisi dari diameter botol; hanya gunakan penempatan yang operator pastikan tegak/stabil. Jika tidak stabil/terhalang, missing dicatat, tidak mengubah posisi/peran atau memakai z palsu.
 - Box kecil hanya masuk area penunjuk sesudah arm_3/4 kembali REST dan K0 lulus; setiap gerak termasuk pulang tetap memerlukan izin satu langkah.
 
@@ -21,7 +21,7 @@ Permintaan operator sesudah data incumbent meja18/18 dan gerak penunjuk1–3, te
 | F1 | 0.2512,−0.4998 | 0 | 0 /0.140 /0.245 | FIT | tidak dipakai |
 | F6 | 0.3998,−0.6998 | 0.070 | 0.070 /0.210 /0.315 | FIT | tidak dipakai |
 | F4 | 0.5491,−0.6003 | 0.070 | 0.070 /0.210 /0.315 | FIT | FIT dua tingkat terangkat D/CD |
-| F5 | BELUM, nominal0.65,−0.48 | BELUM | BELUM | FIT | FIT tiga tingkat |
+| F5 | 0.6497,−0.4779 | 0 | 0 /0.140 /0.245 | FIT | FIT tiga tingkat |
 | F3 | BELUM, nominal0.25,−0.60 | BELUM | BELUM | UJI-TAHAN | tidak dipakai |
 | F7 | BELUM, nominal0.65,−0.58 | BELUM | BELUM | UJI-TAHAN | UJI-TAHAN + kesepakatan kamera |
 
