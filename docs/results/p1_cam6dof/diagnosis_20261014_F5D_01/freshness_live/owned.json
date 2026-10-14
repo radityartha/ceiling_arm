@@ -1,0 +1,86 @@
+{
+  "952736": {
+    "ppid": 1,
+    "ticks": "28055619",
+    "uid": 1001,
+    "cmd": "/usr/bin/python3 /home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/object_localizer --ros-args -r __node:=loc_rgbd2 -r /rgbd2/instance_segmentation:=/rgbd2/seg/instance_segmentation -r /rgbd2/instance_segmentation_labels:=/rgbd2/seg/instance_segmentation_labels -r /rgbd2/instance_segmentation_conf:=/rgbd2/seg/instance_segmentation_conf -r /detected_objects:=/loc_rgbd2/detected_objects -r /detected_objects/tracks:=/loc_rgbd2/tracks -r /target_object:=/loc_rgbd2/target_object -r /detected_objects/markers:=/loc_rgbd2/markers -r /target_collision_boxes:=/loc_rgbd2/target_collision_boxes -r /grasp_target:=/loc_rgbd2/grasp_target -p camera_namespaces:=['rgbd2']"
+  },
+  "952838": {
+    "ppid": 952733,
+    "ticks": "28055690",
+    "uid": 1001,
+    "cmd": "/opt/ros/humble/lib/realsense2_camera/realsense2_camera_node --ros-args -r __node:=rgbd -r __ns:=/rgbd --params-file /tmp/launch_params_1qays17w"
+  },
+  "952840": {
+    "ppid": 952733,
+    "ticks": "28055690",
+    "uid": 1001,
+    "cmd": "/opt/ros/humble/lib/depth_image_proc/convert_metric_node --ros-args -r __node:=rgbd_convert_metric -r image_raw:=/rgbd/rgbd/aligned_depth_to_color/image_raw -r image:=/rgbd/depth"
+  },
+  "952842": {
+    "ppid": 952733,
+    "ticks": "28055690",
+    "uid": 1001,
+    "cmd": "/opt/ros/humble/lib/topic_tools/relay /rgbd/rgbd/color/image_raw /rgbd/rgb --ros-args -r __node:=rgbd_relay_rgb"
+  },
+  "952844": {
+    "ppid": 952733,
+    "ticks": "28055690",
+    "uid": 1001,
+    "cmd": "/opt/ros/humble/lib/topic_tools/relay /rgbd/rgbd/color/camera_info /rgbd/camera_info --ros-args -r __node:=rgbd_relay_info"
+  },
+  "952846": {
+    "ppid": 952733,
+    "ticks": "28055690",
+    "uid": 1001,
+    "cmd": "/opt/ros/humble/lib/tf2_ros/static_transform_publisher --x 1.7166 --y 0.8656 --z 2.0782 --roll -2.3436 --pitch -0.1488 --yaw 2.1688 --frame-id world --child-frame-id rgbd_camera_optical --ros-args -r __node:=rgbd_world_tf"
+  },
+  "952848": {
+    "ppid": 952733,
+    "ticks": "28055690",
+    "uid": 1001,
+    "cmd": "/opt/ros/humble/lib/realsense2_camera/realsense2_camera_node --ros-args -r __node:=rgbd2 -r __ns:=/rgbd2 --params-file /tmp/launch_params_c6m70nri"
+  },
+  "952850": {
+    "ppid": 952733,
+    "ticks": "28055690",
+    "uid": 1001,
+    "cmd": "/opt/ros/humble/lib/depth_image_proc/convert_metric_node --ros-args -r __node:=rgbd2_convert_metric -r image_raw:=/rgbd2/rgbd2/aligned_depth_to_color/image_raw -r image:=/rgbd2/depth"
+  },
+  "952852": {
+    "ppid": 952733,
+    "ticks": "28055690",
+    "uid": 1001,
+    "cmd": "/opt/ros/humble/lib/topic_tools/relay /rgbd2/rgbd2/color/image_raw /rgbd2/rgb --ros-args -r __node:=rgbd2_relay_rgb"
+  },
+  "952854": {
+    "ppid": 952733,
+    "ticks": "28055690",
+    "uid": 1001,
+    "cmd": "/opt/ros/humble/lib/topic_tools/relay /rgbd2/rgbd2/color/camera_info /rgbd2/camera_info --ros-args -r __node:=rgbd2_relay_info"
+  },
+  "952856": {
+    "ppid": 952733,
+    "ticks": "28055690",
+    "uid": 1001,
+    "cmd": "/opt/ros/humble/lib/tf2_ros/static_transform_publisher --x -0.1547 --y -1.0197 --z 2.0905 --roll -2.2369 --pitch -0.1285 --yaw -0.9189 --frame-id world --child-frame-id rgbd2_camera_optical --ros-args -r __node:=rgbd2_world_tf"
+  },
+  "952858": {
+    "ppid": 952733,
+    "ticks": "28055690",
+    "uid": 1001,
+    "cmd": "/usr/bin/python3 /home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/seg_router --ros-args -r __node:=seg_router --params-file /tmp/launch_params_bdt9wjsj"
+  },
+  "952733": {
+    "ppid": 1,
+    "ticks": "28055619",
+    "uid": 1001,
+    "cmd": "/usr/bin/python3 /opt/ros/humble/bin/ros2 launch reachability_gng rgbd_perception.launch.py seg_prompts:=bottle with_depth_cloud:=false tf1_x:=1.7166 tf1_y:=0.8656 tf1_z:=2.0782 tf1_roll:=-2.3436 tf1_pitch:=-0.1488 tf1_yaw:=2.1688 tf2_x:=-0.1547 tf2_y:=-1.0197 tf2_z:=2.0905 tf2_roll:=-2.2369 tf2_pitch:=-0.1285 tf2_yaw:=-0.9189 seg_imgsz:=1280"
+  },
+  "952734": {
+    "ppid": 1,
+    "ticks": "28055619",
+    "uid": 1001,
+    "cmd": "/usr/bin/python3 /home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/object_localizer --ros-args -r __node:=loc_rgbd -r /rgbd/instance_segmentation:=/rgbd/seg/instance_segmentation -r /rgbd/instance_segmentation_labels:=/rgbd/seg/instance_segmentation_labels -r /rgbd/instance_segmentation_conf:=/rgbd/seg/instance_segmentation_conf -r /detected_objects:=/loc_rgbd/detected_objects -r /detected_objects/tracks:=/loc_rgbd/tracks -r /target_object:=/loc_rgbd/target_object -r /detected_objects/markers:=/loc_rgbd/markers -r /target_collision_boxes:=/loc_rgbd/target_collision_boxes -r /grasp_target:=/loc_rgbd/grasp_target -p camera_namespaces:=['rgbd']"
+  }
+}

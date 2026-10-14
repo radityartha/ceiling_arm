@@ -54,3 +54,9 @@ Tidak mengubah kodeproduksi, prompts/conf/filter/centroid, argsTF/defaultlaunch/
 Shutdown hanyaPIDcamera/localizer sesi terverifikasi. Reviewizin otomatis pertama timeout sebelum perintahdijalankan; retrysekali berhasil. Kamera/nodeSDK exit, seg_router/localizer menunjukkan pengecualianfinalisasi `rcl_shutdown already called` sesudahSIGINT; dicatat, bukan menyebut semuaexitrc0. `shutdown_verified.json`: ownedactive0/zombie0, domain79/0 kosong. Tidak ada geraknyata, K0terukurbaru **tidak dijalankan** karena controller tetapmati; operator mengonfirmasiREST/PARK, K0terukur terakhir berasal dari penutupan kampanye.
 
 Raw70NPZ≈188MiB tetaplokal dan diabaikan git, metadata/JPEG/plot/JSON/log sertahelperdiagnosis diarsip denganSHA (`manifest.json`). Anggaranper-task4000tokenCLAUDE.md terlampaui pada perekam/diagnosis/penutupan, diungkapkan dalamcheckpoint. Modelagen kuat efforthigh direkomendasikan untukfix validitas danHW; medium–high untukanalisis luring.
+
+## Lanjutan sesudah diagnosis awal: fix dan verifikasi selesai
+
+Bagian di atas melaporkan diagnosis awal commit `b8263d7` sebelum perubahan produksi. Sesudah operator “lanjutkan”, fix freshness commit `c95e7d3` lulus11 regresi luring dan kontrol negatif kode asli. Verifikasi kamera nyata kemudian membuktikan track RGBD2 kosong1.9410 s sesudah frame terakhir dan tetap kosong51 pesan, dengan TTL1.5/periode publikasi0.5 tetap. Kamera/localizer telah ditutup; seluruh PID sesi keluar dan domain0/79 kosong. Bukti, kekurangan rekaman pertama, batas pengujian dan penutupan: [laporan verifikasi lengkap](freshness_live/report.md), fase B62–B63.
+
+**Checkpoint terbaru:** freshness selesai untuk perilaku yang diuji; kontaminasi mask/depth invalid belum selesai. Kalibrasi dan demo belum diterima, raw/score lama tetap. Langkah berikut adalah isolasi mask/depth pada FIT, sebelum kunci kampanye baru; jangan mengulang fix atau memakai holdout untuk tuning.
