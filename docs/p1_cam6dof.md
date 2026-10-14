@@ -343,3 +343,9 @@ Operator mengonfirmasi penyangga tetapF4/F6 **70 mm±2 mm**, tumpukanC+D **245 m
 Pilihan draf lantai: **BASE (tanpa box kecil), D140, CD245**, tiga tingkat dengan rentang terbesar dari penyangga kecil yang tersedia; C100 hanya dipakai dalam tumpukan, tidak menambah tingkat keempat. UntukF4/F6 yang alasz0.070, permukaan world **0.070/0.210/0.315 m**; F1 tanda lantai telah dikonfirmasi sehingga draf0/0.140/0.245. Tinggi dasarF5/F3/F7 belum diketahui: jangan mengasumsikannya0 atau0.070, ukur/konfirmasi pada penandaan sebelum kunci amendemen. RoleFIT/UJI-TAHAN tetap; F4RGBD2 hanya dua tingkat terangkat bila terlihat dan menghasilkan tracktunggal, BASE tidak ditambah keFIT RGBD2 dari pengamatan baru. Semua kriteria/bobot/model/LOO dan data lama tetap. Draf `cam6dof_A_floor_amendment_draft.md`; **belum dikunci**, belum data botolF.
 
 Arm_3 tetapF4,lengan lainREST,gantry tetap; keamananunting/e-stop telahterkonfirmasi. Berikut plan-checkF4→F5=(0.65,−0.48,1.22) tool-bawah, tanpaeksekusi; lalu izin satu langkah jika lulus97% dan saringanlain. Belum izinF5/pulang. §A awal/hash utuh; amendemen akan dikunci sebelum botol lantai setelah semuaalas diketahui/proyeksi diperiksa.
+
+### B24. Plan-check F4→F5 lulus; menunggu izin gerak #4
+
+Plan-only dengan --plan-check tanpa --move,rc0 (`from_F4_to_F5_plan.json/.log`). Lintasan1 j2 116% ditolakTORQUE-UNSAFE sebelumeksekusi; lintasan2 **PLANNED**, penjaga97% j3 **91.179055%**. Interarm693.4 mm/env115.3 mm, retractse623.1/antar721.5/env115.3 mm CLEAR. Penyaring/offset/modeltorsi tetap, tidak ada gerak saat plan-check. Monitor dapat menargetF5, bukan bukti gerak.
+
+Arm_3 tetapF4,untingaman,e-stopdijaga; belum izinF5/pulang. Berikut meminta **GERAK #4 F4→F5=(0.65,−0.48,1.22) tool-bawah saja**; rencana aktual akan disaring ulang. Draf amendemen penyangga tersimpan281fc99,belumdikunci; alasF5/F3/F7 akan dikonfirmasi saat penandaan sebelum datafloor.
