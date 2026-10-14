@@ -1,0 +1,3215 @@
+{
+  "start": 1791978294.8037634,
+  "end": 1791978309.862169,
+  "requested_seconds": 15.0,
+  "counts": {
+    "rgbd/rawdepth": 387,
+    "rgbd/depth": 397,
+    "rgbd/debug": 92,
+    "rgbd/labels": 97,
+    "rgbd/conf": 97,
+    "rgbd/rgb": 183,
+    "rgbd/mask": 96,
+    "rgbd/tracks": 30,
+    "rgbd2/tracks": 30
+  },
+  "frames": [
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978294.7773592,
+      "mask_receipt": 1791978294.9492433,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978294.818924,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978294.6739287,
+        "delta_mask_s": -0.10343050956726074,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978294.7773592,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978294.7773592,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978294.915271
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 732,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_000.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978295.3635178,
+      "mask_receipt": 1791978295.541752,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978295.410118,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978295.260072,
+        "delta_mask_s": -0.10344576835632324,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978295.3635178,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978295.3635178,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978295.5013502
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 16,
+          "valid_depth_pixels": 16,
+          "median_world": [
+            0.5752945329574622,
+            -0.6469377041223842,
+            0.13416289066872844
+          ],
+          "p5_p95_world": [
+            [
+              0.5277285908436614,
+              -0.6668103440987172,
+              0.08311521046512882
+            ],
+            [
+              0.6332036138457315,
+              -0.6041724926799588,
+              0.1822141516806523
+            ]
+          ],
+          "bbox_uv": [
+            419,
+            381,
+            432,
+            386
+          ],
+          "fraction_world_z_below_surface": 0.625,
+          "depth_m_p5_p50_p95": [
+            2.4790000915527344,
+            2.563500165939331,
+            2.635750114917755
+          ]
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1665,
+          "valid_depth_pixels": 1661,
+          "median_world": [
+            0.6719937243907048,
+            -0.5024854317302913,
+            0.10661668227628462
+          ],
+          "p5_p95_world": [
+            [
+              0.6010047434699535,
+              -0.590496956267819,
+              0.01524245514662148
+            ],
+            [
+              0.7246685892666657,
+              -0.4621573292460829,
+              0.2010419699280135
+            ]
+          ],
+          "bbox_uv": [
+            417,
+            382,
+            449,
+            447
+          ],
+          "fraction_world_z_below_surface": 0.7068031306441902,
+          "depth_m_p5_p50_p95": [
+            2.4240000247955322,
+            2.4790000915527344,
+            2.5260000228881836
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_001.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978295.9836757,
+      "mask_receipt": 1791978296.159131,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978296.0325549,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978295.673607,
+        "delta_mask_s": -0.31006860733032227,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978295.9836757,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978295.9836757,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978296.1214867
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 707,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_002.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978296.6037276,
+      "mask_receipt": 1791978296.780167,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978296.6356819,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978296.4315655,
+        "delta_mask_s": -0.17216205596923828,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978296.6037276,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978296.6037276,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978296.7414389
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 16,
+          "valid_depth_pixels": 0
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1563,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_003.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978297.2234147,
+      "mask_receipt": 1791978297.4094398,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978297.2620807,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978297.2578404,
+        "delta_mask_s": 0.03442573547363281,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978297.2234147,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978297.2234147,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978297.361118
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 2,
+          "valid_depth_pixels": 2,
+          "median_world": [
+            0.6505458617477207,
+            -0.5698429087280457,
+            0.23402245895585427
+          ],
+          "p5_p95_world": [
+            [
+              0.6363596849846509,
+              -0.5855579109770858,
+              0.21680251727668542
+            ],
+            [
+              0.6647320385107904,
+              -0.5541279064790056,
+              0.2512424006350231
+            ]
+          ],
+          "bbox_uv": [
+            420,
+            382,
+            421,
+            384
+          ],
+          "fraction_world_z_below_surface": 0.0,
+          "depth_m_p5_p50_p95": [
+            2.3959001302719116,
+            2.4220001697540283,
+            2.448100209236145
+          ]
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1633,
+          "valid_depth_pixels": 1413,
+          "median_world": [
+            0.6909014005879355,
+            -0.4921632882792605,
+            0.11121527671811271
+          ],
+          "p5_p95_world": [
+            [
+              0.6424042164452552,
+              -0.5526401936889122,
+              0.05814851141327573
+            ],
+            [
+              0.737361582186834,
+              -0.42966950613678295,
+              0.2494179712051421
+            ]
+          ],
+          "bbox_uv": [
+            417,
+            382,
+            445,
+            447
+          ],
+          "fraction_world_z_below_surface": 0.5817409766454352,
+          "depth_m_p5_p50_p95": [
+            2.3540000915527344,
+            2.451000213623047,
+            2.4740002155303955
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_004.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978297.8428903,
+      "mask_receipt": 1791978298.014563,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978297.8774388,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978297.705274,
+        "delta_mask_s": -0.13761615753173828,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978297.8428903,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978297.8428903,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978297.9805014
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 717,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_005.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978298.4277027,
+      "mask_receipt": 1791978298.6082222,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978298.4667418,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978298.4964979,
+        "delta_mask_s": 0.06879520416259766,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978298.4277027,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978298.4277027,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978298.5653217
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 4,
+          "valid_depth_pixels": 4,
+          "median_world": [
+            0.6225054705763652,
+            -0.5968864565730463,
+            0.18853345250383136
+          ],
+          "p5_p95_world": [
+            [
+              0.5906343081003808,
+              -0.6107051107685558,
+              0.17560371314195827
+            ],
+            [
+              0.6508745328730507,
+              -0.5779352650113168,
+              0.2133326615287001
+            ]
+          ],
+          "bbox_uv": [
+            419,
+            382,
+            431,
+            386
+          ],
+          "fraction_world_z_below_surface": 0.0,
+          "depth_m_p5_p50_p95": [
+            2.439150106906891,
+            2.483500123023987,
+            2.5091500759124754
+          ]
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1613,
+          "valid_depth_pixels": 1613,
+          "median_world": [
+            0.6753628265374065,
+            -0.5006376535872189,
+            0.109577099617852
+          ],
+          "p5_p95_world": [
+            [
+              0.627413780762234,
+              -0.5637505810137934,
+              0.024025281288632173
+            ],
+            [
+              0.7297304719620211,
+              -0.4572160036359265,
+              0.22593823760310644
+            ]
+          ],
+          "bbox_uv": [
+            417,
+            382,
+            448,
+            447
+          ],
+          "fraction_world_z_below_surface": 0.6720396776193428,
+          "depth_m_p5_p50_p95": [
+            2.4010000228881836,
+            2.4740002155303955,
+            2.517000198364258
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_006.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978299.0466266,
+      "mask_receipt": 1791978299.2137744,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978299.0816784,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978298.7716074,
+        "delta_mask_s": -0.27501916885375977,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978299.0466266,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978299.0466266,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978299.1497502
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 3,
+          "valid_depth_pixels": 0
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1621,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_007.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978299.6312442,
+      "mask_receipt": 1791978299.8140624,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978299.6720376,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978299.4247231,
+        "delta_mask_s": -0.20652103424072266,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978299.6312442,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978299.6312442,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978299.7692044
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 4,
+          "valid_depth_pixels": 4,
+          "median_world": [
+            0.4650170850370414,
+            -0.8125338041950966,
+            -0.0796788806078168
+          ],
+          "p5_p95_world": [
+            [
+              0.45187203871305825,
+              -0.8199553700226602,
+              -0.08376212430319016
+            ],
+            [
+              0.4813743428074372,
+              -0.7727472630778194,
+              -0.05783699996305883
+            ]
+          ],
+          "bbox_uv": [
+            419,
+            382,
+            431,
+            385
+          ],
+          "fraction_world_z_below_surface": 1.0,
+          "depth_m_p5_p50_p95": [
+            2.8149001359939576,
+            2.8290001153945923,
+            2.843100094795227
+          ]
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1586,
+          "valid_depth_pixels": 1492,
+          "median_world": [
+            0.6583865478417508,
+            -0.5296539697096385,
+            0.0700905072380209
+          ],
+          "p5_p95_world": [
+            [
+              0.5375429598084945,
+              -0.6922860957928294,
+              -0.048796351540174455
+            ],
+            [
+              0.683488370193091,
+              -0.4813339226600996,
+              0.19186739375232617
+            ]
+          ],
+          "bbox_uv": [
+            417,
+            382,
+            448,
+            441
+          ],
+          "fraction_world_z_below_surface": 0.7660857908847185,
+          "depth_m_p5_p50_p95": [
+            2.4190001487731934,
+            2.5260000228881836,
+            2.6567000627517703
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_008.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978300.2521167,
+      "mask_receipt": 1791978300.4430363,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978300.2975214,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978300.2521167,
+        "delta_mask_s": 0.0,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978300.2521167,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978300.2521167,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978300.3901067
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 9,
+          "valid_depth_pixels": 9,
+          "median_world": [
+            0.6851005240937118,
+            -0.5185063316176267,
+            0.29891525367313454
+          ],
+          "p5_p95_world": [
+            [
+              0.656802875946302,
+              -0.5207764426492082,
+              0.2867603200646528
+            ],
+            [
+              0.7001447651000744,
+              -0.49920371731773666,
+              0.30445383509270585
+            ]
+          ],
+          "bbox_uv": [
+            418,
+            381,
+            431,
+            388
+          ],
+          "fraction_world_z_below_surface": 0.0,
+          "depth_m_p5_p50_p95": [
+            2.3330001831054688,
+            2.3370001316070557,
+            2.3524001121520994
+          ]
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1633,
+          "valid_depth_pixels": 1224,
+          "median_world": [
+            0.6614304791003996,
+            -0.543169194816827,
+            0.09981683300056521
+          ],
+          "p5_p95_world": [
+            [
+              0.612544141626499,
+              -0.5873675436036365,
+              -0.14728615228349115
+            ],
+            [
+              0.6906200042010744,
+              -0.4931274744946173,
+              0.28876445525309624
+            ]
+          ],
+          "bbox_uv": [
+            417,
+            381,
+            443,
+            447
+          ],
+          "fraction_world_z_below_surface": 0.678921568627451,
+          "depth_m_p5_p50_p95": [
+            2.3460001945495605,
+            2.498000144958496,
+            2.718350040912627
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_009.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978300.8727703,
+      "mask_receipt": 1791978301.0849946,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978300.9357972,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978300.7693715,
+        "delta_mask_s": -0.10339879989624023,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978300.8727703,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978300.8727703,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978301.0451045
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 7,
+          "valid_depth_pixels": 0
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1616,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_010.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978301.5276668,
+      "mask_receipt": 1791978301.724355,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978301.587281,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978301.5276668,
+        "delta_mask_s": 0.0,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978301.5276668,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978301.5276668,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978301.665492
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 4,
+          "valid_depth_pixels": 4,
+          "median_world": [
+            0.6276710135478915,
+            -0.6006604201666285,
+            0.19441535242062657
+          ],
+          "p5_p95_world": [
+            [
+              0.569977696112993,
+              -0.6212667771006879,
+              0.1408151076330417
+            ],
+            [
+              0.6524241957645086,
+              -0.5775718890783927,
+              0.21509723150373866
+            ]
+          ],
+          "bbox_uv": [
+            419,
+            382,
+            431,
+            386
+          ],
+          "fraction_world_z_below_surface": 0.25,
+          "depth_m_p5_p50_p95": [
+            2.4363000988960266,
+            2.474000096321106,
+            2.5550501942634583
+          ]
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1550,
+          "valid_depth_pixels": 1511,
+          "median_world": [
+            0.6675563046977913,
+            -0.508723054236356,
+            0.10355331773232734
+          ],
+          "p5_p95_world": [
+            [
+              0.6184429701487651,
+              -0.5661428466686464,
+              -0.01505246886981726
+            ],
+            [
+              0.7279624574097572,
+              -0.471129352057011,
+              0.2112379225871721
+            ]
+          ],
+          "bbox_uv": [
+            418,
+            382,
+            448,
+            447
+          ],
+          "fraction_world_z_below_surface": 0.7174056915949703,
+          "depth_m_p5_p50_p95": [
+            2.4240000247955322,
+            2.4790000915527344,
+            2.576000213623047
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_011.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978302.1476634,
+      "mask_receipt": 1791978302.3210967,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978302.1825733,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978302.1476634,
+        "delta_mask_s": 0.0,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978302.1476634,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978302.1476634,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978302.2854257
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 16,
+          "valid_depth_pixels": 0
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1601,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_012.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978302.7675252,
+      "mask_receipt": 1791978302.953593,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978302.8086643,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978302.7675252,
+        "delta_mask_s": 0.0,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978302.7675252,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978302.7675252,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978302.9051921
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 696,
+          "valid_depth_pixels": 694,
+          "median_world": [
+            0.6505003207301973,
+            -0.5456373561092218,
+            0.11770067326413791
+          ],
+          "p5_p95_world": [
+            [
+              0.48727384970609866,
+              -0.7641799501078327,
+              -0.0436222731591571
+            ],
+            [
+              0.682164047992197,
+              -0.49902156262458813,
+              0.16157894083145394
+            ]
+          ],
+          "bbox_uv": [
+            419,
+            382,
+            438,
+            420
+          ],
+          "fraction_world_z_below_surface": 0.6642651296829971,
+          "depth_m_p5_p50_p95": [
+            2.455000162124634,
+            2.4830000400543213,
+            2.7840001583099365
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_013.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978303.3869987,
+      "mask_receipt": 1791978303.6046023,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978303.4524934,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978303.3525858,
+        "delta_mask_s": -0.03441286087036133,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978303.3869987,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978303.3869987,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978303.5590615
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 4,
+          "valid_depth_pixels": 0
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1620,
+          "valid_depth_pixels": 583,
+          "median_world": [
+            0.764957040866112,
+            -0.42832287269196023,
+            0.2548052593549901
+          ],
+          "p5_p95_world": [
+            [
+              0.7348541886205098,
+              -0.446479597012222,
+              0.17564909847686183
+            ],
+            [
+              1.2133421431185374,
+              0.2493256588876701,
+              1.1606626670784475
+            ]
+          ],
+          "bbox_uv": [
+            417,
+            393,
+            449,
+            436
+          ],
+          "fraction_world_z_below_surface": 0.0,
+          "depth_m_p5_p50_p95": [
+            1.15500009059906,
+            2.2880001068115234,
+            2.3500001430511475
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_014.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978304.0406477,
+      "mask_receipt": 1791978304.2345066,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978304.0976555,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978303.765522,
+        "delta_mask_s": -0.27512574195861816,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978304.0406477,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978304.0406477,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978304.1782002
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 14,
+          "valid_depth_pixels": 0
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1628,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_015.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978304.6251976,
+      "mask_receipt": 1791978304.8182979,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978304.687937,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978304.6251976,
+        "delta_mask_s": 0.0,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978304.6251976,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978304.6251976,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978304.7628067
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 703,
+          "valid_depth_pixels": 703,
+          "median_world": [
+            0.6608647641308738,
+            -0.5263523173003685,
+            0.16446999926923733
+          ],
+          "p5_p95_world": [
+            [
+              0.6031931326400295,
+              -0.5907110765324651,
+              0.1066658820420521
+            ],
+            [
+              0.6901356899529885,
+              -0.4971552347339484,
+              0.2072885089284482
+            ]
+          ],
+          "bbox_uv": [
+            419,
+            382,
+            438,
+            421
+          ],
+          "fraction_world_z_below_surface": 0.31436699857752487,
+          "depth_m_p5_p50_p95": [
+            2.4190001487731934,
+            2.4600000381469727,
+            2.498000144958496
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_016.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978305.2789993,
+      "mask_receipt": 1791978305.46125,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978305.3213727,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978305.3134115,
+        "delta_mask_s": 0.03441214561462402,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978305.2789993,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978305.2789993,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978305.4166484
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 701,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_017.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978305.898702,
+      "mask_receipt": 1791978306.0819583,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978305.9535422,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978305.898702,
+        "delta_mask_s": 0.0,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978305.898702,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978305.898702,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978306.036619
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 703,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_018.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978306.4848835,
+      "mask_receipt": 1791978306.6864626,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978306.5437431,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978306.5538526,
+        "delta_mask_s": 0.0689690113067627,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978306.4848835,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978306.4848835,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978306.622822
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 14,
+          "valid_depth_pixels": 0
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1621,
+          "valid_depth_pixels": 628,
+          "median_world": [
+            0.6292472689290287,
+            -0.6088904390080765,
+            -0.02059774607078846
+          ],
+          "p5_p95_world": [
+            [
+              0.537262084348252,
+              -0.700859312658533,
+              -0.0765768014652402
+            ],
+            [
+              0.6686422422970354,
+              -0.5366890704815884,
+              0.06592828138055656
+            ]
+          ],
+          "bbox_uv": [
+            417,
+            394,
+            437,
+            438
+          ],
+          "fraction_world_z_below_surface": 1.0,
+          "depth_m_p5_p50_p95": [
+            2.5220000743865967,
+            2.638000011444092,
+            2.7200000286102295
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_019.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978307.105273,
+      "mask_receipt": 1791978307.2847059,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978307.1408012,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978307.0019155,
+        "delta_mask_s": -0.10335755348205566,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978307.105273,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978307.105273,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978307.2430837
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 3,
+          "valid_depth_pixels": 0
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1589,
+          "valid_depth_pixels": 51,
+          "median_world": [
+            -0.5549392456799012,
+            -2.2133315920545775,
+            -2.645589736452009
+          ],
+          "p5_p95_world": [
+            [
+              -0.5849700178257338,
+              -2.2363076005619797,
+              -2.7113684419144684
+            ],
+            [
+              -0.49570903904654373,
+              -2.1952143840246556,
+              -2.5660045042189874
+            ]
+          ],
+          "bbox_uv": [
+            421,
+            441,
+            431,
+            446
+          ],
+          "fraction_world_z_below_surface": 1.0,
+          "depth_m_p5_p50_p95": [
+            5.627000331878662,
+            5.7260003089904785,
+            5.776500225067139
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_020.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978307.6909783,
+      "mask_receipt": 1791978307.8765516,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978307.746063,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978307.6909783,
+        "delta_mask_s": 0.0,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978307.6909783,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978307.6909783,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978307.8287792
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 14,
+          "valid_depth_pixels": 14,
+          "median_world": [
+            0.6089113250657536,
+            -0.6013883648277669,
+            0.185537069572291
+          ],
+          "p5_p95_world": [
+            [
+              0.5794670719823086,
+              -0.6128536845978865,
+              0.16617859853528003
+            ],
+            [
+              0.6411721595823832,
+              -0.5889858395980324,
+              0.2037101611624062
+            ]
+          ],
+          "bbox_uv": [
+            419,
+            381,
+            431,
+            386
+          ],
+          "fraction_world_z_below_surface": 0.0,
+          "depth_m_p5_p50_p95": [
+            2.4551000595092773,
+            2.493000030517578,
+            2.525400173664093
+          ]
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1617,
+          "valid_depth_pixels": 1557,
+          "median_world": [
+            0.6701932632027221,
+            -0.5066892355931515,
+            0.10949981293147948
+          ],
+          "p5_p95_world": [
+            [
+              0.6273312675594315,
+              -0.5692958683416638,
+              0.01980903673604395
+            ],
+            [
+              0.7266458685640257,
+              -0.45794695449944967,
+              0.2174511745977767
+            ]
+          ],
+          "bbox_uv": [
+            417,
+            382,
+            448,
+            447
+          ],
+          "fraction_world_z_below_surface": 0.6833654463712268,
+          "depth_m_p5_p50_p95": [
+            2.4190001487731934,
+            2.4740002155303955,
+            2.498000144958496
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_021.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978308.3107715,
+      "mask_receipt": 1791978308.4973907,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978308.351544,
+        "payload": {
+          "2": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978308.207489,
+        "delta_mask_s": -0.10328245162963867,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978308.3107715,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978308.3107715,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978308.4484792
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 13,
+          "valid_depth_pixels": 0
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1623,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_022.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978308.8960054,
+      "mask_receipt": 1791978309.094337,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978308.958128,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978308.96481,
+        "delta_mask_s": 0.06880450248718262,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978308.8960054,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978308.8960054,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978309.033614
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 14,
+          "valid_depth_pixels": 14,
+          "median_world": [
+            0.4640204479091157,
+            -0.7864502899525452,
+            -0.048362497686556205
+          ],
+          "p5_p95_world": [
+            [
+              0.46080023260550257,
+              -0.8010183834370456,
+              -0.0569005876738752
+            ],
+            [
+              0.4992846315267813,
+              -0.7559757054294539,
+              -0.027472671395976422
+            ]
+          ],
+          "bbox_uv": [
+            419,
+            381,
+            431,
+            386
+          ],
+          "fraction_world_z_below_surface": 1.0,
+          "depth_m_p5_p50_p95": [
+            2.7717501282691956,
+            2.805000066757202,
+            2.814000129699707
+          ]
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1638,
+          "valid_depth_pixels": 1572,
+          "median_world": [
+            0.6594937731329383,
+            -0.524672838382969,
+            0.07058290553614222
+          ],
+          "p5_p95_world": [
+            [
+              0.5148953512425384,
+              -0.7087844141408894,
+              -0.03970891011290982
+            ],
+            [
+              0.693334479088333,
+              -0.4747715233380917,
+              0.15947663633481268
+            ]
+          ],
+          "bbox_uv": [
+            417,
+            382,
+            448,
+            445
+          ],
+          "fraction_world_z_below_surface": 0.844147582697201,
+          "depth_m_p5_p50_p95": [
+            2.455000162124634,
+            2.51200008392334,
+            2.7200000286102295
+          ]
+        }
+      ],
+      "raw_arrays": "rgbd_023.npz"
+    },
+    {
+      "camera": "rgbd",
+      "mask_stamp": 1791978309.4808037,
+      "mask_receipt": 1791978309.6913433,
+      "mask_encoding": "32SC1",
+      "labels_latest": {
+        "receipt": 1791978309.5484626,
+        "payload": {
+          "2": "gray bottle",
+          "3": "gray bottle"
+        }
+      },
+      "label_note": "String labels have no header; latest receipt association is not exact synchronization.",
+      "rgb": {
+        "stamp": 1791978309.5152004,
+        "delta_mask_s": 0.03439664840698242,
+        "encoding": "rgb8",
+        "frame": "rgbd_color_optical_frame",
+        "step": 3840,
+        "is_bigendian": 0
+      },
+      "depth": {
+        "stamp": 1791978309.4808037,
+        "delta_mask_s": 0.0,
+        "encoding": "32FC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 5120,
+        "is_bigendian": 0
+      },
+      "rawdepth": {
+        "stamp": 1791978309.4808037,
+        "delta_mask_s": 0.0,
+        "encoding": "16UC1",
+        "frame": "rgbd_color_optical_frame",
+        "step": 2560,
+        "is_bigendian": 0
+      },
+      "camera_info": {
+        "K": [
+          643.1936645507812,
+          0.0,
+          647.052734375,
+          0.0,
+          642.4089965820312,
+          365.9493408203125,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "D": [
+          -0.05583195015788078,
+          0.06921155750751495,
+          -0.00028540223138406873,
+          0.0002536145912017673,
+          -0.02258540876209736
+        ],
+        "frame": "rgbd_color_optical_frame",
+        "width": 1280,
+        "height": 720,
+        "stamp": 1791978309.6527843
+      },
+      "TF": {
+        "translation": [
+          1.7166,
+          0.8656,
+          2.0782
+        ],
+        "quaternion_xyzw": [
+          0.4040064418017773,
+          0.8258293274698134,
+          -0.31047085167929556,
+          -0.2416455402670521
+        ],
+        "R": [
+          [
+            -0.5567724557034228,
+            0.5172329428708378,
+            -0.6499803961498778
+          ],
+          [
+            0.8173285296356985,
+            0.48077329048039996,
+            -0.31753915948146605
+          ],
+          [
+            0.14825149986939956,
+            -0.7080445790837053,
+            -0.6904305662531542
+          ]
+        ]
+      },
+      "instances": [
+        {
+          "id": 2,
+          "mask_pixels": 4,
+          "valid_depth_pixels": 0
+        },
+        {
+          "id": 3,
+          "mask_pixels": 1613,
+          "valid_depth_pixels": 0
+        }
+      ],
+      "raw_arrays": "rgbd_024.npz"
+    }
+  ],
+  "purpose": "Passive F5/D diagnosis; original calibration raw, selectors and scores unchanged",
+  "sampling": "Arrays sampled at most2Hz/camera, nearest retained RGB/depth by header timestamp; actual deltas retained, not claimed exact synchronization",
+  "geometry": {
+    "xy": [
+      0.6497,
+      -0.4779
+    ],
+    "surface_z": 0.14,
+    "bottle_H": 0.165,
+    "bottle_diameter": 0.065
+  }
+}
