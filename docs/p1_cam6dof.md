@@ -513,3 +513,12 @@ Operator “F1 di atas C+D, siap rekam”; kedua capture15 s selesai rc0, metada
 **F1 RGBD lengkap BASE/D/CD: ketiganya missing. C1 FIT RGBD gagal di F1 (0/3 tinggi, perlu≥2).** Tidak memberikan galatnol, mengganti titik, membuang missing atau merekam ulang demi lulus. Belum fit/LOO, pemasangan atau uji-tahan hidup; kegagalan deteksi ini tidak mengatribusikan galat ke ekstrinsik/depth. “Hanya rgbd2 salah” tetap belum terbukti. D590✗/D597✓ dan tujuh gerak C6 lulus tetap; D591–D596/D598 belum diuji seperti B34.
 
 Keadaan: semua REST/PARK, K0 terakhir sesudah pulang lulus; stack/kamera/localizer/monitor/perekam tetap hidup, NOL gerak baru. Meja18/18 dan lantai3/18 selesai. Berikut lantai4/18 F6/BASE: botol yang sama langsung pada tanda di atas penyangga tetap70 mm, tanpa C/D; tunggu operator menjauh dan siap sebelum15 s. Tidak menganggap mapbeku cocok untuk HW baru setelah laci dipindahkan.
+
+
+### B41. Botol lantai 4/18 F6/BASE — satu track RGBD, xy3.24 cm/dz−4.48 cm
+
+Operator “F6 langsung di penyangga70 mm, siap rekam”; capture15 s kedua kamera rc0 (`hw_20261014/tracks_inc/F6_BASE_*`). Permukaan worldz0.070, actualxy=(0.3998,−0.6998), botol samaH0.165/r0.0325; ketiga hash protokol cocok. Log/jumlah pesan dan median raw diverifikasi sendiri. Tidak ada gerak HW, perubahan selector/detector atau pemilihan ulang jendela.
+
+RGBD FIT F6: **satu ID242,30/30 pesan, label gray bottle**, median **(0.399534,−0.732186,0.134487) m**, confmedian0.807, p5–p95xyz **7.6/8.1/15.0 mm**, tanpa rival. Galatxy mentah **3.239 cm**; offsetmodel incumbent=(0.016250,0.020009,0.109313), z_expected0.179313, **dz−4.483 cm**. Incumbent xy berada dalam5 cm, |dz| melewati3 cm; F6 adalah FIT, sehingga ini bukan skorC2 uji-tahan kandidat. C1 F6 baru satu tinggi; menunggu D/CD. RGBD2 NOT_USED F6:29 pesan semua tracks[], tidak diberi galat buatan. F1 C1 RGBD tetap gagal dan tidak diselesaikan oleh sukses F6.
+
+Keadaan semua REST/PARK, K0 terakhir sesudah pulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOL gerak baru. Meja18/18/lantai4/18. D590✗/D597✓, D591–D596/D598 belum diuji. Belum fit/LOO/kandidat/liveholdout; belum membuktikan “hanya rgbd2 salah”. Berikut lantai5/18 F6/D: boxD140 mm di atas penyangga tetap70 mm, surf_z0.210, tanpa C; tunggu operator siap/menjauh sebelum15 s.

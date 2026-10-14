@@ -1,0 +1,77 @@
+{
+  "mark": "F6",
+  "height": "BASE",
+  "surf_z": 0.07,
+  "xy": [
+    0.3998,
+    -0.6998
+  ],
+  "operator_ready": true,
+  "start": 1791972771.4772146,
+  "end": 1791972787.3590007,
+  "exit_codes": {
+    "rgbd": 0,
+    "rgbd2": 0
+  },
+  "extrinsics": "incumbent launch + G34",
+  "duration_per_camera_s": 15,
+  "protocol_hashes": {
+    "original": "3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802",
+    "floor_amendment": "2022dbbc72f93e953daefa5d4d197a7c09aa0502214f1a280ed350c2e7ddff80",
+    "bottle_geometry_correction": "ccd69a959c06f5b92fa917aef04c00424c1f5deb725e3ae7a09437df0d58b6fc"
+  },
+  "bottle": {
+    "r": 0.0325,
+    "H": 0.165
+  },
+  "cameras": {
+    "rgbd": {
+      "messages": 30,
+      "role": "fit",
+      "all_track_ids": [
+        242
+      ],
+      "candidate_counts": {
+        "242": 30
+      },
+      "single_track": true,
+      "track_id": 242,
+      "n": 30,
+      "labels": [
+        "gray bottle"
+      ],
+      "median": [
+        0.3995338482063452,
+        -0.7321858251727251,
+        0.13448706779235542
+      ],
+      "xy_error": [
+        -0.0002661517936548008,
+        -0.03238582517272515
+      ],
+      "xy_error_abs_m": 0.032386918792864254,
+      "model_offset": [
+        0.016249999999999987,
+        0.020008997948083862,
+        0.1093125
+      ],
+      "z_expected": 0.1793125,
+      "z_error_m": -0.044825432207644594,
+      "p5_p95": [
+        0.007574722999133254,
+        0.008061773036317832,
+        0.014983742482699736
+      ],
+      "conf_median": 0.807,
+      "rivals": {}
+    },
+    "rgbd2": {
+      "messages": 29,
+      "role": "not_used",
+      "all_track_ids": [],
+      "candidate_counts": {},
+      "single_track": false,
+      "note": "No bottle track within locked selector radius; do not fabricate observation"
+    }
+  }
+}
