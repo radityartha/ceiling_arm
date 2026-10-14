@@ -542,3 +542,14 @@ Operator “F6 di atas C+D, siap rekam”; kedua capture15 s selesai rc0 (`hw_20
 F6 lengkap BASE/D/CD: BASE tunggalID242 n30, xy3.239/dz−4.483 cm; D tunggal lokalID248 **n1**, xy5.0156/dz−18.4498 cm dan z di bawah penyangga; CD missing. Secara hitungan selector ada dua tinggi dengan satuID lokal, tetapi dataD tidak membuktikan kestabilan dan anomali tetap masuk bukti/fit tanpa penghapusan. Tidak menambahkan syaratjumlah sampel baru atau menyatakan C1 keseluruhan lulus: **F1 FIT RGBD tetap0/3, gagal C1**, fitparameter belum dijalankan. Trackglobal di luar radius tidak menjadi observasi FIT.
 
 Semua REST/PARK, K0 terakhir sesudah pulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOL gerak baru. Meja18/18/lantai6/18; D590✗/D597✓, lainnya belum diuji seperti B34. Belum fit/LOO/kandidat/uji-tahan hidup, “hanya rgbd2 salah” belum terbukti. Berikut lantai7/18 F4/BASE: botol langsung di tanda pada penyangga tetap70 mm tanpa C/D, tunggu siap/menjauh sebelum15 s. F4 BASE adalah FIT RGBD, **NOT_USED RGBD2** sesuai kunci; F4 D/CD tetap FIT kedua kamera.
+
+
+### B44. Botol lantai 7/18 F4/BASE — RGBD tunggal, xy7.43/dz−7.77 cm
+
+Operator “F4 langsung di penyangga70 mm, siap rekam”; kedua capture15 s selesai rc0 (`hw_20261014/tracks_inc/F4_BASE_*`). Surf_z0.070, actualxy=(0.5491,−0.6003), botol H0.165/r0.0325; ketiga hash cocok. Log/jumlah pesan/median raw diperiksa sendiri. Tanpa gerak HW atau perubahan selector/detector/radius/model.
+
+RGBD FIT: satuID266 **25/25 pesan**, gray bottle, median **(0.509851,−0.663401,0.105701) m**, confmedian0.839, p5–p95xyz **3.1/2.6/4.5 mm**, tanpa rival. Galatxy mentah **7.4312 cm**, modeloffset=(0.015258,0.020009,0.113438), z_expected0.183438, **dz−7.7736 cm**. Incumbent melewati5 cmxy/3 cmz, tetapi F4 adalah FIT sehingga bukan hasil uji-tahanC2 kandidat. Tidak menghapus observasi yang buruk. C1 F4 baru satu tinggi; menungguD/CD. RGBD2 **NOT_USED** untukBASE sesuai kunci,31 pesan denganID1400 global di luar radius; tidak mengubahBASE menjadiFIT atau memberi galat buatan. D/CD F4 tetapFIT kedua kamera.
+
+F1 C1RGBD tetap gagal0/3; F6D n1anomali/CDmissing dipertahankan; N1RGBD2 belum sah. Nilaiincumbent F4 menambah bukti galat lokalisasi RGBD, tetapi tidak mengisolasi penyebab ekstrinsik/depth/centroid atau membuktikan “hanya rgbd2 salah”. Belumfit/LOO/kandidat/liveholdout; D590✗/D597✓, lainnya belum diuji sepertiB34.
+
+SemuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOL gerak baru. Meja18/18/lantai7/18. Berikut lantai8/18 F4/D: boxD140 di atas penyangga tetap70 mm (surf_z0.210), tanpaC, botol sama; tunggu siap/menjauh sebelum15 s. Peta lingkungan diverifikasi sebelumHWbaru karena laci dipindahkan.
