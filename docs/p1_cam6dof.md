@@ -365,3 +365,9 @@ TCP3 s,n87 **(0.6497,−0.4779,1.2185) m**,std cetak0 mm,galat **2.598 mm** (`tc
 Operator menjawab “F5 di Z=0 aman sekanag” terhadap pertanyaan tanda/unting/lengan/permukaan. F5 dicatat ditandai langsung di lantai z0 dan unting aman; actual xy=(0.6497,−0.4779) dimasukkan ke kedua plan kamera hanya dari TCP terukur sebelum data botol, role FIT tetap. Draf BASE/D140/CD245 pada F5 menjadi permukaan world0/0.140/0.245 m. Alas F3/F7 dan urutan susunan tumpukan belum lengkap; amendemen tetap DRAF, belum data botol lantai atau fit. §A/hash awal tidak diubah.
 
 Arm_3 menahan F5, lengan lain REST, gantry tetap; belum izin F3/F7/pulang. Berikut plan-check **F5→F3=(0.25,−0.60,1.22) m tool-bawah**, tanpa --move; bila semua guard lulus≤97%, minta izin satu langkah. F3 tetap UJI-TAHAN rgbd; tidak dipakai untuk fit/inisialisasi/LOO/model selection.
+
+### B27. Plan-check F5→F3 lulus; menunggu izin gerak #5
+
+Plan-only --plan-check tanpa --move selesai rc0 (`from_F5_to_F3_plan.json/.log`): **DRY/PLANNED percobaan1**, penjaga97% j3 **91.206818%**. Interarm508.3 mm/env115.3 mm; retract se508.8/antar759.0/env115.3 mm seluruhnya CLEAR. Semua saringan tetap. Tidak ada eksekusi, target monitorF3 bukan bukti gerak.
+
+Arm_3 tetapF5, tanda lantai z0/untingaman dikonfirmasi. Belum izinF3/F7/pulang; berikut meminta **GERAK #5 F5→F3=(0.25,−0.60,1.22) tool-bawah saja**. Rencana aktual akan disaring ulang≤97%; kemudian verifikasi MOVED/SUCCESS/TCP≤5 mm/torsi≤14 sebelum label dan tinggi dasarF3. F3 tetap UJI-TAHAN rgbd, tidak masukfit/modelchoice. Amendemen penyangga belumdikunci dan belum data botollantai.

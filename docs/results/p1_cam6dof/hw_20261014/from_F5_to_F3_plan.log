@@ -1,0 +1,22 @@
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_3 (0.25, -0.6, 1.22), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1791967437.363367532] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.10->6.70/10, 2=3.80->11.50/14, 3=2.52->9.12/10, 4=0.41->2.39/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 91 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1791967449.566813652] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 508.3 mm di titik 75 (t2_a1_lower_wrist_link_0 <-> t2_a2_arm_link_0) -> CLEAR
+[INFO] [1791967451.079311301] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 115.3 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1791967452.125073187] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.001):
+[INFO] [1791967453.771804981] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 508.8 mm di titik 0/60 (t2_a1_lower_wrist_link_0 <-> t2_a2_arm_link_0)
+[INFO] [1791967453.773077455] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 759.0 mm di titik 38/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1791967453.774242385] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 115.3 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+[INFO] [1791967453.776109303] [reach_dwell_probe]: CAM-6DOF margin: t2_a1_joint_3 91.206818% (batas 97%)
+  [ 1] DRY arm_3: p_cmd = (+0.250, -0.600, +1.220)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> docs/results/p1_cam6dof/hw_20261014/from_F5_to_F3_plan.json
