@@ -208,3 +208,16 @@ Anomali: median z TC0.9101→TD0.9082 padahal permukaan naik40 mm. Deteksi tidak
 Penyampaian awal “sekitar−4.8 cm” dipertegas hasil model−4.64 cm; angka terhitung dipakai. Ini botol incumbent; belum C2 kandidat hidup. D590 belum dinilai sampai semua tanda/tinggi lengkap. NOL gerak HW, stack/localizer hidup; penempatan berikut C6/T0 menunggu diagnosis fisik C3/TD.
 
 **Konfirmasi operator sesudah B8:** benar botol7 cm pada box D14 cm tanpa tumpukan. Operator menawarkan menumpuk C+D; tidak dipakai karena tinggi dan peran§A sudah terkunci. Anomali C3/TD tetap disimpan sebagai data incumbent uji-tahan, penyebab belum teratribusi; tidak mengubah mask/parameter/centroid dari hasil uji-tahan. Penempatan berikut4/18 C6/T0 diminta (box disingkirkan, botol langsung meja), menunggu siap; nol gerak HW, stack/localizer tetap aktif.
+
+### B9. Rekap botol incumbent meja (diperbarui per penempatan)
+
+4/18 penempatan selesai. Bukti mentah, metadata dan ringkasan: `hw_20261014/tracks_inc/<tanda>_<tinggi>_*`. Galat adalah incumbent, belum keputusan kandidat C2; C3/C6 tidak dipakai FIT/LOO. Selektor bottle dalam radius0.35 m tetap, saingan ditampilkan.
+
+| Penempatan | peran | n | median xyz (m) | galat xy (cm) | dz model (cm) | p5–p95 z (mm) | conf | track |
+|---|---|---|---|---|---|---|---|---|
+| C3/T0 | UJI-TAHAN | 28 | (2.0269,0.7546,0.8072) | 19.38 | -0.92 | 3.6 | 0.859 | tunggal |
+| C3/TC | UJI-TAHAN | 26 | (2.0206,0.7611,0.9101) | 19.08 | -0.63 | 7.2 | 0.675 | tunggal |
+| C3/TD | UJI-TAHAN | 29 | (2.0226,0.7514,0.9082) | 18.86 | -4.64 | 96.3 | 0.312 | tunggal |
+| C6/T0 | UJI-TAHAN | 27 | (2.0244,0.6570,0.8190) | 13.63 | +0.26 | 5.9 | 0.855 | tunggal |
+
+Berikut: C6/TC (box C100 mm), operator sudah siap, rekam15 s kedua kamera. NOL gerak HW; stack/kamera/monitor/perekam/localizer per kamera masih hidup. Tidak mengganti data anomali atau tinggi/model terkunci.
