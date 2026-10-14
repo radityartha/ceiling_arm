@@ -387,3 +387,9 @@ TCP3 s,n91 **(0.2513,−0.5991,1.2185) m**,std0.12/0.18/0.22 mm,galat **2.179 mm
 Operator: “F3 tandanya di penyangga7 cm sama sepertiF4/F6. sudah saya tandai”. TandaF3 dikonfirmasi, alasnya penyangga yang sama **0.070 m±0.002** yang sudah diukur padaB23; actualxy=(0.2513,−0.5991) dimasukkan ke planRGBD hanya dariTCP penunjuk. F3 tetap **UJI-TAHAN**, tidak digunakan fit/inisialisasi/LOO/model-choice. DrafBASE/D140/CD245 menjadi permukaanF3 world0.070/0.210/0.315; bukan z0. Data botol belum dimulai; amendemen belumdikunci, alasF7 dan urutanstack belumlengkap. §A/hash awal tetap.
 
 Jawaban tidak secara eksplisit menyebut tali diamankan/lengan tidak tersentuh; konfirmasi itu digabungkan dalam permintaan izin gerak berikut, tidak dianggap sudah dijawab. Arm_3 tetapF3, lenganlainREST,gantrytetap; belum izinF7/pulang. Berikut plan-check **F3→F7=(0.65,−0.58,1.22) tool-bawah** tanpaeksekusi. Bila seluruh guard lulus≤97%, minta izin satu langkah disertai konfirmasi e-stop/unting/area aman.
+
+### B30. Plan-check F3→F7 lulus; menunggu izin gerak #6
+
+Plan-only --plan-check tanpa --move rc0 (`from_F3_to_F7_plan.json/.log`): lintasan1 TORQUE-UNSAFE ditolak sebelum eksekusi; lintasan2 **DRY/PLANNED**, penjaga97% j2 **91.517370%**. Interarm517.8 mm/env115.3 mm; retractse623.1/antar697.9/env115.3 mm seluruhnya CLEAR. Rencana baru harus tetap disaring ulang sebelum eksekusi. Tidak ada gerak saat plan-check, monitor targetF7 bukan bukti gerak.
+
+Arm_3 tetapF3, tanda pada penyangga70 mm dikonfirmasi; keamanan tali setelah penandaan belum eksplisit dijawab dan diminta dalam izin berikut. Belum izinF7/pulang. Berikut meminta **GERAK #6 F3→F7=(0.65,−0.58,1.22) tool-bawah saja**, disertai konfirmasi unting diamankan/lengan tidak tersentuh/area bebas/e-stop dijaga. F7 tetap UJI-TAHAN kedua kamera+kesepakatan, tidak masukfit/LOO/modelchoice. AlasF7/susunanstack masih pending, amendemen belumdikunci,belum botollantai.
