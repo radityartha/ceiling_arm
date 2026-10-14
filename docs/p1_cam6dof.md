@@ -419,3 +419,33 @@ Kontrol perangkatlunak5/5 (`return_guard_unit.log`): nilai97.14 yang tercetak97 
 **DRY HW pulang dariF7 lulus**, rc0 `return_guard_plan.json/.log`: satu segmen arm_3lurus30 s (arm_4 sudahREST, tidak ikut bergerak), margin j2 **92.587812%**, interarm tambahanmin623.1 mm/env115.3 mm CLEAR; saringanoriginalretract jugaCLEAR. Torsi8.589 pada hasilDRY adalah pengamatan pasif saatmenahanF7, **bukan torsi pulang**. Belum --move/izin pulang. Amendemen tetapDRAF sampai REST+K0, lalu salinan/hash/commit sebelum botollantai pertama; tidak menyatakan kunci revisi mendahului penunjuk atau datameja yang telahselesai.
 
 Arm_3 tetapF7 (BUKAN REST),lenganlainREST,gantrytetap; stack/kamera/localizer/monitor/perekam hidup. Berikut izin **satu gerak pulang arm_3keREST saja**, unting/areaaman/e-stopdijaga; rencana aktual disaring ulang dan tidak pulang otomatis saatmenyiapkan draf.
+
+**Izin gerak #7 diterima:** “Izinkan arm_3 pulangREST saja; unting/areaaman,e-stopdijaga”. Hanya pulang arm_3keREST satu lintasan30 s; arm_4 sudahREST,gantry/lenganlain tetap. Pemeriksaan awalpasifTCP/log `tcp_before_REST.log`/`health_before_REST.json` lulus. Command aktual memakai wrapperpulang97%/cancel>14, menyaring kembali dari keadaan terukur; belum REST/K0 sampai hasil diverifikasi.
+
+### B33. GERAK #7 pulang REST lulus; K0 dan amendemen tinggi DIKUNCI
+
+Operator mengizinkan arm_3 pulangREST saja,unting/areaaman,e-stopdijaga. Supervisor884262/probe884263 selesai rc0 (`move_REST_job/exit.json`). Wrappermerencanakan ulang dariF7, margin **92.587800%**≤97, seluruhsaringanCLEAR, mengirim satu goal arm_3cosine30 s; arm_4 sudahREST dan tidak ikut bergerak. **MOVED+dwellSUCCESS**: monitor2 s,41 sampel@20 Hz,posmaks3.65 mm/settled0.21 mm,orimaks0.20°. Torsiukur eksekusi **8.4515 N·m**; audit seluruhjob57.81 s (termasuk holding/planning) peakterbesar8.7493,161840baris,cakupan≤9 ms,gantry rel/rot0,lenganlainmaks0.011860°. Kanalrel/roteffortNaN5780 per sendi diungkapkan; semuaeffortlenganfinite. Tidak ada FAULT/REJECTED/TORQUE-ABORT/NOTarmed baru (`health_after_REST.json`).
+
+TCP REST3 s,n88=(0.4029,−0.2936,0.9557),stdcet ak0 mm; terhadapFK tujuan galat **0.104 mm**,≤5 (`return_verified.json`). K0sesudahpulang **LULUS** (`k0_after_pointer_return.json/.log`): semuaREST,max0.090/0.199/0.044/0.147°, g1=1.499262262,g2=0.000900590,rot0/0. Jariarm_3−0.001403 m dilaporkan oleh K0 dan berada dalam gerbang tertutup alat; tidak mengarang nilai0. Tidak ada gerakrel atau lenganlain terukur. D597 **✓ untuk6tanda**: semuaPLANNED≤8 dan peaksesi12.4826≤13, pulang juga≤13. C6seluruh7gerak lulus.
+
+**Amendemen penyangga lantai dikunci sesudah REST/K0, sebelum botolF pertama:** `results/p1_cam6dof/cam6dof_A_floor_amendment_locked.md`, sha256 **2022dbbc72f93e953daefa5d4d197a7c09aa0502214f1a280ed350c2e7ddff80** (`.sha256`). Kunci awald081044/hash3d13ea22…utuh; perubahanataspermintaanoperator A/B sulitdipindah, bukan memilihmodel/desain dari galat botollantai. TingkatbaruBASE/D140/CD245, Cdibawah/Ddiatas. F1/F5 z0/0.140/0.245; F3/F4/F6/F7 z0.070/0.210/0.315. Role/bobot/model/LOO/C1–C6/D590–D598 tetap, data meja/geraklama tetap; **revisi tidak mendahului data meja atau penunjuk**, hasilkalibrasi kelak dilabel protokolamendemen dan tinggi awal0/0.310/0.480 tidakdiklaimtelahdiuji. Rentanglebihpendek dan ketidaklengkapan C1N1 tetapdiungkapkan.
+
+Snapshot configsebelumrevisi `plan_rgbd{,2}_inc_pre_floor_amendment.json`; configaktif sekarangmemuat kedua `protocol_hashes`, seluruh `floor_level_heights` dan namaBASE/D/CD. Semua actualxy dariTCP, peranF4RGBD2hanya D/CD; BASEstream direkam tetapi tidakFIT. Selektor/radius/bobot/detector tidakberubah. Tidak ada filecapture botolF saatpenguncian, tidak menjalankanfit atau kandidat/liveholdout.
+
+**Keadaan:** semuaREST,g1PARK/g2home,K0LULUS;stack/kamera/localizer/monitor/perekam tetapHIDUP. Tidak perlu atau diizinkan gerakbaru. Setelah commitkunci, berikut penempatanlantai1/18 **F1/BASE**, botolputihyangsama langsunglantai tepatditanda; minta konfirmasi siap/menjauh sebelum15 s kedua kamera.
+
+### B34. Papan skor checkpoint sesudah penunjuk/pulang, sebelum botol lantai
+
+| Dugaan | Status harfiah | Batas bukti |
+|---|---|---|
+| D590 | **✗** | D tertinggi meja memperbaiki3 pasangan, memperburukM1/N2; walauN1missing dianggaplulus maksimum4/6<5/6. |
+| D591 | **— belum diuji** | Belum fit/LOO FIT; tidak menyimpulkanM7 dari pola galat. |
+| D592 | **— belum diuji** | Belum parameter/gerbangM6 RGBD2. |
+| D593 | **— belum diuji** | Belum uji-tahan hidupM6 RGBD2 semua tinggi. |
+| D594 | **— belum diuji** | Belum C3 hidupM6 RGBD2 REST×3. |
+| D595 | **— belum diuji** | Belum botol incumbent lantai pada uji-tahan; baselinearm_2rgbd5.3 cm sudahgagalC3, atribusi belumselesai. |
+| D596 | **— belum diuji** | Belum kesepakatanbasis botolF7 setelah kandidat. |
+| D597 | **✓** | Keenam tandaHW PLANNED1/2/1/1/4/3≤8, torquepeak12.4826≤13 N·m; pulang juga≤13. |
+| D598 | **— belum diuji** | Belum residualz sesudahfit semua tinggi. |
+
+Skor **1✓/1✗,2/9 diuji**; ini checkpointaktif, bukan penutupanakhir. C6 tujuhgerak lulus; C1–C5 kandidat belumdisimpulkan, belumfit/pemasangan/liveholdout/DEMO-HW. “Apakah hanya rgbd2 yang salah?” **belum terbukti**; rgbd juga belumlulus gerbang baselineC3, tetapi belum dapat mengatribusikannya ke ekstrinsik/depth/gantry atau centroid. M6utama/M7 lewatLOOFIT saja; modelagenkuat efforthigh. Langkahberikut: setelahcommitamendemen minta penempatanF1/BASE dan rekam15 s kedua kamera saatoperatorsiap/menjauh.

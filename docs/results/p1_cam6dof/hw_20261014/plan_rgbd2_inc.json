@@ -156,46 +156,54 @@
     },
     {
       "mark": "F4",
-      "surf_z": 0.31,
-      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_LA_rgbd2.jsonl"
+      "surf_z": 0.21,
+      "level": "D",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_D_rgbd2.jsonl"
     },
     {
       "mark": "F4",
-      "surf_z": 0.48,
-      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_LB_rgbd2.jsonl"
+      "surf_z": 0.315,
+      "level": "CD",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_CD_rgbd2.jsonl"
     },
     {
       "mark": "F5",
-      "surf_z": 0,
-      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_L0_rgbd2.jsonl"
+      "surf_z": 0.0,
+      "level": "BASE",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_BASE_rgbd2.jsonl"
     },
     {
       "mark": "F5",
-      "surf_z": 0.31,
-      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_LA_rgbd2.jsonl"
+      "surf_z": 0.14,
+      "level": "D",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_D_rgbd2.jsonl"
     },
     {
       "mark": "F5",
-      "surf_z": 0.48,
-      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_LB_rgbd2.jsonl"
+      "surf_z": 0.245,
+      "level": "CD",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_CD_rgbd2.jsonl"
     },
     {
       "mark": "F7",
-      "surf_z": 0,
-      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_L0_rgbd2.jsonl"
+      "surf_z": 0.07,
+      "level": "BASE",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_BASE_rgbd2.jsonl"
     },
     {
       "mark": "F7",
-      "surf_z": 0.31,
-      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_LA_rgbd2.jsonl"
+      "surf_z": 0.21,
+      "level": "D",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_D_rgbd2.jsonl"
     },
     {
       "mark": "F7",
-      "surf_z": 0.48,
-      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_LB_rgbd2.jsonl"
+      "surf_z": 0.315,
+      "level": "CD",
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_CD_rgbd2.jsonl"
     }
   ],
-  "note": "Locked roles/heights; floor coordinates NOMINAL until actual TCP recorded before floor bottle. No FIT/HOLDOUT reassignment.",
+  "note": "Original role/model gates unchanged; floor heights amended before first floor bottle, measured small supports. Legacy LA/LB not captured. Table heights unchanged.",
   "actual_floor_marks": {
     "F4": {
       "tcp": [
@@ -231,6 +239,42 @@
       "operator_confirmed": true,
       "surface_z_m": 0.07,
       "surface_precision_confirmed": true
+    }
+  },
+  "protocol_hashes": {
+    "original": "3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802",
+    "floor_amendment": "2022dbbc72f93e953daefa5d4d197a7c09aa0502214f1a280ed350c2e7ddff80"
+  },
+  "floor_level_heights": {
+    "F1": {
+      "BASE": 0.0,
+      "D": 0.14,
+      "CD": 0.245
+    },
+    "F6": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
+    },
+    "F4": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
+    },
+    "F5": {
+      "BASE": 0.0,
+      "D": 0.14,
+      "CD": 0.245
+    },
+    "F3": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
+    },
+    "F7": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
     }
   }
 }

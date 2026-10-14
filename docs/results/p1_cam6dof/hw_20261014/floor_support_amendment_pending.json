@@ -2,9 +2,9 @@
   "operator_request": "A dan B terlalu besar sullit untuk dipindah2. lebih mudah jika pakai C dan D atau tumpukan keduanya",
   "original_protocol_commit": "d081044",
   "original_protocol_sha256": "3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802",
-  "status": "all heights/stack arrangement known; live projection checked; awaiting approved return REST and K0 before lock",
+  "status": "LOCKED after approved REST return and K0; before first floor bottle",
   "bottle_floor_data_started": false,
-  "current_hw_pose": "arm_3 F7; other arms REST; no permission return",
+  "current_hw_pose": "all arms REST; g1 PARK1.499262, g2 home0.000901, rot0/0; K0 passed",
   "known_C_height_m": 0.1,
   "known_D_height_m": 0.14,
   "stack_measured_height_m": 0.245,
@@ -15,7 +15,7 @@
     "C+D245"
   ],
   "acceptance_criteria": "C1-C6, model bounds, weighting and FIT/holdout roles unchanged; original and amended results must be distinguished",
-  "floor_capture_blocked_until_amendment_locked": true,
+  "floor_capture_blocked_until_amendment_locked": false,
   "F4_F6_same_fixed_support": true,
   "fixed_support_reported_height_m": 0.07,
   "fixed_support_height_precision_confirmed": true,
@@ -56,7 +56,7 @@
   ],
   "F7_support_base_z_m": 0.07,
   "F7_surface_mark_confirmed": true,
-  "F7_rope_secured_confirmed": null,
+  "F7_rope_secured_confirmed": true,
   "known_F7_surface_heights_m": [
     0.07,
     0.21,
@@ -66,5 +66,39 @@
     "amended_rgbd.log",
     "amended_rgbd2.log"
   ],
-  "return_plan_evidence": "return_guard_plan.json"
+  "return_plan_evidence": "return_guard_plan.json",
+  "amendment_sha256": "2022dbbc72f93e953daefa5d4d197a7c09aa0502214f1a280ed350c2e7ddff80",
+  "amendment_document": "docs/results/p1_cam6dof/cam6dof_A_floor_amendment_locked.md",
+  "known_world_surface_heights": {
+    "F1": {
+      "BASE": 0.0,
+      "D": 0.14,
+      "CD": 0.245
+    },
+    "F6": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
+    },
+    "F4": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
+    },
+    "F5": {
+      "BASE": 0.0,
+      "D": 0.14,
+      "CD": 0.245
+    },
+    "F3": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
+    },
+    "F7": {
+      "BASE": 0.07,
+      "D": 0.21,
+      "CD": 0.315
+    }
+  }
 }

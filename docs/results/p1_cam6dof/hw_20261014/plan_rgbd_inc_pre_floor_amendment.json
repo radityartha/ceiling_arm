@@ -1,0 +1,221 @@
+{
+  "ns": "rgbd",
+  "old": [
+    1.7166,
+    0.8656,
+    2.0782,
+    -2.3436,
+    -0.1488,
+    2.1688
+  ],
+  "bottle": {
+    "r": 0.03,
+    "H": 0.07
+  },
+  "capture": "docs/results/p1_cam6dof/hw_20261014/rest_inc.npz",
+  "label": "bottle",
+  "marks": {
+    "F1": [
+      0.2512,
+      -0.4998
+    ],
+    "F6": [
+      0.3998,
+      -0.6998
+    ],
+    "F4": [
+      0.5491,
+      -0.6003
+    ],
+    "F5": [
+      0.6497,
+      -0.4779
+    ],
+    "F3": [
+      0.2513,
+      -0.5991
+    ],
+    "F7": [
+      0.6483,
+      -0.5809
+    ]
+  },
+  "roles": {
+    "F1": "fit",
+    "F6": "fit",
+    "F4": "fit",
+    "F5": "fit",
+    "F3": "holdout",
+    "F7": "holdout"
+  },
+  "placements": [
+    {
+      "mark": "F1",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F1",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F1",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F1_LB_rgbd.jsonl"
+    },
+    {
+      "mark": "F6",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F6",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F6",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F6_LB_rgbd.jsonl"
+    },
+    {
+      "mark": "F4",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F4",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F4",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F4_LB_rgbd.jsonl"
+    },
+    {
+      "mark": "F5",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F5",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F5",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F5_LB_rgbd.jsonl"
+    },
+    {
+      "mark": "F3",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F3",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F3",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F3_LB_rgbd.jsonl"
+    },
+    {
+      "mark": "F7",
+      "surf_z": 0,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_L0_rgbd.jsonl"
+    },
+    {
+      "mark": "F7",
+      "surf_z": 0.31,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_LA_rgbd.jsonl"
+    },
+    {
+      "mark": "F7",
+      "surf_z": 0.48,
+      "file": "docs/results/p1_cam6dof/hw_20261014/tracks_inc/F7_LB_rgbd.jsonl"
+    }
+  ],
+  "note": "Locked roles/heights; floor coordinates NOMINAL until actual TCP recorded before floor bottle. No FIT/HOLDOUT reassignment.",
+  "actual_floor_marks": {
+    "F1": {
+      "tcp": [
+        0.2512,
+        -0.4998,
+        1.2204
+      ],
+      "source": "mark_F1.json",
+      "operator_confirmed": true
+    },
+    "F6": {
+      "tcp": [
+        0.3998,
+        -0.6998,
+        1.2197
+      ],
+      "source": "mark_F6.json",
+      "operator_confirmed": true,
+      "surface": "fixed box reported 0.07 m; not floor z0",
+      "locked_L0_available": false,
+      "locked_LA_LB_available": null,
+      "small_supports_on_fixed_box": true,
+      "previous_direct_floor_support_confirmation_superseded": true,
+      "surface_z_m": 0.07,
+      "surface_precision_confirmed": true
+    },
+    "F4": {
+      "tcp": [
+        0.5491,
+        -0.6003,
+        1.2206
+      ],
+      "source": "mark_F4.json",
+      "operator_confirmed": true,
+      "surface": "same fixed box as F6, reported 0.07 m; not floor z0",
+      "surface_precision_confirmed": true,
+      "locked_L0_available": false,
+      "small_supports_on_fixed_box": true,
+      "surface_z_m": 0.07
+    },
+    "F5": {
+      "tcp": [
+        0.6497,
+        -0.4779,
+        1.2185
+      ],
+      "source": "mark_F5.json",
+      "operator_confirmed": true,
+      "surface_z_m": 0.0
+    },
+    "F3": {
+      "tcp": [
+        0.2513,
+        -0.5991,
+        1.2185
+      ],
+      "source": "mark_F3.json",
+      "operator_confirmed": true,
+      "surface_z_m": 0.07,
+      "surface_precision_confirmed": true,
+      "same_fixed_support_as": [
+        "F4",
+        "F6"
+      ]
+    },
+    "F7": {
+      "tcp": [
+        0.6483,
+        -0.5809,
+        1.2186
+      ],
+      "source": "mark_F7.json",
+      "operator_confirmed": true,
+      "surface_z_m": 0.07,
+      "surface_precision_confirmed": true
+    }
+  }
+}

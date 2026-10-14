@@ -1,0 +1,71 @@
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+retract g2 ['arm_3'] lurus (rel 0.001):
+  penyaring se-gantry: CLEAR, minimum 623.1 mm di titik 59/60 (t2_a1_arm_link_0 <-> t2_a2_arm_link_0)
+  penyaring antar-gantry: CLEAR, minimum 704.6 mm di titik 31/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+  penyaring lingkungan: CLEAR, minimum 115.3 mm di titik 0/60 (t1_a1_right_finger_dist_link_0)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+CAM-6DOF return margin 92.587800% (limit97%)
+{
+  "verdict": "SUCCESS",
+  "move_requested": true,
+  "arms": [
+    "arm_3",
+    "arm_4"
+  ],
+  "seconds": 30.0,
+  "start_time": 1791969343.935532,
+  "interarm_screen": [
+    "CLEAR",
+    0.6230787616625184,
+    [
+      "t2_a1_arm_link_0",
+      "t2_a2_arm_link_0"
+    ],
+    60
+  ],
+  "environment_screen": [
+    "CLEAR",
+    0.1152567886976453,
+    "t1_a1_right_finger_dist_link_0",
+    0
+  ],
+  "torque_fractions": {
+    "t2_a1_joint_1": 0.6600011885201521,
+    "t2_a1_joint_2": 0.9258779986445457,
+    "t2_a1_joint_3": 0.9159669005043621,
+    "t2_a1_joint_4": 0.34098863173724075,
+    "t2_a1_joint_5": 0.2918155414848678,
+    "t2_a1_joint_6": 0.28292748081787855
+  },
+  "worst_fraction": 0.9258779986445457,
+  "targets": {
+    "arm_3": {
+      "position": [
+        0.40299249290876393,
+        -0.2935824756837532,
+        0.9557453410236346
+      ],
+      "quaternion_xyzw": [
+        0.7415333718979604,
+        -0.6635803731456459,
+        0.05098872313514839,
+        -0.08479090075340914
+      ]
+    }
+  },
+  "move_status": "MOVED",
+  "per_arm_success": [
+    "arm_3"
+  ],
+  "rest_error_deg": 0.146820530450813,
+  "end_time": 1791969400.8930821,
+  "tau_peak_nm": 8.451531410217285,
+  "invalid_effort": false
+}
+job complete 0
