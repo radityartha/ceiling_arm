@@ -649,3 +649,19 @@ Operator “F3 di atas C+D, siap rekam”; kedua capture15 s selesai rc0 (`hw_20
 **F3 selesai BASE/D/CD, ketiganya missing padaRGBD**; xy/z incumbent uji-tahan tidak dapat dihitung. D595 belum dapat dibuktikanlulus diF3; F7 masihpending, baselineC3RGBDarm_2=5.3 cm juga gagal. Ini kekurangan observasi, bukan bukti kausal salah ekstrinsik dan bukan uji hidup kandidatbaru. F3/F7 tidak masukfit/init/LOO/modelchoice. C1 dataset kedua kamera gagal (RGBDF1/RGBD2F5); belumfit/LOO/kandidat/liveholdoutbaru. D590✗/D597✓, D591–D594/D596/D598 belum diuji; D595 incumbent sudahdicapture padaF3 tetapi missing. “Hanya rgbd2 salah” belum terbukti.
 
 Meja18/18/lantai15/18, semuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOLgerakbaru. Berikut lantai16/18 F7/BASE: botol langsung pada tanda di atas penyangga tetap70 mm, tanpaC/D; tunggu siap/menjauh sebelum15 s. F7 UJI-TAHAN kedua kamera semua tinggi dan kesepakatan, bukanFIT. Peta diverifikasi sebelumHWbaru karena laci dipindahkan.
+
+
+### B53. Botol lantai 16/18 F7/BASE — D595✗; RGBD incumbent gagal uji-tahan
+
+Operator “F7 langsung di penyangga70 mm, siap rekam”; kedua capture15 s selesai rc0 (`hw_20261014/tracks_inc/F7_BASE_*`). Surf_z0.070, actualxy=(0.6483,−0.5809), botol H0.165/r0.0325; ketiga hash cocok. F7 UJI-TAHAN kedua kamera; tidak masukfit/init/LOO/modelchoice. Log, jumlah pesan dan median raw diperiksa sendiri; tanpa gerak HW atau perubahan selector/detector/model.
+
+| Kamera | Track/n | Median xyz (m) | xy mentah (cm) | z_expected (m) | dz (cm) | p5–p95xyz (mm) | Conf |
+|---|---|---|---:|---:|---:|---|---:|
+| rgbd | 348/30 | (0.655150,−0.674925,0.116603) | **9.4274** | 0.183438 | −6.6835 | 3.4/4.1/6.4 | 0.7905 |
+| rgbd2 | 1641/29 | (0.654312,−0.621667,0.104326) | 4.1208 | 0.212313 | −10.7986 | 2.3/1.5/8.7 | 0.777 |
+
+SatuID lokal gray bottle pada setiap pesan, tanpa rival. Offsetcentroid RGBD=(0.014247,0.020453,0.113438), RGBD2=(−0.017810,−0.008412,0.142313). IncumbentRGBDxy>5 cm dan |dz|>3 cm, RGBD2xy≤5 cm tetapi |dz|>3 cm. **D595✗**: dugaanharfiah “rgbd incumbent di lantai (~2.8 m): |dxy|≤0.05 di uji-tahan→rgbd TIDAK diubah (‘hanya rgbd2 yang salah’=ya)” ditolak oleh satu tinggiF7BASE dengan xy9.4274 cm; tidak perlu menunggutinggi lain untuk menolak predikatsemua. F3missing tetap bukan angka gagalbuatan, baselineC3RGBDarm_2=5.3 cm juga gagal.
+
+Kesepakatan incumbentF7BASE (`F7_BASE_agreement_inc.json`): xymentah **5.3265 cm**, setelah kurangi offsetcentroid masing-masing **8.7857 cm**, keduanya>5. Ini diagnosis incumbent, **bukan D596/C4 sesudahrgbd2baru**, karena kandidatbelumdipasang. Tidak mengoreksi model dari uji-tahan. Data menunjukkan galatpipelineRGBD juga melewati gerbang; **tidak membuktikan hanyaRGBD2salah**, dan belummemisahkan penyebabekstrinsik/depth/centroid/segmentasi.
+
+Papan skor checkpoint: D590✗, **D595✗**, D597✓; D591–D594/D596/D598 belum diuji. Skor1✓/2✗,3/9 diuji. C1 kedua kamera gagal dataset (RGBDF1/RGBD2F5), belumfit/LOO/kandidat/liveholdoutbaru. Meja18/18/lantai16/18, semuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOLgerakbaru. Berikut F7/D: boxD140 di atas penyangga tetap70 mm (surf_z0.210), tanpaC, botol sama; tunggu siap/menjauh sebelum15 s. Peta diverifikasi sebelumHWbaru karena laci dipindahkan.
