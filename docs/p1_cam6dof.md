@@ -595,3 +595,14 @@ Operator “F5 langsung di lantai, siap rekam”; kedua capture15 s selesai rc0 
 SatuID lokal gray bottle pada setiap pesan, tanpa rival. Offsetcentroid RGBD=(0.014755,0.019301,0.117563), RGBD2=(−0.016739,−0.010191,0.142313). xy incumbent keduanya≤5 cm, |dz| keduanya>3 cm. Ini FIT, bukanC2 uji-tahan kandidat atauC4F7; C1 F5 baru satu tinggi. Tidak menghapus data buruk atau mengatribusi z otomatis ke depth/ekstrinsik; centroid/segmentasi tetap bagian ketidakpastian. F1 C1RGBD gagal0/3, N1RGBD2 belum sah; belumfit/LOO/kandidat/liveholdout. D590✗/D597✓, lainnya belum diuji sepertiB34, “hanya rgbd2 salah” belum terbukti.
 
 SemuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOL gerak baru. Meja18/18/lantai10/18. Berikut lantai11/18 F5/D: boxD140 langsung di lantai (surf_z0.140), tanpa C atau penyangga70 mm, botol sama; tunggu siap/menjauh sebelum15 s. Peta lingkungan diverifikasi sebelumHWbaru karena laci dipindahkan.
+
+
+### B48. Botol lantai 11/18 F5/D — RGBD tunggal tetapi z di bawah box; RGBD2 missing
+
+Operator “F5 di atas box D, siap rekam”; kedua capture15 s selesai rc0 (`hw_20261014/tracks_inc/F5_D_*`). Surf_z0.140 langsung lantai, actualxy=(0.6497,−0.4779), botol H0.165/r0.0325; ketiga hash cocok. F5/D FIT kedua kamera. Log, jumlah pesan dan median raw diperiksa sendiri; tanpa gerak HW/perubahan selector/detector/model.
+
+RGBD satuID273 gray bottle **30/30 pesan**, median **(0.681824,−0.513617,0.107307) m**, confmedian0.378, p5–p95xyz **4.0/3.1/30.6 mm**, tanpa rival. Galatxy **4.8038 cm**; offsetmodel=(0.014923,0.019559,0.113438), z_expected0.253438, **dz−14.6131 cm**. Z track sendiri **32.6932 mm di bawah permukaan box0.140 m**; kenaikan medianz terhadapBASE47.8101 mm sedangkan permukaan naik140 mm. Anomali tetapdipertahankan; tidak menyimpulkan sumber galat sudah ekstrinsik/depth atau merombak centroid/selector. RGBD2 **30/30 pesan tracks[]**, tidak ada median sah, dicatatmissing tanpa nol/resampling.
+
+Hitungan F5 RGBD kini dua tinggi tunggal; RGBD2 baruBASE satu tinggi, perluCD untuk≥2. Tidak menyatakan C1 fit keseluruhan sah: F1RGBD gagal0/3, N1RGBD2 belum sah dan parameterbelumfit. F5 adalahFIT, bukanC2/C4; belumfit/LOO/kandidat/liveholdout. D590✗/D597✓, lainnya belum diuji sepertiB34; “hanya rgbd2 salah” belum terbukti.
+
+Meja18/18/lantai11/18. SemuaREST/PARK, K0 terakhir sesudahpulang lulus; stack/kamera/localizer/monitor/perekam hidup, NOL gerak baru. Berikut lantai12/18 F5/CD: C bawah/D atas, tumpukan aktual245 mm langsung lantai (surf_z0.245), botol sama; tunggu siap/menjauh sebelum15 s. Peta lingkungan diverifikasi sebelumHWbaru karena laci dipindahkan.
