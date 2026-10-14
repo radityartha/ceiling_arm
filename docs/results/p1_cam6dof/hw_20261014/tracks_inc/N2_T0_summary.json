@@ -1,0 +1,68 @@
+{
+  "mark": "N2",
+  "height": "T0",
+  "surf_z": 0.77,
+  "xy": [
+    1.9388,
+    0.6806
+  ],
+  "operator_ready": true,
+  "start": 1791953144.0502486,
+  "end": 1791953159.6513677,
+  "exit_codes": {
+    "rgbd": 0,
+    "rgbd2": 0
+  },
+  "extrinsics": "incumbent launch + G34",
+  "duration_per_camera_s": 15,
+  "cameras": {
+    "rgbd": {
+      "messages": 31,
+      "role": null,
+      "all_track_ids": [],
+      "candidate_counts": {},
+      "single_track": false,
+      "note": "No bottle track within locked selector radius; do not fabricate observation"
+    },
+    "rgbd2": {
+      "messages": 31,
+      "role": "fit",
+      "all_track_ids": [
+        803
+      ],
+      "candidate_counts": {
+        "803": 31
+      },
+      "single_track": true,
+      "track_id": 803,
+      "n": 31,
+      "labels": [
+        "white bottle"
+      ],
+      "median": [
+        2.106866149310255,
+        0.750363152279246,
+        0.8098891413457056
+      ],
+      "xy_error": [
+        0.16806614931025488,
+        0.06976315227924601
+      ],
+      "xy_error_abs_m": 0.1819701293067468,
+      "model_offset": [
+        -0.01846984425976972,
+        -0.014544288607390099,
+        0.046375000000000055
+      ],
+      "z_expected": 0.8163750000000001,
+      "z_error_m": -0.0064858586542945185,
+      "p5_p95": [
+        0.005310670770272363,
+        0.005264084237688538,
+        0.007014173996463868
+      ],
+      "conf_median": 0.844,
+      "rivals": {}
+    }
+  }
+}
