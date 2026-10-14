@@ -2,13 +2,13 @@
   "operator_request": "A dan B terlalu besar sullit untuk dipindah2. lebih mudah jika pakai C dan D atau tumpukan keduanya",
   "original_protocol_commit": "d081044",
   "original_protocol_sha256": "3d13ea22a89d87bb3ac789bda902a6f2f489f9594d40b166d9426a14a78dc802",
-  "status": "measurements received; draft pending remaining mark surfaces/projection and locking",
+  "status": "all heights/stack arrangement known; live projection checked; awaiting approved return REST and K0 before lock",
   "bottle_floor_data_started": false,
   "current_hw_pose": "arm_3 F7; other arms REST; no permission return",
   "known_C_height_m": 0.1,
   "known_D_height_m": 0.14,
   "stack_measured_height_m": 0.245,
-  "stack_order": null,
+  "stack_order": "C below; D above",
   "F6_support_base_z_m": 0.07,
   "proposed_supports": [
     "D140",
@@ -24,10 +24,10 @@
   "operator_fixed_base_capacity_confirmed": true,
   "F4_surface_mark_confirmed": true,
   "F4_rope_secured_confirmed": true,
-  "operator_clarification": "F4 and F6 on same fixed 7 cm support; supports C/D weight; stack height/order/stability unanswered",
+  "operator_clarification": "F3/F4/F6/F7 same measured fixed70mm; stack245mm C below D above; F1/F5 floor",
   "stack_precision_confirmed": true,
   "stack_stability_with_bottle_confirmed": true,
-  "stack_order_note": "Not answered; confirm same measured stable arrangement before first stack placement",
+  "stack_order_note": "Operator confirmed C di bawah, D di atas",
   "selected_floor_levels": [
     "base",
     "D140",
@@ -53,5 +53,18 @@
     0.07,
     0.21,
     0.315
-  ]
+  ],
+  "F7_support_base_z_m": 0.07,
+  "F7_surface_mark_confirmed": true,
+  "F7_rope_secured_confirmed": null,
+  "known_F7_surface_heights_m": [
+    0.07,
+    0.21,
+    0.315
+  ],
+  "projection_evidence": [
+    "amended_rgbd.log",
+    "amended_rgbd2.log"
+  ],
+  "return_plan_evidence": "return_guard_plan.json"
 }

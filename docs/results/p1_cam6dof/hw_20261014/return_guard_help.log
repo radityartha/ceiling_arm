@@ -1,0 +1,15 @@
+usage: return_rest_cam6dof.py [-h]
+                              [--arms {arm_1,arm_2,arm_3,arm_4} [{arm_1,arm_2,arm_3,arm_4} ...]]
+                              [--seconds SECONDS] [--move] --out-json OUT_JSON
+
+CAM-6DOF: one screened, slow straight return; --move needs step approval.
+Reuse return_rest's cosine trajectory and all retract collision screens. Add
+the campaign's 97% torque margin and cancel measured torque >14 N.m. No
+automatic retry, alternate segment, rail motion, or MoveIt fallback.
+
+options:
+  -h, --help            show this help message and exit
+  --arms {arm_1,arm_2,arm_3,arm_4} [{arm_1,arm_2,arm_3,arm_4} ...]
+  --seconds SECONDS
+  --move
+  --out-json OUT_JSON
