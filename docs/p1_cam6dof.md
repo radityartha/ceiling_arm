@@ -812,3 +812,7 @@ Luring saja dari 70 snapshot arsip B61; NOL kamera/stack/gerak. Protokol dikunci
 4. Lantai: tilt 1.9–2.7°, rasio rgbd2 naik 1.001 → 1.072 (1.5–5 m); pitch vs bias disparitas tidak terpisah dari satu bidang.
 
 Papan harfiah **D600✓ (tafsiran salah: kedipan, bukan statis) / D601✓ (tipis 1.0324) / D602✗ / D603✗ / D604✓ (tidak informatif) = 3✓/2✗**. Penyimpangan: OOM `svd full_matrices` rc 137 diperbaiki dan diulang; analisis tambahan di luar §A ditandai. Kalibrasi/DEMO-HW tetap belum diterima; raw/skor kampanye lama, TF, launch, kode produksi tidak berubah.
+
+### B65. Cek kesehatan depth D455 hidup pasif 2026-10-15 — kedipan rgbd tidak tereproduksi
+
+Kamera saja di domain 80, izin operator "oke jalankan"; NOL gerak/controller. Laporan: `results/p1_cam6dof/depth_health_20261015/report.md`. Empat kondisi 30 s (rgbd saja raw/aligned, dua kamera, harness incumbent + YOLOE 1280 = setup B61): rgbd valid **0.697–0.702**, rgbd2 0.780–0.781, **0 frame < 10 %**; metadata emitter mode 1/laser 150 konstan, parameter emitter default benar. Pola B61/B64 (70 % ↔ 0–1 %) tidak muncul; penyebab kemarin terbuka (IR luar sementara, kabel/hub rgbd, termal). Temuan sampingan: firmware rgbd 5.16.0.1 ≠ rgbd2 5.17.0.10; D435IF ketiga (327122073095) terpasang tapi tak terdokumentasi/tak dipakai; rgbd saja mencatat `Asic Temperature value is not valid!`. Shutdown: domain 0/79/80 kosong, 0 proses/zombie. Bias botol +8 cm (B64) tetap berlaku — juga di rgbd2 yang sehat.
