@@ -192,3 +192,5 @@ CAM-6DOF kesiapan penunjuk: wrapper sesi `harness/probe_cam6dof.py` menegakkan>9
 CAM-6DOF checkpoint meja 17/18: N2_TC disimpan; berikut N2/TD (box D140 mm mengganti C, tanpa tumpukan), menunggu operator siap; penempatan meja terakhir. C3/TD anomali dipertahankan. §A/model/selektor tetap, stack/localizer hidup, nol gerak HW.
 
 CAM-6DOF checkpoint meja 18/18: N2_TD disimpan; berikut persiapan unting/penanda lantai dan pemeriksaan plan-only penjaga97%; belum izin gerak pertama F1. C3/TD anomali dipertahankan. §A/model/selektor tetap, stack/localizer hidup, nol gerak HW.
+
+CAM-6DOF meja18/18 selesai,D590✗ (dua pasangan M1/N2 sudah gagal,max4/6 walau N1missing terpenuhi),C1rgbd2 N1belum sah. K0 pra-penunjuk LULUS dan wrapperF1 plan-only PLANNED91.475802%,semua collision/retractCLEAR. Operator unting/penanda/area siap,lalu secara eksplisit mengizinkan GERAK #1 arm_3REST→F1(0.25,−0.50,1.22) SAJA. Stack/monitor/perekam/localizer aktif. Langkah berikut: eksekusi F1 dengan semua guard,verifikasi MOVED/SUCCESS/torsi/TCP;belum izin F6/pulang.
