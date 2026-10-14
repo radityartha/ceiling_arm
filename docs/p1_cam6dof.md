@@ -271,3 +271,9 @@ TCP terukur3 s,n87: **(0.2512,−0.4998,1.2204) m**, std cetak0/0/0 mm, galat te
 Audit perekam di seluruh jendela job35 s (`move_F1_recorder_audit.json`):97580 baris,jendela tertutup≤10 ms,puncak5.6153 N·m j3; rel/rotasi kedua gantry rentang **0**, lengan lain maks rentang0.008709°. Tidak ditemukan REJECTED/FAULT/TORQUE-ABORT baru pada log launch; NOT armed table1 hanya catatan inisialisasi sebelumARMED. Tidak ada gerak tak diminta terukur. C6 untuk langkah1 lulus; D597 belum skor final karena langkah lainnya/pulang belum.
 
 **Keadaan kini:** arm_3 menahan F1 (BUKAN REST), arm_1/2/4 REST,g1 1.499262/g2 0.000901,rot0/0. Stack/monitor/perekam/kamera/localizer masih hidup. Belum izin F6 atau pulang. Berikut plan-only F6 dari keadaan aktualF1, lalu izin satu langkah bila semua guard lulus.
+
+### B15. Plan-only F1→F6 lulus; menunggu izin gerak #2
+
+Dari arm_3 di F1, wrapper97% plan-only F6=(0.40,−0.70,1.22) tool-bawah menghasilkan DRY/PLANNED percobaan1, j3 **91.530809%**. Interarm minimum500.3 mm, lingkungan115.3 mm; retract se410.4/antar860.9/env115.3 mm CLEAR. Bukti `from_F1_to_F6_plan.json/.log`. Tidak ada --move atau eksekusi. Plan-only dapat menerbitkan target monitor F6; galat monitor ke target itu bukan bukti gerak.
+
+Arm_3 tetap F1, tanda F1 dikonfirmasi dan unting aman; lengan lain REST, gantry tetap. Belum izin F6/pulang. Berikut meminta izin **satu langkah F1→F6 saja**; bila disetujui, rencana aktual disaring ulang dengan batas97%, kemudian verifikasi MOVED/SUCCESS/torsi/TCP.
