@@ -1,0 +1,36 @@
+{
+  "original_revision": "b8263d7",
+  "original_source_sha256": "040d44a7c912c5d7f62e8d5a4ab8e8da928e74b2a08868f0d15f9c705845eca0",
+  "condition": "One synthetic RGB-D pair at10s, actual _publish timers10/10.5/11/20s, no ROSnode/network/hardware",
+  "before": {
+    "10.0": [],
+    "10.5": [],
+    "11.0": [
+      {
+        "tid": 0,
+        "label": "gray bottle",
+        "x": 0.095,
+        "y": 0.0,
+        "z": 1.0,
+        "conf": 0.0
+      }
+    ],
+    "20.0": [
+      {
+        "tid": 0,
+        "label": "gray bottle",
+        "x": 0.095,
+        "y": 0.0,
+        "z": 1.0,
+        "conf": 0.0
+      }
+    ]
+  },
+  "after": {
+    "10.0": [],
+    "10.5": [],
+    "11.0": [],
+    "20.0": []
+  },
+  "result": "PASS: original confirms one frame and retains it at20s; corrected implementation does neither"
+}

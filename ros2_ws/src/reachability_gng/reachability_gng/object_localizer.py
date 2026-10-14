@@ -52,24 +52,29 @@ def deproject(xs, ys, z, fx, fy, cx, cy):
     return np.stack([X, Y, z], axis=1)
 
 
-def fuse(dets, radius):
+def fuse(dets, radius, observation_times=None):
     """Merge detections (label, xyz, top_z) whose centroids are within `radius`.
 
     Dedups an object seen by multiple cameras; averages the centroid and keeps
     the HIGHEST observed top (each camera sees a partial top). Returns
-    [(label, xyz, top_z), ...].
+    [(label, xyz, top_z), ...]. When observation_times is provided, append
+    the newest contributing measurement time to each fused detection.
     """
-    merged = []  # [label, xyz, top_z, count]
-    for label, xyz, top in dets:
+    merged = []  # [label, xyz, top_z, count, latest_observation_time]
+    for index, (label, xyz, top) in enumerate(dets):
+        observed = observation_times[index] if observation_times is not None else None
         for m in merged:
             if np.linalg.norm(m[1] - xyz) <= radius:
                 m[1] = (m[1] * m[3] + xyz) / (m[3] + 1)
                 m[2] = max(m[2], top)
                 m[3] += 1
+                if observed is not None:
+                    m[4] = max(m[4], observed)
                 break
         else:
-            merged.append([label, np.asarray(xyz, float).copy(), float(top), 1])
-    return [(m[0], m[1], m[2]) for m in merged]
+            merged.append([label, np.asarray(xyz, float).copy(), float(top), 1, observed])
+    return [(m[0], m[1], m[2], m[4]) if observation_times is not None
+            else (m[0], m[1], m[2]) for m in merged]
 
 
 # Color words seg_router prefixes onto a label (see seg_router.name_color). The
@@ -140,7 +145,7 @@ class ObjectLocalizer(Node):
         # so two objects that pass close never swap identity; a detection can
         # only bind to a track within track_match_radius (gating) and same-class
         # pairs are preferred (class_cost added to cross-class pairs). A track is
-        # only PUBLISHED once seen in confirm_frames separate cycles, which
+        # only PUBLISHED once seen in confirm_frames fresh measurement cycles, which
         # rejects 1-frame detector flicker (spurious YOLOE blobs). The published
         # CLASS switches only when a challenger out-votes the committed class by
         # label_hysteresis_margin (vote hysteresis), so a single mislabelled
@@ -193,6 +198,8 @@ class ObjectLocalizer(Node):
         self._label_conf = {}                     # label -> latest YOLOE conf (display)
         self._dets = {ns: [] for ns in nss}       # ns -> [(label, xyz_world)]
         self._syncs = []                          # keep refs alive
+        self._dets_stamp = {ns: None for ns in nss}
+        self._last_pair_stamp = {ns: None for ns in nss}
         self._tracks = {}    # tid -> {'label', 'xyz'(np3), 'last'(sec)}
         self._next_tid = 0   # monotonic stable-id counter
 
@@ -294,6 +301,11 @@ class ObjectLocalizer(Node):
     def _on_pair(self, ns, depth_msg, seg_msg):
         if self._K[ns] is None or not self._labels[ns]:
             return
+        observed = min(m.header.stamp.sec + m.header.stamp.nanosec * 1e-9
+                       for m in (depth_msg, seg_msg))
+        previous = self._last_pair_stamp[ns]
+        if previous is not None and observed <= previous:
+            return  # Duplicate/out-of-order packets cannot create fresh hits.
         fx, fy, cx, cy = self._K[ns]
         try:
             depth = self._decode(depth_msg, np.float32)
@@ -327,6 +339,27 @@ class ObjectLocalizer(Node):
             top_z = float(np.percentile(pts_world[:, 2], 95))
             dets.append((label, c_world, top_z))
         self._dets[ns] = dets
+        self._dets_stamp[ns] = observed
+        self._last_pair_stamp[ns] = observed
+
+    def _consume_detections(self):
+        """Consume each camera's latest pair once, using measurement age.
+
+        Timer ticks must neither confirm a single image nor renew its TTL.
+        Cached packets that aged out before publication are not observations.
+        """
+        now = self.get_clock().now().nanoseconds * 1e-9
+        dets, times = [], []
+        for ns in self._dets:
+            observed = self._dets_stamp[ns]
+            pending = self._dets[ns]
+            self._dets[ns] = []
+            self._dets_stamp[ns] = None
+            if observed is None or not 0 <= now - observed <= self.track_ttl:
+                continue
+            dets.extend(pending)
+            times.extend([observed] * len(pending))
+        return fuse(dets, self.fuse_radius, times)
 
     def _target_names(self):
         """Set of target label names, or None when no target is configured."""
@@ -386,19 +419,23 @@ class ObjectLocalizer(Node):
     def _update_tracks(self, cur):
         """Fold this cycle's detections into persistent, stable-id tracks.
 
-        `cur` is [(label, xyz, top_z)] fused across cameras for THIS cycle.
+        `cur` is [(label, xyz, top_z, observed_at)] from fresh camera pairs.
         Detections are matched to tracks by GLOBAL (Hungarian) assignment within
         track_match_radius (see _associate); a matched track is EMA-smoothed and
         its label voted, an unmatched detection starts a new track. Tracks older
         than track_ttl are dropped, then near-duplicates merged. Only tracks seen
-        in >= confirm_frames cycles are returned (rejects flicker), as
+        in >= confirm_frames fresh measurement cycles are returned (rejects flicker), as
         [(tid, label, xyz, top)] ordered by stable id -- persistent, deduped,
         vote-hysteresis labelled. Identity is the tid, not the class label.
         """
         now = self.get_clock().now().nanoseconds * 1e-9
-        pairs, unmatched = self._associate(cur)
+        # Expire before matching so a late new frame cannot resurrect old hits.
+        self._tracks = {tid: tr for tid, tr in self._tracks.items()
+                        if 0 <= now - tr['last'] <= self.track_ttl}
+        cur = [d for d in cur if 0 <= now - d[3] <= self.track_ttl]
+        pairs, unmatched = self._associate([d[:3] for d in cur])
         for det_idx, tid in pairs:
-            label, xyz, top = cur[det_idx]
+            label, xyz, top, observed = cur[det_idx]
             tr = self._tracks[tid]
             a = self.track_smooth
             tr['xyz'] = a * tr['xyz'] + (1.0 - a) * np.asarray(xyz, float)
@@ -409,15 +446,15 @@ class ObjectLocalizer(Node):
                     if tr['votes'][k] < 0.05:
                         del tr['votes'][k]
             tr['votes'][label] += 1.0
-            tr['last'] = now
+            tr['last'] = max(tr['last'], observed)
             tr['hits'] += 1
             self._commit_label(tr)
         for det_idx in unmatched:
-            label, xyz, top = cur[det_idx]
+            label, xyz, top, observed = cur[det_idx]
             self._tracks[self._next_tid] = {
                 'votes': Counter([label]), 'label': label,
                 'xyz': np.asarray(xyz, float), 'top': float(top),
-                'last': now, 'hits': 1}
+                'last': observed, 'hits': 1}
             self._next_tid += 1
         self._tracks = {tid: tr for tid, tr in self._tracks.items()
                         if now - tr['last'] <= self.track_ttl}
@@ -450,8 +487,7 @@ class ObjectLocalizer(Node):
 
     # ---- output -------------------------------------------------------------
     def _publish(self):
-        alld = [d for dets in self._dets.values() for d in dets]
-        merged = self._update_tracks(fuse(alld, self.fuse_radius))
+        merged = self._update_tracks(self._consume_detections())
 
         stamp = self.get_clock().now().to_msg()
         pa = PoseArray()
