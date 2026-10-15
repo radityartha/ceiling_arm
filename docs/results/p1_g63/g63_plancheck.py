@@ -6,7 +6,7 @@ Each leg is planned by probe_g63.py --plan-check from the PREVIOUS leg's goal (-
 will really be executed is screened (torque 97 %, same/cross-gantry, env, GOAL-MISMATCH, boards attached).
 The first leg starts from the PLACED REST state (rails from the pose file), not the measured one.
 
-    g63_plancheck.py --poses poses.json --payload P.urdf --arm arm_2 --out pc_arm_2.json [--stages P0 T1]
+    g63_plancheck.py --poses poses.json --payload P.urdf --arm arm_2 --out pc_arm_2.json [--stages P0 T1] [--extra-env S.npz]
 """
 import argparse
 import json
@@ -47,6 +47,7 @@ def main():
     ap.add_argument('--out', required=True)
     ap.add_argument('--stages', nargs='+', default=['P0', 'T1', 'T2', 'T3'])
     ap.add_argument('--attempts', type=int, default=8)
+    ap.add_argument('--extra-env', default=None, help='probe_g63 --g63-extra-env (S0c voxels, A8.15)')
     a = ap.parse_args()
     P = json.load(open(a.poses))
     poses = P['arms'][a.arm]['poses']
@@ -72,9 +73,12 @@ def main():
     for k, p in enumerate(seq):
         cmd = [sys.executable, '-u', os.path.join(HERE, 'probe_g63.py'), '--g63-payload-urdf', a.payload,
                '--g63-tool-quat', ','.join(str(v) for v in p['tool_quat_xyzw']), '--arms', a.arm,
-               '--target=' + ','.join(str(v) for v in p['tool_xyz']),   # '=' form: x may be negative '--goal-joints', json.dumps(p['goal_joints']),
+               '--target=' + ','.join(str(v) for v in p['tool_xyz']),   # '=' form: x may be negative
+               '--goal-joints', json.dumps(p['goal_joints']),   # HW 10-15: was swallowed by the comment (eec3a4e)
                '--approach', '0', '--plan-check', '--tau-max', '14', '--plan-attempts', str(a.attempts),
                '--trials', '1', '--out-json', os.path.join(logdir, f'{k:02d}_{p["id"]}.json')]
+        if a.extra_env:
+            cmd += ['--g63-extra-env', a.extra_env]
         if start is not None:   # FULL placed state: rails, rotations, every arm (others REST) + this arm's goal
             full = {'t1_linear_joint': P['rail1'], 't2_linear_joint': P['rail2'], 't1_rotation_joint': 0.0,
                     't2_rotation_joint': 0.0}

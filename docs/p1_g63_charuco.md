@@ -260,4 +260,27 @@ karena galat basis gantry, bukan kamera — operator memilih di §A6.
 
 ## B. Hasil terukur
 
-(belum ada — NOL gerak, NOL kamera pada sesi diskusi 2026-10-15)
+### B1. Sesi HW 2026-10-15 (sesudah kunci §A; `results/p1_g63/hw_20261015b/`)
+
+1. **Bring-up** (izin "Ya, bring-up"): `stack_up.sh` domain 0, 7/7 active (FATAL spawner = balapan "already loaded" dikenal);
+   monitor → `g63_mon_*`, perekam → `g63_joint_states.csv`, `cam_up.sh` incumbent, `rec_health` dua kamera. K0 polos rail1 1.50:
+   lengan REST ≤ 0.209°, g1 1.4993, g2 0.0009, **TOLAK hanya jari tertutup** arm_2 0.8099 / arm_3 0.7790 rad (sesuai A8.11) →
+   **`g63_k0.py`** (k0_check tak diubah; jari arm_2/arm_3 diharapkan nilai tertutup itu, tol 0.02 tetap → jari tergelincir
+   tertangkap) LULUS.
+2. **§A vs kenyataan (§B menang):** prompt/§A8.13 menulis "pose_to_g → tempel → bring-up", tetapi `pose_to_g` butuh stack hidup →
+   bring-up lebih dulu. `pose_to_g` S13 hanya menerima stop jadwal/p0/PARK → **`g63_rail_plan.json`** (seed 63, varian G63, stop
+   g1 1.40 rot 0); S12/S23/S28/G33/rc 3 tidak diubah.
+3. **g1 1.50 → 1.40** (papan A DILEPAS, izin "Papan A lepas, gerak"): DRY sapuan CLEAR antar-lengan 782.6 mm, env beku 115.3 mm;
+   voxel S0c ≥ 145 mm (`g1_to140_s0c_check.log`). MOVE: 1.399998 m, galat −0.002 mm, 5.61 s (T_cmd 5.51), lengan bergeser
+   ≤ 0.032°, torsi puncak 0.44, rc 0. `g63_k0 --rail1 1.40` LULUS. Papan A ditempel lagi (operator: posisi sama).
+4. Live `robot_description` = `live_urdf_20261011.urdf` (beda hanya newline akhir) → `payload.urdf` sha256 dc7459a8… =
+   model yang dipakai saring S0c. `g63_attach` OK (A → t1_a2_tool_frame, B → t2_a1_tool_frame).
+5. 🔴 **Bug alat ditemukan sebelum gerak:** commit eec3a4e (bentuk `--target=`) menaruh komentar yang **menelan
+   `'--goal-joints', json.dumps(...)`** di `g63_plancheck.py` → plan-check mock dudukan NYATA (A8.14: 26/27 + 26/27) merencana
+   ke **target pose (IK bebas MoveIt)**, BUKAN ke sendi tujuan terkunci, padahal leg berikut mulai dari `goal_joints`. A8.14
+   **bukan bukti** untuk rencana sendi-tujuan (T6 dudukan tebakan A8.6 masih memakainya). Diperbaiki (+ `--extra-env`).
+   Konsekuensi: plan-only HW per tahap = pemeriksaan sendi-tujuan PERTAMA untuk dudukan nyata.
+6. **Plan-only HW P0 arm_2** (sendi-tujuan, union env S0c, papan di scene, rantai dari REST tertempat):
+   **6/6 PLANNED** (A-R0, A-01, A-02, A-03, A-R0, REST), margin maks **92.4 %** (j3), env min 77.2 mm, penolakan penjaga 0
+   (`pc_hw_arm_2_P0.json`). DRY dari keadaan TERUKUR A-R0 via `g63_move.py` (argumen identik plan-check, `--move` per izin):
+   PLANNED, ujung 1.16 mm / 0.08°, papan A↔B 153.3 mm, env 76.9 mm, j3 91.8 %.
