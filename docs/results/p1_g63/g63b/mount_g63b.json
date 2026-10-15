@@ -1,0 +1,93 @@
+{
+ "_note": "G63b DUDUKAN NYATA v3 2026-10-15 (operator, foto 1-5 di root, tidak di-commit): dua papan punggung-ke-punggung di badan gripper arm_2, cable tie atas + pita lakban bawah (sejajar, 70 mm). Satu kotak tabrakan = dua lembar + ruang di antaranya (konservatif; beririsan housing pergelangan secara model -> upper_wrist jadi touch link di attach g63b).",
+ "A": {
+  "link": "gripper_base_link",
+  "xyz": [
+   0.035,
+   0.084,
+   0.0355
+  ],
+  "rpy": [
+   1.570796,
+   0.0,
+   -1.570796
+  ],
+  "mass_kg": 0.095,
+  "card_t": 0.07,
+  "square_m": 0.042,
+  "sheet_x": [
+   -0.021,
+   0.189
+  ],
+  "sheet_y": [
+   -0.0435,
+   0.2535
+  ],
+  "guess": false,
+  "faces": {
+   "1": "muka di +x_g = papan A (rgbd2 di REST)",
+   "2": "muka di -x_g = papan B (rgbd di REST); T_12 = rot y 180, asal (0.168, 0, 0.070)"
+  },
+  "face_label": {
+   "1": "A (rgbd2 di REST)",
+   "2": "B (rgbd di REST)"
+  },
+  "measured": {
+   "tebal_kertas_ke_kertas_atas_bawah_mm": 70,
+   "tepi_atas_lembar": "78 mm di atas pangkal jari (z_g 0.070) -> z_g -0.008",
+   "lembar": "A4 penuh 210x297, pola di tengah (tepi 21 / 43.5)",
+   "kotak": "operator: \"aman\" (nominal 42.0 -- angka mm belum dicatat)",
+   "massa": "87 g dua papan (operator) + 8 g cadangan lakban/cable tie TIDAK ditimbang -> 0.095",
+   "jarak_meja_REST_g1_1.50_mm": 65
+  },
+  "assumed": [
+   "lembar terpusat di sumbu gripper (y_g) -- dari foto 1",
+   "papan sejajar sumbu gripper sesudah ganjal (foto 4/5)"
+  ]
+ },
+ "B": {
+  "link": "gripper_base_link",
+  "xyz": [
+   0.035,
+   0.084,
+   0.0355
+  ],
+  "rpy": [
+   1.570796,
+   0.0,
+   -1.570796
+  ],
+  "mass_kg": 0.095,
+  "card_t": 0.07,
+  "square_m": 0.042,
+  "sheet_x": [
+   -0.021,
+   0.189
+  ],
+  "sheet_y": [
+   -0.0435,
+   0.2535
+  ],
+  "guess": false,
+  "faces": {
+   "1": "muka di +x_g = papan A (rgbd2 di REST)",
+   "2": "muka di -x_g = papan B (rgbd di REST); T_12 = rot y 180, asal (0.168, 0, 0.070)"
+  },
+  "face_label": {
+   "1": "A (rgbd2 di REST)",
+   "2": "B (rgbd di REST)"
+  },
+  "measured": {
+   "tebal_kertas_ke_kertas_atas_bawah_mm": 70,
+   "tepi_atas_lembar": "78 mm di atas pangkal jari (z_g 0.070) -> z_g -0.008",
+   "lembar": "A4 penuh 210x297, pola di tengah (tepi 21 / 43.5)",
+   "kotak": "operator: \"aman\" (nominal 42.0 -- angka mm belum dicatat)",
+   "massa": "87 g dua papan (operator) + 8 g cadangan lakban/cable tie TIDAK ditimbang -> 0.095",
+   "jarak_meja_REST_g1_1.50_mm": 65
+  },
+  "assumed": [
+   "lembar terpusat di sumbu gripper (y_g) -- dari foto 1",
+   "papan sejajar sumbu gripper sesudah ganjal (foto 4/5)"
+  ]
+ }
+}

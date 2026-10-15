@@ -111,3 +111,12 @@ jarak 0.6–2.8 m, sudut ≤ 55°, torsi statis ≤ 92 % (150 g), tabrakan (raki
 8. **Aturan j4 berbasis torsi TIDAK layak:** τ_j4 gravitasi statis di kandidat p5–p95 = **0.009–0.418 N·m** (link distal ringan) —
    ambang 1.5 N·m menolak semua (varian dihentikan, tanpa hasil). Gerak papan akibat j4 berburu pp 3.2e-3 rad (nilai P0) pada
    pose terpilih: **≤ 1.14 mm / ≤ 0.80 px** pp (median 0.75–1.05 mm) → usul (ii) di §A6.1.
+9. **Dudukan NYATA v3** (operator 2026-10-15 sore, foto `1–5.jpeg` di root — lokal, TIDAK di-commit): rakitan di arm_2, cable tie
+   atas + pita lakban bawah, sejajar **70 mm** kertas-ke-kertas, tepi atas lembar **78 mm di atas pangkal jari** (z_g −0.008),
+   A4 penuh, massa 87 g (+8 g cadangan lakban/tie tak ditimbang → 0.095), A → rgbd2, B → rgbd (cocok model REST). Versi pertama
+   (hanya cable tie atas) membentuk V 75/115 mm = engsel → lendutan bergantung pose TIDAK tertangkap G6′ → operator menambah
+   pita bawah. **Uji goyang (≤ 1–2 mm) belum dikonfirmasi.** `mount_g63b.json`: REST arm_2 g1 1.50 model 35.9 mm (+10 mm kotak)
+   vs terukur 65 mm ke meja (model konservatif ≈ 2 cm); g1 1.40 kotak MoveIt TABRAK; **g1 1.30 bersih 120 mm**. Kotak tunggal
+   beririsan housing pergelangan secara model (−50 mm) → `g63b_attach.py` menambah `upper_wrist_link` sebagai touch link
+   (hanya papan↔lengan sendiri; env/lengan lain tetap penuh). Pose v3 (`run_poses_v3.sh`, `poses_g63b_v3.json`): arm_2 **171**
+   kandidat lolos; arm_3 berjalan saat sesi dijeda.
