@@ -1,0 +1,14 @@
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+arm_2: cek dudukan (kotak papan +10 mm vs link tetangga, j6 penuh): {'upper_wrist_link': -0.0505, 'gripper_base_link': -0.078} m  <-- upper_wrist NEGATIF = papan menembus pergelangan: dudukan mustahil (gripper_base = touch link, boleh bersentuhan)
+arm_2: {'sampled': 8000, 'visible': 2823, 'z': 1434, 'torque': 628, 'collision': 0, 'occlusion': 0} (3 s) -> tabrakan/oklusi pada kandidat
+arm_2: lolos semua 171; hitungan {'sampled': 8000, 'visible': 2823, 'z': 1434, 'torque': 628, 'collision': 438, 'occlusion': 171, 'retract': 257}
+arm_2: R0 kamera ['rgbd', 'rgbd2']; urutan 21; {('FIT', 'rgbd2@arm_2'): 6, ('FIT', 'rgbd+rgbd2@arm_2'): 6, ('FIT', 'rgbd@arm_2'): 6, ('HOLDOUT', 'rgbd2@arm_2'): 1, ('HOLDOUT', 'rgbd+rgbd2@arm_2'): 1, ('HOLDOUT', 'rgbd@arm_2'): 1}
+arm_3: cek dudukan (kotak papan +10 mm vs link tetangga, j6 penuh): {'upper_wrist_link': -0.0505, 'gripper_base_link': -0.078} m  <-- upper_wrist NEGATIF = papan menembus pergelangan: dudukan mustahil (gripper_base = touch link, boleh bersentuhan)
+arm_3: {'sampled': 8000, 'visible': 2520, 'z': 1247, 'torque': 565, 'collision': 0, 'occlusion': 0} (3 s) -> tabrakan/oklusi pada kandidat
+arm_3: lolos semua 381; hitungan {'sampled': 8000, 'visible': 2520, 'z': 1247, 'torque': 565, 'collision': 467, 'occlusion': 381, 'retract': 458}
+arm_3: R0 kamera ['rgbd', 'rgbd2']; urutan 21; {('FIT', 'rgbd2@arm_3'): 5, ('FIT', 'rgbd+rgbd2@arm_3'): 6, ('FIT', 'rgbd@arm_3'): 5, ('FIT', 'rgbd@arm_2'): 1, ('HOLDOUT', 'rgbd2@arm_3'): 1, ('HOLDOUT', 'rgbd+rgbd2@arm_3'): 1, ('HOLDOUT', 'rgbd@arm_3'): 1, ('FIT', 'rgbd2@arm_4'): 1}
+tulis poses_g63b_v3.json
+g63b: {'created': 'g63b_poses.py', 'j4_min': 0.0, 'j4_reject': 0, 'T_12': [[-1.0, 0.0, 0.0, 0.168], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, -1.0, 0.07], [0.0, 0.0, 0.0, 1.0]], 'j4_static_quantiles': [0.01, 0.065, 0.159, 0.267, 0.398]}
