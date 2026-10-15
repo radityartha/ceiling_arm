@@ -1,14 +1,14 @@
 # P1 / G63b — desain ulang target kalibrasi ekstrinsik D455 (papan catur polos, dudukan di badan gripper)
 
-> Sesi 2026-10-15 (prompt [p1_g63b_redesign_prompt.md](p1_g63b_redesign_prompt.md)), **LURING: NOL gerak HW, NOL kamera,
-> NOL mock**. Lanjutan G63 ([p1_g63_charuco.md](p1_g63_charuco.md) §B1–B3: HW P0 0 observasi). **§A ini DRAF — belum dikunci.**
-> Dikunci (salinan `results/p1_g63/g63b/g63b_A_locked.md` + sha256 + commit) hanya atas persetujuan operator, sesudah dudukan
-> NYATA diukur dan plan-check mock. Data/alat: [results/p1_g63/g63b/](results/p1_g63/g63b/).
+> Sesi 2026-10-15 (prompt [p1_g63b_redesign_prompt.md](p1_g63b_redesign_prompt.md)): luring + mock domain 77 (izin operator),
+> NOL gerak HW, NOL kamera. Lanjutan G63 ([p1_g63_charuco.md](p1_g63_charuco.md) §B1–B3: HW P0 0 observasi).
+> **§A DIKUNCI 2026-10-15 malam** atas persetujuan operator (A6) → `results/p1_g63/g63b/g63b_A_locked.md` + sha256.
+> Runbook HW: [results/p1_g63/g63b/g63b_runbook.md](results/p1_g63/g63b/g63b_runbook.md). Data/alat: [results/p1_g63/g63b/](results/p1_g63/g63b/).
 
 Tujuan tetap sama dengan G63: ekstrinsik baru kedua D455 (T_wc, 6 DOF) dari sudut papan yang dibawa lengan, acuan = FK sendi
 terukur; gerbang G1–G8 G63 kecuali yang diulas di §A4. Yang berubah: **target**, **dudukan**, **lengan per fase**, **detektor**.
 
-## A. Protokol (DRAF)
+## A. Protokol — DIKUNCI 2026-10-15
 
 ### A0. Keputusan operator 2026-10-15 (harfiah)
 
@@ -26,18 +26,19 @@ terukur; gerbang G1–G8 G63 kecuali yang diulas di §A4. Yang berubah: **target
 ### A1. Model
 
 Sama dengan G63 §A1 kecuali: papan b ∈ {muka 1, muka 2} dari SATU rakitan per lengan; T_lb rakitan (6 DOF) relatif
-`gripper_base_link` = gangguan, diestimasi; muka 2 = muka 1 · T_12 (rot y 180°, asal (4·kotak, 0, t_rakitan)), t_rakitan
-**terukur** (jangka sorong) — bila solver perlu, t_rakitan jadi parameter ke-7 (keputusan di T3b, sebelum data).
-Ukuran kotak = **terukur** sesudah cetak. Tiap fase (arm_2, arm_3) punya T_lb sendiri (rakitan dilepas-pasang).
+`gripper_base_link` = gangguan. **Solver: tiap muka punya T_lb 6-DOF SENDIRI** (nama A2/B2 fase arm_2, A3/B3 fase arm_3;
+12 kamera + 24 muka = 36 parameter); T_12 (rot y 180°, asal (4·kotak, 0, 0.070 m terukur)) hanya untuk PRIOR deteksi dan
+model tabrakan, tidak dipaksakan di solver (tak bergantung pada kekakuan rakitan). Ukuran kotak = 42.0 mm (operator: cetak
+"aman"); angka mm terukur menggantikan bila diberikan di S0.
 
 ### A2. Urutan (tiap gerak nyata = satu izin)
 
-S0 (tanpa gerak): K0 + jari arm_2 ukur ulang (A0.6), identitas kamera, `rec_health` terus, **papan lama di luar bingkai**
-(foto kedua kamera, kamera saja = izin), ukur papan (4/5 kotak, kerataan ≤ 1 mm, t_rakitan, massa, foto dudukan) →
-`mount_g63b.json` NYATA → URDF + pose ulang → plan-check mock (sendi-tujuan, `--extra-env`) → kunci §A.
-S1 bring-up (`octomap_updaters:=false`, `enable_gantry_bridge:=true`). **Rel g1 1.50 → 1.30 TANPA papan** (REST + papan menabrak
-meja di 1.40, §A8.6), lalu pasang rakitan di arm_2 (lengan REST). S2 arm_2 P0 → … S3 lepas rakitan → g1 1.30 → 1.50 PARKIR
-(tanpa papan) → pasang rakitan di arm_3 (g2 0; REST arm_3 bersih, §A8.6) → P0 …. S4–S6 sama dengan G63.
+Rinci = runbook. S0 (tanpa gerak): preflight, **uji goyang rakitan oleh operator (≤ 1–2 mm)**, papan lama di luar bingkai,
+ukuran kotak. S1 bring-up (`octomap_updaters:=false`, `enable_gantry_bridge:=true`, `reach_dwell_monitor` WAJIB hidup), K0 +
+jari arm_2 ukur ulang (A0.6), **lepas rakitan → g1 1.50 → 1.30 → pasang lagi** (REST + rakitan tabrak kotak meja MoveIt di
+1.40/1.50, §A8.6/A8.9); g1 tetap **1.30 untuk KEDUA fase**. S2 fase arm_2 (P0 → T1 → T2 → T3, tiap tahap plan-only berantai dulu).
+S3 pindah rakitan ke arm_3 (attach B, payload fase arm_3), ulang tahap. S4–S6: solve gabungan (`g63b_solve`), gerbang, akhir:
+lepas rakitan → baru `return_rest` boleh → g1 1.50 PARK → K0.
 **Pulang REST selama papan terpasang hanya via `probe_g63`** (A8.10 G63).
 
 ### A3. Deteksi (aturan buang DIDAFTARKAN sebelum data)
@@ -49,8 +50,8 @@ Per frame, per kamera, per muka yang menurut FK menghadap kamera (sudut ≤ 70°
    sesudah e2e seed 4, sebelum data HW — hanya lebih ketat); pelabelan = arah muka (det J dari FK-muka) + paritas
    20 kotak, |skor| ≥ **0.5**; **cincin putih**: 18 titik di tengah tepi 21 mm semua > (hitam+putih)/2.
 4. < 12 sudut = frame ditolak (papan polos: semua atau tidak sama sekali). Median 30 frame per pose; std dicatat.
-5. Identitas muka: hanya muka dengan normal FK ke kamera ≤ 70° yang dicari; bila kedua muka ≤ 70° (mustahil, normal
-   berlawanan) → pose ditolak untuk kamera itu.
+5. Identitas muka: muka hanya dicari bila PRIOR-nya menghadap kamera (det J homografi prior > 0) dan seluruh prior di dalam
+   bingkai; muka membelakangi → tidak dicari (mock: 100 % sesuai rencana pose).
 Tidak ada pelonggaran sesudah data; frame P0 lama (`hw_20261015b/cap/frames`) = data pengembangan saja.
 
 ### A4. Gerbang (ulasan G1–G8)
@@ -58,24 +59,34 @@ Tidak ada pelonggaran sesudah data; frame P0 lama (`hw_20261015b/cap/frames`) = 
 G1 tetap (≥ 15 FIT/kamera, dua fase/lengan ada). G2 tetap; T_lb ≤ 0.20 m dari `gripper_base_link`. G3 tetap (1.5/3.0/2.0 cm).
 G4′ tetap (2.0 cm); G4 lama dilaporkan bila ada pose dua-kamera (kini mungkin: muka berbeda). G5 tetap. G6′ tetap (2 mm).
 G7 tetap (MOVED+SUCCESS, torsi ≤ 14, 0 fault, **jari ≤ 0.5°** — kini harus lulus karena jari tidak dibebani). G8 tetap.
-**Baru — G9 (diam):** capture ditolak bila sendi bergerak > 2e-4 rad (tetap, tidak dilonggarkan); usul aturan pose j4 §A5.
+**Baru — G9 (diam, A6.1):** sendi 1–3, 5–6 std < 2e-4 rad (tetap); **j4 peak-to-peak ≤ 4.58e-3 rad** (= gerak papan ≤ 1.5 mm
+pada tuas terbesar 0.328 m di semua pose terkunci, `j4_limit.json`); drift selama tangkap dinilai tanpa j4.
+**Baru — G10 (solve sah):** `g63b_solve` menolak bila rank Jacobian < parameter, residu < 2 × parameter, atau std kamera
+(σ ≥ 0.3 px) di atas batas G63 (0.10° / 5 mm) — P0 DIHARAPKAN ditolak (cek proses, bukan kalibrasi).
 
-### A5. Pose
+### A5. Pose (TERKUNCI: `g63b/poses_g63b_v4.json`)
 
-`g63b/g63b_poses.py` (= `g63_poses.py` + dua muka + aturan j4): visibilitas incumbent per muka, z pusat 0.80–1.40,
-jarak 0.6–2.8 m, sudut ≤ 55°, torsi statis ≤ 92 % (150 g), tabrakan (rakitan = satu kotak: dua lembar + badan gripper,
-+10 mm), cek retract, oklusi; g1 **1.30**, g2 0. **Usul j4** (operator memutuskan, §A6): |τ_j4 statis| ≥ ambang (lihat §A8.7).
+`g63b_poses.py` (= `g63_poses.py` + dua muka + R0 ≤ 40°): visibilitas incumbent per muka, z pusat 0.80–1.40, jarak 0.6–2.8 m,
+sudut ≤ 55°, torsi statis ≤ 92 % (150 g, terukur 87 g), tabrakan (rakitan = satu kotak +10 mm), cek retract, oklusi; g1 1.30,
+g2 0; seed 63, 8000 sampel. **R0 dilihat ≤ 40° di setiap kamera** (A6.3): arm_2 R0 rgbd2 30.8° / 1.83 m + rgbd 38.5° / 1.16 m;
+arm_3 R0 rgbd2 38.8° / 1.14 m + rgbd 31.2° / 1.96 m. Urutan 21 pose per lengan (P0 3 / T1 6 / T2 6 / T3 6), uji-tahan tiap
+ke-4 per kategori kamera. Aturan j4 berbasis torsi TIDAK dipakai (tak layak, §A8.8).
 
-### A6. Pertanyaan operator untuk kunci (menunggu)
+### A6. Jawaban operator untuk kunci (2026-10-15 malam, harfiah)
 
-1. **Aturan diam j4** (§A8.8): (i) tetap 2e-4 rad semua sendi (pose seperti A-02 bisa ditolak lagi) **atau** (ii) usul: sendi
-   1–3, 5–6 tetap ≤ 2e-4 rad; j4 boleh berburu bila gerak papan akibat j4 (FK per sampel selama tangkap) ≤ **1.5 mm** pp, sudut =
-   median 30 frame dipasangkan dengan median sendi. (ii) = kriteria BARU (bukan pelonggaran diam-diam) → hanya atas keputusan operator.
-2. g1 **1.30** untuk fase arm_2 (1.40 tabrak meja di REST dengan rakitan); rel digeser TANPA papan.
-3. Lembar dipotong ke tepi 21 mm semua sisi (210 × 252 mm); tepi atas lembar ≥ 45 mm dari flens pergelangan.
-4. Dudukan NYATA + ukuran (foto, massa, t_rakitan, posisi lembar) → pose ulang + plan-check mock → kunci.
+Operator: **"ya saya ikut yang terbaik saja . setuju rekomendasimu. selesaikan semua proses luring sehingga besok tinggal online HW"**
+→ rekomendasi diterima:
 
-### A7. Dugaan (DRAF, dikunci bersama §A)
+| # | Butir | Keputusan |
+|---|---|---|
+| 1 | Aturan diam j4 | (ii): j4 boleh berburu bila gerak papan ≤ 1.5 mm pp → G9 |
+| 2 | Rel | g1 **1.30** (kedua fase), digeser TANPA rakitan |
+| 3 | R0 | sudut ≤ **40°** di setiap kamera yang melihat R0 → pose v4 |
+| 4 | Uji goyang | **belum ada hasil** → gerbang S0 runbook (operator, sebelum gerak pertama; gagal = kencangkan dulu) |
+| 5 | Lembar | A4 penuh (operator: "A4 penuh"; usul potong tidak dipakai — model memakai 297 mm) |
+| 6 | Meja | operator menawarkan memindah meja → **tidak** (peta env beku memuat meja; pindah = pindai ulang = fase sendiri) |
+
+### A7. Dugaan (dikunci bersama §A)
 
 | # | Dugaan |
 |---|---|
@@ -151,3 +162,13 @@ jarak 0.6–2.8 m, sudut ≤ 55°, torsi statis ≤ 92 % (150 g), tabrakan (raki
    "tak teramati: []" padahal kamera meleset **9.8 m**. `g63b_solve` kini menambah penjaga (Jacobian numerik rank penuh, residu ≥
    2 × parameter, std dengan σ ≥ 0.3 px): mock P0 → **DITOLAK** (rank 22 < 24); e2e luring dua fase → OK (std 0.025° / 0.6 mm).
    **Akibat untuk HW: P0 = cek PROSES saja; solve bermakna mulai T1+** (sesuai §A3 G63). Mock dimatikan bersih (domain 77 kosong).
+12. **Pose v4 + aturan final (sesudah A6), mock 77:** `poses_g63b_v4.json` (= v3 kandidat, R0 ≤ 40°): calon R0 ≤ 40° arm_2 79
+   (dua-kamera 1), arm_3 197 (dua-kamera 4); R0 kedua lengan dua-kamera ≤ 38.8°. **Batas j4** (`g63b_j4_limit.py`): tuas maks
+   0.328 m (B-19, rgbd2) → **pp ≤ 4.58e-3 rad**; kait `g63_capture.STILL_EXEMPT_PP` (default kosong = G63 sama) + uji unit
+   `test_still.py` 5/5 (j4 3.2e-3 diterima, 6.9e-3 ditolak, sendi lain 5e-4 ditolak). **Plan-check v4:** arm_2 **27/27**
+   (margin maks 95.80 %, env ≥ 59.7 mm, 0 tolak-97); arm_3 **26/27** (margin maks 95.72 %, env ≥ 108.8 mm) — **B-02 DITOLAK sah**
+   (transit: rakitan 41 mm dari forearm arm_4 < 50 mm; MoveIt buta, pasangan dimatikan SRDF) → di HW dilewati, tidak diganti.
+   🔴 **Bug ditemukan di gladi pindah rakitan:** `g63_attach --remove` hanya *detach* → MoveIt menyisakan kotak sebagai objek
+   DUNIA di posisi terakhir → percobaan pertama arm_3 **0/27** (START-JUMP dengan gripper arm_2; arsip
+   `mock/v4_pc_arm_3_STALEWORLD*`). `g63b_attach --remove` kini juga menghapus objek dunia + memverifikasi scene bersih
+   ("sisa [] -> OK"); ulang = 26/27. Di HW bug ini akan memblokir seluruh fase arm_3.

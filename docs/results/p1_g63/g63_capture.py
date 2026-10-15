@@ -25,6 +25,19 @@ from g63_common import ARM_PREFIX, BOARD_ARM, CAMERAS, T_from_xyzrpy
 import g63_detect
 
 STILL_STD_RAD = 2e-4
+# G63b §A6.1 (operator 2026-10-15): joints listed here (name suffix -> max peak-to-peak rad in the window) are judged by
+# peak-to-peak instead of std, and left out of the drift check. EMPTY = original G63 behaviour (every joint std).
+STILL_EXEMPT_PP = {}
+
+
+def still_check(win, names):
+    """-> (ok, std of strict joints, {exempt joint: peak-to-peak}). win = list of joint dicts over the window."""
+    strict = [n for n in names if not any(n.endswith(s) for s in STILL_EXEMPT_PP)]
+    std = max(float(np.std([j[n] for j in win])) for n in strict)
+    pp = {n: float(np.ptp([j[n] for j in win])) for n in names if n not in strict}
+    ok = std < STILL_STD_RAD and all(v <= STILL_EXEMPT_PP[next(s for s in STILL_EXEMPT_PP if n.endswith(s))]
+                                     for n, v in pp.items())
+    return ok, std, pp
 
 
 def _img_to_gray(msg):
@@ -94,8 +107,8 @@ def capture(a):
         now = time.time()
         win = [j for t, j in jhist if now - t <= 1.0 and all(n in j for n in names)]
         if now - t0 > 1.2 and len(win) >= 10:
-            std = max(float(np.std([j[n] for j in win])) for n in names)
-            if std < STILL_STD_RAD:
+            ok_still, std, pp_ex = still_check(win, names)
+            if ok_still:
                 break
         if now - t0 > 20:
             print('GAGAL: lengan tidak diam / joint_states tidak lengkap dalam 20 s -- tidak menangkap', flush=True)
@@ -109,9 +122,10 @@ def capture(a):
         rclpy.spin_once(node, timeout_sec=0.05)
     state['go'] = False
     j_after = {n: joints.get(n, float('nan')) for n in names}
-    moved = max(abs(j_after[n] - j_before[n]) for n in names)
+    strict = [n for n in names if not any(n.endswith(s) for s in STILL_EXEMPT_PP)]
+    moved = max(abs(j_after[n] - j_before[n]) for n in strict)
     rec = dict(id=a.pose_id, boards=boards, role=a.role, stage=a.stage, t_wall=time.time(), still_std_rad=still_std,
-               joint_drift_during_capture_rad=moved, joints={n: float(v) for n, v in joints.items()}, cams={})
+               joint_drift_during_capture_rad=moved, still_exempt_pp_rad=pp_ex, joints={n: float(v) for n, v in joints.items()}, cams={})
     os.makedirs(os.path.join(a.session, 'raw'), exist_ok=True)
     for c in CAMERAS:
         if c not in info or not frames[c]:

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""G63b tangkap / gabung: g63_capture.py (G63, TIDAK diubah) dengan rakitan DUA muka di SATU lengan.
+"""G63b tangkap / gabung: g63_capture.py (G63; hanya ditambah kait STILL_EXEMPT_PP default kosong = perilaku G63 sama)
 
 Tambalan (hanya di proses ini):
   * BOARD_ARM: muka A dan B -> lengan fase (--arm arm_2 | arm_3); link = mount (gripper_base_link);
   * mount muka B = muka A @ T_12 (dari poses_g63b_*.json 'g63b'.T_12 atau mount card_t + square_m);
   * detektor: g63b_detect.detect (papan polos, penjaga terdaftar) menggantikan g63_detect.detect;
     muka yang membelakangi kamera ditolak dari prior (tanpa pencarian).
-Aturan diam (STILL_STD_RAD) dan semua penolakan g63_capture TIDAK diubah (aturan j4 menunggu keputusan operator §A6.1).
+Aturan diam: sendi 1-3, 5-6 std < 2e-4 rad (tetap); j4 peak-to-peak <= j4_limit.json (§A6.1 operator 2026-10-15: gerak papan
+<= 1.5 mm) lewat kait g63_capture.STILL_EXEMPT_PP; drift selama tangkap dinilai tanpa j4.
 
     g63b_capture.py capture --arm arm_2 --session S --pose-id A-R0 --board A B --role R0 --stage P0 --mount mount_g63b.json [--save-frames]
     g63b_capture.py merge --arm arm_2 --session S --square-mm A=42.0 B=42.0 --out ds_arm_2.json --poses poses_g63b_v3.json
@@ -53,6 +54,9 @@ def main():
         sys.exit('--arm harus arm_2 atau arm_3')
     del sys.argv[i:i + 2]
     g63_capture.BOARD_ARM = {'A': arm, 'B': arm}
+    # §A6.1 (operator 2026-10-15): j4 judged by peak-to-peak <= limit (board motion <= 1.5 mm), see g63b_j4_limit.py
+    lim = json.load(open(os.path.join(HERE, 'j4_limit.json')))['j4_pp_max_rad']
+    g63_capture.STILL_EXEMPT_PP = {'joint_4': float(lim)}
     cmd = sys.argv[1]
     if cmd == 'capture':
         j = sys.argv.index('--mount')

@@ -1,0 +1,78 @@
+=== 21:26:23 mock up
+[INFO] [1792067207.172541952] [_ros2cli_1296836]: waiting for service /controller_manager/list_controllers to become available...
+7
+=== 21:26:47 monitor
+Subscription count: 1
+=== 21:26:57 REST
+selesai: galat akhir 0.000 deg, torsi puncak 0.000 N.m pada , segmen ['lurus']
+selesai: galat akhir 0.000 deg, torsi puncak 0.000 N.m pada , segmen ['lurus']
+=== 21:28:24 g1 -> 1.30
+akhir: g1 = (1.300000 m, +0.0000 deg), galat +0.00 mm / +0.0000 deg; t_traverse 71.35 s (lin 71.35, rot None; T_cmd 72.22); lengan (keempat) bergeser maks 0.0000 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 0.0 t2_a2_joint_6
+A/arm_2: geometri ['t1_a2_g63_board_0'] -> OK
+   REST: delta tau j2 RNEA -0.0313 N.m vs tangan -0.0313 -> OK
+B/arm_3: geometri ['t2_a1_g63_board_0'] -> OK
+   REST: delta tau j2 RNEA -0.0313 N.m vs tangan -0.0313 -> OK
+=== 21:29:53 fase arm_2
+attached di scene: {'g63_board_A': 't1_a2_gripper_base_link'} -> OK
+{"k": 0, "id": "A-R0", "role": "R0", "stage": "all", "verdict": "PLANNED", "margin": "t1_a2_joint_3 94.118966% (batas 97%)", "env": ": 120.1 mm di titik 2 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 21.6}
+{"k": 1, "id": "A-01", "role": "FIT", "stage": "P0", "verdict": "PLANNED", "margin": "t1_a2_joint_3 94.242333% (batas 97%)", "env": ": 65.8 mm di titik 128 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 22.0}
+{"k": 2, "id": "A-02", "role": "FIT", "stage": "P0", "verdict": "PLANNED", "margin": "t1_a2_joint_2 86.983670% (batas 97%)", "env": ": 65.3 mm di titik 0 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 23.8}
+{"k": 3, "id": "A-03", "role": "FIT", "stage": "P0", "verdict": "PLANNED", "margin": "t1_a2_joint_2 81.133767% (batas 97%)", "env": ": 152.2 mm di titik 0 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 22.1}
+{"k": 4, "id": "A-R0", "role": "R0", "stage": "all", "verdict": "PLANNED", "margin": "t1_a2_joint_3 94.260194% (batas 97%)", "env": ": 154.0 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 21.5}
+{"k": 5, "id": "A-04", "role": "FIT", "stage": "T1", "verdict": "PLANNED", "margin": "t1_a2_joint_3 94.608796% (batas 97%)", "env": ": 96.9 mm di titik 140 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 22.9}
+{"k": 6, "id": "A-05", "role": "FIT", "stage": "T1", "verdict": "PLANNED", "margin": "t1_a2_joint_2 91.497021% (batas 97%)", "env": ": 98.2 mm di titik 2 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 23.8}
+{"k": 7, "id": "A-06", "role": "FIT", "stage": "T1", "verdict": "PLANNED", "margin": "t1_a2_joint_3 88.011214% (batas 97%)", "env": ": 115.4 mm di titik 0 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 24.5}
+{"k": 8, "id": "A-07", "role": "FIT", "stage": "T1", "verdict": "PLANNED", "margin": "t1_a2_joint_3 83.577308% (batas 97%)", "env": ": 138.7 mm di titik 112 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 21.9}
+{"k": 9, "id": "A-08", "role": "FIT", "stage": "T1", "verdict": "PLANNED", "margin": "t1_a2_joint_2 87.084722% (batas 97%)", "env": ": 134.6 mm di titik 18 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 21.2}
+{"k": 10, "id": "A-09", "role": "FIT", "stage": "T1", "verdict": "PLANNED", "margin": "t1_a2_joint_2 95.795367% (batas 97%)", "env": ": 100.2 mm di titik 60 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 23.7}
+{"k": 11, "id": "A-R0", "role": "R0", "stage": "all", "verdict": "PLANNED", "margin": "t1_a2_joint_3 94.128684% (batas 97%)", "env": ": 154.0 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 23.0}
+{"k": 12, "id": "A-10", "role": "HOLDOUT", "stage": "T2", "verdict": "PLANNED", "margin": "t1_a2_joint_3 94.463951% (batas 97%)", "env": ": 154.0 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 21.7}
+{"k": 13, "id": "A-11", "role": "HOLDOUT", "stage": "T2", "verdict": "PLANNED", "margin": "t1_a2_joint_3 91.133850% (batas 97%)", "env": ": 154.0 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 23.0}
+{"k": 14, "id": "A-12", "role": "HOLDOUT", "stage": "T2", "verdict": "PLANNED", "margin": "t1_a2_joint_3 87.132260% (batas 97%)", "env": ": 111.1 mm di titik 139 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 23.1}
+{"k": 15, "id": "A-13", "role": "FIT", "stage": "T2", "verdict": "PLANNED", "margin": "t1_a2_joint_3 92.146836% (batas 97%)", "env": ": 117.9 mm di titik 29 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 21.9}
+{"k": 16, "id": "A-14", "role": "FIT", "stage": "T2", "verdict": "PLANNED", "margin": "t1_a2_joint_2 90.277780% (batas 97%)", "env": ": 154.0 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 21.9}
+{"k": 17, "id": "A-15", "role": "FIT", "stage": "T2", "verdict": "PLANNED", "margin": "t1_a2_joint_3 82.847056% (batas 97%)", "env": ": 154.0 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 24.1}
+{"k": 18, "id": "A-R0", "role": "R0", "stage": "all", "verdict": "PLANNED", "margin": "t1_a2_joint_3 94.678821% (batas 97%)", "env": ": 136.2 mm di titik 53 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 22.3}
+{"k": 19, "id": "A-16", "role": "FIT", "stage": "T3", "verdict": "PLANNED", "margin": "t1_a2_joint_3 94.585823% (batas 97%)", "env": ": 137.3 mm di titik 96 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 21.9}
+{"k": 20, "id": "A-17", "role": "FIT", "stage": "T3", "verdict": "PLANNED", "margin": "t1_a2_joint_3 88.522633% (batas 97%)", "env": ": 137.2 mm di titik 22 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 21.3}
+{"k": 21, "id": "A-18", "role": "FIT", "stage": "T3", "verdict": "PLANNED", "margin": "t1_a2_joint_3 88.998152% (batas 97%)", "env": ": 93.9 mm di titik 118 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 24.6}
+{"k": 22, "id": "A-19", "role": "FIT", "stage": "T3", "verdict": "PLANNED", "margin": "t1_a2_joint_2 94.442339% (batas 97%)", "env": ": 85.1 mm di titik 30 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 23.0}
+{"k": 23, "id": "A-20", "role": "FIT", "stage": "T3", "verdict": "PLANNED", "margin": "t1_a2_joint_2 77.712517% (batas 97%)", "env": ": 96.6 mm di titik 96 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 21.5}
+{"k": 24, "id": "A-21", "role": "FIT", "stage": "T3", "verdict": "PLANNED", "margin": "t1_a2_joint_2 80.988042% (batas 97%)", "env": ": 62.2 mm di titik 106 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 25.3}
+{"k": 25, "id": "A-R0", "role": "R0", "stage": "all", "verdict": "PLANNED", "margin": "t1_a2_joint_3 94.350632% (batas 97%)", "env": ": 59.7 mm di titik 4 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 22.6}
+{"k": 26, "id": "REST", "role": "REST", "stage": "-", "verdict": "PLANNED", "margin": "t1_a2_joint_3 94.118110% (batas 97%)", "env": ": 120.1 mm di titik 85 (t1_a2_g63_board_0) -> CLEAR", "guard_refusals": 0, "rc": 0, "s": 20.3}
+arm_2: PLANNED 27/27 -> mock/v4_pc_arm_2.json
+=== 21:40:05 fase arm_3
+attached di scene: {} -> OK
+attached di scene: {'g63_board_B': 't2_a1_gripper_base_link'} -> OK
+{"k": 0, "id": "B-R0", "role": "R0", "stage": "all", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 13.2}
+{"k": 1, "id": "B-01", "role": "FIT", "stage": "P0", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 10.7}
+{"k": 2, "id": "B-02", "role": "FIT", "stage": "P0", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.8}
+{"k": 3, "id": "B-03", "role": "FIT", "stage": "P0", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.9}
+{"k": 4, "id": "B-R0", "role": "R0", "stage": "all", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 9.6}
+{"k": 5, "id": "B-04", "role": "FIT", "stage": "T1", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.9}
+{"k": 6, "id": "B-05", "role": "FIT", "stage": "T1", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.8}
+{"k": 7, "id": "B-06", "role": "FIT", "stage": "T1", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.9}
+{"k": 8, "id": "B-07", "role": "FIT", "stage": "T1", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.9}
+{"k": 9, "id": "B-08", "role": "HOLDOUT", "stage": "T1", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.9}
+{"k": 10, "id": "B-09", "role": "FIT", "stage": "T1", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 10.7}
+{"k": 11, "id": "B-R0", "role": "R0", "stage": "all", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.9}
+{"k": 12, "id": "B-10", "role": "FIT", "stage": "T2", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 10.6}
+{"k": 13, "id": "B-11", "role": "FIT", "stage": "T2", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.9}
+{"k": 14, "id": "B-12", "role": "HOLDOUT", "stage": "T2", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 9.1}
+{"k": 15, "id": "B-13", "role": "HOLDOUT", "stage": "T2", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.9}
+{"k": 16, "id": "B-14", "role": "FIT", "stage": "T2", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.8}
+{"k": 17, "id": "B-15", "role": "FIT", "stage": "T2", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 10.7}
+{"k": 18, "id": "B-R0", "role": "R0", "stage": "all", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.8}
+{"k": 19, "id": "B-16", "role": "FIT", "stage": "T3", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 9.0}
+{"k": 20, "id": "B-17", "role": "FIT", "stage": "T3", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.9}
+{"k": 21, "id": "B-18", "role": "FIT", "stage": "T3", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.9}
+{"k": 22, "id": "B-19", "role": "FIT", "stage": "T3", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.8}
+{"k": 23, "id": "B-20", "role": "HOLDOUT", "stage": "T3", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 10.0}
+{"k": 24, "id": "B-21", "role": "FIT", "stage": "T3", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 9.8}
+{"k": 25, "id": "B-R0", "role": "R0", "stage": "all", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 10.7}
+{"k": 26, "id": "REST", "role": "REST", "stage": "-", "verdict": "START-JUMP", "margin": "", "env": "", "guard_refusals": 0, "rc": 0, "s": 8.8}
+arm_3: PLANNED 0/27 -> mock/v4_pc_arm_3.json
+=== 21:44:26 shutdown
+0
+SELESAI
