@@ -13,7 +13,7 @@
    -1.570796
   ],
   "rpy_note": "board x = -y_g (4 kotak), y = +z_g (5 kotak, searah tool), z = -x_g (ke dalam papan)",
-  "mass_kg": 0.15,
+  "mass_kg": 0.087,
   "card_t": 0.076,
   "square_m": 0.042,
   "sheet_x": [
@@ -30,8 +30,16 @@
    "2": "muka di -x_g: T_12 = rot y 180 deg, asal (0.168, 0, card_t)"
   },
   "unmeasured": [
-   "semua: menunggu foto + ukuran operator sesudah tempel (posisi lembar, tebal kardus, massa)"
-  ]
+   "tebal rakitan kardus-kardus (card_t)",
+   "jarak tepi atas lembar ke flens / posisi lembar di badan gripper",
+   "ukuran 4 kotak / 5 kotak terukur",
+   "lembar dipotong atau A4 penuh",
+   "foto dudukan"
+  ],
+  "face_label": {
+   "1": "A (rgbd2 di REST)",
+   "2": "B (rgbd di REST)"
+  }
  },
  "B": {
   "link": "gripper_base_link",
@@ -46,7 +54,7 @@
    -1.570796
   ],
   "rpy_note": "board x = -y_g (4 kotak), y = +z_g (5 kotak, searah tool), z = -x_g (ke dalam papan)",
-  "mass_kg": 0.15,
+  "mass_kg": 0.087,
   "card_t": 0.076,
   "square_m": 0.042,
   "sheet_x": [
@@ -63,7 +71,16 @@
    "2": "muka di -x_g: T_12 = rot y 180 deg, asal (0.168, 0, card_t)"
   },
   "unmeasured": [
-   "semua: menunggu foto + ukuran operator sesudah tempel (posisi lembar, tebal kardus, massa)"
-  ]
- }
+   "tebal rakitan kardus-kardus (card_t)",
+   "jarak tepi atas lembar ke flens / posisi lembar di badan gripper",
+   "ukuran 4 kotak / 5 kotak terukur",
+   "lembar dipotong atau A4 penuh",
+   "foto dudukan"
+  ],
+  "face_label": {
+   "1": "A (rgbd2 di REST)",
+   "2": "B (rgbd di REST)"
+  }
+ },
+ "_operator_20261015": "OPERATOR 2026-10-15: rakitan TERPASANG di arm_2 (g1 1.50, REST). \"Papan B menghadap RGBD dan Papan A menghadap RGBD2\"; \"berat sama seperti sebelumnya 43.5 per papan brrti 2 papan 87 gr\". Model REST: muka 1 (+x_g) -> rgbd2 (cos 0.72) = papan A, muka 2 -> rgbd (cos 0.33) = papan B -> cocok. REST g1 1.50 + rakitan: 35.6 mm ke meja (< 50) + kotak MoveIt TABRAK (geometri masih TEBAKAN)."
 }
