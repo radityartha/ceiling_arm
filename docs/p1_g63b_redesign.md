@@ -137,3 +137,17 @@ jarak 0.6–2.8 m, sudut ≤ 55°, torsi statis ≤ 92 % (150 g), tabrakan (raki
    (b) satu sudut 3.4 px lolos penjaga RMS 1.0 px → penjaga per sudut 1.5 px. Prior muka B wrapper tangkap = model e2e
    (beda 1.7e-16); `g63b_solve` dua berkas = solve e2e (identik). **Belum diuji:** `g63b_capture capture` dengan ROS (hanya di
    mock/HW), aturan diam j4 (keputusan §A6.1).
+11. **MOCK domain 77 (izin operator 2026-10-15 "ya boleh"; fake HW, BUKAN data; `octomap_updaters:=false`):**
+   (a) **Gladi urutan rel HW:** lepas rakitan dari scene → `return_rest` (per gantry) → `pose_to_g --gantry 1 --plan
+   g63b_rail_plan.json --variant G63b 1.30 0` DRY (S13 menerima stop, sapuan CLEAR 380 mm, env 86.6 mm) → `--move` (galat 0.00 mm,
+   lengan 0.000°) → `g63b_attach --boards A` OK. (b) **Plan-check berantai arm_2** (`g63b_plancheck.py --board A`, sendi-tujuan,
+   `--extra-env` S0c, payload fase arm_2 = rakitan A saja, touch link pergelangan): **27/27 PLANNED** (R0 → P0 → T1 → T2 → T3 →
+   REST), margin torsi maks **94.97 %** (j2, A-02), 0 penolakan penjaga 97 %, env min **65.3 mm**. Jebakan: tanpa
+   `reach_dwell_monitor` probe = INVALID (bukan lulus) — runbook wajib monitor. (c) **E2E ROS** (`g63b_fakecam` papan polos dari
+   TF mock + `probe_g63 --move` + `g63b_capture` + merge + `g63b_solve`), P0 arm_2 5 pose: gerak 5/5 MOVED, deteksi 12 sudut std
+   ≤ 0.06 px pada muka yang menghadap; muka membelakangi ditolak dari prior; pemetaan muka = rencana pose; merge A→A2, B→B2.
+   R0 rgbd muka B (miring 50°) ditolak penjaga per sudut (1.57–1.61 px) → **usul: R0 dipilih ≤ 40° di kamera mana pun**.
+   (d) 🔴 **Cacat `g63_solve` (G63, terkunci, tidak diubah):** 5 pose P0 → 4 observasi FIT, fit pas-sempurna → σ² = 0 → std 0 →
+   "tak teramati: []" padahal kamera meleset **9.8 m**. `g63b_solve` kini menambah penjaga (Jacobian numerik rank penuh, residu ≥
+   2 × parameter, std dengan σ ≥ 0.3 px): mock P0 → **DITOLAK** (rank 22 < 24); e2e luring dua fase → OK (std 0.025° / 0.6 mm).
+   **Akibat untuk HW: P0 = cek PROSES saja; solve bermakna mulai T1+** (sesuai §A3 G63). Mock dimatikan bersih (domain 77 kosong).

@@ -20,6 +20,35 @@ import g63_solve  # noqa: E402
 from g63_common import board_points  # noqa: E402
 
 g63_solve.board_points = lambda b, sq=None: board_points('A', sq)
+SIGMA_FLOOR_PX = 0.3     # lantai derau piksel untuk kovarians (mock 10-15: fit pas-sempurna -> sigma 0 -> std 0 palsu)
+MIN_RES_PER_PARAM = 2.0  # residu >= 2 x parameter, kalau tidak = UNDERDETERMINED (tolak)
+
+
+def guard(ds, res, Twc, Tlb):
+    """Observability re-check that a perfect (over-parameterised) fit cannot fake: full-rank numeric Jacobian at the
+    solution, n_residuals >= 2 m, camera std with sigma = max(sigma_fit, 0.3 px). Only ADDS refusals to g63_solve's."""
+    from scipy.optimize._numdiff import approx_derivative
+    pb = g63_solve.Problem(ds, roles=('FIT',))
+    x = pb.pack(Twc, Tlb)
+    J = approx_derivative(pb.residuals, x)
+    n, m = J.shape
+    fx = min(float(np.asarray(v['K'])[0][0]) for v in ds['cameras'].values())
+    sigma = max(res['sigma_norm'], SIGMA_FLOOR_PX / fx)
+    sv = np.linalg.svd(J, compute_uv=False)
+    rank = int((sv > sv[0] * 1e-9).sum()) if sv.size else 0
+    out = dict(n_residuals=int(n), n_params=int(m), rank=rank, sigma_used_px=sigma * fx, refusals=[])
+    if n < MIN_RES_PER_PARAM * m:
+        out['refusals'].append(f'UNDERDETERMINED: {n} residu < {MIN_RES_PER_PARAM:g} x {m} parameter')
+    if rank < m:
+        out['refusals'].append(f'RANK J {rank} < {m} parameter -> sebagian parameter tak teramati')
+    else:
+        std = np.sqrt(np.clip(np.diag(np.linalg.inv(J.T @ J)), 0, None)) * sigma
+        for k, c in enumerate(pb.cams):
+            sr, st = float(np.degrees(std[6 * k:6 * k + 3]).max()), float(std[6 * k + 3:6 * k + 6].max())
+            out[f'std_{c}'] = dict(rot_deg=sr, pos_m=st)
+            if not (sr <= g63_solve.OBS_STD_ROT_DEG and st <= g63_solve.OBS_STD_POS_M):
+                out['refusals'].append(f'{c} tak teramati (lantai {SIGMA_FLOOR_PX} px): std {sr:.3f} deg / {st * 1e3:.1f} mm')
+    return out
 
 
 def combine(paths):
@@ -48,10 +77,15 @@ def main():
     res['holdout'] = g63_solve.evaluate_holdout(ds, Twc, Tlb)
     res['R0_drift'] = g63_solve.drift_R0(ds, Twc)
     res['g63b'] = dict(data=[os.path.abspath(p) for p in a.data], boards=sorted(ds['square_m']))
+    res['g63b_guard'] = guard(ds, res, Twc, Tlb)
+    if res['g63b_guard']['refusals']:
+        print('!!! PENJAGA G63b MENOLAK:', res['g63b_guard']['refusals'], file=sys.stderr)
     json.dump(res, open(a.out, 'w'), indent=1)
     print(json.dumps({k: res[k] for k in ('converged', 'Twc_xyzrpy', 'vs_incumbent', 'unobservable')}, indent=1))
     print('G3', json.dumps(res['holdout']['G3']), "G4'", json.dumps(res['holdout']['G4p']))
-    return 0 if res['converged'] and not res['unobservable'] else 2
+    print('penjaga G63b:', {k: v for k, v in res['g63b_guard'].items() if k != 'refusals'},
+          'TOLAK' if res['g63b_guard']['refusals'] else 'OK')
+    return 0 if res['converged'] and not res['unobservable'] and not res['g63b_guard']['refusals'] else 2
 
 
 if __name__ == '__main__':

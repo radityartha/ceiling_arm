@@ -1,0 +1,177 @@
+$ /usr/bin/python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g63/probe_g63.py --g63-boards A --g63-payload-urdf /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/payload_arm_2.urdf --g63-extra-env /home/user1/Documents/ceiling_
+G63: penyaring memakai /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/payload_arm_2.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}}
+probe LANGKAH 5: arm_2, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_2 (0.70897, 0.46867, 1.00566), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+       arm_2: moveit MOVED  (percobaan rencana: ['PLANNED'])
+  [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_2']) torsi puncak  0.00 N.m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_session/A-R0_probe.json
+[INFO] [1792065245.392021669] [reach_dwell_probe]: ujung rencana vs target: 0.73 mm, sumbu 0.11 deg
+[INFO] [1792065245.393900228] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.03->6.63/10, 2=3.12->10.82/14, 3=0.70->7.30/10, 4=0.02->2.00/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 77 %)
+[INFO] [1792065255.254231108] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 573.3 mm di titik 17 (t1_a2_g63_board_0 <-> t2_a1_right_finger_prox_link_0) -> CLEAR
+[INFO] [1792065255.257535189] [reach_dwell_probe]: G63: papan terpasang di scene {'g63_board_A': 't1_a2_gripper_base_link'}
+[INFO] [1792065255.541883795] [reach_dwell_probe]: G63: penyaring env = peta beku + 1850 voxel S0c (/home/user1/Documents/ceiling_arm/docs/results/p1_g63/s0c_extra_env.npz)
+[INFO] [1792065256.705775885] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 99.4 mm di titik 35 (t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792065257.742537147] [reach_dwell_probe]: retract g1 ['arm_2'] lurus (rel 1.300):
+[INFO] [1792065258.662310354] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1792065258.663342511] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 573.3 mm di titik 33/60 (t1_a2_g63_board_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1792065258.664329335] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 99.4 mm di titik 11/60 (t1_a2_g63_board_0)
+[INFO] [1792065258.666168389] [reach_dwell_probe]: CAM-6DOF margin: t1_a2_joint_2 77.309955% (batas 97%)
+$ /usr/bin/python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/g63b_capture.py capture --arm arm_2 --session /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_session --pose-id A-R0 --board A B --role R0 --stage P0 -
+A-R0: diam std 5.55e-17 rad, geser selama tangkap 0.00e+00 rad
+  rgbd papan A: 0 sudut, frame 30, metode ['none'], std maks nan px
+  rgbd papan B: 0 sudut, frame 30, metode ['none', 'polos'], std maks nan px
+  rgbd2 papan A: 12 sudut, frame 30, metode ['polos'], std maks 0.03 px
+  rgbd2 papan B: 0 sudut, frame 30, metode ['none'], std maks nan px
+$ /usr/bin/python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g63/probe_g63.py --g63-boards A --g63-payload-urdf /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/payload_arm_2.urdf --g63-extra-env /home/user1/Documents/ceiling_
+G63: penyaring memakai /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/payload_arm_2.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}}
+probe LANGKAH 5: arm_2, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_2 (1.08044, -0.09078, 1.19357), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+       arm_2: moveit MOVED  (percobaan rencana: ['PLANNED'])
+  [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_2']) torsi puncak  0.00 N.m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_session/A-01_probe.json
+[INFO] [1792065284.952439339] [reach_dwell_probe]: ujung rencana vs target: 0.61 mm, sumbu 0.07 deg
+[INFO] [1792065284.955229142] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.15->6.75/10, 2=4.85->12.55/14, 3=2.49->9.09/10, 4=0.42->2.40/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 91 %)
+[INFO] [1792065295.937895503] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 227.3 mm di titik 60 (t1_a2_g63_board_0 <-> t2_a1_right_finger_prox_link_0) -> CLEAR
+[INFO] [1792065295.941044840] [reach_dwell_probe]: G63: papan terpasang di scene {'g63_board_A': 't1_a2_gripper_base_link'}
+[INFO] [1792065296.214675903] [reach_dwell_probe]: G63: penyaring env = peta beku + 1850 voxel S0c (/home/user1/Documents/ceiling_arm/docs/results/p1_g63/s0c_extra_env.npz)
+[INFO] [1792065297.478458346] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 102.4 mm di titik 8 (t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792065298.512228060] [reach_dwell_probe]: retract g1 ['arm_2'] lurus (rel 1.300):
+[INFO] [1792065299.848337896] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 579.4 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t1_a2_g63_board_0)
+[INFO] [1792065299.849380688] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 296.4 mm di titik 27/60 (t1_a2_g63_board_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1792065299.850522345] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 120.1 mm di titik 59/60 (t1_a2_g63_board_0)
+[INFO] [1792065299.853278060] [reach_dwell_probe]: CAM-6DOF margin: t1_a2_joint_3 90.912469% (batas 97%)
+$ /usr/bin/python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/g63b_capture.py capture --arm arm_2 --session /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_session --pose-id A-01 --board A B --role FIT --stage P0 
+A-01: diam std 4.44e-16 rad, geser selama tangkap 0.00e+00 rad
+  rgbd papan A: 0 sudut, frame 30, metode ['none'], std maks nan px
+  rgbd papan B: 0 sudut, frame 30, metode ['none'], std maks nan px
+  rgbd2 papan A: 0 sudut, frame 30, metode ['none'], std maks nan px
+  rgbd2 papan B: 12 sudut, frame 30, metode ['polos'], std maks 0.02 px
+$ /usr/bin/python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g63/probe_g63.py --g63-boards A --g63-payload-urdf /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/payload_arm_2.urdf --g63-extra-env /home/user1/Documents/ceiling_
+G63: penyaring memakai /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/payload_arm_2.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}}
+probe LANGKAH 5: arm_2, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_2 (0.58837, 0.42607, 1.11213), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+       arm_2: moveit MOVED  (percobaan rencana: ['PLANNED'])
+  [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_2']) torsi puncak  0.00 N.m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_session/A-02_probe.json
+[INFO] [1792065331.122128876] [reach_dwell_probe]: ujung rencana vs target: 1.85 mm, sumbu 0.32 deg
+[INFO] [1792065331.125065745] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.13->6.73/10, 2=5.60->13.30/14, 3=2.52->9.12/10, 4=0.42->2.40/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 95 %)
+[INFO] [1792065341.795242649] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 221.3 mm di titik 39 (t1_a2_g63_board_0 <-> t2_a1_right_finger_prox_link_0) -> CLEAR
+[INFO] [1792065341.798242081] [reach_dwell_probe]: G63: papan terpasang di scene {'g63_board_A': 't1_a2_gripper_base_link'}
+[INFO] [1792065342.077885768] [reach_dwell_probe]: G63: penyaring env = peta beku + 1850 voxel S0c (/home/user1/Documents/ceiling_arm/docs/results/p1_g63/s0c_extra_env.npz)
+[INFO] [1792065343.437565159] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 154.0 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR
+[INFO] [1792065344.482237414] [reach_dwell_probe]: retract g1 ['arm_2'] lurus (rel 1.300):
+[INFO] [1792065345.419726133] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1792065345.420995139] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 528.4 mm di titik 29/60 (t1_a2_g63_board_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1792065345.422154419] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 120.1 mm di titik 59/60 (t1_a2_g63_board_0)
+[INFO] [1792065345.425199539] [reach_dwell_probe]: CAM-6DOF margin: t1_a2_joint_2 94.973218% (batas 97%)
+$ /usr/bin/python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/g63b_capture.py capture --arm arm_2 --session /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_session --pose-id A-02 --board A B --role FIT --stage P0 
+A-02: diam std 2.22e-16 rad, geser selama tangkap 0.00e+00 rad
+  rgbd papan A: 0 sudut, frame 30, metode ['none'], std maks nan px
+  rgbd papan B: 12 sudut, frame 30, metode ['polos'], std maks 0.06 px
+  rgbd2 papan A: 12 sudut, frame 30, metode ['polos'], std maks 0.02 px
+  rgbd2 papan B: 0 sudut, frame 30, metode ['none'], std maks nan px
+$ /usr/bin/python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g63/probe_g63.py --g63-boards A --g63-payload-urdf /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/payload_arm_2.urdf --g63-extra-env /home/user1/Documents/ceiling_
+G63: penyaring memakai /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/payload_arm_2.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}}
+probe LANGKAH 5: arm_2, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_2 (1.0102, 0.53306, 1.31852), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+       arm_2: moveit MOVED  (percobaan rencana: ['PLANNED'])
+  [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_2']) torsi puncak  0.00 N.m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_session/A-03_probe.json
+[INFO] [1792065380.145181267] [reach_dwell_probe]: ujung rencana vs target: 1.52 mm, sumbu 0.29 deg
+[INFO] [1792065380.148627394] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.13->6.73/10, 2=5.13->12.83/14, 3=2.17->8.77/10, 4=0.29->2.27/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 92 %)
+[INFO] [1792065390.460852211] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 447.6 mm di titik 73 (t1_a1_upper_wrist_link_0 <-> t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792065390.464026937] [reach_dwell_probe]: G63: papan terpasang di scene {'g63_board_A': 't1_a2_gripper_base_link'}
+[INFO] [1792065390.751721754] [reach_dwell_probe]: G63: penyaring env = peta beku + 1850 voxel S0c (/home/user1/Documents/ceiling_arm/docs/results/p1_g63/s0c_extra_env.npz)
+[INFO] [1792065392.129860536] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 128.5 mm di titik 33 (t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792065393.173911032] [reach_dwell_probe]: retract g1 ['arm_2'] lurus (rel 1.300):
+[INFO] [1792065394.522897504] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 447.9 mm di titik 0/60 (t1_a1_upper_wrist_link_0 <-> t1_a2_g63_board_0)
+[INFO] [1792065394.524033809] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 595.2 mm di titik 45/60 (t1_a2_g63_board_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1792065394.525119066] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 119.8 mm di titik 54/60 (t1_a2_g63_board_0)
+[INFO] [1792065394.527567877] [reach_dwell_probe]: CAM-6DOF margin: t1_a2_joint_2 91.664478% (batas 97%)
+$ /usr/bin/python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/g63b_capture.py capture --arm arm_2 --session /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_session --pose-id A-03 --board A B --role FIT --stage P0 
+A-03: diam std 4.44e-16 rad, geser selama tangkap 0.00e+00 rad
+  rgbd papan A: 12 sudut, frame 30, metode ['polos'], std maks 0.02 px
+  rgbd papan B: 0 sudut, frame 30, metode ['none'], std maks nan px
+  rgbd2 papan A: 0 sudut, frame 30, metode ['none'], std maks nan px
+  rgbd2 papan B: 0 sudut, frame 30, metode ['none'], std maks nan px
+$ /usr/bin/python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g63/probe_g63.py --g63-boards A --g63-payload-urdf /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/payload_arm_2.urdf --g63-extra-env /home/user1/Documents/ceiling_
+G63: penyaring memakai /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/payload_arm_2.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}}
+probe LANGKAH 5: arm_2, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_2 (0.70897, 0.46867, 1.00566), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+       arm_2: moveit MOVED  (percobaan rencana: ['PLANNED'])
+  [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_2']) torsi puncak  0.00 N.m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_session/A-R0b_probe.json
+[INFO] [1792065423.095269217] [reach_dwell_probe]: ujung rencana vs target: 1.19 mm, sumbu 0.23 deg
+[INFO] [1792065423.097743266] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.11->6.71/10, 2=4.63->12.33/14, 3=2.19->8.79/10, 4=0.29->2.27/7, 5=0.10->2.08/7, 6=0.00->1.98/7  (terketat t1_a2_joint_2 88 %)
+[INFO] [1792065433.267175739] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 447.6 mm di titik 0 (t1_a1_upper_wrist_link_0 <-> t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792065433.270245918] [reach_dwell_probe]: G63: papan terpasang di scene {'g63_board_A': 't1_a2_gripper_base_link'}
+[INFO] [1792065433.550397715] [reach_dwell_probe]: G63: penyaring env = peta beku + 1850 voxel S0c (/home/user1/Documents/ceiling_arm/docs/results/p1_g63/s0c_extra_env.npz)
+[INFO] [1792065434.913131218] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 104.5 mm di titik 82 (t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792065435.952829555] [reach_dwell_probe]: retract g1 ['arm_2'] lurus (rel 1.300):
+[INFO] [1792065436.875490335] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+[INFO] [1792065436.876520744] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 572.7 mm di titik 33/60 (t1_a2_g63_board_0 <-> t2_a1_right_finger_prox_link_0)
+[INFO] [1792065436.877506106] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 99.5 mm di titik 11/60 (t1_a2_g63_board_0)
+[INFO] [1792065436.879851465] [reach_dwell_probe]: CAM-6DOF margin: t1_a2_joint_2 88.099186% (batas 97%)
+$ /usr/bin/python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/g63b_capture.py capture --arm arm_2 --session /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_session --pose-id A-R0b --board A B --role R0 --stage P0 
+A-R0b: diam std 1.11e-16 rad, geser selama tangkap 0.00e+00 rad
+  rgbd papan A: 0 sudut, frame 30, metode ['none'], std maks nan px
+  rgbd papan B: 0 sudut, frame 30, metode ['none', 'polos'], std maks nan px
+  rgbd2 papan A: 12 sudut, frame 30, metode ['polos'], std maks 0.06 px
+  rgbd2 papan B: 0 sudut, frame 30, metode ['none'], std maks nan px
+$ /usr/bin/python3 /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/g63b_capture.py merge --arm arm_2 --session /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_session --square-mm A=42.0 B=42.0 --out /home/user1/Documents/
+10 pose -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_ds_arm_2.json
+g63b: papan dinamai ulang {'A': 'A2', 'B': 'B2'} -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_ds_arm_2.json
+$ /usr/bin/python3 /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/g63b_solve.py --data /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e2e_ds_arm_2.json --out /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/mock/e
+{
+ "converged": true,
+ "Twc_xyzrpy": {
+  "rgbd": [
+   10.89193,
+   -2.1087,
+   3.20283,
+   -2.59881,
+   -0.31854,
+   2.28885
+  ],
+  "rgbd2": [
+   -7.70371,
+   2.51888,
+   7.36141,
+   -2.48754,
+   -0.23344,
+   -0.76044
+  ]
+ },
+ "vs_incumbent": {
+  "rgbd": {
+   "rot_deg": 17.55587579968226,
+   "cam_pos_shift_m": 9.710715238500576
+  },
+  "rgbd2": {
+   "rot_deg": 16.64854928587672,
+   "cam_pos_shift_m": 9.86365036930886
+  }
+ },
+ "unobservable": []
+}
+G3 {"rgbd": {"n": 0, "median_m": null, "p95_m": null}, "rgbd2": {"n": 0, "median_m": null, "p95_m": null}} G4' {}
