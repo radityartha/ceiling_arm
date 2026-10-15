@@ -1,4 +1,4 @@
-# G63 runbook (DRAF — berlaku hanya sesudah §A `docs/p1_g63_charuco.md` DIKUNCI)
+# G63 runbook (berlaku: §A `docs/p1_g63_charuco.md` DIKUNCI 2026-10-15)
 
 Setiap baris bertanda **[GERAK]** = satu izin operator, satu langkah. **[KAMERA]** = izin kamera. Selebihnya pasif/luring.
 `G=/home/user1/Documents/ceiling_arm/docs/results/p1_g63`, sesi `SES=$G/hw_<tanggal>`. Bahasa log/keluaran = Indonesia.
@@ -23,7 +23,7 @@ Papan ditempel operator saat lengan REST, lalu `g63_attach.py --mount mount.json
 
 ## S2/S3 — per lengan, per tahap (P0 dulu; T1–T3 hanya bila tahap sebelumnya lulus)
 Per pose dari `poses.json` (urutan terkunci, R0 di awal dan akhir tiap tahap):
-1. Plan-only: `probe_g63.py --g63-payload-urdf $SES/payload.urdf --g63-tool-quat <q> --arms <arm> --target=<xyz> (bentuk '=' wajib: x bisa negatif)
+1. Plan-only: `probe_g63.py --g63-payload-urdf $SES/payload.urdf --g63-extra-env $G/s0c_extra_env.npz --g63-tool-quat <q> --arms <arm> --target=<xyz> (bentuk '=' wajib: x bisa negatif)
    --goal-joints '<json>' --approach 0 --plan-check --tau-max 14 --plan-attempts 8 --trials 1` → PLANNED + margin ≤ 97 %.
 2. **[GERAK]** sama + `--move` (tanpa `--plan-check`). Berhenti bila bukan MOVED + dwell SUCCESS, torsi > 14, fault, REJECTED.
 3. `g63_capture.py capture --session $SES --pose-id <id> --board <A|B> --role <FIT|HOLDOUT|R0> --stage <P0..> --mount mount.json`
@@ -31,7 +31,7 @@ Per pose dari `poses.json` (urutan terkunci, R0 di awal dan akhir tiap tahap):
 4. Sesudah tiap tahap: `g63_capture.py merge … --poses poses.json` → `g63_solve.py` (FIT saja) → G6′ (R0) + kelengkapan → lapor ke
    operator sebelum tahap berikut.
 5. **[GERAK]** pulang ke REST **lewat `probe_g63.py`** dengan `--goal-joints` = REST (leg `REST` di `g63_plancheck.py`; plan-only
-   dulu). ⚠ **JANGAN `scripts/return_rest.py` selama papan terpasang**: penyaringnya memakai URDF hidup TANPA papan (temuan mock
+   dulu; `--g63-extra-env` WAJIB juga di sini — laci S0c, A8.15). ⚠ **JANGAN `scripts/return_rest.py` selama papan terpasang**: penyaringnya memakai URDF hidup TANPA papan (temuan mock
    10-15). `return_rest` hanya sesudah papan dilepas.
 
 ## S4–S6

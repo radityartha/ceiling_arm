@@ -1,7 +1,7 @@
 # P1 / G63 — kalibrasi ekstrinsik kedua D455 dengan papan ChArUco di jari gripper (eye-to-hand), acuan = FK lengan
 
 > Sesi 2026-10-15 (prompt [p1_g63_charuco_prompt.md](p1_g63_charuco_prompt.md)). Sesi pertama = **DISKUSI + §A DRAF, NOL gerak HW,
-> NOL kamera**. §A di bawah **BELUM DIKUNCI**; dikunci (salinan `results/p1_g63/g63_A_locked.md` + sha256 + commit) hanya sesudah
+> NOL kamera**. **§A DIKUNCI 2026-10-15 (sesi HW, sesudah S0c; A6.6–A6.11)** → `results/p1_g63/g63_A_locked.md`. Semula: dikunci (salinan `results/p1_g63/g63_A_locked.md` + sha256 + commit) hanya sesudah
 > operator menyetujui angka/gerbang di §A6, SEBELUM data kalibrasi dan SEBELUM gerak pertama. Data: [results/p1_g63/](results/p1_g63/).
 
 **Kenapa G63 (tidak diperdebatkan ulang tanpa data baru):** CAM-6DOF (botol + YOLOE + median depth) gagal gerbang, M6/M7 menggeser
@@ -11,7 +11,7 @@ ekstrinsik rgbd memang salah. B65: depth rgbd sehat pagi 10-15, kedipan 10-14 ti
 D455 kini 5.17.0.10. CALIB-CHARUCO lama ([p1_calib_charuco.md](p1_calib_charuco.md)): papan diam satu tempat/satu bidang + acuan
 unting → lebih buruk dari incumbent 3–13 cm → G63 butuh **banyak pose 3D tersebar** dan acuan langsung FK (tanpa unting/pita).
 
-## A. Protokol — DRAF (belum dikunci)
+## A. Protokol — DIKUNCI 2026-10-15
 
 ### A0. Keputusan operator 2026-10-15 (jawaban sesi diskusi, dicatat harfiah)
 
@@ -147,8 +147,14 @@ karena galat basis gantry, bukan kamera — operator memilih di §A6.
 | 3 | Amplop D435IF | **"nanti saya lepas dulu saja"** | D435IF DILEPAS sebelum G63 → arm_4 = URDF; amplop T4 tidak dipakai. **Gerbang S0e:** operator konfirmasi D435IF sudah lepas (foto) sebelum gerak pertama; bila belum lepas → amplop konservatif dipakai lagi. |
 | 4 | Geser rel | **"boleh geser jika diperlukan"** | Pose dengan rel/rotasi ≠ PARK diizinkan bila zona tak terjangkau dari g1 1.50 / g2 0; tiap geser = gerak ber-izin sendiri (`pose_to_g`, lengan REST), rel diukur di FK; amplop G51 tetap. |
 | 5 | Papan A/B bersamaan atau bergantian | **"saya pasang bersamaan"** | Papan A (arm_2) dan B (arm_3) dipasang bersamaan sebelum blok pertama; ID marker berbeda → bisa terlihat bersamaan. Saringan tabrakan memuat KEDUA papan. |
+| 6 | G4′ (A8.2) | **"Setuju 2.0 cm"** (sesi HW 2026-10-15) | G4′ = gerbang; G4 lama (triangulasi) hanya dilaporkan bila ada pose dua-kamera. |
+| 7 | G6′ (A8.3) | **"Setuju 2 mm"** | G6′ = gerbang cek geser R0 (residu lateral RMS ≤ 2 mm). |
+| 8 | S0e D435IF | **"Sudah dilepas"** | arm_4 = URDF; amplop D435IF tidak dipakai. |
+| 9 | S0b / S0c | **"S0c dulu, S0b lewati"** | S0b (uji jangkauan papan dipegang) **DILEWATI**; batas jarak pose dari sintetis A8.4 + data P0 itu sendiri; D630 dinilai dari deteksi pose nyata (bukan papan dipegang). S0c (awan hidup vs `env_static_map`, kamera saja) dijalankan SEBELUM kunci. |
+| 10 | Penanganan S0c (A8.15) | **"Setuju"**: laci tetap, `--g63-extra-env` di semua `probe_g63`, #12 dikecualikan | Semua gerak/plan G63 memakai `s0c_extra_env.npz` (sha256 cff42838…); T3 A-19/A-20 (0.060–0.066 m ke laci) dicek ulang sebelum T3. |
+| 11 | Kunci §A | **"Kunci"** (2026-10-15) | §A DIKUNCI → `results/p1_g63/g63_A_locked.md` + sha256. |
 
-### A7. Dugaan (DRAF, dikunci bersama §A)
+### A7. Dugaan (dikunci bersama §A)
 
 | # | Dugaan |
 |---|---|
@@ -234,6 +240,23 @@ karena galat basis gantry, bukan kamera — operator memilih di §A6.
    (a) uji-tahan "tiap ke-4" global dengan siklus 2 kategori → semua uji-tahan di rgbd → kini tiap ke-4 PER kategori kamera
    (peran dilabel ulang deterministik, urutan pose tetap); (b) `--target -0.1,…` dibaca argparse sebagai opsi → bentuk `--target=`
    (juga di runbook — akan kena di HW); (c) laporan margin mengambil baris pertama (percobaan yang ditolak) → kini baris terakhir.
+
+15. **S0c (kamera saja, domain 80, izin operator 2026-10-15 "S0c dulu"; lengan REST g1 1.50 g2 0; `hw_20261015b/`):**
+   `cam_up.sh with_depth_cloud:=true` (ekstrinsik G34 = sama dengan peta), `capture_cloud.py` 15 s (rgbd 37 / rgbd2 39 frame),
+   `g63_s0c.py` vs `p1_g34/env_static_map.npz` (voxel 2 cm ≥ 2 frame, robot pad 0.20 + area papan 0.45 dibuang, BARU = tanpa voxel
+   peta ≤ 5 cm): 2125 voxel baru, 24 klaster ≥ 10. Proyeksi ke RGB (`s0c_rgbd{,2}.jpg`, ada orang di bingkai → tidak di-commit):
+   **#11 = lemari laci plastik** (390 voxel, x 0.64–1.04, y 0.44–0.96, z 0.32–0.72, zona arm_2); **#14 = barang di atas lemari
+   samping** (115, x 0.96–1.32, y −0.96…−0.68, z 1.04–1.24); **#12** (11 voxel melayang z 1.2, 4 cm dari papan B-02) = **ruang
+   kosong**: hanya rgbd (median 3/37 frame), sinar rgbd2 menembusnya ke permukaan 3.6 m di belakang (6/6 titik) → piksel terbang,
+   dikecualikan (tercatat). Sisanya dinding/tirai/rak/sofa/orang ≥ 0.44 m dari titik pose.
+   Saring urutan G63 (`g63_s0c_screen.py`, payload URDF, g1 1.40; tujuan tepat, transit = PROXY garis lurus sendi): tanpa #12
+   semua ≥ **0.060 m**; P0 min arm_2 **0.142** (leg REST↔R0 vs #11), arm_3 **0.190**; terdekat T3 A-19/A-20 0.066/0.060 (#11).
+   Dengan #12: B-02 tujuan −0.008 (itulah yang membuat #12 diperiksa). **Celah:** MoveIt/peta beku buta laci, transit HW ≠ proxy →
+   `probe_g63 --g63-extra-env s0c_extra_env.npz` (23 klaster, 1850 voxel, sha256 cff42838…): penyaring env + cek retract =
+   peta beku DAN voxel S0c, vonis terburuk menang (hanya lebih ketat). Kontrol luring (`s0c_union_selftest.log`, leg REST→A-R0):
+   peta beku CLEAR 77 mm, union tanpa #12 CLEAR 77 mm, union dengan #12 **MARGIN 29 mm** (kontrol positif tertangkap). Peta beku
+   bersama TIDAK diubah. Depth: rgbd 11291 frame min valid 0.705, rgbd2 11353 min 0.776, **0 frame < 10 %** (D638). S0b dilewati
+   (A6.9).
 
 ## B. Hasil terukur
 

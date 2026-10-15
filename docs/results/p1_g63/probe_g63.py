@@ -8,10 +8,12 @@ Adds, without editing any shared file:
   * --g63-tool-quat x,y,z,w: the target orientation (tilted board poses). The reach_dwell monitor and GOAL-MISMATCH
     score the approach axis = +Z of THIS quaternion. Requires --approach 0 (the target IS the tool pose);
   * a hard check, before the first screen, that the boards are attached in MoveIt's planning scene (g63_attach.py);
-    missing -> the screen returns None -> the probe REFUSES, exactly like an unavailable screen.
+    missing -> the screen returns None -> the probe REFUSES, exactly like an unavailable screen;
+  * --g63-extra-env NPZ (S0c): env screen + retract check = frozen map AND the NPZ voxels (worse verdict wins; only
+    stricter). MoveIt's planning scene still lacks those objects -> the probe screen is the only guard for them.
 --move still needs one explicit operator approval per invocation (handoff §2).
 
-    probe_g63.py --g63-payload-urdf P.urdf [--g63-boards A] [--g63-tool-quat x,y,z,w] <reach_dwell_probe args>
+    probe_g63.py --g63-payload-urdf P.urdf [--g63-boards A] [--g63-tool-quat x,y,z,w] [--g63-extra-env S.npz] <probe args>
 """
 import importlib.util
 import os
@@ -79,6 +81,38 @@ def install_attach_check(probe, boards):
     probe.screen_env = screen_env
 
 
+_RANK = {'CLEAR': 0, 'MARGIN': 1, 'COLLIDE': 2}
+
+
+class EnvUnion:
+    """S0c: frozen env map AND an extra voxel map (objects moved in after the map, e.g. the drawer). The worse of the
+    two verdicts wins (COLLIDE > MARGIN > CLEAR, then smaller distance) -> only ever stricter than the frozen map."""
+
+    def __init__(self, base, extra):
+        self.base, self.extra = base, extra
+        self.margin = max(base.margin, extra.margin)
+
+    def screen_trajectory(self, *a, **k):
+        r = [c.screen_trajectory(*a, **k) for c in (self.base, self.extra)]
+        return max(r, key=lambda v: (_RANK[v[0]], -v[1]))
+
+
+def install_extra_env(probe, npz):
+    import env_collision
+    orig = probe.screen_env
+
+    def screen_env(traj, node, *a, **k):
+        if not hasattr(node, '_env'):
+            try:
+                node._env = EnvUnion(env_collision.EnvChecker(), env_collision.EnvChecker(map_file=npz))
+            except Exception as e:                          # noqa: BLE001
+                node.get_logger().error(f'G63: peta env tambahan {npz} gagal dimuat: {e} -- TOLAK')
+                return None
+            node.get_logger().info(f'G63: penyaring env = peta beku + {node._env.extra.n_voxels} voxel S0c ({npz})')
+        return orig(traj, node, *a, **k)
+    probe.screen_env = screen_env
+
+
 def main():
     argv = sys.argv[1:]
     payload = _pop(argv, '--g63-payload-urdf')
@@ -93,6 +127,7 @@ def main():
         boards = argv[i + 1:j]
         del argv[i:j]
     quat = _pop(argv, '--g63-tool-quat')
+    extra_env = _pop(argv, '--g63-extra-env')
     sys.argv = [sys.argv[0]] + argv
 
     sys.path.insert(0, str(ROOT / 'scripts'))
@@ -103,6 +138,8 @@ def main():
     rep = g63_screens.verify(boards)
     print(f'G63: penyaring memakai {os.path.abspath(payload)}; papan di penyaring {rep}', flush=True)
     guard.install_margin_guard(probe)
+    if extra_env:
+        install_extra_env(probe, os.path.abspath(extra_env))    # inner: loads node._env before the shared screen
     install_attach_check(probe, boards)
     if quat:
         q = [float(v) for v in quat.split(',')]
