@@ -226,6 +226,15 @@ karena galat basis gantry, bukan kamera — operator memilih di §A6.
    TANPA papan, urutan aman: **lepas papan A → `pose_to_g` g1 1.50 → 1.40 (lengan REST, penyaring biasa) → tempel lagi**; akhir
    sesi sebaliknya (lepas papan → g1 → 1.50 PARKIR). Pose G63 dibangkitkan dengan `--rail1 1.40`.
 
+14. **Plan-check MOCK dudukan NYATA (`mount.json`, g1 1.40, g2 0; berantai REST → R0 → P0…T3 → R0 → REST, dari keadaan REST
+   tertempat):** `poses_real_v1.json` (8 000 sampel, 101 / 210 kandidat lolos semua saringan). **arm_2 26/27, arm_3 26/27 PLANNED**;
+   ditolak sah: A-18 (j2 15.3 N·m) dan B-01 (j2 14.0–14.9 N·m), keduanya FIT rgbd. Margin rencana DITERIMA maks **93.1 % / 93.3 %**;
+   penjaga 97 % menolak 5 percobaan lintasan di arm_3 sebelum yang aman ditemukan. Per kamera sesudah penolakan: rgbd 16 FIT +
+   4 uji-tahan, rgbd2 16 FIT + 4 uji-tahan (G1 ≥ 15 terpenuhi bila semua terdeteksi). Bug alat yang ditemukan + diperbaiki:
+   (a) uji-tahan "tiap ke-4" global dengan siklus 2 kategori → semua uji-tahan di rgbd → kini tiap ke-4 PER kategori kamera
+   (peran dilabel ulang deterministik, urutan pose tetap); (b) `--target -0.1,…` dibaca argparse sebagai opsi → bentuk `--target=`
+   (juga di runbook — akan kena di HW); (c) laporan margin mengambil baris pertama (percobaan yang ditolak) → kini baris terakhir.
+
 ## B. Hasil terukur
 
 (belum ada — NOL gerak, NOL kamera pada sesi diskusi 2026-10-15)

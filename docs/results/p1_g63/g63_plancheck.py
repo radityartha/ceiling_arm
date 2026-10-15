@@ -88,9 +88,12 @@ def main():
         open(os.path.join(logdir, f'{k:02d}_{p["id"]}.log'), 'w').write(log)
         verdict = 'PLANNED' if 'rencana: PLANNED' in log else next(
             (ln.split('rencana:')[-1].strip() for ln in log.splitlines() if 'rencana:' in ln), f'rc {r.returncode}')
-        margin = next((ln.split('margin:')[-1].strip() for ln in log.splitlines() if 'margin:' in ln), '')
+        # LAST margin line = the plan that was accepted (earlier attempts may have been refused by the 97 % guard)
+        margin = next((ln.split('margin:')[-1].strip() for ln in reversed(log.splitlines()) if 'margin:' in ln), '')
+        n_guard = sum('MARGIN=TOLAK' in ln for ln in log.splitlines())
         env = next((ln.split('minimum')[-1].strip() for ln in log.splitlines() if 'peta lingkungan minimum' in ln), '')
         res = dict(k=k, id=p['id'], role=p['role'], stage=p['stage'], verdict=verdict, margin=margin, env=env,
+                   guard_refusals=n_guard,
                    rc=r.returncode, s=round(time.time() - t0, 1))
         results.append(res)
         print(json.dumps(res), flush=True)

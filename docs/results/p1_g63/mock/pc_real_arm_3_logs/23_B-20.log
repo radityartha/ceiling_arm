@@ -1,0 +1,20 @@
+G63: penyaring memakai /tmp/claude-1001/-home-user1-Documents-ceiling-arm/25411a7a-10de-41cf-ba26-f076992cf4b5/scratchpad/payload_mock_real.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}, 'B': {'interarm': True, 'cross': True, 'env': True}}
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_3 (0.08283, -0.17194, 1.08306), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+  [ 1] DRY arm_3: p_cmd = (+0.083, -0.172, +1.083)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> mock/pc_real_arm_3_logs/23_B-20.json
+[INFO] [1792036068.252301265] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.00->6.60/10, 2=3.76->11.46/14, 3=1.69->8.29/10, 4=0.25->2.23/7, 5=0.08->2.06/7, 6=0.00->1.98/7  (terketat t2_a1_joint_3 83 %)
+[INFO] [1792036077.305417216] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 361.0 mm di titik 85 (t2_a1_g63_board_0 <-> t2_a2_left_finger_prox_link_0) -> CLEAR
+[INFO] [1792036077.308717617] [reach_dwell_probe]: G63: papan terpasang di scene {'g63_board_A': 't1_a2_tool_frame', 'g63_board_B': 't2_a1_tool_frame'}
+[INFO] [1792036078.635702809] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 77.2 mm di titik 0 (t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792036079.680304180] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.000):
+[INFO] [1792036080.495775277] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 354.4 mm di titik 9/60 (t2_a1_g63_board_0 <-> t2_a2_left_finger_prox_link_0)
+[INFO] [1792036080.496814057] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 562.3 mm di titik 59/60 (t1_a2_g63_board_0 <-> t2_a1_g63_board_0)
+[INFO] [1792036080.497781380] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 77.2 mm di titik 0/60 (t1_a2_g63_board_0)
+[INFO] [1792036080.500314585] [reach_dwell_probe]: CAM-6DOF margin: t2_a1_joint_3 82.885245% (batas 97%)
