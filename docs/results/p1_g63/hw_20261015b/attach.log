@@ -1,1 +1,8 @@
 attached di scene: {'g63_board_A': 't1_a2_tool_frame', 'g63_board_B': 't2_a1_tool_frame'} -> OK
+Traceback (most recent call last):
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63_attach.py", line 122, in <module>
+    sys.exit(main())
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63_attach.py", line 105, in main
+    mount = json.load(open(a.mount))
+TypeError: expected str, bytes or os.PathLike object, not NoneType
+attached di scene: {} -> OK

@@ -284,3 +284,49 @@ karena galat basis gantry, bukan kamera — operator memilih di §A6.
    **6/6 PLANNED** (A-R0, A-01, A-02, A-03, A-R0, REST), margin maks **92.4 %** (j3), env min 77.2 mm, penolakan penjaga 0
    (`pc_hw_arm_2_P0.json`). DRY dari keadaan TERUKUR A-R0 via `g63_move.py` (argumen identik plan-check, `--move` per izin):
    PLANNED, ujung 1.16 mm / 0.08°, papan A↔B 153.3 mm, env 76.9 mm, j3 91.8 %.
+7. **P0 arm_2 — 4 gerak nyata, tiap gerak satu izin** (`g63_move.py`, `move_*`): REST→A-R0 MOVED+SUCCESS torsi puncak
+   **11.04**; A-R0→A-01 MOVED+SUCCESS 9.32; A-01→A-02 MOVED+SUCCESS 6.89; A-02→REST (probe_g63, sendi REST) MOVED+SUCCESS 3.73.
+   0 fault / REJECTED / torsi > 14 / gerak tak diminta. Torsi tahan di A-R0: j2 6.7, j3 5.1 N·m.
+8. 🔴 **Deteksi GAGAL — 0 observasi P0.** A-R0 (rgbd2 1.44 m): papan terlihat jelas (kotak ≈ 21 px, marker ≈ 16 px ≈ 2.7 px/sel)
+   tetapi **0 marker** (juga ArUco mentah, 3 kamus, potongan ×2/×3) dan fallback kisi: "paritas lemah 26–34 < 40"; diagnostik
+   ambang paritas dimatikan (TIDAK diadopsi): **AMBIGU 28 vs 26** / hanya 7 sudut lolos uji tekstur → papan memang tak bisa
+   dilabel di jarak itu. A-01 (rgbd **1.04 m**, 13°): papan sangat jelas, marker papan A terbaca hanya **4/10** (id 1, 4, 6, 7),
+   ChArUco bawaan (minMarkers 2) → **2 sudut** < 8; fallback paritas lemah/AMBIGU (48 vs 41). Penyebab fisik paritas: kotak putih
+   berisi marker (≈ 50 % hitam) → tidak "putih"; kotak hitam cetakan abu + garis terang horizontal di tiap kotak (artefak cetak).
+   Prior FK tidak bisa menggantikan paritas: galat prior ≤ 0.18 m > satu kotak 48 mm. Aturan TIDAK dilonggarkan.
+   Rekaman A-R0 pertama (tanpa frame mentah) digantikan rekaman kedua dengan `--save-frames` (30 frame/kamera, `cap/frames/`,
+   lokal saja — ada orang di bingkai).
+9. **A-02: capture DITOLAK (lengan tidak diam)** — j4 arm_2 berburu terus, pp **3.20e-3 rad** (0.18°) tetap di 5 jendela 2 s,
+   torsi j4 0.33–1.14 N·m (dekat nol → siklus batas di backlash), bukan fault; batas diam 2e-4 tidak dilonggarkan. A-03 dilewati
+   (operator: pulang REST).
+10. 🔴 **G7 GAGAL (jari arm_2):** jari 0.8099 (K0 sebelum tempel ulang) → 0.806 (A-R0) → 0.8075 (A-01) → **0.7854** sesudah A-02 +
+   REST (−1.4° > 0.5°); kembali **0.8097 begitu papan dilepas** → jari terdorong beban/momen papan, bukan perintah. Dudukan papan
+   ikut bergeser → G6′ tidak akan tahan juga. Jari arm_3 0.779 tetap (tidak digerakkan).
+11. **Akhir sesi** (izin per langkah): operator melepas KEDUA rakitan (kardus + papan; operator: lepas-pasang sulit → dijelaskan:
+   kardus yang menggantung, bukan kertasnya); `g63_attach --remove` (alat menuntut `--mount` juga — bug kecil, dicatat);
+   gripper dibuka lewat stack (`g63_gripper_ros.py`, GripperCommand 0.0, effort 50): arm_3 → −0.0097 rad; arm_2 → **−0.0284**,
+   ulang = stalled −0.0284 (batas buka mekanis; offset bacaan) → **K0 standar sesi berikut menolak jari arm_2 (selisih 0.0084
+   rad)**. g1 1.40 → **1.50 PARKIR** (DRY CLEAR 781 / 115 mm; 1.499995, galat −0.01 mm, 5.70 s, torsi 2.79). K0: semua lulus kecuali
+   offset jari arm_2 itu (`g63_k0 --finger-arm2 -0.0284 --finger-arm3 -0.0097` LULUS). Shutdown: semua PID sesi berhenti, domain
+   0/77/79/80 kosong, 0 static TF. rec_health sesi HW: rgbd 131 116 frame min 0.672, rgbd2 131 431 min 0.758, **0 < 10 %**.
+
+### B2. Papan skor dugaan (harfiah)
+
+| # | Skor | Bukti |
+|---|---|---|
+| D630 | ✗ | marker 4/10 di 1.04 m, 0 di 1.44 m; sudut terlabel 2 (1.04 m) / 0 (1.44 m) ≪ 8 — jauh dari "≥ 8/12 sampai ≥ 2.5 m" |
+| D631 | ✓ | self-test T3 luring (A5) |
+| D632–D635 | tidak teruji | 0 observasi |
+| D636 | tidak teruji (indikasi ✗) | tanpa deteksi; jari arm_2 membuka 1.4° di bawah beban papan (B1.10) |
+| D637 | ✓ (parsial, arm_2 4 leg) | torsi puncak terukur 11.04 / 9.32 / 6.89 / 3.73 ≤ 13 |
+| D638 | ✓ | rgbd 0 frame < 10 % (S0c 11 291 + sesi HW 131 116 frame) |
+
+### B3. Kesimpulan sesi + langkah berikut
+
+G63 sebagaimana dikunci **tidak bisa memenuhi G1** (deteksi), bukan karena keselamatan: semua gerak bersih. Target A4 4×5 @ 48 mm
+dengan marker ChArUco terlalu kecil untuk kamera di 1–2 m, dan marker merusak paritas. Desain ulang LURING (fase/§A baru, sebelum
+cetak): target papan catur POLOS (tanpa marker → paritas kuat; 180° dibedakan oleh jumlah kotak ganjil×genap) dengan kotak jauh
+lebih besar (≥ 2× → ≥ 40 px di 1.5 m) dan/atau pose dekat kamera; dudukan kaku yang TIDAK lewat jari (jari membuka di bawah beban;
+mis. pelat di `gripper_base_link`/flens); rencana untuk j4 berburu (pose dengan torsi j4 tak-nol atau toleransi diam berbasis
+gerak papan). Uji detektor pada frame mentah tersimpan (`cap/frames/`, A-R0 1.44 m + A-01 1.04 m) sebagai data pengembangan saja
+(bukan data kalibrasi). Incumbent ekstrinsik tetap; DEMO-HW tetap menunggu.

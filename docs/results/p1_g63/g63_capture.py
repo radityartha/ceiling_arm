@@ -158,6 +158,12 @@ def capture(a):
         _, bgr = _img_to_gray(mid)
         png = os.path.join(a.session, 'raw', f'{a.pose_id}_{c}.png')
         cv2.imwrite(png, bgr)
+        if a.save_frames:   # HW 10-15: all frames, for offline re-detection (detector amendment needs the same 30 frames)
+            fdir = os.path.join(a.session, 'frames', a.pose_id, c)
+            os.makedirs(fdir, exist_ok=True)
+            for i, m in enumerate(frames[c]):
+                cv2.imwrite(os.path.join(fdir, f'{i:02d}_{m.header.stamp.sec}.{m.header.stamp.nanosec:09d}.png'),
+                            _img_to_gray(m)[1])
         stamps = [m.header.stamp.sec + m.header.stamp.nanosec * 1e-9 for m in frames[c]]
         rec['cams'][c] = dict(status='OK', n_frames=len(frames[c]), stamp_span_s=max(stamps) - min(stamps),
                               K=K.tolist(), dist=dist, frame_id=cam_frame, width=ci.width, height=ci.height,
@@ -227,6 +233,7 @@ def main():
     c.add_argument('--mount', required=True)
     c.add_argument('--frames', type=int, default=30)
     c.add_argument('--timeout', type=float, default=10.0)
+    c.add_argument('--save-frames', action='store_true', help='also write every frame (PNG) under <session>/frames/')
     m = sp.add_parser('merge')
     m.add_argument('--session', required=True)
     m.add_argument('--square-mm', nargs='+', required=True)
