@@ -1,0 +1,69 @@
+{
+ "_note": "G63b TEBAKAN 2026-10-15: dua papan 4x5 @ 42 mm punggung-ke-punggung di BADAN gripper (muka x_g = +-0.033 + kardus 5 mm), lembar A4 penuh menggantung searah tool mulai z_g 0.005; satu rakitan = satu kotak tabrakan (dua lembar + badan gripper); massa = anggaran operator 150 g. A = rakitan di arm_2 (fase 1), B = rakitan SAMA di arm_3 (fase 2). REVISI v2 (diag luring): lembar DIPOTONG tepi 21 mm semua sisi (210 x 252), tepi atas lembar di z_g 0.045 (z_g 0.005 -> kotak menembus upper_wrist -37.5 mm; 0.045 -> +2.5 mm di luar margin 10 mm); g1 1.40 REST arm_2: papan 49.7 mm dari meja + kotak MoveIt TABRAK -> sesi pakai g1 1.30 (REST env 111.7 mm). Lembar menempel di badan gripper hanya z_g 0.045-0.078.",
+ "A": {
+  "link": "gripper_base_link",
+  "xyz": [
+   0.038,
+   0.084,
+   0.066
+  ],
+  "rpy": [
+   1.570796,
+   0.0,
+   -1.570796
+  ],
+  "rpy_note": "board x = -y_g (4 kotak), y = +z_g (5 kotak, searah tool), z = -x_g (ke dalam papan)",
+  "mass_kg": 0.15,
+  "card_t": 0.076,
+  "square_m": 0.042,
+  "sheet_x": [
+   -0.021,
+   0.189
+  ],
+  "sheet_y": [
+   -0.021,
+   0.231
+  ],
+  "guess": true,
+  "faces": {
+   "1": "muka di +x_g (frame papan = frame link ini)",
+   "2": "muka di -x_g: T_12 = rot y 180 deg, asal (0.168, 0, card_t)"
+  },
+  "unmeasured": [
+   "semua: menunggu foto + ukuran operator sesudah tempel (posisi lembar, tebal kardus, massa)"
+  ]
+ },
+ "B": {
+  "link": "gripper_base_link",
+  "xyz": [
+   0.038,
+   0.084,
+   0.066
+  ],
+  "rpy": [
+   1.570796,
+   0.0,
+   -1.570796
+  ],
+  "rpy_note": "board x = -y_g (4 kotak), y = +z_g (5 kotak, searah tool), z = -x_g (ke dalam papan)",
+  "mass_kg": 0.15,
+  "card_t": 0.076,
+  "square_m": 0.042,
+  "sheet_x": [
+   -0.021,
+   0.189
+  ],
+  "sheet_y": [
+   -0.021,
+   0.231
+  ],
+  "guess": true,
+  "faces": {
+   "1": "muka di +x_g (frame papan = frame link ini)",
+   "2": "muka di -x_g: T_12 = rot y 180 deg, asal (0.168, 0, card_t)"
+  },
+  "unmeasured": [
+   "semua: menunggu foto + ukuran operator sesudah tempel (posisi lembar, tebal kardus, massa)"
+  ]
+ }
+}

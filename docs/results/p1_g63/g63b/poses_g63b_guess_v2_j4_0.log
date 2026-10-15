@@ -1,0 +1,14 @@
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+arm_2: cek dudukan (kotak papan +10 mm vs link tetangga, j6 penuh): {'upper_wrist_link': 0.0025, 'gripper_base_link': -0.0426} m (gripper_base = touch link, boleh bersentuhan)
+arm_2: {'sampled': 8000, 'visible': 2780, 'z': 1454, 'torque': 547, 'collision': 0, 'occlusion': 0} (3 s) -> tabrakan/oklusi pada kandidat
+arm_2: lolos semua 163; hitungan {'sampled': 8000, 'visible': 2780, 'z': 1454, 'torque': 547, 'collision': 444, 'occlusion': 163, 'retract': 251}
+arm_2: R0 kamera ['rgbd', 'rgbd2']; urutan 21; {('FIT', 'rgbd+rgbd2@arm_2'): 6, ('FIT', 'rgbd@arm_2'): 6, ('FIT', 'rgbd2@arm_2'): 5, ('HOLDOUT', 'rgbd+rgbd2@arm_2'): 2, ('HOLDOUT', 'rgbd@arm_2'): 1, ('HOLDOUT', 'rgbd2@arm_2'): 1}
+arm_3: cek dudukan (kotak papan +10 mm vs link tetangga, j6 penuh): {'upper_wrist_link': 0.0025, 'gripper_base_link': -0.0426} m (gripper_base = touch link, boleh bersentuhan)
+arm_3: {'sampled': 8000, 'visible': 2476, 'z': 1266, 'torque': 488, 'collision': 0, 'occlusion': 0} (3 s) -> tabrakan/oklusi pada kandidat
+arm_3: lolos semua 370; hitungan {'sampled': 8000, 'visible': 2476, 'z': 1266, 'torque': 488, 'collision': 455, 'occlusion': 370, 'retract': 446}
+arm_3: R0 kamera ['rgbd', 'rgbd2']; urutan 21; {('FIT', 'rgbd@arm_2'): 1, ('FIT', 'rgbd+rgbd2@arm_3'): 6, ('FIT', 'rgbd@arm_3'): 5, ('FIT', 'rgbd2@arm_3'): 4, ('FIT', 'rgbd2@arm_4'): 1, ('HOLDOUT', 'rgbd@arm_3'): 2, ('HOLDOUT', 'rgbd+rgbd2@arm_3'): 1, ('HOLDOUT', 'rgbd2@arm_3'): 1}
+tulis poses_g63b_guess_v2_j4_0.json
+g63b: {'created': 'g63b_poses.py', 'j4_min': 0.0, 'j4_reject': 0, 'T_12': [[-1.0, 0.0, 0.0, 0.168], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, -1.0, 0.076], [0.0, 0.0, 0.0, 1.0]], 'j4_static_quantiles': [0.009, 0.065, 0.156, 0.27, 0.418]}
