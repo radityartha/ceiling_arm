@@ -13,6 +13,10 @@ KEADAAN AWAL: rakitan dua papan TERPASANG di arm_2 (A -> rgbd2, B -> rgbd di RES
 pangkal jari), g1 1.50 PARK, g2 0, semua REST, stack/kamera MATI. ⚠ REST arm_2 + rakitan di g1 1.50/1.40 menabrak kotak env
 MoveIt → JANGAN gerak apa pun sebelum rakitan dilepas (runbook S1.3), rel ke 1.30 TANPA rakitan, lalu pasang lagi.
 
+CADANGAN JARI (§A6b, runbook F): bila uji goyang gagal SESUDAH diperkuat (cable tie kedua + ganjal) atau operator memilih →
+papan A di jari arm_2 + B di jari arm_3 (tempat & arah sama dgn ChArUco 10-15), g1 1.40, poses_finger_v1.json, alat G63 +
+g63b_capture --arm finger; jari > 0.5° per blok = stop + tanya.
+
 URUTAN (runbook): S0 preflight + [OPERATOR] uji goyang (≤ 1–2 mm; belum pernah dijawab) + papan lama di luar bingkai →
 S1 bring-up (octomap_updaters:=false, enable_gantry_bridge:=true, reach_dwell_monitor WAJIB) + K0 + jari arm_2 ukur ulang →
 lepas rakitan → pose_to_g g1 1.30 (g63b_rail_plan.json, varian G63b) → pasang → payload dari URDF hidup + g63b_attach →
