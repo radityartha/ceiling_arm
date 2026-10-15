@@ -208,6 +208,24 @@ karena galat basis gantry, bukan kamera — operator memilih di §A6.
 10. ⚠ **`scripts/return_rest.py` tidak boleh dipakai selama papan terpasang** (penyaringnya memakai URDF tanpa papan). Pulang ke REST
    lewat `probe_g63` dengan tujuan REST (leg REST di T6 PLANNED). Runbook: `results/p1_g63/g63_runbook.md`.
 
+11. **Gripper ditutup + papan dipasang (HW, izin operator 2026-10-15 "Ya, arm_2 lalu arm_3"):** Kortex API langsung
+   (`results/p1_g63/g63_gripper.py`), hanya jari bergerak. arm_2 0 → **1.000**; arm_3 0 → **0.963** (berhenti di bawah ambang 0.97;
+   arm_3 sempat `SERVOING_MANUALLY_CONTROLLED`, kembali READY, fault 0; penyebab tidak diketahui, dicatat). Sesudah papan ditempel:
+   1.000 / 0.962, fault 0. **Dudukan nyata (operator):** papan menutup kedua jari di satu sisi (arm_2 → rgbd2, arm_3 → rgbd), menjulur
+   21.5 cm di bawah ujung gripper, ±10.5 cm, 43.5 g, tebal 5 mm, **kotak terukur 48.43 mm** (cetakan 96.86 %) → `mount.json`
+   (acuan `tool_frame`; dua angka belum diukur: jarak bidang papan dari sumbu tool, tinggi lembar di atas ujung).
+12. **Cek kamera saja di REST (domain 80, izin "Ya, cek kamera"):** papan terlihat dan rata; rgbd membaca marker 10 & 19 (papan B);
+   proyeksi model `mount.json` meleset ≤ 1–1.5 kotak; di REST papan B sebagian tertutup link arm_2 dan sudut papan A dekat link
+   arm_3 (detektor menolak papan A di citra ini — benar, tidak menebak). Depth: rgbd 0.700 / rgbd2 0.782, 0 frame < 10 % (D638
+   data pertama). fx rgbd terbaca **643.194** (B65 mencatat 643.544 sesudah FW) — dicatat; solver memakai camera_info hidup.
+   D435IF masih terhubung USB (S0e belum dikonfirmasi). Citra REST tidak di-commit (ada orang di bingkai).
+13. 🔴 **Papan A di REST arm_2 (g1 1.50) hanya 43 mm dari tepi meja kerja di peta env** (papan menggantung sampai z 0.75 < meja
+   0.77; voxel meja (1.05–1.09, 0.45–0.47, 0.77–0.81)); MoveIt menilai REST arm_2 + papan **bertabrakan** dengan kotak
+   `env_static_map` → setiap rencana dari REST = START-JUMP dan semua cek retract ditolak (0/327 kandidat lolos). Geometri nyata,
+   bukan peta basi. **g1 1.40 / 1.30 → 77 mm, kotak MoveIt bersih.** Karena keadaan awal sudah MARGIN dan `pose_to_g` menyaring
+   TANPA papan, urutan aman: **lepas papan A → `pose_to_g` g1 1.50 → 1.40 (lengan REST, penyaring biasa) → tempel lagi**; akhir
+   sesi sebaliknya (lepas papan → g1 → 1.50 PARKIR). Pose G63 dibangkitkan dengan `--rail1 1.40`.
+
 ## B. Hasil terukur
 
 (belum ada — NOL gerak, NOL kamera pada sesi diskusi 2026-10-15)

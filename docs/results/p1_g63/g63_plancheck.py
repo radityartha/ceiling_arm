@@ -4,7 +4,7 @@
 Execution sequence per arm (§A2/§A3): REST -> R0 -> P0 poses -> R0 -> T1 poses -> R0 -> T2 -> R0 -> T3 -> R0 -> REST.
 Each leg is planned by probe_g63.py --plan-check from the PREVIOUS leg's goal (--start-joints), so every leg that
 will really be executed is screened (torque 97 %, same/cross-gantry, env, GOAL-MISMATCH, boards attached).
-The first leg starts from the measured state (must be REST).
+The first leg starts from the PLACED REST state (rails from the pose file), not the measured one.
 
     g63_plancheck.py --poses poses.json --payload P.urdf --arm arm_2 --out pc_arm_2.json [--stages P0 T1]
 """
@@ -67,7 +67,8 @@ def main():
     seq = sequence(poses, a.stages) + [rest]
     logdir = os.path.splitext(a.out)[0] + '_logs'
     os.makedirs(logdir, exist_ok=True)
-    results, start = [], None
+    # first leg ALSO from a placed state (REST, rails from the pose file): independent of where the mock's rail is
+    results, start = [], dict(rest['goal_joints'])
     for k, p in enumerate(seq):
         cmd = [sys.executable, '-u', os.path.join(HERE, 'probe_g63.py'), '--g63-payload-urdf', a.payload,
                '--g63-tool-quat', ','.join(str(v) for v in p['tool_quat_xyzw']), '--arms', a.arm,
