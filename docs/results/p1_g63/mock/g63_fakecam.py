@@ -84,8 +84,10 @@ def main():
             links[b] = T
         for c in CAMERAS:
             img = np.full((IMG_H, IMG_W), 110, np.uint8)
-            for b in BOARD_ARM:
-                Tcb = inv(truth_wc[c]) @ links[b] @ truth_lb[b]
+            Tcbs = {b: inv(truth_wc[c]) @ links[b] @ truth_lb[b] for b in BOARD_ARM}
+            depth = {b: (T[:3, :3] @ np.array([0.1, 0.125, 0]) + T[:3, 3])[2] for b, T in Tcbs.items()}
+            for b in sorted(BOARD_ARM, key=lambda k: -depth[k]):     # painter's order: far board first
+                Tcb = Tcbs[b]
                 ctr = Tcb[:3, :3] @ np.array([0.1, 0.125, 0]) + Tcb[:3, 3]
                 if ctr[2] < 0.4 or Tcb[2, 2] < 0.2:          # behind the camera / seen edge-on or from the back
                     continue

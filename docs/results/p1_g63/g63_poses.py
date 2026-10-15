@@ -295,14 +295,16 @@ def category(c):
 def order_fps(cands, n, seed_idx):
     feats = np.array([np.r_[c['ctr'], 0.5 * c['nrm']] for c in cands])
     chosen = [seed_idx]
-    cats = ['both', 'rgbd', 'rgbd2']
+    # cycle ONLY over categories that exist: with no 'both' candidates the old 3-cycle gave rgbd:rgbd2 = 2:1 and
+    # rgbd2 ended with ~10 FIT poses < G1's 15 (mock e2e 10-15)
+    cats = [c for c in ('both', 'rgbd', 'rgbd2') if any(category(x) == c for x in cands)]
     k = 0
     while len(chosen) < min(n, len(cands)):
         dmin = np.min(np.linalg.norm(feats[:, None, :] - feats[chosen][None], axis=2), axis=1)
         dmin[chosen] = -1
         pick = None
-        for t in range(3):
-            want = cats[(k + t) % 3]
+        for t in range(len(cats)):
+            want = cats[(k + t) % len(cats)]
             idx = [i for i in range(len(cands)) if category(cands[i]) == want and dmin[i] > 0]
             if idx:
                 pick = max(idx, key=lambda i: dmin[i])
