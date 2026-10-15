@@ -37,6 +37,7 @@ CANDS = {
     'P50_4x5_A4_tepi20': (4, 5, 0.050, 0.020),  # sama + tepi putih 20 mm (kardus berlapis kertas putih)
     # P65_3x4 (A4, kotak 65) GUGUR: 2x3 sudut dalam < minimum findChessboardCornersSB (>= 3 per sisi)
     'P70_4x5_2xA4': (4, 5, 0.070, 0.020),       # sambungan 2 lembar A4 (280 x 350), sambungan di garis kotak
+    'P42_4x5_A4_tepi21': (4, 5, 0.042, 0.021),  # operator 2026-10-15 (2b): satu A4, tepi = kertas putih tanpa tinta
 }
 
 
