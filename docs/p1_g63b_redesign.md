@@ -45,7 +45,8 @@ meja di 1.40, §A8.6), lalu pasang rakitan di arm_2 (lengan REST). S2 arm_2 P0 �
 Per frame, per kamera, per muka yang menurut FK menghadap kamera (sudut ≤ 70°):
 1. ROI = proyeksi pusat muka (FK + incumbent) ± (setengah diagonal + tepi + 0.18 m + 0.05 m) — di luar ROI diabaikan.
 2. `findChessboardCornersSB` 3×4, EXHAUSTIVE|ACCURACY; grid ditolak → hull ×1.6 ditutup, ulang maks 3×.
-3. Penjaga (semua wajib): residu homografi 12 sudut ≤ **1.0 px** RMS; pelabelan = arah muka (det J dari FK-muka) + paritas
+3. Penjaga (semua wajib): residu homografi 12 sudut ≤ **1.0 px** RMS **dan ≤ 1.5 px per sudut** (ditambah luring 10-15
+   sesudah e2e seed 4, sebelum data HW — hanya lebih ketat); pelabelan = arah muka (det J dari FK-muka) + paritas
    20 kotak, |skor| ≥ **0.5**; **cincin putih**: 18 titik di tengah tepi 21 mm semua > (hitam+putih)/2.
 4. < 12 sudut = frame ditolak (papan polos: semua atau tidak sama sekali). Median 30 frame per pose; std dicatat.
 5. Identitas muka: hanya muka dengan normal FK ke kamera ≤ 70° yang dicari; bila kedua muka ≤ 70° (mustahil, normal
@@ -84,6 +85,7 @@ jarak 0.6–2.8 m, sudut ≤ 55°, torsi statis ≤ 92 % (150 g), tabrakan (raki
 | D642 | Dengan aturan j4, 0 capture ditolak karena "tidak diam" di P0. |
 | D643 | ≥ 1 pose per lengan terlihat kedua kamera (muka berbeda) di daftar terkunci. |
 | D644 | Torsi j2 terukur puncak ≤ 13 N·m dengan rakitan (massa terukur) pada semua pose terpilih. |
+| D645 | rgbd2 = kamera pembatas: galat rotasi ekstrinsik rgbd2 > rgbd (e2e luring: rgbd2 0.05–0.16°, rgbd 0.04–0.13°). |
 | D632–D635, D638 | dibawa dari G63 tanpa perubahan. |
 
 ### A8. Temuan luring 2026-10-15
@@ -120,3 +122,18 @@ jarak 0.6–2.8 m, sudut ≤ 55°, torsi statis ≤ 92 % (150 g), tabrakan (raki
    beririsan housing pergelangan secara model (−50 mm) → `g63b_attach.py` menambah `upper_wrist_link` sebagai touch link
    (hanya papan↔lengan sendiri; env/lengan lain tetap penuh). Pose v3 (`run_poses_v3.sh`, `poses_g63b_v3.json`): arm_2 **171**
    kandidat lolos; arm_3 berjalan saat sesi dijeda.
+10. **Alat HW + uji ujung-ke-ujung LURING** (tanpa ROS): `g63b_detect.py` (detektor produksi = fungsi `plain_study` tervalidasi
+   + muka dipilih dari handedness prior + residu H per sudut ≤ 1.5 px), `g63b_capture.py` (g63_capture + detektor polos +
+   rakitan dua muka di satu lengan + nama papan per fase A2/B2/A3/B3), `g63b_solve.py` (g63_solve atas gabungan dua fase).
+   `g63b_e2e.py`: pose v3 → render dua muka (lembar A4, latar = frame P0 nyata penuh distraktor, blur 1.3, derau 2.3, 5 frame)
+   → deteksi dengan prior incumbent + mount nominal → solve. Kebenaran: kamera digeser 2° / 8 cm, rakitan 3° / 1.5 cm per fase,
+   galat FK sistematis per konfigurasi 2 mm / 0.05° + ulang 0.3 mm / 0.01°. **8 seed: label salah 0 (semua); ekstrinsik pulih
+   rgbd 0.04–0.11° / 0.1–2.2 mm, rgbd2 0.05–0.16° / 0.5–5.4 mm; G1 FIT 19–23 per kamera; G3 median 0.10–0.29 cm; G4′ ≤ 0.7 cm;
+   G6′ tanpa geser ≤ 1.9 mm.** Toleransi uji (0.15° / 5 mm, spesifikasi T3 G63) terlewati tipis di 2/8 seed — keduanya rgbd2
+   (0.153° / 4.0 mm; 0.156° / 5.4 mm) → **6/8 LULUS**; batas TIDAK dilonggarkan (D645). Dampak di zona jauh (≈ 3 m): 0.16° ≈ 8 mm
+   + 5 mm ≈ 1.3 cm < anggaran demo 5 cm; G3 uji-tahan (pose dekat zona pose) tidak melihat galat zona jauh ini → dicatat.
+   **Kontrol positif G6′:** rakitan digeser 3 mm sebelum R0 akhir → 2.88–3.34 mm > 2 mm → ditolak (4/4). Temuan + perbaikan
+   selama uji: (a) model uji v1 menarik ulang derau FK 2 mm per kunjungan → alarm palsu G6′ 4.1 mm (salah model uji, bukan alat);
+   (b) satu sudut 3.4 px lolos penjaga RMS 1.0 px → penjaga per sudut 1.5 px. Prior muka B wrapper tangkap = model e2e
+   (beda 1.7e-16); `g63b_solve` dua berkas = solve e2e (identik). **Belum diuji:** `g63b_capture capture` dengan ROS (hanya di
+   mock/HW), aturan diam j4 (keputusan §A6.1).

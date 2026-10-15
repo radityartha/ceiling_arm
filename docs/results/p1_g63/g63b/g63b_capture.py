@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""G63b tangkap / gabung: g63_capture.py (G63, TIDAK diubah) dengan rakitan DUA muka di SATU lengan.
+
+Tambalan (hanya di proses ini):
+  * BOARD_ARM: muka A dan B -> lengan fase (--arm arm_2 | arm_3); link = mount (gripper_base_link);
+  * mount muka B = muka A @ T_12 (dari poses_g63b_*.json 'g63b'.T_12 atau mount card_t + square_m);
+  * detektor: g63b_detect.detect (papan polos, penjaga terdaftar) menggantikan g63_detect.detect;
+    muka yang membelakangi kamera ditolak dari prior (tanpa pencarian).
+Aturan diam (STILL_STD_RAD) dan semua penolakan g63_capture TIDAK diubah (aturan j4 menunggu keputusan operator §A6.1).
+
+    g63b_capture.py capture --arm arm_2 --session S --pose-id A-R0 --board A B --role R0 --stage P0 --mount mount_g63b.json [--save-frames]
+    g63b_capture.py merge --arm arm_2 --session S --square-mm A=42.0 B=42.0 --out ds_arm_2.json --poses poses_g63b_v3.json
+merge menamai ulang papan per fase: A -> A2, B -> B2 (arm_2) / A3, B3 (arm_3), sehingga dataset dua fase bisa digabung
+(T_lb rakitan berbeda sesudah dipindah). Solver: g63b_solve.py (g63_solve + nama papan per fase).
+"""
+import json
+import os
+import sys
+import tempfile
+
+import numpy as np
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(HERE))
+import g63_capture  # noqa: E402
+import g63_detect  # noqa: E402
+import g63b_detect  # noqa: E402
+from g63_common import T_from_xyzrpy, xyzrpy_from_T  # noqa: E402
+
+
+def two_face_mount(path):
+    """mount_g63b.json (assembly = face A frame) -> temp mount with A and B face entries on the same link."""
+    m = json.load(open(path))
+    a = m['A']
+    T12 = np.diag([-1.0, 1.0, -1.0, 1.0])
+    T12[:3, 3] = [4 * float(a['square_m']), 0.0, float(a['card_t'])]
+    TA = T_from_xyzrpy(*a['xyz'], *a['rpy'])
+    xb = xyzrpy_from_T(TA @ T12)
+    out = {'A': dict(a), 'B': dict(a, xyz=[float(v) for v in xb[:3]], rpy=[float(v) for v in xb[3:]])}
+    f = tempfile.NamedTemporaryFile('w', suffix='_g63b_mount.json', delete=False)
+    json.dump(out, f)
+    f.close()
+    return f.name, out
+
+
+def main():
+    if len(sys.argv) < 3 or '--arm' not in sys.argv:
+        sys.exit('pakai: g63b_capture.py {capture|merge} --arm arm_2|arm_3 ...')
+    i = sys.argv.index('--arm')
+    arm = sys.argv[i + 1]
+    if arm not in ('arm_2', 'arm_3'):
+        sys.exit('--arm harus arm_2 atau arm_3')
+    del sys.argv[i:i + 2]
+    g63_capture.BOARD_ARM = {'A': arm, 'B': arm}
+    cmd = sys.argv[1]
+    if cmd == 'capture':
+        j = sys.argv.index('--mount')
+        tmp, mt = two_face_mount(sys.argv[j + 1])
+        sys.argv[j + 1] = tmp
+        sq = {k: float(v['square_m']) for k, v in mt.items()}
+        g63_detect.detect = lambda gray, priors=None: g63b_detect.detect(gray, priors, sq)
+        return g63_capture.main()
+    if cmd == 'merge':
+        k = sys.argv.index('--out')
+        out = sys.argv[k + 1]
+        rc = g63_capture.main()
+        ds = json.load(open(out))
+        ph = arm[-1]
+        ren = {'A': f'A{ph}', 'B': f'B{ph}'}
+        ds['square_m'] = {ren.get(b, b): v for b, v in ds['square_m'].items()}
+        for p in ds['poses']:
+            p['board'] = ren[p['board']]
+            p['id'] = p['id'].split(':')[0] + ':' + p['board']
+        ds['g63b'] = dict(arm=arm, renamed=ren)
+        json.dump(ds, open(out, 'w'), indent=1)
+        print(f'g63b: papan dinamai ulang {ren} -> {out}')
+        return rc
+    sys.exit(f'perintah tidak dikenal: {cmd}')
+
+
+if __name__ == '__main__':
+    sys.exit(main())

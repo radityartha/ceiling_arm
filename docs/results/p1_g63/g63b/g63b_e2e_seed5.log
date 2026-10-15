@@ -1,0 +1,15 @@
+deteksi: 261/320 frame, label SALAH 0, catatan {'ok': 261, 'SB': 10, 'paritas': 23, 'residu': 18, 'paritas:': 3, 'cincin': 5}
+galat sudut median-frame vs kebenaran (px): p50 0.36, 5 terburuk [(1.43, 'B-14:B3:rgbd2', 3, 1.26), (1.39, 'A-R0b:B2:rgbd', 5, 1.51), (1.38, 'B-20:A3:rgbd2', 5, 1.26), (1.3, 'A-14:A2:rgbd', 2, 1.32), (1.21, 'A-18:A2:rgbd', 5, 1.4)]
+G1 FIT per kamera: {'rgbd': 21, 'rgbd2': 22}
+konvergen True tak teramati []
+  rgbd: galat vs KEBENARAN 0.0781 deg / 0.1 mm | geser dari incumbent 1.99 deg / 80.0 mm
+  rgbd2: galat vs KEBENARAN 0.1563 deg / 5.4 mm | geser dari incumbent 2.04 deg / 82.5 mm
+  papan A2: T_lb galat 0.41 deg / 0.5 mm
+  papan A3: T_lb galat 0.24 deg / 1.1 mm
+  papan B2: T_lb galat 0.12 deg / 1.2 mm
+  papan B3: T_lb galat 0.35 deg / 0.5 mm
+G3 uji-tahan: {'rgbd': {'n': 36, 'median_m': 0.1, 'p95_m': 0.33}, 'rgbd2': {'n': 36, 'median_m': 0.13, 'p95_m': 0.33}} (cm)
+G4' : {'rgbd2': {'n': 3, 'median_m': 1.12, 'max_m': 2.32}, 'rgbd': {'n': 3, 'median_m': 0.1, 'max_m': 0.95}} (cm)
+G4 dua-kamera: {'n': 0, 'median_m': None}
+G6' R0: [('A-R0:A2', 0.34), ('A-R0:B2', 0.32), ('A-R0b:A2', 0.4), ('A-R0b:B2', 0.98), ('B-R0:A3', 0.26), ('B-R0:B3', nan), ('B-R0b:A3', 0.57), ('B-R0b:B3', nan)] (mm)
+HASIL E2E: GAGAL
