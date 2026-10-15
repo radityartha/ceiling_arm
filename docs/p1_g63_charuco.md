@@ -135,8 +135,8 @@ karena galat basis gantry, bukan kamera — operator memilih di §A6.
 | T2 | Detektor `g63_detect.py` (A8.4) | **SELESAI** 321cf1d, self-test LULUS ([log](results/p1_g63/detect_self_test.log)) |
 | T3 | Solver `g63_solve.py` (§A3) + **self-test sintetis**: tanpa noise ≤ 0.01° / 1 mm; noise 0.3 px + FK 2 mm ≤ 0.15° / 5 mm; kontrol negatif: tanpa keragaman orientasi → T_lb tak teramati harus TERDETEKSI (kondisi Jacobian), bukan diam | **SELESAI** 17f7745 + revisi G4′/G6′, self-test LULUS ([log](results/p1_g63/self_test.log)); 1 px: ≤ 0.10° / 3.6 mm ([log](results/p1_g63/solve_1px_check.log)) |
 | T4 | Pembangkit pose `g63_poses.py`: visibilitas (incumbent) + IK + **torsi RNEA dengan payload papan** (massa S0d, asumsi ≤ 100 g di pusat papan, offset j2 +7.7, batas 14, 97 %) + **papan sebagai benda tabrakan** terpasang di link jari (kotak 0.21×0.26×0.01 m + margin) + **amplop D435IF** di gripper arm_4 (kotak konservatif 0.15×0.10×0.10 m sampai diukur). Probe produksi belum mendukung payload/benda terpasang → wrapper sesi / skrip saringan tambahan (keputusan desain di T4, tanpa melonggarkan saringan yang ada). | **SELESAI (dudukan TEBAKAN)** 1531f0d: `g63_urdf.py`, `g63_screens.py`, `g63_poses.py`, `g63_attach.py`, `probe_g63.py` (A8.5). Amplop D435IF tidak dipakai (§A6.3: dilepas). |
-| T5 | Harness tangkap `g63_capture.py`: 30 frame RGB + camera_info + joint_states (per nama) + TF, cap waktu, `rec_health.py` paralel | **kode ada**, uji ujung-ke-ujung mock (kamera palsu `mock/g63_fakecam.py`) belum |
-| T6 | Plan-check MOCK domain 77, `octomap_updaters:=false`, papan di scene: semua pose arm_2/arm_3 dari K0 (REST, g1 1.50, g2 0) | **berjalan** (`g63_plancheck.py`, A8.6) |
+| T5 | Harness tangkap `g63_capture.py`: 30 frame RGB + camera_info + joint_states (per nama) + TF, cap waktu, `rec_health.py` paralel | **SELESAI**, uji ujung-ke-ujung mock LULUS (A8.9) |
+| T6 | Plan-check MOCK domain 77, `octomap_updaters:=false`, papan di scene: semua pose arm_2/arm_3 dari K0 (REST, g1 1.50, g2 0) | **SELESAI (dudukan TEBAKAN)**: arm_2 27/27, arm_3 26/27 PLANNED, margin maks 93.2 % (A8.6) |
 
 ### A6. Jawaban operator atas §A6 (2026-10-15, harfiah dalam kutip)
 
@@ -188,10 +188,25 @@ karena galat basis gantry, bukan kamera — operator memilih di §A6.
    papan muncul di ketiga penyaring, margin 90.3 %.
 6. **Plan-check mock (T6) menemukan dua hal sebelum HW:** (a) jarak ke voxel ≥ 5 cm ≠ kotak `env_static_map` MoveIt (L∞, +5 cm) →
    MoveIt menolak start (START-JUMP env_static_map|g63_board_A) → pembangkit kini juga memeriksa kotak MoveIt; (b) runner berantai
-   harus memakai keadaan awal LENGKAP dan melewati pose yang ditolak (start = tujuan PLANNED terakhir). Hasil akhir T6 menyusul.
+   harus memakai keadaan awal LENGKAP dan melewati pose yang ditolak (start = tujuan PLANNED terakhir); (c) jalur pulang lurus
+   (cek retract probe) membuat papan menembus peta env dan beberapa transit > 97 % → pembangkit kini memakai `plan_retract`
+   bersama (tanpa fallback MoveIt = lebih ketat) + torsi statis ≤ 92 %. **Hasil T6 (dudukan TEBAKAN, berantai REST → R0 → tahap
+   → R0 → … → REST):** arm_2 **27/27**, arm_3 **26/27** PLANNED, margin maks 93.2 % / 92.1 %; B-02 ditolak benar (papan B 2.2 mm dari
+   forearm arm_4). Log `results/p1_g63/mock/pc_arm_{2,3}*`.
 7. **Cakupan zona (incumbent, g1 1.50 / g2 0):** arm_2 → zona arm_2 (rgbd, rgbd2) + sedikit zona arm_1 (rgbd); arm_3 → zona arm_3
    (rgbd, rgbd2) + sedikit arm_4 (rgbd). **rgbd2 × zona meja arm_1 tidak tercakup** → D634 butuh geser rel (§A6.4: boleh).
 8. Kode bersama (probe, penyaring, launch) **tidak diubah**; seluruh tambahan di `results/p1_g63/`.
+9. **Uji ujung-ke-ujung MOCK (domain 77, bukan data):** kamera palsu merender papan dari TF lengan mock dengan ekstrinsik "benar" =
+   incumbent digeser 2.06–2.09° / 8.1–8.3 cm dan dudukan "benar" = tebakan digeser 2 cm / 5°; TF statis = incumbent (prior). Rantai
+   `probe_g63 --move` → `g63_capture` → `merge` → `g63_solve` (8 pose/lengan): ekstrinsik terpulihkan **rgbd 0.13° / 3.2 mm, rgbd2
+   0.15° / 3.4 mm**; G3 median 0.18 cm; R0 lateral 0.18–0.27 mm. Solver **menandai rgbd2 tak teramati** (std 0.22° > 0.10°, hanya 3
+   pose FIT rgbd2) → penolakan yang benar pada data sedikit. Temuan yang diperbaiki: (a) batas prior tetap 60 px memotong ROI papan
+   dekat (1.27 m) → kini berskala jarak (0.18 m di papan); (b) uji sadel Hessian menolak sudut ChArUco asli di samping bit marker
+   gelap → diganti uji tekstur + konsistensi homografi tinggal-satu (self-test tetap 0 label salah); (c) urutan gambar kamera palsu
+   (papan jauh menimpa dekat); (d) urutan pose memberi rgbd : rgbd2 = 2 : 1 (siklus memuat kategori "dua kamera" yang kosong) → total
+   FIT rgbd2 ≈ 10 < G1 15 → siklus kini hanya kategori yang ada.
+10. ⚠ **`scripts/return_rest.py` tidak boleh dipakai selama papan terpasang** (penyaringnya memakai URDF tanpa papan). Pulang ke REST
+   lewat `probe_g63` dengan tujuan REST (leg REST di T6 PLANNED). Runbook: `results/p1_g63/g63_runbook.md`.
 
 ## B. Hasil terukur
 
