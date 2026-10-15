@@ -86,6 +86,21 @@ Operator: **"ya saya ikut yang terbaik saja . setuju rekomendasimu. selesaikan s
 | 5 | Lembar | A4 penuh (operator: "A4 penuh"; usul potong tidak dipakai — model memakai 297 mm) |
 | 6 | Meja | operator menawarkan memindah meja → **tidak** (peta env beku memuat meja; pindah = pindai ulang = fase sendiri) |
 
+### A6b. Cadangan JARI (operator 2026-10-15 malam, harfiah)
+
+**"siapkan di jari sekarang. jika besok uji getar gagal, gagal tinggal pakai yang jari. kl jari butuh 1 saja di 1 sisi seperti
+charucho tdi cukup kan?"** → jawaban: cukup untuk G1 (FIT gabungan rgbd 17 / rgbd2 17 di `poses_finger_v1.json`), tanpa pose
+dua-kamera. **Pemicu:** uji goyang S0 gagal SESUDAH diperkuat (cable tie kedua + ganjal), atau keputusan operator.
+**Susunan = G63:** papan A (polos, satu muka) di jari arm_2 → rgbd2 di REST, papan B di jari arm_3 → rgbd, dipasang BERSAMAAN,
+link model `tool_frame` (mount `g63b/mount_finger.json` = `mount.json` G63 nyata + asal pola baru; lembar DIASUMSIKAN di tempat &
+arah sama dengan ChArUco 10-15 — dicek operator), 43.5 g/papan, **g1 1.40** (G63 A8.13; rencana rel `g63_rail_plan.json`), g2 0.
+Alat: `g63_plancheck.py` / `g63_move.py` / `g63_attach` (via `g63b_attach --boards A B`, purge) apa adanya; tangkap
+`g63b_capture.py --arm finger` (detektor polos, aturan j4 sama); solve `g63b_solve.py` (papan AJ/BJ). Gerbang = §A4, KECUALI:
+**G7 jari ≤ 0.5° tidak bisa dijamin** (P0 G63: jari membuka 1.4° di bawah beban, ±5 mm di papan; model `tool_frame` tidak
+mengikuti sendi jari) → bila mode jari dipakai, G7-jari dinilai per blok dan **pelanggaran = berhenti + tanya operator**
+(tidak dilonggarkan diam-diam); G6′ R0 tiap blok menangkap pergeseran yang berkembang. Risiko diterima operator dengan memilih
+cadangan ini dicatat harfiah saat dipakai.
+
 ### A7. Dugaan (dikunci bersama §A)
 
 | # | Dugaan |
@@ -172,3 +187,9 @@ Operator: **"ya saya ikut yang terbaik saja . setuju rekomendasimu. selesaikan s
    DUNIA di posisi terakhir → percobaan pertama arm_3 **0/27** (START-JUMP dengan gripper arm_2; arsip
    `mock/v4_pc_arm_3_STALEWORLD*`). `g63b_attach --remove` kini juga menghapus objek dunia + memverifikasi scene bersih
    ("sisa [] -> OK"); ulang = 26/27. Di HW bug ini akan memblokir seluruh fase arm_3.
+13. **Cadangan JARI di mock 77** (`mock/run_finger_mock.sh`): pose `poses_finger_v1.json` (satu muka/lengan, g1 1.40, R0 ≤ 40°):
+   arm_2 104 / arm_3 227 kandidat, R0 satu kamera (arm_2 rgbd 37.3° / 1.55 m; arm_3 rgbd2 38.1° / 1.49 m), FIT gabungan rgbd 17 /
+   rgbd2 17, torsi statis ≤ 91.9 %. Rel g1 → 1.40 (rencana G63) OK; attach A+B di `tool_frame` OK. **Plan-check arm_2 27/27 (margin
+   maks 93.49 %, env ≥ 52.1 mm), arm_3 27/27 (92.25 %, ≥ 77.2 mm)**, masing-masing 1 percobaan ditolak penjaga 97 % sebelum lintasan
+   aman. Uji tangkap ROS (`g63b_capture --arm finger`, fakecam polos): A-R0 rgbd 12 sudut, B-R0 rgbd2 12 sudut (kamera = rencana),
+   merge AJ/BJ, REST via `g63_move`; mock mati bersih.

@@ -144,14 +144,20 @@ def main():
     global J4_MIN
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--j4-min', type=float, default=0.0)
+    ap.add_argument('--single-face', action='store_true',
+                    help='cadangan JARI (susunan G63: A di arm_2, B di arm_3, satu muka masing-masing): tanpa tambalan dua muka')
     a, rest = ap.parse_known_args()
     J4_MIN = a.j4_min
     mount = json.load(open(rest[rest.index('--mount') + 1]))
-    T = {t12(v).tobytes() for k, v in mount.items() if not k.startswith('_')}
-    if len(T) != 1:
-        raise SystemExit('rakitan A dan B harus geometri sama (satu rakitan dipindah lengan)')
-    _T12['cur'] = t12(mount['A'])
-    P.visibility, P.occluded, P.torque_ok = visibility2, occluded2, torque_ok2
+    if a.single_face:
+        P.torque_ok = torque_ok2
+        _T12['cur'] = np.eye(4)
+    else:
+        T = {t12(v).tobytes() for k, v in mount.items() if not k.startswith('_')}
+        if len(T) != 1:
+            raise SystemExit('rakitan A dan B harus geometri sama (satu rakitan dipindah lengan)')
+        _T12['cur'] = t12(mount['A'])
+        P.visibility, P.occluded, P.torque_ok = visibility2, occluded2, torque_ok2
     ap2 = argparse.ArgumentParser()
     ap2.add_argument('--urdf', required=True)
     ap2.add_argument('--mount', required=True)
@@ -165,7 +171,7 @@ def main():
     out = b.out
     d = json.load(open(out))
     v = np.array(STATS['j4_vals']) if STATS['j4_vals'] else np.array([np.nan])
-    d['g63b'] = dict(created='g63b_poses.py', j4_min=J4_MIN, j4_reject=STATS['j4_reject'], T_12=_T12['cur'].tolist(),
+    d['g63b'] = dict(created='g63b_poses.py', single_face=a.single_face, j4_min=J4_MIN, j4_reject=STATS['j4_reject'], T_12=_T12['cur'].tolist(),
                      j4_static_quantiles=[round(float(x), 3) for x in np.nanpercentile(v, [5, 25, 50, 75, 95])])
     json.dump(d, open(out, 'w'), indent=1)
     print('g63b:', d['g63b'])

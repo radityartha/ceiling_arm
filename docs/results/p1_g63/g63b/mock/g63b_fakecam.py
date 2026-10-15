@@ -24,9 +24,13 @@ i = sys.argv.index('--arm')
 arm = sys.argv[i + 1]
 del sys.argv[i:i + 2]
 j = sys.argv.index('--mount')
-tmp, mt = g63b_capture.two_face_mount(sys.argv[j + 1])
-sys.argv[j + 1] = tmp
-g63_fakecam.BOARD_ARM = {'A': arm, 'B': arm}
+if arm == 'finger':          # cadangan jari: susunan G63 (A arm_2, B arm_3), mount dipakai apa adanya
+    import json
+    mt = {k: v for k, v in json.load(open(sys.argv[j + 1])).items() if not k.startswith('_')}
+else:
+    tmp, mt = g63b_capture.two_face_mount(sys.argv[j + 1])
+    sys.argv[j + 1] = tmp
+    g63_fakecam.BOARD_ARM = {'A': arm, 'B': arm}
 SQ = float(mt['A']['square_m'])
 TEX = g63b_e2e.sheet_tex(SQ)
 

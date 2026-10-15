@@ -1,0 +1,37 @@
+=== 22:29:06 mock up
+7
+=== 22:29:30 monitor
+Subscription count: 1
+=== 22:29:40 REST
+selesai: galat akhir 0.000 deg, torsi puncak 0.000 N.m pada , segmen ['lurus']
+selesai: galat akhir 0.000 deg, torsi puncak 0.000 N.m pada , segmen ['lurus']
+=== 22:31:07 g1 -> 1.40 (rencana rel G63)
+akhir: g1 = (1.400000 m, +0.0000 deg), galat +0.00 mm / +0.0000 deg; t_traverse 76.87 s (lin 76.87, rot None; T_cmd 77.78); lengan (keempat) bergeser maks 0.0000 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 0.0 t2_a2_joint_6
+A/arm_2: geometri ['t1_a2_g63_board_0'] -> OK
+   REST: delta tau j2 RNEA -0.0298 N.m vs tangan -0.0298 -> OK
+B/arm_3: geometri ['t2_a1_g63_board_0'] -> OK
+   REST: delta tau j2 RNEA -0.0298 N.m vs tangan -0.0298 -> OK
+attached di scene: {'g63_board_A': 't1_a2_tool_frame', 'g63_board_B': 't2_a1_tool_frame'} -> OK
+=== 22:32:39 plan-check arm_2
+arm_2: PLANNED 27/27 -> mock/fj_pc_arm_2.json
+=== 22:45:57 plan-check arm_3
+arm_3: PLANNED 27/27 -> mock/fj_pc_arm_3.json
+=== 22:59:18 uji tangkap R0 (fakecam finger)
+       arm_2: moveit MOVED  (percobaan rencana: ['PLANNED'])
+move_00_arm_2_A-R0: rc 0
+A-R0: diam std 5.55e-17 rad, geser selama tangkap 0.00e+00 rad
+  rgbd papan A: 12 sudut, frame 30, metode ['polos'], std maks 0.02 px
+  rgbd2 papan A: 0 sudut, frame 30, metode ['none'], std maks nan px
+       arm_2: moveit MOVED  (percobaan rencana: ['PLANNED'])
+move_02_arm_2_REST: rc 0
+       arm_3: moveit MOVED  (percobaan rencana: ['PLANNED'])
+move_04_arm_3_B-R0: rc 0
+B-R0: diam std 3.33e-16 rad, geser selama tangkap 0.00e+00 rad
+  rgbd papan B: 0 sudut, frame 30, metode ['none'], std maks nan px
+  rgbd2 papan B: 12 sudut, frame 30, metode ['polos'], std maks 0.25 px
+       arm_3: moveit MOVED  (percobaan rencana: ['PLANNED'])
+move_06_arm_3_REST: rc 0
+g63b: papan dinamai ulang {'A': 'AJ', 'B': 'BJ'} -> mock/fj_ds.json
+=== 23:02:20 shutdown
+0
+SELESAI

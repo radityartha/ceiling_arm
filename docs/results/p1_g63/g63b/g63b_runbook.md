@@ -61,3 +61,14 @@ Solve akhir (FIT saja) → G1–G7 + G9 (§A4), uji-tahan tidak pernah dipakai f
 (launch default tetap); G5 TF hidup; D-test; G8. Akhir: lengan REST (via `g63b_move --pose REST`), **[OPERATOR] lepas rakitan**,
 `g63b_attach … --remove`, baru boleh `return_rest`; `pose_to_g --gantry 1 … 1.50 0` (PARK, DRY lalu **[GERAK]**), K0, matikan PID
 milik sesi (SIGINT ke launch, cek `node list --no-daemon`), domain kosong, arsip, laporan.
+
+## F — CADANGAN JARI (hanya bila uji goyang S0 gagal sesudah diperkuat, atau operator memutuskan; §A6b)
+1. **[OPERATOR]** lepas rakitan badan gripper; tempel papan A polos di jari arm_2 dan papan B di jari arm_3, **di tempat & arah yang
+   sama dengan ChArUco 10-15** (gripper tertutup, `g63_gripper.py`; G63 A8.11) — foto; konfirmasi asumsi `mount_finger.json`.
+2. Rel: g1 **1.40** (`pose_to_g … --plan $G/g63_rail_plan.json --variant G63 1.40 0`, papan A DILEPAS selama geser, G63 B1.3).
+3. `g63_urdf.py --mount $B/mount_finger.json --out $SES/payload_finger.urdf --check`; `g63b_attach.py --mount $B/mount_finger.json
+   --boards A B` (OK); K0 `g63_k0 --rail1 1.40` dgn nilai jari tertutup terukur.
+4. Per lengan: `g63_plancheck.py --poses $B/poses_finger_v1.json --payload $SES/payload_finger.urdf --arm <arm> --stages <tahap>
+   --extra-env …` → `g63_move.py … --pose <id> [--dry]` → `g63b_capture.py capture --arm finger --board <A|B> …` →
+   `g63b_capture.py merge --arm finger …` → `g63b_solve.py`. Jari > 0.5° dari nilai awal blok → STOP + tanya (§A6b).
+5. Akhir: REST via `g63_move --pose REST`, lepas papan, `g63b_attach --boards A B --remove` (sisa [] → OK), g1 1.50 PARK.

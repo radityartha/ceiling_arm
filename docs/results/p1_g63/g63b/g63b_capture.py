@@ -10,6 +10,7 @@ Aturan diam: sendi 1-3, 5-6 std < 2e-4 rad (tetap); j4 peak-to-peak <= j4_limit.
 <= 1.5 mm) lewat kait g63_capture.STILL_EXEMPT_PP; drift selama tangkap dinilai tanpa j4.
 
     g63b_capture.py capture --arm arm_2 --session S --pose-id A-R0 --board A B --role R0 --stage P0 --mount mount_g63b.json [--save-frames]
+    g63b_capture.py capture --arm finger ... --mount mount_finger.json   (cadangan JARI, susunan G63, papan polos)
     g63b_capture.py merge --arm arm_2 --session S --square-mm A=42.0 B=42.0 --out ds_arm_2.json --poses poses_g63b_v3.json
 merge menamai ulang papan per fase: A -> A2, B -> B2 (arm_2) / A3, B3 (arm_3), sehingga dataset dua fase bisa digabung
 (T_lb rakitan berbeda sesudah dipindah). Solver: g63b_solve.py (g63_solve + nama papan per fase).
@@ -50,18 +51,22 @@ def main():
         sys.exit('pakai: g63b_capture.py {capture|merge} --arm arm_2|arm_3 ...')
     i = sys.argv.index('--arm')
     arm = sys.argv[i + 1]
-    if arm not in ('arm_2', 'arm_3'):
-        sys.exit('--arm harus arm_2 atau arm_3')
+    if arm not in ('arm_2', 'arm_3', 'finger'):
+        sys.exit('--arm harus arm_2, arm_3, atau finger (cadangan jari: A di arm_2, B di arm_3, satu muka)')
     del sys.argv[i:i + 2]
-    g63_capture.BOARD_ARM = {'A': arm, 'B': arm}
+    if arm != 'finger':
+        g63_capture.BOARD_ARM = {'A': arm, 'B': arm}
     # §A6.1 (operator 2026-10-15): j4 judged by peak-to-peak <= limit (board motion <= 1.5 mm), see g63b_j4_limit.py
     lim = json.load(open(os.path.join(HERE, 'j4_limit.json')))['j4_pp_max_rad']
     g63_capture.STILL_EXEMPT_PP = {'joint_4': float(lim)}
     cmd = sys.argv[1]
     if cmd == 'capture':
         j = sys.argv.index('--mount')
-        tmp, mt = two_face_mount(sys.argv[j + 1])
-        sys.argv[j + 1] = tmp
+        if arm == 'finger':
+            mt = {k: v for k, v in json.load(open(sys.argv[j + 1])).items() if not k.startswith('_')}
+        else:
+            tmp, mt = two_face_mount(sys.argv[j + 1])
+            sys.argv[j + 1] = tmp
         sq = {k: float(v['square_m']) for k, v in mt.items()}
         g63_detect.detect = lambda gray, priors=None: g63b_detect.detect(gray, priors, sq)
         return g63_capture.main()
@@ -70,7 +75,7 @@ def main():
         out = sys.argv[k + 1]
         rc = g63_capture.main()
         ds = json.load(open(out))
-        ph = arm[-1]
+        ph = arm[-1] if arm != 'finger' else 'J'
         ren = {'A': f'A{ph}', 'B': f'B{ph}'}
         ds['square_m'] = {ren.get(b, b): v for b, v in ds['square_m'].items()}
         for p in ds['poses']:
