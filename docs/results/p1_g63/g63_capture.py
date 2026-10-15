@@ -144,7 +144,7 @@ def capture(a):
             spread = max(float(np.linalg.norm(T[:3, 3] - Tm[:3, 3])) for T in Ts)
             T_wl[b] = dict(T=Tm.tolist(), n_tf=len(Ts), spread_m=spread)
             T_lb = T_from_xyzrpy(*mount[b]['xyz'], *mount[b]['rpy'])
-            priors[b] = g63_detect.predict_uv(b, Tm, T_lb, Twc, K, dist)
+            priors[b] = g63_detect.predict_uv(b, Tm, T_lb, Twc, K, dist, mount[b].get('square_m'))
         dets = {b: [] for b in boards}
         for m in frames[c]:
             gray, _ = _img_to_gray(m)

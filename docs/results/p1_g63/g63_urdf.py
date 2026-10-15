@@ -30,17 +30,25 @@ CARD_T = 0.006                 # cardboard + tape thickness (m), behind the pape
 COLL_MARGIN = 0.010            # collision box grown by this on every side (unmeasured cardboard edges, flex)
 
 
-def board_box():
-    """Collision box (centre xyz in the board frame, size) = A4 sheet + cardboard, grown by COLL_MARGIN."""
-    c = [(SHEET_X[0] + SHEET_X[1]) / 2, (SHEET_Y[0] + SHEET_Y[1]) / 2, CARD_T / 2]
-    s = [SHEET_X[1] - SHEET_X[0] + 2 * COLL_MARGIN, SHEET_Y[1] - SHEET_Y[0] + 2 * COLL_MARGIN, CARD_T + 2 * COLL_MARGIN]
+def _sheet(mt):
+    """Measured sheet extent (board frame) + card thickness from the mount JSON, else the A4-print defaults."""
+    mt = mt or {}
+    return tuple(mt.get('sheet_x', SHEET_X)), tuple(mt.get('sheet_y', SHEET_Y)), float(mt.get('card_t', CARD_T))
+
+
+def board_box(mt=None):
+    """Collision box (centre xyz in the board frame, size) = sheet + cardboard, grown by COLL_MARGIN."""
+    sx, sy, ct = _sheet(mt)
+    c = [(sx[0] + sx[1]) / 2, (sy[0] + sy[1]) / 2, ct / 2]
+    s = [sx[1] - sx[0] + 2 * COLL_MARGIN, sy[1] - sy[0] + 2 * COLL_MARGIN, ct + 2 * COLL_MARGIN]
     return c, s
 
 
-def board_inertial(mass):
+def board_inertial(mass, mt=None):
     """Uniform plate inertia about its centre, in the board frame."""
-    c, _ = board_box()
-    a, b, t = SHEET_X[1] - SHEET_X[0], SHEET_Y[1] - SHEET_Y[0], CARD_T
+    c, _ = board_box(mt)
+    sx, sy, ct = _sheet(mt)
+    a, b, t = sx[1] - sx[0], sy[1] - sy[0], ct
     ixx = mass * (b * b + t * t) / 12
     iyy = mass * (a * a + t * t) / 12
     izz = mass * (a * a + b * b) / 12
@@ -57,12 +65,12 @@ def add_boards(root, mount):
         if root.find(f"link[@name='{child}']") is not None:
             raise SystemExit(f'{child} sudah ada (URDF masukan sudah dimodifikasi?)')
         link = ET.SubElement(root, 'link', name=child)
-        c, (ixx, iyy, izz) = board_inertial(float(mt['mass_kg']))
+        c, (ixx, iyy, izz) = board_inertial(float(mt['mass_kg']), mt)
         ine = ET.SubElement(link, 'inertial')
         ET.SubElement(ine, 'origin', xyz=' '.join(f'{v:.6f}' for v in c), rpy='0 0 0')
         ET.SubElement(ine, 'mass', value=f"{float(mt['mass_kg']):.6f}")
         ET.SubElement(ine, 'inertia', ixx=f'{ixx:.3e}', ixy='0', ixz='0', iyy=f'{iyy:.3e}', iyz='0', izz=f'{izz:.3e}')
-        bc, bs = board_box()
+        bc, bs = board_box(mt)
         for tag in ('collision', 'visual'):
             el = ET.SubElement(link, tag)
             ET.SubElement(el, 'origin', xyz=' '.join(f'{v:.6f}' for v in bc), rpy='0 0 0')
@@ -110,7 +118,7 @@ def check(base_urdf, out_urdf, mount):
             if m is m1:
                 pin.framesForwardKinematics(m, d, q)
                 fid = m.getFrameId(pre + 'g63_board')
-                com = d.oMf[fid].act(np.array(board_inertial(1.0)[0]))
+                com = d.oMf[fid].act(np.array(board_inertial(1.0, mt)[0]))
                 jid = m.getJointId(pre + 'joint_2')
                 jp = d.oMi[jid]
                 axis = jp.rotation[:, 2]

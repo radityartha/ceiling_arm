@@ -261,8 +261,8 @@ def _fallback(gray, pred_uv, name='A'):
     return None, '; '.join(why)
 
 
-def predict_uv(name, T_wl, T_lb, T_wc, K, dist=None):
-    P = board_points(name)
+def predict_uv(name, T_wl, T_lb, T_wc, K, dist=None, square_m=None):
+    P = board_points(name, square_m)
     Pb = np.array([P[i] for i in range(12)])
     Tcb = inv(T_wc) @ T_wl @ T_lb
     rv, _ = cv2.Rodrigues(Tcb[:3, :3])

@@ -231,7 +231,7 @@ def occluded(cell, arm, joints, cam, Pw):
 
 
 def generate(cell, arm, board, n_samples, rng, log):
-    P = np.array([board_points(board)[i] for i in range(12)])
+    P = np.array([board_points(board, cell.mount.get(board, {}).get('square_m'))[i] for i in range(12)])
     lo = np.array([cell.m.lowerPositionLimit[cell.m.joints[cell.m.getJointId(f'{ARM_PREFIX[arm]}joint_{k}')].idx_q]
                    for k in range(1, 7)])
     hi = np.array([cell.m.upperPositionLimit[cell.m.joints[cell.m.getJointId(f'{ARM_PREFIX[arm]}joint_{k}')].idx_q]
@@ -350,6 +350,7 @@ def main():
     g63_urdf.build(a.urdf, mount, payload)
     g63_screens.install(payload)
     cell = Cell(payload, a.rail1, a.rail2)
+    cell.mount = mount
     logs = []
 
     def log(s):

@@ -40,7 +40,7 @@ def attached_msg(board, mt, remove=False):
     if remove:
         aco.object.operation = CollisionObject.REMOVE
         return aco
-    c, s = board_box()
+    c, s = board_box(mt)
     T_lb = np.eye(4)
     T_lb[:3, :3] = Rotation.from_euler('xyz', mt['rpy']).as_matrix()
     T_lb[:3, 3] = mt['xyz']
