@@ -60,7 +60,7 @@ def main():
             p = byid[pid]
             rc, out = run([sys.executable, '-u', os.path.join(G63, 'probe_g63.py'), '--g63-payload-urdf', a.payload,
                            '--g63-tool-quat', ','.join(map(str, p['tool_quat_xyzw'])), '--arms', arm,
-                           '--target', ','.join(map(str, p['tool_xyz'])), '--goal-joints', json.dumps(p['goal_joints']),
+                           '--target=' + ','.join(map(str, p['tool_xyz'])), '--goal-joints', json.dumps(p['goal_joints']),
                            '--approach', '0', '--tau-max', '14', '--plan-attempts', '8', '--trials', '1', '--move',
                            '--out-json', os.path.join(a.session, f'{pid}_probe.json')], log)
             moved = 'MOVED' in out

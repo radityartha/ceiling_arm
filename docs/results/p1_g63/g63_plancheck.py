@@ -72,7 +72,7 @@ def main():
     for k, p in enumerate(seq):
         cmd = [sys.executable, '-u', os.path.join(HERE, 'probe_g63.py'), '--g63-payload-urdf', a.payload,
                '--g63-tool-quat', ','.join(str(v) for v in p['tool_quat_xyzw']), '--arms', a.arm,
-               '--target', ','.join(str(v) for v in p['tool_xyz']), '--goal-joints', json.dumps(p['goal_joints']),
+               '--target=' + ','.join(str(v) for v in p['tool_xyz']),   # '=' form: x may be negative '--goal-joints', json.dumps(p['goal_joints']),
                '--approach', '0', '--plan-check', '--tau-max', '14', '--plan-attempts', str(a.attempts),
                '--trials', '1', '--out-json', os.path.join(logdir, f'{k:02d}_{p["id"]}.json')]
         if start is not None:   # FULL placed state: rails, rotations, every arm (others REST) + this arm's goal

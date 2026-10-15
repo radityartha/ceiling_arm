@@ -396,9 +396,14 @@ def main():
                         occluded_by=c.get('occluded_by', {}), static_torque_frac=round(c['tfrac'], 4),
                         clearance=c['col'])
         poses = [rec(good[r0], 'R0', 'all', 0)]
+        per_cat = {}
         for n, i in enumerate(order, start=1):
             stage = next(k for k, cut in enumerate(STAGES) if n <= cut)
-            role = 'HOLDOUT' if n % 4 == 0 else 'FIT'
+            # HOLDOUT = every 4th pose WITHIN its camera category (a global every-4th with a 2-category cycle put all
+            # holdouts on one camera, 10-15)
+            cat = category(sub[i])
+            per_cat[cat] = per_cat.get(cat, 0) + 1
+            role = 'HOLDOUT' if per_cat[cat] % 4 == 0 else 'FIT'
             poses.append(rec(sub[i], role, ['P0', 'T1', 'T2', 'T3'][stage], n))
         out['arms'][arm] = dict(board=board, counts=cnt, mount_check=mc, n_candidates=len(good), poses=poses)
         summ = {}

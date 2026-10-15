@@ -23,7 +23,7 @@ Papan ditempel operator saat lengan REST, lalu `g63_attach.py --mount mount.json
 
 ## S2/S3 — per lengan, per tahap (P0 dulu; T1–T3 hanya bila tahap sebelumnya lulus)
 Per pose dari `poses.json` (urutan terkunci, R0 di awal dan akhir tiap tahap):
-1. Plan-only: `probe_g63.py --g63-payload-urdf $SES/payload.urdf --g63-tool-quat <q> --arms <arm> --target <xyz>
+1. Plan-only: `probe_g63.py --g63-payload-urdf $SES/payload.urdf --g63-tool-quat <q> --arms <arm> --target=<xyz> (bentuk '=' wajib: x bisa negatif)
    --goal-joints '<json>' --approach 0 --plan-check --tau-max 14 --plan-attempts 8 --trials 1` → PLANNED + margin ≤ 97 %.
 2. **[GERAK]** sama + `--move` (tanpa `--plan-check`). Berhenti bila bukan MOVED + dwell SUCCESS, torsi > 14, fault, REJECTED.
 3. `g63_capture.py capture --session $SES --pose-id <id> --board <A|B> --role <FIT|HOLDOUT|R0> --stage <P0..> --mount mount.json`

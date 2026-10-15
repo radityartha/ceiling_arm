@@ -1,0 +1,2944 @@
+{
+ "created": "g63_poses.py",
+ "urdf": "/home/user1/Documents/ceiling_arm/docs/results/p1_g63/live_urdf_20261011.urdf",
+ "mount": {
+  "_note": "OPERATOR 2026-10-15: papan menutup KEDUA jari (gripper tertutup) di satu sisi; arm_2 menghadap rgbd2, arm_3 menghadap rgbd (= muka cetak -y tool di REST, 42/39 deg ke kamera itu); menjulur 21.5 cm di bawah ujung gripper, 10.5 cm kanan/kiri; 43.5 g; tebal 5 mm; kotak TERUKUR 48.43 mm (cetakan 96.86 %). Belum diukur: lihat \"unmeasured\".",
+  "A": {
+   "link": "tool_frame",
+   "xyz": [
+    0.0969,
+    -0.03,
+    -0.0743
+   ],
+   "rpy": [
+    1.570796,
+    0.0,
+    3.141593
+   ],
+   "mass_kg": 0.0435,
+   "card_t": 0.005,
+   "square_m": 0.04843,
+   "sheet_x": [
+    -0.0081,
+    0.2019
+   ],
+   "sheet_y": [
+    -0.0077,
+    0.2893
+   ],
+   "guess": false,
+   "unmeasured": [
+    "jarak bidang papan dari sumbu tool (-0.030 m, perkiraan)",
+    "tinggi lembar di atas ujung tool (A4 penuh 297 mm diasumsikan)"
+   ]
+  },
+  "B": {
+   "link": "tool_frame",
+   "xyz": [
+    0.0969,
+    -0.03,
+    -0.0743
+   ],
+   "rpy": [
+    1.570796,
+    0.0,
+    3.141593
+   ],
+   "mass_kg": 0.0435,
+   "card_t": 0.005,
+   "square_m": 0.04843,
+   "sheet_x": [
+    -0.0081,
+    0.2019
+   ],
+   "sheet_y": [
+    -0.0077,
+    0.2893
+   ],
+   "guess": false,
+   "unmeasured": [
+    "jarak bidang papan dari sumbu tool (-0.030 m, perkiraan)",
+    "tinggi lembar di atas ujung tool (A4 penuh 297 mm diasumsikan)"
+   ]
+  }
+ },
+ "mount_guess": false,
+ "rail1": 1.4,
+ "rail2": 0.0,
+ "seed": 66,
+ "samples": 8000,
+ "stages": [
+  3,
+  9,
+  15,
+  21
+ ],
+ "incumbent_used_for_visibility": true,
+ "arms": {
+  "arm_2": {
+   "board": "A",
+   "counts": {
+    "sampled": 8000,
+    "visible": 1510,
+    "z": 791,
+    "torque": 394,
+    "collision": 334,
+    "occlusion": 101,
+    "retract": 169
+   },
+   "mount_check": {
+    "upper_wrist_link": 0.0055,
+    "gripper_base_link": -0.0159
+   },
+   "n_candidates": 101,
+   "poses": [
+    {
+     "id": "A-R0",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "R0",
+     "zone": "arm_3",
+     "stage": "all",
+     "goal_joints": {
+      "t1_a2_joint_1": -1.071013,
+      "t1_a2_joint_2": -0.253354,
+      "t1_a2_joint_3": 1.261735,
+      "t1_a2_joint_4": -1.917063,
+      "t1_a2_joint_5": 0.221375,
+      "t1_a2_joint_6": 2.35205
+     },
+     "tool_xyz": [
+      0.78171,
+      -0.13599,
+      1.344
+     ],
+     "tool_quat_xyzw": [
+      0.3805,
+      0.696771,
+      -0.606243,
+      -0.046901
+     ],
+     "board_centre": [
+      0.7428,
+      -0.1731,
+      1.3582
+     ],
+     "board_normal": [
+      -0.4734,
+      0.0246,
+      0.8805
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.435,
+       "angle": 43.03
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.9184,
+     "clearance": {
+      "same_m": 0.653605213965929,
+      "cross_m": 0.1881323699164692,
+      "env_m": 0.3955178197858305,
+      "self_m": 0.11027212707472651,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_lower_wrist_link_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-01",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "P0",
+     "goal_joints": {
+      "t1_a2_joint_1": -2.475395,
+      "t1_a2_joint_2": -0.248648,
+      "t1_a2_joint_3": 0.426283,
+      "t1_a2_joint_4": -0.540722,
+      "t1_a2_joint_5": 1.510063,
+      "t1_a2_joint_6": -0.857392
+     },
+     "tool_xyz": [
+      1.28601,
+      0.44101,
+      1.19053
+     ],
+     "tool_quat_xyzw": [
+      0.813508,
+      -0.149745,
+      0.046448,
+      -0.560021
+     ],
+     "board_centre": [
+      1.3032,
+      0.4928,
+      1.201
+     ],
+     "board_normal": [
+      0.1916,
+      0.3279,
+      0.9251
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.039,
+       "angle": 12.845
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8718,
+     "clearance": {
+      "same_m": 0.3143093945503344,
+      "cross_m": 0.8427390411470717,
+      "env_m": 0.2273525960167929,
+      "self_m": 0.11309865638186456,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_upper_wrist_link_0",
+        "t1_a2_g63_board_0"
+       ],
+       "cross": [
+        "t1_a2_base_link_0",
+        "t2_mount_plate_right_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-02",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "P0",
+     "goal_joints": {
+      "t1_a2_joint_1": -0.354066,
+      "t1_a2_joint_2": 0.01417,
+      "t1_a2_joint_3": 0.809015,
+      "t1_a2_joint_4": 2.092432,
+      "t1_a2_joint_5": 1.01666,
+      "t1_a2_joint_6": -1.695609
+     },
+     "tool_xyz": [
+      0.61356,
+      0.36534,
+      1.27446
+     ],
+     "tool_quat_xyzw": [
+      -0.528609,
+      -0.376479,
+      0.577816,
+      0.49494
+     ],
+     "board_centre": [
+      0.5728,
+      0.3763,
+      1.3106
+     ],
+     "board_normal": [
+      0.1739,
+      0.2266,
+      0.9583
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.462,
+       "angle": 44.343
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.838,
+     "clearance": {
+      "same_m": 0.6517701228251092,
+      "cross_m": 0.5334320358912048,
+      "env_m": 0.39449444722416654,
+      "self_m": 0.11070723377411286,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-03",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "P0",
+     "goal_joints": {
+      "t1_a2_joint_1": -2.286827,
+      "t1_a2_joint_2": -0.162943,
+      "t1_a2_joint_3": 0.50946,
+      "t1_a2_joint_4": 2.071347,
+      "t1_a2_joint_5": 0.410523,
+      "t1_a2_joint_6": -0.012288
+     },
+     "tool_xyz": [
+      1.18215,
+      0.02114,
+      1.10693
+     ],
+     "tool_quat_xyzw": [
+      0.563569,
+      0.657276,
+      -0.18041,
+      0.466723
+     ],
+     "board_centre": [
+      1.1741,
+      -0.0235,
+      1.0749
+     ],
+     "board_normal": [
+      -0.9092,
+      -0.2997,
+      -0.2889
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.947,
+       "angle": 51.445
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8105,
+     "clearance": {
+      "same_m": 0.5916311698602842,
+      "cross_m": 0.7376486577886625,
+      "env_m": 0.3419924649770895,
+      "self_m": 0.11875719724512235,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_lower_wrist_link_0",
+        "t1_a2_lower_wrist_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-04",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T1",
+     "goal_joints": {
+      "t1_a2_joint_1": 1.020296,
+      "t1_a2_joint_2": 0.367795,
+      "t1_a2_joint_3": 1.069833,
+      "t1_a2_joint_4": 1.605849,
+      "t1_a2_joint_5": 0.468407,
+      "t1_a2_joint_6": -0.016958
+     },
+     "tool_xyz": [
+      0.90071,
+      0.61865,
+      1.16799
+     ],
+     "tool_quat_xyzw": [
+      0.722394,
+      -0.416061,
+      -0.480686,
+      -0.271995
+     ],
+     "board_centre": [
+      0.9047,
+      0.6709,
+      1.1495
+     ],
+     "board_normal": [
+      0.8626,
+      0.5058,
+      -0.007
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.249,
+       "angle": 50.621
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.831,
+     "clearance": {
+      "same_m": 0.6423591229362033,
+      "cross_m": 0.7869153619654748,
+      "env_m": 0.06363824078017613,
+      "self_m": 0.11882511234216964,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_forearm_link_0"
+       ],
+       "cross": [
+        "t1_a2_arm_link_0",
+        "t2_a1_arm_link_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-05",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T1",
+     "goal_joints": {
+      "t1_a2_joint_1": 1.574838,
+      "t1_a2_joint_2": -0.286676,
+      "t1_a2_joint_3": 2.339205,
+      "t1_a2_joint_4": -1.782912,
+      "t1_a2_joint_5": 2.177651,
+      "t1_a2_joint_6": -1.384147
+     },
+     "tool_xyz": [
+      0.97617,
+      0.66861,
+      1.43824
+     ],
+     "tool_quat_xyzw": [
+      0.170128,
+      0.957665,
+      0.226583,
+      0.050925
+     ],
+     "board_centre": [
+      0.9752,
+      0.6629,
+      1.383
+     ],
+     "board_normal": [
+      -0.3028,
+      -0.8394,
+      -0.4513
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 2.147,
+       "angle": 48.043
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8161,
+     "clearance": {
+      "same_m": 0.6685330313920956,
+      "cross_m": 0.8049908004462585,
+      "env_m": 0.1301413237237322,
+      "self_m": 0.05327105064002163,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_g63_board_0"
+       ],
+       "cross": [
+        "t1_a2_arm_link_0",
+        "t2_a1_arm_link_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "forearm_link"
+      }
+     }
+    },
+    {
+     "id": "A-06",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "HOLDOUT",
+     "zone": "arm_2",
+     "stage": "T1",
+     "goal_joints": {
+      "t1_a2_joint_1": -2.269019,
+      "t1_a2_joint_2": 0.006506,
+      "t1_a2_joint_3": 0.140928,
+      "t1_a2_joint_4": -0.705536,
+      "t1_a2_joint_5": -1.240096,
+      "t1_a2_joint_6": 0.44001
+     },
+     "tool_xyz": [
+      1.05234,
+      0.10749,
+      1.13598
+     ],
+     "tool_quat_xyzw": [
+      -0.338266,
+      0.710893,
+      -0.515304,
+      -0.338628
+     ],
+     "board_centre": [
+      1.071,
+      0.0553,
+      1.1399
+     ],
+     "board_normal": [
+      0.8299,
+      -0.2401,
+      0.5036
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.398,
+       "angle": 54.396
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.7478,
+     "clearance": {
+      "same_m": 0.6085384157434989,
+      "cross_m": 0.5784987270684693,
+      "env_m": 0.3433625577836844,
+      "self_m": 0.11739211203616272,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_lower_wrist_link_0",
+        "t1_a2_g63_board_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_upper_wrist_link_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-07",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T1",
+     "goal_joints": {
+      "t1_a2_joint_1": 0.044619,
+      "t1_a2_joint_2": -0.587638,
+      "t1_a2_joint_3": -0.469769,
+      "t1_a2_joint_4": 1.220183,
+      "t1_a2_joint_5": 0.343764,
+      "t1_a2_joint_6": -1.310983
+     },
+     "tool_xyz": [
+      0.69766,
+      0.38985,
+      1.02425
+     ],
+     "tool_quat_xyzw": [
+      0.670199,
+      0.706896,
+      -0.187798,
+      -0.125949
+     ],
+     "board_centre": [
+      0.6505,
+      0.3844,
+      0.9953
+     ],
+     "board_normal": [
+      -0.9002,
+      -0.0311,
+      0.4343
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.954,
+       "angle": 50.456
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.9172,
+     "clearance": {
+      "same_m": 0.694733465255564,
+      "cross_m": 0.4353489916175199,
+      "env_m": 0.15969373944206397,
+      "self_m": 0.11204078837720426,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_shoulder_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-08",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T1",
+     "goal_joints": {
+      "t1_a2_joint_1": -2.340409,
+      "t1_a2_joint_2": -0.05827,
+      "t1_a2_joint_3": 1.157819,
+      "t1_a2_joint_4": 0.528674,
+      "t1_a2_joint_5": 0.200532,
+      "t1_a2_joint_6": -1.801438
+     },
+     "tool_xyz": [
+      1.35466,
+      0.02511,
+      1.33294
+     ],
+     "tool_quat_xyzw": [
+      0.697575,
+      -0.369406,
+      0.608295,
+      0.083098
+     ],
+     "board_centre": [
+      1.41,
+      0.02,
+      1.3315
+     ],
+     "board_normal": [
+      0.6165,
+      0.7133,
+      0.3335
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.169,
+       "angle": 27.048
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.9189,
+     "clearance": {
+      "same_m": 0.4056967829630882,
+      "cross_m": 0.8427390411470717,
+      "env_m": 0.4752309469601937,
+      "self_m": 0.11046713652343591,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_lower_wrist_link_0",
+        "t1_a2_g63_board_0"
+       ],
+       "cross": [
+        "t1_a2_base_link_0",
+        "t2_mount_plate_right_0"
+       ],
+       "env": "t1_a2_arm_link_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-09",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "HOLDOUT",
+     "zone": "arm_2",
+     "stage": "T1",
+     "goal_joints": {
+      "t1_a2_joint_1": -2.431902,
+      "t1_a2_joint_2": 0.11277,
+      "t1_a2_joint_3": 0.314576,
+      "t1_a2_joint_4": -1.800097,
+      "t1_a2_joint_5": -1.096028,
+      "t1_a2_joint_6": 2.56683
+     },
+     "tool_xyz": [
+      1.24496,
+      0.29857,
+      1.12395
+     ],
+     "tool_quat_xyzw": [
+      -0.049559,
+      0.796662,
+      -0.319993,
+      0.510371
+     ],
+     "board_centre": [
+      1.277,
+      0.2534,
+      1.1279
+     ],
+     "board_normal": [
+      -0.2477,
+      -0.7903,
+      0.5604
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 2.144,
+       "angle": 27.596
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.7238,
+     "clearance": {
+      "same_m": 0.28400574472150913,
+      "cross_m": 0.7962160678038049,
+      "env_m": 0.2973678857891472,
+      "self_m": 0.11026919064922877,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_lower_wrist_link_0",
+        "t1_a2_g63_board_0"
+       ],
+       "cross": [
+        "t1_a2_lower_wrist_link_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_gripper_base_link_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-10",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T2",
+     "goal_joints": {
+      "t1_a2_joint_1": -2.28953,
+      "t1_a2_joint_2": -0.247622,
+      "t1_a2_joint_3": 0.582232,
+      "t1_a2_joint_4": -0.12171,
+      "t1_a2_joint_5": -1.608544,
+      "t1_a2_joint_6": 0.968109
+     },
+     "tool_xyz": [
+      1.03502,
+      -0.00834,
+      1.34119
+     ],
+     "tool_quat_xyzw": [
+      -0.32589,
+      -0.579916,
+      0.716399,
+      0.210394
+     ],
+     "board_centre": [
+      0.9994,
+      -0.0336,
+      1.3756
+     ],
+     "board_normal": [
+      -0.0765,
+      0.2389,
+      0.968
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.348,
+       "angle": 51.444
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.888,
+     "clearance": {
+      "same_m": 0.5381204383441177,
+      "cross_m": 0.4702889199464092,
+      "env_m": 0.48411601925103687,
+      "self_m": 0.10587571321886344,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_upper_wrist_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_arm_link_0"
+       ],
+       "env": "t1_a2_arm_link_0",
+       "self": "forearm_link"
+      }
+     }
+    },
+    {
+     "id": "A-11",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T2",
+     "goal_joints": {
+      "t1_a2_joint_1": 0.200806,
+      "t1_a2_joint_2": -0.007826,
+      "t1_a2_joint_3": 1.753203,
+      "t1_a2_joint_4": -1.439848,
+      "t1_a2_joint_5": 0.945116,
+      "t1_a2_joint_6": -0.457079
+     },
+     "tool_xyz": [
+      0.57784,
+      0.35267,
+      1.32347
+     ],
+     "tool_quat_xyzw": [
+      -0.103035,
+      0.910263,
+      0.067433,
+      -0.395295
+     ],
+     "board_centre": [
+      0.5475,
+      0.3255,
+      1.2856
+     ],
+     "board_normal": [
+      0.1343,
+      -0.9697,
+      -0.2042
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.718,
+       "angle": 52.496
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.9109,
+     "clearance": {
+      "same_m": 0.6751912905390067,
+      "cross_m": 0.5118900282953488,
+      "env_m": 0.43430573527118455,
+      "self_m": 0.11736572255446108,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_forearm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-12",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T2",
+     "goal_joints": {
+      "t1_a2_joint_1": -2.233254,
+      "t1_a2_joint_2": -0.381621,
+      "t1_a2_joint_3": -0.34839,
+      "t1_a2_joint_4": 1.884217,
+      "t1_a2_joint_5": -2.145234,
+      "t1_a2_joint_6": 1.749639
+     },
+     "tool_xyz": [
+      0.95346,
+      0.44666,
+      1.32533
+     ],
+     "tool_quat_xyzw": [
+      -0.489483,
+      -0.046267,
+      0.22481,
+      0.841265
+     ],
+     "board_centre": [
+      0.9495,
+      0.4716,
+      1.3748
+     ],
+     "board_normal": [
+      0.333,
+      -0.4197,
+      0.8444
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.113,
+       "angle": 52.076
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.79,
+     "clearance": {
+      "same_m": 0.5756900820309778,
+      "cross_m": 0.730333183644695,
+      "env_m": 0.2674800446110049,
+      "self_m": 0.07021256550947823,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "forearm_link"
+      }
+     }
+    },
+    {
+     "id": "A-13",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T2",
+     "goal_joints": {
+      "t1_a2_joint_1": -2.09152,
+      "t1_a2_joint_2": -0.7952,
+      "t1_a2_joint_3": -1.740031,
+      "t1_a2_joint_4": 2.23595,
+      "t1_a2_joint_5": -0.575062,
+      "t1_a2_joint_6": 0.362873
+     },
+     "tool_xyz": [
+      0.91981,
+      0.58834,
+      1.36414
+     ],
+     "tool_quat_xyzw": [
+      0.688878,
+      0.312838,
+      0.162847,
+      -0.633294
+     ],
+     "board_centre": [
+      0.8927,
+      0.634,
+      1.3805
+     ],
+     "board_normal": [
+      -0.6373,
+      0.0021,
+      0.7706
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 2.082,
+       "angle": 54.436
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8753,
+     "clearance": {
+      "same_m": 0.565211874532351,
+      "cross_m": 0.8113435643528624,
+      "env_m": 0.09490533207079979,
+      "self_m": 0.11788328165372897,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_upper_wrist_link_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-14",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "HOLDOUT",
+     "zone": "arm_2",
+     "stage": "T2",
+     "goal_joints": {
+      "t1_a2_joint_1": -2.596031,
+      "t1_a2_joint_2": 0.701524,
+      "t1_a2_joint_3": 0.817303,
+      "t1_a2_joint_4": -1.7061,
+      "t1_a2_joint_5": -1.770902,
+      "t1_a2_joint_6": 0.288915
+     },
+     "tool_xyz": [
+      1.10297,
+      0.41161,
+      1.32388
+     ],
+     "tool_quat_xyzw": [
+      0.55403,
+      -0.195549,
+      0.807401,
+      0.053992
+     ],
+     "board_centre": [
+      1.1529,
+      0.4216,
+      1.3461
+     ],
+     "board_normal": [
+      0.3039,
+      0.9177,
+      0.2559
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.025,
+       "angle": 41.637
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8602,
+     "clearance": {
+      "same_m": 0.3772564384767687,
+      "cross_m": 0.7783660346950492,
+      "env_m": 0.3245976415308021,
+      "self_m": 0.08767961444150701,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_g63_board_0"
+       ],
+       "cross": [
+        "t1_a2_lower_wrist_link_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "forearm_link"
+      }
+     }
+    },
+    {
+     "id": "A-15",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T2",
+     "goal_joints": {
+      "t1_a2_joint_1": 0.07333,
+      "t1_a2_joint_2": -0.157452,
+      "t1_a2_joint_3": 1.131857,
+      "t1_a2_joint_4": 1.72462,
+      "t1_a2_joint_5": 0.09147,
+      "t1_a2_joint_6": -2.490522
+     },
+     "tool_xyz": [
+      0.49746,
+      0.44667,
+      1.31164
+     ],
+     "tool_quat_xyzw": [
+      0.331725,
+      0.696358,
+      -0.2224,
+      -0.596307
+     ],
+     "board_centre": [
+      0.4458,
+      0.4303,
+      1.3239
+     ],
+     "board_normal": [
+      -0.1968,
+      -0.681,
+      0.7054
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.747,
+       "angle": 19.515
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.9072,
+     "clearance": {
+      "same_m": 0.6948701042436286,
+      "cross_m": 0.5561064090182241,
+      "env_m": 0.35771324429810913,
+      "self_m": 0.11024905975431937,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_shoulder_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-16",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T3",
+     "goal_joints": {
+      "t1_a2_joint_1": -1.029009,
+      "t1_a2_joint_2": -0.081262,
+      "t1_a2_joint_3": -0.27962,
+      "t1_a2_joint_4": 0.578748,
+      "t1_a2_joint_5": -0.892654,
+      "t1_a2_joint_6": 1.94839
+     },
+     "tool_xyz": [
+      0.90523,
+      0.54071,
+      1.05577
+     ],
+     "tool_quat_xyzw": [
+      0.87235,
+      0.067512,
+      -0.123955,
+      -0.468062
+     ],
+     "board_centre": [
+      0.8921,
+      0.5947,
+      1.0559
+     ],
+     "board_normal": [
+      -0.0018,
+      0.5527,
+      0.8334
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.341,
+       "angle": 41.764
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.6612,
+     "clearance": {
+      "same_m": 0.641359626699963,
+      "cross_m": 0.7537372593808987,
+      "env_m": 0.11781402009442554,
+      "self_m": 0.11030354320978375,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-17",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "HOLDOUT",
+     "zone": "arm_2",
+     "stage": "T3",
+     "goal_joints": {
+      "t1_a2_joint_1": -0.691515,
+      "t1_a2_joint_2": 0.574102,
+      "t1_a2_joint_3": 1.535504,
+      "t1_a2_joint_4": -0.349581,
+      "t1_a2_joint_5": 0.64905,
+      "t1_a2_joint_6": 0.591976
+     },
+     "tool_xyz": [
+      0.9459,
+      0.10364,
+      1.23077
+     ],
+     "tool_quat_xyzw": [
+      0.356554,
+      0.828095,
+      -0.407427,
+      0.14537
+     ],
+     "board_centre": [
+      0.9223,
+      0.0548,
+      1.2186
+     ],
+     "board_normal": [
+      -0.709,
+      -0.4137,
+      0.5711
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.753,
+       "angle": 13.352
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.9103,
+     "clearance": {
+      "same_m": 0.522708222016955,
+      "cross_m": 0.43015316071651505,
+      "env_m": 0.3757242616543791,
+      "self_m": 0.1165100470502438,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-18",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T3",
+     "goal_joints": {
+      "t1_a2_joint_1": 1.969846,
+      "t1_a2_joint_2": -2.155017,
+      "t1_a2_joint_3": -2.605835,
+      "t1_a2_joint_4": 2.490231,
+      "t1_a2_joint_5": 0.317434,
+      "t1_a2_joint_6": -1.651566
+     },
+     "tool_xyz": [
+      1.08755,
+      0.3543,
+      1.44258
+     ],
+     "tool_quat_xyzw": [
+      0.817698,
+      -0.547866,
+      0.147314,
+      0.097523
+     ],
+     "board_centre": [
+      1.1216,
+      0.3507,
+      1.3988
+     ],
+     "board_normal": [
+      0.9247,
+      0.3807,
+      0.0019
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.04,
+       "angle": 44.022
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.9054,
+     "clearance": {
+      "same_m": 0.5535109997545908,
+      "cross_m": 0.8217355097869872,
+      "env_m": 0.29567482767015335,
+      "self_m": 0.11081956894738107,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_g63_board_0"
+       ],
+       "cross": [
+        "t1_a2_arm_link_0",
+        "t2_a1_arm_link_0"
+       ],
+       "env": "t1_a2_arm_link_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-19",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T3",
+     "goal_joints": {
+      "t1_a2_joint_1": 0.928052,
+      "t1_a2_joint_2": -0.428724,
+      "t1_a2_joint_3": -0.026331,
+      "t1_a2_joint_4": -2.231448,
+      "t1_a2_joint_5": 0.03618,
+      "t1_a2_joint_6": -0.074696
+     },
+     "tool_xyz": [
+      0.80073,
+      0.54304,
+      0.99675
+     ],
+     "tool_quat_xyzw": [
+      0.096731,
+      0.977751,
+      0.144659,
+      -0.11713
+     ],
+     "board_centre": [
+      0.7846,
+      0.5292,
+      0.9454
+     ],
+     "board_normal": [
+      -0.223,
+      -0.9394,
+      -0.2602
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 2.143,
+       "angle": 50.38
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.875,
+     "clearance": {
+      "same_m": 0.7009529976841293,
+      "cross_m": 0.7348639137632232,
+      "env_m": 0.16533972176367118,
+      "self_m": 0.1187609561268726,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_shoulder_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-20",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T3",
+     "goal_joints": {
+      "t1_a2_joint_1": 1.643007,
+      "t1_a2_joint_2": 0.205458,
+      "t1_a2_joint_3": -0.542748,
+      "t1_a2_joint_4": -2.517301,
+      "t1_a2_joint_5": -1.946724,
+      "t1_a2_joint_6": 2.284473
+     },
+     "tool_xyz": [
+      0.7723,
+      0.27084,
+      1.26335
+     ],
+     "tool_quat_xyzw": [
+      0.717632,
+      -0.188186,
+      -0.580071,
+      -0.336315
+     ],
+     "board_centre": [
+      0.7591,
+      0.3247,
+      1.2665
+     ],
+     "board_normal": [
+      0.6603,
+      0.703,
+      0.2644
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.367,
+       "angle": 26.14
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8453,
+     "clearance": {
+      "same_m": 0.6968143825927365,
+      "cross_m": 0.5825087818863718,
+      "env_m": 0.42581900084927593,
+      "self_m": 0.09146363177594222,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_forearm_link_0"
+       ],
+       "cross": [
+        "t1_a2_gripper_base_link_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "A-21",
+     "board": "A",
+     "arm": "arm_2",
+     "role": "FIT",
+     "zone": "arm_2",
+     "stage": "T3",
+     "goal_joints": {
+      "t1_a2_joint_1": 1.327257,
+      "t1_a2_joint_2": -0.184654,
+      "t1_a2_joint_3": -1.135634,
+      "t1_a2_joint_4": -1.657589,
+      "t1_a2_joint_5": -0.901636,
+      "t1_a2_joint_6": -1.276056
+     },
+     "tool_xyz": [
+      0.95896,
+      0.18197,
+      1.06157
+     ],
+     "tool_quat_xyzw": [
+      -0.000486,
+      0.999094,
+      -0.032979,
+      -0.026877
+     ],
+     "board_centre": [
+      0.9565,
+      0.149,
+      1.0169
+     ],
+     "board_normal": [
+      0.0027,
+      -0.9978,
+      0.0659
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.937,
+       "angle": 50.442
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8554,
+     "clearance": {
+      "same_m": 0.6808402108156638,
+      "cross_m": 0.47368340020363847,
+      "env_m": 0.16033211031755448,
+      "self_m": 0.1122094672848251,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t1_a1_arm_link_0",
+        "t1_a2_forearm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t1_a2_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    }
+   ]
+  },
+  "arm_3": {
+   "board": "B",
+   "counts": {
+    "sampled": 8000,
+    "visible": 1264,
+    "z": 627,
+    "torque": 348,
+    "collision": 334,
+    "occlusion": 210,
+    "retract": 309
+   },
+   "mount_check": {
+    "upper_wrist_link": 0.0055,
+    "gripper_base_link": -0.0159
+   },
+   "n_candidates": 210,
+   "poses": [
+    {
+     "id": "B-R0",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "R0",
+     "zone": "arm_3",
+     "stage": "all",
+     "goal_joints": {
+      "t2_a1_joint_1": -0.31984,
+      "t2_a1_joint_2": 0.343709,
+      "t2_a1_joint_3": 0.038433,
+      "t2_a1_joint_4": -1.447343,
+      "t2_a1_joint_5": -1.655996,
+      "t2_a1_joint_6": 2.112954
+     },
+     "tool_xyz": [
+      0.45111,
+      -0.30333,
+      1.15908
+     ],
+     "tool_quat_xyzw": [
+      -0.459512,
+      0.62997,
+      -0.264609,
+      0.567423
+     ],
+     "board_centre": [
+      0.5043,
+      -0.3077,
+      1.1746
+     ],
+     "board_normal": [
+      0.2787,
+      -0.4377,
+      0.8549
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.334,
+       "angle": 46.939
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.7517,
+     "clearance": {
+      "same_m": 0.5250130323012051,
+      "cross_m": 0.49097612852156025,
+      "env_m": 0.26872375855705843,
+      "self_m": 0.10762149672631194,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_upper_wrist_link_0",
+        "t2_a2_upper_wrist_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-01",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_4",
+     "stage": "P0",
+     "goal_joints": {
+      "t2_a1_joint_1": 0.269308,
+      "t2_a1_joint_2": 0.135431,
+      "t2_a1_joint_3": -1.181235,
+      "t2_a1_joint_4": -0.156854,
+      "t2_a1_joint_5": 0.140789,
+      "t2_a1_joint_6": -1.521254
+     },
+     "tool_xyz": [
+      -0.05602,
+      -0.18073,
+      1.26222
+     ],
+     "tool_quat_xyzw": [
+      0.776328,
+      -0.105665,
+      -0.597745,
+      -0.169853
+     ],
+     "board_centre": [
+      -0.0867,
+      -0.1349,
+      1.2557
+     ],
+     "board_normal": [
+      0.3671,
+      0.92,
+      0.1374
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 2.22,
+       "angle": 40.214
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8933,
+     "clearance": {
+      "same_m": 0.2503310776132456,
+      "cross_m": 0.7969536506402544,
+      "env_m": 0.5375897018298199,
+      "self_m": 0.11119990813092147,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_g63_board_0",
+        "t2_a2_forearm_link_0"
+       ],
+       "cross": [
+        "t1_a2_arm_link_0",
+        "t2_a1_arm_link_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-02",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "P0",
+     "goal_joints": {
+      "t2_a1_joint_1": -0.520372,
+      "t2_a1_joint_2": -0.02687,
+      "t2_a1_joint_3": 0.560758,
+      "t2_a1_joint_4": -0.884714,
+      "t2_a1_joint_5": -0.945954,
+      "t2_a1_joint_6": 1.091019
+     },
+     "tool_xyz": [
+      0.7562,
+      -0.23269,
+      1.21282
+     ],
+     "tool_quat_xyzw": [
+      0.557607,
+      -0.508474,
+      0.495789,
+      -0.429792
+     ],
+     "board_centre": [
+      0.8067,
+      -0.2305,
+      1.2358
+     ],
+     "board_normal": [
+      0.1409,
+      0.1135,
+      0.9835
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.655,
+       "angle": 49.216
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.842,
+     "clearance": {
+      "same_m": 0.6531652953087194,
+      "cross_m": 0.32780425166945876,
+      "env_m": 0.27070601346994094,
+      "self_m": 0.11323462807297328,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_arm_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-03",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "P0",
+     "goal_joints": {
+      "t2_a1_joint_1": -1.781768,
+      "t2_a1_joint_2": 0.222073,
+      "t2_a1_joint_3": -0.930202,
+      "t2_a1_joint_4": 0.55089,
+      "t2_a1_joint_5": 0.175103,
+      "t2_a1_joint_6": -2.167339
+     },
+     "tool_xyz": [
+      0.4834,
+      -0.82128,
+      1.17856
+     ],
+     "tool_quat_xyzw": [
+      0.557617,
+      0.656368,
+      -0.373623,
+      0.344456
+     ],
+     "board_centre": [
+      0.4554,
+      -0.8651,
+      1.1591
+     ],
+     "board_normal": [
+      -0.9894,
+      -0.0989,
+      0.1063
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.124,
+       "angle": 50.308
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8753,
+     "clearance": {
+      "same_m": 0.6373046761601029,
+      "cross_m": 0.8421838143702284,
+      "env_m": 0.08339693167887612,
+      "self_m": 0.11024858700718672,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_arm_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_arm_link_0",
+        "t2_a1_shoulder_link_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-04",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T1",
+     "goal_joints": {
+      "t2_a1_joint_1": -1.478279,
+      "t2_a1_joint_2": 0.249208,
+      "t2_a1_joint_3": -0.344135,
+      "t2_a1_joint_4": 0.159476,
+      "t2_a1_joint_5": -0.509221,
+      "t2_a1_joint_6": 0.241967
+     },
+     "tool_xyz": [
+      0.48496,
+      -0.65832,
+      1.04337
+     ],
+     "tool_quat_xyzw": [
+      0.903835,
+      -0.152911,
+      0.284389,
+      0.280755
+     ],
+     "board_centre": [
+      0.5181,
+      -0.6623,
+      0.9989
+     ],
+     "board_normal": [
+      0.4361,
+      0.7956,
+      -0.4205
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 2.222,
+       "angle": 54.682
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.7521,
+     "clearance": {
+      "same_m": 0.6204161726153541,
+      "cross_m": 0.8413498931050996,
+      "env_m": 0.157201587785134,
+      "self_m": 0.11831054989204855,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_arm_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_arm_link_0",
+        "t2_a1_shoulder_link_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-05",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T1",
+     "goal_joints": {
+      "t2_a1_joint_1": -1.99322,
+      "t2_a1_joint_2": 0.092632,
+      "t2_a1_joint_3": 1.32595,
+      "t2_a1_joint_4": -2.535722,
+      "t2_a1_joint_5": -1.09612,
+      "t2_a1_joint_6": 0.887397
+     },
+     "tool_xyz": [
+      0.06905,
+      -0.14638,
+      1.38187
+     ],
+     "tool_quat_xyzw": [
+      -0.054698,
+      -0.57767,
+      -0.137421,
+      0.802758
+     ],
+     "board_centre": [
+      0.0179,
+      -0.1635,
+      1.3951
+     ],
+     "board_normal": [
+      -0.2838,
+      -0.9562,
+      -0.0709
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.116,
+       "angle": 42.862
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8929,
+     "clearance": {
+      "same_m": 0.2708909746882903,
+      "cross_m": 0.7925141099150893,
+      "env_m": 0.6044115310806447,
+      "self_m": 0.11450711024827122,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_g63_board_0",
+        "t2_a2_forearm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_lower_wrist_link_0"
+       ],
+       "env": "t2_a1_forearm_link_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-06",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "HOLDOUT",
+     "zone": "arm_3",
+     "stage": "T1",
+     "goal_joints": {
+      "t2_a1_joint_1": 1.714696,
+      "t2_a1_joint_2": 0.165694,
+      "t2_a1_joint_3": -0.849787,
+      "t2_a1_joint_4": 0.704321,
+      "t2_a1_joint_5": -0.018205,
+      "t2_a1_joint_6": -2.474642
+     },
+     "tool_xyz": [
+      0.43218,
+      0.07243,
+      1.14549
+     ],
+     "tool_quat_xyzw": [
+      0.635055,
+      -0.596037,
+      -0.287906,
+      -0.398189
+     ],
+     "board_centre": [
+      0.4669,
+      0.1113,
+      1.1261
+     ],
+     "board_normal": [
+      0.9863,
+      -0.0276,
+      0.1625
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.743,
+       "angle": 38.361
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8548,
+     "clearance": {
+      "same_m": 0.6970004325890014,
+      "cross_m": 0.4419852330996674,
+      "env_m": 0.2812413984925076,
+      "self_m": 0.11024587186233689,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_forearm_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-07",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T1",
+     "goal_joints": {
+      "t2_a1_joint_1": -1.663288,
+      "t2_a1_joint_2": 0.57065,
+      "t2_a1_joint_3": 0.028715,
+      "t2_a1_joint_4": -0.412429,
+      "t2_a1_joint_5": 1.585999,
+      "t2_a1_joint_6": -1.957366
+     },
+     "tool_xyz": [
+      0.18173,
+      -0.69332,
+      1.28843
+     ],
+     "tool_quat_xyzw": [
+      -0.364512,
+      -0.507203,
+      0.68382,
+      0.377183
+     ],
+     "board_centre": [
+      0.1449,
+      -0.7068,
+      1.3278
+     ],
+     "board_normal": [
+      0.1461,
+      0.201,
+      0.9686
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 0.877,
+       "angle": 43.886
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.89,
+     "clearance": {
+      "same_m": 0.3782350979309604,
+      "cross_m": 0.8419010782192768,
+      "env_m": 0.20262695135714448,
+      "self_m": 0.10980898651767554,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_g63_board_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_arm_link_0",
+        "t2_a1_shoulder_link_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-08",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T1",
+     "goal_joints": {
+      "t2_a1_joint_1": -0.475592,
+      "t2_a1_joint_2": 1.192288,
+      "t2_a1_joint_3": 2.363864,
+      "t2_a1_joint_4": 1.167841,
+      "t2_a1_joint_5": -0.370685,
+      "t2_a1_joint_6": -2.219082
+     },
+     "tool_xyz": [
+      0.56417,
+      -0.36073,
+      1.37385
+     ],
+     "tool_quat_xyzw": [
+      0.911629,
+      -0.06,
+      0.382107,
+      -0.139021
+     ],
+     "board_centre": [
+      0.5977,
+      -0.3224,
+      1.3515
+     ],
+     "board_normal": [
+      0.0032,
+      0.9541,
+      0.2993
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.786,
+       "angle": 40.691
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.9055,
+     "clearance": {
+      "same_m": 0.4295880887387486,
+      "cross_m": 0.5555019574873367,
+      "env_m": 0.3698443796993632,
+      "self_m": 0.11027996226766006,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_arm_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-09",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "HOLDOUT",
+     "zone": "arm_3",
+     "stage": "T1",
+     "goal_joints": {
+      "t2_a1_joint_1": -0.504522,
+      "t2_a1_joint_2": -0.442747,
+      "t2_a1_joint_3": -0.099274,
+      "t2_a1_joint_4": 2.347689,
+      "t2_a1_joint_5": 1.842586,
+      "t2_a1_joint_6": -0.272353
+     },
+     "tool_xyz": [
+      0.75029,
+      -0.38287,
+      1.32587
+     ],
+     "tool_quat_xyzw": [
+      0.095414,
+      0.498843,
+      -0.161122,
+      0.846222
+     ],
+     "board_centre": [
+      0.7773,
+      -0.4258,
+      1.3485
+     ],
+     "board_normal": [
+      -0.3679,
+      -0.9299,
+      -0.0007
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.331,
+       "angle": 47.778
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8624,
+     "clearance": {
+      "same_m": 0.6729682101111205,
+      "cross_m": 0.5944728763127993,
+      "env_m": 0.25091392930851225,
+      "self_m": 0.08026050922158995,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_arm_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_lower_wrist_link_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "forearm_link"
+      }
+     }
+    },
+    {
+     "id": "B-10",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T2",
+     "goal_joints": {
+      "t2_a1_joint_1": 0.74403,
+      "t2_a1_joint_2": 0.196614,
+      "t2_a1_joint_3": 0.968279,
+      "t2_a1_joint_4": 1.243704,
+      "t2_a1_joint_5": -0.36277,
+      "t2_a1_joint_6": -2.011531
+     },
+     "tool_xyz": [
+      0.51826,
+      -0.56505,
+      1.05927
+     ],
+     "tool_quat_xyzw": [
+      -0.682757,
+      0.697182,
+      -0.213379,
+      -0.047432
+     ],
+     "board_centre": [
+      0.558,
+      -0.5813,
+      1.024
+     ],
+     "board_normal": [
+      0.9723,
+      0.0234,
+      0.2328
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 2.132,
+       "angle": 48.762
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8549,
+     "clearance": {
+      "same_m": 0.642141679953278,
+      "cross_m": 0.7495941919310172,
+      "env_m": 0.23958026524111767,
+      "self_m": 0.11028366097759244,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_forearm_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-11",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T2",
+     "goal_joints": {
+      "t2_a1_joint_1": 1.915355,
+      "t2_a1_joint_2": 0.535546,
+      "t2_a1_joint_3": 0.686826,
+      "t2_a1_joint_4": 0.899137,
+      "t2_a1_joint_5": -1.023174,
+      "t2_a1_joint_6": 0.486011
+     },
+     "tool_xyz": [
+      0.32007,
+      -0.11062,
+      1.08697
+     ],
+     "tool_quat_xyzw": [
+      0.698645,
+      0.565342,
+      0.123369,
+      -0.420789
+     ],
+     "board_centre": [
+      0.2791,
+      -0.0764,
+      1.0717
+     ],
+     "board_normal": [
+      -0.8938,
+      0.0067,
+      0.4485
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.455,
+       "angle": 54.808
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.757,
+     "clearance": {
+      "same_m": 0.6260162753609952,
+      "cross_m": 0.6850071862193595,
+      "env_m": 0.380301936197784,
+      "self_m": 0.11712220714688465,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_g63_board_0",
+        "t2_a2_upper_wrist_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-12",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T2",
+     "goal_joints": {
+      "t2_a1_joint_1": -1.759852,
+      "t2_a1_joint_2": -0.049011,
+      "t2_a1_joint_3": 0.581803,
+      "t2_a1_joint_4": 2.389438,
+      "t2_a1_joint_5": 0.358836,
+      "t2_a1_joint_6": -2.279521
+     },
+     "tool_xyz": [
+      0.43125,
+      -0.04867,
+      1.06276
+     ],
+     "tool_quat_xyzw": [
+      0.898486,
+      -0.004882,
+      0.059783,
+      -0.434886
+     ],
+     "board_centre": [
+      0.4352,
+      0.0065,
+      1.0575
+     ],
+     "board_normal": [
+      -0.0432,
+      0.6217,
+      0.7821
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.85,
+       "angle": 46.344
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.7957,
+     "clearance": {
+      "same_m": 0.6246239261355478,
+      "cross_m": 0.39325974895325316,
+      "env_m": 0.27287008986927563,
+      "self_m": 0.11025927573715204,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_arm_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-13",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T2",
+     "goal_joints": {
+      "t2_a1_joint_1": 0.578757,
+      "t2_a1_joint_2": -0.037742,
+      "t2_a1_joint_3": -0.859656,
+      "t2_a1_joint_4": 2.041569,
+      "t2_a1_joint_5": -1.01316,
+      "t2_a1_joint_6": 1.28255
+     },
+     "tool_xyz": [
+      0.0935,
+      -0.10044,
+      1.32708
+     ],
+     "tool_quat_xyzw": [
+      -0.612672,
+      -0.166829,
+      0.245261,
+      0.732563
+     ],
+     "board_centre": [
+      0.0727,
+      -0.0661,
+      1.3655
+     ],
+     "board_normal": [
+      0.1549,
+      -0.129,
+      0.9795
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.219,
+       "angle": 49.129
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8499,
+     "clearance": {
+      "same_m": 0.37425886285410864,
+      "cross_m": 0.793502539758099,
+      "env_m": 0.6034899083121917,
+      "self_m": 0.11217649854336402,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_g63_board_0",
+        "t2_a2_forearm_link_0"
+       ],
+       "cross": [
+        "t1_a2_arm_link_0",
+        "t2_a1_arm_link_0"
+       ],
+       "env": "t2_a1_arm_link_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-14",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "HOLDOUT",
+     "zone": "arm_3",
+     "stage": "T2",
+     "goal_joints": {
+      "t2_a1_joint_1": -0.724701,
+      "t2_a1_joint_2": -0.576969,
+      "t2_a1_joint_3": -0.610586,
+      "t2_a1_joint_4": -0.74508,
+      "t2_a1_joint_5": -0.576069,
+      "t2_a1_joint_6": 0.70374
+     },
+     "tool_xyz": [
+      0.62965,
+      -0.21736,
+      1.02843
+     ],
+     "tool_quat_xyzw": [
+      0.886454,
+      -0.373463,
+      0.264309,
+      -0.069749
+     ],
+     "board_centre": [
+      0.6728,
+      -0.1995,
+      0.9983
+     ],
+     "board_normal": [
+      0.6252,
+      0.7113,
+      0.3211
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.841,
+       "angle": 17.399
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.9084,
+     "clearance": {
+      "same_m": 0.6634552875789037,
+      "cross_m": 0.3688224757650844,
+      "env_m": 0.17482523477278583,
+      "self_m": 0.11572625278198798,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_arm_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-15",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T2",
+     "goal_joints": {
+      "t2_a1_joint_1": 2.099051,
+      "t2_a1_joint_2": 0.161735,
+      "t2_a1_joint_3": 0.404701,
+      "t2_a1_joint_4": -1.179788,
+      "t2_a1_joint_5": -0.602725,
+      "t2_a1_joint_6": 1.075386
+     },
+     "tool_xyz": [
+      0.30896,
+      -0.53967,
+      1.04205
+     ],
+     "tool_quat_xyzw": [
+      0.205791,
+      0.891293,
+      -0.333933,
+      -0.227455
+     ],
+     "board_centre": [
+      0.2771,
+      -0.5839,
+      1.0312
+     ],
+     "board_normal": [
+      -0.2149,
+      -0.6923,
+      0.6889
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.224,
+       "angle": 23.306
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.7625,
+     "clearance": {
+      "same_m": 0.4866215749317433,
+      "cross_m": 0.7873412578720987,
+      "env_m": 0.400117452199542,
+      "self_m": 0.1132978701616251,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_g63_board_0",
+        "t2_a2_gripper_base_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_lower_wrist_link_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-16",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T3",
+     "goal_joints": {
+      "t2_a1_joint_1": 0.421434,
+      "t2_a1_joint_2": -0.30917,
+      "t2_a1_joint_3": 2.028357,
+      "t2_a1_joint_4": -1.945826,
+      "t2_a1_joint_5": 1.657106,
+      "t2_a1_joint_6": -0.377146
+     },
+     "tool_xyz": [
+      0.76728,
+      -0.54955,
+      1.42652
+     ],
+     "tool_quat_xyzw": [
+      0.924224,
+      -0.097608,
+      0.236066,
+      0.283823
+     ],
+     "board_centre": [
+      0.7946,
+      -0.5517,
+      1.3782
+     ],
+     "board_normal": [
+      0.3144,
+      0.8198,
+      -0.4785
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.83,
+       "angle": 52.389
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8751,
+     "clearance": {
+      "same_m": 0.6968441381311857,
+      "cross_m": 0.743916303047426,
+      "env_m": 0.19011931722827893,
+      "self_m": 0.1016013844618988,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_shoulder_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_arm_link_0",
+        "t2_a1_upper_wrist_link_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "forearm_link"
+      }
+     }
+    },
+    {
+     "id": "B-17",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "HOLDOUT",
+     "zone": "arm_3",
+     "stage": "T3",
+     "goal_joints": {
+      "t2_a1_joint_1": -2.58521,
+      "t2_a1_joint_2": 0.429502,
+      "t2_a1_joint_3": 1.297347,
+      "t2_a1_joint_4": -0.151392,
+      "t2_a1_joint_5": 1.928606,
+      "t2_a1_joint_6": 0.263457
+     },
+     "tool_xyz": [
+      0.25616,
+      -0.54869,
+      1.36716
+     ],
+     "tool_quat_xyzw": [
+      -0.363397,
+      -0.555541,
+      0.691056,
+      -0.285935
+     ],
+     "board_centre": [
+      0.2235,
+      -0.5878,
+      1.3895
+     ],
+     "board_normal": [
+      -0.799,
+      0.2192,
+      0.56
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 0.906,
+       "angle": 48.53
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.9034,
+     "clearance": {
+      "same_m": 0.5065708627594283,
+      "cross_m": 0.8294957567094561,
+      "env_m": 0.3404592887230277,
+      "self_m": 0.09186643110572885,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_g63_board_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_lower_wrist_link_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "arm_link"
+      }
+     }
+    },
+    {
+     "id": "B-18",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T3",
+     "goal_joints": {
+      "t2_a1_joint_1": 0.920778,
+      "t2_a1_joint_2": 0.005761,
+      "t2_a1_joint_3": -1.207503,
+      "t2_a1_joint_4": -1.128256,
+      "t2_a1_joint_5": -2.352622,
+      "t2_a1_joint_6": 1.486793
+     },
+     "tool_xyz": [
+      0.3832,
+      -0.35427,
+      1.23743
+     ],
+     "tool_quat_xyzw": [
+      -0.337923,
+      0.75025,
+      -0.565193,
+      -0.059076
+     ],
+     "board_centre": [
+      0.4141,
+      -0.3998,
+      1.2451
+     ],
+     "board_normal": [
+      0.5738,
+      -0.1327,
+      0.8081
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 1.998,
+       "angle": 51.171
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8881,
+     "clearance": {
+      "same_m": 0.5973832763219651,
+      "cross_m": 0.6893728364128787,
+      "env_m": 0.3192362631970186,
+      "self_m": 0.03493258353827456,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_lower_wrist_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_g63_board_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "forearm_link"
+      }
+     }
+    },
+    {
+     "id": "B-19",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T3",
+     "goal_joints": {
+      "t2_a1_joint_1": -0.284033,
+      "t2_a1_joint_2": 0.013558,
+      "t2_a1_joint_3": 0.630716,
+      "t2_a1_joint_4": 1.149673,
+      "t2_a1_joint_5": -0.730641,
+      "t2_a1_joint_6": 1.784732
+     },
+     "tool_xyz": [
+      0.56562,
+      -0.42221,
+      1.0174
+     ],
+     "tool_quat_xyzw": [
+      0.546301,
+      0.82551,
+      -0.114327,
+      0.083769
+     ],
+     "board_centre": [
+      0.5386,
+      -0.4466,
+      0.9754
+     ],
+     "board_normal": [
+      -0.9211,
+      -0.377,
+      0.0972
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.433,
+       "angle": 47.761
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8289,
+     "clearance": {
+      "same_m": 0.6558468734676042,
+      "cross_m": 0.6638446078142399,
+      "env_m": 0.24189472098824766,
+      "self_m": 0.11049573919776982,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_arm_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_lower_wrist_link_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-20",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T3",
+     "goal_joints": {
+      "t2_a1_joint_1": -2.380911,
+      "t2_a1_joint_2": -0.144635,
+      "t2_a1_joint_3": 0.490954,
+      "t2_a1_joint_4": -1.835037,
+      "t2_a1_joint_5": -0.287755,
+      "t2_a1_joint_6": -2.47125
+     },
+     "tool_xyz": [
+      0.08283,
+      -0.17194,
+      1.08306
+     ],
+     "tool_quat_xyzw": [
+      0.754968,
+      -0.484279,
+      -0.440083,
+      -0.04271
+     ],
+     "board_centre": [
+      0.0768,
+      -0.1332,
+      1.0437
+     ],
+     "board_normal": [
+      0.7688,
+      0.5273,
+      -0.3618
+     ],
+     "cams": {
+      "rgbd": {
+       "dist": 2.181,
+       "angle": 49.614
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.8237,
+     "clearance": {
+      "same_m": 0.4554660931896855,
+      "cross_m": 0.8310631908768803,
+      "env_m": 0.3755687136210698,
+      "self_m": 0.11027109845296765,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_g63_board_0",
+        "t2_a2_left_finger_prox_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_lower_wrist_link_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    },
+    {
+     "id": "B-21",
+     "board": "B",
+     "arm": "arm_3",
+     "role": "FIT",
+     "zone": "arm_3",
+     "stage": "T3",
+     "goal_joints": {
+      "t2_a1_joint_1": -0.206971,
+      "t2_a1_joint_2": 0.367067,
+      "t2_a1_joint_3": 1.782765,
+      "t2_a1_joint_4": 0.457252,
+      "t2_a1_joint_5": -1.458065,
+      "t2_a1_joint_6": 0.993271
+     },
+     "tool_xyz": [
+      0.60243,
+      -0.54708,
+      1.35465
+     ],
+     "tool_quat_xyzw": [
+      0.259991,
+      0.811049,
+      -0.442362,
+      0.280927
+     ],
+     "board_centre": [
+      0.5929,
+      -0.6017,
+      1.3507
+     ],
+     "board_normal": [
+      -0.6703,
+      -0.4734,
+      0.5715
+     ],
+     "cams": {
+      "rgbd2": {
+       "dist": 1.132,
+       "angle": 7.625
+      }
+     },
+     "occluded_by": {},
+     "static_torque_frac": 0.9179,
+     "clearance": {
+      "same_m": 0.5651597265105247,
+      "cross_m": 0.7306133236008814,
+      "env_m": 0.2685568094278638,
+      "self_m": 0.11349783766565835,
+      "moveit_env_box_hit": null,
+      "worst": {
+       "same": [
+        "t2_a1_arm_link_0",
+        "t2_a2_arm_link_0"
+       ],
+       "cross": [
+        "t1_a2_g63_board_0",
+        "t2_a1_lower_wrist_link_0"
+       ],
+       "env": "t2_a1_g63_board_0",
+       "self": "lower_wrist_link"
+      }
+     }
+    }
+   ]
+  }
+ },
+ "log": [
+  "arm_2: cek dudukan (kotak papan +10 mm vs link tetangga, j6 penuh): {'upper_wrist_link': 0.0055, 'gripper_base_link': -0.0159} m (gripper_base = touch link, boleh bersentuhan)",
+  "arm_2: {'sampled': 8000, 'visible': 1510, 'z': 791, 'torque': 394, 'collision': 0, 'occlusion': 0} (2 s) -> tabrakan/oklusi pada kandidat",
+  "arm_2: lolos semua 101; hitungan {'sampled': 8000, 'visible': 1510, 'z': 791, 'torque': 394, 'collision': 334, 'occlusion': 101, 'retract': 169}",
+  "arm_2: R0 kamera ['rgbd2']; urutan 21; {('FIT', 'rgbd@arm_2'): 6, ('FIT', 'rgbd2@arm_2'): 10, ('HOLDOUT', 'rgbd@arm_2'): 5}",
+  "arm_3: cek dudukan (kotak papan +10 mm vs link tetangga, j6 penuh): {'upper_wrist_link': 0.0055, 'gripper_base_link': -0.0159} m (gripper_base = touch link, boleh bersentuhan)",
+  "arm_3: {'sampled': 8000, 'visible': 1264, 'z': 627, 'torque': 348, 'collision': 0, 'occlusion': 0} (2 s) -> tabrakan/oklusi pada kandidat",
+  "arm_3: lolos semua 210; hitungan {'sampled': 8000, 'visible': 1264, 'z': 627, 'torque': 348, 'collision': 334, 'occlusion': 210, 'retract': 309}",
+  "arm_3: R0 kamera ['rgbd2']; urutan 21; {('FIT', 'rgbd@arm_4'): 1, ('FIT', 'rgbd@arm_3'): 5, ('FIT', 'rgbd2@arm_3'): 10, ('HOLDOUT', 'rgbd@arm_3'): 5}"
+ ],
+ "relabelled": "peran uji-tahan dilabel ulang per kategori kamera (aturan baru g63_poses), urutan/pose tidak berubah"
+}
