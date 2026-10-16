@@ -54,3 +54,61 @@ di luar (track x < 1.7) → **zona sah = selubung tanda + ~5 cm** (dunia ≈ x 1
   konfigurasi pendekatan demo (z ~1.05) → galat FK-konfigurasi ikut terserap.
 
 **Tidak dijalankan:** HW/kamera; node pasca-proses belum ditulis; validasi hidup belum.
+
+## Node pasca-proses + cek oklusi (langkah 1–2, LURING, 2026-10-17)
+
+- **Node** [zone_correct_node.py](results/p1_demo_zone/zone_correct_node.py) (commit 38d9a6c): masuk `/loc_rgbd2/tracks` (localizer rgbd2
+  saja, `p1_cam6dof/harness/loc_cam.sh rgbd2`) → keluar `/demo_zone/tracks` (skema SAMA dengan `/detected_objects/tracks`, xy P3,
+  z = 0.77 + H/2, + `x_trk/y_trk/z_trk`) dan `/demo_zone/rejected` (+ alasan). Gerbang (semua wajib): track xy di kotak TRACK
+  (selubung 20 obs + 5 cm: x 1.78–2.17, y 0.49–0.81), xy terkoreksi di kotak ZONA (x 1.60–1.99, y 0.45–0.73), |z_track − z_out| ≤ 0.05.
+  Runner/CLI tidak diubah — cukup remap `/detected_objects/tracks:=/demo_zone/tracks` (belum dipakai).
+- **Uji unit** [test_zone_correct.py](results/p1_demo_zone/test_zone_correct.py) SEMUA PASS ([log](results/p1_demo_zone/test_zone_correct.log)):
+  20 obs RMS **2.576 cm = analisis** (zone_models.json P3); A 6/6 diterima, galat 0.6–3.9 cm, z 0.805; benda di kotak C/D (z 0.87–1.00)
+  ditolak dengan H 0.07; wastafel / meja arm_2 / ekstrapolasi track ditolak; 3 pojok kotak track ditolak HANYA oleh gerbang zona.
+  Asap ROS (domain 93): track C6 lama → (1.884, 0.612) = 2.0 cm dari tanda, wastafel `TOLAK`, SIGINT bersih.
+- **Oklusi** [zone_occlusion.py](results/p1_demo_zone/zone_occlusion.py) (commit bcafc83): jejak botol = proyeksi track lama (piksel
+  sama dengan saat rekam); lengan REST URDF via T_wc incumbent, 'urdf' dan 'geser' (galat jarak jauh DEMO-HW B1).
+  Mode 'urdf' memprediksi N1 tertutup 63 % di g1 1.50 padahal N1 TERLIHAT saat itu → 'urdf' salah, 'geser' cocok (0 %).
+  g1 1.40 'geser': N1 **34 %**, lainnya 0 %. **Frame nyata** g63b `B-R0_rgbd2.png` (g1 1.40, arm_1/arm_2 REST; lokal, tidak di-commit):
+  gripper arm_1 jatuh di N1 dan menyentuh tepi kanan C6/N2; frame CAM-6DOF `k4_rgbd2.jpg` (g1 1.50): zona bersih. **M1/C3/C5 bersih
+  di keduanya.** Geser g1 → 1.50 butuh lepas papan arm_2 (REST + papan 43 mm ke meja di 1.50, G63 A8) + bring-up + `pose_to_g`.
+  **Keputusan operator (tombol):** uji hidup **C3 + M1, g1 tetap 1.40, NOL gerak.**
+
+## DEMO-ZONE-LIVE
+
+### A. Protokol — DIKUNCI (sebelum kamera dibuka)
+
+**A0.** Keadaan: papan polos di jari arm_2/arm_3, gripper tertutup, semua REST, g1 1.40, g2 0, stack MATI. NOL gerak lengan/rel.
+Tanda uji **C3 (1.8486, 0.6786)** dan **M1 (1.7497, 0.5493)** — dipilih karena bersih dari oklusi (bukan dari galat). Keduanya ADA di
+fit P3 (20 obs) → ini uji **penempatan ulang + node hidup**, BUKAN uji-tahan tanda (LOMO P3 = analisis luring). Pengungkapan: data A
+dari localizer fusi (rgbd tidak melihat zona → = rgbd2), B + uji ini dari localizer rgbd2 saja.
+
+**A1. Urutan** (kamera saja, domain terpisah 79 bila kosong; harness incumbent, ekstrinsik incumbent + G34, default launch tidak diubah):
+1. `ros2 node list --no-daemon` domain 79 kosong; `cam_up.sh seg_imgsz:=1280` + `loc_cam.sh rgbd2` + `zone_up.sh` (node, H 0.07),
+   semua `setsid nohup`, PID dicatat. Lampu NYALA (operator).
+2. **Kosong:** tanpa botol di zona, rekam 5 s `/demo_zone/tracks` + `/demo_zone/rejected`.
+3. Per tanda (C3 lalu M1): operator meletakkan botol demo putih 7 cm tepat di tanda, menjauh → rekam **15 s** bersamaan
+   `/loc_rgbd2/tracks` (mentah) dan `/demo_zone/tracks` (terkoreksi) + `/demo_zone/rejected` (`track_median.py`).
+4. Matikan per PID (SIGINT, anak `object_localizer` dibunuh per PID; tanpa `pkill -f`); node 0 di domain 79.
+
+**A2. 🔒 Gerbang (per tanda uji, KEDUA tanda wajib lulus; tidak dilonggarkan)**
+
+| # | Lulus bila |
+|---|---|
+| L1 | satu track tunggal: tepat SATU track diterima di `/demo_zone/tracks`, tid sama, hadir di ≥ 90 % pesan 15 s |
+| L2 | \|median xy terkoreksi − tanda\| ≤ **5 cm** |
+| L3 | median z track MENTAH ∈ **[0.79, 0.84]** |
+
+L1–L3 ✓ di C3 DAN M1 → koreksi zona DITERIMA untuk demo (pemakaian = keputusan operator; runner tetap belum di-remap). Lainnya → ✗,
+ditulis, tidak dipakai. Berhenti: kamera/driver gagal, `inference failed` berulang, orang di zona saat rekam (ulang tanda itu).
+
+**A3. 🔒 Dugaan**
+
+| # | Dugaan |
+|---|---|
+| D649 | L1 ✓ di kedua tanda; botol wastafel (`cyan bottle`) muncul di `/demo_zone/rejected`, tidak pernah diterima. |
+| D650 | L2 dengan galat ≤ **3 cm** di kedua tanda (residu fit A: C3 0.6, M1 2.2 + penempatan ulang 0.4–2.2). |
+| D651 | z mentah ∈ [0.80, 0.83] di kedua tanda. |
+| D652 | galat MENTAH (tanpa koreksi) 0.15–0.20 m di kedua tanda (A: M1 0.164, C3 0.188). |
+| D653 | output node hidup = P3 luring dari median mentah ≤ 1 mm. |
+| D654 | Kosong (A1.2): nol track diterima selama 5 s. |
