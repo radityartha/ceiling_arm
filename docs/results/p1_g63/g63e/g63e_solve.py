@@ -28,6 +28,8 @@ import g63d_common as GD  # noqa: E402
 G3_MAX_MM = 15.0     # ambang awal; nilai TERDAFTAR = §A G63e (diisi dari uji mandiri sebelum data)
 G5_MAX_MM = 0.5
 SQ0 = 0.041
+LBL_MAX_DEG, LBL_MAX_M = 20.0, 0.30   # B1 (incumbent ~1.5 deg / 5-15 cm off; label salah = puluhan deg)
+VIEW_RMS_MAX = 1.5                     # B2 px RMS per pose papan sesudah fit
 
 
 def T_vec(v):
@@ -99,12 +101,51 @@ def lateral_mm(T_wc, K, dist, Pw, uv):
     return float(np.mean(np.linalg.norm(p - uv, axis=1) * z / K[0, 0]) * 1000)
 
 
+def label_guard(board_views, cams, Trel_inc, sq=SQ0):
+    """B1 penjaga label stereo: PnP papan di tiap kamera, rgbd2 dipetakan ke bingkai rgbd lewat T_rel incumbent; beda rotasi
+    > LBL_MAX_DEG atau beda pusat > LBL_MAX_M -> pose dibuang (label terbalik/cermin = puluhan-180 deg; uji mandiri dev40: SETIAP
+    seed meledak = tepat satu label salah). -> (pose lolos, [(indeks, alasan)])."""
+    keep, rej = [], []
+    c_b = np.array([2 * sq, 2.5 * sq, 0, 1.0])
+    for k, v in enumerate(board_views):
+        B1 = board_pnp(v['rgbd'], cams['rgbd']['K'], cams['rgbd']['dist'], sq)
+        B2 = Trel_inc @ board_pnp(v['rgbd2'], cams['rgbd2']['K'], cams['rgbd2']['dist'], sq)
+        ang = float(np.degrees(Rotation.from_matrix(B1[:3, :3].T @ B2[:3, :3]).magnitude()))
+        dp = float(np.linalg.norm((B1 @ c_b - B2 @ c_b)[:3]))
+        if ang > LBL_MAX_DEG or dp > LBL_MAX_M:
+            rej.append((k, 'label stereo %.1f deg %.3f m' % (ang, dp)))
+        else:
+            keep.append(v)
+    return keep, rej
+
+
+def view_rms(f, views, cams):
+    out = []
+    for v, Tb in zip(views, f['B']):
+        Pc = GD.to_w(Tb, GD.corners_b(f['sq']))
+        r1 = E.project(np.eye(4), cams['rgbd']['K'], cams['rgbd']['dist'], Pc)[0] - v['rgbd']
+        r2 = E.project(f['Trel'], cams['rgbd2']['K'], cams['rgbd2']['dist'], Pc)[0] - v['rgbd2']
+        out.append(float(np.sqrt(np.mean(np.r_[r1, r2] ** 2) * 2)))
+    return out
+
+
 def solve(tag_obs, tags, board_views, cams, T_inc, sq_meas=None, loto=True):
-    """T_inc {cam: T_wc incumbent} -> (laporan, fit)."""
+    """T_inc {cam: T_wc incumbent} -> (laporan, fit). Pose papan: B1 penjaga label, lalu B2 residu (buang RMS > VIEW_RMS_MAX,
+    fit ulang sampai bersih). Semua yang dibuang dilaporkan."""
     T1_0 = T_inc['rgbd']
     Trel_0 = np.linalg.inv(T_inc['rgbd']) @ T_inc['rgbd2']
+    board_views, rejected = label_guard(board_views, cams, Trel_0)
     f = fit(tag_obs, tags, board_views, cams, T1_0, Trel_0)
+    while board_views:
+        rms = view_rms(f, board_views, cams)
+        if max(rms) <= VIEW_RMS_MAX:
+            break
+        k = int(np.argmax(rms))
+        rejected.append(('sisa', 'residu %.2f px' % rms[k]))
+        board_views = board_views[:k] + board_views[k + 1:]
+        f = fit(tag_obs, tags, board_views, cams, T1_0, Trel_0)
     rep = dict(sigma_px=round(f['sigma_px'], 3), rank=f['rank'], n_par=f['n_par'], n_board_views=len(board_views),
+               board_rejected=rejected,
                n_tags={c: sorted(i for i in tag_obs[c] if i in tags) for c in E.CAMS},
                sq_est_mm=None if f['sq'] is None else round(1000 * f['sq'], 3))
     std = np.sqrt(np.diag(f['cov']))

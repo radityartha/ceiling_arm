@@ -141,7 +141,7 @@ def run(plan, seeds, mode, bgs, cp, masks, log):
                 bv.append(v)
         S.SQ0 = SQ_START
         rep, f = S.solve(tag_obs, tape, bv, cams, {c: cp[c]['T_wc'] for c in E.CAMS}, sq_meas=SQ_TRUE)
-        row = dict(seed=sd, mode=mode, bad=bad, det=det, board_views=len(bv), board_sampled=len(Vt), board_notes=bnotes,
+        row = dict(seed=sd, mode=mode, bad=bad, det=det, board_views=len(bv), board_used=rep['n_board_views'], board_rejected=rep['board_rejected'], board_sampled=len(Vt), board_notes=bnotes,
                    sigma_px=rep['sigma_px'], sq_err_mm=rep.get('G5_sq_err_mm'), loto=rep['loto_mm'],
                    rel_tags_only=rep.get('info_rel_tags_only_vs_joint'))
         for c, Te in (('rgbd', f['T1']), ('rgbd2', f['T2'])):
