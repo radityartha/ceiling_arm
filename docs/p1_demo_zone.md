@@ -112,3 +112,22 @@ ditulis, tidak dipakai. Berhenti: kamera/driver gagal, `inference failed` berula
 | D652 | galat MENTAH (tanpa koreksi) 0.15–0.20 m di kedua tanda (A: M1 0.164, C3 0.188). |
 | D653 | output node hidup = P3 luring dari median mentah ≤ 1 mm. |
 | D654 | Kosong (A1.2): nol track diterima selama 5 s. |
+
+### B. Hasil terukur
+
+§A sha256 `829892b9…` ([salinan](results/p1_demo_zone/demo_zone_live_A_locked.md)), commit d2b394e — dikunci SEBELUM kamera dibuka.
+
+**B0. Alat luring (sesudah kunci, sebelum data botol; tidak mengubah gerbang):** [live/](results/p1_demo_zone/live/) `live_up.sh` / `live_rec.sh`
+/ `live_down.sh` + `live_score.py` (L1–L3 + D650–D653 otomatis). Uji: rekaman lama RGBD2-ZONE old_C3/old_M1 lewat `process()` →
+C3 0.61 / M1 2.17 cm, mentah 18.77 / 16.42 (= tabel A); replay ROS domain 79 (old_C3 → node → `live_rec.sh`) 30/30 pesan, L1–L3 ✓,
+node vs luring 0.09 mm; kontrol negatif (2 track diterima / nol track) → L1 ✗.
+
+**B1. Sesi 1 (07:43–07:48), kamera saja domain 79, NOL gerak** — [hw_20261017/](results/p1_demo_zone/live/hw_20261017/)
+- Izin operator (tombol): lampu NYALA, C3 + M1 ada, zona kosong. Preflight: 0 node di domain 0/79, 2× D455, GPU 217 MiB, disk 17 GB bebas.
+- Launch 1676946 (SigIgn `0x1001001`, SIGINT tidak diabaikan), localizer rgbd2 1677541, node 1677542. `seg_router` imgsz **1280**
+  (param terbaca), label rgbd2 3.5 Hz, 0 `inference failed`.
+- **A1.2 kosong 5 s:** mentah 9 pesan / terkoreksi 8 / tolak 10 — **semua kosong** (botol wastafel hari ini tidak terdeteksi).
+- Operator bertanya apakah botol HITAM lebih baik → dijawab: §A + fit P3 pakai botol PUTIH (bias depth bahan terserap); hitam = info
+  sesudah gerbang saja. Operator: "belum siap … jam 9 saya baru ke lokasi". Kamera dimatikan bersih (launch hilang 4 s, 0 proses,
+  0 node di 79); galat `seg_router` saat shutdown = pola SIGINT dikenal.
+- **Belum:** A1.3 botol di C3 / M1 (jam 9).
