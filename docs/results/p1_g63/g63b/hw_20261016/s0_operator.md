@@ -26,3 +26,20 @@
 - (pasca-sesi) operator: "oke saya eprkuat lagi, buat gripper arm 2 menutup dulu" -> g63_gripper --arm arm_2 --close
 - (pasca-sesi) pindah ke cadangan JARI; operator: "tutup arm 3 dulu"
 - (pasca-sesi) operator: "geser sekrang arm 2. aman saya jamin" -> bring-up + rel g1 1.30->1.40 (mode jari)
+- (pasca-sesi) foto arm2.jpeg/arm3.jpeg (root, lokal): susunan jari = model mount_finger (A->rgbd2, B->rgbd); klip kertas di 4 sudut
+- (jari) operator: "1. kamera gerak" -> kamera + A-R0
+- (jari) [GERAK] arm_2 A-01
+- (jari) [dry] arm_2 A-02
+- (jari) operator: "saya matikan lampu, sepertinya terganggu karena silau" (sesudah A-01)
+- (jari) operator: "Tangkap ulang A-01 lalu gerak A-02"
+- (jari) [GERAK] arm_2 A-02
+- (jari) [dry] arm_2 A-03
+- (jari) [GERAK] arm_2 A-03
+- (jari) G7: jari arm_2 0.8082 -> 0.7911 (-0.98 deg) di A-03; operator: "tidak apa2 lanjutkan saja"
+- (jari) [dry] arm_2 A-R0
+- (jari) [GERAK] arm_2 A-R0
+- (jari) operator: "Lanjut T1 sebagai data" (kalibrasi belum sah; model papan-di-link-jari luring nanti)
+- (jari) [dry] arm_2 A-04
+- (jari) operator: "pause dulu ke rest dulu sekarang, saya mau sholat jumat dulu" -> REST
+- (jari) [dry] arm_2 REST
+- (jari) [GERAK] arm_2 REST

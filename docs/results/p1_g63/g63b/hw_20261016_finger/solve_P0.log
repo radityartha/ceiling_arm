@@ -1,0 +1,42 @@
+!!! PARAMETER TIDAK TERAMATI: [{'param': 'rgbd', 'std_rot_deg': 0.0, 'std_pos_m': 2283.61798544809}]
+!!! PENJAGA G63b MENOLAK: ['RANK J 16 < 18 parameter -> sebagian parameter tak teramati']
+{
+ "converged": true,
+ "Twc_xyzrpy": {
+  "rgbd": [
+   1.96605,
+   0.93355,
+   2.42338,
+   -2.32459,
+   0.01185,
+   1.98714
+  ],
+  "rgbd2": [
+   -0.24293,
+   -1.35895,
+   1.39582,
+   -2.06726,
+   0.00494,
+   -0.70696
+  ]
+ },
+ "vs_incumbent": {
+  "rgbd": {
+   "rot_deg": 13.872835403869058,
+   "cam_pos_shift_m": 0.4312634698661355
+  },
+  "rgbd2": {
+   "rot_deg": 17.727088805304568,
+   "cam_pos_shift_m": 0.7781102518864407
+  }
+ },
+ "unobservable": [
+  {
+   "param": "rgbd",
+   "std_rot_deg": 0.0,
+   "std_pos_m": 2283.61798544809
+  }
+ ]
+}
+G3 {"rgbd": {"n": 0, "median_m": null, "p95_m": null}, "rgbd2": {"n": 0, "median_m": null, "p95_m": null}} G4' {}
+penjaga G63b: {'n_residuals': 72, 'n_params': 18, 'rank': 16, 'sigma_used_px': 0.3} TOLAK

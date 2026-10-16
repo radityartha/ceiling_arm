@@ -1,0 +1,85 @@
+{
+ "arm": "arm_2",
+ "poses": "/home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/poses_finger_v1.json",
+ "payload": "/home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/hw_20261016_finger/payload_finger.urdf",
+ "stages": [
+  "P0"
+ ],
+ "n": 6,
+ "planned": 6,
+ "refused_ids": [],
+ "results": [
+  {
+   "k": 0,
+   "id": "A-R0",
+   "role": "R0",
+   "stage": "all",
+   "verdict": "PLANNED",
+   "margin": "t1_a2_joint_2 90.147347% (batas 97%)",
+   "env": ": 77.2 mm di titik 0 (t1_a2_g63_board_0) -> CLEAR",
+   "guard_refusals": 0,
+   "rc": 0,
+   "s": 31.4
+  },
+  {
+   "k": 1,
+   "id": "A-01",
+   "role": "FIT",
+   "stage": "P0",
+   "verdict": "PLANNED",
+   "margin": "t1_a2_joint_2 92.504125% (batas 97%)",
+   "env": ": 155.2 mm di titik 0 (t1_a1_right_finger_dist_link_0) -> CLEAR",
+   "guard_refusals": 0,
+   "rc": 0,
+   "s": 30.8
+  },
+  {
+   "k": 2,
+   "id": "A-02",
+   "role": "FIT",
+   "stage": "P0",
+   "verdict": "PLANNED",
+   "margin": "t1_a2_joint_3 91.465393% (batas 97%)",
+   "env": ": 100.9 mm di titik 116 (t1_a2_g63_board_0) -> CLEAR",
+   "guard_refusals": 0,
+   "rc": 0,
+   "s": 30.1
+  },
+  {
+   "k": 3,
+   "id": "A-03",
+   "role": "FIT",
+   "stage": "P0",
+   "verdict": "PLANNED",
+   "margin": "t1_a2_joint_3 88.347274% (batas 97%)",
+   "env": ": 101.5 mm di titik 0 (t1_a2_g63_board_0) -> CLEAR",
+   "guard_refusals": 0,
+   "rc": 0,
+   "s": 30.5
+  },
+  {
+   "k": 4,
+   "id": "A-R0",
+   "role": "R0",
+   "stage": "all",
+   "verdict": "PLANNED",
+   "margin": "t1_a2_joint_2 91.576856% (batas 97%)",
+   "env": ": 120.4 mm di titik 32 (t1_a2_g63_board_0) -> CLEAR",
+   "guard_refusals": 0,
+   "rc": 0,
+   "s": 30.0
+  },
+  {
+   "k": 5,
+   "id": "REST",
+   "role": "REST",
+   "stage": "-",
+   "verdict": "PLANNED",
+   "margin": "t1_a2_joint_2 91.887053% (batas 97%)",
+   "env": ": 76.7 mm di titik 42 (t1_a2_g63_board_0) -> CLEAR",
+   "guard_refusals": 0,
+   "rc": 0,
+   "s": 29.5
+  }
+ ]
+}

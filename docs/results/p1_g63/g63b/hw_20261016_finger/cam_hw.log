@@ -1,0 +1,80 @@
+[INFO] [launch]: All log files can be found below /home/user1/.ros/log/2026-10-16-11-42-05-724795-kubota-NUC9VXQNX-1403132
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [realsense2_camera_node-1]: process started with pid [1403170]
+[INFO] [convert_metric_node-2]: process started with pid [1403172]
+[INFO] [relay-3]: process started with pid [1403174]
+[INFO] [relay-4]: process started with pid [1403176]
+[INFO] [static_transform_publisher-5]: process started with pid [1403178]
+[INFO] [realsense2_camera_node-6]: process started with pid [1403180]
+[INFO] [convert_metric_node-7]: process started with pid [1403182]
+[INFO] [relay-8]: process started with pid [1403184]
+[INFO] [relay-9]: process started with pid [1403186]
+[INFO] [static_transform_publisher-10]: process started with pid [1403188]
+[INFO] [seg_router-11]: process started with pid [1403190]
+[static_transform_publisher-5] [INFO] [1792118525.850758025] [rgbd_world_tf]: Spinning until stopped - publishing transform
+[static_transform_publisher-5] translation: ('1.716600', '0.865600', '2.078200')
+[static_transform_publisher-5] rotation: ('-0.404006', '-0.825829', '0.310471', '0.241646')
+[static_transform_publisher-5] from 'world' to 'rgbd_camera_optical'
+[static_transform_publisher-10] [INFO] [1792118525.859273724] [rgbd2_world_tf]: Spinning until stopped - publishing transform
+[static_transform_publisher-10] translation: ('-0.154700', '-1.019700', '2.090500')
+[static_transform_publisher-10] rotation: ('-0.816932', '0.372879', '-0.245184', '0.365334')
+[static_transform_publisher-10] from 'world' to 'rgbd2_camera_optical'
+[realsense2_camera_node-1] [INFO] [1792118526.220352928] [rgbd.rgbd]: RealSense ROS v4.58.2
+[realsense2_camera_node-1] [INFO] [1792118526.220449141] [rgbd.rgbd]: Built with LibRealSense v2.58.2
+[realsense2_camera_node-1] [INFO] [1792118526.220464953] [rgbd.rgbd]: Running with LibRealSense v2.58.2
+[realsense2_camera_node-1]  16/10 11:42:06,224 WARNING [140500206052928] (context.cpp:41) No valid configuration file found at : /home/user1/.realsense-config.json loading defaults
+[realsense2_camera_node-6] [INFO] [1792118526.230213232] [rgbd2.rgbd2]: RealSense ROS v4.58.2
+[realsense2_camera_node-6] [INFO] [1792118526.230312521] [rgbd2.rgbd2]: Built with LibRealSense v2.58.2
+[realsense2_camera_node-6] [INFO] [1792118526.230328786] [rgbd2.rgbd2]: Running with LibRealSense v2.58.2
+[realsense2_camera_node-6]  16/10 11:42:06,230 WARNING [134555317003840] (context.cpp:41) No valid configuration file found at : /home/user1/.realsense-config.json loading defaults
+[seg_router-11] [INFO] [1792118526.367592896] [seg_router]: seg_router up; source=yoloe, cameras=['rgbd', 'rgbd2'], prompts=['bottle']
+[realsense2_camera_node-6] [INFO] [1792118526.514603062] [rgbd2.rgbd2]: Device with serial number 234222303079 was found.
+[realsense2_camera_node-6] 
+[realsense2_camera_node-6] [INFO] [1792118526.514671968] [rgbd2.rgbd2]: Device with physical ID /sys/devices/pci0000:00/0000:00:14.0/usb2/2-1/2-1:1.0/video4linux/video0 was found.
+[realsense2_camera_node-6] [INFO] [1792118526.514724149] [rgbd2.rgbd2]: Device with name Intel RealSense D455 was found.
+[realsense2_camera_node-6] [INFO] [1792118526.514960185] [rgbd2.rgbd2]: Device with port number 2-1 was found.
+[realsense2_camera_node-6] [INFO] [1792118526.514968350] [rgbd2.rgbd2]: Device USB type: 3.2
+[realsense2_camera_node-6] [INFO] [1792118526.515053199] [rgbd2.rgbd2]: getParameters...
+[realsense2_camera_node-1] [INFO] [1792118526.515060183] [rgbd.rgbd]: Device with serial number 234222303079 was found.
+[realsense2_camera_node-1] 
+[realsense2_camera_node-1] [INFO] [1792118526.515113194] [rgbd.rgbd]: Device with physical ID /sys/devices/pci0000:00/0000:00:14.0/usb2/2-1/2-1:1.0/video4linux/video0 was found.
+[realsense2_camera_node-1] [INFO] [1792118526.515147379] [rgbd.rgbd]: Device with name Intel RealSense D455 was found.
+[realsense2_camera_node-1] [INFO] [1792118526.515453759] [rgbd.rgbd]: Device with port number 2-1 was found.
+[realsense2_camera_node-6] [INFO] [1792118526.516903930] [rgbd2.rgbd2]: JSON file is not provided
+[realsense2_camera_node-6] [INFO] [1792118526.516937214] [rgbd2.rgbd2]: Device Name: Intel RealSense D455
+[realsense2_camera_node-6] [INFO] [1792118526.516944518] [rgbd2.rgbd2]: Device Serial No: 234222303079
+[realsense2_camera_node-6] [INFO] [1792118526.516949515] [rgbd2.rgbd2]: Device physical port: /sys/devices/pci0000:00/0000:00:14.0/usb2/2-1/2-1:1.0/video4linux/video0
+[realsense2_camera_node-6] [INFO] [1792118526.516954265] [rgbd2.rgbd2]: Device FW version: 5.17.0.10
+[realsense2_camera_node-6] [INFO] [1792118526.516959282] [rgbd2.rgbd2]: Device Product ID: 0x0B5C
+[realsense2_camera_node-6] [INFO] [1792118526.516963537] [rgbd2.rgbd2]: Sync Mode: Off
+[realsense2_camera_node-1] [INFO] [1792118526.539985430] [rgbd.rgbd]: Device with serial number 241122302297 was found.
+[realsense2_camera_node-1] 
+[realsense2_camera_node-1] [INFO] [1792118526.540041501] [rgbd.rgbd]: Device with physical ID /sys/devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/video4linux/video6 was found.
+[realsense2_camera_node-1] [INFO] [1792118526.540048548] [rgbd.rgbd]: Device with name Intel RealSense D455 was found.
+[realsense2_camera_node-1] [INFO] [1792118526.540188393] [rgbd.rgbd]: Device with port number 2-2.1.1 was found.
+[realsense2_camera_node-1] [INFO] [1792118526.540198626] [rgbd.rgbd]: Device USB type: 3.2
+[realsense2_camera_node-1] [INFO] [1792118526.540248192] [rgbd.rgbd]: getParameters...
+[realsense2_camera_node-1] [INFO] [1792118526.541591911] [rgbd.rgbd]: JSON file is not provided
+[realsense2_camera_node-1] [INFO] [1792118526.541620968] [rgbd.rgbd]: Device Name: Intel RealSense D455
+[realsense2_camera_node-1] [INFO] [1792118526.541627817] [rgbd.rgbd]: Device Serial No: 241122302297
+[realsense2_camera_node-1] [INFO] [1792118526.541637169] [rgbd.rgbd]: Device physical port: /sys/devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2.1/2-2.1.1/2-2.1.1:1.0/video4linux/video6
+[realsense2_camera_node-1] [INFO] [1792118526.541645539] [rgbd.rgbd]: Device FW version: 5.17.0.10
+[realsense2_camera_node-1] [INFO] [1792118526.541653564] [rgbd.rgbd]: Device Product ID: 0x0B5C
+[realsense2_camera_node-1] [INFO] [1792118526.541661608] [rgbd.rgbd]: Sync Mode: Off
+[realsense2_camera_node-1] [INFO] [1792118526.647613732] [rgbd.rgbd]: Stopping Sensor: Depth Module
+[realsense2_camera_node-1] [INFO] [1792118526.647684632] [rgbd.rgbd]: Stopping Sensor: RGB Camera
+[realsense2_camera_node-1] [INFO] [1792118526.652925081] [rgbd.rgbd]: Starting Sensor: Depth Module
+[realsense2_camera_node-1] [INFO] [1792118526.654880419] [rgbd.rgbd]: Open profile: stream_type: Depth(0), Format: Z16, Width: 848, Height: 480, FPS: 30
+[realsense2_camera_node-6] [INFO] [1792118526.667780483] [rgbd2.rgbd2]: Stopping Sensor: Depth Module
+[realsense2_camera_node-6] [INFO] [1792118526.667864092] [rgbd2.rgbd2]: Stopping Sensor: RGB Camera
+[realsense2_camera_node-6] [INFO] [1792118526.682830144] [rgbd2.rgbd2]: Starting Sensor: Depth Module
+[realsense2_camera_node-6] [INFO] [1792118526.684495636] [rgbd2.rgbd2]: Open profile: stream_type: Depth(0), Format: Z16, Width: 848, Height: 480, FPS: 30
+[realsense2_camera_node-1] [INFO] [1792118526.780042281] [rgbd.rgbd]: Starting Sensor: RGB Camera
+[realsense2_camera_node-1] [INFO] [1792118526.782935655] [rgbd.rgbd]: Open profile: stream_type: Color(0), Format: RGB8, Width: 1280, Height: 720, FPS: 30
+[realsense2_camera_node-1] [INFO] [1792118526.796358779] [rgbd.rgbd]: RealSense Node Is Up!
+[realsense2_camera_node-6] [INFO] [1792118526.850751202] [rgbd2.rgbd2]: Starting Sensor: RGB Camera
+[realsense2_camera_node-6] [INFO] [1792118526.853210563] [rgbd2.rgbd2]: Open profile: stream_type: Color(0), Format: RGB8, Width: 1280, Height: 720, FPS: 30
+[realsense2_camera_node-6] [INFO] [1792118526.866986610] [rgbd2.rgbd2]: RealSense Node Is Up!
+[seg_router-11] [INFO] [1792118528.241155656] [seg_router]: loading YOLOE /home/user1/Documents/ceiling_arm/ros2_ws/yoloe-11m-seg.pt on cuda:0 ...
+[realsense2_camera_node-1]  16/10 11:52:48,742 ERROR [140499587397184] (ds-options.cpp:93) Asic Temperature value is not valid!
+[realsense2_camera_node-1]  16/10 11:52:50,742 ERROR [140499587397184] (ds-options.cpp:93) Asic Temperature value is not valid!
