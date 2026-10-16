@@ -1,0 +1,30 @@
+=== sumber AJ saja
+  [j1 bebas (uji gauge)] sigma 0.65 px rank 22/23 rel_min 6.0e-12 null~[('rgbd.ry', 0.47), ('rgbd2.ry', 0.43), ('rgbd2.tx', -0.41), ('rgbd.tx', 0.31)] | std rgbd 0.095°/1.7mm, rgbd2 0.116°/3.9mm
+  [j1 dikunci] sigma 0.65 px rank 22/22 rel_min 1.4e-02 null~[('rgbd2.rx', -0.48), ('rgbd2.tz', 0.47), ('AJ.j3', 0.39), ('AJ.j2', 0.34)] | std rgbd 0.097°/1.7mm, rgbd2 0.116°/3.9mm
+  target BJ [a: j1-j5] kamera dari AJ: k=11 sigma 12.97 px rank 11/11 | G3 rgbd2 82.0/111.7, rgbd 90.4/95.2 -> GAGAL | G6′ maks 1.53 mm -> LULUS
+     BJ.j1 +3.12±0.77, BJ.j2 -4.31±1.02, BJ.j3 -0.03±1.26, BJ.j4 -6.72±1.32, BJ.j5 -5.03±0.63
+  target BJ [d: rotG+j2-j5] kamera dari AJ: k=11 sigma 9.61 px rank 11/11 | G3 rgbd2 61.7/70.7, rgbd 58.4/62.2 -> GAGAL | G6′ maks 1.18 mm -> LULUS
+     BJ.grot -4.40±0.33, BJ.j2 -1.79±0.77, BJ.j3 +1.82±0.96, BJ.j4 -4.52±1.00, BJ.j5 -3.09±0.49
+  target BJ [b: j1-j5+basis(rx,ry,t)] kamera dari AJ: k=16 sigma 0.75 px rank 16/16 | G3 rgbd2 15.4/29.9, rgbd 16.7/19.3 -> GAGAL | G6′ maks 1.44 mm -> LULUS
+     BJ.j1 -0.82±0.06, BJ.j2 -1.55±0.06, BJ.j3 +1.21±0.09, BJ.j4 +0.29±0.12, BJ.j5 -0.95±0.06, BJ.base.rx -1.17±0.09, BJ.base.ry +0.24±0.10, BJ.base.tx +19.64±1.15, BJ.base.ty +49.02±1.11, BJ.base.tz -14.96±0.68
+=== sumber BJ saja
+  [j1 bebas (uji gauge)] sigma 0.25 px rank 22/23 rel_min 2.4e-12 null~[('rgbd.ty', 0.6), ('rgbd.ry', -0.5), ('rgbd2.ry', -0.36), ('rgbd2.ty', -0.27)] | std rgbd 0.113°/3.2mm, rgbd2 0.291°/4.4mm
+  [j1 dikunci] sigma 0.25 px rank 22/22 rel_min 4.9e-03 null~[('rgbd2.rx', 0.55), ('rgbd2.rz', -0.46), ('rgbd2.tx', -0.45), ('rgbd2.tz', -0.29)] | std rgbd 0.134°/4.4mm, rgbd2 0.253°/4.8mm
+  target AJ [a: j1-j5] kamera dari BJ: k=11 sigma 13.65 px rank 11/11 | G3 rgbd 48.6/60.6, rgbd2 37.3/39.6 -> GAGAL | G6′ maks 1.64 mm -> LULUS
+     AJ.j1 +4.47±0.57, AJ.j2 -0.82±0.98, AJ.j3 -0.03±1.44, AJ.j4 +3.13±0.65, AJ.j5 -0.12±0.60
+  target AJ [d: rotG+j2-j5] kamera dari BJ: k=11 sigma 8.89 px rank 11/11 | G3 rgbd 21.8/41.9, rgbd2 7.8/10.2 -> GAGAL | G6′ maks 2.01 mm -> GAGAL
+     AJ.grot -5.02±0.23, AJ.j2 +1.14±0.61, AJ.j3 +3.49±0.90, AJ.j4 +1.91±0.39, AJ.j5 -0.50±0.40
+  target AJ [b: j1-j5+basis(rx,ry,t)] kamera dari BJ: k=16 sigma 2.65 px rank 16/16 | G3 rgbd 6.6/11.4, rgbd2 22.7/24.2 -> GAGAL | G6′ maks 1.60 mm -> LULUS
+     AJ.j1 +1.99±0.14, AJ.j2 +0.51±0.25, AJ.j3 +2.33±0.44, AJ.j4 +0.49±0.17, AJ.j5 -0.28±0.14, AJ.base.rx -1.44±0.17, AJ.base.ry -0.13±0.11, AJ.base.tx +26.65±1.34, AJ.base.ty +20.79±2.11, AJ.base.tz +1.38±1.28
+=== kesepakatan kamera antar-lengan (fit lengan tunggal, j1 dikunci)
+  rgbd absolut: 1.76° / 5.1 cm (std A (0.09725319132822947, 0.001739387343255999), B (0.13445629552170119, 0.0044154636006087785))
+  rgbd2 absolut: 1.59° / 9.4 cm (std A (0.1162650712095984, 0.003935352589105015), B (0.25303517262114844, 0.004787016904860572))
+  relatif rgbd->rgbd2 (invarian gauge dunia): 1.95° / 6.6 cm
+  relatif Ma j1-j5/lengan vs fit-A: 2.30° / 11.9 cm
+  relatif Ma j1-j5/lengan vs fit-B: 2.80° / 8.0 cm
+  relatif Mb Ma-j1A+basisB(rx,ry,t) vs fit-A: 0.58° / 2.0 cm
+  relatif Mb Ma-j1A+basisB(rx,ry,t) vs fit-B: 2.02° / 6.4 cm
+  relatif Md rot gantry+j2-j5 vs fit-A: 1.05° / 5.4 cm
+  relatif Md rot gantry+j2-j5 vs fit-B: 2.37° / 5.3 cm
+  relatif M0 kaku vs fit-A: 5.47° / 19.7 cm
+  relatif M0 kaku vs fit-B: 3.86° / 13.8 cm

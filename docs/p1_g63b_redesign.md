@@ -302,3 +302,101 @@ dengan kamera, G6′ ≤ 2 mm) SEBELUM blok kalibrasi; aturan diam j6 masuk §A 
 bersama = acuan rotasi gantry/dunia (tambah rotasi gantry/basis sebagai parameter, bandingkan uji-tahan), validasi silang arm_2↔arm_3
 (fit satu lengan, uji lengan lain); (3) bila model tervalidasi → amandemen §A tertulis (model kinematik + gerbang) SEBELUM dipakai;
 HW hanya bila data tambahan terbukti perlu. Keadaan sel: papan di jari arm_2/arm_3, g1 1.40.
+
+### B5. G63c LURING 2026-10-16 (NOL HW/kamera/mock; prompt [p1_g63c_offline_prompt.md](p1_g63c_offline_prompt.md); `results/p1_g63/g63c/`)
+
+Data = `hw_20261016_finger/` apa adanya (tidak diambil ulang). Alat terkunci tidak diubah (sha `g63b_A_locked.sha256` 8/8 OK);
+semua eksperimen di berkas baru `g63c/` (`g63c_common.py`, `g63c_guard*.py`, `g63c_kin.py`, `g63c_models.py`, `g63c_cross.py`,
+`g63c_anchor.py` + log/json). Frame (orang) tidak di-commit.
+
+1. **Penjaga identitas papan (tugas 1).** Pindai median tercatat (`g63c_guard_scan.py`): jarak pusat deteksi ke prior papan sendiri
+   (m, pada skala prior; prior SEMUA papan dari FK sudut terekam + `T_wc_live` + `mount_finger`) benar 0.031–**0.139** m, rasio
+   jarak ke prior papan lain **≥ 3.8**, skala kotak deteksi/prior 0.97–1.13; **B-13: 0.406 m, rasio 0.0, skala 0.34**. Aturan
+   dibuat dari pindaian ini (B-13 TERLIHAT saat merancang — bukan uji buta) lalu dikunci di `g63c_guard.py` SEBELUM uji frame:
+   **ID-1** jarak sendiri ≤ 0.18 m (= asumsi galat prior §A3), **ID-2** jarak ke tiap papan lain (prior di depan kamera, pusat di
+   bingkai) ≥ 2 × jarak sendiri, **ID-3** skala ∈ [1/1.3, 1.3]. Uji ulang SEMUA frame (`g63c_guard_frames.py`, 43 rekaman × 2
+   kamera × 30 frame, detektor terkunci, prior kedua papan, median ≥ 50 % frame seperti capture):
+   **B-13 rgbd2 DITOLAK (ID-1 30/30 frame) ✓; 38/38 deteksi benar lain tetap ✓; 0 hilang ✓.** Bonus: 19 deteksi papan LAIN (papan
+   di lengan REST) diterima dengan label benar, termasuk papan A di B-13 rgbd2 (29/30) — pusat A/B saat sama-sama terlihat terpisah
+   ≥ 229 px. Jebakan: `IMREAD_GRAYSCALE` ≠ `cvtColor(BGR2GRAY)` capture → A-11 rgbd2 14 vs 16/30 frame (palsu "hilang");
+   uji final pakai konversi capture. ⚠ Margin ID-1 tipis (0.139 vs 0.18 m) karena prior memuat galat kinematik ≈ 3°: bila prior
+   memburuk, ID-1 bisa menolak deteksi benar (gagal aman, bukan label salah).
+2. **Model kinematik (tugas 2, `models_all.log`).** Fit FIT kedua lengan (480 residu), nilai HOLDOUT (G3: per kamera med ≤ 15,
+   p95 ≤ 30 mm) + **G6′ resmi** (T_lb dibekukan dari R0 pertama, R0 berikut lateral RMS ≤ 2 mm) + rank Jacobian berskala:
+
+   | Model | k | σ px | BIC | rank | G3 rgbd / rgbd2 med/p95 mm | G6′ maks mm | kamera vs incumbent |
+   |---|---|---|---|---|---|---|---|
+   | M0 kaku | 24 | 5.96 | 1838 | penuh | 15.2/36.4 / 78.8/91.6 ✗ | 1.36 ✓ | 0.56°/6.0, 5.00°/16.9 cm |
+   | **Ma** j1–j5 per lengan | 34 | 1.19 | 344 | penuh | 5.5/11.3 / 14.3/27.7 ✓ | 1.61 ✓ | 1.45°/8.7, 1.51°/2.7 cm |
+   | Mb_raw Ma + basis B 6 | 40 | 0.60 | — | **38/40** | — | — | null = yaw basis ≡ j1, yaw global (gauge) |
+   | **Mb** Ma − j1A + basis B (rx,ry,t) | 38 | 0.60 | −300 | penuh | 7.6/12.3 / 7.8/29.4 ✓ | 1.41 ✓ | 3.18°/10.0, 4.60°/9.7 cm |
+   | Mt Ma − j1A + basis B (t) | 36 | 0.84 | 23 | penuh | 11.5/20.5 / 13.9/43.3 ✗ | 1.44 ✓ | |
+   | Mc1 j1 bersama saja | 25 | 4.25 | 1518 | penuh | ✗ (48/66 rgbd2) | 1.53 ✓ | j1 +3.51° |
+   | Mc2 rotasi gantry saja | 26 | 3.99 | 1463 | penuh | ✗ (66/83 rgbd2) | 1.53 ✓ | g1 −3.40°, g2 −0.06° (TIDAK bersama) |
+   | **Md** rot gantry + j2–j5 | 34 | 1.00 | 177 | penuh | 8.6/10.5 / 14.5/26.2 ✓ | 1.51 ✓ | g1 −2.10°, g2 −1.67° |
+   | Me j1 bersama + j2–j5 | 33 | 1.21 | 351 | penuh | 6.1/11.4 / 20.1/29.7 ✗ | 1.59 ✓ | j1 +3.02° |
+
+   (c) "rotasi bersama saja" ✗ (σ ≈ 4 px; rotasi gantry yang dipilih data TIDAK sama antar-gantry). (b) dan (d) memberi fit lebih
+   baik dari (a) dengan k sama/sedikit lebih — data lebih suka rotasi di sumbu gantry / geser basis daripada j1 murni.
+   **Degenerasi (yang dicurigai prompt) TERBUKTI:** (i) yaw basis ≡ offset j1 (eksak); (ii) dengan kamera bebas, rotasi vertikal
+   bersama ≡ geser relatif basis B ≈ δ·|o_B − o_A| (3° × 0.94 m ≈ 5 cm) → j1 "+3° di kedua lengan" SETARA dengan "basis arm_3
+   tergeser ~(+2.7, +4.2, −1.7) cm + kamera berputar ~3°" — gambar tidak bisa membedakan; (iii) **Ma, Mb, Md sama-sama rank penuh,
+   σ ≤ 1.2 px, lulus G3 + G6′, std kamera klaim 0.08–0.12° / 1.5–3.7 mm — tetapi kamera mereka berbeda satu sama lain sampai
+   4.11° / 10.3 cm** (`model_spread.log`) = 30–40 × std. Std kecil TIDAK berarti teramati: ketidakpastian model mendominasi;
+   uji-tahan (3 pose per kamera) tidak cukup kuat untuk membedakan.
+3. **Validasi silang antar-lengan (tugas 3, `cross.log`).** Fit lengan tunggal: j1 bebas → **rank 22/23** (gauge: rotasi lengan di
+   sumbu j1 ≡ rotasi kamera) → j1 dikunci. arm_2 saja σ 0.65 px, arm_3 saja σ 0.25 px (22 parameter, 288/216 residu).
+   **Kamera tidak sepakat antar-lengan:** rgbd 1.76° / 5.1 cm, rgbd2 1.59° / 9.4 cm; **pose relatif rgbd→rgbd2 (invarian gauge
+   dunia) 1.95° / 6.6 cm** vs std 0.10–0.25° / 1.7–4.8 mm ✗. Transfer (kamera dibekukan dari X, fit T_lb + parameter lengan Y):
+
+   | Sumber → target | (a) j1–j5 | (d) rotG + j2–j5 | (b) j1–j5 + basis 5 |
+   |---|---|---|---|
+   | arm_2 → arm_3 | σ 12.97 px, G3 ✗ (82/112) | σ 9.61, ✗ | σ 0.75, G3 ✗ (rgbd2 15.4/29.9, rgbd 16.7/19.3) |
+   | arm_3 → arm_2 | σ 13.65, ✗ | σ 8.89, ✗ (G6′ 2.01 ✗) | σ 2.65, ✗ (rgbd2 22.7/24.2) |
+
+   Varian (b) "lulus hampir" hanya karena basis 6-DOF target menyerap transformasi kaku → yang tersisa diuji = pose relatif dua
+   kamera, dan itu gagal. **Tidak ada model yang sah** menurut kriteria tugas 3.
+4. **Jangkar lama (`anchor.log`, `anchor_tape.log`).** Kamera sesi jari = incumbent persis (0.000°). Vs incumbent + koreksi G34
+   (rel/awan lengan REST): semua kandidat beda 1.26–5.86° / 1.4–24.8 cm; relatif rgbd→rgbd2 2.2–5.3° / 7–15 cm (G34 sendiri
+   tak sepakat antar-kamera ~5 cm / 2–3°, memori camera-world-vs-urdf-offset). **Cek pita ARM1-ZONE** (botol di tanda (1.75, 0.55)
+   terbaca rgbd2 +G34 di (1.858, 0.654, 0.836) = 15.0 cm): bacaan dipindah ke kamera kandidat → 14.5 (Mb) … 17.9 cm (Ma/Me) —
+   **tak satu pun mendekatkan ke tanda ✗** (catatan: bias kedalaman botol +8 cm sepanjang sinar, B64 CAM-6DOF, ikut di angka ini).
+5. **Tafsir ulang angka lama:** "R0 5 mm" di B3.7 = residu lateral R0 di bawah model gabungan, BUKAN G6′. G6′ resmi lulus
+   (≤ 1.64 mm) di semua model — pergeseran papan antar-R0 kecil; masalahnya identifikasi kamera↔kinematika, bukan geser.
+6. **Tidak dijalankan:** LOO per pose (tidak mengubah kesimpulan: validasi antar-lengan sudah gagal); model jari-ikut-papan ulang
+   (M1 B3.7 sudah ✗); mock/kamera/HW (tidak perlu).
+
+### B6. Papan skor G63c (✓/✗ harfiah)
+
+| Tugas | Hasil | Bukti |
+|---|---|---|
+| 1 Penjaga papan identik | ✓ | B-13 ditolak 30/30 frame; 38/38 benar tetap; 0 hilang (aturan dirancang dengan B-13 terlihat — bukan uji buta) |
+| 2 Model kinematik (a)/(b)/(c) + degenerasi | ✓ dijalankan / ✗ model unik | (a),(b),(d) lulus G3+G6′, (c) ✗; Mb_raw rank 38/40; kamera antar-model beda ≤ 4.1° / 10 cm ≫ std |
+| 3 Validasi silang antar-lengan | ✗ | relatif kamera 1.95° / 6.6 cm; transfer 0/6 lulus G3; cek pita 0/5 membaik; G34 tak sepakat |
+| 4 Amandemen §A | tidak dibuat | tidak ada model tervalidasi → B7 (yang kurang + rencana minimal) |
+
+**Ekstrinsik dari data jari TIDAK sah, tidak dipasang.** Kinematika lengan (offset 1–3° per sendi, pilihan model mana pun) dan
+kamera tak terpisahkan dengan data ini.
+
+### B7. Yang kurang + rencana minimal (usul, butuh persetujuan operator sebelum §A baru)
+
+**Akar masalah:** jalur "papan di lengan, acuan = FK" hanya sah bila FK benar. Gen3 Lite di sel ini punya galat kinematik
+1–3°/sendi (semua model), dan dengan kamera bebas setiap rotasi vertikal per lengan adalah gauge → kamera di "dunia URDF" tidak
+bisa ditentukan dari gambar lengan saja. Lebih banyak pose lengan TIDAK menyelesaikan gauge (ii); butuh **jangkar dunia yang
+tidak lewat FK sendi**.
+
+**Rencana minimal (NOL gerak lengan, kamera saja):**
+1. **S-A papan statis berjangkar pita:** 3–4 papan polos A4 yang sama (4×5 @ 42 mm, penjaga ID dengan prior dari posisi pita)
+   ditempel DATAR di permukaan tetap (meja kerja z 0.770, lantai, atas lemari laci) tersebar ≥ 1 m, tiap kamera melihat ≥ 2–3.
+   Posisi tiap papan diukur pita dari **titik unting-unting sumbu j1 lengan di REST** (posisi basis hanya bergantung rel + dudukan:
+   G34 rel = URDF ≤ 1 cm; pita basis-basis 0.80 = URDF) — bukan dari ujung tool (FK sendi). Ketelitian target ±3 mm / ±0.5°.
+2. **Solve:** PnP multi-papan per kamera → T_wc; validasi silang **tinggalkan-satu-papan** (prediksi papan yang ditinggal ≤ G3)
+   + kesepakatan dua kamera pada papan yang dilihat keduanya (G4) — semuanya bebas dari kinematika lengan.
+3. **S-B (luring, data jari yang ADA):** kamera dibekukan dari S-A → fit offset kinematik per lengan (`g63c_cross.py` mode
+   `cams_fixed`) → apakah arm_2/arm_3 konsisten (mis. j1 +3°?) → keputusan terpisah: koreksi kinematik untuk demo/MoveIt (fase
+   sendiri, bukan G63).
+4. Bila operator menolak papan statis: alternatif = dudukan kaku (klem/pelat) + ≥ 15 pose/lengan/kamera dengan sapuan j1 lebar
+   **dan** jangkar statis yang sama — tetap butuh butir 1.
+
+Pertanyaan untuk operator (belum ditanyakan): boleh menempel 3–4 papan A4 polos di meja/lantai/atas laci? siapa mengukur pita
+dari titik unting-unting basis? papan di jari arm_2/arm_3 boleh tetap (tidak mengganggu S-A bila di luar bingkai)?
