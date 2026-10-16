@@ -1,0 +1,423 @@
+{
+ "margin": 0.05,
+ "sq": 0.041,
+ "surf": {
+  "lantai": [
+   null,
+   null,
+   0.0,
+   "z 0"
+  ],
+  "laci": [
+   [
+    0.65,
+    0.98
+   ],
+   [
+    0.4,
+    0.72
+   ],
+   0.7,
+   "atas lemari laci, tinggi diukur operator"
+  ],
+  "meja_kerja": [
+   [
+    1.1500000000000001,
+    2.1300000000000003
+   ],
+   [
+    0.51,
+    0.89
+   ],
+   0.77,
+   "operator 0.770"
+  ],
+  "meja_tinggi": [
+   [
+    0.87,
+    1.37
+   ],
+   [
+    -1.25,
+    -0.75
+   ],
+   0.98,
+   "operator 0.98"
+  ],
+  "kotak_A": [
+   "kotak",
+   [
+    0.47,
+    0.35
+   ],
+   0.31,
+   "kotak A di lantai, papan di tengah atas"
+  ],
+  "kotak_B": [
+   "kotak",
+   [
+    0.423,
+    0.268
+   ],
+   0.48,
+   "kotak B di lantai, papan di tengah atas"
+  ],
+  "laci_pindah": [
+   "kotak",
+   [
+    0.33,
+    0.32
+   ],
+   0.7,
+   "lemari laci DIPINDAH sementara (izin operator), papan di atas"
+  ]
+ },
+ "boards": [
+  {
+   "name": "S1",
+   "surf": "kotak_A",
+   "center": [
+    0.8,
+    -0.3,
+    0.31
+   ],
+   "yaw_deg": 90.0,
+   "K1": [
+    0.698,
+    -0.382,
+    0.31
+   ],
+   "K2": [
+    0.903,
+    -0.382,
+    0.31
+   ],
+   "tape_cm": {
+    "P3": [
+     29.7,
+     50.2
+    ],
+    "P2": [
+     80.1,
+     74.8
+    ],
+    "P4": [
+     109.7,
+     130.2
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 2.308,
+     "ang": 39.983,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 10.291,
+     "env_clear": 0.05,
+     "ok": true
+    },
+    "rgbd2": {
+     "dist": 2.145,
+     "ang": 33.881,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 11.582,
+     "env_clear": 0.123,
+     "ok": true
+    }
+   }
+  },
+  {
+   "name": "S2",
+   "surf": "kotak_B",
+   "center": [
+    1.35,
+    0.15,
+    0.48
+   ],
+   "yaw_deg": 90.0,
+   "K1": [
+    1.248,
+    0.068,
+    0.48
+   ],
+   "K2": [
+    1.453,
+    0.068,
+    0.48
+   ],
+   "tape_cm": {
+    "P2": [
+     38.3,
+     53.9
+    ],
+    "P1": [
+     62.5,
+     45.4
+    ],
+    "P3": [
+     94.9,
+     113.5
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 1.789,
+     "ang": 26.707,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 14.77,
+     "env_clear": 0.055,
+     "ok": true
+    },
+    "rgbd2": {
+     "dist": 2.495,
+     "ang": 49.801,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 8.294,
+     "ok": false
+    }
+   }
+  },
+  {
+   "name": "S3",
+   "surf": "laci_pindah",
+   "center": [
+    0.55,
+    -0.55,
+    0.7
+   ],
+   "yaw_deg": 0.0,
+   "K1": [
+    0.468,
+    -0.447,
+    0.7
+   ],
+   "K2": [
+    0.468,
+    -0.652,
+    0.7
+   ],
+   "tape_cm": {
+    "P3": [
+     11.0,
+     30.0
+    ],
+    "P4": [
+     87.2,
+     91.5
+    ],
+    "P2": [
+     96.7,
+     114.4
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 2.294,
+     "ang": 53.082,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 9.818,
+     "env_clear": 0.118,
+     "ok": true
+    },
+    "rgbd2": {
+     "dist": 1.628,
+     "ang": 31.344,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 15.666,
+     "env_clear": 0.174,
+     "ok": true
+    }
+   }
+  },
+  {
+   "name": "S4",
+   "surf": "lantai",
+   "center": [
+    0.25,
+    0.25,
+    0.0
+   ],
+   "yaw_deg": 0.0,
+   "K1": [
+    0.168,
+    0.353,
+    0.0
+   ],
+   "K2": [
+    0.168,
+    0.148,
+    0.0
+   ],
+   "tape_cm": {
+    "P3": [
+     75.0,
+     55.8
+    ],
+    "P2": [
+     83.2,
+     85.9
+    ],
+    "P4": [
+     91.1,
+     76.1
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 2.617,
+     "ang": 37.429,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 8.358,
+     "ok": false
+    },
+    "rgbd2": {
+     "dist": 2.479,
+     "ang": 32.516,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 10.45,
+     "env_clear": 0.155,
+     "ok": true
+    }
+   }
+  },
+  {
+   "name": "S5",
+   "surf": "lantai",
+   "center": [
+    0.75,
+    0.0,
+    0.0
+   ],
+   "yaw_deg": 0.0,
+   "K1": [
+    0.668,
+    0.103,
+    0.0
+   ],
+   "K2": [
+    0.668,
+    -0.102,
+    0.0
+   ],
+   "tape_cm": {
+    "P2": [
+     42.0,
+     56.9
+    ],
+    "P3": [
+     53.4,
+     37.1
+    ],
+    "P1": [
+     116.1,
+     122.3
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 2.45,
+     "ang": 31.979,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 10.277,
+     "env_clear": 0.003,
+     "ok": false
+    },
+    "rgbd2": {
+     "dist": 2.496,
+     "ang": 33.108,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 10.088,
+     "env_clear": 0.238,
+     "ok": true
+    }
+   }
+  },
+  {
+   "name": "S6",
+   "surf": "lantai",
+   "center": [
+    1.25,
+    -0.4,
+    0.0
+   ],
+   "yaw_deg": 90.0,
+   "K1": [
+    1.148,
+    -0.482,
+    0.0
+   ],
+   "K2": [
+    1.353,
+    -0.482,
+    0.0
+   ],
+   "tape_cm": {
+    "P3": [
+     75.7,
+     95.9
+    ],
+    "P2": [
+     85.5,
+     91.3
+    ],
+    "P1": [
+     106.5,
+     95.4
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 2.478,
+     "ang": 32.986,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 10.358,
+     "env_clear": 0.214,
+     "ok": true
+    },
+    "rgbd2": {
+     "dist": 2.594,
+     "ang": 36.295,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 8.781,
+     "ok": false
+    }
+   }
+  }
+ ],
+ "pred": {
+  "rgbd": {
+   "n": 4,
+   "spread": 1.09,
+   "rot_deg": 0.58,
+   "pos_mm": 22.9,
+   "pt_err_mm_med_p95_n": [
+    6.5,
+    18.3,
+    248
+   ]
+  },
+  "rgbd2": {
+   "n": 4,
+   "spread": 1.1,
+   "rot_deg": 0.592,
+   "pos_mm": 24.2,
+   "pt_err_mm_med_p95_n": [
+    9.3,
+    27.8,
+    263
+   ]
+  }
+ },
+ "n_candidates": 21053
+}

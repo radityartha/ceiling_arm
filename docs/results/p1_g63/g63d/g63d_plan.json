@@ -1,0 +1,404 @@
+{
+ "margin": 0.1,
+ "sq": 0.041,
+ "surf": {
+  "lantai": [
+   null,
+   null,
+   0.0,
+   "z 0"
+  ],
+  "laci": [
+   [
+    0.65,
+    0.98
+   ],
+   [
+    0.4,
+    0.72
+   ],
+   0.7,
+   "atas lemari laci, tinggi diukur operator"
+  ],
+  "meja_kerja": [
+   [
+    1.1500000000000001,
+    2.1300000000000003
+   ],
+   [
+    0.51,
+    0.89
+   ],
+   0.77,
+   "operator 0.770"
+  ],
+  "meja_tinggi": [
+   [
+    0.87,
+    1.37
+   ],
+   [
+    -1.25,
+    -0.75
+   ],
+   0.98,
+   "operator 0.98"
+  ],
+  "kotak_A": [
+   "kotak",
+   [
+    0.47,
+    0.35
+   ],
+   0.31,
+   "kotak A di lantai, papan di tengah atas"
+  ],
+  "kotak_B": [
+   "kotak",
+   [
+    0.423,
+    0.268
+   ],
+   0.48,
+   "kotak B di lantai, papan di tengah atas"
+  ]
+ },
+ "boards": [
+  {
+   "name": "S1",
+   "surf": "kotak_B",
+   "center": [
+    0.2,
+    0.3,
+    0.48
+   ],
+   "yaw_deg": 0.0,
+   "K1": [
+    0.118,
+    0.403,
+    0.48
+   ],
+   "K2": [
+    0.118,
+    0.198,
+    0.48
+   ],
+   "tape_cm": {
+    "P3": [
+     81.3,
+     62.5
+    ],
+    "P2": [
+     88.3,
+     89.7
+    ],
+    "P4": [
+     92.1,
+     76.0
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 2.275,
+     "ang": 45.364,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 8.532,
+     "env_clear": 0.126,
+     "ok": true
+    },
+    "rgbd2": {
+     "dist": 2.112,
+     "ang": 40.315,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 11.25,
+     "env_clear": 0.11,
+     "ok": true
+    }
+   }
+  },
+  {
+   "name": "S2",
+   "surf": "kotak_B",
+   "center": [
+    0.5,
+    -0.3,
+    0.48
+   ],
+   "yaw_deg": 90.0,
+   "K1": [
+    0.398,
+    -0.382,
+    0.48
+   ],
+   "K2": [
+    0.603,
+    -0.382,
+    0.48
+   ],
+   "tape_cm": {
+    "P3": [
+     2.2,
+     20.3
+    ],
+    "P4": [
+     79.7,
+     100.2
+    ],
+    "P2": [
+     95.6,
+     84.2
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 2.322,
+     "ang": 46.512,
+     "in_img": true,
+     "arm_occ": true,
+     "sq_px": 9.756,
+     "ok": false
+    },
+    "rgbd2": {
+     "dist": 1.882,
+     "ang": 31.137,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 13.616,
+     "env_clear": 0.227,
+     "ok": true
+    }
+   }
+  },
+  {
+   "name": "S3",
+   "surf": "kotak_B",
+   "center": [
+    0.9,
+    -0.3,
+    0.48
+   ],
+   "yaw_deg": 90.0,
+   "K1": [
+    0.798,
+    -0.382,
+    0.48
+   ],
+   "K2": [
+    1.003,
+    -0.382,
+    0.48
+   ],
+   "tape_cm": {
+    "P3": [
+     39.7,
+     60.2
+    ],
+    "P2": [
+     76.9,
+     74.2
+    ],
+    "P4": [
+     119.7,
+     140.2
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 2.14,
+     "ang": 41.685,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 10.977,
+     "env_clear": 0.105,
+     "ok": true
+    },
+    "rgbd2": {
+     "dist": 2.055,
+     "ang": 38.408,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 11.144,
+     "env_clear": 0.084,
+     "ok": false
+    }
+   }
+  },
+  {
+   "name": "S4",
+   "surf": "kotak_B",
+   "center": [
+    1.4,
+    0.0,
+    0.48
+   ],
+   "yaw_deg": 0.0,
+   "K1": [
+    1.318,
+    0.103,
+    0.48
+   ],
+   "K2": [
+    1.318,
+    -0.102,
+    0.48
+   ],
+   "tape_cm": {
+    "P2": [
+     40.9,
+     56.1
+    ],
+    "P1": [
+     54.6,
+     66.8
+    ],
+    "P3": [
+     102.7,
+     95.3
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 1.845,
+     "ang": 29.972,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 14.145,
+     "env_clear": 0.132,
+     "ok": true
+    },
+    "rgbd2": {
+     "dist": 2.46,
+     "ang": 49.101,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 8.215,
+     "env_clear": 0.102,
+     "ok": true
+    }
+   }
+  },
+  {
+   "name": "S5",
+   "surf": "lantai",
+   "center": [
+    0.25,
+    0.25,
+    0.0
+   ],
+   "yaw_deg": 0.0,
+   "K1": [
+    0.168,
+    0.353,
+    0.0
+   ],
+   "K2": [
+    0.168,
+    0.148,
+    0.0
+   ],
+   "tape_cm": {
+    "P3": [
+     75.0,
+     55.8
+    ],
+    "P2": [
+     83.2,
+     85.9
+    ],
+    "P4": [
+     91.1,
+     76.1
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 2.617,
+     "ang": 37.429,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 8.358,
+     "ok": false
+    },
+    "rgbd2": {
+     "dist": 2.479,
+     "ang": 32.516,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 10.45,
+     "env_clear": 0.155,
+     "ok": true
+    }
+   }
+  },
+  {
+   "name": "S6",
+   "surf": "lantai",
+   "center": [
+    1.25,
+    -0.4,
+    0.0
+   ],
+   "yaw_deg": 90.0,
+   "K1": [
+    1.148,
+    -0.482,
+    0.0
+   ],
+   "K2": [
+    1.353,
+    -0.482,
+    0.0
+   ],
+   "tape_cm": {
+    "P3": [
+     75.7,
+     95.9
+    ],
+    "P2": [
+     85.5,
+     91.3
+    ],
+    "P1": [
+     106.5,
+     95.4
+    ]
+   },
+   "vis": {
+    "rgbd": {
+     "dist": 2.478,
+     "ang": 32.986,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 10.358,
+     "env_clear": 0.214,
+     "ok": true
+    },
+    "rgbd2": {
+     "dist": 2.594,
+     "ang": 36.295,
+     "in_img": true,
+     "arm_occ": false,
+     "sq_px": 8.781,
+     "ok": false
+    }
+   }
+  }
+ ],
+ "pred": {
+  "rgbd": {
+   "n": 4,
+   "spread": 1.35,
+   "rot_deg": 0.583,
+   "pos_mm": 22.5
+  },
+  "rgbd2": {
+   "n": 4,
+   "spread": 1.27,
+   "rot_deg": 0.563,
+   "pos_mm": 22.1
+  }
+ },
+ "n_candidates": 15785
+}
