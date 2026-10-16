@@ -63,3 +63,27 @@
 - (jari blok T2) [GERAK] arm_2 A-R0
 - (jari) operator: "REST + analisis luring dulu" sesudah T2
 - (jari blok T2) [GERAK] arm_2 REST
+- (jari) operator: "Lanjut arm_3 sekarang"
+- (jari) operator: "P0+T1+T2 sekaligus" (arm_3)
+- (jari blok P0) [GERAK] arm_3 B-R0
+- (jari blok P0) [GERAK] arm_3 B-01
+- (jari blok P0) [GERAK] arm_3 B-02
+- (jari blok P0) [GERAK] arm_3 B-03
+- (jari blok P0) [GERAK] arm_3 B-R0
+- (jari blok T1) [GERAK] arm_3 B-04
+- (jari blok T1) [GERAK] arm_3 B-05
+- (jari blok T1) [GERAK] arm_3 B-06
+- (jari blok T1) [GERAK] arm_3 B-07
+- (jari blok T1) [GERAK] arm_3 B-08
+- (jari blok T1) [GERAK] arm_3 B-09
+- (jari blok T1) [GERAK] arm_3 B-R0
+- (jari blok T2) [GERAK] arm_3 B-10
+- (jari blok T2) [GERAK] arm_3 B-11
+- (jari blok T2) [GERAK] arm_3 B-12
+- (jari blok T2) [GERAK] arm_3 B-13
+- (jari blok T2) [GERAK] arm_3 B-14
+- (jari blok T2) [GERAK] arm_3 B-15
+- (jari blok T2) [GERAK] arm_3 B-R0
+- (jari) B-R0 tangkap crash KeyError B (TF); operator: "Ulang tangkap, REST, tutup gripper"
+- (jari blok T2) [GERAK] arm_3 REST
+- (jari) operator: "Tutup, g1 tetap 1.40" -> shutdown; papan tetap di jari

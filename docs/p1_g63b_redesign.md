@@ -248,3 +248,57 @@ cadangan ini dicatat harfiah saat dipakai.
 **Langkah berikut G63b (luring):** dudukan rakitan tidak kaku pada beban P0 (geser ~5 mm/1.5° + lembar B melengkung) → rancang ulang
 dudukan (mis. pelat kaku/akrilik, klem mekanis ke badan gripper, bukan lakban) + uji kekakuan terukur (R0 → pose torsi tinggi → R0
 dengan kamera, G6′ ≤ 2 mm) SEBELUM blok kalibrasi; aturan diam j6 masuk §A baru; rakitan masih di arm_2 di g1 1.30.
+
+### B3. Lanjutan HW 2026-10-16 siang — CADANGAN JARI (§A6b; `results/p1_g63/g63b/hw_20261016_finger/`)
+
+1. **Pemicu (operator):** "sudah kita pindah ke gripper saja, sulit kl disini posisinya" → rakitan badan dilepas; gripper ditutup
+   lewat Kortex (arm_2 1.004, arm_3 0.963 = nilai 10-15); papan A polos di jari arm_2, B di jari arm_3 (foto `arm2.jpeg`/`arm3.jpeg`
+   di root, lokal; latar foto = latar kamera tujuan; klip kertas di 4 sudut). Rel g1 1.30 → **1.40** (stack hidup kembali; operator
+   "geser sekrang arm 2. aman saya jamin"; DRY CLEAR, galat −0.00 mm). `g63_k0` jari tertutup LULUS. Payload `mount_finger.json`, attach A+B OK.
+2. **Interaksi:** operator minta persetujuan lewat tombol (AskUserQuestion) → izin per BLOK dengan stop otomatis
+   (`run_block.sh`: DRY harus PLANNED, gerak harus SUCCESS, torsi ≤ 14, tangkap rc 0, R0 harus terdeteksi).
+3. **Data:** arm_2 P0+T1+T2 (23 entri) + arm_3 P0+T1+T2 (19 entri); **semua gerak MOVED+SUCCESS, torsi puncak ≤ 12.41 N.m, 0 fault /
+   REJECTED / GOAL-MISMATCH eksekusi**. Plan-only berantai per tahap semua PLANNED (arm_2 6/6, 9/9, 9/9; arm_3 6/6, 9/9, 9/9).
+   Lampu ruangan dimatikan sesudah A-01 (operator: silau) → A-01 0 → 12/12. Tak terdeteksi: arm_3 B-01, B-05, B-12 (dekat/jauh).
+   Henti otomatis: A-07 rc 3 (j1 berayun ~4 s, lalu tenang → tangkap ulang atas izin); B-R0 rc 1 = crash `g63_capture` KeyError 'B'
+   (lookup TF sesaat gagal → prior kosong; tidak ditangani alat) → tangkap ulang atas izin. `rec_health` 0 frame < 10 %.
+4. **Jari (G7):** arm_2 0.808 → 0.791 di A-03 (−0.98° > 0.5°) → stop + tanya → operator "tidak apa2 lanjutkan saja"; arm_2 bergerak
+   0.775–0.810 dan PULIH di REST (0.8093 sesudah jeda). arm_3 membuka **progresif 0.774 → 0.693 (−4.6°)** tanpa berhenti
+   (🔴 saya tidak berhenti untuk bertanya — aturan arm_2 diterapkan diam-diam ke arm_3; operator menegur "kenapa gak diperbaiki dulu").
+   Sesudah blok kedua gripper ditutup ulang via GripperCommand 0.96 (stall: arm_3 0.783, arm_2 0.810).
+5. 🔴 **Label salah (D639):** B-13 rgbd2 — papan A arm_2 (REST, tengah bingkai) terbaca sebagai papan B (B dekat kamera 0.97 m →
+   ROI prior lebar mencakup A). Dua papan polos IDENTIK di bingkai = celah penjaga (§A3 tidak membedakan papan identik). Dibuang dari
+   solve dengan alasan tertulis (`ds_finger_all_noB13.json`).
+6. **Solve resmi (`g63b_solve`, model kaku `tool_frame`):** arm_2 P0+T1 σ 0.50 px, G6′ resmi (lateral) ≤ 1.66 mm ✓, rgbd2 kurang
+   teramati; P0+T1+T2 σ 2.73 px (galat per pose 2–15 mm), G3 uji-tahan rgbd 1.19 / rgbd2 0.98 cm, R0 akhir 2.35 mm; gabungan
+   kedua lengan tanpa B-13 σ 5.96 px, R0 arm_3 lateral maks 2.84 mm (G6′ ✗) → **TOLAK** di semua varian.
+   "5 mm" G6′ manual sebelumnya = komponen KEDALAMAN PnP (lampu nyala vs mati), bukan lateral; pergeseran R0 tidak sebanding sudut jari.
+7. **Analisis luring (eksperimen, BUKAN alat terkunci; skrip + log di folder sesi):** model papan-ikut-jari (M1) tidak membantu;
+   lendutan ∝ gravitasi (M2/M3) tidak stabil/overfit. **Offset nol sendi per lengan** (FK pinocchio dari sudut terekam, cocok TF
+   ≤ 0.16 mm): arm_2 saja σ 2.73 → 0.65 px, R0 4.1 → 1.6 mm; kedua lengan (j1–j5; j6 setara T_lb → dikunci 0) σ 5.96 → **1.19 px**,
+   uji-tahan med/p95 7.0/27.3 mm, R0 5.4/8.4 mm, std kamera 0.09°/1.6 mm & 0.12°/3.7 mm; kamera vs incumbent rgbd 1.45°/8.7 cm,
+   rgbd2 1.51°/2.7 cm; offset arm_2 [3.20 0.20 1.72 −2.05 −1.80]°, arm_3 [2.74 −1.86 0.85 −1.35 −0.64]° (±0.07–0.24).
+   **Tafsiran:** galat dominan = kinematika lengan (Gen3 Lite tanpa kalibrasi kinematik), bukan dudukan/kamera. j1 ≈ +3° di KEDUA
+   lengan mencurigakan (kemungkinan rotasi bersama yang tak dimodelkan: acuan rotasi gantry / dunia) → **ekstrinsik BELUM sah,
+   tidak dipasang**; uji-tahan p95 27 mm & R0 5 mm masih di atas gerbang.
+8. **Akhir:** semua REST, gripper tertutup, papan TETAP di jari (operator), g1 **1.40**, g2 0; K0 G63 LULUS; shutdown SIGINT per PGID,
+   domain kosong. Frame (3.5 GB, ada orang) lokal saja.
+
+### B4. Papan skor akhir (semua blok hari ini; ✓/✗ harfiah)
+
+| # | Hasil | Bukti |
+|---|---|---|
+| D639 | ✗ | badan: 6/8; jari: tak terdeteksi 4 pose (A-01 lampu nyala, B-01, B-05, B-12) + **1 label salah (B-13)** |
+| D640 | ✓ | std sudut ≤ 0.18 px semua deteksi |
+| D641 | ✗ | jari arm_2 −1.9°, arm_3 −4.6° (mode jari); badan ✓ 0.01° |
+| D642 | ✗ | badan: j6 berburu (2 tolak); jari: A-07 j1 berayun (rc 3) |
+| D643 | ✓ (badan) / n.a. (jari, satu muka) | |
+| D644 | ✓ | torsi puncak ≤ 12.41 N·m semua gerak |
+| D645 | tidak dinilai | tidak ada solve sah |
+| D632–D635 | tidak teruji | tidak ada solve sah |
+| D638 | ✓ | rec_health 0 frame < 10 % (badan + jari, ±690 k frame) |
+
+**Langkah berikut G63b (luring, data cukup):** (1) penjaga detektor untuk papan identik (B-13); (2) model kinematik: uji apakah j1 ≈ +3°
+bersama = acuan rotasi gantry/dunia (tambah rotasi gantry/basis sebagai parameter, bandingkan uji-tahan), validasi silang arm_2↔arm_3
+(fit satu lengan, uji lengan lain); (3) bila model tervalidasi → amandemen §A tertulis (model kinematik + gerbang) SEBELUM dipakai;
+HW hanya bila data tambahan terbukti perlu. Keadaan sel: papan di jari arm_2/arm_3, g1 1.40.

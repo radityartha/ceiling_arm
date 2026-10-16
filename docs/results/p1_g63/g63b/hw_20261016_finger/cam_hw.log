@@ -87,3 +87,109 @@
 [realsense2_camera_node-1]  16/10 12:54:33,251 ERROR [140499587397184] (ds-options.cpp:93) Asic Temperature value is not valid!
 [realsense2_camera_node-1]  16/10 13:14:45,412 ERROR [140499587397184] (ds-options.cpp:93) Asic Temperature value is not valid!
 [realsense2_camera_node-1]  16/10 13:14:47,413 ERROR [140499587397184] (ds-options.cpp:93) Asic Temperature value is not valid!
+[realsense2_camera_node-6]  16/10 14:39:32,107 ERROR [134554782250560] (ds-options.cpp:93) Asic Temperature value is not valid!
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[static_transform_publisher-10] [INFO] [1792130219.471272358] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [seg_router-11]: sending signal 'SIGINT' to process[seg_router-11]
+[INFO] [static_transform_publisher-10]: sending signal 'SIGINT' to process[static_transform_publisher-10]
+[INFO] [relay-9]: sending signal 'SIGINT' to process[relay-9]
+[INFO] [relay-8]: sending signal 'SIGINT' to process[relay-8]
+[INFO] [convert_metric_node-7]: sending signal 'SIGINT' to process[convert_metric_node-7]
+[ERROR] [static_transform_publisher-10]: process has died [pid 1403188, exit code -2, cmd '/opt/ros/humble/lib/tf2_ros/static_transform_publisher --x -0.1547 --y -1.0197 --z 2.0905 --roll -2.2369 --pitch -0.1285 --yaw -0.9189 --frame-id world --child-frame-id rgbd2_camera_optical --ros-args -r __node:=rgbd2_world_tf'].
+[INFO] [realsense2_camera_node-6]: sending signal 'SIGINT' to process[realsense2_camera_node-6]
+[ERROR] [relay-9]: process has died [pid 1403186, exit code -2, cmd '/opt/ros/humble/lib/topic_tools/relay /rgbd2/rgbd2/color/camera_info /rgbd2/camera_info --ros-args -r __node:=rgbd2_relay_info'].
+[INFO] [static_transform_publisher-5]: sending signal 'SIGINT' to process[static_transform_publisher-5]
+[ERROR] [relay-8]: process has died [pid 1403184, exit code -2, cmd '/opt/ros/humble/lib/topic_tools/relay /rgbd2/rgbd2/color/image_raw /rgbd2/rgb --ros-args -r __node:=rgbd2_relay_rgb'].
+[INFO] [relay-4]: sending signal 'SIGINT' to process[relay-4]
+[INFO] [relay-3]: sending signal 'SIGINT' to process[relay-3]
+[INFO] [convert_metric_node-2]: sending signal 'SIGINT' to process[convert_metric_node-2]
+[INFO] [realsense2_camera_node-1]: sending signal 'SIGINT' to process[realsense2_camera_node-1]
+[ERROR] [static_transform_publisher-5]: process has died [pid 1403178, exit code -2, cmd '/opt/ros/humble/lib/tf2_ros/static_transform_publisher --x 1.7166 --y 0.8656 --z 2.0782 --roll -2.3436 --pitch -0.1488 --yaw 2.1688 --frame-id world --child-frame-id rgbd_camera_optical --ros-args -r __node:=rgbd_world_tf'].
+[ERROR] [relay-4]: process has died [pid 1403176, exit code -2, cmd '/opt/ros/humble/lib/topic_tools/relay /rgbd/rgbd/color/camera_info /rgbd/camera_info --ros-args -r __node:=rgbd_relay_info'].
+[relay-8] [INFO] [1792130219.471277996] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [relay-3]: process has died [pid 1403174, exit code -2, cmd '/opt/ros/humble/lib/topic_tools/relay /rgbd/rgbd/color/image_raw /rgbd/rgb --ros-args -r __node:=rgbd_relay_rgb'].
+[realsense2_camera_node-6] [INFO] [1792130219.471293658] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[convert_metric_node-2] [INFO] [1792130219.471298021] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[relay-4] [INFO] [1792130219.471304954] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[convert_metric_node-7] [INFO] [1792130219.471474384] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[relay-9] [INFO] [1792130219.471513916] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[static_transform_publisher-5] [INFO] [1792130219.471531890] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-1] [INFO] [1792130219.471599980] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-1] [INFO] [1792130219.472302884] [rgbd.rgbd]: Stop Sensor: Depth Module
+[realsense2_camera_node-1] [INFO] [1792130219.472319897] [rgbd.rgbd]: Close Sensor. 
+[relay-3] [INFO] [1792130219.472009780] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-6] [INFO] [1792130219.472141727] [rgbd2.rgbd2]: Stop Sensor: Depth Module
+[realsense2_camera_node-6] [INFO] [1792130219.472164177] [rgbd2.rgbd2]: Close Sensor. 
+[seg_router-11] Traceback (most recent call last):
+[seg_router-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/build/reachability_gng/reachability_gng/seg_router.py", line 332, in main
+[seg_router-11]     rclpy.spin(node)
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[seg_router-11]     executor.spin_once()
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+[seg_router-11]     self._spin_once_impl(timeout_sec)
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 803, in _spin_once_impl
+[seg_router-11]     handler()
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/task.py", line 256, in __call__
+[seg_router-11]     self._execute_coroutine_step(self._handler)
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/task.py", line 272, in _execute_coroutine_step
+[seg_router-11]     result = coro.send(None)
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 488, in handler
+[seg_router-11]     await call_coroutine(entity, arg)
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 407, in _execute_subscription
+[seg_router-11]     await await_or_execute(sub.callback, msg)
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 110, in await_or_execute
+[seg_router-11]     return callback(*args)
+[seg_router-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/build/reachability_gng/reachability_gng/seg_router.py", line 165, in <lambda>
+[seg_router-11]     lambda m, ns=ns: self._on_rgb(ns, m), 1)
+[seg_router-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/build/reachability_gng/reachability_gng/seg_router.py", line 243, in _on_rgb
+[seg_router-11]     self._infer(ns, msg)
+[seg_router-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/build/reachability_gng/reachability_gng/seg_router.py", line 251, in _infer
+[seg_router-11]     res = model.predict(img, conf=self.conf, imgsz=self.imgsz,
+[seg_router-11]   File "/home/user1/.local/lib/python3.10/site-packages/ultralytics/models/yolo/model.py", line 442, in predict
+[seg_router-11]     return super().predict(source, stream, **kwargs)
+[seg_router-11]   File "/home/user1/.local/lib/python3.10/site-packages/ultralytics/engine/model.py", line 542, in predict
+[seg_router-11]     return self.predictor.predict_cli(source=source) if is_cli else self.predictor(source=source, stream=stream)
+[seg_router-11]   File "/home/user1/.local/lib/python3.10/site-packages/ultralytics/engine/predictor.py", line 229, in __call__
+[seg_router-11]     return list(self.stream_inference(source, model, *args, **kwargs))  # merge list of Results into one
+[seg_router-11]   File "/home/user1/.local/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 36, in generator_context
+[seg_router-11]     response = gen.send(None)
+[seg_router-11]   File "/home/user1/.local/lib/python3.10/site-packages/ultralytics/engine/predictor.py", line 337, in stream_inference
+[seg_router-11]     with profilers[1]:
+[seg_router-11]   File "/home/user1/.local/lib/python3.10/site-packages/ultralytics/utils/ops.py", line 60, in __exit__
+[seg_router-11]     self.dt = self.time() - self.start  # delta-time
+[seg_router-11]   File "/home/user1/.local/lib/python3.10/site-packages/ultralytics/utils/ops.py", line 70, in time
+[seg_router-11]     torch.cuda.synchronize(self.device)
+[seg_router-11]   File "/home/user1/.local/lib/python3.10/site-packages/torch/cuda/__init__.py", line 954, in synchronize
+[seg_router-11]     return torch._C._cuda_synchronize()
+[seg_router-11] KeyboardInterrupt
+[seg_router-11] 
+[seg_router-11] During handling of the above exception, another exception occurred:
+[seg_router-11] 
+[seg_router-11] Traceback (most recent call last):
+[seg_router-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/seg_router", line 33, in <module>
+[seg_router-11]     sys.exit(load_entry_point('reachability-gng', 'console_scripts', 'seg_router')())
+[seg_router-11]   File "/home/user1/Documents/ceiling_arm/ros2_ws/build/reachability_gng/reachability_gng/seg_router.py", line 334, in main
+[seg_router-11]     node.destroy_node()
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1685, in destroy_node
+[seg_router-11]     self.destroy_publisher(self._publishers[0])
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1565, in destroy_publisher
+[seg_router-11]     publisher.destroy()
+[seg_router-11]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/publisher.py", line 99, in destroy
+[seg_router-11]     self.__publisher.destroy_when_not_in_use()
+[seg_router-11] KeyboardInterrupt
+[ERROR] [convert_metric_node-2]: process has died [pid 1403172, exit code -2, cmd '/opt/ros/humble/lib/depth_image_proc/convert_metric_node --ros-args -r __node:=rgbd_convert_metric -r image_raw:=/rgbd/rgbd/aligned_depth_to_color/image_raw -r image:=/rgbd/depth'].
+[convert_metric_node-7] [INFO] [1792130219.499831389] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-6] [INFO] [1792130219.502414889] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[realsense2_camera_node-1] [INFO] [1792130219.511101389] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [convert_metric_node-7]: process has finished cleanly [pid 1403182]
+[ERROR] [seg_router-11]: process has died [pid 1403190, exit code -2, cmd '/home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/seg_router --ros-args -r __node:=seg_router --params-file /tmp/launch_params_c6h9wx9_'].
+[realsense2_camera_node-1] [INFO] [1792130220.237599817] [rgbd.rgbd]: Close Sensor - Done. 
+[realsense2_camera_node-1] [INFO] [1792130220.237615306] [rgbd.rgbd]: Stop Sensor: RGB Camera
+[realsense2_camera_node-1] [INFO] [1792130220.237618587] [rgbd.rgbd]: Close Sensor. 
+[realsense2_camera_node-6] [INFO] [1792130220.245547657] [rgbd2.rgbd2]: Close Sensor - Done. 
+[realsense2_camera_node-6] [INFO] [1792130220.245560765] [rgbd2.rgbd2]: Stop Sensor: RGB Camera
+[realsense2_camera_node-6] [INFO] [1792130220.245564333] [rgbd2.rgbd2]: Close Sensor. 
+[realsense2_camera_node-6] [INFO] [1792130220.959973110] [rgbd2.rgbd2]: Close Sensor - Done. 
+[realsense2_camera_node-1] [INFO] [1792130221.015319142] [rgbd.rgbd]: Close Sensor - Done. 
+[INFO] [realsense2_camera_node-6]: process has finished cleanly [pid 1403180]
+[INFO] [realsense2_camera_node-1]: process has finished cleanly [pid 1403170]

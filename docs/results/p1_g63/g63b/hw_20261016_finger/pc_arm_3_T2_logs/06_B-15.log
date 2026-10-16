@@ -1,0 +1,23 @@
+G63: penyaring memakai /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/hw_20261016_finger/payload_finger.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}, 'B': {'interarm': True, 'cross': True, 'env': True}}
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_3 (0.01845, -0.2155, 1.19409), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+  [ 1] DRY arm_3: p_cmd = (+0.018, -0.215, +1.194)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/hw_20261016_finger/pc_arm_3_T2_logs/06_B-15.json
+[INFO] [1792127742.430863992] [reach_dwell_probe]: percobaan rencana 2/8: yang sebelumnya NO-PLAN -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792127742.682693220] [reach_dwell_probe]: ujung rencana vs target: 0.80 mm, sumbu 0.14 deg
+[INFO] [1792127742.689747031] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.11->6.71/10, 2=5.37->13.07/14, 3=1.73->8.33/10, 4=0.20->2.18/7, 5=0.04->2.02/7, 6=0.01->1.99/7  (terketat t2_a1_joint_2 93 %)
+[INFO] [1792127754.485576350] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 129.8 mm di titik 241 (t2_a1_g63_board_0 <-> t2_a2_lower_wrist_link_0) -> CLEAR
+[INFO] [1792127754.491311482] [reach_dwell_probe]: G63: papan terpasang di scene {'g63_board_A': 't1_a2_tool_frame', 'g63_board_B': 't2_a1_tool_frame'}
+[INFO] [1792127754.808523252] [reach_dwell_probe]: G63: penyaring env = peta beku + 1850 voxel S0c (/home/user1/Documents/ceiling_arm/docs/results/p1_g63/s0c_extra_env.npz)
+[INFO] [1792127756.539833744] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 77.2 mm di titik 0 (t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792127757.596036147] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.000):
+[INFO] [1792127758.582112264] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 130.4 mm di titik 0/60 (t2_a1_g63_board_0 <-> t2_a2_lower_wrist_link_0)
+[INFO] [1792127758.583786631] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 407.2 mm di titik 35/60 (t1_a2_g63_board_0 <-> t2_a1_g63_board_0)
+[INFO] [1792127758.585111881] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 77.2 mm di titik 0/60 (t1_a2_g63_board_0)
+[INFO] [1792127758.591061882] [reach_dwell_probe]: CAM-6DOF margin: t2_a1_joint_2 93.387194% (batas 97%)

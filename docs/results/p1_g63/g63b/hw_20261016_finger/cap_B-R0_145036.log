@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/g63b_capture.py", line 94, in <module>
+    sys.exit(main())
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/g63b_capture.py", line 74, in main
+    return g63_capture.main()
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63_capture.py", line 257, in main
+    return capture(a) if a.cmd == 'capture' else merge(a)
+  File "/home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63_capture.py", line 167, in capture
+    if r[b]['ids']:
+KeyError: 'B'

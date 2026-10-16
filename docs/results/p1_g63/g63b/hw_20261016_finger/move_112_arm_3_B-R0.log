@@ -1,0 +1,25 @@
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+G63: penyaring memakai /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/hw_20261016_finger/payload_finger.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}, 'B': {'interarm': True, 'cross': True, 'env': True}}
+probe LANGKAH 5: arm_3, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_3 (0.37764, -0.15948, 1.01369), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1792128369.705728482] [reach_dwell_probe]: ujung rencana vs target: 2.27 mm, sumbu 0.22 deg
+[INFO] [1792128369.709249423] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.10->6.70/10, 2=4.06->11.76/14, 3=2.52->9.12/10, 4=0.40->2.38/7, 5=0.07->2.05/7, 6=0.01->1.99/7  (terketat t2_a1_joint_3 91 %)
+[INFO] [1792128382.114872565] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 370.6 mm di titik 14 (t1_a2_g63_board_0 <-> t2_a1_g63_board_0) -> CLEAR
+[INFO] [1792128382.121067739] [reach_dwell_probe]: G63: papan terpasang di scene {'g63_board_A': 't1_a2_tool_frame', 'g63_board_B': 't2_a1_tool_frame'}
+[INFO] [1792128382.455498895] [reach_dwell_probe]: G63: penyaring env = peta beku + 1850 voxel S0c (/home/user1/Documents/ceiling_arm/docs/results/p1_g63/s0c_extra_env.npz)
+[INFO] [1792128383.688902972] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 77.1 mm di titik 0 (t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792128384.744460628] [reach_dwell_probe]: retract g2 ['arm_3'] lurus (rel 0.001):
+[INFO] [1792128386.497182288] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 565.2 mm di titik 24/60 (t2_a1_g63_board_0 <-> t2_a2_upper_wrist_link_0)
+[INFO] [1792128386.498476029] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 559.3 mm di titik 53/60 (t1_a2_g63_board_0 <-> t2_a1_g63_board_0)
+[INFO] [1792128386.499825400] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 77.1 mm di titik 0/60 (t1_a2_g63_board_0)
+[INFO] [1792128386.502312956] [reach_dwell_probe]: CAM-6DOF margin: t2_a1_joint_3 91.215535% (batas 97%)
+       arm_3: moveit MOVED  (percobaan rencana: ['PLANNED'])
+  [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_3']) torsi puncak 10.74 N.m
+  TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+  -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/hw_20261016_finger/move_112_arm_3_B-R0.json
