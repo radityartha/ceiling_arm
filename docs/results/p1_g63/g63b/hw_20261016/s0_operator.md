@@ -23,3 +23,4 @@
 - P0 laporan -> operator: "oke a. sesuai rekomendasi. sudah saya singkirkan" (T1; papan lama lantai disingkirkan)
 - G6 manual R0#2/#3 vs #1: 5.3/5.0 mm, 1.59/1.52 deg; rgbd B 30/30 -> 12/30, 11/30. Operator inspeksi: "b, sepertinya aman saja tidak terlihat ada mmasalah" -> STOP sesi
 - [GERAK] arm_2 REST (akhir): "gerak"
+- (pasca-sesi) operator: "oke saya eprkuat lagi, buat gripper arm 2 menutup dulu" -> g63_gripper --arm arm_2 --close
