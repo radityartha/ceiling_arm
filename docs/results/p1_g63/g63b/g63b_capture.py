@@ -58,7 +58,9 @@ def main():
         g63_capture.BOARD_ARM = {'A': arm, 'B': arm}
     # §A6.1 (operator 2026-10-15): j4 judged by peak-to-peak <= limit (board motion <= 1.5 mm), see g63b_j4_limit.py
     lim = json.load(open(os.path.join(HERE, 'j4_limit.json')))['j4_pp_max_rad']
-    g63_capture.STILL_EXEMPT_PP = {'joint_4': float(lim)}
+    # §B deviasi (operator HW 2026-10-16 "b saja"): j6 arm_2 berburu pp 3.0e-3 rad di A-01 (tuas papan 54.7 mm -> 0.16 mm);
+    # angka j4 yang sama dipakai untuk j6 (konservatif, <= 0.25 mm papan), hw_20261016/j6_lever_check.py
+    g63_capture.STILL_EXEMPT_PP = {'joint_4': float(lim), 'joint_6': float(lim)}
     cmd = sys.argv[1]
     if cmd == 'capture':
         j = sys.argv.index('--mount')

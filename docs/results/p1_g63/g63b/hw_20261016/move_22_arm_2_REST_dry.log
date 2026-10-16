@@ -1,0 +1,22 @@
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+G63: penyaring memakai /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/hw_20261016/payload_arm_2.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}}
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_2, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_2 (0.8979080969852652, 0.29358247568375306, 0.9557453410236346), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1792116573.825566839] [reach_dwell_probe]: ujung rencana vs target: 1.41 mm, sumbu 0.07 deg
+[INFO] [1792116573.830464148] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.10->6.70/10, 2=4.40->12.10/14, 3=2.81->9.41/10, 4=0.45->2.43/7, 5=0.08->2.06/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 94 %)
+[INFO] [1792116585.572301436] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 427.6 mm di titik 0 (t1_a1_forearm_link_0 <-> t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792116585.598191641] [reach_dwell_probe]: G63: papan terpasang di scene {'g63_board_A': 't1_a2_gripper_base_link'}
+[INFO] [1792116585.977432212] [reach_dwell_probe]: G63: penyaring env = peta beku + 1850 voxel S0c (/home/user1/Documents/ceiling_arm/docs/results/p1_g63/s0c_extra_env.npz)
+[INFO] [1792116587.305446056] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 120.1 mm di titik 84 (t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792116588.361291916] [reach_dwell_probe]: CAM-6DOF margin: t1_a2_joint_3 94.115024% (batas 97%)
+  [ 1] DRY arm_2: p_cmd = (+0.898, +0.294, +0.956)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/hw_20261016/move_22_arm_2_REST_dry.json

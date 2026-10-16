@@ -193,3 +193,58 @@ cadangan ini dicatat harfiah saat dipakai.
    maks 93.49 %, env ≥ 52.1 mm), arm_3 27/27 (92.25 %, ≥ 77.2 mm)**, masing-masing 1 percobaan ditolak penjaga 97 % sebelum lintasan
    aman. Uji tangkap ROS (`g63b_capture --arm finger`, fakecam polos): A-R0 rgbd 12 sudut, B-R0 rgbd2 12 sudut (kamera = rencana),
    merge AJ/BJ, REST via `g63_move`; mock mati bersih.
+
+## B. Hasil terukur
+
+### B1. Sesi HW 2026-10-16 (`results/p1_g63/g63b/hw_20261016/`; jawaban operator harfiah di `s0_operator.md`)
+
+1. **S0:** sha §A 8/8 OK; domain 0/77/79/80 kosong; kamera rgbd 241122302297 / rgbd2 234222303079 FW 5.17.0.10; arm .10–.13 ping
+   OK; disk 24 GB bebas. Uji goyang: "insya Allah aman" → konfirmasi "a. ya sudah" (≤ 1–2 mm, kembali). Papan lama: "sudah"
+   (🔴 satu ChArUco lama masih di lantai kiri-bawah frame rgbd sampai sesudah P0 → disingkirkan; penjaga menahan, 0 label salah).
+   Kotak 42.0 mm.
+2. **§B menang — rakitan TIDAK bisa dilepas lagi** (operator: "saya tidak bisa lepas2 lagi papannya") → tiga deviasi §A2/runbook
+   atas izin operator: (a) rel g1 1.50 → 1.30 DENGAN rakitan (sweep luring `sweep_rail.log`: jarak rakitan–env model naik
+   monoton 35.9 → 120.1 mm, kotak MoveIt bersih mulai 1.37; nyata 65 mm di 1.50) — "ya geser saja aman"; (b) fase arm_3 ditunda
+   ("arm 3 kita pikir nanti"); (c) parkir akhir g1 **1.30**, bukan 1.50 (REST + rakitan di 1.50 = 35.9 mm model < margin 50).
+3. **K0 awal TOLAK:** arm_2 j3 −0.889°, j5 +0.687° (malam: +0.068/+0.019) — operator "nyala matikan tadi malam dan sempet kegeser
+   arena pemasangan". Jari arm_2 kini **−0.0004** (bukan −0.0284 → A0.6 tak perlu). **Jalan buntu di 1.50:** `pose_to_g` S12 tolak
+   (0.889° > 0.5) dan `g63b_move --pose REST` START-JUMP (start sudah menabrak kotak env MoveIt karena rakitan). **Override larangan
+   `return_rest` (operator "a. ya izinkan")** khusus arm_2, dengan cek luring rakitan di lintasan lurus yang sama (`rest_vs_now.log`:
+   31.0 → 35.9 mm, monoton menjauh): galat 0.89 → 0.018°, torsi 3.32. K0 LULUS. Rel: lepas scene (`sisa [] -> OK`), DRY S12/S23/S28
+   712 mm/G33 115 mm CLEAR → MOVE 1.30041 m (+0.41 mm, 10.6 s, lengan ≤ 0.13°, torsi 2.52). K0 1.30 LULUS. Live URDF = acuan 10-11.
+4. **Plan-only P0 berantai 6/6 PLANNED** (margin maks 94.26 %, env ≥ 65.3 mm).
+5. **P0 arm_2:** gerak 5/5 MOVED + SUCCESS (R0, A-01, A-02, A-03, R0), torsi puncak **12.00** (A-01) / 10.31 / 6.96 / 5.52 / 10.40;
+   pulang REST 7.63 (rencana 1 ditolak GOAL-MISMATCH 3.71 mm di tahap RENCANA, rencana 2 bersih). 0 fault/REJECTED.
+6. **🔴 j6 berburu (bukan j4):** A-01 tangkap rc 2 dua kali — j6 std 1.1e-3, pp 3.0e-3 rad (τ gravitasi ≈ 0.02 N·m); sendi lain
+   std ~5e-6. Tuas j6 → sudut papan **54.7 mm** semua pose (`j6_lever_check.py`) → 0.16 mm papan. **Deviasi G9 (operator "b saja"):**
+   `g63b_capture` membebaskan j6 dengan angka j4 (pp ≤ 4.58e-3 rad ≈ 0.25 mm papan). Sesudahnya tangkap 4/4.
+7. **Deteksi:** terencana 6/8 = 75 % (hilang: rgbd muka B di A-02 46°/1.49 m dan R0#2); +1 tak terencana (A-03 rgbd2 B 12/12);
+   std sudut ≤ 0.18 px; overlay visual semua deteksi: **0 label salah**. Jari arm_2 −0.0004…−0.0006 rad sepanjang blok.
+8. **Solve P0: penjaga G10 TOLAK** (rank 22 < 24) — sesuai dugaan.
+9. **🔴 Dudukan bergeser di P0 (G6′ manual, `g6p_manual.py`, PnP rgbd2 muka A, gerak FK dikurangkan):** R0#2 vs R0#1 **5.31 mm /
+   1.59°**, R0#3 (tanpa gerak sejak #2) 5.03 mm / 1.52° → perubahan PERMANEN antara R0#1 dan R0#2 (A-01…A-03), bukan derau.
+   Bersamaan: rgbd muka B pada pose R0 yang sama turun **30/30 → 12/30 → 11/30** frame lolos (`redetect.py`; gagal = residu H
+   3–5 px → lembar B tidak datar lagi). Inspeksi operator: "tidak terlihat ada masalah" → **STOP** (pilihan b): penyebab tak
+   terlihat = akan berulang; G6′ (2 mm) tidak mungkin lulus dengan dudukan ini.
+10. **Akhir:** arm_2 REST via `g63b_move`, K0 1.30 LULUS (arm_2 0.156°), g1 **1.30** (rakitan masih terpasang di arm_2),
+    g2 0. Shutdown SIGINT per PGID, domain 0/77/79/80 kosong. `rec_health` rgbd 71 389 frame min 0.646, rgbd2 71 457 min 0.767,
+    **0 < 10 %**. Frame/raw/overlay (ada orang) lokal, tidak di-commit; joint_states .csv.gz tidak di-commit.
+
+### B2. Papan skor (✓/✗ harfiah; hanya P0 arm_2 yang berjalan)
+
+| # | Hasil | Bukti |
+|---|---|---|
+| D639 | ✗ | 6/8 = 75 % < 80 % (rgbd muka B); 0 label salah ✓ |
+| D640 | ✓ | std sudut maks 0.18 px (≤ 1.94 m) |
+| D641 | ✓ (P0) | jari arm_2 berubah ≤ 0.0002 rad (0.01°) |
+| D642 | ✗ | 2 tangkap ditolak "tidak diam" — j6, bukan j4 (aturan j4 tidak cukup) |
+| D643 | ✓ | daftar terkunci arm_2 8 pose dua-kamera; terwujud R0#1 dan A-03 |
+| D644 | ✓ (P0) | torsi puncak 12.00 ≤ 13 |
+| D645 | tidak dinilai | tidak ada solve sah |
+| D632–D635 | tidak teruji | tidak ada solve sah |
+| D638 | ✓ | 0 frame < 10 % (kedua kamera) |
+| (G6′) | indikasi ✗ | manual 5.3 mm / 1.6° > 2 mm (bukan gerbang resmi: solve ditolak G10) |
+
+**Langkah berikut G63b (luring):** dudukan rakitan tidak kaku pada beban P0 (geser ~5 mm/1.5° + lembar B melengkung) → rancang ulang
+dudukan (mis. pelat kaku/akrilik, klem mekanis ke badan gripper, bukan lakban) + uji kekakuan terukur (R0 → pose torsi tinggi → R0
+dengan kamera, G6′ ≤ 2 mm) SEBELUM blok kalibrasi; aturan diam j6 masuk §A baru; rakitan masih di arm_2 di g1 1.30.

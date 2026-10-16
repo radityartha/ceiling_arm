@@ -1,0 +1,30 @@
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+G63: penyaring memakai /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/hw_20261016/payload_arm_2.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}}
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_2, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_2 (0.8979080969852652, 0.29358247568375306, 0.9557453410236346), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[ERROR] [1792114503.151780297] [reach_dwell_probe]: START-JUMP: start TIDAK VALID di scene MoveIt (env_static_map|g63_board_A) -- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.
+[INFO] [1792114503.153682377] [reach_dwell_probe]: percobaan rencana 2/8: yang sebelumnya START-JUMP -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[ERROR] [1792114503.157082370] [reach_dwell_probe]: START-JUMP: start TIDAK VALID di scene MoveIt (env_static_map|g63_board_A) -- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.
+[INFO] [1792114503.158754394] [reach_dwell_probe]: percobaan rencana 3/8: yang sebelumnya START-JUMP -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[ERROR] [1792114503.163211271] [reach_dwell_probe]: START-JUMP: start TIDAK VALID di scene MoveIt (env_static_map|g63_board_A) -- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.
+[INFO] [1792114503.164649044] [reach_dwell_probe]: percobaan rencana 4/8: yang sebelumnya START-JUMP -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[ERROR] [1792114503.167663888] [reach_dwell_probe]: START-JUMP: start TIDAK VALID di scene MoveIt (env_static_map|g63_board_A) -- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.
+[INFO] [1792114503.168954167] [reach_dwell_probe]: percobaan rencana 5/8: yang sebelumnya START-JUMP -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[ERROR] [1792114503.173439498] [reach_dwell_probe]: START-JUMP: start TIDAK VALID di scene MoveIt (env_static_map|g63_board_A) -- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.
+[INFO] [1792114503.174992276] [reach_dwell_probe]: percobaan rencana 6/8: yang sebelumnya START-JUMP -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[ERROR] [1792114503.178061884] [reach_dwell_probe]: START-JUMP: start TIDAK VALID di scene MoveIt (env_static_map|g63_board_A) -- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.
+[INFO] [1792114503.179195189] [reach_dwell_probe]: percobaan rencana 7/8: yang sebelumnya START-JUMP -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[ERROR] [1792114503.181555865] [reach_dwell_probe]: START-JUMP: start TIDAK VALID di scene MoveIt (env_static_map|g63_board_A) -- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.
+[INFO] [1792114503.182949220] [reach_dwell_probe]: percobaan rencana 8/8: yang sebelumnya START-JUMP -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[ERROR] [1792114503.187251980] [reach_dwell_probe]: START-JUMP: start TIDAK VALID di scene MoveIt (env_static_map|g63_board_A) -- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.
+  [ 1] DRY arm_2: p_cmd = (+0.898, +0.294, +0.956)   rencana: START-JUMP
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/hw_20261016/move_00_arm_2_REST_dry.json

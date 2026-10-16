@@ -1,0 +1,22 @@
+G63: penyaring memakai /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/hw_20261016/payload_arm_2.urdf; papan di penyaring {'A': {'interarm': True, 'cross': True, 'env': True}}
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_2, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_2 (1.14796, 0.09868, 1.38366), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+  [ 1] DRY arm_2: p_cmd = (+1.148, +0.099, +1.384)   rencana: PLANNED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /home/user1/Documents/ceiling_arm/docs/results/p1_g63/g63b/hw_20261016/pc_arm_2_P0_logs/00_A-R0.json
+[INFO] [1792114979.904814392] [reach_dwell_probe]: ujung rencana vs target: 0.90 mm, sumbu 0.21 deg
+[INFO] [1792114979.908094160] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.10->6.70/10, 2=4.41->12.11/14, 3=2.81->9.41/10, 4=0.45->2.43/7, 5=0.08->2.06/7, 6=0.00->1.98/7  (terketat t1_a2_joint_3 94 %)
+[INFO] [1792114990.475897911] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 427.1 mm di titik 86 (t1_a1_forearm_link_0 <-> t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792114990.480139989] [reach_dwell_probe]: G63: papan terpasang di scene {'g63_board_A': 't1_a2_gripper_base_link'}
+[INFO] [1792114990.775223814] [reach_dwell_probe]: G63: penyaring env = peta beku + 1850 voxel S0c (/home/user1/Documents/ceiling_arm/docs/results/p1_g63/s0c_extra_env.npz)
+[INFO] [1792114992.043163732] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 120.1 mm di titik 2 (t1_a2_g63_board_0) -> CLEAR
+[INFO] [1792114993.098880578] [reach_dwell_probe]: retract g1 ['arm_2'] lurus (rel 1.300):
+[INFO] [1792114994.177184586] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 427.6 mm di titik 0/60 (t1_a1_forearm_link_0 <-> t1_a2_g63_board_0)
+[INFO] [1792114994.178692298] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 468.4 mm di titik 35/60 (t1_a2_g63_board_0 <-> t2_a1_right_finger_dist_link_0)
+[INFO] [1792114994.179853867] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 120.1 mm di titik 56/60 (t1_a2_g63_board_0)
+[INFO] [1792114994.182557725] [reach_dwell_probe]: CAM-6DOF margin: t1_a2_joint_3 94.118506% (batas 97%)
