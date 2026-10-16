@@ -43,3 +43,23 @@
 - (jari) operator: "pause dulu ke rest dulu sekarang, saya mau sholat jumat dulu" -> REST
 - (jari) [dry] arm_2 REST
 - (jari) [GERAK] arm_2 REST
+- (jari blok T1) [GERAK] arm_2 A-R0
+- (jari blok T1) [GERAK] arm_2 A-04
+- (jari blok T1) [GERAK] arm_2 A-05
+- (jari blok T1) [GERAK] arm_2 A-06
+- (jari blok T1) [GERAK] arm_2 A-07
+- (jari T1) A-07 rc 3 (j1 berayun); operator: "Tangkap ulang + lanjut blok"
+- (jari blok T1) [GERAK] arm_2 A-08
+- (jari blok T1) [GERAK] arm_2 A-09
+- (jari blok T1) [GERAK] arm_2 A-R0
+- (jari) operator: "Seluruh blok T2" (arm_2)
+- (jari blok T2) [GERAK] arm_2 A-R0
+- (jari blok T2) [GERAK] arm_2 A-10
+- (jari blok T2) [GERAK] arm_2 A-11
+- (jari blok T2) [GERAK] arm_2 A-12
+- (jari blok T2) [GERAK] arm_2 A-13
+- (jari blok T2) [GERAK] arm_2 A-14
+- (jari blok T2) [GERAK] arm_2 A-15
+- (jari blok T2) [GERAK] arm_2 A-R0
+- (jari) operator: "REST + analisis luring dulu" sesudah T2
+- (jari blok T2) [GERAK] arm_2 REST

@@ -1,0 +1,47 @@
+!!! PARAMETER TIDAK TERAMATI: [{'param': 'rgbd', 'std_rot_deg': 0.2144335346461817, 'std_pos_m': 0.0037039971368330064}, {'param': 'rgbd2', 'std_rot_deg': 0.39908197524751876, 'std_pos_m': 0.01174335559302178}]
+!!! PENJAGA G63b MENOLAK: ['rgbd tak teramati (lantai 0.3 px): std 0.214 deg / 3.7 mm', 'rgbd2 tak teramati (lantai 0.3 px): std 0.399 deg / 11.7 mm']
+{
+ "converged": true,
+ "Twc_xyzrpy": {
+  "rgbd": [
+   1.59039,
+   0.90609,
+   2.05747,
+   -2.35076,
+   -0.12631,
+   2.23627
+  ],
+  "rgbd2": [
+   -0.06612,
+   -1.03625,
+   2.089,
+   -2.25498,
+   -0.15907,
+   -0.83947
+  ]
+ },
+ "vs_incumbent": {
+  "rgbd": {
+   "rot_deg": 4.042117730157231,
+   "cam_pos_shift_m": 0.13415322492236534
+  },
+  "rgbd2": {
+   "rot_deg": 4.8475351507402795,
+   "cam_pos_shift_m": 0.09012951299730769
+  }
+ },
+ "unobservable": [
+  {
+   "param": "rgbd",
+   "std_rot_deg": 0.2144335346461817,
+   "std_pos_m": 0.0037039971368330064
+  },
+  {
+   "param": "rgbd2",
+   "std_rot_deg": 0.39908197524751876,
+   "std_pos_m": 0.01174335559302178
+  }
+ ]
+}
+G3 {"rgbd": {"n": 24, "median_m": 0.011949502859897624, "p95_m": 0.017494693384357583}, "rgbd2": {"n": 12, "median_m": 0.009802506746142813, "p95_m": 0.0108023204881908}} G4' {"rgbd": {"n": 2, "median_m": 0.011954827409186995, "max_m": 0.014950269690028783}, "rgbd2": {"n": 1, "median_m": 0.016997870680233423, "max_m": 0.016997870680233423}}
+penjaga G63b: {'n_residuals': 288, 'n_params': 18, 'rank': 18, 'sigma_used_px': 2.7291454700127034, 'std_rgbd': {'rot_deg': 0.2144335346533831, 'pos_m': 0.0037039971368521235}, 'std_rgbd2': {'rot_deg': 0.3990819752575641, 'pos_m': 0.011743355593081406}} TOLAK
