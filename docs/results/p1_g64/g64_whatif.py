@@ -30,7 +30,9 @@ warnings.simplefilter('ignore')
 import g64_diag as D  # noqa: E402
 
 O2, PREFIX, REST, LIM, OFFSET, MARGIN = D.O2, D.PREFIX, D.REST, D.LIM, D.OFFSET, D.MARGIN
-OUT = os.path.join(HERE, 'g64_whatif.jsonl')
+BOX_MIN = float(os.environ.get('G64_BOX_MIN', '0.0'))   # DEMO-SYS 1.1: system (G41b) = 0.010; 0.0 = the first what-if
+ONLY = os.environ.get('G64_ONLY')                          # target name filter (None = all)
+OUT = os.path.join(HERE, 'g64_whatif.jsonl' if BOX_MIN == 0.0 else f'g64_whatif_box{BOX_MIN * 1000:.0f}.jsonl')
 T_FILE = os.path.join(HERE, 'g64_transit_T.json')
 PER_TARGET = 40                       # SPLIT/OK tuples re-solved per target (lowest stored static j2 first)
 
@@ -64,7 +66,7 @@ def screen_line_any(g, arm, lin, rot, pts, held, ec, bx):
         j = dict(held)
         j.update(zip(names, q))
         b, _ = bx.dist(ec, ec.q_from(j), D.G4.gp(g))
-        if b <= 0.0:
+        if b <= 0.0 or b < BOX_MIN:
             return False, 'garis-kotak'
     v2, _, _, _ = D.G41.same_checker(g).screen_trajectory(names, pts, {k: x for k, x in held.items() if k not in names})
     if v2 != 'CLEAR':
@@ -102,7 +104,7 @@ def stop_trav(g, lin, rot):
     q = ec.q_from(j)
     d, _ = ec.check(q, only=(D.G4.gp(g),))
     bb, _ = bx.dist(ec, q, D.G4.gp(g))
-    stop = bool(d >= D.ENV_MIN and bb > 0.0)
+    stop = bool(d >= D.ENV_MIN and bb > 0.0 and bb >= BOX_MIN)
     v, dt, _, _ = ec.screen_trajectory([f't{g}_linear_joint', f't{g}_rotation_joint'],
                                        RS.rect_points(D.P0[g], (lin, rot)), held_with(g, *D.P0[g], {a: T, b: T}))
     D._W[key] = (stop, round(float(d), 4), v, round(float(dt), 4))
@@ -138,7 +140,7 @@ def _job(row):
             q = ec.q_from(j)
             d, _ = ec.check(q, only=(D.G4.gp(g),))
             bb, _ = bx.dist(ec, q, D.G4.gp(g))
-            if d < D.ENV_MIN or bb <= 0.0:
+            if d < D.ENV_MIN or bb <= 0.0 or bb < BOX_MIN:
                 why['e1-T'] = why.get('e1-T', 0) + 1
                 continue
             if n_line >= D.LINE_CAP:
@@ -158,7 +160,7 @@ def main():
     rows = {}
     for ln in open(D.OUT):
         d = json.loads(ln)
-        if d['name'] in T and d['static']:
+        if d['name'] in T and d['static'] and (ONLY is None or d['name'] == ONLY):
             d['xyz'] = T[d['name']]['xyz']
             rows.setdefault(d['name'], []).append(d)
     done = set()

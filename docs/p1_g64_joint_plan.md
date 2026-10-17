@@ -179,3 +179,35 @@ j2 61 % vs eksekusi 97 %). Perbaikan = tujuan SENDI dari cabang penjadwal (sudah
 → Dengan tujuan SENDI dari cabang penjadwal, prediksi torsi penjadwal = rencana mock = HW. Jalur demo yang sah = solver P1″ →
 `run_g54` (`run_g32.task_cmd` menambah `--goal-joints`). `demo_runner.py` mengirim `--target` (tujuan POSE) → cabang bebas → selisih.
 Aturan ini ditulis ke `p1_demo_sys_prompt.md` (demo besok).
+
+## 1.2 Banding desain A / B / C (operator 2026-10-17 sore: "bandingkan semuanya, mana terbaik dan teraman")
+
+Data baru (luring, statis, penyaring SISTEM: kotak **10 mm** G41b — `g64_whatif.py` kini `G64_BOX_MIN`, versi pertama memakai > 0;
+lihat `p1_demo_sys.md` §1.1 untuk artefak yang sama di g64_diag):
+
+| ukuran | nilai | sumber |
+|---|---|---|
+| TAS z 1.34 lewat T1 (40 tuple statis j2 terendah) | **40/40** layak (sekarang 0); arm_4 g2 rel 0.80–1.30, rot +50…+95 (di dalam amplop HW g2), j2 mentah 0.52–1.70; stop env 0.197–0.237 m, traverse 0.155 m | `g64_whatif_box10.jsonl` |
+| z 1.40 lewat T1 | 36/40 layak → titik itu BUKAN kontrol negatif (benar diganti (1.0, 0, 0.60)) | sama |
+| regresi "selalu T1" pada 48 tugas jadwal P1″ terpilih (g55 R90sel, 8 seed) | **44/48**; gagal 4 — semua arm_3 g2 garis T→q: s8 (1.35, −5) garis-kotak, s10 (0.85, −20) garis-kotak, s12 (1.40, −5) torsi-garis + garis-kotak → seed utuh 5/8 | `g64_whatif_reg.json` |
+| garis lipat REST → T1 (statis) | j2 maks 3.82 → +7.7 = 11.52 (+0.66 = 12.18) ≤ 14; sendi terjauh j3 136° | — |
+| titik terendah lengan | T1 1.277 m vs REST 0.924 m (memori stow-pose-high: operator ingin idle TINGGI) | §0.2 |
+| bridge saat gantry + lengan bersamaan | lag 1.33 s, galat s.d. **71 mm / 13°** > margin 50 mm | §1.1 |
+
+| | **A** T1 manual per run | **B** whole-body 8-DOF | **C** mode per gantry di penjadwal |
+|---|---|---|---|
+| TAS tercapai | ya (40/40 statis) | tidak diukur (OMPL acak) | ya (mode T1) |
+| regresi jadwal lama | paksa T1: 44/48 (3 seed rusak); pilih REST manual: 0 tetapi manusia memilih | tidak diukur | **0 menurut konstruksi** (mode REST = sistem sekarang, predikat bit-identik) |
+| siapa memilih | operator / flag → melanggar demo-sys-uses-p1-scheduler | perencana | **penjadwal** (biaya lipat masuk makespan) |
+| sinkron gantry–lengan | lengan diam saat traverse; akhir bridge ≤ 0.6 mm / 0.5° | ✗ 71 mm / 13° melampaui margin → butuh model lag | = A |
+| torsi | penyaring sama (RNEA + 7.7); lipat statis 11.52 | MoveIt buta torsi → pasca-saring + replan pada jalur 8-DOF acak | = A |
+| antar-lengan / env | penyaring sama (S18, G33 terukur, MARGIN = TOLAK) | MoveIt buta antar-lengan (SRDF 112/121 dimatikan) | = A |
+| kerja | runner: event lipat/buka + pose_to_g S12 terima T1 tersertifikasi | besar (model lag, eksekusi gabungan) | A + solver: EdgeMatrix T1, pose (a) T1, tuple T1 (garis T1→q), biaya lipat |
+
+**Rekomendasi: C** — teraman sama dengan A (penyaring identik, gantry dan lengan tidak bergerak bersamaan), terbaik karena (i) nol
+regresi (REST tetap pilihan), (ii) sistem yang memilih lipat atau tidak (syarat demo), (iii) membuka TAS. **B ditolak**: satu-satunya
+opsi dengan galat terukur di atas margin keselamatan, dan MoveIt buta torsi + antar-lengan. Urutan kerja C: bagian runner A dulu
+(dibutuhkan C) → mode di solver → mock 77 (TAS + regresi seed lama + kontrol negatif) → HW mulai lipat di tempat.
+**Risiko bersama A/C (belum diukur):** dinamika lipat REST → T1 (j3 136°; memori fold: RNEA meremehkan angkat ×2.74 pada lipat
+penuh → prediksi ≤ 11.7 dengan sisa p95 7.08, wajib saring rencana + ukur di HW di tempat dulu); waktu lipat/buka (biaya makespan)
+belum terukur; traverse antar-gantry dengan T1 tidak disaring (sama dengan sekarang; radius T1 0.462 vs REST 0.456).
