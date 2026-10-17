@@ -1,0 +1,14 @@
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_4, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_4 (0.978, -0.831, 1.34), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1792204783.609461673] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.23->6.83/10, 2=7.99->15.69/14, 3=0.78->7.38/10, 4=0.19->2.17/7, 5=0.18->2.16/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 112 %)
+[ERROR] [1792204783.609883316] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t2_a2_joint_2 diperkirakan 15.69 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1792204783.610255179] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792204783.881426654] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya NO-PLAN -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+  [ 1] DRY arm_4: p_cmd = (+0.978, -0.831, +1.340)   rencana: NO-PLAN
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g20_step5.json

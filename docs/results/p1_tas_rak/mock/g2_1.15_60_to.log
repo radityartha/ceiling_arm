@@ -1,0 +1,5 @@
+S12: maks |q - REST| arm_1 0.000, arm_2 0.000, arm_3 0.000, arm_4 0.000 deg (batas 0.5 untuk gantry 2)
+S23": t2_rotation_joint +0.000 deg, t1_rotation_joint +0.000 deg; target +60.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
+S28: sapuan g2 (0.0000 m, +0.000 deg) -> (1.1500, +60.000), sisanya TERUKUR: CLEAR, min 149.3 mm ('t1_platform_link_0', 't2_mount_plate_right_0') di (1.120, +60.00); lengan 177.1, SS 149.3, n 7076
+G33: sapuan g2 vs peta lingkungan: COLLIDE, min -20.4 mm (t2_a2_left_finger_dist_link_0) di titik 6813
+REFUSE: G33 -- sapuan (lin, rot) terlalu dekat lingkungan (margin 50 mm)

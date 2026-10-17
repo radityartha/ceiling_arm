@@ -42,7 +42,8 @@ from tf2_ros import Buffer, TransformListener
 
 SCRIPTS = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                         '..', '..', '..', 'scripts'))
-BASE = {'arm_1': 't1_a1_base_link', 'arm_2': 't1_a2_base_link'}
+BASE = {'arm_1': 't1_a1_base_link', 'arm_2': 't1_a2_base_link',
+        'arm_3': 't2_a1_base_link', 'arm_4': 't2_a2_base_link'}   # TAS-RAK: arm_3/4 only via --arms
 # Refused BEFORE any motion because of the pose/plan -> the other arm may try.
 # Anything else (EXEC-FAIL, *-UNSCREENED, timeout) = machinery: stop, go home.
 POSE_REFUSALS = ('NO-PLAN', 'TUCK-REFUSED', 'TORQUE-UNSAFE', 'INTERARM-COLLIDE',

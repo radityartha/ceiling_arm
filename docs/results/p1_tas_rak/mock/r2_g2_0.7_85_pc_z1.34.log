@@ -1,0 +1,18 @@
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_4, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_4 (0.978, -0.831, 1.34), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1792203813.795493316] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.24->6.84/10, 2=6.56->14.26/14, 3=2.34->8.94/10, 4=0.41->2.39/7, 5=0.17->2.15/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 102 %)
+[ERROR] [1792203813.795931800] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t2_a2_joint_2 diperkirakan 14.26 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1792203813.796345948] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792203815.175152749] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.18->6.78/10, 2=7.74->15.44/14, 3=2.62->9.22/10, 4=0.44->2.42/7, 5=0.17->2.15/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 110 %)
+[ERROR] [1792203815.175786640] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t2_a2_joint_2 diperkirakan 15.44 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1792203815.176479917] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792203816.483271643] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.10->6.70/10, 2=7.85->15.55/14, 3=1.51->8.11/10, 4=0.16->2.14/7, 5=0.15->2.13/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 111 %)
+[ERROR] [1792203816.484193839] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t2_a2_joint_2 diperkirakan 15.55 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+  [ 1] DRY arm_4: p_cmd = (+0.978, -0.831, +1.340)   rencana: TORQUE-UNSAFE
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g20_step5.json

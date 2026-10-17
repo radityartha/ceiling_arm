@@ -1,0 +1,15 @@
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_4, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_4 (0.978, -0.831, 1.34), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[ERROR] [1792204334.874871091] [reach_dwell_probe]: START-JUMP: start TIDAK VALID di scene MoveIt (t2_a2_right_finger_prox_link|env_static_map) -- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.
+[INFO] [1792204334.875236621] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya START-JUMP -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[ERROR] [1792204334.886380932] [reach_dwell_probe]: START-JUMP: start TIDAK VALID di scene MoveIt (t2_a2_right_finger_prox_link|env_static_map) -- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.
+[INFO] [1792204334.886695770] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya START-JUMP -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[ERROR] [1792204334.905348826] [reach_dwell_probe]: START-JUMP: start TIDAK VALID di scene MoveIt (t2_a2_right_finger_prox_link|env_static_map) -- FixStartStateCollision akan menggeser start tanpa pemeriksaan. DITOLAK.
+  [ 1] DRY arm_4: p_cmd = (+0.978, -0.831, +1.340)   rencana: START-JUMP
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g20_step5.json

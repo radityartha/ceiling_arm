@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Kamera (incumbent + G34, imgsz 1280) + localizer FUSI rgbd+rgbd2 (p1_demo_hw loc_up.sh) + rack_box_node, domain 0.
+# Prompt YOLOE diset live sesudah naik: "paper bag,shopping bag,bag". PID -> $L/pids_perc.txt. Matikan: perc_down.sh.
+source $(dirname $0)/env.sh; T=$H/p1_tas_rak
+setsid nohup $H/p1_demo_hw/harness/cam_up.sh seg_imgsz:=1280 > $L/cam.log 2>&1 < /dev/null &
+sleep 5
+setsid nohup $H/p1_demo_hw/harness/loc_up.sh > $L/loc.log 2>&1 < /dev/null &
+setsid nohup python3 $T/rack_box_node.py > $L/rack.log 2>&1 < /dev/null &
+for i in $(seq 30); do grep -q "loading YOLOE\|seg_router up" $L/cam.log && break; sleep 1; done; sleep 15
+ros2 topic pub -1 /seg_prompts std_msgs/String "data: paper bag,shopping bag,bag" > /dev/null
+ps -eo pid,args | awk '/[r]os2 launch reachability_gng rgbd_perception/ {print "launch", $1}
+  /lib\/reachability_gng\/[o]bject_localizer/ {print "loc", $1} /[r]ack_box_node.py/ {print "rack", $1}' | tee $L/pids_perc.txt
+grep SigIgn /proc/$(awk '$1=="launch"{print $2}' $L/pids_perc.txt)/status; grep "prompts ->" $L/cam.log | tail -1

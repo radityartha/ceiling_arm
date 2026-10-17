@@ -1,0 +1,28 @@
+[33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+
+probe LANGKAH 5: arm_4, 1 percobaan, abort torsi 14.0 N.m
+sumber target: arm_4 (0.978, -0.831, 1.4), [] []
+kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+
+[INFO] [1792204786.200380024] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.11->6.71/10, 2=7.67->15.37/14, 3=2.35->8.95/10, 4=0.37->2.35/7, 5=0.15->2.13/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 110 %)
+[ERROR] [1792204786.200864060] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t2_a2_joint_2 diperkirakan 15.37 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1792204786.201247384] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792204787.410652581] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.11->6.71/10, 2=7.76->15.46/14, 3=1.54->8.14/10, 4=0.22->2.20/7, 5=0.10->2.08/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 110 %)
+[ERROR] [1792204787.411113301] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t2_a2_joint_2 diperkirakan 15.46 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+[INFO] [1792204787.411475162] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+[INFO] [1792204788.641588721] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.13->6.73/10, 2=5.16->12.86/14, 3=2.47->9.07/10, 4=0.45->2.43/7, 5=0.09->2.07/7, 6=0.00->1.98/7  (terketat t2_a2_joint_2 92 %)
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+/home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+  self.geom = pin.buildGeomFromUrdf(
+[INFO] [1792204800.272862502] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 215.7 mm di titik 110 (t2_a1_upper_wrist_link_0 <-> t2_a2_left_finger_dist_link_0) -> CLEAR
+[INFO] [1792204801.762282549] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 70.8 mm di titik 0 (t2_a2_right_finger_prox_link_0) -> CLEAR
+[INFO] [1792204802.798481300] [reach_dwell_probe]: retract g2 ['arm_4'] lurus (rel 0.750):
+[INFO] [1792204804.988274881] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 448.5 mm di titik 38/60 (t2_a1_lower_wrist_link_0 <-> t2_a2_left_finger_prox_link_0)
+[INFO] [1792204804.988683516] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 272.6 mm di titik 0/60 (t1_a2_arm_link_0 <-> t2_a1_shoulder_link_0)
+[INFO] [1792204804.988959904] [reach_dwell_probe]:   penyaring lingkungan: MARGIN, minimum 33.3 mm di titik 43/60 (t2_a2_right_finger_prox_link_0)
+[ERROR] [1792204804.989235104] [reach_dwell_probe]: JALUR PULANG TERHALANG: rencana DITOLAK SEBELUM GERAK -- garis lurus ke REST dari titik akhirnya LURUS-CLEAR/CLEAR/MARGIN.
+  [ 1] DRY arm_4: p_cmd = (+0.978, -0.831, +1.400)   rencana: RETRACT-BLOCKED
+  TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+  -> /tmp/g20_step5.json
