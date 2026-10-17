@@ -452,7 +452,52 @@ def objects():
     return {'REST': (W.Feas49(pr), M.EdgeMatrix(), K.Stops()), 'T1': (FeasT(pt), EdgeMatrixT(), StopsT())}
 
 
-def solve_combos(nodes, O, pool, log, combos=COMBOS):
+class Pruned(Exception):
+    pass
+
+
+def solve_lazy46_cut(nodes, F, E, SX, pool, log, cutoff):
+    """M.solve_lazy46 VERBATIM except: stop (Pruned) as soon as the certified LB >= cutoff -- the combination can then at
+    best tie the incumbent, and a tie goes to the earlier combination (fewer T1). Not used for REST/REST."""
+    from dataclasses import replace
+    it = 0
+    while True:
+        it += 1
+        inst, unver = G4.build(nodes, F)
+        forb = SX.forbids(inst)
+        sol = K.solve_exact_f(inst, E, forb)
+        lb = sol.makespan
+        if lb >= cutoff - 1e-9:
+            raise Pruned(f'PANGKAS: LB {lb:.3f} >= terbaik {cutoff:.3f} (iterasi {it})')
+        ut = S.used_unverified(inst, sol, unver)
+        us = [] if ut else [x for x in K.stop_items(inst, sol, F) if x[0] not in SX.c]
+        if not ut and not us:
+            log(f'    iterasi {it}: LB = UB {lb:.3f} (relaksasi terverifikasi)')
+            return inst, sol, it, dict(lb=lb, ub=lb, gap=0.0)
+        iu = replace(inst, reach={g: inst.reach[g] & ~unver[g] for g in inst.reach})
+        ub, usol = np.inf, None
+        while True:
+            try:
+                usol = K.solve_exact_f(iu, E, SX.forbids(iu))
+            except ValueError:
+                usol = None
+                break
+            new = [x for x in K.stop_items(iu, usol, F) if x[0] not in SX.c]
+            if not new:
+                break
+            SX.compute(new, pool)
+        if usol is not None:
+            ub = usol.makespan
+        log(f'    iterasi {it}: LB {lb:.3f}, UB {ub:.3f}, gap {100 * (ub / lb - 1):.2f} %, tuple belum terverifikasi '
+            f'{len(ut)}, stop {len(us)}')
+        if usol is not None and ub <= (1 + M.EPS) * lb:
+            return iu, usol, it, dict(lb=lb, ub=ub, gap=ub / lb - 1)
+        F.compute(S.neighbours(inst, unver, ut) if ut else [], pool)
+        if us:
+            SX.compute(us, pool)
+
+
+def solve_combos(nodes, O, pool, log, combos=COMBOS, prune=True):
     """Every combination; REST/REST with the plain REST objects (bit-identity). -> (results, best index | None)."""
     res = []
     for m in combos:
@@ -471,8 +516,16 @@ def solve_combos(nodes, O, pool, log, combos=COMBOS):
             SX = CompSX({g: O[modes[g]][2] for g in (1, 2)})
         log(f'  mode {m}  [{time.strftime("%T")}]')
         t0 = time.time()
+        inc = min([r['makespan'] for r in res if r['ok']], default=None)
         try:
-            inst, sol, it, bnd = M.solve_lazy46(nodes, F, E, SX, pool, log)
+            if m == ('REST', 'REST') or not prune or inc is None:
+                inst, sol, it, bnd = M.solve_lazy46(nodes, F, E, SX, pool, log)
+            else:
+                inst, sol, it, bnd = solve_lazy46_cut(nodes, F, E, SX, pool, log, inc)
+        except Pruned as e:
+            res.append(dict(modes=modes, ok=False, why=str(e), pruned=True, wall_s=time.time() - t0))
+            log(f'  mode {m}: {e}')
+            continue
         except ValueError as e:
             res.append(dict(modes=modes, ok=False, why=str(e), wall_s=time.time() - t0))
             log(f'  mode {m}: GAGAL -- {e}')
