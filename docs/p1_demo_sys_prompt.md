@@ -49,3 +49,7 @@ RViz+rqt), p1_tas_rak/ (rack_box_node, harness fusi), js_window.py (torsi/gerak 
 ```
 
 Model: Opus, effort **high** (integrasi solver ↔ persepsi bisa salah diam-diam; gerak gantry + 4 lengan; torsi j2 di batas).
+
+> **2026-10-17 12:0x (operator):** DEMO-SYS DITUNDA sampai G64 JOINT-PLAN (`docs/p1_g64_joint_plan_prompt.md`) selesai — sistem harus bisa
+> merencanakan gantry + lengan gabungan (lipat sambil bergerak) dulu. Catatan MoveIt: lengan direncanakan MoveIt (hindari tabrakan scene),
+> gantry TIDAK (pose_to_g gerak langsung + saring S28/G33), MoveIt buta antar-lengan (SRDF) dan torsi (penyaring kita).
