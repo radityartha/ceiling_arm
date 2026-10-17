@@ -29,6 +29,14 @@ TUGAS (urut, ✓/✗ harfiah):
    (joint_2 × rak), G38/no-shared-zone, peta kapabilitas. Angka: berapa % titik "terjangkau statis" yang gagal oleh sistem sekarang
    → itulah ruang perbaikan. Ukur juga torsi statis pose lipat parsial (angkat jari 10–30 cm dari REST) — lipat penuh dokumen 12.78
    N·m terukur, RNEA meremehkan naik ×2.74 (memori fold).
+   0b. KALIBRASI ULANG BATAS TORSI (operator 2026-10-17: "J2 terlalu ketat? pernah diuji mati di 14?" — BELUM PERNAH; 17.61 terukur
+   2026-08-17 tanpa fault; 14 = rating URDF, bukan pemutus; firmware fault di puncak KA-75+ ≈ 30.5 (belum dicek PDF primer);
+   nominal kontinu 12 = batas panas). Penyaring = RNEA + offset tetap j2 +7.7 vs 14 → RNEA mentah ≤ 6.3. DEMO-ZONE-HW: prediksi 13.61,
+   terukur 10.40 (offset nyata 4.5). Kerjakan: kumpulkan SEMUA pasangan prediksi (log probe 'torsi RNEA+offset') vs puncak terukur
+   (joint_states CSV, js_window.py) dari G57/G60/CAM-6DOF/DEMO-ZONE-HW, per lengan/sendi/fase (transit vs tahan); p95 sisa per
+   lengan; hitung ulang berapa penolakan TORQUE-UNSAFE (TAS-RAK, G42) yang lolos dengan offset terkalibrasi. Usulkan batas ke
+   operator (tombol) dengan angka — mis. terukur-setara 14 + transit singkat ≤ X dengan batas durasi. JANGAN uji sampai fault (LED
+   merah = reset fisik, fault_controller tidak di-spawn). Batas keras AUTO-STOP > 14 terukur tetap sampai operator memutuskan.
 1. DESAIN — tulis 2–3 opsi ke operator (tombol) SEBELUM kode besar, dengan rekomendasi:
    A) Bertahap minimal: lengan ke POSE TRANSIT bersertifikat (lipat parsial, torsi statis + transit tersaring) via MoveIt → gantry
       traverse dengan pose transit itu (S12 digeneralisasi: "REST atau pose transit bersertifikat", S28/G33 memakai konfigurasi
