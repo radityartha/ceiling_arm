@@ -118,3 +118,18 @@ Opsi A = ganti REST oleh T1 (kedua lengan gantry yang bergerak) saat traverse da
 Uji awal TAS-RAK z 1.34: arm_4 (0.70, +85) **A_OK** (sekarang: garis pulang lurus kena lemari), arm_4 (1.00, +90) **A_OK**
 (sekarang: REST di stop −12 mm), arm_3 (0.50, −20) sekarang OK tetapi **gagal lewat T1** (torsi garis T1→q) → opsi A harus "REST
 **atau** T per tugas" (gabungan) agar nol regresi. Hitungan penuh menunggu §0.1.
+
+### 1.1 Risiko opsi B — pelacakan bridge gantry (HW G57, [g64_bridge_track.py](results/p1_g64/g64_bridge_track.py))
+
+Perintah = kosinus `pose_to_g` direkonstruksi (start, goal, t_send, T_cmd dari JSON run); terukur = `/joint_states` G57.
+52 gerak rel + 53 gerak rotasi:
+
+| sumbu | galat maks \|ukur − perintah\| | p95 (median antar-gerak) | lag terbaik (median, rentang) | sisa RMS di lag terbaik | galat akhir |
+|---|---|---|---|---|---|
+| rel | **71.1 mm** | 44.5 mm | **1.33 s** (0.55–1.70) | 8–11 mm | ≤ 0.6 mm |
+| rotasi | **13.4°** (65° dalam 11.3 s) | 2.8° | **1.05 s** (0.6–4.8) | ≤ 1.9° | ≤ 0.5° |
+
+Bridge = waktu mati ~1–1.7 s + kejar stop-start. Rencana whole-body yang disaring pada posisi rel/rotasi PERINTAH akan dieksekusi
+dengan lengan sampai **71 mm / 13°** (≈ 0.2 m di radius 1 m) dari tempat penyaring meletakkannya — melebihi margin 50 mm
+(antar-lengan, env). Opsi B butuh model lag + margin tambahan atau gantry diam saat lengan bergerak → kembali ke bertahap (A).
+Gerak berurutan (A) tidak terkena: posisi akhir bridge tepat ≤ 0.6 mm / 0.5°, dan lengan diam (T atau REST) selama traverse.
