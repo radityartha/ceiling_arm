@@ -14,10 +14,17 @@ FAKTA BARU HARI INI (G64 §0.3–0.8, docs/p1_g64_joint_plan.md — jangan diula
 - Selisih mock/HW selama ini = TUJUAN POSE (MoveIt pilih cabang IK sendiri; TAS-RAK RNEA 7.5–9.0 vs cabang penjadwal 4.93;
   DEMO-ZONE-HW plan-only 61 % vs eksekusi 97 %). Dengan TUJUAN SENDI penjadwal (run_g54 → run_g32.task_cmd → --goal-joints):
   penjadwal = probe = HW 87/87 (G57). → GERAK HANYA lewat solver → run_g54. demo_runner (tujuan pose) JANGAN dipakai untuk gerak.
-- G64 lipat (pose transit T1) BELUM diimplementasikan → tas kertas di atas lemari sisi gantry 2 (~(0.98, −0.83, 1.09)) = KONTROL
-  NEGATIF: harus ditolak sistem (REST di stop / garis pulang), bukan dicoba lewat jalan lain.
+- TAS = KONTROL POSITIF (operator 2026-10-17 sore): tas kertas di atas lemari sisi gantry 2 (~(0.98, −0.83, 1.09), p_cmd z 1.34)
+  HARUS dicapai OLEH SISTEM (solver P1″ → run_g54); berhasil = sistem bekerja. Bukti luring (g64_diag.jsonl, TASRAK_z134):
+  emulasi predikat penjadwal sekarang menemukan 1 tuple layak — arm_3 @ g2 (0.50, −20°), j2 statis 5.625 vs batas 5.64 (sangat
+  tipis; grid manual TAS-RAK tidak pernah mencobanya); 26 tuple statis lain gagal karena REST di stop / garis pulang lurus (kelas
+  "perencanaan terpisah", obatnya G64 lipat T1 yang BELUM diimplementasikan). Bila sistem menolak tas di mock/plan-only: TULIS
+  alasan persis (fail loud) → itu temuan G64, BUKAN dicari jalan lain di luar sistem (tanpa pilih stop/lengan manual).
+- KONTROL NEGATIF (fisika): titik di atas tas z 1.40 → 0 IK di seluruh grid (g64_diag TASRAK_z140) → harus DITOLAK sistem dengan
+  alasan. Cukup di mock (tugas sintetis), tidak perlu benda nyata.
 
-BACA PENUH dulu: CLAUDE.md, docs/p1_demo_sys_prompt.md (tugas 0–5 lengkap + catatan 10-17 siang), docs/HANDOFF_2026-10-13.md §2,
+BACA PENUH dulu: CLAUDE.md, docs/p1_demo_sys_prompt.md (tugas 0–5 lengkap + catatan 10-17; teks lamanya menyebut tas = kontrol
+negatif — SUDAH DIKOREKSI operator, prompt INI yang berlaku), docs/HANDOFF_2026-10-13.md §2,
 docs/p1_campaign_state.md (baris DEMO-ZONE-HW, TAS-RAK, G64 terbaru), docs/p1_demo_zone_hw.md (rantai persepsi HW yang terbukti),
 docs/p1_g54_parallel.md + docs/p1_g57_hw.md + docs/p1_hw_runbook_parallel.md (runner HW), solver P1″ (results/p1_g55/g55_make.py,
 g55_selected.json; results/p1_g54/run_g54.py, reserve.py), docs/p1_g64_joint_plan.md §0.7–0.8. Memori: demo-sys-uses-p1-scheduler,
@@ -30,9 +37,10 @@ URUTAN (✓/✗ harfiah; ringkas dari p1_demo_sys_prompt.md, karena demo hari in
    SEBELUM kode besar. Bila solver hanya menerima node peta: usulkan cara jujur (mis. node terdekat ≤ toleransi, dicatat) — operator memilih.
 1. LURING: adapter snapshot track (median per track, 15 s) → tugas solver (xyz objek + 0.25 z). Zona meja arm_1 = rgbd2 + koreksi P3
    (zone_correct_node, ≤ 3.4 cm); zona lain = keterbatasan dicatat. Kotak penyaring track (pola p1_tas_rak/rack_box_node.py).
-2. MOCK 77 (wajib sebelum HW): tugas sintetis (botol M1 + tas rak kontrol negatif + 1 titik zona gantry 2) → solver → jadwal →
-   run_g54 plan-only → mock eksekusi. Harus: tas DITOLAK oleh solver/oracle dengan alasan; gerak gantry oleh SISTEM; ≥ 2 lengan bila
-   tugas di dua zona.
+2. MOCK 77 (wajib sebelum HW): tugas sintetis (botol M1 + TAS z 1.34 kontrol POSITIF + titik z 1.40 kontrol negatif) → solver →
+   jadwal → run_g54 plan-only → mock eksekusi. Harus: tas DIJADWALKAN + PLANNED oleh sistem (gerak gantry 2 oleh SISTEM), titik z 1.40
+   DITOLAK oleh solver/oracle dengan alasan, ≥ 2 lengan bila tugas di dua zona. Tas ditolak = catat alasan per penyaring, lapor
+   operator (tombol), jangan longgarkan.
 3. §A DEMO-SYS (dugaan lanjut dari D667 — cek nomor terakhir di docs/*.md) → kunci (salinan + sha256) SEBELUM bring-up. Objek & posisi
    DITENTUKAN OPERATOR di lokasi (tombol).
 4. HW (izin per langkah): self-test env/interarm + remount_check; stack_up.sh (octomap_updaters:=false); K0 ukur ulang (papan sudah

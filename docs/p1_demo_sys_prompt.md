@@ -60,4 +60,5 @@ Model: Opus, effort **high** (integrasi solver ↔ persepsi bisa salah diam-diam
 > eksekusi 97 %). Dengan **tujuan SENDI dari penjadwal** (run_g54 → `task_cmd` → `--goal-joints`): penjadwal = probe = HW di 87/87
 > tugas G57 (RNEA rencana − garis statis ≤ +0.05 N·m, ukur > prediksi penjadwal 0/87). **Aturan demo besok:** tugas HANYA lewat
 > solver P1″ → run_g54 (tujuan sendi); `demo_runner` (tujuan pose) TIDAK dipakai untuk gerak. G64 lipat (pose transit T1) BELUM
-> diimplementasikan → tas di atas lemari = kontrol negatif yang harus DITOLAK sistem (REST di stop / garis pulang), bukan dicoba.
+> diimplementasikan. **Koreksi operator 2026-10-17 sore: tas di atas lemari = KONTROL POSITIF** (harus dicapai oleh sistem; ditolak =
+> temuan G64, ditulis jujur). Kontrol negatif = titik z 1.40 di atas tas (0 IK, fisika). Prompt sesi: `docs/p1_demo_sys_now_prompt.md`.
