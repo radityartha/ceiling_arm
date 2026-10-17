@@ -37,6 +37,12 @@ TUGAS (urut, ✓/✗ harfiah):
    lengan; hitung ulang berapa penolakan TORQUE-UNSAFE (TAS-RAK, G42) yang lolos dengan offset terkalibrasi. Usulkan batas ke
    operator (tombol) dengan angka — mis. terukur-setara 14 + transit singkat ≤ X dengan batas durasi. JANGAN uji sampai fault (LED
    merah = reset fisik, fault_controller tidak di-spawn). Batas keras AUTO-STOP > 14 terukur tetap sampai operator memutuskan.
+   0c. ARTI `effort` (SEBELUM 0b memutuskan batas): `/joint_states` effort = kortex_driver `feedback_.actuators(i).torque()`. Gen3
+   LITE kemungkinan TANPA sensor torsi sendi (Gen3 penuh punya) → nilai mungkin estimasi ARUS MOTOR (termasuk gesekan gearbox;
+   cocok dengan offset +3…+9 saat bergerak, sedangkan tahan diam cocok RNEA 9.60 vs 9.25). BELUM diverifikasi. Cek dokumentasi
+   Kinova (Kortex API ActuatorFeedback, manual Gen3 Lite / spec KA-75+: apakah 14 N·m = torsi KELUARAN; sensor torsi ada/tidak) —
+   kutip sumber primer; bila tidak didapat, tulis "tidak terverifikasi". Konsekuensi: bila effort = motor + gesekan dan rating =
+   keluaran, batas "terukur ≤ 14" sendiri ikut terlalu ketat → masuk usulan batas 0b (keputusan operator).
 1. DESAIN — tulis 2–3 opsi ke operator (tombol) SEBELUM kode besar, dengan rekomendasi:
    A) Bertahap minimal: lengan ke POSE TRANSIT bersertifikat (lipat parsial, torsi statis + transit tersaring) via MoveIt → gantry
       traverse dengan pose transit itu (S12 digeneralisasi: "REST atau pose transit bersertifikat", S28/G33 memakai konfigurasi
