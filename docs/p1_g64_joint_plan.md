@@ -133,3 +133,36 @@ Bridge = waktu mati ~1–1.7 s + kejar stop-start. Rencana whole-body yang disar
 dengan lengan sampai **71 mm / 13°** (≈ 0.2 m di radius 1 m) dari tempat penyaring meletakkannya — melebihi margin 50 mm
 (antar-lengan, env). Opsi B butuh model lag + margin tambahan atau gantry diam saat lengan bergerak → kembali ke bertahap (A).
 Gerak berurutan (A) tidak terkena: posisi akhir bridge tepat ≤ 0.6 mm / 0.5°, dan lengan diam (T atau REST) selama traverse.
+
+## 0.7 Model torsi per-sampel (prioritas operator 2026-10-17 siang: "perbaiki perhitungan torque dulu, demo besok")
+
+Data: 29 CSV HW → [g64_tsid_extract.py](results/p1_g64/g64_tsid_extract.py) → **513 segmen gerak, 19 sesi** (g22/g30/g33/
+g34hw2/g36park/g51-bringup2: 0 segmen lengan — tidak dipakai, dicatat). τ = RNEA penuh di q/qd/qdd TERUKUR (SG 0.2 s, 100 Hz).
+Tanda `effort` Kortex = **−** RNEA (rasio diam median −0.86).
+
+Sisa j2 per sampel (ukur − RNEA, arah beban) — [g64_tsid_peak.py](results/p1_g64/g64_tsid_peak.py):
+
+| fase | n | p1 | p50 | p99 | p99.9 | maks |
+|---|---|---|---|---|---|---|
+| ANGKAT (searah beban) | 225 718 | +1.18 | **+3.56** | +6.30 | +7.19 | +10.58 |
+| TURUN (dibantu gravitasi) | 433 250 | −5.19 | **−2.66** | +0.07 | +0.81 | +5.76 |
+| DIAM (j2 \|qd\| ≤ 0.005) | 432 584 | −4.11 | +0.13 | +5.13 | +5.96 | +7.74 |
+
+- Gesekan gearbox searah gerak (angkat +3.6, turun −2.7) + stiksi/**windup servo saat tahan** (contoh g18: diam, RNEA 1.78 konstan,
+  effort 0.1 → 6.6 dalam 2 s) + derau sampel ±1.4. Model rata-rata (Coulomb/viskos/efisiensi, Dahl — [g64_tsid_fit.py](results/p1_g64/g64_tsid_fit.py))
+  galat puncak p95 3.6–4.1 N·m → ditolak.
+- Prediktor amplop fase `maks_t(|τ| + Q[fase])`, tinggalkan-satu-sesi (513 segmen):
+
+| aturan | kurang-prediksi | lebih rata-rata | lebih rata-rata (puncak ≥ 8, n 202) |
+|---|---|---|---|
+| **sekarang \|RNEA\| + 7.7** | **4** | 4.07 | 2.41 |
+| fase q99 | 62 | 2.15 | 0.79 |
+| fase q99.9 | 13 | 3.01 | 1.67 |
+| fase q100 | 1 | 5.83 | 4.81 |
+
+**Kesimpulan 0.7:** rumus sekarang (RNEA rencana + 7.7) **benar dan aman** untuk HW ini; sisa ±3 N·m = sifat sensor arus
+(stiksi/windup/derau), bukan salah hitung. Model per-fase hanya mengetatkan ≤ 0.7 N·m dengan kurang-prediksi 3× lebih banyak →
+**TIDAK dipasang**. Data torsi tambahan tidak menurunkan derau ini → tidak diperlukan.
+**Sumber ketidaksesuaian mock/HW yang sebenarnya = cabang IK:** penjadwal menilai torsi pada cabang statis pilihannya (TAS-RAK 4.93)
+sedangkan probe memberi MoveIt tujuan POSE dan MoveIt memilih cabang/jalur sendiri (RNEA 7.5–9.0 → TORQUE-UNSAFE; DEMO-ZONE-HW plan-only
+j2 61 % vs eksekusi 97 %). Perbaikan = tujuan SENDI dari cabang penjadwal (sudah ada: `--goal-joints`, G41/G42, run_g54).
