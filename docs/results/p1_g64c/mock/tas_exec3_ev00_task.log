@@ -1,0 +1,23 @@
+# 1792220199.9361 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.7258,0.5383,1.0550 --approach 0 --trials 1 --tau-max 14.0 --move --monitor-csv /tmp/claude-1001/-home-user1-Documents-ceiling-arm/11d2133c-65ff-4529-9e37-bd2e52b6f489/scratchpad/mock/g64c_mon_samples.csv --goal-joints={"t1_a1_joint_1": -1.6107568189936445, "t1_a1_joint_2": 0.07295147367533439, "t1_a1_joint_3": 1.0366163618717081, "t1_a1_joint_4": -1.5709072984073909, "t1_a1_joint_5": 0.9637822953528288, "t1_a1_joint_6": 1.0873778799088862} --goal-tol-deg=0.05 --reserve-dir /tmp/claude-1001/-home-user1-Documents-ceiling-arm/11d2133c-65ff-4529-9e37-bd2e52b6f489/scratchpad/mock/run_tas_exec3/res --out-json /tmp/claude-1001/-home-user1-Documents-ceiling-arm/11d2133c-65ff-4529-9e37-bd2e52b6f489/scratchpad/mock/run_tas_exec3/ev00_probe_try0.json
+1792220200.4441 probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 14.0 N.m
+1792220200.4442 sumber target: arm_1 (1.7258, 0.5383, 1.055), [] []
+1792220200.4442 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1792220200.4442 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1792220200.4442 
+1792220203.6380 [INFO] [1792220203.637246268] [reach_dwell_probe]: ujung rencana vs target: 0.40 mm, sumbu 0.05 deg
+1792220203.6387 [INFO] [1792220203.638605975] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.06->6.66/10, 2=1.96->9.66/14, 3=2.18->8.78/10, 4=0.33->2.31/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_3 88 %)
+1792220203.6443 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1792220203.6443   self.geom = pin.buildGeomFromUrdf(
+1792220206.8417 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1792220206.8418   self.geom = pin.buildGeomFromUrdf(
+1792220214.0868 [INFO] [1792220214.086646661] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 616.6 mm di titik 19 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+1792220215.4594 [INFO] [1792220215.459310094] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 143.2 mm di titik 28 (t1_a1_right_finger_dist_link_0) -> CLEAR
+1792220216.4980 [INFO] [1792220216.497938852] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.400):
+1792220217.8848 [INFO] [1792220217.884669550] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 616.6 mm di titik 34/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+1792220217.8850 [INFO] [1792220217.885000849] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 781.0 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+1792220217.8853 [INFO] [1792220217.885242614] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 143.2 mm di titik 27/60 (t1_a1_right_finger_dist_link_0)
+1792220223.6530 [INFO] [1792220223.652941305] [reach_dwell_probe]: G54 reservasi g2: 61 keadaan, minimum 755.4 mm (('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0')) -> CLEAR
+1792220228.9390        arm_1: moveit MOVED  (percobaan rencana: ['PLANNED'])
+1792220230.8168   [ 1] SUCCESS      (lengan sukses sendiri-sendiri: ['arm_1']) torsi puncak  0.00 N.m
+1792220230.8168   TIDAK VALID (mesin, A5, di LUAR penyebut): tidak ada
+1792220230.8170   -> /tmp/claude-1001/-home-user1-Documents-ceiling-arm/11d2133c-65ff-4529-9e37-bd2e52b6f489/scratchpad/mock/run_tas_exec3/ev00_probe_try0.json

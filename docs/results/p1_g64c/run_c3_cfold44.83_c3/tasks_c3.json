@@ -1,0 +1,39 @@
+{
+ "p0": {
+  "1": 1.4,
+  "2": 0.0
+ },
+ "p0_rot_deg": {
+  "1": 0.0,
+  "2": 0.0
+ },
+ "tasks": [
+  {
+   "id": "M1",
+   "p_cmd": [
+    1.7258,
+    0.5383,
+    1.055
+   ],
+   "src": "= run_c3 (tasks_synth M1)"
+  },
+  {
+   "id": "TAS_z134",
+   "p_cmd": [
+    0.978,
+    -0.831,
+    1.34
+   ],
+   "src": "= run_c3 (kontrol POSITIF)"
+  },
+  {
+   "id": "NEG_z060",
+   "p_cmd": [
+    1.0,
+    0.0,
+    0.6
+   ],
+   "src": "= run_c3 / tasks_neg (kontrol negatif)"
+  }
+ ]
+}

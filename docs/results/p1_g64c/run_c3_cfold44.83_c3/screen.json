@@ -1,0 +1,447 @@
+{
+ "p0": {
+  "1": 1.4000000000000001,
+  "2": 0.0
+ },
+ "rset": "R90",
+ "envelope": true,
+ "c_fold": 44.83,
+ "cost_provisional": false,
+ "certified": {
+  "1": true,
+  "2": true
+ },
+ "tasks": [
+  {
+   "id": "M1",
+   "node": 3132,
+   "p_cmd": [
+    1.7258,
+    0.5383,
+    1.055
+   ],
+   "diterima": true,
+   "combos": [
+    {
+     "modes": {
+      "1": "REST",
+      "2": "REST"
+     },
+     "ok": true,
+     "why": null,
+     "makespan": 29.042724498112996
+    },
+    {
+     "modes": {
+      "1": "REST",
+      "2": "T1"
+     },
+     "ok": false,
+     "why": "PANGKAS: LB 29.043 >= terbaik 29.043 (iterasi 1)",
+     "makespan": null
+    },
+    {
+     "modes": {
+      "1": "T1",
+      "2": "REST"
+     },
+     "ok": false,
+     "why": "PANGKAS: LB 118.703 >= terbaik 29.043 (iterasi 1)",
+     "makespan": null
+    },
+    {
+     "modes": {
+      "1": "T1",
+      "2": "T1"
+     },
+     "ok": false,
+     "why": "PANGKAS: LB 118.703 >= terbaik 29.043 (iterasi 1)",
+     "makespan": null
+    }
+   ],
+   "mode": {
+    "1": "REST",
+    "2": "REST"
+   },
+   "makespan_sendiri": 29.042724498112996,
+   "diag": {
+    "REST": {
+     "arm_1": {
+      "L1": 326,
+      "pose_a_tolak": 98,
+      "diverifikasi": 14,
+      "belum": 214,
+      "ok": 14,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 14,
+      "whys_cabang": {
+       "torsi-cabang": 87
+      }
+     },
+     "arm_2": {
+      "L1": 39,
+      "pose_a_tolak": 37,
+      "diverifikasi": 0,
+      "belum": 2,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_3": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_4": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     }
+    },
+    "T1": {
+     "arm_1": {
+      "L1": 326,
+      "pose_a_tolak": 0,
+      "diverifikasi": 14,
+      "belum": 312,
+      "ok": 14,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 14,
+      "whys_cabang": {
+       "torsi-cabang": 168
+      }
+     },
+     "arm_2": {
+      "L1": 39,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 39,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_3": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_4": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     }
+    }
+   },
+   "wall_s": 0.0
+  },
+  {
+   "id": "TAS_z134",
+   "node": 3133,
+   "p_cmd": [
+    0.978,
+    -0.831,
+    1.34
+   ],
+   "diterima": true,
+   "combos": [
+    {
+     "modes": {
+      "1": "REST",
+      "2": "REST"
+     },
+     "ok": false,
+     "why": "task 0 is infeasible on every gantry",
+     "makespan": null
+    },
+    {
+     "modes": {
+      "1": "REST",
+      "2": "T1"
+     },
+     "ok": true,
+     "why": null,
+     "makespan": 241.85815012469004
+    },
+    {
+     "modes": {
+      "1": "T1",
+      "2": "REST"
+     },
+     "ok": false,
+     "why": "task 0 is infeasible on every gantry",
+     "makespan": null
+    },
+    {
+     "modes": {
+      "1": "T1",
+      "2": "T1"
+     },
+     "ok": true,
+     "why": null,
+     "makespan": 241.85815012469004
+    }
+   ],
+   "mode": {
+    "1": "REST",
+    "2": "T1"
+   },
+   "makespan_sendiri": 241.85815012469004,
+   "diag": {
+    "REST": {
+     "arm_1": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_2": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_3": {
+      "L1": 556,
+      "pose_a_tolak": 333,
+      "diverifikasi": 223,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 144,
+      "torsi_ok_cabang": 751,
+      "whys_cabang": {
+       "torsi-cabang": 33355,
+       "garis-kotak": 70,
+       "garis-env": 681
+      }
+     },
+     "arm_4": {
+      "L1": 460,
+      "pose_a_tolak": 253,
+      "diverifikasi": 207,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 133,
+      "torsi_ok_cabang": 683,
+      "whys_cabang": {
+       "torsi-cabang": 34196,
+       "garis-env": 624,
+       "garis-kotak": 59
+      }
+     }
+    },
+    "T1": {
+     "arm_1": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_2": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_3": {
+      "L1": 556,
+      "pose_a_tolak": 293,
+      "diverifikasi": 98,
+      "belum": 165,
+      "ok": 5,
+      "tanpa_ik": 55,
+      "torsi_ok_cabang": 5,
+      "whys_cabang": {
+       "torsi-cabang": 14472
+      }
+     },
+     "arm_4": {
+      "L1": 460,
+      "pose_a_tolak": 0,
+      "diverifikasi": 14,
+      "belum": 446,
+      "ok": 0,
+      "tanpa_ik": 12,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {
+       "torsi-cabang": 958
+      }
+     }
+    }
+   },
+   "wall_s": 0.1
+  },
+  {
+   "id": "NEG_z060",
+   "node": 3134,
+   "p_cmd": [
+    1.0,
+    0.0,
+    0.6
+   ],
+   "diterima": false,
+   "combos": [
+    {
+     "modes": {
+      "1": "REST",
+      "2": "REST"
+     },
+     "ok": false,
+     "why": "task 0 is infeasible on every gantry",
+     "makespan": null
+    },
+    {
+     "modes": {
+      "1": "REST",
+      "2": "T1"
+     },
+     "ok": false,
+     "why": "task 0 is infeasible on every gantry",
+     "makespan": null
+    },
+    {
+     "modes": {
+      "1": "T1",
+      "2": "REST"
+     },
+     "ok": false,
+     "why": "task 0 is infeasible on every gantry",
+     "makespan": null
+    },
+    {
+     "modes": {
+      "1": "T1",
+      "2": "T1"
+     },
+     "ok": false,
+     "why": "task 0 is infeasible on every gantry",
+     "makespan": null
+    }
+   ],
+   "diag": {
+    "REST": {
+     "arm_1": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_2": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_3": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_4": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     }
+    },
+    "T1": {
+     "arm_1": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_2": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_3": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_4": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     }
+    }
+   },
+   "wall_s": 0.0
+  }
+ ]
+}

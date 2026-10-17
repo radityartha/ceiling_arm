@@ -569,7 +569,7 @@ def run(base, seeds, combos, tag):
     src = {'g55R90': ('p1_g55/g55_R90_candidates.json', 'R90'), 'g55R35': ('p1_g55/g55_R35_candidates.json', 'R35'),
            'g52R90': ('p1_g52/g52_candidates.json', 'R90')}[base]
     ref = {r['seed']: r for r in json.load(open(os.path.join(R, src[0])))}
-    out = os.path.join(HERE, f'g64c_{tag}_{base}.json')
+    out = os.path.join(HERE, f'g64c_{tag}{os.environ.get("G64C_OUT_SUFFIX", "")}_{base}.json')   # fase 4: _cfold
     rows = json.load(open(out)) if os.path.exists(out) else []
     done = {r['seed'] for r in rows}
     O = objects()
