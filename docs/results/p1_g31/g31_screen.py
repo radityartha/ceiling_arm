@@ -30,17 +30,26 @@ TASK_ATTEMPTS = 3     # = reach_dwell_probe --plan-attempts default (run_g32 doe
 REST_TOL = math.radians(0.5)
 
 
-def events(sched_g, p0, final_retract=False):
+def events(sched_g, p0, final_retract=False, mode=None):
     """g22_plan.events with rotation: [retract, traverse] when (rail, rot) changes, then tasks per arm.
     G41 (docs/p1_g41_joint_goal.md A2): final_retract adds a retract of g after its LAST task (before the next
-    gantry's events); a stop's optional 'goal' {task: {joint: pos}} is carried as ev['goal']."""
+    gantry's events); a stop's optional 'goal' {task: {joint: pos}} is carried as ev['goal'].
+    G64-C (docs/p1_g64c.md A0.4): mode {'1'|'2': 'REST'|'T1'} (None / absent / REST = the old list bit for bit). A T1
+    gantry with tasks: 'fold' at p0 first, every retract carries target 'T1', tasks carry retract_target 'T1'; after its
+    last task: retract (T1), traverse back to p0 (if not there), 'unfold' at p0 -- whatever final_retract says."""
     ev = []
     cur = {g: (p0[g], 0.0) for g in (1, 2)}
     for g in (1, 2):
+        t1 = bool(mode) and mode.get(str(g), 'REST') == 'T1' and bool(sched_g[str(g)])
+        if mode and mode.get(str(g), 'REST') not in ('REST', 'T1'):
+            raise ValueError(f'mode g{g} {mode.get(str(g))!r} tidak dikenal')
+        tx = dict(target='T1') if t1 else {}
+        if t1:
+            ev.append(dict(kind='fold', gantry=g, stop=-1, at=cur[g]))
         for k, st in enumerate(sched_g[str(g)]):
             to = (st['rail_m'], math.radians(st['rot_deg']))
             if abs(to[0] - cur[g][0]) > 1e-9 or abs(to[1] - cur[g][1]) > 1e-9:
-                ev.append(dict(kind='retract', gantry=g, stop=k))
+                ev.append(dict(kind='retract', gantry=g, stop=k, **tx))
                 ev.append(dict(kind='traverse', gantry=g, stop=k, frm=cur[g], to=to))
                 cur[g] = to
             per = {a: sorted(int(t) for t, who in st['tasks'].items()
@@ -50,8 +59,17 @@ def events(sched_g, p0, final_retract=False):
                     if j < len(per[a]):
                         t = per[a][j]
                         ev.append(dict(kind='task', gantry=g, stop=k, arm=a, task=t, xyz=st['xyz'][str(t)],
-                                       goal=st.get('goal', {}).get(str(t))))
-        if final_retract and sched_g[str(g)]:
+                                       goal=st.get('goal', {}).get(str(t)),
+                                       **({'retract_target': 'T1'} if t1 else {})))
+        if t1:
+            n = len(sched_g[str(g)])
+            ev.append(dict(kind='retract', gantry=g, stop=n, **tx))
+            home = (p0[g], 0.0)
+            if abs(home[0] - cur[g][0]) > 1e-9 or abs(home[1] - cur[g][1]) > 1e-9:
+                ev.append(dict(kind='traverse', gantry=g, stop=n, frm=cur[g], to=home, home=True))
+                cur[g] = home
+            ev.append(dict(kind='unfold', gantry=g, stop=n, at=cur[g]))
+        elif final_retract and sched_g[str(g)]:
             ev.append(dict(kind='retract', gantry=g, stop=len(sched_g[str(g)])))
     return ev
 
@@ -77,9 +95,32 @@ def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen
               't1_rotation_joint': 0.0, 't2_rotation_joint': 0.0}
     for p in P.PREFIX.values():
         placed.update({f'{p}joint_{i}': v for i, v in enumerate(P.REST, 1)})
-    for k, ev in enumerate(events(rec[var]['schedule'], p0, final_retract)):
+    mode = rec[var].get('mode')                         # G64-C: absent = REST, the old walk
+    if mode and 'T1' in mode.values():
+        sys.path.insert(0, os.path.join(HERE, '../p1_g64c'))
+        import g64c_strict
+        from return_rest import T1
+
+        def strict_fn(g_):
+            return lambda nm_, pts_, placed_: g64c_strict.check(g_, nm_, pts_, placed_, env_checker())  # noqa: E731
+    for k, ev in enumerate(events(rec[var]['schedule'], p0, final_retract, mode)):
         g = ev['gantry']
-        if ev['kind'] == 'retract':
+        if ev['kind'] in ('fold', 'unfold') or (ev['kind'] == 'retract' and ev.get('target') == 'T1'):
+            # G64-C A0.3: straight line only (no MoveIt fallback), + static torque and box (= return_rest --strict)
+            from return_rest import plan_retract
+            lines = []
+            v, segs = plan_retract(g, P.ARMS[g], placed, chk_same[g], chk_cross, env_checker(), None,
+                                   log=lines.append, target=None if ev['kind'] == 'unfold' else T1,
+                                   strict=strict_fn(g))
+            for s_ in lines:
+                log(f'    [{k}] {s_}')
+            log(f'    [{k}] {ev["kind"]} g{g} @({placed[f"t{g}_linear_joint"]:.3f}, '
+                f'{math.degrees(placed[f"t{g}_rotation_joint"]):+.0f}): {v}')
+            if v != 'CLEAR':
+                return f'{ev["kind"]} g{g}:TUCK-REFUSED:{v}'
+            for _, _, nm, pos, _ in segs:
+                placed.update(zip(nm, pos[-1]))
+        elif ev['kind'] == 'retract':
             # G34: return_rest.plan_retract -- the SAME logic the HW tool runs:
             # straight both-arm line, else arm by arm with a MoveIt plan home
             # (every screen) when the straight line is refused (G33 B6).
@@ -109,8 +150,10 @@ def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen
                                         pos=[list(q.positions) for q in jt.points])))
                 placed.update(zip(nm, pos[-1]))
         elif ev['kind'] == 'traverse':
-            dev = max(abs(placed[f'{P.PREFIX[a]}joint_{i}'] - P.REST[i - 1]) for a in P.ARMS[g] for i in range(1, 7))
-            assert dev < REST_TOL, f'traverse g{g} dengan lengan TIDAK REST ({math.degrees(dev):.2f} deg)'
+            held_q = T1 if (mode or {}).get(str(g)) == 'T1' else P.REST          # G64-C: a T1 gantry travels at T1
+            dev = max(abs(placed[f'{P.PREFIX[a]}joint_{i}'] - held_q[i - 1]) for a in P.ARMS[g] for i in range(1, 7))
+            assert dev < REST_TOL, f'traverse g{g} dengan lengan TIDAK {"T1" if held_q is not P.REST else "REST"} ' \
+                                   f'({math.degrees(dev):.2f} deg)'
             sw = R.sweep_rot(chk_rot, g, ev['frm'], ev['to'], placed)
             log(f'    [{k}] traverse g{g} ({ev["frm"][0]:.3f}, {math.degrees(ev["frm"][1]):+.0f}) -> '
                 f'({ev["to"][0]:.3f}, {math.degrees(ev["to"][1]):+.0f}): {sw["verdict"]} min {sw["d"]*1000:.1f} mm '
@@ -139,6 +182,8 @@ def walk(rec, var, node, chk_cross, chk_same, chk_rot, R, pose, _plan_and_screen
                 continue
             # G36: as the HW probe does (move_to, --plan-attempts 3): retake a
             # RETRYABLE refusal, and refuse plans that end where the arm cannot go home.
+            import reach_dwell_probe as RDP                     # G64-C: = probe --retract-target (None = REST, old)
+            RDP.RETRACT_TARGET = ev.get('retract_target')
             for _ in range(TASK_ATTEMPTS):
                 v, traj = _plan_and_screen(arm, ev['goal'] or pose(ev['xyz']), node, 0.002, 2.0, 0.15,
                                            15.0, TAU_MAX, others, start_joints=start,

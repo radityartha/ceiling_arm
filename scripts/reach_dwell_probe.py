@@ -137,6 +137,7 @@ GOAL_AXIS_TOL_DEG = 2.0
 # (GOAL-MISMATCH 6-8 %, G42/G47); retract goals to REST keep 0.2.
 TASK_GOAL_TOL_DEG = 0.2
 RESERVE_DIR = None          # G54: parallel runner reservations (docs/p1_g54_parallel.md A1); None = old behaviour
+RETRACT_TARGET = None       # G64-C (docs/p1_g64c.md A0.4): 'T1' = retract_check screens the straight line to T1 + strict
 
 
 # G44 (docs/p1_g44_start_jump.md B1/B2): 3 x p99.9 of 853 archived mock plans
@@ -1154,7 +1155,7 @@ def _plan_and_screen(arm, p_cmd, node, pos_tol, ori_tol_deg, vel_scale,
         if rv != 'CLEAR':
             node.get_logger().error(
                 f'JALUR PULANG TERHALANG: rencana DITOLAK SEBELUM GERAK -- garis lurus '
-                f'ke REST dari titik akhirnya {rv}.')
+                f'ke {RETRACT_TARGET or "REST"} dari titik akhirnya {rv}.')
             return 'RETRACT-BLOCKED', None
 
     return 'PLANNED', traj
@@ -1189,10 +1190,18 @@ def screen_retract(traj, arm, node, start_joints=None):
         return None
     jt = traj.joint_trajectory
     base.update(zip(jt.joint_names, jt.points[-1].positions))
+    kw = {}
+    if RETRACT_TARGET is not None:            # G64-C: the runner retracts a T1 gantry with return_rest --target T1 --strict
+        from return_rest import TARGETS
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'docs', 'results', 'p1_g64c'))
+        import g64c_strict
+        gi = int(g[-1])
+        kw = dict(target=TARGETS[RETRACT_TARGET],
+                  strict=lambda nm_, pts_, placed_: g64c_strict.check(gi, nm_, pts_, placed_, node._env))
     try:
         v, _ = plan_retract(int(g[-1]), [arm], base, node._interarm[g],
                             node._interarm['cross'], node._env,
-                            log=lambda s: node.get_logger().info(s))
+                            log=lambda s: node.get_logger().info(s), **kw)
     except KeyError as e:
         node.get_logger().error(f'penyaring jalur pulang: {e}')
         return None
@@ -1387,9 +1396,13 @@ def main():
     ap.add_argument('--reserve-dir', default=None,
                     help='G54: direktori reservasi runner paralel; rencana disaring vs reservasi gantry lain '
                          'sebelum gerak (RESERVE-BLOCKED = tidak bergerak). Tanpa = perilaku lama')
+    ap.add_argument('--retract-target', choices=('T1',), default=None,
+                    help='G64-C: retract_check menyaring garis lurus ke T1 (+ torsi statis + kotak) -- lengan gantry '
+                         'mode T1. Tanpa = REST (perilaku lama)')
     a = ap.parse_args()
-    global TASK_GOAL_TOL_DEG, RESERVE_DIR
+    global TASK_GOAL_TOL_DEG, RESERVE_DIR, RETRACT_TARGET
     RESERVE_DIR = a.reserve_dir
+    RETRACT_TARGET = a.retract_target
     if not 0.01 <= a.goal_tol_deg <= 0.2:
         ap.error('--goal-tol-deg harus di [0.01, 0.2]')
     TASK_GOAL_TOL_DEG = a.goal_tol_deg

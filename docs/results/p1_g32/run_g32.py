@@ -112,6 +112,8 @@ def task_cmd(e, mon, move=True, start=None, goal_tol=None, tau_max=12.0):
         cmd.append('--goal-joints=' + json.dumps(e['goal']))
         if goal_tol is not None:                     # G47: task joint-goal tolerance (absent = old argv)
             cmd.append(f'--goal-tol-deg={goal_tol:g}')
+    if e.get('retract_target'):                      # G64-C: a T1-mode gantry's task (absent = old argv)
+        cmd += ['--retract-target', e['retract_target']]
     return cmd
 
 
@@ -156,6 +158,10 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     row = {r['seed']: r for r in json.load(open(a.plan))}[a.seed]
     p0 = {g: row['p0'][str(g)] for g in (1, 2)}
+    if 'T1' in (row[a.variant].get('mode') or {}).values():
+        print(f'REFUSE: G64-C jadwal mode {row[a.variant]["mode"]} -- run_g32 (serial) tidak menjalankan lipat/buka; '
+              'pakai run_g54')
+        return 2
     evs = G31S.events(row[a.variant]['schedule'], p0, a.final_retract)
     rails = dict(p0)
     rots = {g: 0.0 for g in (1, 2)}                 # rad, p0 rotation 0/0 (g31 A4)

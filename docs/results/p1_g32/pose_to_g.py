@@ -47,6 +47,8 @@ ap.add_argument('--variant', default='R10')
 ap.add_argument('lin', type=float, help='m')
 ap.add_argument('rot', type=float, help='deg')
 ap.add_argument('--move', action='store_true')
+ap.add_argument('--allow-t1', action='store_true',
+                help='G64-C: S12 menerima kedua lengan di REST ATAU kedua di T1 (+-0.5 deg). Tanpa = REST saja (lama)')
 ap.add_argument('--rot-max', type=float, default=None,
                 help='G47: S23" symmetric |rot| limit (deg), explicit override. Default = the HW-VERIFIED envelope per '
                      'gantry in p1_g48/rot_envelope.json (G48; widened only by the stepwise sweep). Never above 175.')
@@ -103,8 +105,15 @@ dev = {x: max(abs(pos[f'{P.PREFIX[x]}joint_{j}'] - P.REST[j - 1]) for j in range
 print('S12: maks |q - REST| ' + ', '.join(f'{x} {math.degrees(v):.3f}' for x, v in dev.items())
       + f' deg (batas 0.5 untuk gantry {G})')
 if any(math.degrees(dev[x]) >= 0.5 for x in P.ARMS[G]):
-    print('REFUSE: S12 -- lengan BELUM di REST, gantry tidak digerakkan')
-    sys.exit(1)
+    T1 = None
+    if a.allow_t1:                       # G64-C: BOTH arms of G at T1 (+-0.5 deg) is the other accepted held pose
+        from return_rest import T1
+        dt1 = {x: max(abs(pos[f'{P.PREFIX[x]}joint_{j}'] - T1[j - 1]) for j in range(1, 7)) for x in P.ARMS[G]}
+        print('S12 (G64-C --allow-t1): maks |q - T1| ' + ', '.join(f'{x} {math.degrees(v):.3f}' for x, v in dt1.items())
+              + ' deg (batas 0.5, kedua lengan)')
+    if T1 is None or any(math.degrees(v) >= 0.5 for v in dt1.values()):
+        print('REFUSE: S12 -- lengan BELUM di REST' + (' maupun T1' if a.allow_t1 else '') + ', gantry tidak digerakkan')
+        sys.exit(1)
 sl, sr = pos[LJ], pos[RJ]
 s_deg, o_deg = math.degrees(sr), math.degrees(pos[ORJ])
 print(f'S23": {RJ} {s_deg:+.3f} deg, {ORJ} {o_deg:+.3f} deg; target {GR_DEG:+.3f}; amplop g1 {ENV["1"]} g2 {ENV["2"]} '

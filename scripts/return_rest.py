@@ -54,6 +54,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # hangs free here (A6/S1), and rest torque measured 0.069 N.m against tuck's
 # 12.78 of 14.
 REST = [-0.46352, 0.10710, 0.12916, -1.38653, -0.17648, 1.73885]
+# G64-C (docs/p1_g64c.md A0.2): transit pose T1 = docs/results/p1_g64/g64_transit_T.json q6, the same for every arm.
+# --target T1 folds / retracts to it; g64c_strict checks this copy against the json.
+T1 = [-0.04589, 1.0234, 2.50309, -1.57319, 1.47987, 1.61665]
+TARGETS = {'REST': REST, 'T1': T1}
 PREFIX = {'arm_1': 't1_a1_', 'arm_2': 't1_a2_',
           'arm_3': 't2_a1_', 'arm_4': 't2_a2_'}
 # docs/p1_g20_hw.md: one controller per gantry, 14 joints each, so one call
@@ -120,14 +124,14 @@ def build(names, start, goal, seconds, steps):
     return pts
 
 
-def _rest_line(start, steps=60):
-    """Positions only, the same cosine as build() (screens need no timing)."""
+def _rest_line(start, steps=60, target=None):
+    """Positions only, the same cosine as build() (screens need no timing). G64-C: target (6 joints) instead of REST."""
     return [[s + (g - s) * 0.5 * (1.0 - math.cos(math.pi * k / steps))
-             for s, g in zip(start, REST * (len(start) // 6))]
+             for s, g in zip(start, (target or REST) * (len(start) // 6))]
             for k in range(1, steps + 1)]
 
 
-def plan_retract(g, arms, state, chk_same, chk_cross, env, plan_fn=None, log=print):
+def plan_retract(g, arms, state, chk_same, chk_cross, env, plan_fn=None, log=print, target=None, strict=None):
     """G34 env-aware retract, shared by this tool (HW) and g31_screen (plan-only).
 
     1. Both arms of gantry g, ONE straight joint line to REST (the G16 rule) --
@@ -140,8 +144,11 @@ def plan_retract(g, arms, state, chk_same, chk_cross, env, plan_fn=None, log=pri
 
     state: every CONFIG_JOINTS joint (measured or placed). Returns
     ('CLEAR', [(kind, arm|None, names, positions, traj|None), ...]) or
-    (refusal, None). Positions are waypoint lists; traj is the MoveIt one."""
+    (refusal, None). Positions are waypoint lists; traj is the MoveIt one.
+    G64-C: target = 6 joints instead of REST (None = REST, unchanged); strict(names, pts, placed) -> (ok, info) is an
+    EXTRA screen on every line (g64c_strict: static torque + scene box), None = unchanged."""
     rail = f't{g}_linear_joint'
+    tgt = target or REST
 
     def screen(names, pts, placed):
         held = {n: v for n, v in placed.items() if n not in names}
@@ -151,16 +158,22 @@ def plan_retract(g, arms, state, chk_same, chk_cross, env, plan_fn=None, log=pri
         for label, (v, d, pair, k) in r:
             what = pair if isinstance(pair, str) else f'{pair[0]} <-> {pair[1]}'
             log(f'  penyaring {label}: {v}, minimum {d * 1000:.1f} mm di titik {k}/{len(pts)} ({what})')
-        return 'CLEAR' if all(x[1][0] == 'CLEAR' for x in r) else '/'.join(x[1][0] for x in r)
+        v = 'CLEAR' if all(x[1][0] == 'CLEAR' for x in r) else '/'.join(x[1][0] for x in r)
+        if strict is not None:
+            ok, info = strict(names, pts, placed)
+            log(f'  penyaring ketat (torsi statis + kotak): {"CLEAR" if ok else "TOLAK"} {info}')
+            if not ok:
+                v = 'STRICT' if v == 'CLEAR' else v + '/STRICT'
+        return v
 
     todo = [x for x in arms
-            if max(abs(state[f'{PREFIX[x]}joint_{i}'] - REST[i - 1]) for i in range(1, 7))
+            if max(abs(state[f'{PREFIX[x]}joint_{i}'] - tgt[i - 1]) for i in range(1, 7))
             >= math.radians(0.5)]
     if not todo:
         return 'CLEAR', []
     names = [f'{PREFIX[x]}joint_{i}' for x in todo for i in range(1, 7)]
-    pts = _rest_line([state[n] for n in names])
-    log(f'retract g{g} {todo} lurus (rel {state[rail]:.3f}):')
+    pts = _rest_line([state[n] for n in names], target=target)
+    log(f'retract g{g} {todo} lurus (rel {state[rail]:.3f})' + ('' if target is None else ' ke target G64-C') + ':')
     v = screen(names, pts, state)
     if v == 'CLEAR':
         return 'CLEAR', [('lurus', None, names, pts, None)]
@@ -170,13 +183,13 @@ def plan_retract(g, arms, state, chk_same, chk_cross, env, plan_fn=None, log=pri
         placed, segs, fail = dict(state), [], None
         for arm in order:
             nm = [f'{PREFIX[arm]}joint_{i}' for i in range(1, 7)]
-            p1 = _rest_line([placed[n] for n in nm])
+            p1 = _rest_line([placed[n] for n in nm], target=target)
             log(f'retract {arm} sendiri lurus:')
             v1 = screen(nm, p1, placed)
             if v1 == 'CLEAR':
                 segs.append(('lurus', arm, nm, p1, None))
             else:
-                v2, traj = plan_fn(arm, dict(zip(nm, REST)), placed, not segs)
+                v2, traj = plan_fn(arm, dict(zip(nm, tgt)), placed, not segs)
                 log(f'retract {arm} via MoveIt: {v2}')
                 if v2 != 'PLANNED':
                     fail = f'{arm}:{v1}+{v2}'
@@ -204,7 +217,24 @@ def main():
                     help='A6/S7: benar-benar menggerakkan. Tanpa ini DRY RUN.')
     ap.add_argument('--no-plan', action='store_true',
                     help='G34: tanpa cadangan MoveIt (hanya garis lurus, perilaku G33).')
+    ap.add_argument('--target', choices=sorted(TARGETS), default=None,
+                    help='G64-C: pose tujuan (lipat ke T1 / buka ke REST). Tanpa = REST (perilaku lama). T1 = garis lurus '
+                         'SAJA (tanpa cadangan MoveIt).')
+    ap.add_argument('--strict', action='store_true',
+                    help='G64-C A0.3: + torsi statis RNEA + 7.7 + margin <= batas tiap titik + kotak scene >= 10 mm '
+                         '(docs/results/p1_g64c/g64c_strict.py). Tolak = TUCK-REFUSED, nol gerak.')
     a = ap.parse_args()
+    target = TARGETS[a.target] if a.target else None
+    if a.target == 'T1' and not a.no_plan:
+        print('G64-C: --target T1 = garis lurus saja (--no-plan dipaksa).')
+        a.no_plan = True
+    strict = None
+    if a.strict:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'docs', 'results', 'p1_g64c'))
+        import g64c_strict
+        if [round(x, 5) for x in g64c_strict.T1] != T1:
+            print(f'🔴 T1 return_rest {T1} != g64_transit_T.json {g64c_strict.T1} -- MENOLAK.')
+            return 1
     gs = {GANTRY[x] for x in a.arms}
     if len(gs) != 1:
         ap.error(f'--arms harus dari SATU gantry (satu controller); {a.arms} '
@@ -242,13 +272,14 @@ def main():
         return 1
 
     start = [state[n] for n in names]
-    goal = REST * len(a.arms)
+    goal = (target or REST) * len(a.arms)
     err = max(abs(s - g) for s, g in zip(start, goal))
-    print(f'lengan: {a.arms}   galat terbesar dari rest: '
+    print(f'lengan: {a.arms}   galat terbesar dari {a.target or "rest"}: '
           f'{math.degrees(err):.2f} deg')
     print(f'rel {rail} = {state[rail]:.6f} m')
     if math.degrees(err) < 0.5:
-        print('sudah di rest (< 0.5 deg) -- tidak ada yang perlu dikerjakan.')
+        print('sudah di rest (< 0.5 deg) -- tidak ada yang perlu dikerjakan.' if a.target is None else
+              f'sudah di target {a.target} (< 0.5 deg) -- tidak ada yang perlu dikerjakan.')
         node.destroy_node()
         rclpy.shutdown()
         return 0
@@ -273,6 +304,8 @@ def main():
             return 1
         from env_collision import EnvChecker
         env = EnvChecker()
+        if a.strict:
+            strict = lambda nm_, pts_, placed_: g64c_strict.check(g, nm_, pts_, placed_, env)  # noqa: E731
     except (ImportError, FileNotFoundError, KeyError, ValueError) as e:
         print(f'🔴 penyaring antar-lengan/lingkungan tidak dapat dimuat ({e}) '
               '-- MENOLAK (S9/G33).')
@@ -308,9 +341,12 @@ def main():
     ac = None
     tau_all, tau_who, sent = 0.0, '', []
     for _ in range(4):
-        v, segs = plan_retract(g, a.arms, state, chk, cross, env, plan_fn)
+        v, segs = plan_retract(g, a.arms, state, chk, cross, env, plan_fn, target=target, strict=strict)
         if v != 'CLEAR':
-            print(f'🔴 jalur PEMULIHAN ditolak ({v}) -- MENOLAK. Lengan tetap di tempat.')
+            if a.target is not None or a.strict:
+                print(f'🔴 TUCK-REFUSED: garis lurus ke {a.target or "REST"} ditolak ({v}) -- MENOLAK. Lengan tetap di tempat.')
+            else:
+                print(f'🔴 jalur PEMULIHAN ditolak ({v}) -- MENOLAK. Lengan tetap di tempat.')
             return done(1)
         if not segs:
             break
@@ -321,7 +357,7 @@ def main():
             return done(0)
         kind, arm, nm, pos, traj = segs[0]
         if kind == 'lurus':
-            pts = build(nm, [state[n] for n in nm], REST * (len(nm) // 6), a.seconds, a.steps)
+            pts = build(nm, [state[n] for n in nm], (target or REST) * (len(nm) // 6), a.seconds, a.steps)
         else:
             pts = traj.joint_trajectory.points
         if ac is None:

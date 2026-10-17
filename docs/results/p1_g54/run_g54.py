@@ -120,6 +120,24 @@ class GoalFix:
         return goal, info
 
 
+def rr_cmd(g, e):
+    """G64-C: return_rest argv of a retract / fold / unfold event (a REST-mode retract = the old argv bit for bit)."""
+    cmd = ['python3', '-u', 'return_rest.py', '--arms', *P.ARMS[g], '--move', '--no-plan']
+    if e['kind'] == 'fold' or e.get('target') == 'T1':
+        cmd += ['--target', 'T1', '--strict']
+    elif e['kind'] == 'unfold':
+        cmd += ['--target', 'REST', '--strict']
+    return cmd
+
+
+def traverse_cmd(g, e, a, plan, rot_add, t1):
+    """pose_to_g argv of a traverse event (t1 False = the old argv bit for bit)."""
+    return ['python3', '-u', os.path.join(R, 'p1_g32/pose_to_g.py'), '--gantry', str(g),
+            '--seed', str(a.seed), '--plan', plan, '--variant', a.variant,
+            f'{e["to"][0]:.3f}', f'{math.degrees(e["to"][1]) + rot_add:.3f}', '--move'] + \
+        (['--rot-max', f'{a.rot_max:g}'] if a.rot_max is not None else []) + (['--allow-t1'] if t1 else [])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--seed', type=int, required=True)
@@ -156,8 +174,11 @@ def main():
     RES = os.path.join(OUT, 'res')
     row = {r['seed']: r for r in json.load(open(a.plan))}[a.seed]
     p0 = {g: row['p0'][str(g)] for g in (1, 2)}
-    evs = G31S.events(row[a.variant]['schedule'], p0, a.final_retract)
+    amode = row[a.variant].get('mode')              # G64-C (docs/p1_g64c.md A0.11): absent = REST, the old event list
+    evs = G31S.events(row[a.variant]['schedule'], p0, a.final_retract, amode)
     E = {g: [dict(e, idx=i) for i, e in enumerate(evs) if e['gantry'] == g] for g in (1, 2)}
+    T1G = {g for g in (1, 2) if (amode or {}).get(str(g)) == 'T1'}
+    RR = ('retract', 'fold', 'unfold')                  # events run by return_rest (straight line, reserved first)
     rails, rots = dict(p0), {1: 0.0, 2: 0.0}
     inj_rot, inj_plan = None, a.plan
     if a.inject_rot_error:                     # G61 TEST: a short rotation the mock cannot produce by itself
@@ -168,7 +189,8 @@ def main():
         st_['rot_deg'] = round(st_['rot_deg'] + inj_rot[2], 3)
         inj_plan = os.path.join(OUT, 'inject_rot_plan.json')
         json.dump(allp, open(inj_plan, 'w'))
-    rec = dict(seed=a.seed, variant=a.variant, plan=a.plan, mode='parallel', events=[], stop=None)
+    rec = dict(seed=a.seed, variant=a.variant, plan=a.plan, mode='parallel', events=[], stop=None,
+               **({'arm_mode': amode} if amode else {}))
     io = threading.Lock()
 
     def say(s):
@@ -339,9 +361,15 @@ def main():
         st['stop'] = why
         say(f'AUTO-STOP: {why}')
         return finish(3)
+    def trav_cmd(g, e, inj=False):
+        return traverse_cmd(g, e, a, inj_plan if inj else a.plan, inj_rot[2] if inj else 0.0, g in T1G)
+
     if a.dry:
         for g in (1, 2):
             for e in E[g]:
+                if T1G and e['kind'] != 'task':           # G64-C: show the mode-T1 tool argv too (REST-only = old DRY)
+                    c = rr_cmd(g, e) if e['kind'] in RR else trav_cmd(g, e)
+                    say(f'  perintah g{g} event {e["idx"]} ({e["kind"]}): {" ".join(c)}')
                 if e['kind'] == 'task':
                     say(f'  perintah g{g} event {e["idx"]}: '
                         f'{" ".join(R32.task_cmd(e, a.mon, goal_tol=a.goal_tol_deg, tau_max=a.tau_max))} --reserve-dir {RES}')
@@ -431,15 +459,16 @@ def main():
             stop_all(f'DEADLOCK: g{g} dan g{o} saling terhalang reservasi, tidak ada yang berjalan')
         return not st['stop']
 
-    def retract_line(g):
-        """(names, pts) of return_rest's straight line for BOTH arms of g from the measured state (None at REST)."""
+    def retract_line(g, target=None):
+        """(names, pts) of return_rest's straight line for BOTH arms of g from the measured state (None at the target).
+        G64-C: target = T1 joints (fold / T1 retract); None = REST."""
         from return_rest import _rest_line
         m = measured()
         names = [f't{g}_a{k}_joint_{i}' for k in (1, 2) for i in range(1, 7)]
         cur = [m[n] for n in names]
-        if max(abs(c - x) for c, x in zip(cur, list(P.REST) * 2)) < REST_TOL:
+        if max(abs(c - x) for c, x in zip(cur, list(target or P.REST) * 2)) < REST_TOL:
             return None
-        return names, _rest_line(cur)
+        return names, _rest_line(cur, target=target)
 
     def worker(g):
         o = 2 if g == 1 else 1
@@ -464,8 +493,9 @@ def main():
                     ep_o = epoch[o]
                     cv.notify_all()
                 logf = f'{OUT}/ev{i:02d}_{e["kind"]}.log'
-                if e['kind'] == 'retract':
-                    line = retract_line(g)
+                if e['kind'] in RR:
+                    from return_rest import T1
+                    line = retract_line(g, T1 if (e['kind'] == 'fold' or e.get('target') == 'T1') else None)
                     if line is not None:
                         with RSV.Lock(RES) as L:
                             m = measured()
@@ -477,7 +507,7 @@ def main():
                                     s.update(zip(line[0], q))
                                     sts.append(s)
                                 L.write(g, [m] + sts, f'runner retract g{g} ev {i}')
-                        say(f'  [g{g} {i}] retract vs reservasi g{o}: {d * 1000:.1f} mm {pair} -> {v}')
+                        say(f'  [g{g} {i}] {e["kind"]} vs reservasi g{o}: {d * 1000:.1f} mm {pair} -> {v}')
                         if v != 'CLEAR':
                             with cv:
                                 running[g] = None
@@ -485,20 +515,17 @@ def main():
                             n_blk += 1
                             if n_blk > a.max_blocked or not wait_change(g, ep_o):
                                 if not st['stop']:
-                                    stop_all(f'g{g} ev {i} retract terhalang {n_blk}x')
+                                    stop_all(f'g{g} ev {i} {e["kind"]} terhalang {n_blk}x')
                                 return
                             continue
-                    cmd = ['python3', '-u', 'return_rest.py', '--arms', *P.ARMS[g], '--move', '--no-plan']
+                    cmd = rr_cmd(g, e)
                 elif e['kind'] == 'traverse':
                     inj = inj_rot is not None and (g, e['stop']) == inj_rot[:2]
                     if inj:
                         rec['inject_rot'] = dict(g=g, stop=e['stop'], idx=i, deg=inj_rot[2], t=time.time())
                         say(f'  [g{g} {i}] INJEKSI UJI: rotasi diperintahkan {math.degrees(e["to"][1]) + inj_rot[2]:+.3f} '
                             f'(jadwal {math.degrees(e["to"][1]):+.3f}); nominal/goal/penjaga = jadwal')
-                    cmd = ['python3', '-u', os.path.join(R, 'p1_g32/pose_to_g.py'), '--gantry', str(g),
-                           '--seed', str(a.seed), '--plan', inj_plan if inj else a.plan, '--variant', a.variant,
-                           f'{e["to"][0]:.3f}', f'{math.degrees(e["to"][1]) + (inj_rot[2] if inj else 0.0):.3f}', '--move'] + \
-                        (['--rot-max', f'{a.rot_max:g}'] if a.rot_max is not None else [])
+                    cmd = trav_cmd(g, e, inj)
                 else:
                     pj = f'{OUT}/ev{i:02d}_probe_try{n_blk}.json'
                     et, gc = e, None
@@ -578,7 +605,9 @@ def main():
                     import re
                     mt = re.search(r'torsi puncak ([0-9.]+)', txt)
                     er['tau_peak'] = float(mt.group(1)) if mt else None
-                    er['skipped'] = 'sudah di rest' in txt
+                    er['skipped'] = 'sudah di rest' in txt or 'sudah di target' in txt
+                    if 'TUCK-REFUSED' in txt:                       # G64-C: fold/unfold/T1 retract refused, arm did not move
+                        er['tuck_refused'] = True
                     if rc != 0 or (er['tau_peak'] and er['tau_peak'] > 13.5):
                         end_event(g, er)
                         stop_all(f'g{g} ev {i} return_rest rc={rc} torsi {er["tau_peak"]}')
@@ -674,6 +703,7 @@ def main():
     ok = [x for x in tasks if x.get('t_success')]
     rec['complete'] = len(ok) == len(tasks) == sum(e['kind'] == 'task' for e in evs)
     rec['makespan'] = (max(x['t_success'] for x in ok) - t0) if rec['complete'] else None
+    rec['t_end_all'] = max((x['t_end'] for x in rec['events']), default=t0) - t0   # G64-C: incl. return + unfold
     rec['peak_tau'] = {k: v[0] for k, v in W.snap()[2].items()}
     POOL.terminate()
     say((f'SELESAI: {len(ok)}/{len(tasks)} tugas sukses; makespan terukur {rec["makespan"]:.2f} s'
