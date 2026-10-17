@@ -53,3 +53,11 @@ Model: Opus, effort **high** (integrasi solver ↔ persepsi bisa salah diam-diam
 > **2026-10-17 12:0x (operator):** DEMO-SYS DITUNDA sampai G64 JOINT-PLAN (`docs/p1_g64_joint_plan_prompt.md`) selesai — sistem harus bisa
 > merencanakan gantry + lengan gabungan (lipat sambil bergerak) dulu. Catatan MoveIt: lengan direncanakan MoveIt (hindari tabrakan scene),
 > gantry TIDAK (pose_to_g gerak langsung + saring S28/G33), MoveIt buta antar-lengan (SRDF) dan torsi (penyaring kita).
+
+> **2026-10-17 siang (operator, G64 §0.7–0.8): torsi DIPERIKSA DULU → demo BESOK.** Hasil (`docs/p1_g64_joint_plan.md` §0.7–0.8):
+> rumus torsi (RNEA rencana + 7.7 ≤ 14) benar/aman (513 segmen HW; model per-fase tidak lebih baik). Selisih mock/HW datang dari
+> **tujuan POSE** (MoveIt memilih cabang IK sendiri: TAS-RAK RNEA 7.5–9.0 vs cabang penjadwal 4.93; DEMO-ZONE-HW plan-only 61 % vs
+> eksekusi 97 %). Dengan **tujuan SENDI dari penjadwal** (run_g54 → `task_cmd` → `--goal-joints`): penjadwal = probe = HW di 87/87
+> tugas G57 (RNEA rencana − garis statis ≤ +0.05 N·m, ukur > prediksi penjadwal 0/87). **Aturan demo besok:** tugas HANYA lewat
+> solver P1″ → run_g54 (tujuan sendi); `demo_runner` (tujuan pose) TIDAK dipakai untuk gerak. G64 lipat (pose transit T1) BELUM
+> diimplementasikan → tas di atas lemari = kontrol negatif yang harus DITOLAK sistem (REST di stop / garis pulang), bukan dicoba.

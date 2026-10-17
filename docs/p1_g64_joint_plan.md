@@ -166,3 +166,16 @@ Sisa j2 per sampel (ukur − RNEA, arah beban) — [g64_tsid_peak.py](results/p1
 **Sumber ketidaksesuaian mock/HW yang sebenarnya = cabang IK:** penjadwal menilai torsi pada cabang statis pilihannya (TAS-RAK 4.93)
 sedangkan probe memberi MoveIt tujuan POSE dan MoveIt memilih cabang/jalur sendiri (RNEA 7.5–9.0 → TORQUE-UNSAFE; DEMO-ZONE-HW plan-only
 j2 61 % vs eksekusi 97 %). Perbaikan = tujuan SENDI dari cabang penjadwal (sudah ada: `--goal-joints`, G41/G42, run_g54).
+
+## 0.8 Konsistensi penjadwal ↔ probe ↔ HW untuk tujuan sendi (87 tugas HW G57, data G61 C3)
+
+| ukuran | nilai |
+|---|---|
+| RNEA rencana probe − gravitasi statis garis sendi lurus (predikat penjadwal e3), j2 | p50 −0.04, p95 +0.006, **maks +0.05** N·m (MARGIN 0.66) |
+| garis lurus vs jalur terukur (gravitasi) | ≤ 0.012 N·m |
+| lolos penjadwal (garis + 7.7 + 0.66 ≤ 14) / lolos probe (rencana + 7.7 ≤ 14) | 87 / 87, 0 beda |
+| ukur > prediksi penjadwal / > prediksi probe | **0** / 2 (maks +0.31) |
+
+→ Dengan tujuan SENDI dari cabang penjadwal, prediksi torsi penjadwal = rencana mock = HW. Jalur demo yang sah = solver P1″ →
+`run_g54` (`run_g32.task_cmd` menambah `--goal-joints`). `demo_runner.py` mengirim `--target` (tujuan POSE) → cabang bebas → selisih.
+Aturan ini ditulis ke `p1_demo_sys_prompt.md` (demo besok).
