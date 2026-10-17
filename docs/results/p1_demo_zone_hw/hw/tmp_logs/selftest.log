@@ -1,0 +1,21 @@
+  missing joint: raised ("konfigurasi tanpa ['t2_rotation_joint'] -- TOLAK")
+  missing map: raised (peta lingkungan /nonexistent.npz tidak ada -- TOLAK (jangan )
+SELF-TEST PASS
+rc env 0
+  C. dua lengan kontak->REST : terpangkas COLLIDE +0.000 0 vs padat COLLIDE +0.000 0  SAMA ✓
+
+SWA-UJI: LULUS -- pemeriksa membedakan bebas dari tabrakan.
+rc interarm 0
+  ⚠️  PERIKSA DENGAN MATA, tidak bisa diotomatiskan:
+      - LED tiap lengan TIDAK amber/init (mid-boot = SIGABRT -6,
+        dan keempat lengan mati bersama). Beri jeda setelah power-on.
+      - LED TIDAK merah (fault terkunci; fault_controller tidak
+        di-spawn, jadi reset harus FISIK).
+      - Board kalibrasi SUDAH DIKELUARKAN dari ruang kerja
+        (kecuali sengaja dipakai sebagai target persepsi).
+      - Lengan menggantung bebas; TIDAK ada yang menyentuh rel.
+
+==========================================================================
+[32mGERBANG LULUS.[0m Lanjut ke tahap berikutnya (A7).
+==========================================================================
+rc remount 0

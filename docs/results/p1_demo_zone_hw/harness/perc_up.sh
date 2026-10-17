@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Kamera (incumbent + G34, imgsz 1280) + localizer rgbd2 saja + node zona (botol 7 cm) di domain 0 (= live_up.sh, domain beda).
 # PID dicari dari ps -> $L/pids_perc.txt. Matikan: perc_down.sh.
-set -u; source $(dirname $0)/env.sh
+source $(dirname $0)/env.sh
 setsid nohup $H/p1_demo_hw/harness/cam_up.sh seg_imgsz:=1280 > $L/cam.log 2>&1 < /dev/null &
 sleep 5
 setsid nohup $H/p1_cam6dof/harness/loc_cam.sh rgbd2 > $L/loc.log 2>&1 < /dev/null &

@@ -89,3 +89,92 @@ Di luar A1–A3 (botol putih 7 cm) → aturan tambahan, A1–A3 tidak diubah.
 
 §A sha256 `c8be80da…` ([salinan](results/p1_demo_zone_hw/demo_zone_hw_A_locked.md)) — dikunci sesudah mock, SEBELUM kamera/bring-up.
 
+**B0. Luring (tugas 0, commit 846e1e3).** `demo_runner.py` `--tracks-topic` + `--arms` (default lama identik: urutan arm_1, arm_2;
+argv `return_rest` sama). Harness [p1_demo_zone_hw/harness/](results/p1_demo_zone_hw/harness/). Mock 77 = A0.9. Sesudah kunci, 2
+perbaikan harness (bukan gerbang): `perc_up.sh` `set -u` bentrok `setup.bash` (dihapus, 0 proses setengah jalan); `rec.sh` baru
+(Z2 domain 0); `js_window.py` (analisis jendela /joint_states).
+
+**B1. Preflight + kamera (10:38–10:45), stack MATI, NOL gerak.** Self-test env PASS, interarm LULUS, remount GERBANG LULUS
+([log](results/p1_demo_zone_hw/hw/tmp_logs/selftest.log)). Izin kamera (tombol). 0 node domain 0 sebelum; `perc_up` launch 1726884
+(**SigIgn `0x1001007`, SIGINT diabaikan** → anak-dulu), loc 1727183, node 1727184; `seg_router` imgsz **1280** (param), 0
+`inference failed` sepanjang sesi; rgbd2 2× peringatan `Left MIPI error` (Hardware Notification) saat start, stream 30 Hz normal
+sesudahnya (sesi 09:55 0×). Tampilan `view_up` hidup (RViz demo + rqt); layar :1 sempat screensaver.
+- **Z1 `table_check`** (3 bacaan, keluaran hanya di transkrip sesi — tidak tersimpan berkas): meja median **(0, 0) px** 3/3
+  (15 fitur NCC ≥ 0.85); statis kabel (0, 0) 3/3; fase kiri-atas **(+0.4, +0.3)**, (+0.3, +0.3), (+0.3, +0.3) px → bacaan 1 > 0.3
+  = **✗ harfiah** (0.1 px), 2–3 ✓. Operator diberi tahu, memilih lanjut.
+- **Z2 percobaan 1 — BOTOL SALAH:** operator menaruh botol GELAP (`blue bottle` 0.82; gambar debug menunjukkan botol gelap):
+  L1–L3 lulus, 4.04 cm — **tidak dihitung** (§A = botol putih), disimpan [info_dark_m1_stackoff/](results/p1_demo_zone_hw/hw/info_dark_m1_stackoff/).
+- **Z2 botol putih M1** (10:45, stack mati): `white bottle` #3, 30/30, **3.35 cm** (mentah 14.38), z mentah **0.834** → ✓.
+
+**B2. Bring-up nyata (10:45:37, izin) + K0.** Launch 1729508 SigIgn `0x1001001`; 4× '6'; 0 `pointcloud_octomap_updater`;
+`list_controllers` 7/7 active (2 spawner "already loaded" = balapan dikenal); table1 NOT armed sekali → ARMED 2 s kemudian, table2
+ARMED. `env_static_map` di scene: kosong → `env_static_map_pub.py --once` → True (pola G57). K0 polos TOLAK hanya jari arm_2
+**0.8095** / arm_3 **0.7820** (acuan 10-16 0.810/0.782 ✓) → `g63_k0` **LULUS**. Monitor + perekam domain 0 (CSV tumbuh).
+- **Z2 stack hidup:** #4 `white bottle` **3.38 cm**, z 0.834 (beda dari stack mati 0.03 cm).
+
+**B3. H3 plan-only (10:47:52, izin).** POST "please bring a bottle" → CLI (remap) "understood 'bottle' = track #4" → runner `#4`;
+`g` → **`success arm_1 (arm_1:PLANNED) 19.64 s`**, percobaan 1, terketat **j3 84 %**, j2 8.55/14 (61 %); S18 582.2, env 155.3 mm;
+retract lurus CLEAR (582.3 / 781.3 / 155.2). p_cmd **(1.7166, 0.5375, 1.0550)** vs Z2 (1.7176, 0.5387) = 0.16 cm, z tepat.
+/joint_states sebelum−sesudah maks **0.0002°**, rel 0 mm → **H3 ✓** ([run01](results/p1_demo_zone_hw/hw/run01.json)).
+
+**B4. H4 jalan bergerak 1 — M1 (10:49:33–10:50:53, izin).** Runner EXECUTE `--arms arm_1`. p_cmd (1.7167, 0.5383, 1.0550).
+⚠ Rencana eksekusi = cabang OMPL lain: prediksi **j2 13.61/14 (97 %)** (plan-only 61 %) — lolos penyaring (tidak dilonggarkan),
+dicatat. S18 534.5, env 135.7 mm, retract CLEAR → **MOVED** → dwell **SUCCESS** (time-to-dwell 32.7 s, `pos_err_max_settled`
+**0.79 mm**) → `return_rest --arms arm_1` rc 0 (45.1 s, galat 0.036°, torsi 5.18) → **`success arm_1 (arm_1:MOVED) 79.42 s`**.
+Terukur: **puncak j2 10.40 N·m** di +31.6 s (ujung transit; dwell 10.15 → beban tahan statis), sendi lain ≤ 1.76; arm_2/3/4 maks
+**0.009°**; t1/t2 linear + rotasi **0.000**; 0 START-JUMP/UNSCREENED; 0 gerak kedua → **H4 ✓**
+([run02](results/p1_demo_zone_hw/hw/run02.json), [js](results/p1_demo_zone_hw/hw/tmp_logs/js_run02.txt)).
+Galat demo terhadap tanda (info): \|p_cmd_xy − M1\| = 3.5 cm ⊕ TCP 0.8 mm.
+
+**B5. Operator: pertanyaan kamera + "cari tas" (10:5x).**
+- Jawaban kamera: rgbd2 saja karena rgbd tidak melihat meja arm_1 (DEMO-HW F1) dan P3 di-fit data rgbd2; bagi area per kamera
+  (rgbd dekat arm_2/3/4, rgbd2+P3 di meja arm_1) = usul fase baru.
+- **A4 TAS dikunci** (sha 67610401, commit 03f47bc) sebelum data. Prompt live `bag` → tidak ada deteksi; operator: **tas di
+  rak/lemari, bukan di meja**. Info (NOL gerak): prompt `paper bag,shopping bag,bag` + `loc_cam rgbd` sementara → tas kertas putih
+  di atas lemari: rgbd `gray paper bag` 0.29 (1.001, −0.807, 1.094), rgbd2 0.26 (0.956, −0.855, 1.076) — beda 6 cm; plus tas
+  coklat lantai (1.565, −0.822, 0.383). Lemari di sisi gantry 2 (y −0.82) = "rak" G32; runner hanya kenal arm_1/arm_2, arm_3
+  memegang papan → **gerak ke tas TIDAK dijalankan**; operator: "tas tetap di rak, fase baru". A4 T1–T4 **tidak diuji**.
+
+**B6. Matikan (10:58–11:02).** K0 akhir `g63_k0` **LULUS** (= awal). ⚠ Satu panggilan `kill` memakai pola awk `[r]qt_image_view`
+yang cocok dengan teks baris perintah sendiri (`lib\/rqt_image_view`) → shell sendiri ter-TERM (exit 144, jebakan G33) sebelum
+`perc_down`; sinyal ke helper sudah terkirim. Lanjut: `perc_down.sh` (11 anak launch SIGINT, 0 sisa), launch stack SIGINT → mati
+5 s; **0 node domain 0/77/79**. Crash dump rviz2 mock 10:24 (174 MB, milik sesi) dihapus. Arsip `/tmp/p1dzh` →
+[hw/](results/p1_demo_zone_hw/hw/) (`p1dzh_joint_states.csv.gz` 12.8 MB tidak di-commit; frame berisi orang tidak di-commit).
+
+### B7. Papan skor
+
+| # | Kriteria | Hasil |
+|---|---|---|
+| Z1 | meja 0 px, statis ≤ 0.3 | meja ✓ 0 px 3/3; statis ✗ harfiah bacaan 1 (0.4 px), ✓ bacaan 2–3 |
+| Z2 | satu track, ≤ 5 cm, z [0.79, 0.84] | ✓ 3.35 (stack mati) / 3.38 cm (stack hidup), z 0.834 |
+| H3 | plan-only | ✓ PLANNED, p_cmd 0.16 cm dari Z2, js 0.0002° |
+| H4 | jalan bergerak | ✓ 1 jalan (79.4 s, torsi 10.40, REST rc 0, lengan lain/gantry diam) |
+| H5 | bersih | ✓ K0 akhir LULUS, 0 node, arsip |
+
+| # | Dugaan | Hasil |
+|---|---|---|
+| D655 | Z1 0 px | ✓ meja (statis bacaan 1 0.4 px dicatat di Z1) |
+| D656 | Z2 ≤ 3 cm, z [0.80, 0.84] | ✗ 3.35 cm (z 0.834 ✓) |
+| D657 | stack hidup = langkah 3 ≤ 1 cm, 0 inference failed | ✓ 0.03 cm, 0 |
+| D658 | PLANNED `g` pertama, j3 85–92 %, j2 ≤ 80 % | ✗ j3 **84 %** (di luar rentang 1 poin); PLANNED pertama ✓, j2 61 % ✓ |
+| D659 | jalan 1 MOVED → REST `g` pertama, 40–90 s | ✓ 79.4 s |
+| D660 | torsi ≤ 12.0, di transit | ✓ 10.40, ujung transit (dwell 10.15) |
+| D661 | 0 START-*, 0 gerak tak diminta, lain diam | ✓ |
+| D662 | TCP dwell ≤ 10 mm | ✓ 0.79 mm |
+| D663 | C3 TORQUE-UNSAFE / j2 ≥ 90 % | — tidak diuji (C3 tidak dijalankan) |
+| D664–D666 | tas (A4) | — tidak diuji (tas di rak, di luar zona) |
+
+**Tally: 6 ✓ / 2 ✗ / 4 tidak diuji. DEMO BERGERAK TERCAPAI: teks → YOLOE → rgbd2 → koreksi zona P3 → CLI → runner → probe →
+arm_1 0.25 m di atas botol M1 → REST, HW nyata, 1 jalan.**
+
+### B8. Temuan
+- **F1 Cabang OMPL beda antara plan-only dan eksekusi:** titik sama, prediksi j2 61 % vs 97 %. Plan-only bukan jaminan margin jalan
+  bergerak; penyaring per-rencana tetap yang menjaga. Terukur 10.40 (statis di target ~10.1).
+- **F2 Botol salah bisa lolos gerbang:** botol gelap lulus L1–L3 (4.04 cm) — gerbang tidak memeriksa jenis botol; label YOLOE
+  (`blue`/`white`) berkedip untuk benda yang sama (log node #3 `blue` → `white`). Cek mata/gambar debug sebelum Z2.
+- **F3 Tas di rak** terdeteksi kedua kamera dengan prompt `paper bag` (conf 0.26–0.29, beda 6 cm), di sisi gantry 2 → fase baru:
+  arm_3/arm_4, rak = zona tabrakan G32, papan masih di arm_3, runner hanya arm_1/arm_2, tanpa koreksi zona (rgbd dekat).
+- **F4 Bagi area per kamera** (usul operator): rgbd untuk zona dekat (arm_2/3/4, G34 ≤ 4 cm), rgbd2 + P3 untuk meja arm_1.
+- **F5 Pola kill:** jangan menaruh pola regex yang muncul juga sebagai teks literal di baris perintah (mis. `lib\/rqt_image_view`
+  memuat `rqt_image_view`) — pakai skrip berkas atau `comm`.
+
