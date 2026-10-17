@@ -130,4 +130,55 @@ node vs luring 0.09 mm; kontrol negatif (2 track diterima / nol track) → L1 �
 - Operator bertanya apakah botol HITAM lebih baik → dijawab: §A + fit P3 pakai botol PUTIH (bias depth bahan terserap); hitam = info
   sesudah gerbang saja. Operator: "belum siap … jam 9 saya baru ke lokasi". Kamera dimatikan bersih (launch hilang 4 s, 0 proses,
   0 node di 79); galat `seg_router` saat shutdown = pola SIGINT dikenal.
-- **Belum:** A1.3 botol di C3 / M1 (jam 9).
+
+**B2. Sesi 2 (09:55–10:09), kamera saja domain 79, NOL gerak** — [hw_20261017/](results/p1_demo_zone/live/hw_20261017/)
+- `live_up.sh`: launch 1706720, loc 1707009, node 1707010; 0 node di 79 sebelum; 0 `inference failed`. ⚠ launch kali ini
+  **SigIgn `0x1001007` (SIGINT DIABAIKAN)** — beda dari sesi 1 (`0x1001001`).
+- **C3 percobaan 1 (09:57) — ACUAN TIDAK SAH:** L1 ✓, L3 ✓ (z 0.832), **L2 ✗ 6.84 cm** (mentah 15.79). Track mentah (2.006, 0.683)
+  ≈ track lama C6, bukan C3. Diagnosa: kamera TIDAK bergeser (dinding/kabel ≤ 0.8 px vs frame 10-14 `k4_rgbd2.jpg`); fitur permukaan
+  meja bergeser **+7 px** (template NCC ≥ 0.85) ≈ **(+1.7, −2.6…−3.8) cm** di bidang meja. **Operator: "iya meja kemarin saya geser"**
+  → pita tanda ikut meja, koordinat FK tidak berlaku. Bila pita digeser sebesar itu, galat ≈ 3 cm (info, dari citra). Dicatat ✗
+  harfiah dengan alasan; [c3_meja_geser/](results/p1_demo_zone/live/hw_20261017/c3_meja_geser/). Alat baru
+  [table_check.py](results/p1_demo_zone/live/table_check.py) (sesudah kunci; tidak mengubah gerbang).
+- Operator mengembalikan meja → `table_check`: **0 px** (19 fitur; sisa hanya mangkuk/gripper), kontrol statis ≤ 0.3 px. Dicek ulang
+  sesudah M1 dan sesudah botol hitam C3: tetap 0 px.
+
+| tanda | waktu | L1 (tid, hadir) | median terkoreksi | **L2 galat** | mentah | **L3 z mentah** | sebaran p5–p95 | node vs luring | |
+|---|---|---|---|---|---|---|---|---|---|
+| C3 (meja kembali) | 10:02 | ✓ #0, 100 % | (1.8548, 0.6559) | **2.36 cm ✓** | 17.42 cm | **0.828 ✓** | 5 / 7 mm | 0.14 mm | **LULUS** |
+| M1 | 10:03 | ✓ #4, 100 % | (1.7255, 0.5392) | **2.63 cm ✓** | 14.81 cm | **0.835 ✓** | 2 / 3 mm | 0.15 mm | **LULUS** |
+
+- **Info (bukan gerbang), botol HITAM** (permintaan operator; terdeteksi `blue bottle` conf 0.69–0.85, tinggi tidak diukur):
+  M1 **3.46 cm** (z 0.828), C3 **1.58 cm** (z 0.830) — koreksi P3 juga berlaku untuk botol ini (≤ 3.5 cm).
+- Log node (hanya saat himpunan berubah): selama transisi botol ditolak benar — z 0.855–0.860 (botol diangkat), track di luar kotak
+  track (botol di tangan), dan `blue bottle` lain di (2.242, −0.553) → TOLAK luar zona. Botol wastafel tidak muncul hari ini.
+- Matikan: node + localizer SIGINT ✓; **SIGTERM ke launch → launch mati SEKETIKA, 11 anak yatim** (kamera, relay, TF, seg_router)
+  → SIGINT per PID → 0 sisa dalam 2 s, **0 node di 79**. `live_down.sh` diperbaiki (anak launch per PID dulu).
+
+### B3. Papan skor DEMO-ZONE-LIVE
+
+| # | Gerbang | Hasil |
+|---|---|---|
+| L1 | satu track, ≥ 90 % | ✓ C3, ✓ M1 |
+| L2 | ≤ 5 cm | ✓ C3 2.36, ✓ M1 2.63 (C3 percobaan 1 6.84 ✗ = meja tergeser, acuan tidak sah) |
+| L3 | z mentah ∈ [0.79, 0.84] | ✓ 0.828, ✓ 0.835 |
+
+**→ Koreksi zona DITERIMA untuk demo** (§A2). Pemakaian (remap runner) = keputusan operator.
+
+| # | Dugaan | Hasil |
+|---|---|---|
+| D649 | L1 ✓ + wastafel di rejected | L1 ✓; wastafel **tidak muncul** (bagian ini tak teruji; penolakan luar-zona teramati pada botol lain) |
+| D650 | galat ≤ 3 cm keduanya | ✓ 2.36 / 2.63 |
+| D651 | z mentah ∈ [0.80, 0.83] | ✗ M1 0.835 (C3 0.828 ✓) |
+| D652 | mentah 0.15–0.20 m | ✗ M1 0.148 (C3 0.174 ✓) |
+| D653 | node = luring ≤ 1 mm | ✓ 0.14 / 0.15 mm |
+| D654 | kosong → nol diterima | ✓ |
+
+**Tally 3 ✓ / 2 ✗ / 1 sebagian.** Temuan: (1) **meja demo pembawa tanda bisa bergeser** — sebelum uji pakai tanda, jalankan
+`table_check.py` (0 px); koreksi P3 sendiri berbasis DUNIA, tidak ikut meja (yang rusak hanya acuan tanda). (2) Galat hidup 2.4–2.6 cm
+= prediksi luring (residu fit + penempatan). (3) Launch bisa mewarisi SIGINT diabaikan; SIGTERM ke launch meninggalkan anak.
+
+**Langkah berikut (keputusan operator):** galat ≤ 3 cm → tanda baru di sudut zona TIDAK perlu untuk akurasi ini. Untuk demo bergerak:
+remap `demo_runner`/`target_cli` `/detected_objects/tracks:=/demo_zone/tracks` + localizer `loc_cam.sh rgbd2`, plan-only dulu
+(fase DEMO-HW baru, §A sendiri, izin per gerak). Perhatikan: di g1 1.40 gripper arm_1 menutupi N1 (oklusi) dan titik dekat x 1.94
+membebani j2 (DEMO-HW F4).
