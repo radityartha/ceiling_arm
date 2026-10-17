@@ -43,6 +43,12 @@ TUGAS (urut, ✓/✗ harfiah):
    Kinova (Kortex API ActuatorFeedback, manual Gen3 Lite / spec KA-75+: apakah 14 N·m = torsi KELUARAN; sensor torsi ada/tidak) —
    kutip sumber primer; bila tidak didapat, tulis "tidak terverifikasi". Konsekuensi: bila effort = motor + gesekan dan rating =
    keluaran, batas "terukur ≤ 14" sendiri ikut terlalu ketat → masuk usulan batas 0b (keputusan operator).
+   0d. BATAS BERGANTUNG WAKTU (operator 2026-10-17: "14 mungkin terikat waktu, asal sebentar tidak masalah"): penyaring + AUTO-STOP
+   sekarang hanya PUNCAK, tanpa durasi. Dari CSV HW yang ada, ukur per jalan DURASI di atas 12 / 14 / 16 N·m (j2 tiap lengan) dan
+   torsi rata-rata bergerak (jendela 1/5/30 s), hubungkan dengan fault (0 fault tercatat; 17.61 sesaat OK). Cari spesifikasi
+   nominal/puncak + durasi/duty cycle atau I²t KA-75+ dari sumber primer Kinova. Usulkan batas bentuk "puncak ≤ P selama ≤ T s,
+   rata-rata jendela ≤ 12 (panas)" ke operator dengan angka; penyaring rencana memakai profil torsi prediksi sepanjang waktu, bukan
+   hanya maksimum. Sampai diputuskan: aturan lama berlaku.
 1. DESAIN — tulis 2–3 opsi ke operator (tombol) SEBELUM kode besar, dengan rekomendasi:
    A) Bertahap minimal: lengan ke POSE TRANSIT bersertifikat (lipat parsial, torsi statis + transit tersaring) via MoveIt → gantry
       traverse dengan pose transit itu (S12 digeneralisasi: "REST atau pose transit bersertifikat", S28/G33 memakai konfigurasi
