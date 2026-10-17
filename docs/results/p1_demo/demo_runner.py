@@ -20,6 +20,7 @@ arm_2 base nearest the object in xy first; the other only if the first refused.
 
     python3 demo_runner.py --mon <csv>_samples.csv              # executes on 'g'
     python3 demo_runner.py --mon <csv>_samples.csv --plan-only  # screens, no motion
+    ... --tracks-topic /demo_zone/tracks --arms arm_1             # DEMO-ZONE-HW (argparse: no --ros-args -r)
 """
 from __future__ import annotations
 
@@ -59,7 +60,7 @@ class DemoRunner(Node):
         TransformListener(self.tf, self)
         tq = QoSProfile(depth=1)
         tq.durability = QoSDurabilityPolicy.TRANSIENT_LOCAL
-        self.create_subscription(String, '/detected_objects/tracks', self._on_tracks, tq)
+        self.create_subscription(String, a.tracks_topic, self._on_tracks, tq)
         self.create_subscription(String, '/reach_fusion/set_target', self._on_target, 1)
         self.create_subscription(Empty, '/reach_fusion/execute', self._on_execute, 1)
         self.status_pub = self.create_publisher(String, '/reach_fusion/status', 1)
@@ -101,13 +102,14 @@ class DemoRunner(Node):
 
     def _arm_order(self, xyz):
         d = {}
-        for arm, frame in BASE.items():
+        for arm in self.a.arms:
+            frame = BASE[arm]
             try:
                 tr = self.tf.lookup_transform('world', frame, Time()).transform.translation
                 d[arm] = math.hypot(tr.x - xyz[0], tr.y - xyz[1])
             except Exception:                             # noqa: BLE001
                 d[arm] = math.inf
-        return sorted(BASE, key=lambda k: d[k]), d
+        return sorted(self.a.arms, key=lambda k: d[k]), d
 
     def _tool(self, tag, cmd):
         self.n += 1
@@ -164,7 +166,7 @@ class DemoRunner(Node):
                 break
         if (moved or stray) and not self.a.plan_only:
             rc, out, dt, logf = self._tool('return_rest', ['python3', '-u', 'return_rest.py',
-                                                           '--arms', 'arm_1', 'arm_2', '--move'])
+                                                           '--arms', *self.a.arms, '--move'])
             tau = re.findall(r'torsi puncak ([0-9.]+)', out)
             rec['return_rest'] = dict(rc=rc, dt=dt, log=logf, tau_peak=tau[-1] if tau else None)
         rec['t_total'] = round(time.time() - t0, 2)
@@ -189,11 +191,16 @@ def main():
     ap.add_argument('--tau-max', type=float, default=12.0,
                     help='probe --tau-max N*m (DEMO-HW: 14, operator 2026-10-12)')
     ap.add_argument('--out', default='/tmp/demo_runner')
+    ap.add_argument('--tracks-topic', default='/detected_objects/tracks',
+                    help='track source (DEMO-ZONE-HW: /demo_zone/tracks)')
+    ap.add_argument('--arms', nargs='+', choices=sorted(BASE), default=['arm_1', 'arm_2'],
+                    help='arms tried (nearest first) and sent to return_rest (DEMO-ZONE-HW: arm_1)')
     a = ap.parse_args()
     rclpy.init()
     node = DemoRunner(a)
     node.get_logger().info(f'demo_runner up ({"PLAN-ONLY" if a.plan_only else "EXECUTE"}), '
-                           f'standoff {a.standoff} m, tau-max {a.tau_max}, out {a.out}')
+                           f'standoff {a.standoff} m, tau-max {a.tau_max}, tracks {a.tracks_topic}, '
+                           f'arms {a.arms}, out {a.out}')
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

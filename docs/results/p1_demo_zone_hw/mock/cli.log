@@ -1,0 +1,55 @@
+
+=== target_cli ===  (Enter=refresh, g/go=execute approach, q=quit)
+type the list number / #<id> (STABLE track, preferred) / obj_N -> set target,
+OR a natural request e.g. "please bring a teddy bear" / "get a can";
+then g (or go) -> move the winning arm to approach it
+
+Detected objects (0 total)
+  (no tracks/obj_N yet -- is perception up?)
+target>   -> target set to "#0"  (type g to execute)
+
+[current: #0]  (Enter to see the full list)
+target>   -> execute sent, waiting for result...
+  ==> mission success arm_1 (arm_1:PLANNED) 20.02 s
+
+Detected objects (0 total)  [current: #0]
+  stable tracks (target by number or #id):
+    1) #0  white bottle      x=+1.85 y=+0.66 z=+0.81
+target> 
+  [voice] "please bring a bottle"
+  -> understood 'bottle' = track #4 (white bottle); type g to execute the approach
+  -> execute sent, waiting for result...
+  ==> mission success arm_1 (arm_1:PLANNED) 17.07 s
+
+Detected objects (0 total)  [current: #4]
+  stable tracks (target by number or #id):
+    1) #4  white bottle      x=+1.73 y=+0.54 z=+0.81
+target> Exception in thread Thread-1 (spin):
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/threading.py", line 1016, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.10/threading.py", line 953, in run
+    self._target(*self._args, **self._kwargs)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+    executor.spin_once()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 681, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException
+Traceback (most recent call last):
+  File "/home/user1/Documents/ceiling_arm/ros2_ws/install/reachability_gng/lib/reachability_gng/target_cli", line 33, in <module>
+    sys.exit(load_entry_point('reachability-gng', 'console_scripts', 'target_cli')())
+  File "/home/user1/Documents/ceiling_arm/ros2_ws/build/reachability_gng/reachability_gng/target_cli.py", line 333, in main
+    rclpy.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 130, in shutdown
+    _shutdown(context=context)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/utilities.py", line 58, in shutdown
+    return context.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/context.py", line 102, in shutdown
+    self.__context.shutdown()
+rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:241

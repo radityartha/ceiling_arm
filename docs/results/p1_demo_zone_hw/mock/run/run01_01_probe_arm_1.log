@@ -1,0 +1,28 @@
+# 1792200177.0324 CMD timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.8527,0.6529,1.0550 --approach 0 --trials 1 --tau-max 14.0 --monitor-csv /tmp/p1dzh_mock/p1dzh_mon_samples.csv --plan-check
+1792200177.4376 [33mDRY RUN[0m -- tidak ada gerak. Tambahkan --move untuk menggerakkan (A6/S7).
+1792200177.4377 
+1792200177.4903 probe LANGKAH 5: arm_1, 1 percobaan, abort torsi 14.0 N.m
+1792200177.4904 sumber target: arm_1 (1.8527, 0.6529, 1.055), [] []
+1792200177.4904 kriteria A1 TERKUNCI, N-lengan: SATU jendela 2.0 s di mana KEDUA lengan
+1792200177.4904 memenuhi pos < 5 mm dan ori < 5 deg BERSAMAAN. Bergantian TIDAK dihitung.
+1792200177.4904 
+1792200179.8651 [INFO] [1792200179.865062453] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.11->6.71/10, 2=6.81->14.51/14, 3=1.06->7.66/10, 4=0.12->2.10/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 104 %)
+1792200179.8655 [ERROR] [1792200179.865488611] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.51 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+1792200179.8659 [INFO] [1792200179.865886759] [reach_dwell_probe]: percobaan rencana 2/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1792200181.0059 [INFO] [1792200181.005839492] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.12->6.72/10, 2=6.75->14.45/14, 3=1.01->7.61/10, 4=0.12->2.10/7, 5=0.06->2.04/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 103 %)
+1792200181.0063 [ERROR] [1792200181.006248591] [reach_dwell_probe]: A6/S3: rencana DITOLAK SEBELUM GERAK -- t1_a1_joint_2 diperkirakan 14.45 N.m > rating 14. Pose ini menuntut torsi di atas rating sendi; itu sifat POSE, bukan sifat penjaga. (Penyaring sengaja konservatif: pada kalibrasi G16 ia menolak 1 dari 4 pose yang ternyata aman.)
+1792200181.0067 [INFO] [1792200181.006646772] [reach_dwell_probe]: percobaan rencana 3/3: yang sebelumnya TORQUE-UNSAFE -- meminta lintasan LAIN (penyaring tidak dilonggarkan)
+1792200182.1395 [INFO] [1792200182.139475463] [reach_dwell_probe]: torsi RNEA+offset(per-aktuator) vs rating: 1=0.05->6.65/10, 2=5.38->13.08/14, 3=1.85->8.45/10, 4=0.30->2.28/7, 5=0.05->2.03/7, 6=0.00->1.98/7  (terketat t1_a1_joint_2 93 %)
+1792200182.1486 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:82: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1792200182.1487   self.geom = pin.buildGeomFromUrdf(
+1792200185.3915 /home/user1/Documents/ceiling_arm/scripts/interarm_collision.py:241: UserWarning: You passed package dir(s) via argument geometry_model and provided package_dirs.
+1792200185.3915   self.geom = pin.buildGeomFromUrdf(
+1792200192.9295 [INFO] [1792200192.929421706] [reach_dwell_probe]: jarak antar-lengan minimum sepanjang rencana: 622.7 mm di titik 0 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0) -> CLEAR
+1792200194.4576 [INFO] [1792200194.456267544] [reach_dwell_probe]: jarak ke peta lingkungan minimum: 128.7 mm di titik 19 (t1_a1_left_finger_dist_link_0) -> CLEAR
+1792200195.4949 [INFO] [1792200195.494829880] [reach_dwell_probe]: retract g1 ['arm_1'] lurus (rel 1.400):
+1792200196.8254 [INFO] [1792200196.825281435] [reach_dwell_probe]:   penyaring se-gantry: CLEAR, minimum 622.7 mm di titik 59/60 (t1_a1_arm_link_0 <-> t1_a2_arm_link_0)
+1792200196.8257 [INFO] [1792200196.825635898] [reach_dwell_probe]:   penyaring antar-gantry: CLEAR, minimum 783.3 mm di titik 0/60 (t1_a2_right_finger_prox_link_0 <-> t2_a1_right_finger_prox_link_0)
+1792200196.8260 [INFO] [1792200196.825924487] [reach_dwell_probe]:   penyaring lingkungan: CLEAR, minimum 128.8 mm di titik 44/60 (t1_a1_left_finger_dist_link_0)
+1792200196.8261   [ 1] DRY arm_1: p_cmd = (+1.853, +0.653, +1.055)   rencana: PLANNED
+1792200196.8261   TIDAK VALID (mesin, A5, di LUAR penyebut): {'DRY': 1}
+1792200196.8263   -> /tmp/g20_step5.json
