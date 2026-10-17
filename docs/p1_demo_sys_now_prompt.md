@@ -57,3 +57,8 @@ MATI, botol putih di M1 meja demo, tas kertas di atas lemari sisi gantry 2.
 ```
 
 Model: Opus, effort **high** (integrasi solver ↔ persepsi bisa salah diam-diam; gerak gantry + 4 lengan; j2 dekat batas).
+
+> **2026-10-17 ~13:50 — sesi ini dijalankan (luring saja): TAS DITOLAK SISTEM → DEMO DITUNDA, G64 dulu (operator, tombol).**
+> Hasil + adapter: `docs/p1_demo_sys.md`. Klaim di atas yang terbantah: "1 tuple layak arm_3 (0.50, −20°)" = artefak BOX_MIN 0
+> di g64_diag (sistem 10 mm → garis-kotak); "z 1.40 = 0 IK" tidak berlaku di grid solver (214/532 tuple ber-IK) → kontrol negatif
+> diganti (1.0, 0, 0.60). Prompt ini dipakai ulang SESUDAH G64 (tasks_synth.json / tasks_neg.json, dir run baru).
