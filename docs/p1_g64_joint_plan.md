@@ -106,7 +106,11 @@ g19/g20 dari log dibuang (log dua lengan, G21 sudah memetakan rencana dengan ben
 ### 0.6 Usulan batas torsi (BELUM diputuskan — aturan lama berlaku: penyaring RNEA + 7.7 ≤ 14, AUTO-STOP > 14 terukur)
 
 Data mendukung: puncak ≤ 14 transien ≤ 0.4 s, rata-rata 5 s ≤ 12, RMS τ22 ≤ 11 — sudah dipenuhi semua jalan. Data **tidak**
-mendukung batas puncak > 14 (hanya 0.01 s di atas 14 sepanjang arsip). Usulan ke operator: lihat tombol (sesi 2026-10-17).
+mendukung batas puncak > 14 (hanya 0.01 s di atas 14 sepanjang arsip). Opsi ke operator (tombol 2026-10-17): (a) tetap + pengawas
+durasi (rata-rata 5 s ≤ 12, > 12 kontinu ≤ 1 s), (b) longgarkan puncak ≤ 15 selama ≤ 0.5 s, (c) uji bertahap HW nanti.
+**Keputusan operator 2026-10-17: (c) uji bertahap HW nanti** — fase terpisah SESUDAH G64: transien terkendali 14 → 15 → 16 terukur,
+izin per gerak, berhenti jauh sebelum fault (LED merah = reset fisik). **Sampai itu aturan lama berlaku** (RNEA + 7.7 ≤ 14,
+AUTO-STOP > 14 terukur, `--tau-max 14`); G64 tidak mengubah batas torsi.
 
 ## 1. Desain (bahan) — what-if opsi A: [g64_whatif.py](results/p1_g64/g64_whatif.py)
 
