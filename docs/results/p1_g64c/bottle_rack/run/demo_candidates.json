@@ -1,0 +1,134 @@
+[
+ {
+  "seed": 0,
+  "drawn": false,
+  "nodes": [
+   3132
+  ],
+  "kind": [
+   "DEMO"
+  ],
+  "xyz": [
+   [
+    1.0113,
+    -0.8199,
+    1.2945
+   ]
+  ],
+  "task_ids": [
+   "RACK_t7"
+  ],
+  "p0": {
+   "1": 1.4000000000000001,
+   "2": 0.0
+  },
+  "p0_rot_deg": {
+   "1": 0.0,
+   "2": 0.0
+  },
+  "rot_cmd": 0.8522457067516686,
+  "DEMO": {
+   "ok_i": true,
+   "ok_ii": false,
+   "ok_iii": true,
+   "makespan": 70.3881803085371,
+   "serial": 70.3881803085371,
+   "iters": 1,
+   "conflict": "None",
+   "wall_s": 0.007322788238525391,
+   "moves": {
+    "1": 0,
+    "2": 1
+   },
+   "ntask": {
+    "1": 0,
+    "2": 1
+   },
+   "stops_s42": [],
+   "rot_max_deg": 20.0,
+   "drot_max_deg": 20.0,
+   "bounds": {
+    "lb": 70.3881803085371,
+    "ub": 70.3881803085371,
+    "gap": 0.0
+   },
+   "schedule": {
+    "1": [],
+    "2": [
+     {
+      "rail_m": 0.5,
+      "rot_deg": -20.0,
+      "start": 41.345,
+      "dur": 29.042724498112996,
+      "tasks": {
+       "0": "arm3"
+      },
+      "xyz": {
+       "0": [
+        1.0113,
+        -0.8199,
+        1.2945
+       ]
+      },
+      "goal": {
+       "0": {
+        "t2_a1_joint_1": -2.182626884615779,
+        "t2_a1_joint_2": 0.42159001725070505,
+        "t2_a1_joint_3": -1.4653739830594812,
+        "t2_a1_joint_4": 1.5693582293879627,
+        "t2_a1_joint_5": 1.8883359454319577,
+        "t2_a1_joint_6": 0.2611824952358668
+       }
+      }
+     }
+    ]
+   },
+   "mode": {
+    "1": "REST",
+    "2": "REST"
+   },
+   "c_fold": 44.83,
+   "c_unfold": 44.83,
+   "cost_provisional": false,
+   "envelope": true,
+   "combos": [
+    {
+     "modes": {
+      "1": "REST",
+      "2": "REST"
+     },
+     "ok": true,
+     "why": null,
+     "makespan": 70.3881803085371
+    },
+    {
+     "modes": {
+      "1": "REST",
+      "2": "T1"
+     },
+     "ok": false,
+     "why": "PANGKAS: LB 203.965 >= terbaik 70.388 (iterasi 1)",
+     "makespan": null
+    },
+    {
+     "modes": {
+      "1": "T1",
+      "2": "REST"
+     },
+     "ok": false,
+     "why": "PANGKAS: LB 70.388 >= terbaik 70.388 (iterasi 1)",
+     "makespan": null
+    },
+    {
+     "modes": {
+      "1": "T1",
+      "2": "T1"
+     },
+     "ok": false,
+     "why": "PANGKAS: LB 203.965 >= terbaik 70.388 (iterasi 1)",
+     "makespan": null
+    }
+   ]
+  }
+ }
+]

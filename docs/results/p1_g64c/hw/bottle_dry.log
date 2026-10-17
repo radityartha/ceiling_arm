@@ -1,0 +1,18 @@
+pids monitor [1959953] recorder [1959935] ros2_control_node [1958171] move_group [1958167]
+  g2 event 0: {'kind': 'retract', 'gantry': 2, 'stop': 0, 'idx': 0}
+  g2 event 1: {'kind': 'traverse', 'gantry': 2, 'stop': 0, 'frm': (0.0, 0.0), 'to': (0.5, -0.3490658503988659), 'idx': 1}
+  g2 event 2: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 0, 'xyz': [1.0113, -0.8199, 1.2945], 'goal': {'t2_a1_joint_1': -2.182626884615779, 't2_a1_joint_2': 0.42159001725070505, 't2_a1_joint_3': -1.4653739830594812, 't2_a1_joint_4': 1.5693582293879627, 't2_a1_joint_5': 1.8883359454319577, 't2_a1_joint_6': 0.2611824952358668}, 'idx': 2}
+  g2 event 3: {'kind': 'retract', 'gantry': 2, 'stop': 1, 'idx': 3}
+K0 | arm_1: maks |q - REST| 0.037 deg (joint_5); jari 0.00010264368737116456
+K0 | arm_2: maks |q - REST| 0.224 deg (joint_5); jari 0.009987513720989228
+K0 | arm_3: maks |q - REST| 0.045 deg (joint_5); jari -0.009887694346904756
+K0 | arm_4: maks |q - REST| 0.024 deg (joint_5); jari 0.008669153702259064
+K0 | g1: rel 1.3999984061948236 m (harap 1.4000), rotasi 0.0 deg (harap +0.00)
+K0 | g2: rel 0.00046076692252653334 m (harap 0.0000), rotasi -0.030000000000001973 deg (harap +0.00)
+K0 | sampel per sendi: min 101, 1.0 s
+K0 | K0 LULUS
+amplop rotasi g1 (-125.0, 90.0) g2 (-35.0, 95.0); traverse di luar: []
+pra-cek: /get_planning_scene 0.11 s, objek dunia ['env_static_map']
+pra-cek: perekam /tmp/claude-1001/-home-user1-Documents-ceiling-arm/59cfa971-0483-4e1e-96e6-a4c1bf0fde18/scratchpad/hw/g64c_hw_joint_states.csv +409307 B / 3 s
+  perintah g2 event 2: timeout 600 python3 -u reach_dwell_probe.py --arms arm_3 --target=1.0113,-0.8199,1.2945 --approach 0 --trials 1 --tau-max 14.0 --move --monitor-csv /tmp/claude-1001/-home-user1-Documents-ceiling-arm/59cfa971-0483-4e1e-96e6-a4c1bf0fde18/scratchpad/hw/g64c_hw_mon_samples.csv --goal-joints={"t2_a1_joint_1": -2.182626884615779, "t2_a1_joint_2": 0.42159001725070505, "t2_a1_joint_3": -1.4653739830594812, "t2_a1_joint_4": 1.5693582293879627, "t2_a1_joint_5": 1.8883359454319577, "t2_a1_joint_6": 0.2611824952358668} --goal-tol-deg=0.05 --reserve-dir /tmp/claude-1001/-home-user1-Documents-ceiling-arm/59cfa971-0483-4e1e-96e6-a4c1bf0fde18/scratchpad/hw/run_bottle_dry/res
+DRY: tidak ada yang dikirim.

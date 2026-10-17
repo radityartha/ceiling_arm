@@ -1,0 +1,10 @@
+# 1792225561.3503 CMD python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 2 --seed 0 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g64c/bottle_rack/run/demo_candidates.json --variant DEMO 0.500 -20.000 --move
+1792225562.8095 S12: maks |q - REST| arm_1 0.037, arm_2 0.224, arm_3 0.045, arm_4 0.024 deg (batas 0.5 untuk gantry 2)
+1792225562.8097 S23": t2_rotation_joint -0.030 deg, t1_rotation_joint +0.000 deg; target -20.000; amplop g1 (-125.0, 90.0) g2 (-35.0, 95.0) (+-0.5, amplop terverifikasi rot_envelope.json)
+1792225575.6848 S28: sapuan g2 (0.0005 m, -0.030 deg) -> (0.5000, -20.000), sisanya TERUKUR: CLEAR, min 509.5 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0') di (0.500, -0.03); lengan 509.5, SS 584.0, n 1071
+1792225577.9271 G33: sapuan g2 vs peta lingkungan: CLEAR, min 65.4 mm (t2_a1_left_finger_prox_link_0) di titik 1070
+1792225577.9271 g2: lin 0.000461 -> 0.500000 m (+499.5 mm), rot -0.030 -> -20.000 deg (-19.970); T_cmd 27.75 s (lin 27.75, rot 3.49)
+1792225577.9281 setpoint pertama 0.41 mm / 0.016 deg (arm_tol 5 mm / 1.0 deg)
+1792225605.7951 JTC error_code: 0
+1792225606.8371 akhir: g2 = (0.499587 m, -19.9800 deg), galat -0.41 mm / +0.0200 deg; t_traverse 26.535 s (lin 26.535, rot 26.035; T_cmd 27.75); lengan (keempat) bergeser maks 0.1628 deg; rel lain 0.000 mm, rot lain 0.0000 deg; torsi puncak 3.413 t1_a1_joint_2
+1792225606.8371 {"gantry": 2, "goal": [0.5, -20.0], "start": [0.000461, -0.03], "end": [0.499587, -19.98], "err_mm": -0.413, "err_deg": 0.02, "T_cmd": 27.752, "T_cmd_lin": 27.752, "T_cmd_rot": 3.485, "t_send": 1792225577.9931624, "t_jtc_done": 1792225605.7949922, "t_first_move": 1792225579.057656, "t_stop": 1792225605.5923493, "t_traverse": 26.535, "t_lin": 26.535, "t_rot": 26.035, "arm_drift_deg": 0.1628, "other_rail_drift_mm": 0.0, "other_rot_drift_deg": 0.0, "arm_tau_peak": 3.413, "arm_tau_joint": "t1_a1_joint_2", "sweep_min_mm": 509.5, "sweep_arm_mm": 509.5, "sweep_pair": ["t1_a2_right_finger_prox_link_0", "t2_a1_right_finger_prox_link_0"], "jtc_error_code": "0", "n_log": 3369}

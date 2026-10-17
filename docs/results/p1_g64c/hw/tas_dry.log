@@ -1,0 +1,31 @@
+pids monitor [1959953] recorder [1959935] ros2_control_node [1958171] move_group [1958167]
+  g1 event 0: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 0, 'xyz': [1.7258, 0.5383, 1.055], 'goal': {'t1_a1_joint_1': -1.6107568189936445, 't1_a1_joint_2': 0.07295147367533439, 't1_a1_joint_3': 1.0366163618717081, 't1_a1_joint_4': -1.5709072984073909, 't1_a1_joint_5': 0.9637822953528288, 't1_a1_joint_6': 1.0873778799088862}, 'idx': 0}
+  g1 event 1: {'kind': 'retract', 'gantry': 1, 'stop': 1, 'idx': 1}
+  g2 event 2: {'kind': 'fold', 'gantry': 2, 'stop': -1, 'at': (0.0, 0.0), 'idx': 2}
+  g2 event 3: {'kind': 'retract', 'gantry': 2, 'stop': 0, 'target': 'T1', 'idx': 3}
+  g2 event 4: {'kind': 'traverse', 'gantry': 2, 'stop': 0, 'frm': (0.0, 0.0), 'to': (0.45, -0.6108652381980153), 'idx': 4}
+  g2 event 5: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 1, 'xyz': [0.978, -0.831, 1.34], 'goal': {'t2_a1_joint_1': 0.48271207686558026, 't2_a1_joint_2': -0.3566966146508988, 't2_a1_joint_3': 1.764417939645287, 't2_a1_joint_4': -1.5707809698780042, 't2_a1_joint_5': 2.121115785457166, 't2_a1_joint_6': 2.2225599040482638}, 'retract_target': 'T1', 'idx': 5}
+  g2 event 6: {'kind': 'retract', 'gantry': 2, 'stop': 1, 'target': 'T1', 'idx': 6}
+  g2 event 7: {'kind': 'traverse', 'gantry': 2, 'stop': 1, 'frm': (0.45, -0.6108652381980153), 'to': (0.0, 0.0), 'home': True, 'idx': 7}
+  g2 event 8: {'kind': 'unfold', 'gantry': 2, 'stop': 1, 'at': (0.0, 0.0), 'idx': 8}
+K0 | arm_1: maks |q - REST| 0.082 deg (joint_5); jari 0.00010264368737116456
+K0 | arm_2: maks |q - REST| 0.224 deg (joint_5); jari 0.009987513720989228
+K0 | arm_3: maks |q - REST| 0.044 deg (joint_5); jari -0.009878277862071991
+K0 | arm_4: maks |q - REST| 0.025 deg (joint_5); jari 0.009302908623218538
+K0 | g1: rel 1.3999984061948236 m (harap 1.4000), rotasi 0.0 deg (harap +0.00)
+K0 | g2: rel 0.0005969026041820999 m (harap 0.0000), rotasi -0.04000000000000263 deg (harap +0.00)
+K0 | sampel per sendi: min 102, 1.0 s
+K0 | K0 LULUS
+amplop rotasi g1 (-125.0, 90.0) g2 (-35.0, 95.0); traverse di luar: []
+pra-cek: /get_planning_scene 0.12 s, objek dunia ['env_static_map']
+pra-cek: perekam /tmp/claude-1001/-home-user1-Documents-ceiling-arm/59cfa971-0483-4e1e-96e6-a4c1bf0fde18/scratchpad/hw/g64c_hw_joint_states.csv +408153 B / 3 s
+  perintah g1 event 0: timeout 600 python3 -u reach_dwell_probe.py --arms arm_1 --target=1.7258,0.5383,1.0550 --approach 0 --trials 1 --tau-max 14.0 --move --monitor-csv /tmp/claude-1001/-home-user1-Documents-ceiling-arm/59cfa971-0483-4e1e-96e6-a4c1bf0fde18/scratchpad/hw/g64c_hw_mon_samples.csv --goal-joints={"t1_a1_joint_1": -1.6107568189936445, "t1_a1_joint_2": 0.07295147367533439, "t1_a1_joint_3": 1.0366163618717081, "t1_a1_joint_4": -1.5709072984073909, "t1_a1_joint_5": 0.9637822953528288, "t1_a1_joint_6": 1.0873778799088862} --goal-tol-deg=0.05 --reserve-dir /tmp/claude-1001/-home-user1-Documents-ceiling-arm/59cfa971-0483-4e1e-96e6-a4c1bf0fde18/scratchpad/hw/run_tas_dry/res
+  perintah g1 event 1 (retract): python3 -u return_rest.py --arms arm_1 arm_2 --move --no-plan
+  perintah g2 event 2 (fold): python3 -u return_rest.py --arms arm_3 arm_4 --move --no-plan --target T1 --strict
+  perintah g2 event 3 (retract): python3 -u return_rest.py --arms arm_3 arm_4 --move --no-plan --target T1 --strict
+  perintah g2 event 4 (traverse): python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 2 --seed 0 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g64c/run_c3_cfold44.83_c3/demo_candidates.json --variant DEMO 0.450 -35.000 --move --allow-t1
+  perintah g2 event 5: timeout 600 python3 -u reach_dwell_probe.py --arms arm_3 --target=0.9780,-0.8310,1.3400 --approach 0 --trials 1 --tau-max 14.0 --move --monitor-csv /tmp/claude-1001/-home-user1-Documents-ceiling-arm/59cfa971-0483-4e1e-96e6-a4c1bf0fde18/scratchpad/hw/g64c_hw_mon_samples.csv --goal-joints={"t2_a1_joint_1": 0.48271207686558026, "t2_a1_joint_2": -0.3566966146508988, "t2_a1_joint_3": 1.764417939645287, "t2_a1_joint_4": -1.5707809698780042, "t2_a1_joint_5": 2.121115785457166, "t2_a1_joint_6": 2.2225599040482638} --goal-tol-deg=0.05 --retract-target T1 --reserve-dir /tmp/claude-1001/-home-user1-Documents-ceiling-arm/59cfa971-0483-4e1e-96e6-a4c1bf0fde18/scratchpad/hw/run_tas_dry/res
+  perintah g2 event 6 (retract): python3 -u return_rest.py --arms arm_3 arm_4 --move --no-plan --target T1 --strict
+  perintah g2 event 7 (traverse): python3 -u /home/user1/Documents/ceiling_arm/docs/results/p1_g54/../p1_g32/pose_to_g.py --gantry 2 --seed 0 --plan /home/user1/Documents/ceiling_arm/docs/results/p1_g64c/run_c3_cfold44.83_c3/demo_candidates.json --variant DEMO 0.000 0.000 --move --allow-t1
+  perintah g2 event 8 (unfold): python3 -u return_rest.py --arms arm_3 arm_4 --move --no-plan --target REST --strict
+DRY: tidak ada yang dikirim.

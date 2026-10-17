@@ -1,0 +1,47 @@
+1792224361.6306 pids monitor [1959953] recorder [1959935] ros2_control_node [1958171] move_group [1958167]
+1792224363.8549   g1 event 0: {'kind': 'task', 'gantry': 1, 'stop': 0, 'arm': 'arm_1', 'task': 0, 'xyz': [1.7258, 0.5383, 1.055], 'goal': {'t1_a1_joint_1': -1.6107568189936445, 't1_a1_joint_2': 0.07295147367533439, 't1_a1_joint_3': 1.0366163618717081, 't1_a1_joint_4': -1.5709072984073909, 't1_a1_joint_5': 0.9637822953528288, 't1_a1_joint_6': 1.0873778799088862}, 'idx': 0}
+1792224363.8549   g1 event 1: {'kind': 'retract', 'gantry': 1, 'stop': 1, 'idx': 1}
+1792224363.8549   g2 event 2: {'kind': 'fold', 'gantry': 2, 'stop': -1, 'at': (0.0, 0.0), 'idx': 2}
+1792224363.8550   g2 event 3: {'kind': 'retract', 'gantry': 2, 'stop': 0, 'target': 'T1', 'idx': 3}
+1792224363.8550   g2 event 4: {'kind': 'traverse', 'gantry': 2, 'stop': 0, 'frm': (0.0, 0.0), 'to': (0.45, -0.6108652381980153), 'idx': 4}
+1792224363.8550   g2 event 5: {'kind': 'task', 'gantry': 2, 'stop': 0, 'arm': 'arm_3', 'task': 1, 'xyz': [0.978, -0.831, 1.34], 'goal': {'t2_a1_joint_1': 0.48271207686558026, 't2_a1_joint_2': -0.3566966146508988, 't2_a1_joint_3': 1.764417939645287, 't2_a1_joint_4': -1.5707809698780042, 't2_a1_joint_5': 2.121115785457166, 't2_a1_joint_6': 2.2225599040482638}, 'retract_target': 'T1', 'idx': 5}
+1792224363.8550   g2 event 6: {'kind': 'retract', 'gantry': 2, 'stop': 1, 'target': 'T1', 'idx': 6}
+1792224363.8550   g2 event 7: {'kind': 'traverse', 'gantry': 2, 'stop': 1, 'frm': (0.45, -0.6108652381980153), 'to': (0.0, 0.0), 'home': True, 'idx': 7}
+1792224363.8551   g2 event 8: {'kind': 'unfold', 'gantry': 2, 'stop': 1, 'at': (0.0, 0.0), 'idx': 8}
+1792224365.3544 K0 | arm_1: maks |q - REST| 0.082 deg (joint_5); jari 0.00010264368737116456
+1792224365.3544 K0 | arm_2: maks |q - REST| 0.224 deg (joint_5); jari 0.009988455176353455
+1792224365.3544 K0 | arm_3: maks |q - REST| 0.044 deg (joint_5); jari -0.009878277862071991
+1792224365.3544 K0 | arm_4: maks |q - REST| 0.025 deg (joint_5); jari 0.009302908623218538
+1792224365.3544 K0 | g1: rel 1.3999984061948236 m (harap 1.4000), rotasi 0.0 deg (harap +0.00)
+1792224365.3544 K0 | g2: rel 0.0005969026041820999 m (harap 0.0000), rotasi -0.04000000000000263 deg (harap +0.00)
+1792224365.3545 K0 | sampel per sendi: min 102, 1.0 s
+1792224365.3545 K0 | K0 LULUS
+1792224365.3549 amplop rotasi g1 (-125.0, 90.0) g2 (-35.0, 95.0); traverse di luar: []
+1792224365.5581 pra-cek: /get_planning_scene 0.11 s, objek dunia ['env_static_map']
+1792224368.5609 pra-cek: perekam /tmp/claude-1001/-home-user1-Documents-ceiling-arm/59cfa971-0483-4e1e-96e6-a4c1bf0fde18/scratchpad/hw/g64c_hw_joint_states.csv +409447 B / 3 s
+1792224373.5654 ===== t0 1792224373.5654 (PARALEL)
+1792224373.5660   [g1 0] koreksi goal: gantry terukur (1.4000 m, +0.000 deg) vs nominal (1.4000, +0.000); alat bergeser 0.00 mm -> tidak perlu
+1792224373.5660   [g1 0] task arm_1 [1.7258, 0.5383, 1.055] (tunggu 0.0 s, terhalang 0)
+1792224373.7742   [g2 2] fold vs reservasi g1: 753.8 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0') -> CLEAR
+1792224373.7742   [g2 2] fold   (tunggu 0.2 s, terhalang 0)
+1792224404.7664   [g1 0] rc=0 31.20 s success@30.97
+1792224410.7385   [g1 1] retract vs reservasi g2: 753.8 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0') -> CLEAR
+1792224410.7385   [g1 1] retract   (tunggu 6.0 s, terhalang 0)
+1792224419.2103   [g2 2] rc=0 45.43 s
+1792224419.2104   [g2 3] retract   (tunggu 0.0 s, terhalang 0)
+1792224421.7509   [g2 3] rc=0 2.54 s
+1792224454.8864   [g1 1] rc=0 44.15 s
+1792224454.8865   [g2 4] traverse  (0.45, -0.6108652381980153) (tunggu 33.1 s, terhalang 0)
+1792224499.5285   [g2 4] rc=0 44.64 s
+1792224499.5287   [g2 5] koreksi goal: gantry terukur (0.4495 m, -34.960 deg) vs nominal (0.4500, -35.000); alat bergeser 0.39 mm -> tidak perlu
+1792224499.5288   [g2 5] task arm_3 [0.978, -0.831, 1.34] (tunggu 0.0 s, terhalang 0)
+1792224528.0201   [g2 5] rc=0 28.49 s success@154.22
+1792224528.1216   [g2 6] retract vs reservasi g1: 630.0 mm ('t1_a2_base_link_0', 't2_platform_link_0') -> CLEAR
+1792224528.1216   [g2 6] retract   (tunggu 0.1 s, terhalang 0)
+1792224573.2002   [g2 6] rc=0 45.08 s
+1792224573.2003   [g2 7] traverse  (0.0, 0.0) (tunggu 0.0 s, terhalang 0)
+1792224618.0778   [g2 7] rc=0 44.88 s
+1792224618.1831   [g2 8] unfold vs reservasi g1: 753.9 mm ('t1_a2_right_finger_prox_link_0', 't2_a1_right_finger_prox_link_0') -> CLEAR
+1792224618.1831   [g2 8] unfold   (tunggu 0.1 s, terhalang 0)
+1792224663.3757   [g2 8] rc=0 45.19 s
+1792224663.4466 SELESAI: 2/2 tugas sukses; makespan terukur 154.22 s

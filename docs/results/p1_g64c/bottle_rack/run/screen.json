@@ -1,0 +1,162 @@
+{
+ "p0": {
+  "1": 1.4000000000000001,
+  "2": 0.0
+ },
+ "rset": "R90",
+ "envelope": true,
+ "c_fold": 44.83,
+ "cost_provisional": false,
+ "certified": {
+  "1": true,
+  "2": true
+ },
+ "tasks": [
+  {
+   "id": "RACK_t7",
+   "node": 3132,
+   "p_cmd": [
+    1.0113,
+    -0.8199,
+    1.2945
+   ],
+   "diterima": true,
+   "combos": [
+    {
+     "modes": {
+      "1": "REST",
+      "2": "REST"
+     },
+     "ok": true,
+     "why": null,
+     "makespan": 70.3881803085371
+    },
+    {
+     "modes": {
+      "1": "REST",
+      "2": "T1"
+     },
+     "ok": false,
+     "why": "PANGKAS: LB 203.965 >= terbaik 70.388 (iterasi 1)",
+     "makespan": null
+    },
+    {
+     "modes": {
+      "1": "T1",
+      "2": "REST"
+     },
+     "ok": false,
+     "why": "PANGKAS: LB 70.388 >= terbaik 70.388 (iterasi 1)",
+     "makespan": null
+    },
+    {
+     "modes": {
+      "1": "T1",
+      "2": "T1"
+     },
+     "ok": false,
+     "why": "PANGKAS: LB 203.965 >= terbaik 70.388 (iterasi 1)",
+     "makespan": null
+    }
+   ],
+   "mode": {
+    "1": "REST",
+    "2": "REST"
+   },
+   "makespan_sendiri": 70.3881803085371,
+   "diag": {
+    "REST": {
+     "arm_1": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_2": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_3": {
+      "L1": 543,
+      "pose_a_tolak": 327,
+      "diverifikasi": 112,
+      "belum": 104,
+      "ok": 1,
+      "tanpa_ik": 67,
+      "torsi_ok_cabang": 1480,
+      "whys_cabang": {
+       "torsi-cabang": 17648,
+       "garis-kotak": 104,
+       "garis-env": 1375
+      }
+     },
+     "arm_4": {
+      "L1": 429,
+      "pose_a_tolak": 254,
+      "diverifikasi": 14,
+      "belum": 161,
+      "ok": 0,
+      "tanpa_ik": 12,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {
+       "torsi-cabang": 958
+      }
+     }
+    },
+    "T1": {
+     "arm_1": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_2": {
+      "L1": 0,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 0,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_3": {
+      "L1": 543,
+      "pose_a_tolak": 287,
+      "diverifikasi": 0,
+      "belum": 256,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     },
+     "arm_4": {
+      "L1": 429,
+      "pose_a_tolak": 0,
+      "diverifikasi": 0,
+      "belum": 429,
+      "ok": 0,
+      "tanpa_ik": 0,
+      "torsi_ok_cabang": 0,
+      "whys_cabang": {}
+     }
+    }
+   },
+   "wall_s": 340.9
+  }
+ ]
+}
