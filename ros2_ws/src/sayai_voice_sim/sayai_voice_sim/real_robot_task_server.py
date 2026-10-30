@@ -19,7 +19,7 @@ import time
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, String
 from std_srvs.srv import Trigger
 
 
@@ -63,6 +63,18 @@ class RealRobotTaskServer(Node):
             Bool,
             "/task/result",
             self._on_result,
+            QoSProfile(
+                depth=1,
+                reliability=QoSReliabilityPolicy.RELIABLE,
+                durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            ),
+        )
+
+        # Human-readable outcome of the last sequence, latched so the web UI
+        # can show it (the Trigger reply only ever says "started").
+        self._status_pub = self.create_publisher(
+            String,
+            "/task/status",
             QoSProfile(
                 depth=1,
                 reliability=QoSReliabilityPolicy.RELIABLE,
@@ -133,6 +145,7 @@ class RealRobotTaskServer(Node):
             return response
 
         self.get_logger().warn("STOP: cancelling %s" % self._active_service)
+        self._publish_status("%s stopped." % self._active_service)
         self._terminate()
         response.success = True
         response.message = "stopped"
@@ -161,26 +174,32 @@ class RealRobotTaskServer(Node):
 
         if self._result is not None:
             if self._result:
-                self.get_logger().info("%s finished OK." % self._active_service)
+                status = "%s finished OK." % self._active_service
+                self.get_logger().info(status)
             else:
-                self.get_logger().error(
-                    "%s FAILED: sequence did not complete." % self._active_service
-                )
+                status = "%s FAILED: sequence did not complete." % self._active_service
+                self.get_logger().error(status)
         elif code == 0:
             # Launch succeeded but the runner never reported. Do not claim
             # success -- an aborted sequence looks exactly like this.
-            self.get_logger().warn(
+            status = (
                 "%s: process exited 0 but never reported a result; "
                 "outcome unknown (runner may have crashed)." % self._active_service
             )
+            self.get_logger().warn(status)
         else:
-            self.get_logger().error(
-                "%s exited with code %d." % (self._active_service, code)
-            )
+            status = "%s exited with code %d." % (self._active_service, code)
+            self.get_logger().error(status)
+        self._publish_status(status)
         self._proc = None
         self._active_service = ""
         self._result = None
         self._exit_time = None
+
+    def _publish_status(self, text):
+        msg = String()
+        msg.data = text
+        self._status_pub.publish(msg)
 
     def _terminate(self):
         if self._proc is None:

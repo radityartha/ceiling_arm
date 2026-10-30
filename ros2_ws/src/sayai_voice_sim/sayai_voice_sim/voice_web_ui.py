@@ -9,6 +9,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
 
@@ -58,6 +59,7 @@ HTML_PAGE = """<!doctype html>
     .label { font-size: 12px; color: #64748b; min-width: 80px; }
     .value { font-family: monospace; font-size: 14px; color: #a7f3d0; }
     .busy { color: #fbbf24; }
+    .fail { color: #f87171; }
     input {
       width: 100%; font-size: 16px; padding: 12px;
       border-radius: 8px; border: 1px solid #334155;
@@ -87,6 +89,7 @@ HTML_PAGE = """<!doctype html>
     <div class="status-row"><span class="label">Transcript</span><span class="value" id="stTranscript">—</span></div>
     <div class="status-row"><span class="label">Action</span><span class="value" id="stAction">—</span></div>
     <div class="status-row"><span class="label">Active task</span><span class="value busy" id="stBusy">—</span></div>
+    <div class="status-row"><span class="label">Last result</span><span class="value" id="stResult">—</span></div>
   </section>
 
   <section>
@@ -190,6 +193,9 @@ HTML_PAGE = """<!doctype html>
       document.getElementById('stTranscript').textContent = data.last_transcript || '—';
       document.getElementById('stAction').textContent    = data.last_action    || '—';
       document.getElementById('stBusy').textContent      = data.active_task    || '—';
+      const res = document.getElementById('stResult');
+      res.textContent = data.last_result || '—';
+      res.classList.toggle('fail', /FAILED|unknown|exited with code/.test(data.last_result || ''));
     } catch (_) {}
   }
   async function task(name) {
@@ -247,6 +253,19 @@ class VoiceWebUi(Node):
             "stop":           self.create_client(Trigger, "/task/stop"),
         }
         self._active_task = ""
+        self._last_result = ""
+        # Latched outcome from real_robot_task_server; the Trigger reply only
+        # says "started", so this is the only way to see a failed sequence.
+        self._status_sub = self.create_subscription(
+            String,
+            "/task/status",
+            self._task_status_cb,
+            QoSProfile(
+                depth=1,
+                reliability=QoSReliabilityPolicy.RELIABLE,
+                durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            ),
+        )
 
         handler = self._make_handler()
         self._server = ThreadingHTTPServer((self._host, self._port), handler)
@@ -270,6 +289,10 @@ class VoiceWebUi(Node):
 
     def _transcript_cb(self, msg: String):
         self._last_transcript = msg.data
+
+    def _task_status_cb(self, msg: String):
+        self._last_result = msg.data
+        self._active_task = ""
 
     def _publish_transcript(self, text: str):
         msg = String()
@@ -306,6 +329,7 @@ class VoiceWebUi(Node):
             "last_transcript": self._last_transcript,
             "last_action": self._last_action,
             "active_task": self._active_task,
+            "last_result": self._last_result,
         }
 
     def _make_handler(self):
