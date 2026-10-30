@@ -2,30 +2,26 @@
 """One-shot runner for the open-curtain choreography.
 
 Sequence:
-  1       gripper1 open
-  2       gripper2 open
-  3       table1 → 1268 mm / 0 deg
-  4a+13a  dual joint1 rotate (arm1 + arm2, combined; joints 2-6 held at home)
-  4b+13b  dual pre-approach (arm1 + arm2, combined; remaining joints move)
-  5+14    dual approach (arm1 + arm2, combined)
-  6+15    dual grip (gripper1 + gripper2, fired concurrently)
-  7+16    dual open-curtain swing (arm1 + arm2, combined) —
-          if use_compliant_pull: arm1 swings (joint-space), then arm2 pulls via
-          Cartesian twist control instead, run sequentially (can't be combined
-          with a joint-space goal)
-  8       table1 → 1352 mm
-  9       gripper1 open
-  10      arm1 retreat + table1 → 1268 mm (parallel)
-  12      table1 → 1268 mm / 0 deg
-  17      table1 → 1170 mm
-  18      gripper2 open
-  20      arm2 lift
-  11+21   dual arms home (arm1 + arm2, combined; arm1 goes home from its
-          step-10 retreat pose, arm2 from its lift pose)
+  1   gripper1 open
+  2   gripper2 open
+  3   table1 → 1268 mm / 0 deg
+  4   dual joint1 rotate (arm1 + arm2, combined; joints 2-6 held at home)
+  5   dual pre-approach (arm1 + arm2, combined; remaining joints move)
+  6   dual approach (arm1 + arm2, combined)
+  7   dual grip (gripper1 + gripper2, fired concurrently)
+  8   dual open-curtain swing (arm1 + arm2, combined) —
+      if use_compliant_pull: 8a arm1 swings (joint-space), then 8b arm2 pulls
+      via Cartesian twist control instead, run sequentially (can't be combined
+      with a joint-space goal)
+  9   gripper1 release (gripper_release_deg)
+  10  arm1 retreat
+  11  gripper2 release (gripper_release_deg)
+  12  arm2 retreat
+  13  dual arms home (arm1 + arm2, combined; both go home from their
+      step-10/step-12 retreat poses)
 
 arm1 and arm2 are both mounted on gantry_1/table1, and move_action only runs
-one goal at a time, so steps 4-7 and 13-16 from the original sequential
-choreography are combined into single goals on the "arm_1_and_arm_2" planning
+one goal at a time, so the dual-arm steps are combined into single goals on the "arm_1_and_arm_2" planning
 group (see move_dual_arms()) rather than sent as two separate, mutually-
 preempting goals. That group deliberately excludes the gantry_1 joints, which
 have no ros2_control controller and would make execution fail outright.
@@ -88,6 +84,7 @@ class OpenCurtainRunner(Node):
 
         self.gripper_grip_deg = self.declare_parameter("gripper_grip_deg", 40.0).value
         self.gripper_open_deg = self.declare_parameter("gripper_open_deg", 0.0).value
+        self.gripper_release_deg = self.declare_parameter("gripper_release_deg", 20.0).value
         self.linear_speed = self.declare_parameter("linear_speed", 3000).value
         self.rotate_speed = self.declare_parameter("rotate_speed", 1000).value
         self.planning_time = self.declare_parameter("planning_time", 10.0).value
@@ -400,33 +397,6 @@ class OpenCurtainRunner(Node):
         )
         return False
 
-    def move_joints_and_table(self, group_name, joint_names, degrees_list,
-                               table_id, target_mm, target_deg) -> bool:
-        # Fire table command so both move concurrently; arm executes while table travels
-        req = MovingTable.Request()
-        req.table_id = table_id
-        req.distance_mm = float(target_mm)
-        req.angle_deg = float(target_deg)
-        req.linear_speed = int(self.linear_speed)
-        req.rotate_speed = int(self.rotate_speed)
-        req.operation_type = OP_GOTO_ABS
-        self.get_logger().info(
-            f"→ {table_id}: absolute target {target_mm} mm / {target_deg} deg (parallel)"
-        )
-        table_future = self._table_client.call_async(req)
-
-        arm_ok = self.move_joints(group_name, joint_names, degrees_list)
-
-        result = self._spin_until(table_future, timeout_sec=10.0)
-        if result is None:
-            self.get_logger().error(f"{table_id}: service call timed out.")
-            return False
-        if not result.success:
-            self.get_logger().error(f"{table_id}: service rejected — {result.message}")
-            return False
-
-        return arm_ok and self._wait_for_table(table_id, target_mm, target_deg)
-
     def _switch_controllers(self, activate, deactivate) -> bool:
         if not self._switch_client.wait_for_service(timeout_sec=5.0):
             self.get_logger().error("switch_controller service not available.")
@@ -515,6 +485,7 @@ class OpenCurtainRunner(Node):
     def run_sequence(self) -> bool:
         grip = self.gripper_grip_deg
         opn = self.gripper_open_deg
+        rel = self.gripper_release_deg
         a1 = ARM_JOINTS["arm_1"]
         a2 = ARM_JOINTS["arm_2"]
 
@@ -528,13 +499,13 @@ class OpenCurtainRunner(Node):
             # MoveGroup goal per pose so both arms execute simultaneously.
             # joint_1 rotates into position first (arms start from home, joints
             # 2-6 held at their home values), then the remaining joints move.
-            ("4a+13a dual joint1 rotate",                  lambda: self.move_dual_arms(
+            ("4  dual joint1 rotate",                      lambda: self.move_dual_arms(
                 a1, [55, 150, 150, 0, 0, 0], a2, [-60, 150, 150, 0, 0, 0])),
-            ("4b+13b dual pre-approach",                   lambda: self.move_dual_arms(
+            ("5  dual pre-approach",                       lambda: self.move_dual_arms(
                 a1, [55, 0, -90, 0, 0, 0], a2, [-60, 0, -90, 0, 0, 0])),
-            ("5+14 dual approach",                         lambda: self.move_dual_arms(
+            ("6  dual approach",                           lambda: self.move_dual_arms(
                 a1, [55, 50, -30, 0, 0, 0], a2, [-60, 50, -40, 0, 0, 0])),
-            ("6+15 dual grip",                              lambda: self.move_grippers_parallel(
+            ("7  dual grip",                               lambda: self.move_grippers_parallel(
                 [("gripper_1", grip), ("gripper_2", grip)])),
         ]
 
@@ -542,24 +513,22 @@ class OpenCurtainRunner(Node):
             # compliant_pull_arm2 drives arm_2 via Cartesian twist control, not a
             # joint-space MoveGroup goal, so it cannot be folded into a combined
             # dual-arm goal — arm1's swing and arm2's pull run sequentially here.
-            steps.append(("7  arm1 open-curtain swing", lambda: self.move_joints("arm_1", a1, [115, 50, -30, 0, 0, 0])))
-            steps.append(("16 arm2 open-curtain swing (compliant pull)", lambda: self.compliant_pull_arm2()))
+            steps.append(("8a arm1 open-curtain swing", lambda: self.move_joints("arm_1", a1, [100, 50, -30, 0, 0, 0])))
+            steps.append(("8b arm2 open-curtain swing (compliant pull)", lambda: self.compliant_pull_arm2()))
         else:
-            steps.append(("7+16 dual open-curtain swing", lambda: self.move_dual_arms(
-                a1, [115, 50, -30, 0, 0, 0], a2, [-120, 50, -40, 0, 0, 0])))
+            steps.append(("8  dual open-curtain swing", lambda: self.move_dual_arms(
+                a1, [100, 50, -30, 0, 0, 0], a2, [-120, 50, -40, 0, 0, 0])))
 
         steps += [
-            ("8  table1 -> 1352mm",                        lambda: self.move_table("table1", 1352.0, 0.0)),
-            ("9  gripper1 open",                           lambda: self.move_gripper("gripper_1", opn)),
-            ("10 arm1 retreat + table1 -> 1268mm",         lambda: self.move_joints_and_table("arm_1", a1, [115, 0, 0, 0, 0, 0], "table1", 1268.0, 0.0)),
-            ("12 table1 -> 1268mm / 0deg",                 lambda: self.move_table("table1", 1268.0, 0.0)),
-            ("17 table1 -> 1170mm",                        lambda: self.move_table("table1", 1170.0, 0.0)),
-            ("18 gripper2 open",                           lambda: self.move_gripper("gripper_2", opn)),
-            ("20 arm2 lift",                               lambda: self.move_joints("arm_2", a2, [-120, 150, 150, 0, 0, 0])),
-            # arm1 (still retreated at [115,0,0,0,0,0] since step 10) and arm2
-            # both go home together, one combined MoveGroup goal
-            ("11+21 dual arms home",                       lambda: self.move_dual_arms(
-                a1, [0, 150, 150, 0, 0, 0], a2, [0, 150, 150, 0, 0, 0])),
+            ("9  gripper1 release",                        lambda: self.move_gripper("gripper_1", rel)),
+            ("10 arm1 retreat",                            lambda: self.move_joints("arm_1", a1, [100, 0, 0, 0, 0, 0])),
+            ("11 gripper2 release",                        lambda: self.move_gripper("gripper_2", rel)),
+            ("12 arm2 retreat",                            lambda: self.move_joints("arm_2", a2, [-120, 0, 0, 0, 0, 0])),
+            # arm1 (retreated at [100,0,0,0,0,0] since step 10) and arm2
+            # (retreated at [-120,0,0,0,0,0] since step 12) both go home
+            # together, one combined MoveGroup goal
+            ("13 dual arms home",                          lambda: self.move_dual_arms(
+                a1, [0, 150, 150, 0, 0, -90], a2, [0, 150, 150, 0, 0, -90])),
         ]
 
         for label, action in steps:
