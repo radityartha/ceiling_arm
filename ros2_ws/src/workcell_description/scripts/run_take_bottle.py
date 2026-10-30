@@ -102,9 +102,9 @@ TABLE_JOINTS = {
 
 # Workcell-wide home posture -- keep in sync with ARM_HOME in run_go_home.py.
 ARM_HOME = {
-    "arm_2": [0, 150, 150, 0, 0, 0],
-    "arm_3": [0, 150, 150, 0, 0, 0],
-    "arm_4": [0, 150, 150, 0, 0, 0],
+    "arm_2": [0, 150, 150, 0, 0, -90],
+    "arm_3": [0, 150, 150, 0, 0, -90],
+    "arm_4": [0, 150, 150, 0, 0, -90],
 }
 
 

@@ -83,11 +83,12 @@ TABLE_JOINTS = {
 # same home pose (see run_take_bag.py's "arm1/2/3/4 home (parallel)" step —
 # [90, -150, -150, ...] for arm_3/arm_4 was a choreography leftover, not a
 # kinematic requirement).
+# j6 at -90: arm_2 j6 faults (HALL_MAGNETIC_MISMATCH) and arm_4 j6 warns near +0 deg.
 ARM_HOME = {
-    "arm_1": [0, 150, 150, 0, 0, 0],
-    "arm_2": [0, 150, 150, 0, 0, 0],
-    "arm_3": [0, 150, 150, 0, 0, 0],
-    "arm_4": [0, 150, 150, 0, 0, 0],
+    "arm_1": [0, 150, 150, 0, 0, -90],
+    "arm_2": [0, 150, 150, 0, 0, -90],
+    "arm_3": [0, 150, 150, 0, 0, -90],
+    "arm_4": [0, 150, 150, 0, 0, -90],
 }
 
 

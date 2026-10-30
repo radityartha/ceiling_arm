@@ -579,10 +579,10 @@ class SequenceRunner(Node):
             # docstring. Run with sequential_arms:=true to fall back to
             # one-at-a-time via MoveIt.
             ("arm1/2/3/4 home (parallel)", lambda: self._run_parallel_or_sequential([
-                                               ("arm_2", ARM_JOINTS["arm_2"], [0, 150, 150, 0, 0, 0]),
-                                               ("arm_3", ARM_JOINTS["arm_3"], [0, 150, 150, 0, 0, 0]),
-                                               ("arm_4", ARM_JOINTS["arm_4"], [0, 150, 150, 0, 0, 0]),
-                                               ("arm_1", ARM_JOINTS["arm_1"], [0, 150, 150, 0, 0, 0]),
+                                               ("arm_2", ARM_JOINTS["arm_2"], [0, 150, 150, 0, 0, -90]),
+                                               ("arm_3", ARM_JOINTS["arm_3"], [0, 150, 150, 0, 0, -90]),
+                                               ("arm_4", ARM_JOINTS["arm_4"], [0, 150, 150, 0, 0, -90]),
+                                               ("arm_1", ARM_JOINTS["arm_1"], [0, 150, 150, 0, 0, -90]),
                                            ])),
             ("table1 -> home",             lambda: self.move_table("table1", 0.0, 0.0)),
             ("table2 -> home",             lambda: self.move_table("table2", 0.0, 0.0)),

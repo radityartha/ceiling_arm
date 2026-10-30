@@ -13,7 +13,7 @@ Sequence:
   7   gripper2 open (20 deg)
   15  gripper1 open (20 deg)
   *   arm2 + arm1 all joints zero, IN PARALLEL   [0,0,0,0,0,0] / [0,0,0,0,0,0]
-  9/16 arm2 + arm1 home, IN PARALLEL   [0,150,150,0,0,0] / [0,150,150,0,0,0]
+  9/16 arm2 + arm1 home, IN PARALLEL   [0,150,150,0,0,-90] / [0,150,150,0,0,-90]
   17  table1 rotate 0 deg
 
 !! PARALLEL ARM MOTION — READ THIS !!
@@ -699,8 +699,8 @@ class CloseCurtainRunner(Node):
                 ])),
             ("9/16 arm2+arm1 home, parallel",
                 lambda: self._run_parallel_or_sequential([
-                    ("arm_2", a2, [0, 150, 150, 0, 0, 0]),
-                    ("arm_1", a1, [0, 150, 150, 0, 0, 0]),
+                    ("arm_2", a2, [0, 150, 150, 0, 0, -90]),
+                    ("arm_1", a1, [0, 150, 150, 0, 0, -90]),
                 ])),
             ("17  table1 rotate 0deg",           lambda: self.move_table("table1", 1268.0, 0.0)),
         ]
