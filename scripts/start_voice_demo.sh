@@ -29,6 +29,27 @@ WS="$HOME/Documents/ceiling_arm/ros2_ws"
 source /opt/ros/humble/setup.bash
 source "$WS/install/setup.bash"
 
+# Fail fast on a stale install. A build whose egg-info lists only some of
+# setup.py's console_scripts leaves the old wrapper scripts in place, but they
+# die at startup with StopIteration -- and `ros2 launch` keeps running with the
+# web UI alone, so the buttons just say "service unavailable" (2026-10-30).
+VOICE_EXES="voice_web_ui real_robot_task_server voice_command_manager whisper_transcript_bridge"
+if ! python3 - $VOICE_EXES <<'EOF'
+import sys
+from importlib.metadata import distribution
+eps = {e.name: e for e in distribution("sayai-voice-sim").entry_points}
+missing = [n for n in sys.argv[1:] if n not in eps]
+if missing:
+    sys.exit("ERROR: sayai_voice_sim install is stale, missing entry points: %s"
+             % " ".join(missing))
+for n in sys.argv[1:]:
+    eps[n].load()
+EOF
+then
+    echo "Rebuild it:  cd $WS && colcon build --symlink-install --packages-select sayai_voice_sim" >&2
+    exit 1
+fi
+
 LOG_DIR="$(mktemp -d /tmp/voice_demo_logs.XXXXXX)"
 echo "Logs: $LOG_DIR"
 
@@ -138,7 +159,23 @@ ros2 launch sayai_voice_sim workcell_voice.launch.py \
     > "$LOG_DIR/voice_web.log" 2>&1 &
 PIDS+=($!)
 
-sleep 2
+# ros2 launch stays up when some of its nodes die, so check each one.
+echo "Waiting for voice pipeline nodes..."
+for i in $(seq 1 20); do
+    NODES="$(ros2 node list --no-daemon 2>/dev/null)"
+    DEAD=""
+    for n in $VOICE_EXES; do
+        echo "$NODES" | grep -q "^/$n$" || DEAD="$DEAD $n"
+    done
+    [ -z "$DEAD" ] && break
+    sleep 1
+done
+if [ -n "$DEAD" ]; then
+    echo "ERROR: voice pipeline nodes not running:$DEAD" >&2
+    tail -30 "$LOG_DIR/voice_web.log" >&2
+    exit 1
+fi
+
 # Prefer a LAN IP reachable from a phone/browser; 192.168.2.x is the arm-only
 # subnet and won't be reachable from anything but this PC.
 LAN_IP="$(hostname -I | tr ' ' '\n' | grep -v '^192\.168\.2\.' | grep -E '^[0-9]+\.' | head -1)"
